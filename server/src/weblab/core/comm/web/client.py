@@ -14,6 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+import urllib
 from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 import weblab.comm.web_server as WebFacadeServer
@@ -35,6 +36,7 @@ REDIRECT_CODE = """<html><head>
         <input type="text" name="reservation_id" value="%(reservation_id)s" />
         <input type="submit" value="Submit"/>
     </form>
+    <p>Reason:%(reason)s</p>
 </body>
 """
 
@@ -100,7 +102,8 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_id = self.get_GET_argument(RESERVATION_ID)
         if reservation_id is not None:
             return REDIRECT_CODE % {
-                'reservation_id' : reservation_id
+                'reason'         : 'GET performed',
+                'reservation_id' : urllib.unquote(reservation_id)
             }
 
         # If it is passed as History (i.e. it was not passed by GET neither POST),
@@ -108,6 +111,31 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_id = self.get_POST_argument(RESERVATION_ID)
         if reservation_id is None:
             return LABEL_CODE
+
+        reservation_id = urllib.unquote(reservation_id)
+
+        if self.req.server_route is not None:
+            # If the request should not go to the current server
+            if reservation_id.find('.') >= 0 and not reservation_id.endswith(self.req.server_route):
+                if reservation_id.find(';') >= 0:
+                    partial_reservation_id = reservation_id.split(';')[1]
+                else:
+                    partial_reservation_id = reservation_id
+                self.req.weblab_cookie = 'weblabsessionid=%s' % partial_reservation_id
+                self.req.login_weblab_cookie = 'loginweblabsessionid=%s' % partial_reservation_id
+                return REDIRECT_CODE % {
+                    'reason'         : 'reservation_id %s does not end in server_route %s' % (reservation_id, self.req.server_route),
+                    'reservation_id' : reservation_id
+                }
+
+        if reservation_id.find(';') >= 0:
+            partial_reservation_id = reservation_id.split(';')[1]
+        else:
+            partial_reservation_id = reservation_id
+
+        self.req.weblab_cookie = 'weblabsessionid=%s' % partial_reservation_id
+        self.req.login_weblab_cookie = 'loginweblabsessionid=%s' % partial_reservation_id
+
 
         # Finally, if it was passed as a POST argument, generate the proper client address
         reservation_session_id = SessionId(reservation_id.split(';')[0])
