@@ -22,6 +22,7 @@ from flask import render_template, request, url_for, flash, redirect
 from weblabDeployer.forms import RegistrationForm, LoginForm
 from weblabDeployer.models import User
 import hashlib
+import uuid
 from functools import wraps
 
 SESSION_TYPE = 'labdeployer_admin'
@@ -108,3 +109,31 @@ def register():
         return redirect(url_for('login'))
     
     return render_template('register.html', form=form)
+
+@app.route('/confirm')
+def confirm():
+    
+    email = request.args.get('email')
+    token = request.args.get('token')
+    
+    user = User.query.filter_by(email=email).first()
+    
+    #User exists?
+    if user is None:
+        flash('Register first please', 'error')
+        return redirect(url_for('register'))
+    #Check token
+    if user.token.token != token:
+        flash('Confirmation failed', 'error')
+        return redirect(url_for('login'))
+
+    #verify account
+    user.active = True
+    
+    #update in database the active flag
+    db.session.add(user)
+    db.session.commit()
+    
+    flash('Account confirmed. Please login', 'success')
+    return redirect(url_for('login'))
+    
