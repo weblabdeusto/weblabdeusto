@@ -17,13 +17,14 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from weblabDeployer import app, db
+from weblabDeployer import app, db, utils
 from flask import render_template, request, url_for, flash, redirect
 from weblabDeployer.forms import RegistrationForm, LoginForm
-from weblabDeployer.models import User
+from weblabDeployer.models import User, Token
 import hashlib
 import uuid
 from functools import wraps
+
 
 SESSION_TYPE = 'labdeployer_admin'
 
@@ -102,10 +103,24 @@ def register():
         user.active = False
         
         #add to database
+        token = Token(str(uuid.uuid4()))
+        user.token = token
         db.session.add(user)
         db.session.commit()
         
-        flash('Thanks for registering', 'success')
+        #create email
+        from_email = 'weblab@deusto.es'
+        link = '127.0.0.1:5000/confirm?email=%s&token=%s' % (email, token.token)
+        body = """ Hello!
+                thanks for registering
+                click here to confirm your account: <b>%s</b>""" % link
+        subject = 'thanks for registering in weblab deployer'
+        
+        #send email
+        utils.send_email(body, subject, from_email, user.email)
+        
+        flash("""Thanks for registering. You have an
+              email with the steps to confirm your account""", 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html', form=form)
