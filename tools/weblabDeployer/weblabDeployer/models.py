@@ -27,6 +27,7 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String)
     full_name = db.Column(db.String)
+    active = db.Column(db.Boolean)
     
     token_id = db.Column(db.Integer, db.ForeignKey('tokens.id'))
     token = db.relationship('Token', cascade="all, delete-orphan",
