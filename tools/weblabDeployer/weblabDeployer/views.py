@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from weblabDeployer import app
+from weblabDeployer import app, db
 from flask import render_template, request, url_for, flash, redirect
 from weblabDeployer.forms import RegistrationForm, LoginForm
 from weblabDeployer.models import User
@@ -90,10 +90,20 @@ def register():
     
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-        user = form.username.data
+        #Exract data from the form
+        full_name = form.full_name.data
         email = form.email.data
         password = form.password.data
-        print('%s, %s, %s' % (user, email, password))
+        
+        #create user
+        user = User(email, hashlib.sha1(password).hexdigest())
+        user.full_name = full_name
+        user.active = False
+        
+        #add to database
+        db.session.add(user)
+        db.session.commit()
+        
         flash('Thanks for registering', 'success')
         return redirect(url_for('login'))
     
