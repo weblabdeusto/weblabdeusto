@@ -107,7 +107,7 @@ class Controller(object):
             self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
         else:
             db_name, db_user, db_pass = self.ui.dialog_init(self.default_db_name, self.default_db_user, self.default_db_pass)
-            self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, db_name, db_user, db_pass)
 
     def menu(self):
         option = None
