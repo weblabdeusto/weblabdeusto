@@ -18,6 +18,7 @@ import datetime
 import Queue
 
 import json
+import configuration_doc
 
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
@@ -333,7 +334,7 @@ class AbstractCoordinator(object):
 
     def _retrieve_recipients(self, experiment_instance_ids):
         recipients = ()
-        server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
+        server_admin = self.cfg_manager.get_value(configuration_doc.SERVER_ADMIN, None)
         if server_admin is not None:
             if server_admin.find(","):
                 server_admins = tuple(server_admin.replace(" ","").split(","))
