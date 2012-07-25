@@ -110,14 +110,23 @@ def register():
         
         #create email
         from_email = 'weblab@deusto.es'
-        link = '127.0.0.1:5000/confirm?email=%s&token=%s' % (email, token.token)
-        body = """ Hello!
-                thanks for registering
-                click here to confirm your account: <b>%s</b>""" % link
+        link = 'http://%s/confirm?email=%s&token=%s' % (request.host, email, token.token)
+        body_html = """ <html>
+                            <head></head>
+                            <body>
+                              <p>Hi!<br>
+                                 Thank you for registering<br>
+                                 Here is the <a href="%s">link</a> for \
+                                    confirming your account.
+                              </p>
+                            </body>
+                          </html>""" % link
+        print(body_html)
+        body = """ Hello text!"""
         subject = 'thanks for registering in weblab deployer'
         
         #send email
-        utils.send_email(body, subject, from_email, user.email)
+        utils.send_email(body, subject, from_email, user.email, body_html)
         
         flash("""Thanks for registering. You have an
               email with the steps to confirm your account""", 'success')
