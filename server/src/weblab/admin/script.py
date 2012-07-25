@@ -42,6 +42,7 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
 # 
 # TODO
+#  - Check if it is Windows or Linux to add apache-dependent configuration
 #  - Check if /etc/apache2/httpd.conf or C:\XAMPP\... exists
 #  - --visir
 #  - inline server, xmlrpc server
