@@ -37,6 +37,10 @@ class ResourcesChecker(object):
         :param experiments: dictionary of experiments: resources, e.g. { "exp1|ud-fpga|FPGA experiments" : "fpga1@fpga boards"}
         """
         try:
+            laboratory_resources = set()
+            for experiment in experiments:
+                laboratory_resources.add(experiments[experiment])
+
             broken_resources = {}
             address = CoordAddress.CoordAddress.translate_address(address_str)
             server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
@@ -63,14 +67,11 @@ class ResourcesChecker(object):
                 else:
                     broken_resources[broken_resource] = error_message
 
-            for broken_resource in broken_resources:
-                self.coordinator.mark_resource_as_broken(broken_resource, broken_resources[broken_resource])
-
-            for experiment in experiments:
-                resource = experiments[experiment]
-                if not resource in broken_resources:
-                    # Experiment works!
-                    self.coordinator.mark_resource_as_fixed(resource)
+            for laboratory_resource in laboratory_resources:
+                if laboratory_resource in broken_resources:
+                    self.coordinator.mark_resource_as_broken(laboratory_resource, broken_resources[laboratory_resource])
+                else:
+                    self.coordinator.mark_resource_as_fixed(laboratory_resource)
 
         except:
             traceback.print_exc()
