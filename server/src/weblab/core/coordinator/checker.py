@@ -31,28 +31,46 @@ class ResourcesChecker(object):
             self.check_laboratory(laboratory_address_str, experiments_per_laboratory[laboratory_address_str])
 
     def check_laboratory(self, address_str, experiments):
+        """ Checks in that laboratory address which experiments are broken and which ones are working.
+
+        :param address_str: laboratory address, e.g. "laboratory:general_laboratory@server1"
+        :param experiments: dictionary of experiments: resources, e.g. { "exp1|ud-fpga|FPGA experiments" : "fpga1@fpga boards"}
+        """
         try:
             broken_resources = {}
             address = CoordAddress.CoordAddress.translate_address(address_str)
             server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
             failing_experiments = server.check_experiments_resources()
+            #
+            # failing_experiments is a dictionary such as:
+            # {
+            #     experiment_instance_id : error_message
+            # }
+            # 
             for failing_experiment in failing_experiments:
                 if not failing_experiment in experiments:
                     log.log( ResourcesChecker, log.level.Error,
                             "Laboratory server %s reported that experiment %s was failing; however this laboratory does NOT manage this experiment. Attack?" % (address_str, failing_experiment))
                     continue
 
-                broken_resources[experiments[failing_experiment]] = failing_experiments[failing_experiment]
+                # 
+                # The error for a resource will be concatenated
+                # 
+                broken_resource = experiments[failing_experiment]
+                error_message   = failing_experiments[failing_experiment]
+                if broken_resource in broken_resources:
+                    broken_resources[broken_resource] = broken_resources[broken_resource] + ';' + error_message
+                else:
+                    broken_resources[broken_resource] = error_message
 
             for broken_resource in broken_resources:
                 self.coordinator.mark_resource_as_broken(broken_resource, broken_resources[broken_resource])
 
             for experiment in experiments:
-                if not experiment in failing_experiments:
+                resource = experiments[experiment]
+                if not resource in broken_resources:
                     # Experiment works!
-                    resource = experiments[experiment]
-                    if not resource in broken_resources:
-                        self.coordinator.mark_resource_as_fixed(resource)
+                    self.coordinator.mark_resource_as_fixed(resource)
 
         except:
             traceback.print_exc()
