@@ -21,6 +21,7 @@ try:
     from lxml import etree
 except ImportError:
     LXML_AVAILABLE = False
+    MESSAGE_SHOWN  = False
 else:
     LXML_AVAILABLE = True
 
@@ -35,9 +36,12 @@ PREFIXED_DIR_NAME = os.path.join( sys.prefix, 'weblabdeusto_data', module_direct
 class SchemaChecker(object):
     def check_schema(self, xmlfile_path, xsdfile_path):
         if not LXML_AVAILABLE:
-            msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
-            print >> sys.stderr, msg
-            log.log( SchemaChecker, log.level.Warning, msg )
+            global MESSAGE_SHOWN
+            if not MESSAGE_SHOWN:
+                msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
+                print >> sys.stderr, msg
+                log.log( SchemaChecker, log.level.Warning, msg )
+                MESSAGE_SHOWN = True
             return
         
         xmlfile_content = self._read_xml_file(xmlfile_path)
