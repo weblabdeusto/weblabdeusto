@@ -100,6 +100,7 @@ tools/Bot/.*.dump
 tools/Bot/.*_log.txt
 tools/Bot/nohup.out
 tools/VisirBattleTester/.*dump.*
+tools/weblabDeployer/env
 
 tools/Bot/figures/*
 tools/Bot/logs/*
