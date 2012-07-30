@@ -7,4 +7,3 @@ mock
 python-openid<2.3
 ciutils
 redis
-hiredis

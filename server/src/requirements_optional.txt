@@ -1,0 +1,4 @@
+MySQLdb
+hiredis
+python-ldap
+lxml
