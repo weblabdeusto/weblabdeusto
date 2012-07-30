@@ -18,7 +18,7 @@
 #
 
 from weblabDeployer import app, db, utils
-from flask import render_template, request, url_for, flash, redirect
+from flask import render_template, request, url_for, flash, redirect, session
 from weblabDeployer.forms import RegistrationForm, LoginForm
 from weblabDeployer.models import User, Token
 import hashlib
@@ -77,9 +77,9 @@ def login():
             flash('logged', 'success')
             
             #Redirect
-            next = request.args.get('next')
-            if next != '':
-                return redirect(url_for(next))
+            next_url = request.args.get('next')
+            if next_url != '' and next_url != None:
+                return redirect(url_for(next_url))
                 
             return redirect(url_for('index'))
         else:
