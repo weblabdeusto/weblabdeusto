@@ -1,7 +1,6 @@
 import sys, os
 sys.path.append(os.sep.join(("..","src")))
 
-import libraries
 import MySQLdb
     
 import random

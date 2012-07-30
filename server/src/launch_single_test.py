@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import libraries
 import sys
 import os
 import unittest

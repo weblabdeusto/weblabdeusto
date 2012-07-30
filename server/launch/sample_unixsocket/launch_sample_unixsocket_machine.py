@@ -18,7 +18,6 @@ import signal
 import os
 import sys
 sys.path.append('../../src')
-import libraries
 import weblab
 import voodoo.gen.loader.Launcher as Launcher
 

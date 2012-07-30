@@ -24,7 +24,6 @@ t_initial = time.time()
 import traceback
 import subprocess
 
-import libraries
 import weblab.db.model as Model
 import weblab.core.coordinator.sql.model as CoordinatorModel
 

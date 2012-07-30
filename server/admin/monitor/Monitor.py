@@ -22,8 +22,6 @@ from optparse import OptionParser
 
 sys.path.append(os.sep.join(('..','..','src')))
 
-import libraries
-
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 

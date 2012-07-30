@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import libraries
 import os
 import new
 import test
