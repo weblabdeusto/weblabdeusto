@@ -95,18 +95,7 @@ classifiers=[
 
 cp_license="BSD"
 
-install_requires = [ 
-    'sqlalchemy>=0.7',
-    'SOAPpy',
-    'ZSI',
-    'pyflakes',
-    'mocker',
-    'mock',
-    'python-openid<2.3',
-    'ciutils',
-    'redis',
-    'hiredis',
-]
+install_requires = [ line.strip() for line in open("requirements.txt").xreadlines() if line.strip() != '' ]
 
 setup(name='weblabdeusto',
       version='4.0',

@@ -1,0 +1,10 @@
+sqlalchemy>=0.7
+SOAPpy
+ZSI
+pyflakes
+mocker
+mock
+python-openid<2.3
+ciutils
+redis
+hiredis
