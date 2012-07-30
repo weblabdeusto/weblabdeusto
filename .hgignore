@@ -11,6 +11,7 @@ regex:
 
 ^server/env
 ^server/src/build
+^server/src/weblabdeusto_data
 ^server/consumers/php/cookiefile
 ^server/src/env
 ^server/launch/.*/logs$

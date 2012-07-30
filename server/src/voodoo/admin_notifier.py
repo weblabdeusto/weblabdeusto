@@ -15,7 +15,7 @@
 
 import smtplib
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import voodoo.log as log
 import voodoo.configuration as ConfigurationManager

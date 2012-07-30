@@ -17,7 +17,7 @@
 import unittest
 import mocker
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import test.unit.configuration as configuration_module
 

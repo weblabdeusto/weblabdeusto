@@ -20,7 +20,7 @@ import weblab.core.coordinator.sql.model as coord_model
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from configuration_doc import WEBLAB_DB_FORCE_ENGINE_CREATION
+from weblab.configuration_doc import WEBLAB_DB_FORCE_ENGINE_CREATION
 
 COORDINATOR_DB_USERNAME   = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD   = 'core_coordinator_db_password'

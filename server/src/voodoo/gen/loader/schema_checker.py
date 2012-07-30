@@ -27,7 +27,10 @@ else:
 import voodoo.log as log
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
-XSD_DIRNAME = os.path.dirname(__file__) + os.sep + 'xsd' + os.sep
+XSD_DIRNAME = os.path.join( os.path.dirname(__file__), 'xsd')
+
+module_directory = os.path.join(*__name__.split('.')[:-1])
+PREFIXED_DIR_NAME = os.path.join( sys.prefix, 'weblabdeusto_data', module_directory, 'xsd' )
 
 class SchemaChecker(object):
     def check_schema(self, xmlfile_path, xsdfile_path):
@@ -36,9 +39,20 @@ class SchemaChecker(object):
             print >> sys.stderr, msg
             log.log( SchemaChecker, log.level.Warning, msg )
             return
-
+        
         xmlfile_content = self._read_xml_file(xmlfile_path)
-        xsdfile_content = self._read_xsd_file(XSD_DIRNAME + xsdfile_path)
+        xsdfile_full_path = os.path.join(XSD_DIRNAME, xsdfile_path)
+        prefixed_xsdfile_full_path = os.path.join(PREFIXED_DIR_NAME, xsdfile_path)
+        try:
+            xsdfile_content   = self._read_xsd_file(xsdfile_full_path)
+        except:
+            try:
+                xsdfile_content   = self._read_xsd_file(prefixed_xsdfile_full_path)
+            except:
+                msg = "The XSD files %s or %s could not be loaded. The syntax of the configuration files will not be checked." % (xsdfile_full_path, prefixed_xsdfile_full_path)
+                print >> sys.stderr, msg
+                log.log( SchemaChecker, log.level.Warning, msg )
+                return
 
         try:
             sio_xsd = StringIO(xsdfile_content)

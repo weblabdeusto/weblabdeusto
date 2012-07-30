@@ -21,7 +21,7 @@ import threading
 
 from functools import wraps
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.log import logged
 import voodoo.log as log

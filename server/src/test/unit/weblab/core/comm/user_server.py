@@ -18,7 +18,7 @@ import mocker
 import sys
 import time
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import weblab.admin.bot.client as Client
 
