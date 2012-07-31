@@ -96,13 +96,18 @@ classifiers=[
 cp_license="BSD"
 
 install_requires = []
-for line in open('requirements.txt'):
-    if line.find('#') >= 0:
-        package_name = line[:line.find('#')]
-    else:
-        package_name = line
-    if package_name.strip() != '':
-        install_requires.append(package_name)
+
+def load_requires(filename):
+    for line in open('requirements.txt'):
+        if line.find('#') >= 0:
+            package_name = line[:line.find('#')]
+        else:
+            package_name = line
+        if package_name.strip() != '':
+            install_requires.append(package_name)
+
+load_requires('requirements.txt')
+load_requires('requirements_recommended.txt')
 
 setup(name='weblabdeusto',
       version='4.0',

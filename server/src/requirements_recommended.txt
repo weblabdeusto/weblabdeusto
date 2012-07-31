@@ -1,0 +1,29 @@
+# 
+# The scheduling system can be mapped to SQL (sqlite, MySQL, etc.) or to 
+# redis. Redis is much much faster, so it is highly recommended. However,
+# it requires installing a Redis server, which may not be available in 
+# Windows environments at the time of this writing (only for development).
+# 
+redis<2.7
+
+# 
+# In order to use MySQL, the pymysql OR the MySQLdb (mysql-python) libraries are
+# required. The pymysql library is easy to install, given that no compiler is required
+# However, it is much slower, so if you are going to use it in production, you may want
+# to install the mysql-python library. If both are installed, it will use the 
+# mysql-python one.
+# 
+
+PyMySQL<0.6
+pymysql_sa<1.1
+
+# 
+# ZSI is used to provide the SOAP interface for other applications. It is only required
+# if you are going to use SOAP as a client.
+# 
+ZSI==2.0rc3
+
+# 
+# This module is only used when supporting OpenID
+# 
+python-openid<2.3
