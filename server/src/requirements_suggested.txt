@@ -1,2 +1,6 @@
 numpy
 pymysql
+pymysql_sa
+ZSI
+python-openid<2.3
+redis

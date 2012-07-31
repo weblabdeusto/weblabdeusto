@@ -1,4 +1,4 @@
-MySQLdb
+mysql-python # sudo apt-get install libmysqlclient-dev
 hiredis
-python-ldap
-lxml
+python-ldap # sudo apt-get install libsasl2-dev libldap2-dev 
+lxml # sudo apt-get install libxml2-dev libxslt1-dev
