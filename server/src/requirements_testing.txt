@@ -9,6 +9,7 @@
 # (you have imported this module but never used it, this variable is
 # mispelled, etc.)
 # 
+
 pyflakes<0.6
 
 # 
@@ -16,10 +17,12 @@ pyflakes<0.6
 # testing. We first used mocker and we are trying to migrate to
 # mock, but in the meanwhile, we require both.
 # 
+
 mocker<1.2
 mock<1.1
 
 # 
 # ciutils is required for continuous integration with CruiseControl
 # 
+
 ciutils==0.0.5

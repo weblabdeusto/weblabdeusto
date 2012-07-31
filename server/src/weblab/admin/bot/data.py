@@ -17,9 +17,12 @@
 import sys
 import traceback
 
-def get_np():
+try:
     import numpy as np
-    return np
+except ImportError:
+    NUMPY_AVAILABLE = False
+else:
+    NUMPY_AVAILABLE = True
 
 class BotError(object):
 
@@ -120,10 +123,10 @@ class BotIteration(object):
         return self._get_xxx_time_per_call_by_name(min)
 
     def get_avg_time_per_call_by_name(self):
-        return self._get_xxx_time_per_call_by_name(get_np().mean)
+        return self._get_xxx_time_per_call_by_name(np.mean)
 
     def get_std_time_per_call_by_name(self):
-        return self._get_xxx_time_per_call_by_name(get_np().std)
+        return self._get_xxx_time_per_call_by_name(np.std)
 
     def get_number_of_exception_instances(self, exception_name):
         if exception_name in self.exceptions:
@@ -166,15 +169,15 @@ class BotTrial(object):
                 number_of_exception_instances.append(iteration.get_number_of_exception_instances(exceptions[exception_name].get_name()))
             exceptions[exception_name].set_max(max(number_of_exception_instances))
             exceptions[exception_name].set_min(min(number_of_exception_instances))
-            exceptions[exception_name].set_avg(get_np().mean(number_of_exception_instances))
+            exceptions[exception_name].set_avg(np.mean(number_of_exception_instances))
 
         self.max_time = max(times)
         self.min_time = min(times)
-        self.avg_time = get_np().mean(times)
-        self.std_time = get_np().std(times)
+        self.avg_time = np.mean(times)
+        self.std_time = np.std(times)
         self.max_exceptions = max(number_of_exceptions)
         self.min_exceptions = min(number_of_exceptions)
-        self.avg_exceptions = get_np().mean(number_of_exceptions)
+        self.avg_exceptions = np.mean(number_of_exceptions)
         self.exceptions = exceptions
 
         method_names = self.get_method_names()
@@ -198,8 +201,8 @@ class BotTrial(object):
         self.avg_call_times = {}
         self.std_call_times = {}
         for method_name in method_names:
-            self.avg_call_times[method_name] = get_np().mean( [ call.time() for call in all_calls[method_name] ])
-            self.std_call_times[method_name] = get_np().std( [ call.time() for call in all_calls[method_name] ])
+            self.avg_call_times[method_name] = np.mean( [ call.time() for call in all_calls[method_name] ])
+            self.std_call_times[method_name] = np.std( [ call.time() for call in all_calls[method_name] ])
 
         # All data calculated, cleaning...
         for iteration in self.iterations:

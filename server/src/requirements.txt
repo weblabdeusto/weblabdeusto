@@ -8,6 +8,7 @@
 # permissions, storage) and for scheduling if redis is not used. It can
 # rely on sqlite or server-based databases such as MySQL
 # 
+
 SQLAlchemy<0.8
 
 
@@ -16,4 +17,5 @@ SQLAlchemy<0.8
 # It is not strictly required (other protocols can be used), but it is the
 # one that provides less errors.
 # 
+
 SOAPpy<0.13

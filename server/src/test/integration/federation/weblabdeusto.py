@@ -301,11 +301,23 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
 class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
     FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
 
-class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
-    FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
+try:
+    import redis
+except ImportError:
+    REDIS_AVAILABLE = False
+else:
+    REDIS_AVAILABLE = True
+
+if REDIS_AVAILABLE:
+    class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+        FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
 
 def suite():
-    suites = (unittest.makeSuite(SqlFederatedWebLabDeustoTestCase), unittest.makeSuite(RedisFederatedWebLabDeustoTestCase))
+    suites = [unittest.makeSuite(SqlFederatedWebLabDeustoTestCase)]
+    if REDIS_AVAILABLE:
+        suites.append(unittest.makeSuite(RedisFederatedWebLabDeustoTestCase))
+    else:
+        print >> sys.stderr, "redis not available. Skipping redis-based federation integration tests"
     return unittest.TestSuite( suites )
 
 if __name__ == '__main__':

@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import time
 import datetime
 import unittest
@@ -55,6 +56,7 @@ class WrappedSqlCoordinator(sql_coordinator.Coordinator):
     CoordinatorTimeProvider = WrappedTimeProvider
 
 class WrappedRedisCoordinator(redis_coordinator.Coordinator):
+    REDIS_AVAILABLE = redis_coordinator.REDIS_AVAILABLE
     CoordinatorTimeProvider = WrappedTimeProvider
 
 class ConfirmerMock(object):
@@ -666,8 +668,9 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
 class SqlCoordinatorTestCase(AbstractCoordinatorTestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
-class RedisCoordinatorTestCase(AbstractCoordinatorTestCase):
-    WrappedCoordinator = WrappedRedisCoordinator
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorTestCase(AbstractCoordinatorTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
 
 class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
     def setUp(self):
@@ -1146,8 +1149,9 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
 class SqlCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
-class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
-    WrappedCoordinator = WrappedRedisCoordinator
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
 
 class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
     def setUp(self):
@@ -1189,19 +1193,27 @@ class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
 
 class SqlCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
     WrappedCoordinator = WrappedSqlCoordinator
-    
-class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
-    WrappedCoordinator = WrappedRedisCoordinator
+
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():
-    return unittest.TestSuite( (
-                    unittest.makeSuite(SqlCoordinatorTestCase),
-                    unittest.makeSuite(SqlCoordinatorMultiResourceTestCase),
-                    unittest.makeSuite(SqlCoordinatorWithSlowConfirmerTestCase),
-                    unittest.makeSuite(RedisCoordinatorTestCase),
-                    unittest.makeSuite(RedisCoordinatorMultiResourceTestCase),
-                    unittest.makeSuite(RedisCoordinatorWithSlowConfirmerTestCase),
-                ) )
+    suites = [
+        unittest.makeSuite(SqlCoordinatorTestCase),
+        unittest.makeSuite(SqlCoordinatorMultiResourceTestCase),
+        unittest.makeSuite(SqlCoordinatorWithSlowConfirmerTestCase),
+    ]
+    if redis_coordinator.REDIS_AVAILABLE:
+            suites.extend([
+                unittest.makeSuite(RedisCoordinatorTestCase),
+                unittest.makeSuite(RedisCoordinatorMultiResourceTestCase),
+                unittest.makeSuite(RedisCoordinatorWithSlowConfirmerTestCase),
+            ])
+    else:
+        print >> sys.stderr, "redis not available. Skipping redis coordination tests"
+
+    return unittest.TestSuite(suites)
 
 if __name__ == '__main__':
     unittest.main()

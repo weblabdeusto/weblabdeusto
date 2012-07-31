@@ -10,12 +10,14 @@
 # numpy is only used in the WebLab Bot. If you are not going to
 # measure the speed of the system, this module will not be used
 # 
+
 numpy<1.7
 
 # 
 # If using Redis for scheduling, hiredis makes the redis 
 # library to go faster. If using SQL, this is useless.
 # 
+
 hiredis<0.2
 
 # 
@@ -25,6 +27,7 @@ hiredis<0.2
 # It will require you to install libmysqlclient development libraries:
 #     sudo apt-get install libmysqlclient-dev
 # 
+
 mysql-python<1.3
 
 # 
@@ -35,6 +38,7 @@ mysql-python<1.3
 # development libraries:
 #     sudo apt-get install libsasl2-dev libldap2-dev
 # 
+
 python-ldap<2.5 
 
 # 
@@ -47,4 +51,5 @@ python-ldap<2.5
 # development libraries:
 #     sudo apt-get install libxml2-dev libxslt1-dev
 # 
+
 lxml<2.4

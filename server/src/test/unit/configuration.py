@@ -17,8 +17,17 @@
 
 import os
 
-# db_engine = 'sqlite'
-db_engine = 'mysql'
+try:
+    import MySQLdb
+except ImportError:
+    try:
+        import pymysql_sa
+    except ImportError:
+        db_engine = 'sqlite'
+    else:
+        db_engine = 'mysql'
+else:
+    db_engine = 'mysql'
 session_sqlalchemy_engine      = db_engine
 session_lock_sqlalchemy_engine = db_engine
 
