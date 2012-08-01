@@ -79,7 +79,7 @@ for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 
-scripts = [ '../admin/scripts/weblab-admin.py' ]
+scripts = [ 'weblab/admin/weblab-admin.py' ]
 
 classifiers=[
     "Development Status :: 5 - Production/Stable",
@@ -95,19 +95,21 @@ classifiers=[
 
 cp_license="BSD"
 
-install_requires = []
-
-def load_requires(filename):
-    for line in open('requirements.txt'):
+def load_requires(dest, filename):
+    for line in open(filename):
         if line.find('#') >= 0:
             package_name = line[:line.find('#')]
         else:
             package_name = line
         if package_name.strip() != '':
-            install_requires.append(package_name)
+            dest.append(package_name)
 
-load_requires('requirements.txt')
-load_requires('requirements_recommended.txt')
+install_requires = []
+tests_require    = []
+
+load_requires(install_requires, 'requirements.txt')
+load_requires(install_requires, 'requirements_recommended.txt')
+load_requires(tests_require, 'requirements_testing.txt')
 
 setup(name='weblabdeusto',
       version='4.0',
@@ -121,4 +123,5 @@ setup(name='weblabdeusto',
       license=cp_license,
       scripts=scripts,
       install_requires=install_requires,
+      tests_require=tests_require,
      )
