@@ -1,3 +1,10 @@
+# 
+# ZSI is used to provide the SOAP interface for other applications. It is only required
+# if you are going to use SOAP as a client.
+# 
+
+ZSI
+
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 
 # of the module. In Ubuntu, you typically install the compiler 

@@ -19,13 +19,6 @@ PyMySQL<0.6
 pymysql_sa<1.1
 
 # 
-# ZSI is used to provide the SOAP interface for other applications. It is only required
-# if you are going to use SOAP as a client.
-# 
-
-ZSI
-
-# 
 # This module is only used when supporting OpenID
 # 
 
