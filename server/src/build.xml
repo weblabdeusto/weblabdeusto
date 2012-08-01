@@ -1,22 +1,28 @@
 <project name="WebLab" default="test"> 
-	<property name="test.xml.dir" value="cruisecontrol/build/test-results" />
+	<property name="test.xml.dir"   value="cruisecontrol/build/test-results" />
+    <property name="logs.dir"       value="cruisecontrol/logs" />
+    <property name="python.version" value="2.7" />
 
 	<target name="test">
-        <mkdir dir="cruisecontrol/logs"/>
+        <mkdir dir="${logs.dir}"/>
 
 		<exec executable="virtualenv" failonerror="true">
 			<arg value="env"/>
 		</exec>
         <!-- TODO: deploy.py should populate the environment -->
+        <!--
 		<exec executable="python" failonerror="true">
 			<arg value="../deploy/deploy.py"/>
 		</exec>
+        -->
         <mkdir dir="${test.xml.dir}"/>
-		<exec executable="python" failonerror="true">
-			<arg value="launch_flakes.py"/>
-		</exec>
-		<exec executable="python2.6" failonerror="true">
+		<exec executable="python${python.version}" failonerror="true">
 			<arg value="launch_tests.py"/>
+			<arg value="--environment"/>
+			<arg value="env"/>
+			<arg value="--install-all-requirements"/>
+			<arg value="--flakes"/>
+			<arg value="--tests"/>
 			<arg value="--ui"/>
 			<arg value="xml"/>
 			<arg value="--dir"/>

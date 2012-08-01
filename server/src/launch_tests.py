@@ -15,6 +15,7 @@
 
 import os
 import sys
+import glob
 import test
 import unittest
 import logging
@@ -92,7 +93,7 @@ def runXml(folder):
     def runSuite(suite, file_name):
         output = open(file_name,'w')
         try:
-            wasSuccessful = xmlrunner.XmlTestRunner(output).run(suite).wasSuccessful()
+            wasSuccessful = xmlrunner.XMLTestRunner(output).run(suite).wasSuccessful()
         finally:
             output.close()
         return wasSuccessful
@@ -261,6 +262,12 @@ if __name__ == '__main__':
     parser.add_option('-t', '--tests',             dest='tests', action="store_true", default = False, 
                                                    help = "Additionally run the tests")
 
+    parser.add_option('--install-basic-requirements', dest='install_basic_requirements', action='store_true', default=False,
+                                                    help = "Install the basic requirements in the current environment (the ones required for testing and so on)")
+
+    parser.add_option('--install-all-requirements', dest='install_all_requirements', action='store_true', default=False,
+                                                    help = "Install all the requirements in the current environment (including the ones that require compiling)")
+
 
     options, args = parser.parse_args()
 
@@ -275,6 +282,13 @@ if __name__ == '__main__':
             parser.error("Environment %s not found. Tried %s" % (options.environment, potential_locations))
 
         execfile(activate_this, dict(__file__=activate_this))
+
+    if options.install_basic_requirements or options.install_all_requirements:
+        os.system("pip install -r requirements.txt")
+        os.system("pip install -r requirements_testing.txt")
+        os.system("pip install -r requirements_recommended.txt")
+    if options.install_all_requirements:
+        os.system("pip install -r requirements_suggested.txt")
 
     if options.flakes:
         check_flakes()
