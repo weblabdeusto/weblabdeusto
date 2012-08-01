@@ -16,7 +16,7 @@
 import os
 import glob
 import shutil
-from distutils.core import setup
+from setuptools import setup
 
 # Taken from django setup.py :-)
 def fullsplit(path, result=None):
@@ -109,7 +109,7 @@ tests_require    = []
 
 load_requires(install_requires, 'requirements.txt')
 load_requires(install_requires, 'requirements_recommended.txt')
-load_requires(tests_require, 'requirements_testing.txt')
+load_requires(tests_require,    'requirements_testing.txt')
 
 setup(name='weblabdeusto',
       version='4.0',
@@ -124,4 +124,5 @@ setup(name='weblabdeusto',
       scripts=scripts,
       install_requires=install_requires,
       tests_require=tests_require,
+      test_suite="launch_tests.suite",
      )

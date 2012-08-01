@@ -13,6 +13,9 @@ regex:
 ^server/src/build
 ^server/src/db
 ^server/src/weblabdeusto_data
+^server/src/weblabdeusto.egg-info
+^server/src/.*.egg
+^server/src/dist
 ^server/src/env
 ^server/consumers/php/cookiefile
 ^server/launch/.*/logs$
