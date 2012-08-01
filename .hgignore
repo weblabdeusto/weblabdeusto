@@ -11,9 +11,10 @@ regex:
 
 ^server/env
 ^server/src/build
+^server/src/db
 ^server/src/weblabdeusto_data
-^server/consumers/php/cookiefile
 ^server/src/env
+^server/consumers/php/cookiefile
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$

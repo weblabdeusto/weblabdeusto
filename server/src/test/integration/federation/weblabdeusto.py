@@ -303,6 +303,7 @@ class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
 
 try:
     import redis
+    assert redis is not None
 except ImportError:
     REDIS_AVAILABLE = False
 else:

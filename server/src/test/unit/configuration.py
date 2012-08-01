@@ -19,9 +19,11 @@ import os
 
 try:
     import MySQLdb
+    assert MySQLdb is not None # avoid pyflakes warning
 except ImportError:
     try:
         import pymysql_sa
+        assert pymysql_sa is not None # avoid pyflakes warning
     except ImportError:
         db_engine = 'sqlite'
     else:

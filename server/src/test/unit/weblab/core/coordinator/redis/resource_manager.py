@@ -29,7 +29,6 @@ from weblab.data.experiments import ExperimentInstanceId
 
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
-from weblab.core.coordinator.redis.coordinator import Coordinator
 import weblab.core.coordinator.redis.resource_manager as ResourcesManager
 import weblab.core.coordinator.exc as CoordExc
 

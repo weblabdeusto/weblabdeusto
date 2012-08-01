@@ -15,7 +15,6 @@
 import sys
 import unittest
 
-from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.loader.schema_checker as SchemaChecker
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
