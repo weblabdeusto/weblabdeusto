@@ -45,6 +45,7 @@ WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 # 
 # TODO
 #  - --visir
+#  - --virtual-machine
 #  - xmlrpc server
 #  - Support rebuild-db
 # 
