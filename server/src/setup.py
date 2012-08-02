@@ -55,40 +55,6 @@ comm_util.deploy_stubs()
 ##########################################################
 #
 # 
-#       P A C K A G E S 
-# 
-# 
-
-if not os.path.exists('weblabdeusto_data'):
-    os.mkdir('weblabdeusto_data')
-
-packages   = []
-data_files = []
-
-for weblab_dir in ['voodoo','weblab','experiments']:
-    for dirpath, dirnames, filenames in os.walk(weblab_dir):
-        # Ignore dirnames that start with '.'   
-        for i, dirname in enumerate(dirnames):
-            if dirname.startswith('.'): 
-                del dirnames[i]
-
-        if '__init__.py' in filenames:
-            packages.append('.'.join(fullsplit(dirpath)))
-        elif filenames:
-            new_path = os.path.join('weblabdeusto_data', dirpath)
-            try:
-                os.makedirs(new_path)
-            except:
-                pass
-            
-            for f in filenames:
-                if os.path.exists(os.path.join(new_path, f)):
-                    os.remove(os.path.join(new_path, f))
-                shutil.copy2(os.path.join(dirpath, f), os.path.join(new_path, f))
-
-##########################################################
-#
-# 
 #       C L I E N T 
 # 
 # 
@@ -275,13 +241,51 @@ else:
     finally:
         os.chdir(curpath)
 
+##########################################################
+#
+# 
+#       P A C K A G E S    A N D     F I L E S
+# 
+# 
+
+if not os.path.exists('weblabdeusto_data'):
+    os.mkdir('weblabdeusto_data')
+
+packages     = []
+data_files   = []
+
+for weblab_dir in ['voodoo','weblab','experiments']:
+    for dirpath, dirnames, filenames in os.walk(weblab_dir):
+        # Ignore dirnames that start with '.'   
+        for i, dirname in enumerate(dirnames):
+            if dirname.startswith('.'): 
+                del dirnames[i]
+
+        if '__init__.py' in filenames:
+            packages.append('.'.join(fullsplit(dirpath)))
+
+        non_python_files = [ filename for filename in filenames if not filename.endswith(('.py','.pyc','.pyo')) ]
+        if non_python_files:
+            new_path = os.path.join('weblabdeusto_data', dirpath)
+            try:
+                os.makedirs(new_path)
+            except:
+                pass
+            
+            for f in non_python_files:
+                if os.path.exists(os.path.join(new_path, f)):
+                    os.remove(os.path.join(new_path, f))
+                shutil.copy2(os.path.join(dirpath, f), os.path.join(new_path, f))
+
+
 for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     # Ignore dirnames that start with '.'   
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): 
             del dirnames[i]
 
-    data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+    if len(filenames) > 0:
+        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 ##########################################################
 #
@@ -342,4 +346,5 @@ setup(name='weblabdeusto',
       install_requires=install_requires,
       tests_require=tests_require,
       test_suite="launch_tests.suite",
+      zip_safe=False,
      )

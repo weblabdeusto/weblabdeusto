@@ -17,6 +17,7 @@
 import weblab.comm.web_server as WebFacadeServer
 __builtins__
 
+import weblab
 import tempfile
 import traceback
 from voodoo.log import logged
@@ -34,7 +35,7 @@ import weblab
 
 import re
 
-VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclientlab','visir')) + os.sep
+VISIR_RELATIVE_PATH = weblab.data_file(os.path.join('war','weblabclientlab','visir')) + os.sep
 
 VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
 VISIR_TEMP_FILES = os.sep.join((VISIR_LOCATION, 'temp')) + os.sep
