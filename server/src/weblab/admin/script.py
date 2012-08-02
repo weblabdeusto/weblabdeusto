@@ -26,7 +26,7 @@ from optparse import OptionParser, OptionGroup
 
 from sqlalchemy import create_engine
 
-import weblab
+from weblab.util import data_filename
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
 
@@ -38,9 +38,6 @@ import weblab.admin.deploy as deploy
 
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
-
-WEBLAB_SRC_PATH = os.path.abspath(os.path.join(os.path.dirname(weblab.__file__), '..'))
-WEBLAB_PATH     = os.path.abspath(os.path.join(WEBLAB_SRC_PATH, '..', '..'))
 
 # 
 # TODO
@@ -266,16 +263,39 @@ def weblab_create(directory):
                                                          "Only available if a single core is used." )
 
     # TODO
-    parser.add_option("--xmlrpc-experiment",      dest="xmlrpc_experiment", action="store_true", default=False,
-                                                  help = "By default, the Experiment Server is located in the same process as the  " 
-                                                         "Laboratory server. However, it is possible to force that the laboratory  "
-                                                         "uses XML-RPC to contact the Experiment Server. If you want to test a "
-                                                         "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
-                                                         "and the system will try to find the Experiment Server in other port ")
+    experiments = OptionGroup(parser, "Experiments options",
+                                "While most laboratories are specific to a particular equipment, "
+                                "some of them are useful anywhere (such as the VM experiment, as long as " 
+                                "you have a VirtualBox virtual machine that you'd like to deploy, or the "
+                                "logic game, which does not require any equipment). Other experiments, "
+                                "such as VISIR, have been deployed in many universities. Finally, for "
+                                "development purposes, the XML-RPC experiment is particularly useful.")
 
     # TODO
-    parser.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
-                                                  help = "What port should the Experiment Server use.")
+    experiments.add_option("--xmlrpc-experiment",      dest="xmlrpc_experiment", action="store_true", default=False,
+                                                       help = "By default, the Experiment Server is located in the same process as the  " 
+                                                              "Laboratory server. However, it is possible to force that the laboratory  "
+                                                              "uses XML-RPC to contact the Experiment Server. If you want to test a "
+                                                              "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
+                                                              "and the system will try to find the Experiment Server in other port ")
+
+    # TODO
+    experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
+                                                       help = "What port should the Experiment Server use. Useful for development.")
+
+    # TODO
+    experiments.add_option("--visir-server",           dest="visir_server", action="store_true", default=False,
+                                                       help = "Add a VISIR server to the deployed system. "  )
+
+    # TODO
+    experiments.add_option("--logic-server",           dest="logic_server", action="store_true", default=False,
+                                                       help = "Add a logic server to the deployed system. "  )
+
+    # TODO
+    experiments.add_option("--vm-server",              dest="vm_server", action="store_true", default=False,
+                                                       help = "Add a VM server to the deployed system. "  )
+
+    parser.add_option_group(experiments)
 
     sess = OptionGroup(parser, "Session options",
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
@@ -1280,8 +1300,8 @@ def weblab_create(directory):
         """Alias %(root)s/weblab/client/weblabclientlab//img%(root)s/         %(directory)s/client/images/\n"""
         """Alias %(root)s/weblab/client/weblabclientadmin//img%(root)s/    %(directory)s/client/images/\n"""
         """\n"""
-        """Alias %(root)s/weblab/client                                    %(weblab_path)s/client/war\n"""
-        """Alias %(root)s/weblab/                                          %(weblab_path)s/server/src/webserver/\n"""
+        """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
+        """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
 		"""ProxyVia On\n"""
@@ -1384,7 +1404,7 @@ def weblab_create(directory):
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf = apache_conf % { 'root' : base_url, 'directory' : os.path.abspath(directory), 'weblab_path' : WEBLAB_PATH }
+    apache_conf = apache_conf % { 'root' : base_url, 'directory' : os.path.abspath(directory), 'war_path' : data_filename('war'), 'webserver_path' : data_filename('webserver') }
 
     apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
 

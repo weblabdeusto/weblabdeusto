@@ -254,7 +254,7 @@ if not os.path.exists('weblabdeusto_data'):
 packages     = []
 data_files   = []
 
-for weblab_dir in ['voodoo','weblab','experiments']:
+for weblab_dir in ['voodoo','weblab','experiments','webserver']:
     for dirpath, dirnames, filenames in os.walk(weblab_dir):
         # Ignore dirnames that start with '.'   
         for i, dirname in enumerate(dirnames):
