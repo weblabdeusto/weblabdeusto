@@ -84,6 +84,7 @@ def _deploy_stubs(folder, wsdl_file, filename):
 def deploy_stubs():
     try:
         import ZSI
+        assert ZSI is not None # avoid pyflakes warnings
     except ImportError:
         print >> sys.stderr, "Skipping stubs and skeletons deployment; ZSI not installed"
     else:
