@@ -150,7 +150,7 @@ classifiers=[
 cp_license="BSD"
 
 setup(name='weblabdeusto',
-      version='4.0',
+      version='5.0',
       description="WebLab-Deusto Remote Laboratory Management System",
       classifiers=classifiers,
       author='WebLab-Deusto Team',
