@@ -268,6 +268,10 @@ if __name__ == '__main__':
     parser.add_option('--install-all-requirements', dest='install_all_requirements', action='store_true', default=False,
                                                     help = "Install all the requirements in the current environment (including the ones that require compiling)")
 
+    parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
+                                                    help = "Creates all the ZSI SOAP stubs")
+
+
 
     options, args = parser.parse_args()
 
@@ -289,6 +293,10 @@ if __name__ == '__main__':
         os.system("pip install -r requirements_recommended.txt")
     if options.install_all_requirements:
         os.system("pip install -r requirements_suggested.txt")
+
+    if options.deploy_stubs:
+        import weblab.comm.util as comm_util
+        comm_util.deploy_stubs()
 
     if options.flakes:
         check_flakes()

@@ -21,6 +21,7 @@
 			<arg value="--environment"/>
 			<arg value="env"/>
 			<arg value="--install-all-requirements"/>
+			<arg value="--deploy-stubs"/>
 			<arg value="--flakes"/>
 			<arg value="--tests"/>
 			<arg value="--ui"/>
