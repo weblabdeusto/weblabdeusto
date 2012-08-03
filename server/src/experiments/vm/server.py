@@ -245,7 +245,7 @@ class VMExperiment(Experiment.Experiment):
             log.log(
                 VMExperiment,
                 log.level.Error,
-                "Error configuring user manager: %s" % ex.args[0]
+                "Error configuring user manager: %s" % ex
             )
             log.log_exc(
                 VMExperiment,
