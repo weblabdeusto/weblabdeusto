@@ -239,8 +239,8 @@ class VMExperiment(Experiment.Experiment):
             if DEBUG:
                 print "t_configured"
         except Exception as ex:
+            self.error = str(ex)
             self.is_error = True
-            self.error = ex
 
             log.log(
                 VMExperiment,
