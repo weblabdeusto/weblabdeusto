@@ -79,9 +79,6 @@ if len(glob.glob(WAR_LOCATION + "/*/*.cache.html")) > 5:
     print >> sys.stderr
     print >> sys.stderr, "And then run the setup.py again."
     print >> sys.stderr
-    # The client has been compiled. Let's copy it here.
-    shutil.rmtree("weblabdeusto_data/war", True)
-    shutil.copytree(WAR_LOCATION,"weblabdeusto_data/war")
 else:
     print >> sys.stderr, ""
     print >> sys.stderr, "No WebLab-Deusto compiled client found. Trying to compile it..."
@@ -240,6 +237,11 @@ else:
             sys.exit(-1)
     finally:
         os.chdir(curpath)
+
+# In any case, the client was compiled in the past or just now. Let's copy it here.
+shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
+shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
+shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
 
 ##########################################################
 #
