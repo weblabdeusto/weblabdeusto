@@ -177,8 +177,14 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
     if verbose: print "Checking database connection for %s..." % what,; sys.stdout.flush()
 
     if db_engine == 'sqlite':
-        location = '/' + os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
-        sqlite3.connect(database = location).close()
+        base_location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
+        if sys.platform.startswith('win'):
+            sqlite_location     = base_location
+            location = '/' + base_location #.replace('\\', '/').replace(':','|')
+        else:
+            sqlite_location = '/' + base_location
+            location = '/' + base_location
+        sqlite3.connect(database = sqlite_location).close()
     else:
         location = "%(user)s:%(password)s@%(host)s/%(name)s" % { 
                         'user'     : db_user, 
@@ -191,7 +197,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         'engine'   : db_engine,
                         'location' : location,
                     }
-
+    
     try:
         engine = create_engine(db_str, echo = False)
         engine.execute("select 1")
@@ -1337,31 +1343,49 @@ def weblab_create(directory):
         """\n"""
         """Alias %(root)s/weblab/client/weblabclientlab//img%(root)s/         %(directory)s/client/images/\n"""
         """Alias %(root)s/weblab/client/weblabclientadmin//img%(root)s/    %(directory)s/client/images/\n"""
-        """\n"""
+        """\n"""        
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
+        """<Directory "%(directory)s">\n"""
+        """        Options Indexes\n"""
+        """        Order allow,deny\n"""
+        """        Allow from all\n"""
+        """</Directory>\n"""
+        """\n"""        
+        """<Directory "%(war_path)s">\n"""
+        """        Options Indexes\n"""
+        """        Order allow,deny\n"""
+        """        Allow from all\n"""
+        """</Directory>\n"""
+        """\n"""        
+        """<Directory "%(webserver_path)s">\n"""
+        """        Options Indexes\n"""
+        """        Order allow,deny\n"""
+        """        Allow from all\n"""
+        """</Directory>\n"""
+        """\n"""        
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
-		"""ProxyVia On\n"""
-		"""\n"""
-		"""ProxyPass                       %(root)s/weblab/soap/                 balancer:/%(root)s_weblab_cluster_soap/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/soap/                 balancer:/%(root)s_weblab_cluster_soap/           stickysession=weblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/json/                 balancer:/%(root)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/json/                 balancer:/%(root)s_weblab_cluster_json/           stickysession=weblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/xmlrpc/               balancer:/%(root)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/xmlrpc/               balancer:/%(root)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/web/                  balancer:/%(root)s_weblab_cluster_web/            stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/web/                  balancer:/%(root)s_weblab_cluster_web/            stickysession=weblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/login/soap/           balancer:/%(root)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/login/soap/           balancer:/%(root)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/login/json/           balancer:/%(root)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/login/json/           balancer:/%(root)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/login/xmlrpc/         balancer:/%(root)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/login/xmlrpc/         balancer:/%(root)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/login/web/            balancer:/%(root)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/login/web/            balancer:/%(root)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid\n"""
-		"""ProxyPass                       %(root)s/weblab/administration/       balancer:/%(root)s_weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
-		"""ProxyPassReverse                %(root)s/weblab/administration/       balancer:/%(root)s_weblab_cluster_administration/ stickysession=weblabsessionid\n"""
+        """ProxyVia On\n"""
+        """\n"""
+        """ProxyPass                       %(root)s/weblab/soap/                 balancer:/%(root)s_weblab_cluster_soap/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/soap/                 balancer:/%(root)s_weblab_cluster_soap/           stickysession=weblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/json/                 balancer:/%(root)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/json/                 balancer:/%(root)s_weblab_cluster_json/           stickysession=weblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/xmlrpc/               balancer:/%(root)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/xmlrpc/               balancer:/%(root)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/web/                  balancer:/%(root)s_weblab_cluster_web/            stickysession=weblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/web/                  balancer:/%(root)s_weblab_cluster_web/            stickysession=weblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/login/soap/           balancer:/%(root)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/login/soap/           balancer:/%(root)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/login/json/           balancer:/%(root)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/login/json/           balancer:/%(root)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/login/xmlrpc/         balancer:/%(root)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/login/xmlrpc/         balancer:/%(root)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/login/web/            balancer:/%(root)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/login/web/            balancer:/%(root)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid\n"""
+        """ProxyPass                       %(root)s/weblab/administration/       balancer:/%(root)s_weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
+        """ProxyPassReverse                %(root)s/weblab/administration/       balancer:/%(root)s_weblab_cluster_administration/ stickysession=weblabsessionid\n"""
         "\n")
 
 
@@ -1378,7 +1402,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer:/%(root)s_weblab_cluster_json>\n"""
 
     for core_configuration in ports['core']:
-	    apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/json route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/json route=%(route)s\n""" % {
             'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1442,11 +1466,48 @@ def weblab_create(directory):
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf = apache_conf % { 'root' : base_url or '/', 'directory' : os.path.abspath(directory), 'war_path' : data_filename('war'), 'webserver_path' : data_filename('webserver') }
+    apache_conf = apache_conf % { 'root' : base_url or '/', 'directory' : os.path.abspath(directory).replace('\\','/'), 
+                'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
     apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
 
     open(apache_conf_path, 'w').write( apache_conf )
+
+    if sys.platform.find('win') == 0:
+        apache_windows_conf = """# At least in Debian based distributions as Debian itself
+        # or Ubuntu, this can be done with the a2enmod command:
+        # 
+        #   root@plunder:~# a2enmod proxy
+        #   root@plunder:~# a2enmod proxy_balancer_module
+        #   root@plunder:~# a2enmod proxy_http_module
+        #   root@plunder:~# /etc/init.d/apache2 force-reload
+        #  
+        # However, in Microsoft Windows or other distributions, this 
+        # might become slightly more difficult. To make it easy, you
+        # can uncomment the following lines in Microsoft Windows if
+        # using XAMPP as installer, or if you are under Mac OS X:
+        # 
+        <IfModule !mod_proxy.c>
+            LoadModule proxy_module modules/mod_proxy.so
+        </IfModule>
+        <IfModule !mod_proxy_balancer.c>
+            LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
+        </IfModule>
+        <IfModule !mod_proxy_http.c>
+            LoadModule proxy_http_module modules/mod_proxy_http.so
+        </IfModule>
+        <IfModule !mod_lbmethod_byrequests>
+        LoadModule lbmethod_byrequests_module modules/mod_lbmethod_byrequests.so
+        </IfModule>
+        <IfModule !mod_lbmethod_bybusyness>
+        LoadModule lbmethod_bybusyness_module modules/mod_lbmethod_bybusyness.so
+        </IfModule>
+        <IfModule !mod_slotmem_shm>
+        LoadModule slotmem_shm_module modules/mod_slotmem_shm.so
+        </IfModule>
+        """
+        apache_windows_conf_path = os.path.join(apache_dir, 'apache_weblab_windows.conf')
+        open(apache_windows_conf_path, 'w').write( apache_windows_conf )
 
     if verbose: print "[done]"
 
@@ -1489,12 +1550,14 @@ def weblab_create(directory):
     apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
     if os.path.exists("/etc/apache2/httpd.conf"):
         apache_httpd_path = '/etc/apache2/httpd.conf'
-    elif os.path.exists('C:\\xampp\\apache\\conf\\'):
-        apache_httpd_path = 'C:\\xampp\\apache\\conf\\'
+    elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
+        apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
 
-    print r"Append the following line to", apache_httpd_path
+    print r"Append the following to", apache_httpd_path
     print 
-    print "    Include %s" % os.path.abspath(apache_conf_path)
+    print "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
+    if sys.platform.find('win') == 0:
+        print "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
     print 
     print "Then restart apache and execute '%s start %s' to start the WebLab-Deusto system." % (sys.argv[0], directory)
     print "From that point, you'll be able to access: "
@@ -1528,7 +1591,7 @@ def weblab_start(directory):
         os.chdir(old_cwd)
 
 def weblab_stop(directory):
-    if os.name.lower().startswith('win'):
+    if sys.platform.lower().startswith('win'):
         print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
         sys.exit(-1)
     os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)

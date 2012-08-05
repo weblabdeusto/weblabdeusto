@@ -70,7 +70,7 @@ if len(glob.glob(WAR_LOCATION + "/*/*.cache.html")) > 5:
     print >> sys.stderr, "this. So as to compile it, run:"
     print >> sys.stderr
     curpath = os.path.abspath('.')
-    if os.name.find('win') == 0:
+    if sys.platform.find('win') == 0:
         print >> sys.stderr, "   %s> cd %s" % (curpath, CLIENT_LOCATION)
         print >> sys.stderr, "   %s> gwtc" % CLIENT_LOCATION
     else:
