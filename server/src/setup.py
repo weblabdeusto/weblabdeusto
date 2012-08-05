@@ -239,9 +239,11 @@ else:
         os.chdir(curpath)
 
 # In any case, the client was compiled in the past or just now. Let's copy it here.
+print "Copying...",
 shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
 shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
 shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
+print "[done]"
 
 ##########################################################
 #
