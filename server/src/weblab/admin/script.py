@@ -25,6 +25,7 @@ import sqlite3
 import json
 from optparse import OptionParser, OptionGroup
 
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 from weblab.util import data_filename
@@ -230,8 +231,8 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                 elif db_engine == 'mysql':
                     global DB_ROOT, DB_PASSWORD
                     if DB_ROOT is None or DB_PASSWORD is None:
-                        admin_username = raw_input("Enter the administrator username (typically root): ") or 'root'
-                        admin_password = getpass.getpass("Enter the administrator password: ")
+                        admin_username = raw_input("Enter the MySQL administrator username (typically root): ") or 'root'
+                        admin_password = getpass.getpass("Enter the MySQL administrator password: ")
                     else:
                         admin_username = DB_ROOT
                         admin_password = DB_PASSWORD
@@ -581,6 +582,12 @@ def weblab_create(directory):
         if verbose: print "Adding test data...",; sys.stdout.flush()
         deploy.populate_weblab_tests(engine, '1')
         if verbose: print "[done]"
+    
+    Session = sessionmaker(bind=engine)
+    group_name = 'Administrators'
+    deploy.add_group(Session, group_name)
+    deploy.add_user(Session, options.admin_user, options.admin_password, options.admin_name, options.admin_mail)
+    deploy.add_users_to_group(Session, group_name, options.admin_user)
 
     ###########################################
     # 
@@ -1576,17 +1583,30 @@ def weblab_create(directory):
     print "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
     if sys.platform.find('win') == 0:
         print "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+    else:
+        print
+        print "And enable the modules proxy proxy_balancer proxy_http."
+        print "For instance, in Ubuntu you can run: "
+        print 
+        print "    $ sudo a2enmod proxy proxy_balancer proxy_http"
     print 
-    print "Then restart apache and execute '%s start %s' to start the WebLab-Deusto system." % (sys.argv[0], directory)
-    print "From that point, you'll be able to access: "
+    print "Then restart apache and execute:"
+    print 
+    print "     %s start %s" % (os.path.basename(sys.argv[0]), directory)
+    print 
+    print "to start the WebLab-Deusto system. From that point, you'll be able to access: "
     print
     print "     %s " % server_url
     print
-    print "You should configure the images directory with two images called %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
-    print "from your web browser. You can also add users, permissions, etc. from the admin "
-    print "CLI by typing:"
+    print "And log in as '%s' using '%s' as password." % (options.admin_user, options.admin_password)
+    print 
+    print "You should also configure the images directory with two images called:"
+    print 
+    print "     %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
+    print 
+    print "You can also add users, permissions, etc. from the admin CLI by typing:"
     print
-    print "    %s admin %s" % (sys.argv[0], directory)
+    print "    %s admin %s" % (os.path.basename(sys.argv[0]), directory)
     print 
     print "Enjoy!"
     print 

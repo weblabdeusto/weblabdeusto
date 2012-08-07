@@ -17,14 +17,16 @@ import os
 import sys
 import datetime
 import traceback
+import random
+import hashlib
 
 from sqlalchemy.orm import sessionmaker
 
 import weblab.db.model as Model
 
 def insert_required_initial_data(engine):
-    Session = sessionmaker(bind=engine)    
-    session = Session()
+    session = sessionmaker(bind=engine)    
+    session = session()
 
     # Roles
     administrator = Model.DbRole("administrator")
@@ -227,29 +229,29 @@ def populate_weblab_tests(engine, tests):
     session.add(ee1)
 
     # Authentication
-    session.add(Model.DbUserAuth(admin1,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin2,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin3,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(any,      weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof1,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof2,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof3,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student5, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin2,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin3,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(any,      weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof1,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof2,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof3,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student5, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student6, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
-    session.add(Model.DbUserAuth(studentILAB, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(consumer_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(studentILAB, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(consumer_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university2, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
     session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
@@ -1049,3 +1051,42 @@ def generate_create_database(engine_str):
     else:
         return None
 
+def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+    session = sessionmaker()
+
+    student       = session.query(Model.DbRole).filter_by(name='student').one()
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
+
+    user    = Model.DbUser(login, user_name, mail, None, student)
+    session.add(user)
+
+    user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
+    session.add(user_auth)
+
+    session.commit()
+    session.close()
+
+def add_group(sessionmaker, group_name):
+    session = sessionmaker()
+    group = Model.DbGroup(group_name)
+    session.add(group)
+    session.commit()
+    session.close()
+
+def add_users_to_group(sessionmaker, group_name, *user_logins):
+    session = sessionmaker()
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    users = session.query(Model.DbUser).filter(Model.DbUser.login.in_(user_logins)).all()
+    for user in users:
+        group.users.append(user)
+    session.commit()
+    session.close()
+
+def _password2sha(password, randomstuff = None):
+    if randomstuff is None:
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+    password = password if password is not None else ''
+    return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()
