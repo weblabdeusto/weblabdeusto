@@ -589,6 +589,24 @@ def weblab_create(directory):
     deploy.add_user(Session, options.admin_user, options.admin_password, options.admin_name, options.admin_mail)
     deploy.add_users_to_group(Session, group_name, options.admin_user)
 
+    # dummy@Dummy experiments (local)
+    deploy.add_experiment_and_grant_on_group(Session, 'Dummy experiments', 'dummy', group_name, 200)
+
+    # external-robot-movement@Robot experiments (federated)
+    deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
+
+    # visir@Visir experiments (optional)
+    if options.visir_server:
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', 'visir', group_name, 1800)
+
+    # vm@VM experiments (optional)
+    if options.vm_server:
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', 'vm', group_name, 200)
+
+    # logic@PIC experiments (optional)
+    if options.logic_server:
+        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
+
     ###########################################
     # 
     # Create voodoo infrastructure
@@ -1358,8 +1376,8 @@ def weblab_create(directory):
         """Alias %(root)s/weblab/client/weblabclientlab/configuration.js      %(directory)s/client/configuration.js\n"""
         """Alias %(root)s/weblab/client/weblabclientadmin/configuration.js %(directory)s/client/configuration.js\n"""
         """\n"""
-        """Alias %(root)s/weblab/client/weblabclientlab//img%(root)s/         %(directory)s/client/images/\n"""
-        """Alias %(root)s/weblab/client/weblabclientadmin//img%(root)s/    %(directory)s/client/images/\n"""
+        """Alias %(root)s/weblab/client/weblabclientlab//img%(root-img)s/         %(directory)s/client/images/\n"""
+        """Alias %(root)s/weblab/client/weblabclientadmin//img%(root-img)s/    %(directory)s/client/images/\n"""
         """\n"""        
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
@@ -1484,14 +1502,16 @@ def weblab_create(directory):
     apache_conf += """\n"""
     
     if base_url in ('','/'):
-        apache_root = ''
+        apache_root    = ''
+        apache_img_dir = '/sample' 
     else:
-        apache_root = base_url
+        apache_root    = base_url
+        apache_img_dir = base_url
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
     apache_conf = apache_conf % { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash,
-                'directory' : os.path.abspath(directory).replace('\\','/'), 
+                'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'), 
                 'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
     apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
@@ -1559,9 +1579,9 @@ def weblab_create(directory):
     else:
         # TODO: Add a sample
         configuration_js['base.location']                  = ''
-        configuration_js['host.entity.image.login']        = '/img/sample.png'
-        configuration_js['host.entity.image']              = '/img/sample.png'
-        configuration_js['host.entity.image.mobile']       = '/img/sample-mobile.png'
+        configuration_js['host.entity.image.login']        = '/img/sample/sample.png'
+        configuration_js['host.entity.image']              = '/img/sample/sample.png'
+        configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
 
     configuration_js['host.entity.link']               = 'http://www.uts.edu.co/'
     configuration_js['facebook.like.box.visible']      = False

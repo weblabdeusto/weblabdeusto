@@ -1082,6 +1082,61 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
     session.commit()
     session.close()
 
+def add_experiment(sessionmaker, category_name, experiment_name):
+    session = sessionmaker()
+    existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
+    if existing_category is None:
+        category = Model.DbExperimentCategory(category_name)
+        session.add(category)
+    else:
+        category = existing_category
+    
+    start_date = datetime.datetime.utcnow()
+    # So leap years are not a problem
+    end_date = start_date.replace(year=start_date.year+12)
+
+    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date)
+    session.add(experiment)
+    session.commit()
+    session.close()
+
+def grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    session = sessionmaker()
+
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).one()
+    experiment = session.query(Model.DbExperiment).filter_by(name = experiment_name, category = category).one()
+    
+    experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
+
+    experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
+    experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
+    experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+
+    group_permission = Model.DbGroupPermission(
+        group, experiment_allowed.group_applicable,
+        "%s users::%s@%s" % (group_name, experiment_name, category_name),
+        datetime.datetime.utcnow(),
+        "Permission for group %s users to use %s@%s" % (group_name, experiment_name, category_name))
+
+    session.add(group_permission)
+
+    group_permission_p1 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p1, experiment_name)
+    session.add(group_permission_p1)
+
+    group_permission_p2 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p2, category_name)
+    session.add(group_permission_p2)
+
+    group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p3, str(time_allowed))
+    session.add(group_permission_p3)
+
+    session.commit()
+    session.close()
+
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    add_experiment(sessionmaker, category_name, experiment_name)
+    grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
+
 def _password2sha(password, randomstuff = None):
     if randomstuff is None:
         randomstuff = ""
