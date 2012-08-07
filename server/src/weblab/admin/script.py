@@ -334,6 +334,10 @@ def weblab_create(directory):
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
 
+    experiments.add_option("--dummy-experiment-name", dest="dummy_name", type="string",    default="dummy",
+                                                       help = "There is a testing experiment called 'dummy'. You may change this name "
+                                                              "(e.g. to dummy1 or whatever) by changing this option." )
+
     # TODO
     experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
                                                        help = "What port should the Experiment Server use. Useful for development.")
@@ -590,7 +594,7 @@ def weblab_create(directory):
     deploy.add_users_to_group(Session, group_name, options.admin_user)
 
     # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, 'Dummy experiments', 'dummy', group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, 'Dummy experiments', options.dummy_name, group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
@@ -723,7 +727,7 @@ def weblab_create(directory):
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
                         "    'laboratory:%(laboratory_instance_name)s@core_machine' : {\n"
-                        "            'exp1|dummy|Dummy experiments'        : 'dummy@dummy',\n"
+                        "            'exp1|%(dummy)s|Dummy experiments'        : 'dummy@dummy',\n"
                         "        }\n"
                         "}\n"
                         "\n"
@@ -755,6 +759,7 @@ def weblab_create(directory):
         'server_admin'                    : options.admin_mail,
         'server_url'                      : server_url,
         'poll_time'                       : options.poll_time,
+        'dummy'                           : options.dummy_name,
 
         'session_storage'                 : session_storage,
 
@@ -1012,12 +1017,12 @@ def weblab_create(directory):
 		"""##################################\n"""
 		"""\n"""
 		"""laboratory_assigned_experiments = {\n"""
-		"""        'exp1:dummy@Dummy experiments' : {\n"""
-		"""                'coord_address' : 'experiment:%s@core_machine',\n"""
+		"""        'exp1:%(dummy)s@Dummy experiments' : {\n"""
+		"""                'coord_address' : 'experiment:%(instance)s@core_machine',\n"""
 		"""                'checkers' : ()\n"""
 		"""            }\n"""
 		"""    }\n"""
-    )  % laboratory_instance_name)
+    )  % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name })
 
     experiment_dir = os.path.join(lab_instance_dir, 'experiment')
     if not os.path.exists(experiment_dir):
@@ -1038,7 +1043,7 @@ def weblab_create(directory):
 		"""\n"""
 		"""    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
 		"""\n"""
-		"""    <restriction>dummy@Dummy experiments</restriction>\n"""
+		"""    <restriction>%(dummy)s@Dummy experiments</restriction>\n"""
 		"""\n"""
 		"""    <protocols>\n"""
 		"""        <protocol name="Direct">\n"""
@@ -1048,7 +1053,7 @@ def weblab_create(directory):
 		"""            <creation></creation>\n"""
 		"""        </protocol>\n"""
 		"""    </protocols>\n"""
-		"""</server>\n"""))
+		"""</server>\n""") % { 'dummy' : options.dummy_name } )
 
     open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
         "dummy_verbose = True\n")
@@ -1566,6 +1571,15 @@ def weblab_create(directory):
     new_lines = uncomment_json(lines)
     configuration_js_data = json.loads(''.join(new_lines))
     configuration_js['experiments']                    = configuration_js_data['experiments']
+
+    dummy_list = list(configuration_js['experiments']['dummy'])
+    found      = False
+    for element in dummy_list:
+        if element['experiment.name'] == options.dummy_name:
+            found = True
+    if not found:
+        dummy_list.append({'experiment.name' : options.dummy_name, 'experiment.category' : 'Dummy experiments'})
+    configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
     configuration_js['sound.enabled']                  = False

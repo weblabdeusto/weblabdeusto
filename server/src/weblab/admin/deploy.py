@@ -1104,8 +1104,6 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     session = sessionmaker()
 
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
-    category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).one()
-    experiment = session.query(Model.DbExperiment).filter_by(name = experiment_name, category = category).one()
     
     experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
 
