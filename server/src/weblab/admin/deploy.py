@@ -1008,7 +1008,7 @@ def generate_create_database(engine_str):
             try:
                 import pymysql_sa
             except ImportError:
-                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install mysqldb'")
+                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install python-mysql'")
             pymysql_sa.make_default_mysql_dialect()
             import pymysql
             dbi = pymysql
@@ -1028,7 +1028,7 @@ def generate_create_database(engine_str):
             
             try:
                 dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
-            except dbi.OperationalError, e:
+            except Exception, e:
                 if e[1].startswith("Unknown database"):
                     sentence1 = "SELECT 1"
 

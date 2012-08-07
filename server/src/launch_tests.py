@@ -17,6 +17,7 @@ import os
 import sys
 import glob
 import test
+import time
 import unittest
 import logging
 import StringIO
@@ -228,6 +229,133 @@ def check_flakes():
     check_all_unused_exceptions()
     return 0
 
+def deploy_testdb(options):
+    from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database
+    import weblab.db.model as Model
+    import weblab.core.coordinator.sql.model as CoordinatorModel
+
+    import voodoo.sessions.db_lock_data as DbLockData
+    import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
+
+    from sqlalchemy import create_engine
+    
+    try:
+        import MySQLdb
+        dbi = MySQLdb
+    except ImportError:
+        try:
+            import pymysql_sa
+        except ImportError:
+            raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install python-mysql'")
+        pymysql_sa.make_default_mysql_dialect()
+
+    t_initial = time.time()
+    
+    db_dir = 'db'
+    if not os.path.exists(db_dir):
+        os.mkdir(db_dir)
+
+    db_engine                = options.testdb_engine
+    weblab_db_username       = options.testdb_user
+    weblab_db_password       = options.testdb_passwd
+    weblab_admin_db_username = options.testdb_admin_user
+    weblab_admin_db_password = options.testdb_admin_passwd
+
+    if db_engine == 'mysql':
+        weblab_test_db_str = 'mysql://%s:%s@localhost/WebLabTests%s'         % (weblab_db_username, weblab_db_password,'%s')
+        weblab_coord_db_str = 'mysql://%s:%s@localhost/WebLabCoordination%s' % (weblab_db_username, weblab_db_password, '%s')
+        weblab_sessions_db_str = 'mysql://%s:%s@localhost/WebLabSessions'    % (weblab_db_username, weblab_db_password)
+    elif db_engine == 'sqlite':
+        weblab_test_db_str = 'sqlite:///db/WebLabTests%s.db'
+        weblab_coord_db_str = 'sqlite:///db/WebLabCoordination%s.db'
+        weblab_sessions_db_str = 'sqlite:///db/WebLabSessions.db'
+    else:
+        raise Exception("db engine %s not supported" % db_engine)
+
+    if options.testdb_create_db:
+        create_database = generate_create_database(db_engine)
+        if create_database is None:
+            raise Exception("db engine %s not supported for creating database" % db_engine)
+
+        t = time.time()
+
+        error_message = 'Could not create database. This may happen if the admin db credentials are wrong.'
+
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLab",              weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests",         weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests2",        weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests3",        weblab_db_username, weblab_db_password, db_dir = db_dir)
+
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination",  weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination2", weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination3", weblab_db_username, weblab_db_password, db_dir = db_dir)
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabSessions",      weblab_db_username, weblab_db_password, db_dir = db_dir)
+
+        print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
+    
+    #####################################################################
+    # 
+    # Populating main database
+    #
+    for tests in ('','2','3'):
+        print "Populating 'WebLabTests%s' database...  \t\t" % tests, 
+        t = time.time()
+
+        engine = create_engine(weblab_test_db_str % tests, echo = False)
+        metadata = Model.Base.metadata
+        metadata.drop_all(engine)
+        metadata.create_all(engine)
+
+        insert_required_initial_data(engine)
+        populate_weblab_tests(engine, tests)
+
+        print "[done] [%1.2fs]" % (time.time() - t)
+
+    #####################################################################
+    # 
+    # Populating Coordination database
+    # 
+
+    for coord in ('','2','3'):
+        print "Populating 'WebLabCoordination%s' database...\t" % coord,
+        t = time.time()
+
+        engine = create_engine(weblab_coord_db_str % coord, echo = False)
+
+        CoordinatorModel.load()
+
+        metadata = CoordinatorModel.Base.metadata
+        metadata.drop_all(engine)
+        metadata.create_all(engine)    
+
+        print "[done] [%1.2fs]" % (time.time() - t)
+
+
+    #####################################################################
+    # 
+    # Populating Sessions database
+    # 
+
+
+    print "Populating 'WebLabSessions' database...\t\t",
+    t = time.time()
+
+    engine = create_engine(weblab_sessions_db_str, echo = False)
+
+    metadata = DbLockData.SessionLockBase.metadata
+    metadata.drop_all(engine)
+    metadata.create_all(engine)    
+
+    metadata = SessionSqlalchemyData.SessionBase.metadata
+    metadata.drop_all(engine)
+    metadata.create_all(engine)   
+
+    print "[done] [%1.2fs]" % (time.time() - t)
+
+    print "Total database deployment: \t\t\t[done] [%1.2fs]" % (time.time() - t_initial)
+
+
+
 if __name__ == '__main__':
     def vararg_callback(option, opt_str, value, parser):
          assert value is None
@@ -254,36 +382,41 @@ if __name__ == '__main__':
                                                           "will be interpreted by this command after: they will be managed "
                                                           "by unittest directly.")
 
-    parser.add_option('-e', '--env', '--environment',       dest='environment', default=None, metavar="ENVIRONMENT",
-                                                   help = "Use the specified environment, generated by virtualenv, to import so "
-                                                          "as to use installed libraries.")
-
     parser.add_option('-f', '--flakes',            dest='flakes', action="store_true", default = False, 
                                                    help = "Run pyflakes, not tests")
 
     parser.add_option('-t', '--tests',             dest='tests', action="store_true", default = False, 
                                                    help = "Additionally run the tests")
 
-    parser.add_option('--install-weblab',          dest='install_weblab', action='store_true', default=False,
-                                                    help = "Call the setup.py script to install weblab")
-
-    parser.add_option('--install-basic-requirements', dest='install_basic_requirements', action='store_true', default=False,
-                                                    help = "Install the basic requirements in the current environment (the ones required for testing and so on)")
-
-    parser.add_option('--install-all-requirements', dest='install_all_requirements', action='store_true', default=False,
-                                                    help = "Install all the requirements in the current environment (including the ones that require compiling)")
-
     parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
                                                     help = "Creates all the ZSI SOAP stubs.")
 
-    # TODO: implement this part
+    install_options = optparse.OptionGroup(parser, "Installation environment",
+                                                   "You may want to deploy WebLab-Deusto in a virtualenv environment. " 
+                                                   "Through these options you can select them and install dependencies on it.")
+
+    install_options.add_option('-e', '--env', '--environment',       dest='environment', default=None, metavar="ENVIRONMENT",
+                                                   help = "Use the specified environment, generated by virtualenv, to import so "
+                                                          "as to use installed libraries.")
+
+    install_options.add_option('--install-weblab',          dest='install_weblab', action='store_true', default=False,
+                                                    help = "Call the setup.py script to install weblab")
+
+    install_options.add_option('--install-basic-requirements', dest='install_basic_requirements', action='store_true', default=False,
+                                                    help = "Install the basic requirements in the current environment (the ones required for testing and so on)")
+
+    install_options.add_option('--install-all-requirements', dest='install_all_requirements', action='store_true', default=False,
+                                                    help = "Install all the requirements in the current environment (including the ones that require compiling)")
+
+    parser.add_option_group(install_options)
+    
     testdb_options = optparse.OptionGroup(parser, "Test database",
                                             "So as to run the tests, the testing database must be created and populated.")
 
-    testdb_options.add_option('--deploy-test-db',           dest='deploy_testdb', action='store_true', default=False,
+    testdb_options.add_option('--deploy-test-db',   dest='deploy_testdb', action='store_true', default=False,
                                                     help = "Deploys the testing database.")
-                                                    
-    testdb_options.add_option('--test-db-engine',           dest='testdb_engine', default='sqlite', metavar="ENGINE",
+                                                   
+    testdb_options.add_option('--test-db-engine',   dest='testdb_engine', default='sqlite', metavar="ENGINE",
                                                     help = "engine used for the testing database.")
     
     testdb_options.add_option('--test-db-create-db',        dest='testdb_create_db', action='store_true', default=False,
@@ -332,6 +465,11 @@ if __name__ == '__main__':
     if options.deploy_stubs:
         import weblab.comm.util as comm_util
         comm_util.deploy_stubs()
+
+    if options.deploy_testdb:
+        deploy_testdb(options)
+        if not options.tests and not options.flakes:
+            sys.exit(0)
 
     if options.flakes:
         flakes_return_code = check_flakes()
