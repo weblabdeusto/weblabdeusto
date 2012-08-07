@@ -180,7 +180,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
         base_location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
         if sys.platform.startswith('win'):
             sqlite_location     = base_location
-            location = '/' + base_location #.replace('\\', '/').replace(':','|')
+            location = '/' + base_location
         else:
             sqlite_location = '/' + base_location
             location = '/' + base_location
@@ -287,9 +287,6 @@ def weblab_create(directory):
     parser.add_option("-i", "--system-identifier",dest="system_identifier", type="string", default="",
                                                   help = "A human readable identifier for this system.")
 
-    parser.add_option("--admin-mail",             dest="admin_mail",     type="string",    default="",
-                                                  help = "E-mail address of the system administrator.")
-
     parser.add_option("--enable-https",           dest="enable_https",   action="store_true", default=False,
                                                   help = "Tell external federated servers that they must use https when connecting here")
 
@@ -305,6 +302,19 @@ def weblab_create(directory):
     parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
                                                          "Only available if a single core is used." )
+
+    admin_data = OptionGroup(parser, "Administrator data",
+                                                "Administrator basic data: username, password, etc.")
+    admin_data.add_option("--admin-user",             dest="admin_user",       type="string",    default="admin",
+                                                  help = "Username for the WebLab-Deusto administrator")
+    admin_data.add_option("--admin-name",             dest="admin_name",       type="string",    default="Administrator",
+                                                  help = "Full name of the administrator")
+    admin_data.add_option("--admin-password",       dest="admin_password", type="string",    default="password",
+                                                  help = "Administrator password ('password' is the default)")
+    admin_data.add_option("--admin-mail",             dest="admin_mail",       type="string",    default="",
+                                                  help = "E-mail address of the system administrator.")
+
+    parser.add_option_group(admin_data)
 
     # TODO
     experiments = OptionGroup(parser, "Experiments options",
