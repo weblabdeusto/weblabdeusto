@@ -6,7 +6,13 @@
 # 
 # sqlalchemy manages the database, both for management (users, groups, 
 # permissions, storage) and for scheduling if redis is not used. It can
-# rely on sqlite or server-based databases such as MySQL
+# rely on sqlite or server-based databases such as MySQL.
+# 
+# While it does not strictly require anything to be installed, the Python
+# includes are highly recommended to compile the speedups. So in Ubuntu
+# install:   
+# 
+#     sudo apt-get install build-essential python-dev
 # 
 
 SQLAlchemy<0.8
