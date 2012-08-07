@@ -71,6 +71,11 @@
 	                           },
 	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "ud-linux-vm",
 	                        	   "experiment.category" : "VM experiments",
 	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Linux_VM",
@@ -186,7 +191,11 @@
 	                        	   "experiment.name"     : "ud-dummy",
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
-				            {
+	                           {
+	                        	   "experiment.name"     : "dummy",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+				               {
 	                        	   "experiment.name"     : "dummy1",
 	                        	   "experiment.category" : "Dummy experiments"
 	                           },
