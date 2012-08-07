@@ -274,9 +274,36 @@ if __name__ == '__main__':
                                                     help = "Install all the requirements in the current environment (including the ones that require compiling)")
 
     parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
-                                                    help = "Creates all the ZSI SOAP stubs")
+                                                    help = "Creates all the ZSI SOAP stubs.")
 
+    # TODO: implement this part
+    testdb_options = optparse.OptionGroup(parser, "Test database",
+                                            "So as to run the tests, the testing database must be created and populated.")
 
+    testdb_options.add_option('--deploy-test-db',           dest='deploy_testdb', action='store_true', default=False,
+                                                    help = "Deploys the testing database.")
+                                                    
+    testdb_options.add_option('--test-db-engine',           dest='testdb_engine', default='sqlite', metavar="ENGINE",
+                                                    help = "engine used for the testing database.")
+    
+    testdb_options.add_option('--test-db-create-db',        dest='testdb_create_db', action='store_true', default=False,
+                                                    help = "Create the database before populating it. If not selected, the system "
+                                                           "will expect you to create it with the proper credentials prior to run this "
+                                                           "script. The system does not support all engines (just MySQL and sqlite). ")
+
+    testdb_options.add_option('--test-db-admin-user',       dest='testdb_admin_user',  default='root', metavar="ADMIN_DB_USER",
+                                                    help = "Database admin user for the creating the testing database (default: root)")
+
+    testdb_options.add_option('--test-db-admin-passwd',     dest='testdb_admin_passwd', default='', metavar="ADMIN_DB_PASSWORD",
+                                                    help = "Database admin password for the creating the testing database.")
+
+    testdb_options.add_option('--test-db-user',             dest='testdb_user',  default='weblab', metavar="DB_USER",
+                                                    help = "Database user for populating the database (default: weblab)")
+
+    testdb_options.add_option('--test-db-passwd',           dest='testdb_passwd', default='weblab', metavar="DB_PASSWORD",
+                                                    help = "Database password for populating the database.")
+
+    parser.add_option_group(testdb_options)
 
     options, args = parser.parse_args()
 
