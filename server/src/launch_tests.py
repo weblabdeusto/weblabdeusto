@@ -204,7 +204,8 @@ def check_flakes():
     try:
         from pyflakes.scripts.pyflakes import main as main_pyflakes
     except ImportError:
-        return
+        print >> sys.stderr, "pyflakes not installed. Did you run pip install -r requirements_tests.txt or python launch_tests.py --install-basic-requirements?"
+        return -1
 
     stdout = sys.stdout
     sys.stdout = StringIO.StringIO()
@@ -225,6 +226,7 @@ def check_flakes():
             print >> sys.stderr, line
 
     check_all_unused_exceptions()
+    return 0
 
 if __name__ == '__main__':
     def vararg_callback(option, opt_str, value, parser):
@@ -305,9 +307,9 @@ if __name__ == '__main__':
         comm_util.deploy_stubs()
 
     if options.flakes:
-        check_flakes()
+        flakes_return_code = check_flakes()
         if not options.tests:
-            sys.exit(0)
+            sys.exit(flakes_return_code)
 
     if options.debug:
         logging.basicConfig(level=logging.DEBUG)
