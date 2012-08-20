@@ -27,7 +27,7 @@ class ConsoleUI(object):
         super(ConsoleUI, self).__init__()
 
     def _raw_input(self, prompt):
-        return raw_input(prompt)
+        return raw_input(prompt).decode('utf8')
 
     def _getpass(self, prompt):
         return getpass.getpass(prompt)
