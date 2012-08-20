@@ -22,7 +22,7 @@ from voodoo.lock import locked
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
-USE_REAL_DEVICE = False
+USE_REAL_DEVICE = True
 
 class Submarine(Experiment):
 
@@ -73,7 +73,7 @@ class Submarine(Experiment):
         self._clean()
 
         current_config = self.initial_configuration.copy()
-        current_config['light'] = self._send('STATELIGHT').startswith('1')
+        current_config['light'] = not self._send('STATELIGHT').startswith('0')
 
         return json.dumps({ "initial_configuration" : json.dumps(current_config), "batch" : False })
 
@@ -103,7 +103,7 @@ class Submarine(Experiment):
         msg = "ok"
 
         if command == 'FOOD' or command in ('LIGHT ON','LIGHT OFF'):
-            self._send(command)
+            msg = "received %s" % self._send(command)
         elif command.startswith('UP'):
             if command == 'UP ON':
                 if self.up:
@@ -196,7 +196,7 @@ class Submarine(Experiment):
         """
         if self.debug:
             print "[Submarine*] do_send_file_to_device called"
-        return "Ok"
+        return "ok"
 
 
     @Override(Experiment)
@@ -208,6 +208,6 @@ class Submarine(Experiment):
         if self.debug:
             print "[Submarine*] do_dispose called"
         self._clean()
-        return "Ok"
+        return "ok"
 
 
