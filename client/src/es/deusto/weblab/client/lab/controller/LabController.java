@@ -18,6 +18,8 @@ package es.deusto.weblab.client.lab.controller;
 //TODO: translations
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
@@ -88,6 +90,7 @@ public class LabController implements ILabController {
 	
 	private boolean externallyLoggedIn = false;
 	private boolean externallyReserved = false;
+	private boolean finishOnClose = true;
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
@@ -362,6 +365,8 @@ public class LabController implements ILabController {
 	
 	@Override
 	public void loadUserHomeWindow(){
+		this.uimanager.setAllowedExperiments(this.experimentsAllowed);
+		
 		final String selectedExperimentName     = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_NAME);
 		final String selectedExperimentCategory = HistoryProperties.getValue(HistoryProperties.EXPERIMENT_CATEGORY);
 		if(selectedExperimentName != null && selectedExperimentCategory != null){
@@ -464,7 +469,7 @@ public class LabController implements ILabController {
 	}
 
 	private void onWindowClose() {
-		if(isExperimentReserved()) {
+		if(isExperimentReserved() && this.finishOnClose) {
 			this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 				@Override
 				public void onFailure(CommException e) { }
@@ -473,6 +478,11 @@ public class LabController implements ILabController {
 				public void onSuccess() { }
 			});
 		}
+	}
+	
+	@Override
+	public void disableFinishOnClose() {
+		this.finishOnClose = false;
 	}
 
 	@Override
@@ -619,6 +629,11 @@ public class LabController implements ILabController {
 
 	@Override
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
+		final Map<String, String> newHistoryValues = new HashMap<String, String>();
+		newHistoryValues.put(HistoryProperties.EXPERIMENT_CATEGORY, experimentAllowed.getExperiment().getCategory().getCategory());
+		newHistoryValues.put(HistoryProperties.EXPERIMENT_NAME, experimentAllowed.getExperiment().getName());
+		HistoryProperties.setValues(newHistoryValues);
+		
 	    final IBoardBaseController boardBaseController = new BoardBaseController(this);
 	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
 	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {

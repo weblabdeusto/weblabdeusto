@@ -71,6 +71,7 @@ public class MockController implements ILabController {
 		final Experiment experiment = new Experiment(-1, "pld-deusto", category, null, null);
 		final ExperimentAllowed experimentAllowed = new ExperimentAllowed(experiment, 100);
 		
+		this.uimanager.setAllowedExperiments(new ExperimentAllowed[] {experimentAllowed});
 		this.uimanager.onAllowedExperimentsRetrieved(new ExperimentAllowed[] {experimentAllowed});
 	}
 
@@ -205,5 +206,9 @@ public class MockController implements ILabController {
 	public void checkSessionIdStillValid(SessionID sessionId,
 			IValidSessionCallback callback) {
 		callback.sessionRejected();
+	}
+
+	@Override
+	public void disableFinishOnClose() {
 	}
 }

@@ -22,8 +22,8 @@ import com.google.gwt.user.client.History;
 
 public class HistoryProperties {
 	
-	public static final String HEADER_VISIBLE = "header.visible";
-	public static final String EXPERIMENT_NAME = "exp.name";
+	public static final String HEADER_VISIBLE      = "header.visible";
+	public static final String EXPERIMENT_NAME     = "exp.name";
 	public static final String EXPERIMENT_CATEGORY = "exp.category";
 	
 	private static final Map<String, String []> values = new HashMap<String, String[]>(); 
@@ -45,7 +45,7 @@ public class HistoryProperties {
 				for(int i = 0; i < oldValue.length; ++i)
 					newValue[i] = oldValue[i];
 				newValue[newValue.length - 1] = key;
-			}else
+			}else if(!key.isEmpty())
 				values.put(key, new String[]{ value });
 		}
 	}
@@ -76,4 +76,55 @@ public class HistoryProperties {
 		final String value = getValue(key, b?"true":"false");
 		return value.toLowerCase().equals("true") || value.toLowerCase().equals("yes"); 
 	}
+	
+	private static String values2string() {
+		final StringBuilder builder = new StringBuilder();
+		for(String key : values.keySet())
+			for(String value : values.get(key)) {
+				builder.append(key);
+				builder.append("=");
+				builder.append(value);
+				builder.append("&");
+			}
+		String finalString = builder.toString();
+		if(finalString.endsWith("&"))
+			finalString = finalString.substring(0, finalString.length() - 1);
+		
+		return finalString;
+	}
+	
+	public static void setValue(String key, String value) {
+		values.put(key, new String[]{ value });
+		History.newItem(values2string(), false);
+	}
+	
+	public static void setValues(Map<String, String> newValues) {
+		for(String key : newValues.keySet())
+			values.put(key, new String[]{ newValues.get(key) });
+		History.newItem(values2string(), false);
+	}
+	
+	public static void setValue(String key, boolean value) {
+		setValue(key, Boolean.toString(value));
+	}
+	
+	public static void removeValues(String ... keys) {
+		for(String key : keys)
+			values.remove(key);
+		History.newItem(values2string(), false);
+	}
+	
+	public static void appendValue(String key, String value) {
+		if(values.containsKey(key)) {
+			String [] newValues = new String[values.get(key).length + 1];
+			for(int i = 0; i < values.get(key).length; ++i) 
+				newValues[i] = values.get(key)[i];
+			newValues[values.get(key).length] = value;
+			values.put(key, newValues);
+		} else {
+			values.put(key, new String[]{ value });
+		}
+		History.newItem(values2string(), false);
+	}
+
 }

@@ -56,10 +56,13 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
     public void onLoggedIn(User user) {
 	this.append(FakeUIManager.ON_LOGGED_IN, new Object[]{user});
     }
-    
+
     @Override
-    public void onAllowedExperimentsRetrieved(
-	    ExperimentAllowed[] experimentsAllowed) {
+    public void setAllowedExperiments(ExperimentAllowed[] experimentsAllowed) {
+    }    
+
+    @Override
+    public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed) {
     	this.append(FakeUIManager.ON_ALLOWED_EXPERIMENTS_RETRIEVED, new Object[]{experimentsAllowed});
     }    
     

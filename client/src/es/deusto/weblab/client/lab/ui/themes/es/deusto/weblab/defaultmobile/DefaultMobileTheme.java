@@ -81,9 +81,12 @@ public class DefaultMobileTheme extends LabThemeBase {
 	}
 
 	@Override
-	public void onAllowedExperimentsRetrieved(
-			ExperimentAllowed[] experimentsAllowed) {
+	public void setAllowedExperiments(ExperimentAllowed[] experimentsAllowed) {
 		this.experimentsAllowed = experimentsAllowed;
+	}
+	
+	@Override
+	public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed) {
 		this.loadAllowedExperimentsWindow();
 	}
 
