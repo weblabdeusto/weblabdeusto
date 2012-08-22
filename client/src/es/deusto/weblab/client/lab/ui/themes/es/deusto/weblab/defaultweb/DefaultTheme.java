@@ -171,7 +171,8 @@ public class DefaultTheme extends LabThemeBase {
 
 	@Override	
 	public void onWrongLoginOrPasswordGiven(){
-		this.loginWindow.showWrongLoginOrPassword();
+		if(this.loginWindow != null)
+			this.loginWindow.showWrongLoginOrPassword();
 	}
 
 	@Override
@@ -226,7 +227,8 @@ public class DefaultTheme extends LabThemeBase {
 	private void loadAllowedExperimentsWindow() {
 		this.clearWindow();
 		
-		HistoryProperties.removeValues(HistoryProperties.EXPERIMENT_CATEGORY, HistoryProperties.EXPERIMENT_NAME);
+		HistoryProperties.removeValuesWithoutUpdating(HistoryProperties.EXPERIMENT_CATEGORY, HistoryProperties.EXPERIMENT_NAME, HistoryProperties.PAGE);
+		HistoryProperties.setValue(HistoryProperties.PAGE, HistoryProperties.HOME);
 
 		this.allowedExperimentsWindow = new AllowedExperimentsWindow(this.configurationManager, this.user, this.experimentsAllowed, new IAllowedExperimentsWindowCallback(){
 			@Override

@@ -144,7 +144,7 @@ class ClientMethod(WebFacadeServer.Method):
         except SessionNotFoundError:
             return ERROR_CODE % reservation_id
 
-        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false" % {
+        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment" % {
             'reservation_id' : reservation_id,
             'exp_name'       : experiment_id.exp_name,
             'exp_cat'        : experiment_id.cat_name

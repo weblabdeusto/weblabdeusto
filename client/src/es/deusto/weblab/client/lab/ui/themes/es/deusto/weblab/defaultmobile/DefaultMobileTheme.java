@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -195,6 +196,9 @@ public class DefaultMobileTheme extends LabThemeBase {
 
 	private void loadAllowedExperimentsWindow() {
 		this.clearWindow();
+		
+		HistoryProperties.removeValuesWithoutUpdating(HistoryProperties.EXPERIMENT_CATEGORY, HistoryProperties.EXPERIMENT_NAME, HistoryProperties.PAGE);
+		HistoryProperties.setValue(HistoryProperties.PAGE, HistoryProperties.HOME);
 
 		this.allowedExperimentsWindow = new AllowedExperimentsWindow(this.configurationManager, this.user, this.experimentsAllowed, new IAllowedExperimentsWindowCallback(){
 			@Override
@@ -235,6 +239,11 @@ public class DefaultMobileTheme extends LabThemeBase {
 			@Override
 			public void onLogoutButtonClicked() {
 				DefaultMobileTheme.this.controller.finishReservationAndLogout();
+			}
+
+			@Override
+			public void disableFinishOnClose() {
+				DefaultMobileTheme.this.controller.disableFinishOnClose();
 			}
 		});
 		this.activeWindow = this.experimentWindow;

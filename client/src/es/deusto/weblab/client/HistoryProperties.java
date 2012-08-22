@@ -25,10 +25,19 @@ public class HistoryProperties {
 	public static final String HEADER_VISIBLE      = "header.visible";
 	public static final String EXPERIMENT_NAME     = "exp.name";
 	public static final String EXPERIMENT_CATEGORY = "exp.category";
+	public static final String PAGE                = "page"; 
 	
-	private static final Map<String, String []> values = new HashMap<String, String[]>(); 
+	public static final String HOME                = "home";
+	public static final String EXPERIMENT          = "experiment";
+	
+	private static final Map<String, String []> values = new HashMap<String, String[]>();
 	
 	HistoryProperties(){
+		reloadHistory();
+	}
+	
+	public static void reloadHistory() {
+		values.clear();
 		String currentToken = History.getToken();
 		for(String token : currentToken.split("&")){
 			final String key = token.split("=")[0];
@@ -109,8 +118,16 @@ public class HistoryProperties {
 	}
 	
 	public static void removeValues(String ... keys) {
+		removeValuesWithoutUpdating(keys);
+		update();
+	}
+	
+	public static void removeValuesWithoutUpdating(String ... keys) {
 		for(String key : keys)
 			values.remove(key);
+	}
+	
+	public static void update(){
 		History.newItem(values2string(), false);
 	}
 	

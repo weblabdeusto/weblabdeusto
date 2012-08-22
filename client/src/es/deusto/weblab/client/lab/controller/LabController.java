@@ -22,8 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
@@ -151,6 +154,17 @@ public class LabController implements ILabController {
 			@Override
 			public void onWindowClosing(ClosingEvent event) {
 				onWindowClose();
+			}
+		});
+		
+		History.addValueChangeHandler(new ValueChangeHandler<String>() {
+			
+			@Override
+			public void onValueChange(ValueChangeEvent<String> event) {
+				if(getCurrentSession() != null && !getCurrentSession().isNull()) {
+					HistoryProperties.reloadHistory();
+					loadUserHomeWindow();
+				}
 			}
 		});
 	}
@@ -379,6 +393,8 @@ public class LabController implements ILabController {
 				}
 			}
 		}
+		
+		HistoryProperties.setValue(HistoryProperties.PAGE, HistoryProperties.HOME);
 		
 		this.uimanager.onAllowedExperimentsRetrieved(this.experimentsAllowed);
 	}
@@ -631,7 +647,8 @@ public class LabController implements ILabController {
 	public void chooseExperiment(final ExperimentAllowed experimentAllowed) {
 		final Map<String, String> newHistoryValues = new HashMap<String, String>();
 		newHistoryValues.put(HistoryProperties.EXPERIMENT_CATEGORY, experimentAllowed.getExperiment().getCategory().getCategory());
-		newHistoryValues.put(HistoryProperties.EXPERIMENT_NAME, experimentAllowed.getExperiment().getName());
+		newHistoryValues.put(HistoryProperties.EXPERIMENT_NAME,     experimentAllowed.getExperiment().getName());
+		newHistoryValues.put(HistoryProperties.PAGE,                HistoryProperties.EXPERIMENT);
 		HistoryProperties.setValues(newHistoryValues);
 		
 	    final IBoardBaseController boardBaseController = new BoardBaseController(this);
