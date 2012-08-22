@@ -19,7 +19,7 @@ import operator
 
 from voodoo.resources_manager import is_testing
 from voodoo.threaded import threaded
-from experiments.logic.hardware import HardwareInterfaceCollector, PicInterface, ConsoleInterface
+from experiments.logic.hardware import HardwareInterfaceCollector, ConsoleInterface, XilinxInterface
 import weblab.experiment.experiment as Experiment
 import weblab.core.coordinator.coordinator as Coordinator
 from voodoo.override import Override
@@ -27,6 +27,7 @@ from voodoo.override import Override
 import json
 
 CFG_WEBCAM_URL = 'logic_webcam_url'
+XILINX_ENABLED = 'xilinx_enabled'
 
 
 class Switch(object):
@@ -150,13 +151,15 @@ class LogicExperiment(Experiment.Experiment):
             self.webcam_url = self._cfg_manager.get_value(CFG_WEBCAM_URL, "")
         except:
             self.webcam_url = ''
-        if is_testing():
-            interfaces = []
-        else:
-            interfaces = [
-            PicInterface("192.168.0.50"),
-            ConsoleInterface()
-        ]
+
+        interfaces = []
+
+        if not is_testing():
+            interfaces.append(ConsoleInterface())
+
+        if self._cfg_manager.get_value(XILINX_ENABLED, False):
+            interfaces.append(XilinxInterface(cfg_manager))
+
         self.interfaces = HardwareInterfaceCollector(interfaces)
 
 
@@ -172,6 +175,7 @@ class LogicExperiment(Experiment.Experiment):
         self.current_circuit = self.circuit_generator.generate()
         self.active = True
         self.threads = []
+        self.interfaces.initialize()
         try:
             self.interfaces.send_message("Welcome!")
         except Exception as e:
