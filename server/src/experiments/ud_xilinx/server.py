@@ -106,6 +106,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
 
     @threaded()
+    @logged("info",except_for='file_content')
     def _program_file_t(self, file_content):
         """
         Running in its own thread, this method will program the board

@@ -127,8 +127,8 @@ class PicInterface(HardwareInterface):
 
 class XilinxInterface(HardwareInterface):
     def __init__(self, cfg_manager):
+        self._cfg_manager = cfg_manager
         device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        self.programmer = UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
         self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
