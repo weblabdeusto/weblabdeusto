@@ -51,11 +51,14 @@ class Submarine(Experiment):
         self._cfg_manager    = cfg_manager
 
         self._lock           = threading.Lock()
+        self._feed_lock      = threading.Lock()
+        self._latest_feed_time = datetime.datetime(2012, 1, 1)
 
         self.debug           = self._cfg_manager.get_value('debug', True)
         self.real_device     = self._cfg_manager.get_value('real_device', True)
         self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  8)
         self.lights_off_time = self._cfg_manager.get_value('lights_off_time', 16)
+        self.feed_period     = self._cfg_manager.get_value('feed_period', 8)
         self.pic_location    = self._cfg_manager.get_value('submarine_pic_location', 'http://192.168.0.90/')
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
 
@@ -98,6 +101,31 @@ class Submarine(Experiment):
         """ Lights should be off before 8:00 and after 16:00 """
         return not self.lights_should_be_on()
 
+    def tick(self, hour):
+        if not self.in_use:
+            self.correct_lights()
+
+        if hour % self.feed_period == 0:
+            self._lock.acquire()
+            while self.in_use:
+                time.sleep(0.5)
+            try:
+                self.feed()
+            finally:
+                self._lock.release()
+
+    @logged("critical")
+    def feed(self):
+        with self._feed_lock:
+            now = datetime.datetime.now()
+            if (now - self._latest_feed_time).seconds / 3600.0 >= (self.feed_period - 300):
+                self._send('FOOD')
+                self._latest_feed_time = datetime.datetime.now()
+                return "fed"
+            else:
+                total_wait = self.period * 3600 - (now - self._latest_feed_time).seconds
+                return "notfed:%s" % total_wait
+
     @Override(Experiment)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
@@ -113,13 +141,11 @@ class Submarine(Experiment):
         # current_config['light'] = not self._send('STATELIGHT').startswith('0')
         current_config['light'] = self.lights_should_be_on()
 
+        self._lock.acquire()
         self.in_use = True
+        self._lock.release()
 
         return json.dumps({ "initial_configuration" : json.dumps(current_config), "batch" : False })
-
-    def tick(self, hour):
-        if not self.in_use:
-            self.correct_lights()
 
     def _clean(self):
         self._send("CleanInputs")
@@ -152,7 +178,9 @@ class Submarine(Experiment):
 
         msg = "ok"
 
-        if command == 'FOOD' or command in ('LIGHT ON','LIGHT OFF'):
+        if command == 'FOOD':
+            msg = self.feed()
+        elif command in ('LIGHT ON','LIGHT OFF'):
             msg = "received %s" % self._send(command)
         elif command.startswith('UP'):
             if command == 'UP ON':
