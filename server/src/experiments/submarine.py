@@ -52,7 +52,7 @@ class Submarine(Experiment):
 
         self._lock           = threading.Lock()
         self._feed_lock      = threading.Lock()
-        self._latest_feed_time = datetime.datetime(2012, 1, 1)
+        self._latest_feed_time = datetime.datetime.now()
 
         self.debug           = self._cfg_manager.get_value('debug', True)
         self.real_device     = self._cfg_manager.get_value('real_device', True)
@@ -86,7 +86,8 @@ class Submarine(Experiment):
             if mjpeg_height is not None:
                 self.initial_configuration['mjpegHeight%s' % num] = mjpeg_height
 
-        self.in_use = False
+        self.in_use     = False
+        self.since_tick = False
 
         self.correct_lights()
         event_manager = EventManager(self)
@@ -110,21 +111,30 @@ class Submarine(Experiment):
             while self.in_use:
                 time.sleep(0.5)
             try:
-                self.feed()
+                self.feed(True)
             finally:
                 self._lock.release()
 
     @logged("critical")
-    def feed(self):
+    def feed(self, tick):
         with self._feed_lock:
-            now = datetime.datetime.now()
-            if (now - self._latest_feed_time).seconds / 3600.0 >= (self.feed_period - 300):
-                self._send('FOOD')
-                self._latest_feed_time = datetime.datetime.now()
-                return "fed"
+            if tick:
+                fed = False
+                if not self.since_tick:
+                    self._send('FOOD')
+                    fed = True
+                self.since_tick = False
+                if fed:
+                    return 'fed'
+                else:
+                    return 'notfed'
             else:
-                total_wait = self.period * 3600 - (now - self._latest_feed_time).seconds
-                return "notfed:%s" % total_wait
+                if not self.since_tick:
+                    self._send('FOOD')
+                    self.since_tick = True
+                    return 'fed'
+                else:
+                    return 'notfed:%s' % self.feed_period
 
     @Override(Experiment)
     @logged("info")
@@ -179,7 +189,7 @@ class Submarine(Experiment):
         msg = "ok"
 
         if command == 'FOOD':
-            msg = self.feed()
+            msg = self.feed(False)
         elif command in ('LIGHT ON','LIGHT OFF'):
             msg = "received %s" % self._send(command)
         elif command.startswith('UP'):
