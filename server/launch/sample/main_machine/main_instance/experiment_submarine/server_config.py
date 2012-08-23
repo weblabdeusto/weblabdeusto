@@ -18,3 +18,5 @@ webcams_info = [
     ),
 ]
 
+real_device = False
+
