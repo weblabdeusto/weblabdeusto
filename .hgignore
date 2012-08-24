@@ -32,7 +32,6 @@ regex:
 ^server/launch/uned
 ^server/launch/mit
 ^server/launch/utsantander
-^server/db/.*\.db$
 ^client/gwt-unitCache
 
 #
