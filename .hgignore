@@ -84,8 +84,6 @@ server/src/weblab/experiment/experiments/labview_experiment/fpga_programmer/conf
 
 server/src/test/unit/weblab/proxy/files_stored/*
 
-server/deploy/weblab_administrator_credentials.py
-
 server/admin/cli/USERS
 server/admin/cli/OIDUSERS
 server/admin/cli/NOTIFICATION
