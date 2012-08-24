@@ -10,6 +10,7 @@ regex:
 .metadata
 
 ^server/env
+^server/lib
 ^server/src/build
 ^server/src/db
 ^server/src/weblabdeusto_data
@@ -50,6 +51,7 @@ client/weblab.war
 client/www-test
 client/.gwt
 client/extras
+client/external
 
 client/.settings/com.google.gdt.eclipse.core.prefs
 
