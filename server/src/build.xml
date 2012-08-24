@@ -24,8 +24,6 @@
 			<arg value="xml"/>
 			<arg value="--dir"/>
 			<arg value="${test.xml.dir}" />
-			<arg value="--environment"/>
-			<arg value="env"/>
         </exec>
 	</target>
 </project>
