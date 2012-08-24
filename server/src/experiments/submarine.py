@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
 import traceback
 import urllib2
 import json
@@ -55,6 +56,7 @@ class Submarine(Experiment):
         self._latest_feed_time = datetime.datetime.now()
 
         self.debug           = self._cfg_manager.get_value('debug', True)
+        self.debug_dir       = self._cfg_manager.get_value('debug_dir', None)
         self.real_device     = self._cfg_manager.get_value('real_device', True)
         self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  8)
         self.lights_off_time = self._cfg_manager.get_value('lights_off_time', 16)
@@ -68,7 +70,9 @@ class Submarine(Experiment):
         self.right           = False
         self.forward         = False
         self.backward        = False
-
+        
+        self.opener          = urllib2.build_opener(urllib2.ProxyHandler({}))
+        
         self.initial_configuration = {}
         for pos, webcam_config in enumerate(self.webcams_info):
             num = pos + 1
@@ -115,6 +119,30 @@ class Submarine(Experiment):
             finally:
                 self._lock.release()
 
+    def _get_debug_file(self):
+        if self.debug_dir is not None and os.path.exists(self.debug_dir):
+            now = datetime.datetime.now()
+            dir_name = '%s_%s' % (now.year, now.month)
+            try:
+                os.mkdir(os.path.join(self.debug_dir, dir_name))
+            except:
+                pass
+            debug_fname = '%s.txt' % now.day
+            return open(os.path.join(self.debug_dir, dir_name, debug_fname), 'a')
+        else:
+            return StringIO.StringIO()
+
+    def debug_critical_msg(self, msg):
+        f = self._get_debug_file()
+        try:
+            now = datetime.datetime.now()
+            when = now.strftime("%Y-%m-%d %H:%M:%S")
+            f.write('%s: %s\n' % (when, msg))
+        except:
+            traceback.print_exc()
+        finally:
+            f.close()
+
     @logged("critical")
     def feed(self, tick):
         with self._feed_lock:
@@ -123,6 +151,7 @@ class Submarine(Experiment):
                 if not self.since_tick:
                     self._send('FOOD')
                     fed = True
+                    self.debug_critical_msg('fed')
                 self.since_tick = False
                 if fed:
                     return 'fed'
@@ -131,6 +160,7 @@ class Submarine(Experiment):
             else:
                 if not self.since_tick:
                     self._send('FOOD')
+                    self.debug_critical_msg('fed')
                     self.since_tick = True
                     return 'fed'
                 else:
@@ -169,8 +199,10 @@ class Submarine(Experiment):
     def correct_lights(self):
         if self.lights_should_be_off():
             self._send("LIGHT OFF")
+            self.debug_critical_msg('LIGHT OFF')
         else:
             self._send("LIGHT ON")
+            self.debug_critical_msg('LIGHT ON')
 
     @Override(Experiment)
     @logged("info")
@@ -269,7 +301,7 @@ class Submarine(Experiment):
 
     def _send(self, command):
         if self.real_device:
-            return urllib2.urlopen(self.pic_location, command).read()
+            return self.opener.open(self.pic_location, command).read()
         else:
             print "Simulating request...",command
             return "ok"
