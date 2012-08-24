@@ -151,7 +151,7 @@ class Submarine(Experiment):
                 if not self.since_tick:
                     self._send('FOOD')
                     fed = True
-                    self.debug_critical_msg('fed')
+                    self.debug_critical_msg('fed by tick')
                 self.since_tick = False
                 if fed:
                     return 'fed'
@@ -160,11 +160,16 @@ class Submarine(Experiment):
             else:
                 if not self.since_tick:
                     self._send('FOOD')
-                    self.debug_critical_msg('fed')
+                    self.debug_critical_msg('fed by user')
                     self.since_tick = True
                     return 'fed'
                 else:
-                    return 'notfed:%s' % self.feed_period
+                    current_hour = datetime.datetime.now().hour
+                    counter = current_hour + 1
+                    while counter < 24 and counter % self.feed_period != 0:
+                        counter += 1
+                    remaining = (counter - current_hour) % 24
+                    return 'notfed:%s' % remaining
 
     @Override(Experiment)
     @logged("info")
@@ -224,6 +229,7 @@ class Submarine(Experiment):
             msg = self.feed(False)
         elif command in ('LIGHT ON','LIGHT OFF'):
             msg = "received %s" % self._send(command)
+            self.debug_critical_msg('User: %s' % command)
         elif command.startswith('UP'):
             if command == 'UP ON':
                 if self.up:
