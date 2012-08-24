@@ -388,6 +388,12 @@ if __name__ == '__main__':
     parser.add_option('-t', '--tests',             dest='tests', action="store_true", default = False, 
                                                    help = "Additionally run the tests")
 
+    parser.add_option('-c', '--coverage',          dest='coverage', action="store_true", default = False, 
+                                                   help = "Measure the coverage")
+
+    parser.add_option('--coverage-report',         dest='coverage_report', default = 'report',  choices = ('report', 'xml', 'html'),
+                                                   help = "Coverage report style (report, xml, html)", metavar = 'REPORT_STYLE')
+
     parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
                                                     help = "Creates all the ZSI SOAP stubs.")
 
@@ -451,6 +457,22 @@ if __name__ == '__main__':
             parser.error("Environment %s not found. Tried %s" % (options.environment, potential_locations))
 
         execfile(activate_this, dict(__file__=activate_this))
+
+    if options.coverage:
+        coverage_script = list(sys.argv)
+        coverage_script.insert(0, 'coverage')
+        coverage_script.insert(1, 'run')
+        coverage_script.insert(2, '--branch')
+        if '--coverage' in coverage_script:
+            coverage_script.remove('--coverage')
+        if '-c' in coverage_script:
+            coverage_script.remove('-c')
+        exit_value = os.system(' '.join(coverage_script))
+        if exit_value == 0:
+            os.system('coverage %s --omit="test/*,launch_tests*,conf*,env*,voodoo/patcher*"' % options.coverage_report)
+            sys.exit(0)
+        else:
+            sys.exit(exit_value)
 
     if options.install_basic_requirements or options.install_all_requirements:
         os.system("pip install -r requirements.txt")

@@ -26,3 +26,8 @@ mock<1.1
 # 
 
 ciutils==0.0.5
+
+#
+# coverage is used to detail how much code is covered by unit tests
+# 
+coverage<3.6
