@@ -130,7 +130,7 @@ else:
         except OSError, IOError:
             pass # Could be already created
 
-        # TODO: this places in memory the whole file (~90 MB)
+        # TODO: this places in memory the whole file (~90 MB). urllib.urlretrieve?
         gwt_content = urllib2.urlopen(GWT_URL).read()
         gwt_fileobj = StringIO.StringIO(gwt_content)
         del gwt_content
@@ -166,7 +166,7 @@ else:
         except OSError, IOError:
             pass # Could be already created
 
-        # TODO: this places in memory the whole file (~24 MB)
+        # TODO: this places in memory the whole file (~24 MB). urllib.urlretrieve?
         smartgwt_content = urllib2.urlopen(SMARTGWT_URL).read()
         smartgwt_fileobj = StringIO.StringIO(smartgwt_content)
         del smartgwt_content
@@ -212,7 +212,7 @@ else:
         ANT_DIRNAME  = 'apache-ant-%s' % version
         ANT_URL      = "http://www.apache.org/dist/ant/binaries/%s" % ANT_FILENAME
 
-        # TODO: this places in memory the whole file (~24 MB)
+        # TODO: this places in memory the whole file (~24 MB). urllib.urlretrieve?
         ant_content = urllib2.urlopen(ANT_URL).read()
         ant_fileobj = StringIO.StringIO(ant_content)
         del ant_content
