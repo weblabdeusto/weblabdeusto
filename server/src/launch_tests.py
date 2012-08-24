@@ -74,9 +74,14 @@ def runGui(avoid_integration, argv):
 
 EXIT_VALUE = 0
 
-def runConsole(avoid_integration, argv):
-    if os.name == 'posix':
-        os.system("clear")
+def runConsole(single_test, avoid_integration, argv):
+    if single_test is None:
+        if os.name == 'posix':
+            os.system("clear")
+        module = None
+    else:
+        module_name = single_test[:-3].replace(os.sep,'.')
+        module =  __import__(module_name, globals(), locals(), [module_name])
 
     old_sys_exit = sys.exit
     def _exit(status = 0):
@@ -86,7 +91,10 @@ def runConsole(avoid_integration, argv):
     global AVOID_INTEGRATION
     AVOID_INTEGRATION = avoid_integration
     sys.argv = argv
-    unittest.main(defaultTest = 'suite')
+    if module is None:
+        unittest.main(defaultTest = 'suite')
+    else:
+        unittest.main(module = module, defaultTest = 'suite')
     debugThreads()
     old_sys_exit(EXIT_VALUE)
 
@@ -388,6 +396,9 @@ if __name__ == '__main__':
     parser.add_option('-t', '--tests',             dest='tests', action="store_true", default = False, 
                                                    help = "Additionally run the tests")
 
+    parser.add_option('-s', '--single',            dest='single_test', default = None, metavar = 'TESTFILE', 
+                                                   help = "Run a single test suite (instead of all the tests)")
+
     parser.add_option('-c', '--coverage',          dest='coverage', action="store_true", default = False, 
                                                    help = "Measure the coverage")
 
@@ -504,7 +515,7 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.CRITICAL + 1)
 
     if options.ui == 'console':
-        runConsole(options.avoid_integration, [sys.argv[0]] + (options.options or []))
+        runConsole(options.single_test, options.avoid_integration, [sys.argv[0]] + (options.options or []))
     elif options.ui == 'gui':
         runGui(options.avoid_integration, [sys.argv[0]] + (options.options or []))
     elif options.ui == 'xml':
