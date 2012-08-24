@@ -20,6 +20,7 @@ import json
 import threading
 import datetime
 import time
+import StringIO
 
 from voodoo.log import logged
 from voodoo.lock import locked
