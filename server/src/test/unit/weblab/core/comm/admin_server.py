@@ -19,7 +19,7 @@ import time
 import urllib2
 import datetime
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from weblab.data.dto.experiments import ExperimentUse
 from weblab.data.dto.experiments    import Experiment

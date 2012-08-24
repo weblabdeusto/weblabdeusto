@@ -1,6 +1,5 @@
 import sys, os
 sys.path.append(os.sep.join(("..","..","..","src")))
-import libraries
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

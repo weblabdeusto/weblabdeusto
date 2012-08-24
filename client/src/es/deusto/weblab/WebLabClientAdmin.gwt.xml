@@ -13,4 +13,5 @@
 	<!-- Specify the app entry point class.                   -->
 	<entry-point class='es.deusto.weblab.client.admin.WebLabClientAdmin'/>
 	
+	<public path="public_admin"></public>
 </module>

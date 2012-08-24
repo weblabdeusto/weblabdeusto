@@ -17,9 +17,6 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
-import libraries
-libraries.load()
-
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os

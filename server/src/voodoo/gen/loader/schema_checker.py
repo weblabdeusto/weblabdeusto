@@ -21,24 +21,36 @@ try:
     from lxml import etree
 except ImportError:
     LXML_AVAILABLE = False
+    MESSAGE_SHOWN  = False
 else:
     LXML_AVAILABLE = True
 
+from weblab.util import data_filename
 import voodoo.log as log
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
-XSD_DIRNAME = os.path.dirname(__file__) + os.sep + 'xsd' + os.sep
+module_directory = os.path.join(*__name__.split('.')[:-1])
 
 class SchemaChecker(object):
     def check_schema(self, xmlfile_path, xsdfile_path):
         if not LXML_AVAILABLE:
-            msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
+            global MESSAGE_SHOWN
+            if not MESSAGE_SHOWN:
+                msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
+                print >> sys.stderr, msg
+                log.log( SchemaChecker, log.level.Warning, msg )
+                MESSAGE_SHOWN = True
+            return
+        
+        xmlfile_content = self._read_xml_file(xmlfile_path)
+        xsdfile_full_path = data_filename(os.path.join(module_directory, 'xsd', xsdfile_path))
+        try:
+            xsdfile_content   = self._read_xsd_file(xsdfile_full_path)
+        except:
+            msg = "The XSD file %s could not be loaded. The syntax of the configuration files will not be checked." % xsdfile_full_path
             print >> sys.stderr, msg
             log.log( SchemaChecker, log.level.Warning, msg )
             return
-
-        xmlfile_content = self._read_xml_file(xmlfile_path)
-        xsdfile_content = self._read_xsd_file(XSD_DIRNAME + xsdfile_path)
 
         try:
             sio_xsd = StringIO(xsdfile_content)

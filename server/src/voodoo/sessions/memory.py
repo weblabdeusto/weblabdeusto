@@ -16,7 +16,7 @@ import threading
 import time
 import sys
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer

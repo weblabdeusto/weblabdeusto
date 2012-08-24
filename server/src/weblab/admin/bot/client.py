@@ -24,9 +24,6 @@ import cookielib
 
 import xmlrpclib
 
-import libraries
-libraries.load()
-
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
 import weblab.data.command as Command

@@ -1,0 +1,28 @@
+# 
+# These modules are only required for unit testing and checking the 
+# code. If you are going to develop something in WebLab-Deusto, they 
+# are highly recommended.
+#
+
+# 
+# pyflakes checks the code for potential bugs and cleaning the code
+# (you have imported this module but never used it, this variable is
+# mispelled, etc.)
+# 
+
+pyflakes<0.6
+
+# 
+# mocker and mock are two different mocking libraries for unit 
+# testing. We first used mocker and we are trying to migrate to
+# mock, but in the meanwhile, we require both.
+# 
+
+mocker<1.2
+mock<1.1
+
+# 
+# ciutils is required for continuous integration with CruiseControl
+# 
+
+ciutils==0.0.5

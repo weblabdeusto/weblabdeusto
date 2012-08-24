@@ -17,14 +17,16 @@ import os
 import sys
 import datetime
 import traceback
+import random
+import hashlib
 
 from sqlalchemy.orm import sessionmaker
 
 import weblab.db.model as Model
 
 def insert_required_initial_data(engine):
-    Session = sessionmaker(bind=engine)    
-    session = Session()
+    session = sessionmaker(bind=engine)    
+    session = session()
 
     # Roles
     administrator = Model.DbRole("administrator")
@@ -227,29 +229,29 @@ def populate_weblab_tests(engine, tests):
     session.add(ee1)
 
     # Authentication
-    session.add(Model.DbUserAuth(admin1,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin2,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin3,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(any,      weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof1,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof2,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof3,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student5, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin2,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin3,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(any,      weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof1,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof2,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof3,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student5, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student6, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
-    session.add(Model.DbUserAuth(studentILAB, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(consumer_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(studentILAB, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(consumer_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university2, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
     session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
@@ -1006,7 +1008,7 @@ def generate_create_database(engine_str):
             try:
                 import pymysql_sa
             except ImportError:
-                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install mysqldb'")
+                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install python-mysql'")
             pymysql_sa.make_default_mysql_dialect()
             import pymysql
             dbi = pymysql
@@ -1026,7 +1028,7 @@ def generate_create_database(engine_str):
             
             try:
                 dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
-            except dbi.OperationalError, e:
+            except Exception, e:
                 if e[1].startswith("Unknown database"):
                     sentence1 = "SELECT 1"
 
@@ -1049,3 +1051,95 @@ def generate_create_database(engine_str):
     else:
         return None
 
+def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+    session = sessionmaker()
+
+    student       = session.query(Model.DbRole).filter_by(name='student').one()
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
+
+    user    = Model.DbUser(login, user_name, mail, None, student)
+    session.add(user)
+
+    user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
+    session.add(user_auth)
+
+    session.commit()
+    session.close()
+
+def add_group(sessionmaker, group_name):
+    session = sessionmaker()
+    group = Model.DbGroup(group_name)
+    session.add(group)
+    session.commit()
+    session.close()
+
+def add_users_to_group(sessionmaker, group_name, *user_logins):
+    session = sessionmaker()
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    users = session.query(Model.DbUser).filter(Model.DbUser.login.in_(user_logins)).all()
+    for user in users:
+        group.users.append(user)
+    session.commit()
+    session.close()
+
+def add_experiment(sessionmaker, category_name, experiment_name):
+    session = sessionmaker()
+    existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
+    if existing_category is None:
+        category = Model.DbExperimentCategory(category_name)
+        session.add(category)
+    else:
+        category = existing_category
+    
+    start_date = datetime.datetime.utcnow()
+    # So leap years are not a problem
+    end_date = start_date.replace(year=start_date.year+12)
+
+    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date)
+    session.add(experiment)
+    session.commit()
+    session.close()
+
+def grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    session = sessionmaker()
+
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    
+    experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
+
+    experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
+    experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
+    experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+
+    group_permission = Model.DbGroupPermission(
+        group, experiment_allowed.group_applicable,
+        "%s users::%s@%s" % (group_name, experiment_name, category_name),
+        datetime.datetime.utcnow(),
+        "Permission for group %s users to use %s@%s" % (group_name, experiment_name, category_name))
+
+    session.add(group_permission)
+
+    group_permission_p1 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p1, experiment_name)
+    session.add(group_permission_p1)
+
+    group_permission_p2 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p2, category_name)
+    session.add(group_permission_p2)
+
+    group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p3, str(time_allowed))
+    session.add(group_permission_p3)
+
+    session.commit()
+    session.close()
+
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    add_experiment(sessionmaker, category_name, experiment_name)
+    grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
+
+def _password2sha(password, randomstuff = None):
+    if randomstuff is None:
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+    password = password if password is not None else ''
+    return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()

@@ -50,8 +50,8 @@ db_prefix   = "wl_"
 
 session_mysql_host     = 'localhost'
 session_mysql_db_name  = 'WebLabSessions'
-session_mysql_username = 'wl_session_user'
-session_mysql_password = 'wl_session_user_password'
+session_mysql_username = 'weblab'
+session_mysql_password = 'weblab'
 
 ##########################################
 # Sessions locker database configuration #
@@ -59,8 +59,8 @@ session_mysql_password = 'wl_session_user_password'
 
 session_locker_mysql_host     = 'localhost'
 session_locker_mysql_db_name  = 'WebLabSessions'
-session_locker_mysql_username = 'wl_session_user'
-session_locker_mysql_password = 'wl_session_user_password'
+session_locker_mysql_username = 'weblab'
+session_locker_mysql_password = 'weblab'
 
 ########################
 # Loader configuration #

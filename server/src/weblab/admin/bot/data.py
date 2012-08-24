@@ -16,7 +16,13 @@
 
 import sys
 import traceback
-import numpy as np
+
+try:
+    import numpy as np
+except ImportError:
+    NUMPY_AVAILABLE = False
+else:
+    NUMPY_AVAILABLE = True
 
 class BotError(object):
 

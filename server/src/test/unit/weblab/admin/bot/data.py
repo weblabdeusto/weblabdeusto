@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import unittest
 
 import weblab.admin.bot.data   as Data
@@ -46,8 +47,11 @@ class DataTestCase(unittest.TestCase):
 #        dto = mapper.dto_generator(binding)
 #        obj = mapper.load_from_dto(dto)
 
-def suite():
-    return unittest.makeSuite(DataTestCase)
+if Data.NUMPY_AVAILABLE:
+    def suite():
+        return unittest.makeSuite(DataTestCase)
+else:
+    print >> sys.stderr, "numpy not available. Disabling weblab.admin.bot tests."
 
 if __name__ == '__main__':
     unittest.main()
