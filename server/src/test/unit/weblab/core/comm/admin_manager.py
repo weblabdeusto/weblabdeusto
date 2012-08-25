@@ -15,7 +15,7 @@
 import unittest
 import datetime
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import test.unit.configuration as configuration
 import voodoo.configuration as ConfigurationManager

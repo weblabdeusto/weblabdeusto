@@ -17,7 +17,7 @@ import unittest
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.dbutil import get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData

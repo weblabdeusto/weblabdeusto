@@ -47,7 +47,7 @@ class ProtocolConfiguration(object):
         self.filled_creation    = None
 
 class ServerConfiguration(object):
-    def __init__(self, address, configurations, server_type, server_type_module, methods, implementation, restrictions, protocols):
+    def __init__(self, address, configurations, server_type, server_type_module, methods, implementation, restrictions, protocols, **kwargs):
         super(ServerConfiguration, self).__init__()
         self.address            = address
         self._configurations    = configurations
@@ -82,7 +82,7 @@ class ServerConfiguration(object):
                 )
 
 class InstanceConfiguration(object):
-    def __init__(self, address, configurations, servers):
+    def __init__(self, address, configurations, servers, **kwargs):
         super(InstanceConfiguration, self).__init__()
         self.address         = address
         self._configurations = configurations
@@ -107,11 +107,12 @@ class InstanceConfiguration(object):
         return "<InstanceConfiguration: configurations = %s; servers = %s>" % (self._configurations, self._servers)
 
 class MachineConfiguration(object):
-    def __init__(self, address, configurations, instances):
+    def __init__(self, address, configurations, instances, runner, **kwargs):
         super(MachineConfiguration, self).__init__()
         self.address         = address
         self._configurations = configurations
         self._instances      = instances
+        self.runner          = runner
 
     @property
     def instances(self):
@@ -122,10 +123,10 @@ class MachineConfiguration(object):
         return self._configurations[:]
 
     def __repr__(self):
-        return "<MachineConfiguration: configurations = %s; instances = %s>" % (self._configurations, self._instances)
+        return "<MachineConfiguration: configurations = %s; instances = %s; runner = %s>" % (self._configurations, self._instances, self.runner)
 
 class GlobalConfiguration(object):
-    def __init__(self, address, configurations, machines):
+    def __init__(self, address, configurations, machines, **kwargs):
         super(GlobalConfiguration, self).__init__()
         self._configurations = configurations
         self._machines       = machines

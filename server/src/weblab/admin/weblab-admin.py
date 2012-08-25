@@ -13,11 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import sys, os
-sys.path.append(os.path.abspath(os.path.join('..','..','src')))
-
-import libraries
-
 from weblab.admin.script import weblab
 
 if __name__ == '__main__':

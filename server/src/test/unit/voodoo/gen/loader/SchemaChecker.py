@@ -15,7 +15,6 @@
 import sys
 import unittest
 
-from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.loader.schema_checker as SchemaChecker
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
@@ -85,22 +84,8 @@ class SchemaCheckerTestCase(unittest.TestCase):
     else:
         print >> sys.stderr, "SchemaChecker tests skipped since lxml is not available"
 
-class LxmlNotAvailableTestCase(OptionalModuleTestCase):
-    MODULE    = SchemaChecker
-    ATTR_NAME = 'LXML_AVAILABLE'
-
-    def test_lxml_not_available(self):
-        def func():
-            sc = SchemaChecker.SchemaChecker()
-            sc.check_schema("foo","bar")
-
-        self._test_func_without_module(func)
-
 def suite():
-    return unittest.TestSuite((
-                        unittest.makeSuite(LxmlNotAvailableTestCase),
-                        unittest.makeSuite(SchemaCheckerTestCase)
-                    ))
+    return unittest.makeSuite(SchemaCheckerTestCase)
 
 if __name__ == '__main__':
     unittest.main()

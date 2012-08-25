@@ -13,7 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import redis
+try:
+    import redis
+except ImportError:
+    REDIS_AVAILABLE = False
+else:
+    REDIS_AVAILABLE = True
 
 import unittest
 
@@ -24,7 +29,6 @@ from weblab.data.experiments import ExperimentInstanceId
 
 from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
-from weblab.core.coordinator.redis.coordinator import Coordinator
 import weblab.core.coordinator.redis.resource_manager as ResourcesManager
 import weblab.core.coordinator.exc as CoordExc
 
@@ -315,8 +319,9 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(0, len(resource_type_names))
 
 
-def suite():
-    return unittest.makeSuite(ResourcesManagerTestCase)
+if REDIS_AVAILABLE:
+    def suite():
+        return unittest.makeSuite(ResourcesManagerTestCase)
 
 if __name__ == '__main__':
     unittest.main()

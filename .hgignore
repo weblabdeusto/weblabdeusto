@@ -10,9 +10,15 @@ regex:
 .metadata
 
 ^server/env
+^server/lib
 ^server/src/build
-^server/consumers/php/cookiefile
+^server/src/db
+^server/src/weblabdeusto_data
+^server/src/weblabdeusto.egg-info
+^server/src/.*.egg
+^server/src/dist
 ^server/src/env
+^server/consumers/php/cookiefile
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$
 ^server/launch/.*/_file_notifier.pid$
@@ -28,7 +34,6 @@ regex:
 ^server/launch/mit
 ^server/launch/utsantander
 ^server/launch/sanvalero
-^server/db/.*\.db$
 ^client/gwt-unitCache
 
 #
@@ -47,6 +52,7 @@ client/weblab.war
 client/www-test
 client/.gwt
 client/extras
+client/external
 
 client/.settings/com.google.gdt.eclipse.core.prefs
 
@@ -79,8 +85,6 @@ server/src/weblab/core/comm/generated/
 server/src/weblab/experiment/experiments/labview_experiment/fpga_programmer/config.py
 
 server/src/test/unit/weblab/proxy/files_stored/*
-
-server/deploy/weblab_administrator_credentials.py
 
 server/admin/cli/USERS
 server/admin/cli/OIDUSERS

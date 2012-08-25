@@ -25,8 +25,8 @@ mail_notification_enabled = False
 # Sessions configuration #
 ##########################
 
-session_mysql_username = 'wl_session_user'
-session_mysql_password = 'wl_session_user_password'
+session_mysql_username = 'weblab'
+session_mysql_password = 'weblab'
 
 session_locker_mysql_username = session_mysql_username
 session_locker_mysql_password = session_mysql_password

@@ -18,7 +18,7 @@ import datetime
 import Queue
 
 import json
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
