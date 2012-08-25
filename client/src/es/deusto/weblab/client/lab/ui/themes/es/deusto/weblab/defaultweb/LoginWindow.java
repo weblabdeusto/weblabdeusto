@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.WebLabClient;
+import es.deusto.weblab.client.WebLabClientLab;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
 import es.deusto.weblab.client.ui.widgets.WlAHref;
@@ -88,15 +89,6 @@ class LoginWindow extends BaseWindow {
 	// Properties
 	private static final String ADMIN_EMAIL_PROPERTY = "admin.email";
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
-	
-	private static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
-	private static final boolean DEFAULT_DEMO_AVAILABLE = false;
-	
-	private static final String DEMO_USERNAME_PROPERTY = "demo.username";
-	private static final String DEFAULT_DEMO_USERNAME = "demo";
-	
-	private static final String DEMO_PASSWORD_PROPERTY = "demo.password";
-	private static final String DEFAULT_DEMO_PASSWORD = "demo";
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
 	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
@@ -174,13 +166,13 @@ class LoginWindow extends BaseWindow {
 		this.introText.setHTML(this.i18nMessages.weblabDeustoIsARemote_long());
 		
 		final boolean demoAvailable = this.configurationManager.getBoolProperty(
-				LoginWindow.DEMO_AVAILABLE_PROPERTY,
-				LoginWindow.DEFAULT_DEMO_AVAILABLE
+				WebLabClientLab.DEMO_AVAILABLE_PROPERTY,
+				WebLabClientLab.DEFAULT_DEMO_AVAILABLE
 			);
 		
 		if ( demoAvailable ) {
-			final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
-			final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
+			final String demoUsername = this.configurationManager.getProperty( WebLabClientLab.DEMO_USERNAME_PROPERTY, WebLabClientLab.DEFAULT_DEMO_USERNAME);		
+			final String demoPassword = this.configurationManager.getProperty( WebLabClientLab.DEMO_PASSWORD_PROPERTY, WebLabClientLab.DEFAULT_DEMO_PASSWORD);	
 			this.demoAvailableHTML.setHTML(this.i18nMessages.demoLoginDetails(demoUsername, demoPassword));
 			
 		}else{
@@ -276,8 +268,8 @@ class LoginWindow extends BaseWindow {
 	
 	@UiHandler("guestButton")
 	void onGuestButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
-		final String demoUsername = this.configurationManager.getProperty( LoginWindow.DEMO_USERNAME_PROPERTY, LoginWindow.DEFAULT_DEMO_USERNAME);		
-		final String demoPassword = this.configurationManager.getProperty( LoginWindow.DEMO_PASSWORD_PROPERTY, LoginWindow.DEFAULT_DEMO_PASSWORD);	
+		final String demoUsername = this.configurationManager.getProperty( WebLabClientLab.DEMO_USERNAME_PROPERTY, WebLabClientLab.DEFAULT_DEMO_USERNAME);		
+		final String demoPassword = this.configurationManager.getProperty( WebLabClientLab.DEMO_PASSWORD_PROPERTY, WebLabClientLab.DEFAULT_DEMO_PASSWORD);	
 
 		startLoginProcess(demoUsername, demoPassword);
 	}
