@@ -5,7 +5,7 @@
 	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages" />
 	
 	<g:VerticalPanel spacing="20" horizontalAlignment="ALIGN_CENTER">
-		<g:Label text="{i18n.experimentInteractionFinishedGoBack}"/>
+		<g:Label text="{i18n.experimentInteractionFinishedGoBack}" style="mobile-title-label"/>
 		<g:Button ui:field="backButton" text="{i18n.back}"/>
 	</g:VerticalPanel>
 

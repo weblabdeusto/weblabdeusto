@@ -281,6 +281,34 @@ body
 	margin-left: auto;
 }
 
+/************************************************
+ *
+ * lab's es.deusto.weblab.defaultmobile Template
+ *
+ *
+ *
+ */
+
+.mobile-title-label
+{
+	font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.mobile-experiment-detail
+{
+	font-weight: bold;
+}
+
+.mobile-experiment-details
+{
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
 /****************************************************
  * experiments.plugins.es.deusto.weblab.gpib Related
  */
