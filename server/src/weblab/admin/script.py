@@ -296,6 +296,9 @@ def weblab_create(directory):
     parser.add_option("--base-url",               dest="base_url",       type="string",    default="",
                                                   help = "Base location, before /weblab/. Example: /deusto.")
 
+    parser.add_option("--entity-link",            dest="entity_link",       type="string",  default="http://www.yourentity.edu",
+                                                  help = "Link of the host entity (e.g. http://www.deusto.es ).")
+
     parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
@@ -1589,19 +1592,19 @@ def weblab_create(directory):
     configuration_js['sound.enabled']                  = False
     configuration_js['admin.email']                    = 'weblab@deusto.es'
     configuration_js['experiments.default_picture']    = '/img/experiments/default.jpg'
+    # TODO: Add a sample image
     if base_url != '' and base_url != '/':
         configuration_js['base.location']                  = base_url
         configuration_js['host.entity.image.login']        = '/img%s%s.png'        % (base_url, base_url) 
         configuration_js['host.entity.image']              = '/img%s%s.png'        % (base_url, base_url)
         configuration_js['host.entity.image.mobile']       = '/img%s%s-mobile.png' % (base_url, base_url)
     else:
-        # TODO: Add a sample
         configuration_js['base.location']                  = ''
         configuration_js['host.entity.image.login']        = '/img/sample/sample.png'
         configuration_js['host.entity.image']              = '/img/sample/sample.png'
         configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
 
-    configuration_js['host.entity.link']               = 'http://www.uts.edu.co/'
+    configuration_js['host.entity.link']               = options.entity_link
     configuration_js['facebook.like.box.visible']      = False
     configuration_js['create.account.visible']         = False
     json.dump(configuration_js, open(os.path.join(client_dir, 'configuration.js'), 'w'), indent = True)
