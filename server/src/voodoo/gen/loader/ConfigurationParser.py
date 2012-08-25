@@ -272,37 +272,28 @@ class AbstractConfigPlusLevelParser(AbstractParser):
 class InstanceParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.InstanceConfiguration
     XSD_FILE_PATH = INSTANCE_XSD_FILE_PATH
-    SUB_LEVEL = 'server'
+    SUB_LEVEL     = 'server'
     PARSER        = ServerParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                address.machine_id,
-                address.instance_id,
-                name
-            )
+        return CoordAddress.CoordAddress( address.machine_id, address.instance_id, name )
 
 
 class MachineParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.MachineConfiguration
     XSD_FILE_PATH = MACHINE_XSD_FILE_PATH
-    SUB_LEVEL = 'instance'
+    SUB_LEVEL     = 'instance'
     PARSER        = InstanceParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                address.machine_id,
-                name
-            )
+        return CoordAddress.CoordAddress( address.machine_id, name )
 
 class GlobalParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.GlobalConfiguration
     XSD_FILE_PATH = GLOBAL_XSD_FILE_PATH
-    SUB_LEVEL = 'machine'
+    SUB_LEVEL     = 'machine'
     PARSER        = MachineParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                name
-            )
+        return CoordAddress.CoordAddress( name )
 

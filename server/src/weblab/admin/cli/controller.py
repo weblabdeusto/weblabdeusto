@@ -31,72 +31,50 @@ try:
 except ImportError:
     LdapGatewayClass = None
 
+def get_variable(dictionary, name):
+    default = configuration_doc.variables[name].default
+    if default == configuration_doc.NO_DEFAULT:
+        return dictionary[name]
+    else:
+        return dictionary.get(name, default)
+
 class Controller(object):
 
-    def __init__(self, cfg_file = None):
+    def __init__(self, configuration_files = None):
         super(Controller, self).__init__()
 
-        if cfg_file is None:
-            configuration_file = 'configuration.py'
-        else:
-            configuration_file = cfg_file
+        for configuration_file in configuration_files:
+            if not os.path.exists(configuration_file):
+                print >> sys.stderr, "Could not file configuration file", configuration_file
+                sys.exit(1)
 
-        if not os.path.exists(configuration_file):
-            print >> sys.stderr, "Could not file configuration file", configuration_file
-            sys.exit(1)
+            execfile(configuration_file, globals(), globals())
 
-        execfile(configuration_file, globals(), globals())
+        global_vars = globals()
 
-        # Use 'configuration.py'
-        if cfg_file is None:
-            try:
-                self.db_host         = globals()['DB_HOST']
-                self.db_engine       = globals()['DB_ENGINE']
-                self.smtp_host       = globals()['SMTP_HOST']
-                self.smtp_helo       = globals()['SMTP_HELO']
-                self.default_db_name = globals()['DEFAULT_DB_NAME']
-                self.default_db_user = globals()['DEFAULT_DB_USER']
-                self.default_db_pass = globals()['DEFAULT_DB_PASS']
-                self.db_name         = None
-                self.db_user         = None
-                self.db_pass         = None
-                self.default_ldap_users_file   = globals()['DEFAULT_LDAP_USERS_FILE']
-                self.default_openid_users_file = globals()['DEFAULT_OPENID_USERS_FILE']
-                self.default_db_users_file     = globals()['DEFAULT_DB_USERS_FILE']
+        self.db_host           = get_variable(global_vars, configuration_doc.DB_HOST)
+        self.db_engine         = get_variable(global_vars, configuration_doc.DB_ENGINE)
+        self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
+        self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
+        self.db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
 
-                self.default_notification_from      = globals()['DEFAULT_NOTIFICATION_FROM']
-                self.default_notification_bcc       = globals()['DEFAULT_NOTIFICATION_BCC']
-                self.default_notification_subject   = globals()['DEFAULT_NOTIFICATION_SUBJECT']
-                self.default_notification_text_file = globals()['DEFAULT_NOTIFICATION_TEXT_FILE']
+        self.smtp_host         = globals().get(configuration_doc.MAIL_SERVER_HOST)
+        self.smtp_helo         = globals().get(configuration_doc.MAIL_SERVER_HELO)
 
-                self.default_notification_with_password_text_file = globals()['DEFAULT_NOTIFICATION_WITH_PASSWORD_TEXT_FILE']
-            except Exception, e:
-                print >> sys.stderr, "Configuration variable missing in %s. Error: %s" % (str(configuration_file), str(e))
-        # use regular file...
-        else:
-            self.db_host           = globals()[configuration_doc.DB_HOST]
-            self.db_engine         = globals()[configuration_doc.DB_ENGINE]
-            self.db_name           = globals()[configuration_doc.DB_DATABASE]
-            self.db_user           = globals()[configuration_doc.WEBLAB_DB_USERNAME]
-            self.db_pass           = globals()[configuration_doc.WEBLAB_DB_PASSWORD]
+        self.default_db_name   = self.db_name
+        self.default_db_user   = self.db_user
+        self.default_db_pass   = self.db_pass
 
-            self.smtp_host         = globals().get(configuration_doc.MAIL_SERVER_HOST)
-            self.smtp_helo         = globals().get(configuration_doc.MAIL_SERVER_HELO)
+        self.default_ldap_users_file   = 'USERS'
+        self.default_openid_users_file = 'USERSOID'
+        self.default_db_users_file     = 'USERSDB'
 
-            self.default_db_name   = self.db_name
-            self.default_db_user   = self.db_user
-            self.default_db_pass   = self.db_pass
+        self.default_notification_from    = globals().get(configuration_doc.MAIL_NOTIFICATION_SENDER)
+        self.default_notification_bcc     = globals().get(configuration_doc.SERVER_ADMIN)
+        self.default_notification_subject = 'WebLab-Deusto notification'
 
-            self.default_ldap_users_file   = 'USERS'
-            self.default_openid_users_file = 'USERSOID'
-            self.default_db_users_file     = 'USERSDB'
-
-            self.default_notification_from    = globals().get(configuration_doc.MAIL_NOTIFICATION_SENDER)
-            self.default_notification_bcc     = globals().get(configuration_doc.SERVER_ADMIN)
-            self.default_notification_subject = 'WebLab-Deusto notification'
-
-            self.default_notification_text_file = 'NOTIFICATION'
-            self.default_notification_with_password_text_file = 'NOTIFICATION_WITH_PASSWORD'
+        self.default_notification_text_file = 'NOTIFICATION'
+        self.default_notification_with_password_text_file = 'NOTIFICATION_WITH_PASSWORD'
 
         self.ui = ConsoleUI()
         self.init()

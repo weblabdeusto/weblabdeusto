@@ -41,6 +41,8 @@ import weblab.admin.deploy as deploy
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
+from voodoo.gen.loader.ConfigurationParser import GlobalParser
+
 # 
 # TODO
 #  - --visir
@@ -1655,11 +1657,12 @@ def weblab_create(directory):
 # 
 
 def weblab_start(directory):
+    # TODO: select the machine!!!
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
         execfile('run.py')
-    except:
+    finally:
         os.chdir(old_cwd)
 
 def weblab_stop(directory):
@@ -1668,6 +1671,38 @@ def weblab_stop(directory):
         sys.exit(-1)
     os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
 
+#########################################################################################
+# 
+# 
+# 
+#      W E B L A B     A D M I N
+# 
+# 
+# 
+
+def weblab_admin(directory):
+    old_cwd = os.getcwd()
+    os.chdir(directory)
+    try:
+        parser = GlobalParser()
+        global_configuration = parser.parse('.')
+        configuration_files = []
+        configuration_files.extend(global_configuration.configurations)
+        for machine in global_configuration.machines:
+            machine_config = global_configuration.machines[machine]
+            configuration_files.extend(machine_config.configurations)
+
+            for instance in machine_config.instances:
+                instance_config = machine_config.instances[instance]
+                configuration_files.extend(instance_config.configurations)
+
+                for server in instance_config.servers:
+                    server_config = instance_config.servers[server]
+                    configuration_files.extend(server_config.configurations)
+
+        Controller(configuration_files)
+    finally:
+        os.chdir(old_cwd)
 
 #########################################################################################
 # 
@@ -1806,23 +1841,6 @@ def weblab_monitor(directory):
         else:
             option_parser.print_help()
             break
-
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     A D M I N
-# 
-# 
-# 
-
-def weblab_admin(directory):
-    old_cwd = os.getcwd()
-    os.chdir(directory)
-    try:
-        Controller(os.path.join('core_machine', 'machine_config.py'))
-    finally:
-        os.chdir(old_cwd)
 
 #########################################################################################
 # 
