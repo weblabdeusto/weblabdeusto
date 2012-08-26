@@ -359,6 +359,9 @@ def weblab_create(directory):
     experiments.add_option("--visir-base-url",         dest="visir_base_url", default='', type="string", metavar='VISIR_BASE_URL',
                                                        help = "URL of the VISIR system (e.g. http://weblab-visir.deusto.es/electronics/ ). It should contain login.php, for instance. "  )
 
+    experiments.add_option("--visir-measurement-server", dest="visir_measurement_server", default=None, type="string", metavar='MEASUREMENT_SERVER',
+                                                       help = "Measurement server. E.g. weblab-visir.deusto.es:8080 "  )
+
     experiments.add_option("--visir-use-php",          dest="visir_use_php", action="store_true", default=True,
                                                        help = "VISIR can manage the authentication through a PHP code. This option is slower, but required if that scheme is used."  )
 
@@ -1149,8 +1152,13 @@ def weblab_create(directory):
             """    </protocols>\n"""
             """</server>\n"""))
 
-        result = urllib2.urlparse.urlparse(options.visir_base_url)
-        host_address = result.netloc.split(':')[0]
+        if options.visir_measurement_server is not None:
+            if not ':' in options.visir_measurement_server or options.visir_measurement_server.startswith(('http://','https://')) or '/' in options.visir_measurement_server.split(':')[1]:
+                print >> sys.stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
+            visir_measurement_server = options.visir_measurement_server
+        else:
+            result = urllib2.urlparse.urlparse(options.visir_base_url)
+            visir_measurement_server = result.netloc.split(':')[0] + ':8080'
 
         if options.visir_use_php:
             visir_php = ("""vt_use_visir_php = True\n"""
@@ -1167,11 +1175,15 @@ def weblab_create(directory):
            
 
         open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
-            """vt_measure_server_addr = "%(visir_server_host)s:8080"\n"""
+            """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
             """vt_measure_server_target = "/measureserver"\n"""
             """\n"""
             + visir_php +
             """\n"""
+            """# You can also specify a directory where different circuits will be loaded, such as:\n"""
+            """#\n"""
+            """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
+            """#\n"""
             """#\n"""
             """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
             """#\n"""
@@ -1188,15 +1200,12 @@ def weblab_create(directory):
             """#            </rotation>\n"""
             """#        </rotations>\n"""
             """#    </component>\n"""
+            """#    <!-- More components -->\n"""
             """#\n"""
             """# </components>\n"""
             """# \"\"\"\n"""
             """#\n"""
-            """# You can also specify a directory where different circuits will be loaded, such as:\n"""
-            """#\n"""
-            """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
-            """#\n"""
-            """\n""") % {'visir_server_host' : host_address })
+            """\n""") % {'visir_measurement_server' : visir_measurement_server })
 
 
 
