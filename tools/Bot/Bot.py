@@ -14,9 +14,7 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-import sys
 import os
-sys.path.append(os.sep.join(('..','..','server','src')))
 
 import datetime
 import time
@@ -25,9 +23,9 @@ try:
 except ImportError:
     import pickle
 
-import libraries
 import Configuration as Cfg
 
+from weblab.admin.bot.graphics import print_results
 from weblab.admin.bot.launcher import BotLauncher
 
 if __name__ == "__main__":
@@ -104,11 +102,7 @@ if __name__ == "__main__":
 
         if Cfg.GENERATE_GRAPHICS:
             print "Generating graphics..."
-            try:
-                import BotGraphics
-                BotGraphics.print_results(raw_information, configuration, execution_unique_id, True)
-            except ImportError:
-                print "Couldn't generate graphics. Maybe matplotlib.pyplot is not installed? See http://matplotlib.sourceforge.net/"
+            print_results(raw_information, configuration, execution_unique_id, True)
         else:
             print "Not generating graphics"
 

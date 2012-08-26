@@ -13,12 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import os, time, sys, glob
-sys.path.append(os.sep.join(('..','..','server','src')))
-
+import os, time, glob
 from BotMisc import show_time, flush
 
-import libraries
 import weblab
 import voodoo
 

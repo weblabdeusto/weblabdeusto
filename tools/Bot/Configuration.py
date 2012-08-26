@@ -14,11 +14,7 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-import sys, os, socket, subprocess
-sys.path.append(os.sep.join(('..','..','server','src')))
-
-import libraries
-
+import sys, socket, subprocess
 from weblab.admin.bot.user import StandardBotUser, DisconnectedBotUser, NotRespondingBotUser
 
 WEBLAB_PATH         = ('..','..','server','src')        # WebLab's source root path from this folder
