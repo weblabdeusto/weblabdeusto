@@ -17,7 +17,7 @@ import os
 import sys
 import json
 
-from BotMisc import show_time, flush
+from weblab.admin.bot.misc import show_time, flush
 import Configuration
 import platform
 
@@ -231,7 +231,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     DATE = "D_2012_04_12_T_09_53_03"
 
-    from BotInformationRetriever import get_raw_information
+    from weblab.admin.bot.information_retriever import get_raw_information
     raw_information = get_raw_information(DATE)
     print_results(raw_information, "configuration...", DATE)
 

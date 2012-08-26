@@ -14,7 +14,7 @@
 #
 
 import os, time, glob
-from BotMisc import show_time, flush
+from weblab.admin.bot.misc import show_time, flush
 
 import weblab
 import voodoo
