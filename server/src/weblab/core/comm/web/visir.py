@@ -37,7 +37,7 @@ import re
 
 VISIR_RELATIVE_PATH = data_filename(os.path.join('war','weblabclientlab','visir')) + os.sep
 
-VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
+VISIR_LOCATION = VISIR_RELATIVE_PATH
 VISIR_TEMP_FILES = os.sep.join((VISIR_LOCATION, 'temp')) + os.sep
 
 BASE_HTML_TEMPLATE="""<?xml version="1.0"?>

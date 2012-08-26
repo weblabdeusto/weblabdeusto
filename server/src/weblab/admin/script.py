@@ -22,6 +22,7 @@ import uuid
 import time
 import traceback
 import sqlite3
+import urllib2
 import json
 from optparse import OptionParser, OptionGroup
 
@@ -45,7 +46,6 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 
 # 
 # TODO
-#  - --visir
 #  - --virtual-machine
 #  - xmlrpc server
 #  - Support rebuild-db
@@ -347,9 +347,26 @@ def weblab_create(directory):
     experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
                                                        help = "What port should the Experiment Server use. Useful for development.")
 
-    # TODO
     experiments.add_option("--visir-server",           dest="visir_server", action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
+
+    experiments.add_option("--visir-slots",            dest="visir_slots", default=60, type="int", metavar='SLOTS',
+                                                       help = "Number of concurrent users of VISIR. "  )
+
+    experiments.add_option("--visir-experiment-name",  dest="visir_experiment_name", default='visir', type="string", metavar='EXPERIMENT_NAME',
+                                                       help = "Name of the VISIR experiment. "  )
+
+    experiments.add_option("--visir-base-url",         dest="visir_base_url", default='', type="string", metavar='VISIR_BASE_URL',
+                                                       help = "URL of the VISIR system (e.g. http://weblab-visir.deusto.es/electronics/ ). It should contain login.php, for instance. "  )
+
+    experiments.add_option("--visir-use-php",          dest="visir_use_php", action="store_true", default=True,
+                                                       help = "VISIR can manage the authentication through a PHP code. This option is slower, but required if that scheme is used."  )
+
+    experiments.add_option("--visir-login",            dest="visir_login", default='guest', type="string", metavar='USERNAME',
+                                                       help = "If the PHP version is used, define which username should be used. Default: guest."  )
+
+    experiments.add_option("--visir-password",         dest="visir_password", default='guest', type="string", metavar='PASSWORD',
+                                                       help = "If the PHP version is used, define which password should be used. Default: guest."  )
 
     # TODO
     experiments.add_option("--logic-server",           dest="logic_server", action="store_true", default=False,
@@ -606,7 +623,7 @@ def weblab_create(directory):
 
     # visir@Visir experiments (optional)
     if options.visir_server:
-        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', 'visir', group_name, 1800)
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options.visir_experiment_name, group_name, 1800)
 
     # vm@VM experiments (optional)
     if options.vm_server:
@@ -661,6 +678,18 @@ def weblab_create(directory):
     if not options.inline_lab_serv:
         machine_configuration_xml += "    <instance>laboratory</instance>\n\n"
     machine_configuration_xml += "</instances>\n"
+
+    local_experiments = ""
+    local_scheduling  = ""
+
+
+    local_experiments += "            'exp1|%(dummy)s|Dummy experiments'        : 'dummy@dummy',\n" % { 'dummy' : options.dummy_name }
+    local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
+
+    if options.visir_server:
+        for n in xrange(1, options.visir_slots + 1):
+            local_experiments += "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options.visir_experiment_name }
+        local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
@@ -734,7 +763,7 @@ def weblab_create(directory):
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
                         "    'laboratory:%(laboratory_instance_name)s@core_machine' : {\n"
-                        "            'exp1|%(dummy)s|Dummy experiments'        : 'dummy@dummy',\n"
+                        "%(local_experiments)s"
                         "        }\n"
                         "}\n"
                         "\n"
@@ -751,7 +780,7 @@ def weblab_create(directory):
                         "                            })\n"
                         "\n"
                         "core_scheduling_systems = {\n"
-                        "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
+                        "%(local_scheduling)s"
                         "        'robot_external'   : weblabdeusto_federation_demo,\n"
                         "    }\n"
                         "\n") % {
@@ -766,7 +795,8 @@ def weblab_create(directory):
         'server_admin'                    : options.admin_mail,
         'server_url'                      : server_url,
         'poll_time'                       : options.poll_time,
-        'dummy'                           : options.dummy_name,
+        'local_experiments'               : local_experiments,
+        'local_scheduling'                : local_scheduling,
 
         'session_storage'                 : session_storage,
 
@@ -834,6 +864,8 @@ def weblab_create(directory):
             instance_configuration_xml += """    <server>laboratory</server>\n"""
             if not options.xmlrpc_experiment:
                 instance_configuration_xml += """    <server>experiment</server>\n"""
+            if options.visir_server:
+                instance_configuration_xml += """    <server>visir</server>\n"""
             
             
         instance_configuration_xml += (
@@ -963,7 +995,7 @@ def weblab_create(directory):
         if not os.path.exists(lab_instance_dir):
             os.mkdir(lab_instance_dir)
 
-        open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write((
+        lab_instance_configuration_xml = (
             """<?xml version="1.0" encoding="UTF-8"?>\n"""
             """<servers \n"""
             """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
@@ -974,8 +1006,14 @@ def weblab_create(directory):
             """\n"""
             """    <server>laboratory</server>\n"""
             """    <server>experiment</server>\n"""
-            """</servers>\n"""
-        ))
+            )
+
+        if options.visir_server:
+            lab_instance_configuration_xml += """    <server>visir</server>\n"""
+
+        lab_instance_configuration_xml += """</servers>\n"""
+
+        open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write( lab_instance_configuration_xml )
 
     lab_dir = os.path.join(lab_instance_dir, 'laboratory')
     if not os.path.exists(lab_dir):
@@ -1018,18 +1056,33 @@ def weblab_create(directory):
 		"""</server>\n""") % {'port' : current_port})
     current_port += 1
 
-    open(os.path.join(lab_dir, 'server_config.py'), 'w').write((
+    laboratory_config_py = (
 		"""##################################\n"""
 		"""# Laboratory Server configuration #\n"""
 		"""##################################\n"""
 		"""\n"""
 		"""laboratory_assigned_experiments = {\n"""
+    )
+
+    laboratory_config_py += (
 		"""        'exp1:%(dummy)s@Dummy experiments' : {\n"""
 		"""                'coord_address' : 'experiment:%(instance)s@core_machine',\n"""
 		"""                'checkers' : ()\n"""
-		"""            }\n"""
-		"""    }\n"""
-    )  % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name })
+		"""            },\n"""
+    ) % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name }
+
+    if options.visir_server:
+        for n in xrange(1, options.visir_slots + 1):
+            laboratory_config_py += (
+                """        'exp%(n)s:%(visir_name)s@Visir experiments' : {\n"""
+                """                'coord_address' : 'visir:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name, 'visir_name' : options.visir_experiment_name, 'n' : n }       
+
+    laboratory_config_py += """    }\n"""
+
+    open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
 
     experiment_dir = os.path.join(lab_instance_dir, 'experiment')
     if not os.path.exists(experiment_dir):
@@ -1064,6 +1117,88 @@ def weblab_create(directory):
 
     open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
         "dummy_verbose = True\n")
+
+
+    if options.visir_server:
+        visir_dir = os.path.join(lab_instance_dir, 'visir')
+        if not os.path.exists(visir_dir):
+            os.mkdir(visir_dir)
+
+        open(os.path.join(visir_dir, 'configuration.xml'), 'w').write((
+            """<?xml version="1.0" encoding="UTF-8"?>\n"""
+            """<server\n"""
+            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+            """>\n"""
+            """\n"""
+            """    <configuration file="server_config.py" />\n"""
+            """\n"""
+            """    <type>weblab.data.server_type::Experiment</type>\n"""
+            """    <methods>weblab.methods::Experiment</methods>\n"""
+            """\n"""
+            """    <implementation>experiments.visir.VisirExperiment</implementation>\n"""
+            """\n"""
+            """    <protocols>\n"""
+            """        <protocol name="Direct">\n"""
+            """            <coordinations>\n"""
+            """                <coordination></coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation></creation>\n"""
+            """        </protocol>\n"""
+            """    </protocols>\n"""
+            """</server>\n"""))
+
+        result = urllib2.urlparse.urlparse(options.visir_base_url)
+        host_address = result.netloc.split(':')[0]
+
+        if options.visir_use_php:
+            visir_php = ("""vt_use_visir_php = True\n"""
+            """vt_base_url = "%(visir_base_url)s"\n"""
+            """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
+            """vt_login_email = "%(visir_login)s"\n"""
+            """vt_login_password = "%(visir_password)s"\n""" % {
+                'visir_base_url' : options.visir_base_url,
+                'visir_login'    : options.visir_login,
+                'visir_password' : options.visir_password,
+            })
+        else:
+            visir_php = """vt_use_visir_php = False\n"""
+           
+
+        open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
+            """vt_measure_server_addr = "%(visir_server_host)s:8080"\n"""
+            """vt_measure_server_target = "/measureserver"\n"""
+            """\n"""
+            + visir_php +
+            """\n"""
+            """#\n"""
+            """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
+            """#\n"""
+            """# vt_library = \"\"\"\n"""
+            """# <!DOCTYPE components PUBLIC "-//Open labs//DTD COMPONENTS 1.0//EN" "http://openlabs.bth.se/DTDs/components-1.0.dtd">\n"""
+            """# <components>\n"""
+            """#    <component type="R" value="1.5M" pins="2">\n"""
+            """#        <rotations>\n"""
+            """#            <rotation ox="-27" oy ="-6" image="r_1.5M.png" rot="0">\n"""
+            """#                <pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>\n"""
+            """#            </rotation>\n"""
+            """#            <rotation ox="-7" oy ="-27" image="r_1.5M.png" rot="90">\n"""
+            """#                <pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>\n"""
+            """#            </rotation>\n"""
+            """#        </rotations>\n"""
+            """#    </component>\n"""
+            """#\n"""
+            """# </components>\n"""
+            """# \"\"\"\n"""
+            """#\n"""
+            """# You can also specify a directory where different circuits will be loaded, such as:\n"""
+            """#\n"""
+            """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
+            """#\n"""
+            """\n""") % {'visir_server_host' : host_address })
+
+
 
     files_stored_dir = os.path.join(directory, 'files_stored')
     if not os.path.exists(files_stored_dir):
