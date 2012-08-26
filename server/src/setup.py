@@ -320,7 +320,7 @@ load_requires(tests_require,    'requirements_testing.txt')
 # 
 # 
 
-scripts = [ 'weblab/admin/weblab-admin.py' ]
+scripts = [ 'weblab/admin/weblab-admin' ]
 
 classifiers=[
     "Development Status :: 5 - Production/Stable",
