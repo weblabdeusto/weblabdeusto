@@ -23,11 +23,12 @@ EXPERIMENT_NAME     = "ud-dummy"                        # Experiment name to int
 CATEGORY_NAME       = "Dummy experiments"               # Experiment category name to interact with
 PROGRAM_FILE        = "this is the content of the file" # Program file to send
 
-ITERATIONS          = 10                                # Times to repeat each launch
+ITERATIONS          = 2                                # Times to repeat each launch
 
 
 GENERATE_GRAPHICS   = True
-MATPLOTLIB_BACKEND  = 'cairo.pdf'
+# MATPLOTLIB_BACKEND  = 'cairo.pdf'
+MATPLOTLIB_BACKEND  = 'Agg'
 STEP_DELAY          = 0.05
 
 SYSTEMS = {
@@ -49,13 +50,14 @@ def generate_scenarios():
 
     scenarios = []
     for protocol in cfg_util.get_supported_protocols():
-        for number in range(1, 5):
+        for number in range(1, 4):
             scenarios.append(
                     Scenario(
                         cfg_util.new_bot_users(number, new_standard_bot_user, 0, STEP_DELAY, protocol),
                         protocol, number
                     )
                 )
+        break
         for number in range(5, 151, 5):
             scenarios.append(
                     Scenario(

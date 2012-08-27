@@ -18,25 +18,21 @@ import os
 
 import datetime
 import time
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import cPickle as pickle
 
-import Configuration as Cfg
+import configuration as cfg
 
 from weblab.admin.bot.graphics import print_results
 from weblab.admin.bot.launcher import BotLauncher
 
-if __name__ == "__main__":
-
+def main():
     if not os.path.exists('logs'): 
         os.mkdir('logs')
 
     if not os.path.exists('figures'):
         os.mkdir('figures')
 
-    for num_configuration, configuration in enumerate(Cfg.CONFIGURATIONS):
+    for num_configuration, configuration in enumerate(cfg.CONFIGURATIONS):
         now = datetime.datetime.now()
         execution_unique_id = 'D_%s_%s_%s_T_%s_%s_%s_' % (
                     ('%s' % now.year).zfill(4),
@@ -55,7 +51,7 @@ if __name__ == "__main__":
 
         execution_results = {}
 
-        scenarios = Cfg.generate_scenarios()
+        scenarios = cfg.generate_scenarios()
         for num_scenario, scenario in enumerate(scenarios):
 
             if not scenario.category in execution_results:
@@ -64,15 +60,15 @@ if __name__ == "__main__":
             pickle_filename = "logs" + os.sep + "botclient_%s_SCEN_%s_CONFIG_%s.pickle" % (
                                     execution_unique_id, 
                                     str(num_scenario).zfill(len(str(len(scenarios)))), 
-                                    str(num_configuration).zfill(len(str(len(Cfg.CONFIGURATIONS))))
+                                    str(num_configuration).zfill(len(str(len(cfg.CONFIGURATIONS))))
                             )
             botlauncher = BotLauncher(
                 configuration,
-                Cfg.HOST,
+                cfg.HOST,
                 pickle_filename,
                 "logging.cfg",
                 scenario=scenario.users, 
-                iterations=Cfg.ITERATIONS,
+                iterations=cfg.ITERATIONS,
             )
                 
             botlauncher.start()
@@ -104,9 +100,9 @@ if __name__ == "__main__":
             import traceback
             traceback.print_stack()
 
-        if Cfg.GENERATE_GRAPHICS:
+        if cfg.GENERATE_GRAPHICS:
             print "Generating graphics..."
-            print_results(raw_information, configuration, execution_unique_id, True)
+            print_results(raw_information, configuration, execution_unique_id, cfg, True)
         else:
             print "Not generating graphics"
 

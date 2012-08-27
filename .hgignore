@@ -101,6 +101,7 @@ server/admin/logging/generate_logging_config_file/configuration.py
 
 tools/ExperimentServerTester/src/persistence.dat
 tools/PackageCreator/packages
+tools/Bot/configuration.py
 tools/Bot/logs.txt.*
 tools/Bot/.*.html
 tools/Bot/.*.dump

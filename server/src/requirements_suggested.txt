@@ -63,6 +63,7 @@ lxml<2.4
 
 # 
 # The WebLab-Deusto Bot uses matplotlib to plot the graphics
-# of the time measurements.
+# of the time measurements. matplotlib also relies on pycairo
+# for the usage made on the Bot.
 # 
 matplotlib<1.2

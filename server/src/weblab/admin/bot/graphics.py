@@ -18,7 +18,6 @@ import sys
 import json
 
 from weblab.admin.bot.misc import show_time, flush
-import Configuration
 import platform
 
 METHODS = ["login", "list_experiments", "reserve_experiment", "get_reservation_status", "logout", "finished_experiment", "send_file", "send_command", "poll", "get_user_information"]
@@ -34,7 +33,7 @@ def get_figure_filename(protocol, method, date):
 
 exec(GET_FIGURE_FILENAME_CODE)
 
-def generate_html(protocols, configuration, methods, date):
+def generate_html(protocols, configuration, methods, date, default_system_info, running_configuration):
 
     # Retrieve this information in Linux systems
     try:
@@ -46,7 +45,7 @@ def generate_html(protocols, configuration, methods, date):
         ram = [ line.split(' ')[-2] for line in open("/proc/meminfo").readlines() if line.startswith("MemTotal:")][0]
         memory = '%.2fGB' % ( int(ram) / (1024.0 * 1024.0))
     except:
-        system_info = Configuration.SYSTEM
+        system_info = default_system_info
     else:
         system_info = "%s %s" % (model_name, memory)
 
@@ -59,7 +58,7 @@ def generate_html(protocols, configuration, methods, date):
     System: %s<br/>
     <a name="index"><h2>Index</h2></a>
     <ul>
-    """ % (date, date, Configuration.RUNNING_CONFIGURATION, configuration, all_system_info)
+    """ % (date, date, running_configuration, configuration, all_system_info)
 
     for protocol in protocols:
         page += """\t<li><a href="#%s">%s</a>: <ul>""" % (protocol, protocol)
@@ -96,7 +95,7 @@ def generate_html(protocols, configuration, methods, date):
     page += """</table></center></body></html>"""
     return page
 
-def print_results(raw_information, configuration, date, verbose = True):
+def print_results(raw_information, configuration, date, cfg, verbose = True):
     working_methods = METHODS[:]
 
     all_data = {
@@ -150,7 +149,8 @@ def print_results(raw_information, configuration, date, verbose = True):
 import os
 import math
 import matplotlib
-matplotlib.use(%(backend)r)
+if %(backend)r != '':
+    matplotlib.use(%(backend)r)
 import matplotlib.pyplot as plt
 
 %(get_figure_filename)s
@@ -206,7 +206,7 @@ def print_figures():
 if __name__ == '__main__':
     print_figures()
     """ % {
-        'backend'             : Configuration.MATPLOTLIB_BACKEND,
+        'backend'             : cfg.MATPLOTLIB_BACKEND,
         'get_figure_filename' : GET_FIGURE_FILENAME_CODE,
         'working_methods'     : working_methods,
         'all_data'            : json.dumps(all_data, indent=4),
@@ -221,7 +221,7 @@ if __name__ == '__main__':
     print "[done]"
 
 
-    html = generate_html(protocols, configuration, working_methods, date)
+    html = generate_html(protocols, configuration, working_methods, date, cfg.SYSTEM, cfg.RUNNING_CONFIGURATION)
     html_filename = 'botclient_%s.html' % date
     open(html_filename, 'w').write(html)
 
