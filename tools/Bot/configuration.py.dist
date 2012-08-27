@@ -16,6 +16,7 @@
 
 import weblab.admin.bot.cfg_util as cfg_util
 
+VERBOSE             = False
 HOST                = "localhost"                       # WebLab's hostname
 USERNAME            = "student1"                        # WebLab's username to login
 PASSWORD            = "password"                        # WebLab user's password do login

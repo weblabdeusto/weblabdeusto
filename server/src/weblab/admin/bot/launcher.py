@@ -27,9 +27,13 @@ import voodoo.mapper as mapper
 
 class BotLauncher(object):
 
-    def __init__(self, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations):
+    def __init__(self, configuration, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, verbose):
         super(BotLauncher, self).__init__()
-        self.launch_file = launch_file_name
+        self.verbose = verbose
+        if isinstance(configuration, basestring):
+            self.launch_files = [ configuration ]
+        else:
+            self.launch_files = configuration
         self.host = host
         self.pickle_file_name = pickle_file_name
         self.logging_cfg_file_name = logging_cfg_file_name
@@ -96,8 +100,16 @@ class BotLauncher(object):
     def _launch_iteration(self):
 
         # Launching botusers...
-        weblab_process = WebLabProcess.WebLabProcess(self.launch_file, self.host)
-        weblab_process.start()
+        started_processes = []
+        try:
+            for launch_file in self.launch_files:
+                weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, verbose = self.verbose)
+                weblab_process.start()
+                started_processes.append(weblab_process)
+        except:
+            for started_process in started_processes:
+                started_process.shutdown()
+            raise
         try:
             botusers = []
             for botuser_creator_name, botuser_creator in self.scenario:
@@ -116,7 +128,12 @@ class BotLauncher(object):
                 time.sleep(0.3)
             iteration_time = time.time() - begin_time
         finally:
-            weblab_process.shutdown()
+            complete_out = ''
+            complete_err = ''
+            for started_process in started_processes:
+                started_process.shutdown()
+                complete_out += started_process.out
+                complete_err += started_process.err
 
         botuser_routes = [ botuser.route for botuser in botusers ]
         routes = {}
@@ -133,7 +150,7 @@ class BotLauncher(object):
         for botuser in botusers:
             for exception, trace in botuser.get_exceptions():
                 self._add_exception(exceptions, (exception, trace))
-        return Data.BotIteration(iteration_time, exceptions, botusers, weblab_process.out, weblab_process.err)
+        return Data.BotIteration(iteration_time, exceptions, botusers, complete_out, complete_err)
 
     def len(self):
         return self.users / self.step
