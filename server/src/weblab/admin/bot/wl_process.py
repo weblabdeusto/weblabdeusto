@@ -15,6 +15,7 @@
 #
 
 import os
+import glob
 import subprocess
 import time
 import urllib2
@@ -47,6 +48,22 @@ class WebLabProcess(object):
         variables = {}
         execfile(debugging_file, variables, variables)
         self.ports = variables['PORTS']
+
+        # 
+        # After running the bot several times, the amount of files stored and logs
+        # increase a lot. We remove them in the beginning. We should do the same
+        # with the database.
+        # 
+        files_stored_dir = os.path.join(self.launch_path, 'files_stored')
+        if os.path.exists(files_stored_dir):
+            for file_stored in glob.glob('%s/*' % files_stored_dir):
+                os.remove(file_stored)
+
+        logs_dir = os.path.join(self.launch_path, 'logs')
+        if os.path.exists(logs_dir):
+            for log_file in glob.glob('%s/*txt*' % logs_dir):
+                os.remove(log_file)
+
 
     def _has_started(self):
         try:
