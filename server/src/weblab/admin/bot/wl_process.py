@@ -28,6 +28,9 @@ class WebLabProcess(object):
     def __init__(self, launch_file, host, base_location = '', verbose = False):
         super(WebLabProcess, self).__init__()
 
+        self.out = 'Not started'
+        self.err = 'Not started'
+
         if os.sep != '/' and '/' in launch_file and os.sep in launch_file:
             raise Exception("Both %s and / found in launch_file (%s), only one expected" % (os.sep, launch_file))
 
