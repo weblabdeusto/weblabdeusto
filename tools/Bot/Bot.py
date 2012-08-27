@@ -30,6 +30,12 @@ from weblab.admin.bot.launcher import BotLauncher
 
 if __name__ == "__main__":
 
+    if not os.path.exists('logs'): 
+        os.mkdir('logs')
+
+    if not os.path.exists('figures'):
+        os.mkdir('figures')
+
     for num_configuration, configuration in enumerate(Cfg.CONFIGURATIONS):
         now = datetime.datetime.now()
         execution_unique_id = 'D_%s_%s_%s_T_%s_%s_%s_' % (
