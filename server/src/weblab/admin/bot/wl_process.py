@@ -14,7 +14,9 @@
 #          Pablo Orduña <pablo@ordunya.com>
 #
 
+import StringIO
 import os
+import traceback
 import glob
 import subprocess
 import time
@@ -23,7 +25,7 @@ import voodoo.killer as killer
 
 class WebLabProcess(object):
 
-    def __init__(self, launch_file, host, base_location = ''):
+    def __init__(self, launch_file, host, base_location = '', verbose = False):
         super(WebLabProcess, self).__init__()
 
         if os.sep != '/' and '/' in launch_file and os.sep in launch_file:
@@ -31,6 +33,7 @@ class WebLabProcess(object):
 
         self.host        = host
         self.base_location = base_location
+        self.verbose       = verbose
 
         normalized_launch_file = launch_file.replace('/', os.sep) 
         
@@ -66,36 +69,66 @@ class WebLabProcess(object):
 
 
     def _has_started(self):
+        running  = []
+        failures = []
         try:
             matches = True
 
             for port in self.ports['soap']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/soap/?WSDL' % (self.host, port, self.base_location)).read()
+                soap_url = 'http://%s:%s%s/weblab/soap/?WSDL' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print soap_url
+                current_content = urllib2.urlopen(soap_url).read()
                 matches &= current_content.find("definitions targetNamespace") > 0
+                running.append('soap')
 
             for port in self.ports['xmlrpc']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/xmlrpc/' % (self.host, port, self.base_location)).read()
+                xmlrpc_url = 'http://%s:%s%s/weblab/xmlrpc/' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print xmlrpc_url
+                current_content = urllib2.urlopen(xmlrpc_url).read()
                 matches &= current_content.find("XML-RPC service") > 0
+                running.append('xmlrpc')
 
             for port in self.ports['json']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/json/' % (self.host, port, self.base_location)).read()
+                json_url = 'http://%s:%s%s/weblab/json/' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print json_url
+                current_content = urllib2.urlopen(json_url).read()
                 matches &= current_content.find("JSON service") > 0
+                running.append('json')
 
             for port in self.ports['soap_login']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/soap/?WSDL' % (self.host, port, self.base_location)).read()
+                soap_login_url = 'http://%s:%s%s/weblab/login/soap/?WSDL' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print soap_login_url
+                current_content = urllib2.urlopen(soap_login_url).read()
                 matches &= current_content.find("definitions targetNamespace") > 0
+                running.append('soap_login')
 
             for port in self.ports['xmlrpc_login']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/xmlrpc/' % (self.host, port, self.base_location)).read()
+                xmlrpc_login_url = 'http://%s:%s%s/weblab/login/xmlrpc/' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print xmlrpc_login_url
+                current_content = urllib2.urlopen(xmlrpc_login_url).read()
                 matches &= current_content.find("XML-RPC service") > 0
+                running.append('xmlrpc_login')
 
             for port in self.ports['json_login']:
-                current_content = urllib2.urlopen('http://%s:%s%s/weblab/login/json/' % (self.host, port, self.base_location)).read()
+                json_login_url = 'http://%s:%s%s/weblab/login/json/' % (self.host, port, self.base_location)
+                if self.verbose:
+                    print json_login_url
+                current_content = urllib2.urlopen(json_login_url).read()
                 matches &= current_content.find("JSON service") > 0
+                running.append('json_login')
 
-            return matches
+            return matches, 'not matches'
         except Exception:
-            return False
+            sio = StringIO.StringIO()
+            traceback.print_exc(file=sio)
+            if self.verbose:
+                print sio.getvalue()
+            return False, sio.getvalue()
 
     def _has_finished(self):
         return self.popen.poll() is not None
@@ -115,14 +148,17 @@ class WebLabProcess(object):
         time.sleep(8)
 
         max_iterations = 10
-        while not self._has_started() and max_iterations > 0:
+        while max_iterations > 0:
+            started, failure = self._has_started()
+            if started:
+                break
             max_iterations -= 1
             time.sleep(4)
         if max_iterations == 0:
             if self.popen.poll() is not None:
                 print self.popen.stdout.read()
                 print self.popen.stderr.read()
-            raise Exception("Server couldn't start!")
+            raise Exception("Server couldn't start! Failure: %s" % failure)
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
         time.sleep(4)
 

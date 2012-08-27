@@ -69,6 +69,7 @@ def main():
                 "logging.cfg",
                 scenario=scenario.users, 
                 iterations=cfg.ITERATIONS,
+                verbose = cfg.VERBOSE,
             )
                 
             botlauncher.start()
