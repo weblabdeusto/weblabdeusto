@@ -21,37 +21,33 @@ import urllib2
 import copy
 import voodoo.killer as killer
 
-LAUNCH_DIR = os.sep.join(('..','launch'))
-
 class WebLabProcess(object):
 
-    def __init__(self, weblab_path, launch_file, host, ports, base_location = ''):
-        # ports = { "soap" : (10123, 20123), "xmlrpc" : (...) ...}
+    def __init__(self, launch_file, host, base_location = ''):
         super(WebLabProcess, self).__init__()
-        self.weblab_path = list(weblab_path)
-        self.launch_file = launch_file
+
+        if os.sep != '/' and '/' in launch_file and os.sep in launch_file:
+            raise Exception("Both %s and / found in launch_file (%s), only one expected" % (os.sep, launch_file))
+
         self.host        = host
-        self.ports       = ports
         self.base_location = base_location
-        self._set_paths()
 
-    def _set_paths(self):
-        os_sep_found = os.sep in self.launch_file
-        slash_found = '/' in self.launch_file
+        normalized_launch_file = launch_file.replace('/', os.sep) 
+        
+        self.launch_file = os.path.basename(self.normalized_launch_file)
+        self.launch_path = os.path.abspath(os.path.dirname(normalized_launch_file))
 
-        if os.sep != '/' and os_sep_found and slash_found:
-            raise Exception("Both %s and / found in launch_file, only one expected" % os.sep)
+        if not os.path.exists(self.launch_path):
+            raise Exception("Expected launch path %s not found" % self.launch_path)
 
-        launch_path = copy.copy(self.weblab_path)
-        launch_path.append(LAUNCH_DIR)
+        debugging_file = os.path.join(self.launch_path, 'debugging.py')
 
-        if os_sep_found or slash_found:
-            sep = os.sep if os_sep_found else '/'
-            additional_directory = self.launch_file[:self.launch_file.rfind(sep)]
-            launch_path.extend(additional_directory.split(sep))
-            self.launch_file = self.launch_file[self.launch_file.rfind(sep) + 1:]
+        if not os.path.exists(debugging_file):
+            raise Exception("Expected debugging file %s not found" % debugging_file)
 
-        self.launch_path = os.path.abspath( os.sep.join(launch_path) )
+        variables = {}
+        execfile(debugging_file, variables, variables)
+        self.ports = variables['PORTS']
 
     def _has_started(self):
         try:

@@ -61,14 +61,12 @@ if __name__ == "__main__":
                                     str(num_configuration).zfill(len(str(len(Cfg.CONFIGURATIONS))))
                             )
             botlauncher = BotLauncher(
-                Cfg.WEBLAB_PATH,
                 configuration,
                 Cfg.HOST,
                 pickle_filename,
                 "logging.cfg",
                 scenario=scenario.users, 
                 iterations=Cfg.ITERATIONS,
-                ports=Cfg.PORTS[configuration]
             )
                 
             botlauncher.start()

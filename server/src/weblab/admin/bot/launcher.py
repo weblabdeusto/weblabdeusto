@@ -27,9 +27,8 @@ import voodoo.mapper as mapper
 
 class BotLauncher(object):
 
-    def __init__(self, weblab_path, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, ports):
+    def __init__(self, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations):
         super(BotLauncher, self).__init__()
-        self.weblab_path = weblab_path
         self.launch_file = launch_file_name
         self.host = host
         self.pickle_file_name = pickle_file_name
@@ -37,7 +36,6 @@ class BotLauncher(object):
         self.scenario = scenario
         self.iterations = iterations
         self.results = []
-        self.ports   = ports # { 'soap' : (10123, 20123), ... }
 
         self._set_logging_cfg()
         self._set_users()
@@ -98,7 +96,7 @@ class BotLauncher(object):
     def _launch_iteration(self):
 
         # Launching botusers...
-        weblab_process = WebLabProcess.WebLabProcess(self.weblab_path, self.launch_file, self.host, self.ports)
+        weblab_process = WebLabProcess.WebLabProcess(self.launch_file, self.host)
         weblab_process.start()
         try:
             botusers = []
