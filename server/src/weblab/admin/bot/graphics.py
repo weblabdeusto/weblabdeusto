@@ -28,6 +28,10 @@ GET_FIGURE_FILENAME_CODE="""def get_figure_filename(protocol, method, date):
     return "figures" + os.sep + "figure_" + date + "_" + protocol + "_" + method + ".png"
 """
 
+def get_figure_filename(protocol, method, date):
+    " The exec() after this will rewrite this function. This is only written so as to avoid warnings. "
+    pass
+
 exec(GET_FIGURE_FILENAME_CODE)
 
 def generate_html(protocols, configuration, methods, date):
@@ -123,7 +127,7 @@ def print_results(raw_information, configuration, date, verbose = True):
                 try:
                     x, y = raw_information[protocol]
                     y = map(func_on_results, y)
-                except KeyError, ke:
+                except KeyError:
                     continue
                 except: 
                     import traceback

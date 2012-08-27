@@ -13,16 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import os, time, glob
+import os, glob
 from weblab.admin.bot.misc import show_time, flush
 
-import weblab
-import voodoo
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import cPickle as pickle
 
 FILE_NAME_TEMPLATE = "logs" + os.sep + "botclient_%s__SCEN_%s_CONFIG_0.pickle"
 FILL_NUMBER = 2

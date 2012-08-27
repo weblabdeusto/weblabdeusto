@@ -24,8 +24,6 @@ import test.unit.voodoo.gen.coordinator.SampleServerType as SampleServerType
 
 import voodoo.configuration as ConfigurationManager
 
-import voodoo.sessions.memory as SessionMemoryGateway
-
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.Access as Access
 import voodoo.gen.coordinator.AccessLevel as AccessLevel

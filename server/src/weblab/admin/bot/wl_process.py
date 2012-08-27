@@ -18,7 +18,6 @@ import os
 import subprocess
 import time
 import urllib2
-import copy
 import voodoo.killer as killer
 
 class WebLabProcess(object):
@@ -34,7 +33,7 @@ class WebLabProcess(object):
 
         normalized_launch_file = launch_file.replace('/', os.sep) 
         
-        self.launch_file = os.path.basename(self.normalized_launch_file)
+        self.launch_file = os.path.basename(normalized_launch_file)
         self.launch_path = os.path.abspath(os.path.dirname(normalized_launch_file))
 
         if not os.path.exists(self.launch_path):

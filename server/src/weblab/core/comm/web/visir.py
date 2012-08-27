@@ -31,7 +31,6 @@ import os
 import mimetypes
 
 import hashlib
-import weblab
 
 import re
 
