@@ -58,7 +58,7 @@ def generate_html(protocols, configuration, methods, date, default_system_info, 
     System: %s<br/>
     <a name="index"><h2>Index</h2></a>
     <ul>
-    """ % (date, date, running_configuration, configuration, all_system_info)
+    """ % (date, date, running_configuration, str(configuration), all_system_info)
 
     for protocol in protocols:
         page += """\t<li><a href="#%s">%s</a>: <ul>""" % (protocol, protocol)
