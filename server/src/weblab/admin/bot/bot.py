@@ -17,6 +17,7 @@
 import sys
 import os
 
+import urllib2
 import datetime
 import time
 import cPickle as pickle
@@ -35,11 +36,21 @@ def main():
     parser.add_option("-v", "--verbose",            dest="verbose", default=False, action='store_true',
                                                     help = "Show more information")
 
+    parser.add_option("--dont-disable-proxies",     dest="dont_disable_proxies", default=False, action='store_true',
+                                                    help = "Do not automatically disable HTTP proxies.")
+
     options, args = parser.parse_args()
 
     if not os.path.exists(options.configuration_file):
         print >> sys.stderr, "Configuration file %s does not exist. Provide an existing one with the -c option " % options.configuration_file
         sys.exit(-1)
+
+    if len(os.environ.get('http_proxy','')) > 0 and not options.dont_disable_proxies:
+        print "WARNING: HTTP proxies are usually a problem when running the bot. They will be disable at process level. If you don't want to disable it, pass the --dont-disable-proxies option."
+        os.environ.pop('http_proxy', None)
+        os.environ.pop('https_proxy', None)
+        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+        urllib2.install_opener(opener)
 
     class Configuration(object):
         execfile(options.configuration_file)
