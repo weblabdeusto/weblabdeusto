@@ -337,9 +337,16 @@ def weblab_create(directory):
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
 
-    experiments.add_option("--dummy-experiment-name", dest="dummy_name", type="string",    default="dummy",
+    experiments.add_option("--dummy-experiment-name",  dest="dummy_name", type="string",    default="dummy",
                                                        help = "There is a testing experiment called 'dummy'. You may change this name "
                                                               "(e.g. to dummy1 or whatever) by changing this option." )
+
+    experiments.add_option("--dummy-category-name",    dest="dummy_category_name", type="string",    default="Dummy experiments",
+                                                       help = "You can change the category name of the dummy experiments. (by default,"
+                                                              " Dummy experiments).")
+
+    experiments.add_option("--dummy-copies",           dest="dummy_copies", type="int",    default=1,
+                                                       help = "You may want to test the load balance among different copies of dummy." )
 
     # TODO
     experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
@@ -617,7 +624,7 @@ def weblab_create(directory):
     deploy.add_users_to_group(Session, group_name, options.admin_user)
 
     # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, 'Dummy experiments', options.dummy_name, group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, options.dummy_category_name, options.dummy_name, group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
@@ -684,7 +691,8 @@ def weblab_create(directory):
     local_scheduling  = ""
 
 
-    local_experiments += "            'exp1|%(dummy)s|Dummy experiments'        : 'dummy@dummy',\n" % { 'dummy' : options.dummy_name }
+    for n in xrange(1, options.dummy_copies + 1):
+        local_experiments += "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options.dummy_name, 'dummy_category' : options.dummy_category_name, 'n' : n }
     local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
 
     if options.visir_server:
@@ -864,7 +872,8 @@ def weblab_create(directory):
         if options.inline_lab_serv:
             instance_configuration_xml += """    <server>laboratory</server>\n"""
             if not options.xmlrpc_experiment:
-                instance_configuration_xml += """    <server>experiment</server>\n"""
+                for n in xrange(1, options.dummy_copies + 1):
+                    instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
             if options.visir_server:
                 instance_configuration_xml += """    <server>visir</server>\n"""
             
@@ -1006,8 +1015,9 @@ def weblab_create(directory):
             """    <user>weblab</user>\n"""
             """\n"""
             """    <server>laboratory</server>\n"""
-            """    <server>experiment</server>\n"""
             )
+        for n in xrange(1, options.dummy_copies + 1):
+            lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
 
         if options.visir_server:
             lab_instance_configuration_xml += """    <server>visir</server>\n"""
@@ -1065,12 +1075,13 @@ def weblab_create(directory):
 		"""laboratory_assigned_experiments = {\n"""
     )
 
-    laboratory_config_py += (
-		"""        'exp1:%(dummy)s@Dummy experiments' : {\n"""
-		"""                'coord_address' : 'experiment:%(instance)s@core_machine',\n"""
-		"""                'checkers' : ()\n"""
-		"""            },\n"""
-    ) % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name }
+    for n in xrange(1, options.dummy_copies + 1):
+        laboratory_config_py += (
+            """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
+            """                'coord_address' : 'experiment%(n)s:%(instance)s@core_machine',\n"""
+            """                'checkers' : ()\n"""
+            """            },\n"""
+        ) % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name, 'n' : n}
 
     if options.visir_server:
         for n in xrange(1, options.visir_slots + 1):
@@ -1085,39 +1096,40 @@ def weblab_create(directory):
 
     open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
 
-    experiment_dir = os.path.join(lab_instance_dir, 'experiment')
-    if not os.path.exists(experiment_dir):
-        os.mkdir(experiment_dir)
+    for n in xrange(1, options.dummy_copies + 1):
+        experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % n)
+        if not os.path.exists(experiment_dir):
+            os.mkdir(experiment_dir)
 
-    open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
-		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
-		"""<server\n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-		""">\n"""
-		"""\n"""
-		"""    <configuration file="server_config.py" />\n"""
-		"""\n"""
-		"""    <type>weblab.data.server_type::Experiment</type>\n"""
-		"""    <methods>weblab.methods::Experiment</methods>\n"""
-		"""\n"""
-		"""    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
-		"""\n"""
-		"""    <restriction>%(dummy)s@Dummy experiments</restriction>\n"""
-		"""\n"""
-		"""    <protocols>\n"""
-		"""        <protocol name="Direct">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination></coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation></creation>\n"""
-		"""        </protocol>\n"""
-		"""    </protocols>\n"""
-		"""</server>\n""") % { 'dummy' : options.dummy_name } )
+        open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
+            """<?xml version="1.0" encoding="UTF-8"?>\n"""
+            """<server\n"""
+            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+            """>\n"""
+            """\n"""
+            """    <configuration file="server_config.py" />\n"""
+            """\n"""
+            """    <type>weblab.data.server_type::Experiment</type>\n"""
+            """    <methods>weblab.methods::Experiment</methods>\n"""
+            """\n"""
+            """    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
+            """\n"""
+            """    <restriction>%(dummy)s@%(dummy_category_name)s</restriction>\n"""
+            """\n"""
+            """    <protocols>\n"""
+            """        <protocol name="Direct">\n"""
+            """            <coordinations>\n"""
+            """                <coordination></coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation></creation>\n"""
+            """        </protocol>\n"""
+            """    </protocols>\n"""
+            """</server>\n""") % { 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name } )
 
-    open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
-        "dummy_verbose = True\n")
+        open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
+            "dummy_verbose = True\n")
 
 
     if options.visir_server:
@@ -1731,7 +1743,7 @@ def weblab_create(directory):
         if element['experiment.name'] == options.dummy_name:
             found = True
     if not found:
-        dummy_list.append({'experiment.name' : options.dummy_name, 'experiment.category' : 'Dummy experiments'})
+        dummy_list.append({'experiment.name' : options.dummy_name, 'experiment.category' : options.dummy_category_name })
     configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
