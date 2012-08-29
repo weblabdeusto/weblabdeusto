@@ -53,7 +53,8 @@ class WebLabProcess(object):
         variables = {}
         execfile(debugging_file, variables, variables)
         self.ports = variables['PORTS']
-        self.base_location = variables.get('BASE_URL', base_location)
+        # self.base_location = variables.get('BASE_URL', base_location)
+        self.base_location = ''
 
         # 
         # After running the bot several times, the amount of files stored and logs

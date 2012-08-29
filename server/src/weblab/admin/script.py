@@ -1588,7 +1588,7 @@ def weblab_create(directory):
     apache_conf += "<Proxy balancer://%(root-no-slash)s_weblab_cluster_soap>\n"
     
     for core_configuration in ports['core']:
-        apache_conf += "    BalancerMember http://localhost:%(port)s%(root)s/weblab/soap route=%(route)s\n" % {
+        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % {
             'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
     
     apache_conf += "</Proxy>\n"
@@ -1597,7 +1597,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
 
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/json route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % {
             'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1606,7 +1606,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_xmlrpc>\n"""
 
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/xmlrpc route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/xmlrpc route=%(route)s\n""" % {
             'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1614,7 +1614,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_web>\n"""
 
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/web route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % {
             'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1622,7 +1622,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_administration>\n"""
 
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/administration/ route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration/ route=%(route)s\n""" % {
             'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1631,7 +1631,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_soap>\n"""
 
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/soap route=%(route)s \n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/soap route=%(route)s \n""" % {
             'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1639,7 +1639,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
 
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/json route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % {
             'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1647,7 +1647,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_xmlrpc>\n"""
 
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/xmlrpc route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/xmlrpc route=%(route)s\n""" % {
             'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
@@ -1655,7 +1655,7 @@ def weblab_create(directory):
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_web>\n"""
 
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s%(root)s/weblab/login/web route=%(route)s\n""" % {
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % {
             'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
 
     apache_conf += """</Proxy>\n"""
