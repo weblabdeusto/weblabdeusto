@@ -15,20 +15,23 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+import os
+import json
+
+from weblab.util import data_filename
+
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
 from experiments.ud_pic18.command_senders import UdXilinxCommandSender
 from experiments.ud_pic18.programmers import UdXilinxProgrammer
-import os
+
 import tempfile
 import voodoo.log as log
 import weblab.data.server_type as ServerType
 import weblab.experiment.exc as ExperimentExceptions
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
-
-import json
 
 from voodoo.threaded import threaded
 
@@ -40,6 +43,7 @@ STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
 
+module_directory = os.path.join(*__name__.split('.')[:-1])
 
 #TODO: which exceptions should the user see and which ones should not?
 class UdPic18Experiment(Experiment.Experiment):
@@ -71,7 +75,7 @@ class UdPic18Experiment(Experiment.Experiment):
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         self.demo = False
         
-        file_path = os.path.dirname(__file__) + os.sep + 'demo.hex'
+        file_path = data_filename(os.path.join(module_directory, 'demo.hex'))
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
 
     @Override(Experiment.Experiment)

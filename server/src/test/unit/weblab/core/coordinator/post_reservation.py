@@ -87,15 +87,15 @@ class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
 class SqlPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
-class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
-    WrappedCoordinator = WrappedRedisCoordinator
+if WrappedRedisCoordinator.REDIS_AVAILABLE:
+    class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():
-    return unittest.TestSuite((
-                unittest.makeSuite(SqlPostReservationDataManagerTestCase),
-                unittest.makeSuite(RedisPostReservationDataManagerTestCase),
-            ))
-
+    suites = [unittest.makeSuite(SqlPostReservationDataManagerTestCase)]
+    if WrappedRedisCoordinator.REDIS_AVAILABLE:
+        suites.append(unittest.makeSuite(RedisPostReservationDataManagerTestCase))
+    return unittest.TestSuite(suites)
 
 if __name__ == '__main__':
     unittest.main()

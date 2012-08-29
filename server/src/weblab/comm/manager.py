@@ -16,7 +16,7 @@ import sys
 import voodoo.log as log
 from functools import wraps
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
 

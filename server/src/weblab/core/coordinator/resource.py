@@ -25,6 +25,9 @@ class Resource(object):
     def to_weblab_str(self):
         return "%s@%s" % (self.resource_instance, self.resource_type)
 
+    def __hash__(self):
+        return hash(self.to_weblab_str())
+
     @staticmethod
     def parse(weblab_str):
         pos = weblab_str.find("@")

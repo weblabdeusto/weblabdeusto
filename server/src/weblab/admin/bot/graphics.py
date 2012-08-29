@@ -17,8 +17,7 @@ import os
 import sys
 import json
 
-from BotMisc import show_time, flush
-import Configuration
+from weblab.admin.bot.misc import show_time, flush
 import platform
 
 METHODS = ["login", "list_experiments", "reserve_experiment", "get_reservation_status", "logout", "finished_experiment", "send_file", "send_command", "poll", "get_user_information"]
@@ -28,9 +27,13 @@ GET_FIGURE_FILENAME_CODE="""def get_figure_filename(protocol, method, date):
     return "figures" + os.sep + "figure_" + date + "_" + protocol + "_" + method + ".png"
 """
 
+def get_figure_filename(protocol, method, date):
+    " The exec() after this will rewrite this function. This is only written so as to avoid warnings. "
+    pass
+
 exec(GET_FIGURE_FILENAME_CODE)
 
-def generate_html(protocols, configuration, methods, date):
+def generate_html(protocols, configuration, methods, date, default_system_info, running_configuration):
 
     # Retrieve this information in Linux systems
     try:
@@ -42,7 +45,7 @@ def generate_html(protocols, configuration, methods, date):
         ram = [ line.split(' ')[-2] for line in open("/proc/meminfo").readlines() if line.startswith("MemTotal:")][0]
         memory = '%.2fGB' % ( int(ram) / (1024.0 * 1024.0))
     except:
-        system_info = Configuration.SYSTEM
+        system_info = default_system_info
     else:
         system_info = "%s %s" % (model_name, memory)
 
@@ -55,7 +58,7 @@ def generate_html(protocols, configuration, methods, date):
     System: %s<br/>
     <a name="index"><h2>Index</h2></a>
     <ul>
-    """ % (date, date, Configuration.RUNNING_CONFIGURATION, configuration, all_system_info)
+    """ % (date, date, running_configuration, str(configuration), all_system_info)
 
     for protocol in protocols:
         page += """\t<li><a href="#%s">%s</a>: <ul>""" % (protocol, protocol)
@@ -92,7 +95,7 @@ def generate_html(protocols, configuration, methods, date):
     page += """</table></center></body></html>"""
     return page
 
-def print_results(raw_information, configuration, date, verbose = True):
+def print_results(raw_information, configuration, date, cfg, verbose = True):
     working_methods = METHODS[:]
 
     all_data = {
@@ -123,7 +126,7 @@ def print_results(raw_information, configuration, date, verbose = True):
                 try:
                     x, y = raw_information[protocol]
                     y = map(func_on_results, y)
-                except KeyError, ke:
+                except KeyError:
                     continue
                 except: 
                     import traceback
@@ -146,7 +149,8 @@ def print_results(raw_information, configuration, date, verbose = True):
 import os
 import math
 import matplotlib
-matplotlib.use(%(backend)r)
+if %(backend)r != '':
+    matplotlib.use(%(backend)r)
 import matplotlib.pyplot as plt
 
 %(get_figure_filename)s
@@ -202,7 +206,7 @@ def print_figures():
 if __name__ == '__main__':
     print_figures()
     """ % {
-        'backend'             : Configuration.MATPLOTLIB_BACKEND,
+        'backend'             : cfg.MATPLOTLIB_BACKEND,
         'get_figure_filename' : GET_FIGURE_FILENAME_CODE,
         'working_methods'     : working_methods,
         'all_data'            : json.dumps(all_data, indent=4),
@@ -217,7 +221,7 @@ if __name__ == '__main__':
     print "[done]"
 
 
-    html = generate_html(protocols, configuration, working_methods, date)
+    html = generate_html(protocols, configuration, working_methods, date, cfg.SYSTEM, cfg.RUNNING_CONFIGURATION)
     html_filename = 'botclient_%s.html' % date
     open(html_filename, 'w').write(html)
 
@@ -231,7 +235,7 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     DATE = "D_2012_04_12_T_09_53_03"
 
-    from BotInformationRetriever import get_raw_information
+    from weblab.admin.bot.information_retriever import get_raw_information
     raw_information = get_raw_information(DATE)
     print_results(raw_information, "configuration...", DATE)
 

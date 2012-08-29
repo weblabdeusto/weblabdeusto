@@ -18,7 +18,7 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData

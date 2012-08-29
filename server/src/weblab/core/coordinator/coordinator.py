@@ -18,6 +18,7 @@ import datetime
 import Queue
 
 import json
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
@@ -28,8 +29,6 @@ from voodoo.sessions.session_id import SessionId
 import voodoo.admin_notifier as AdminNotifier
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
-
-import weblab.core.coordinator.sql.db as CoordinationDatabaseManager
 
 import weblab.core.coordinator.exc as CoordExc
 import weblab.core.coordinator.scheduler as Scheduler
@@ -85,9 +84,6 @@ class AbstractCoordinator(object):
     def __init__(self, data_manager, locator, cfg_manager, ConfirmerClass):
         if ConfirmerClass is None:
             ConfirmerClass = Confirmer.ReservationConfirmer
-
-        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
-        self._sql_session_maker = coordination_database_manager.session_maker
 
         self.cfg_manager   = cfg_manager
         self._data_manager = data_manager
@@ -333,7 +329,7 @@ class AbstractCoordinator(object):
 
     def _retrieve_recipients(self, experiment_instance_ids):
         recipients = ()
-        server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
+        server_admin = self.cfg_manager.get_value(configuration_doc.SERVER_ADMIN, None)
         if server_admin is not None:
             if server_admin.find(","):
                 server_admins = tuple(server_admin.replace(" ","").split(","))

@@ -22,6 +22,15 @@ public class WebLabClientLab extends WebLabClient {
 
 	private static String ADMIN_URL_PARAM = "admin";
 	
+	public static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
+	public static final boolean DEFAULT_DEMO_AVAILABLE = false;
+	
+	public static final String DEMO_USERNAME_PROPERTY = "demo.username";
+	public static final String DEFAULT_DEMO_USERNAME = "demo";
+	
+	public static final String DEMO_PASSWORD_PROPERTY = "demo.password";
+	public static final String DEFAULT_DEMO_PASSWORD = "demo";
+	
 	private boolean wantsAdminApp(){
 		final String urlSaysWantsAdminApp = Window.Location.getParameter(WebLabClientLab.ADMIN_URL_PARAM);
 		return urlSaysWantsAdminApp != null && (urlSaysWantsAdminApp.toLowerCase().equals("yes") || urlSaysWantsAdminApp.toLowerCase().equals("true")); 

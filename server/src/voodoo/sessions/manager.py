@@ -17,7 +17,7 @@ import time
 import threading
 import weakref
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.gateway as SessionGateway

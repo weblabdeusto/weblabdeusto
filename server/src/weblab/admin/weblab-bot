@@ -10,14 +10,10 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
 
-import sys, os
-sys.path.append(os.sep.join(('..','..','src')))
+from weblab.admin.bot.bot import main
 
-import libraries
-
-from weblab.admin.cli import main
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

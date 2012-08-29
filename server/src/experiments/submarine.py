@@ -13,16 +13,38 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
+import traceback
 import urllib2
 import json
 import threading
+import datetime
+import time
+import StringIO
 
 from voodoo.log import logged
 from voodoo.lock import locked
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
-USE_REAL_DEVICE = False
+class EventManager(threading.Thread):
+    """ Call the tick method of the submarine_experiment every hour """
+    def __init__(self, submarine_experiment):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+        self.setName("SubmarineEventManager")
+        self.submarine_experiment = submarine_experiment
+
+    def run(self):
+        while True:
+            now = datetime.datetime.now()
+            # Sleep until next hour (61: make sure it's passed)
+            time.sleep(60 * (59 - now.minute) + (61 - now.second))
+            now = datetime.datetime.now()
+            try:
+                self.submarine_experiment.tick(now.hour)
+            except:
+                traceback.print_exc()
 
 class Submarine(Experiment):
 
@@ -31,8 +53,15 @@ class Submarine(Experiment):
         self._cfg_manager    = cfg_manager
 
         self._lock           = threading.Lock()
+        self._feed_lock      = threading.Lock()
+        self._latest_feed_time = datetime.datetime.now()
 
         self.debug           = self._cfg_manager.get_value('debug', True)
+        self.debug_dir       = self._cfg_manager.get_value('debug_dir', None)
+        self.real_device     = self._cfg_manager.get_value('real_device', True)
+        self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  8)
+        self.lights_off_time = self._cfg_manager.get_value('lights_off_time', 16)
+        self.feed_period     = self._cfg_manager.get_value('feed_period', 8)
         self.pic_location    = self._cfg_manager.get_value('submarine_pic_location', 'http://192.168.0.90/')
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
 
@@ -42,7 +71,9 @@ class Submarine(Experiment):
         self.right           = False
         self.forward         = False
         self.backward        = False
-
+        
+        self.opener          = urllib2.build_opener(urllib2.ProxyHandler({}))
+        
         self.initial_configuration = {}
         for pos, webcam_config in enumerate(self.webcams_info):
             num = pos + 1
@@ -60,6 +91,86 @@ class Submarine(Experiment):
             if mjpeg_height is not None:
                 self.initial_configuration['mjpegHeight%s' % num] = mjpeg_height
 
+        self.in_use     = False
+        self.since_tick = False
+
+        self.correct_lights()
+        event_manager = EventManager(self)
+        event_manager.start()
+
+    def lights_should_be_on(self):
+        """ Lights should be on from 8:00 to 16:00 """
+        now = datetime.datetime.now()
+        return self.lights_on_time <= now.hour < self.lights_off_time
+
+    def lights_should_be_off(self):
+        """ Lights should be off before 8:00 and after 16:00 """
+        return not self.lights_should_be_on()
+
+    def tick(self, hour):
+        if not self.in_use:
+            self.correct_lights()
+
+        if hour % self.feed_period == 0:
+            self._lock.acquire()
+            while self.in_use:
+                time.sleep(0.5)
+            try:
+                self.feed(True)
+            finally:
+                self._lock.release()
+
+    def _get_debug_file(self):
+        if self.debug_dir is not None and os.path.exists(self.debug_dir):
+            now = datetime.datetime.now()
+            dir_name = '%s_%s' % (now.year, now.month)
+            try:
+                os.mkdir(os.path.join(self.debug_dir, dir_name))
+            except:
+                pass
+            debug_fname = '%s.txt' % now.day
+            return open(os.path.join(self.debug_dir, dir_name, debug_fname), 'a')
+        else:
+            return StringIO.StringIO()
+
+    def debug_critical_msg(self, msg):
+        f = self._get_debug_file()
+        try:
+            now = datetime.datetime.now()
+            when = now.strftime("%Y-%m-%d %H:%M:%S")
+            f.write('%s: %s\n' % (when, msg))
+        except:
+            traceback.print_exc()
+        finally:
+            f.close()
+
+    @logged("critical")
+    def feed(self, tick):
+        with self._feed_lock:
+            if tick:
+                fed = False
+                if not self.since_tick:
+                    self._send('FOOD')
+                    fed = True
+                    self.debug_critical_msg('fed by tick')
+                self.since_tick = False
+                if fed:
+                    return 'fed'
+                else:
+                    return 'notfed'
+            else:
+                if not self.since_tick:
+                    self._send('FOOD')
+                    self.debug_critical_msg('fed by user')
+                    self.since_tick = True
+                    return 'fed'
+                else:
+                    current_hour = datetime.datetime.now().hour
+                    counter = current_hour + 1
+                    while counter < 24 and counter % self.feed_period != 0:
+                        counter += 1
+                    remaining = (counter - current_hour) % 24
+                    return 'notfed:%s' % remaining
 
     @Override(Experiment)
     @logged("info")
@@ -73,7 +184,12 @@ class Submarine(Experiment):
         self._clean()
 
         current_config = self.initial_configuration.copy()
-        current_config['light'] = self._send('STATELIGHT').startswith('1')
+        # current_config['light'] = not self._send('STATELIGHT').startswith('0')
+        current_config['light'] = self.lights_should_be_on()
+
+        self._lock.acquire()
+        self.in_use = True
+        self._lock.release()
 
         return json.dumps({ "initial_configuration" : json.dumps(current_config), "batch" : False })
 
@@ -85,6 +201,14 @@ class Submarine(Experiment):
         self.right           = False
         self.forward         = False
         self.backward        = False
+
+    def correct_lights(self):
+        if self.lights_should_be_off():
+            self._send("LIGHT OFF")
+            self.debug_critical_msg('LIGHT OFF')
+        else:
+            self._send("LIGHT ON")
+            self.debug_critical_msg('LIGHT ON')
 
     @Override(Experiment)
     @logged("info")
@@ -102,8 +226,11 @@ class Submarine(Experiment):
 
         msg = "ok"
 
-        if command == 'FOOD' or command in ('LIGHT ON','LIGHT OFF'):
-            self._send(command)
+        if command == 'FOOD':
+            msg = self.feed(False)
+        elif command in ('LIGHT ON','LIGHT OFF'):
+            msg = "received %s" % self._send(command)
+            self.debug_critical_msg('User: %s' % command)
         elif command.startswith('UP'):
             if command == 'UP ON':
                 if self.up:
@@ -180,8 +307,8 @@ class Submarine(Experiment):
 
 
     def _send(self, command):
-        if USE_REAL_DEVICE:
-            return urllib2.urlopen(self.pic_location, command).read()
+        if self.real_device:
+            return self.opener.open(self.pic_location, command).read()
         else:
             print "Simulating request...",command
             return "ok"
@@ -196,7 +323,7 @@ class Submarine(Experiment):
         """
         if self.debug:
             print "[Submarine*] do_send_file_to_device called"
-        return "Ok"
+        return "ok"
 
 
     @Override(Experiment)
@@ -208,6 +335,8 @@ class Submarine(Experiment):
         if self.debug:
             print "[Submarine*] do_dispose called"
         self._clean()
-        return "Ok"
+        self.correct_lights()
+        self.in_use = False
+        return "ok"
 
 

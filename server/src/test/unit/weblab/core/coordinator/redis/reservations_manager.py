@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import json
 import unittest
 import test.unit.configuration as configuration_module
@@ -73,8 +74,11 @@ class ReservationsManagerTestCase(unittest.TestCase):
         self.assertTrue(reservation1 in sessions)
         self.assertTrue(reservation2 in sessions)
 
-def suite():
-    return unittest.makeSuite(ReservationsManagerTestCase)
+if WrappedCoordinator.REDIS_AVAILABLE:
+    def suite():
+        return unittest.makeSuite(ReservationsManagerTestCase)
+else:
+    print >> sys.stderr, "redis not available; skipping ReservationsManagerTestCase"
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,6 @@
+Modify the configuration.py script and run:
+
+ $ export PYTHONPATH=.
+ $ weblab-bot 
+
+To run the bot.

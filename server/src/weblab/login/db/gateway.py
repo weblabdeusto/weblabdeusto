@@ -22,7 +22,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 import weblab.db.model as Model
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
