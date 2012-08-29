@@ -48,6 +48,7 @@
 		<fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
 		<!-- Add any additional non-server libs (such as JUnit) -->
 		<pathelement path="${junit.jar}"/>
+		<pathelement location="external/lib-client/junit.jar"/>
 		<pathelement location="external/lib-client/smartgwt.jar"/>
 	</path>
 
@@ -58,6 +59,7 @@
 		<fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
 		<!-- Add any additional non-server libs (such as JUnit) -->
 		<pathelement path="${junit.jar}"/>
+		<pathelement location="external/lib-client/junit.jar"/>
 		<pathelement location="external/lib-client/smartgwt.jar"/>
 	</path>
 	
