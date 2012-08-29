@@ -35,7 +35,6 @@ class WebLabProcess(object):
             raise Exception("Both %s and / found in launch_file (%s), only one expected" % (os.sep, launch_file))
 
         self.host        = host
-        self.base_location = base_location
         self.verbose       = verbose
 
         normalized_launch_file = launch_file.replace('/', os.sep) 
@@ -54,6 +53,7 @@ class WebLabProcess(object):
         variables = {}
         execfile(debugging_file, variables, variables)
         self.ports = variables['PORTS']
+        self.base_location = variables.get('BASE_URL', base_location)
 
         # 
         # After running the bot several times, the amount of files stored and logs
