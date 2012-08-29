@@ -491,7 +491,7 @@ class UserProcessingServer(object):
         self._check_reservation_not_expired_and_poll( reservation_processor )
 
 
-    @logged(log.level.Info)
+    @logged(log.level.Info, max_size = 1000)
     @check_session(**check_reservation_session_params)
     @load_reservation_processor
     def get_reservation_status(self, reservation_processor, session):
