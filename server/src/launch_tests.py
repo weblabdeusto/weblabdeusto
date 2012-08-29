@@ -19,6 +19,7 @@ import glob
 import test
 import time
 import unittest
+import urllib2
 import logging
 import StringIO
 import optparse
@@ -405,11 +406,14 @@ if __name__ == '__main__':
     parser.add_option('--coverage-report',         dest='coverage_report', default = 'report',  choices = ('report', 'xml', 'html'),
                                                    help = "Coverage report style (report, xml, html)", metavar = 'REPORT_STYLE')
 
-    parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
-                                                    help = "Creates all the ZSI SOAP stubs.")
+    parser.add_option('--deploy-stubs',            dest='deploy_stubs', action='store_true', default=False,
+                                                   help = "Creates all the ZSI SOAP stubs.")
 
-    parser.add_option('--compile-client',            dest='compile_client', action='store_true', default=False,
-                                                    help = "Compiles the client.")
+    parser.add_option('--compile-client',          dest='compile_client', action='store_true', default=False,
+                                                   help = "Compiles the client.")
+
+    parser.add_option('--dont-disable-proxies',    dest='dont_disable_proxies', action='store_true', default=False,
+                                                   help = "Do not disable HTTP proxies (which sometimes are problematic).")
 
     install_options = optparse.OptionGroup(parser, "Installation environment",
                                                    "You may want to deploy WebLab-Deusto in a virtualenv environment. " 
@@ -524,6 +528,15 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.CRITICAL + 1)
+
+    if len(os.environ.get('http_proxy','')) > 0 and not options.dont_disable_proxies:
+        print >> sys.stderr, "Some tests fail when a proxy is present."
+        print >> sys.stderr, "The proxy will be disabled to run the tests."
+        print >> sys.stderr, "Pass --dont-disable-proxies to avoid this behavior"
+        os.environ.pop('http_proxy',None)
+        os.environ.pop('https_proxy',None)
+        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+        urllib2.install_opener(opener)
 
     if options.ui == 'console':
         runConsole(options.single_test, options.avoid_integration, [sys.argv[0]] + (options.options or []))
