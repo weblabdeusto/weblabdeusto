@@ -103,13 +103,21 @@ class BotLauncher(object):
         started_processes = []
         try:
             for launch_file in self.launch_files:
+                if self.verbose:
+                    print "[Launcher] Launching... %s" % launch_file
                 weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, verbose = self.verbose)
                 weblab_process.start()
+                if self.verbose:
+                    print "[Launcher] %s running" % launch_file
                 started_processes.append(weblab_process)
         except:
             for started_process in started_processes:
+                if self.verbose:
+                    print "[Launcher] Shutting down... %s" % started_process
                 started_process.shutdown()
             raise
+        if self.verbose:
+            print "[Launcher] All processes launched"
         try:
             botusers = []
             for botuser_creator_name, botuser_creator in self.scenario:
