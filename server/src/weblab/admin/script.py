@@ -1477,6 +1477,7 @@ def weblab_create(directory):
     for debugging_port in debugging_ports:
         debugging_config += "    ('127.0.0.1','%s'),\n" % debugging_port
     debugging_config += "]\n\n"
+    debugging_config += "BASE_URL = %r\n\n" % base_url
     debugging_config += "# PORTS is used by the WebLab Bot to know what\n# ports it should wait prior to start using\n# the simulated clients.\n"
     debugging_config += "PORTS = {\n"
     for protocol in ('soap','xmlrpc','json'):
