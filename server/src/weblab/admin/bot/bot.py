@@ -83,7 +83,8 @@ def main():
 
         execution_results = {}
 
-        scenarios = variables['generate_scenarios']()
+        generate_scenarios = variables['CONFIGURATIONS'][configuration]
+        scenarios = generate_scenarios()
         for num_scenario, scenario in enumerate(scenarios):
 
             if not scenario.category in execution_results:

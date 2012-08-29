@@ -42,11 +42,12 @@ SYSTEMS = {
         }
 SYSTEM = cfg_util.retrieve_system(SYSTEMS)
 
-new_standard_bot_user = cfg_util.generate_new_standard_bot_user('http://%s' % HOST, USERNAME, PASSWORD, EXPERIMENT_NAME, CATEGORY_NAME, PROGRAM_FILE)
-
 REVISION = cfg_util.generate_revision()
 
 def generate_scenarios():
+
+    new_standard_bot_user = cfg_util.generate_new_standard_bot_user('http://%s' % HOST, USERNAME, PASSWORD, EXPERIMENT_NAME, CATEGORY_NAME, PROGRAM_FILE)
+
     Scenario = cfg_util.create_new_scenario()
 
     scenarios = []
@@ -68,15 +69,15 @@ def generate_scenarios():
                 )
     return scenarios
 
-CONFIGURATIONS      = [
-                        "../../server/launch/sample/launch_sample.py",
-#                        "../../server/launch/sample_xmlrpc/launch_sample_xmlrpc_machine.py",
-#                        "../../server/launch/sample_internetsocket/launch_sample_internetsocket_machine.py",
-#                        "../../server/launch/sample_unixsocket/launch_sample_unixsocket_machine.py",
-#                        "../../server/launch/sample_balanced1/launch_sample_balanced1_machine.py",
-                        "../../server/launch/sample_balanced2/launch_sample_balanced2_machine.py",
-                        "../../server/launch/sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py",
-                      ]
+CONFIGURATIONS      = {
+                        "../../server/launch/sample/launch_sample.py" : generate_scenarios,
+#                        "../../server/launch/sample_xmlrpc/launch_sample_xmlrpc_machine.py" : generate_scenarios,
+#                        "../../server/launch/sample_internetsocket/launch_sample_internetsocket_machine.py" : generate_scenarios,
+#                        "../../server/launch/sample_unixsocket/launch_sample_unixsocket_machine.py" : generate_scenarios,
+#                        "../../server/launch/sample_balanced1/launch_sample_balanced1_machine.py" : generate_scenarios,
+                        "../../server/launch/sample_balanced2/launch_sample_balanced2_machine.py" : generate_scenarios,
+                        "../../server/launch/sample_balanced2_concurrent_experiments/launch_sample_balanced2_concurrent_experiments_machine.py" : generate_scenarios,
+                      }
 
 RUNNING_CONFIGURATION = "revision %s. %s iterations; step_delay: %s seconds;" % (REVISION, ITERATIONS, STEP_DELAY)
 
