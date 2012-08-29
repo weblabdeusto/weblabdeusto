@@ -49,8 +49,6 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 #  - --virtual-machine
 #  - xmlrpc server
 #  - Support rebuild-db
-#  - Add initial user and experiments
-#  - Specially those experiments already configured and the federated ones!
 # 
 
 SORTED_COMMANDS = []
