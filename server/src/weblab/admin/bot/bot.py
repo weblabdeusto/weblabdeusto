@@ -14,18 +14,50 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import os
 
 import datetime
 import time
 import cPickle as pickle
 
-import configuration as cfg
+from optparse import OptionParser
 
 from weblab.admin.bot.graphics import print_results
 from weblab.admin.bot.launcher import BotLauncher
 
 def main():
+    parser = OptionParser(usage="%prog [options]")
+
+    parser.add_option("-c", "--configuration-file", dest="configuration_file", default='configuration.py',
+                                                    help = "Configuration file to use.")
+
+    parser.add_option("-v", "--verbose",            dest="verbose", default=False, action='store_true',
+                                                    help = "Show more information")
+
+    options, args = parser.parse_args()
+
+    if not os.path.exists(options.configuration_file):
+        print >> sys.stderr, "Configuration file %s does not exist. Provide an existing one with the -c option " % options.configuration_file
+        sys.exit(-1)
+
+    class Configuration(object):
+        execfile(options.configuration_file)
+
+        def get(self, name, default = None):
+            return getattr(self, name, default)
+
+        def __getitem__(self, name):
+            if not hasattr(self, name):
+                raise AttributeError('Holder does not have %s' % name)
+            return getattr(self, name)
+
+    variables = {}
+    execfile(options.configuration_file, variables, variables)
+
+    cfg = Configuration()
+    verbose = cfg.get('VERBOSE', False) or options.verbose 
+
     if not os.path.exists('logs'): 
         os.mkdir('logs')
 
@@ -44,14 +76,14 @@ def main():
                 )
         print 
         print "*" * 20
-        print "CONFIGURATION %s" % configuration
+        print "CONFIGURATION %s" % str(configuration)
         print "Unique id: %s" % execution_unique_id
         print "*" * 20
         print 
 
         execution_results = {}
 
-        scenarios = cfg.generate_scenarios()
+        scenarios = variables['generate_scenarios']()
         for num_scenario, scenario in enumerate(scenarios):
 
             if not scenario.category in execution_results:
@@ -69,7 +101,7 @@ def main():
                 "logging.cfg",
                 scenario=scenario.users, 
                 iterations=cfg.ITERATIONS,
-                verbose = cfg.VERBOSE,
+                verbose = verbose,
             )
                 
             botlauncher.start()
