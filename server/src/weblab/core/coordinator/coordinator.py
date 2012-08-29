@@ -87,9 +87,6 @@ class AbstractCoordinator(object):
         if ConfirmerClass is None:
             ConfirmerClass = Confirmer.ReservationConfirmer
 
-        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
-        self._sql_session_maker = coordination_database_manager.session_maker
-
         self.cfg_manager   = cfg_manager
         self._data_manager = data_manager
 
