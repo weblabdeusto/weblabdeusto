@@ -39,6 +39,13 @@ def main():
     parser.add_option("--dont-disable-proxies",     dest="dont_disable_proxies", default=False, action='store_true',
                                                     help = "Do not automatically disable HTTP proxies.")
 
+    parser.add_option("--dont-delete-files-stored", dest="delete_files_stored", default=True, action='store_false',
+                                                    help = "Do not delete files stored.")
+
+    parser.add_option("--dont-delete-logs",         dest="delete_logs", default=True, action='store_false',
+                                                    help = "Do not delete logs.")
+
+
     options, args = parser.parse_args()
 
     if not os.path.exists(options.configuration_file):
@@ -59,6 +66,9 @@ def main():
             return getattr(self, name, default)
 
         def __getitem__(self, name):
+            if hasattr(options, name.lower()):
+                return getattr(options, name.lower())
+
             if not hasattr(self, name):
                 raise AttributeError('Holder does not have %s' % name)
             return getattr(self, name)
@@ -113,6 +123,7 @@ def main():
                 "logging.cfg",
                 scenario=scenario.users, 
                 iterations=cfg.ITERATIONS,
+                options = cfg,
                 verbose = verbose,
             )
                 

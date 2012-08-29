@@ -27,9 +27,10 @@ import voodoo.mapper as mapper
 
 class BotLauncher(object):
 
-    def __init__(self, configuration, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, verbose):
+    def __init__(self, configuration, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, options, verbose):
         super(BotLauncher, self).__init__()
         self.verbose = verbose
+        self.options = options
         if isinstance(configuration, basestring):
             self.launch_files = [ configuration ]
         else:
@@ -105,7 +106,7 @@ class BotLauncher(object):
             for launch_file in self.launch_files:
                 if self.verbose:
                     print "[Launcher] Launching... %s" % launch_file
-                weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, verbose = self.verbose)
+                weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, self.options, verbose = self.verbose)
                 weblab_process.start()
                 if self.verbose:
                     print "[Launcher] %s running" % launch_file

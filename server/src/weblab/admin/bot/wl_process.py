@@ -25,7 +25,7 @@ import voodoo.killer as killer
 
 class WebLabProcess(object):
 
-    def __init__(self, launch_file, host, base_location = '', verbose = False):
+    def __init__(self, launch_file, host, options, base_location = '', verbose = False):
         super(WebLabProcess, self).__init__()
 
         self.out = 'Not started'
@@ -61,15 +61,17 @@ class WebLabProcess(object):
         # increase a lot. We remove them in the beginning. We should do the same
         # with the database.
         # 
-        files_stored_dir = os.path.join(self.launch_path, 'files_stored')
-        if os.path.exists(files_stored_dir):
-            for file_stored in glob.glob('%s/*' % files_stored_dir):
-                os.remove(file_stored)
+        if options['delete_files_stored']:
+            files_stored_dir = os.path.join(self.launch_path, 'files_stored')
+            if os.path.exists(files_stored_dir):
+                for file_stored in glob.glob('%s/*' % files_stored_dir):
+                    os.remove(file_stored)
 
-        logs_dir = os.path.join(self.launch_path, 'logs')
-        if os.path.exists(logs_dir):
-            for log_file in glob.glob('%s/*txt*' % logs_dir):
-                os.remove(log_file)
+        if options['delete_logs']:
+            logs_dir = os.path.join(self.launch_path, 'logs')
+            if os.path.exists(logs_dir):
+                for log_file in glob.glob('%s/*txt*' % logs_dir):
+                    os.remove(log_file)
 
 
     def _has_started(self):

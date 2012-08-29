@@ -30,8 +30,6 @@ import voodoo.admin_notifier as AdminNotifier
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
-import weblab.core.coordinator.sql.db as CoordinationDatabaseManager
-
 import weblab.core.coordinator.exc as CoordExc
 import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.store as TemporalInformationStore
