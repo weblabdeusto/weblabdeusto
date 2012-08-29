@@ -111,6 +111,15 @@ class BotLauncher(object):
                 if self.verbose:
                     print "[Launcher] %s running" % launch_file
                 started_processes.append(weblab_process)
+
+            if len(started_processes) > 1:
+                started_processes[0].step_wait()
+
+            for weblab_process in started_processes:
+                weblab_process.wait_for_process_started()
+
+            if len(started_processes) > 1:
+                started_processes[0].step_started_wait()
         except:
             for started_process in started_processes:
                 if self.verbose:

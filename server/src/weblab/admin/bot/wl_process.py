@@ -151,8 +151,11 @@ class WebLabProcess(object):
             print self.popen.stdout.read()
             print self.popen.stderr.read()
             raise Exception("Server couldn't start!")
+
+    def step_wait(self):
         time.sleep(8)
 
+    def wait_for_process_started(self):
         max_iterations = 10
         while max_iterations > 0:
             started, failure = self._has_started()
@@ -166,6 +169,8 @@ class WebLabProcess(object):
                 print self.popen.stderr.read()
             raise Exception("Server couldn't start! Failure: %s" % failure)
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
+
+    def step_started_wait(self):
         time.sleep(4)
 
     def _wait_file_notifier(self, filepath):
