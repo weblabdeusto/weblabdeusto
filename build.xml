@@ -2,6 +2,5 @@
 	<target name="all">
 		<ant dir="server/src" antfile="build.xml" target="test" />
         <ant dir="client"     antfile="build.xml" target="test" />
-        <ant dir="client"     antfile="build.xml" target="gwtc" />
 	</target>
 </project>
