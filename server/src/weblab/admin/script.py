@@ -132,7 +132,7 @@ def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host):
             client = redis.Redis(**kwargs)
             client.get("this.should.not.exist")
         except:
-            print >> "redis selected for %s; but could not use the provided configuration" % what
+            print >> sys.stderr, "redis selected for %s; but could not use the provided configuration" % what
             traceback.print_exc()
             sys.exit(-1)
         else:
@@ -1452,8 +1452,11 @@ def weblab_create(directory):
         """                (\n"""
         """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
         """                ),\n"""
-        """                pid_file = 'weblab.pid',\n"""
-        """                debugger_ports = { \n""")
+        """                pid_file = 'weblab.pid',\n""")
+    waiting_port = current_port
+    current_port += 1
+    launch_script += """                waiting_port = %r,\n""" % waiting_port
+    launch_script += """                debugger_ports = { \n"""
     debugging_ports = []
     for core_number in range(1, options.cores + 1):
         debugging_core_port = current_port
