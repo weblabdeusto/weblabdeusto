@@ -15,6 +15,8 @@
 import unittest
 import datetime
 
+import weblab.configuration_doc as configuration_doc
+
 import test.unit.configuration as configuration
 import voodoo.configuration as ConfigurationManager
 
@@ -221,7 +223,7 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
         MESSAGE = "The exception message"
 
         # Production mode: A general error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, False)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,
@@ -240,7 +242,7 @@ class AdminFacadeManagerJSONTestCase(unittest.TestCase):
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, True)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,

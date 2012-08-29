@@ -16,7 +16,6 @@
 import sys
 sys.path.append('../../src')
 
-import libraries
 import voodoo.gen.loader.Launcher as Launcher
 
 Launcher.kill_launcher('._machine.pid')

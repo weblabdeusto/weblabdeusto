@@ -53,4 +53,5 @@ public interface ILabController {
 	public void removeReservationId();
 	public SessionID getReservationId();
 	public boolean isExperimentReserved();
+	public void disableFinishOnClose();
 }

@@ -15,22 +15,90 @@
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class ExperimentFinishedWindow extends Composite {
+import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.ui.widgets.WlAHref;
+
+public class ExperimentFinishedWindow extends BaseWindow {
 
 	private static ExperimentFinishedWindowUiBinder uiBinder = GWT
 			.create(ExperimentFinishedWindowUiBinder.class);
 
-	interface ExperimentFinishedWindowUiBinder
-			extends
-				UiBinder<Widget, ExperimentFinishedWindow> {
+	@UiField VerticalPanel containerPanel;
+	@UiField Image logoImage;
+	@UiField Label userLabel;
+	@UiField Anchor logoutLink;
+	@UiField Label separatorLabel;
+	@UiField Label separatorLabel2;
+	@UiField HorizontalPanel headerPanel;
+	@UiField WlAHref bottomInstitutionLink;
+	@UiField WlAHref institutionLink;
+	@UiField Image bottomLogoImage;
+	@UiField HorizontalPanel hostedByPanel;
+	@UiField Button backButton;
+	
+	interface ExperimentFinishedWindowUiBinder extends UiBinder<Widget, ExperimentFinishedWindow> {
 	}
 
-	public ExperimentFinishedWindow() {
-		initWidget(uiBinder.createAndBindUi(this));
+	public ExperimentFinishedWindow(IConfigurationManager configurationManager) {
+		super(configurationManager);
+		
+		loadWidgets();
 	}
 
+	private void loadWidgets() {
+		ExperimentFinishedWindow.uiBinder.createAndBindUi(this);
+		
+		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
+		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
+		
+		final String smallHostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, "");
+		this.bottomLogoImage.setUrl(GWT.getModuleBaseURL() + smallHostEntityImage);
+		
+		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
+		this.bottomInstitutionLink.setHref(hostEntityLink);
+		this.institutionLink.setHref(hostEntityLink);
+		
+		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
+	    this.headerPanel.setVisible(visibleHeader);
+	    this.hostedByPanel.setVisible(!visibleHeader);
+	    
+    	this.logoutLink.setVisible(false);
+    	this.separatorLabel.setVisible(false);
+    	this.separatorLabel2.setVisible(false);
+	}
+	
+	@UiHandler("backButton")
+	public void back(@SuppressWarnings("unused") ClickEvent event) {
+		History.back();
+	}
+	
+	@Override
+	public Widget getWidget(){
+		return this.containerPanel;
+	}
+
+	@Override
+	void showMessage(String message) {
+		Window.alert(message);
+	}
+
+	@Override
+	void showError(String message) {
+		Window.alert(message);
+	}	
 }

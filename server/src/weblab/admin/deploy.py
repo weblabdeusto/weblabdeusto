@@ -1,152 +1,32 @@
-import sys, os
-sys.path.append( os.sep.join( ('..', 'src') ) )
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2012 onwards University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals,
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+# 
 
-from optparse import OptionParser
-
-import time
-t_initial = time.time()
-
-import traceback
-import getpass
+import os
+import sys
 import datetime
-import subprocess
+import traceback
+import random
+import hashlib
 
-import libraries
-import weblab.db.model as Model
-import weblab.core.coordinator.sql.model as CoordinatorModel
-
-import voodoo.sessions.db_lock_data as DbLockData
-import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
-
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-try:
-    import weblab_administrator_credentials as wac
-except ImportError:
-    print >> sys.stderr, "Error: weblab_administrator_credentials.py not found. Did you execute create_weblab_administrator.py first?" 
-    sys.exit(1)
+import weblab.db.model as Model
 
-try:
-	from configuration import weblab_db_username, weblab_db_password, core_coordinator_db_username, core_coordinator_db_password, weblab_sessions_db_username, weblab_sessions_db_password, db_engine
-except ImportError, e:
-	print >> sys.stderr, "Error: configuration.py doesn't exist or doesn't have all the required parameters: %s " % e
-	sys.exit(2)
-
-parser = OptionParser()
-parser.add_option("-p", "--prefix", dest="prefix", default="",
-                  help="Ask for a prefix", metavar="PREFIX")
-parser.add_option("-a", "--avoid-real",
-                  action="store_true", dest="avoid_real", default=False,
-                  help="Avoid real database")
-parser.add_option("-f", "--force",
-                  action="store_true", dest="force", default=False,
-                  help="Force removing information")
-
-(options, args) = parser.parse_args()
-prefix = options.prefix
-
-if prefix != "" and not options.avoid_real and not options.force:
-    print "WARNING: You have specified a prefix and this script is going to delete all the databases (including user information, experiments, etc.). Are you sure you want to delete all the information from all the WebLab databases? You can remove only the temporary coordination and session information by providing the -a option, and you can avoid this warning in the future passing the -f option."
-    response = raw_input("Press 'y' if you are sure of this: ")
-    if response != 'y':
-        print "Cancelled by the user"
-        sys.exit(0)
-
-if db_engine == 'mysql':
-    try:
-        import MySQLdb
-        dbi = MySQLdb
-    except ImportError:
-        import pymysql_sa
-        pymysql_sa.make_default_mysql_dialect()
-        import pymysql
-        dbi = pymysql
-
-    if not options.avoid_real:
-        weblab_db_str = 'mysql://%s:%s@localhost/%sWebLab' % (weblab_db_username, weblab_db_password, prefix)
-        weblab_test_db_str = 'mysql://%s:%s@localhost/%sWebLabTests%s' % (weblab_db_username, weblab_db_password, prefix, '%s')
-    weblab_coord_db_str = 'mysql://%s:%s@localhost/%sWebLabCoordination%s' % (core_coordinator_db_username, core_coordinator_db_password, prefix, '%s')
-    weblab_sessions_db_str = 'mysql://%s:%s@localhost/%sWebLabSessions' % (weblab_sessions_db_username, weblab_sessions_db_password, prefix)
-
-    def _connect(admin_username, admin_password):
-        try:
-            return dbi.connect(user = admin_username, passwd = admin_password)
-        except dbi.OperationalError, oe:
-            traceback.print_exc()
-            print >> sys.stderr, ""
-            print >> sys.stderr, "    Tip: did you run create_weblab_administrator.py first?"
-            print >> sys.stderr, ""
-            sys.exit(-1)
-
-
-    def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
-        args = {
-                'DATABASE_NAME' : database_name,
-                'USER'          : new_user,
-                'PASSWORD'      : new_password,
-                'HOST'          : host
-            }
-
-
-        sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
-        sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
-        sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
-        
-        try:
-            dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
-        except dbi.OperationalError, e:
-            if e[1].startswith("Unknown database"):
-                sentence1 = "SELECT 1"
-
-        for sentence in (sentence1, sentence2, sentence3):
-            connection = _connect(admin_username, admin_password)
-            cursor = connection.cursor()
-            cursor.execute(sentence)
-            connection.commit()
-            connection.close()
-
-elif db_engine == 'sqlite':
-    import sqlite3
-    dbi = sqlite3
-
-    db_dir = os.sep.join(('..','db'))
-
-    if not os.path.exists(db_dir):
-        os.mkdir(db_dir)
-
-    if not options.avoid_real:
-        weblab_db_str = 'sqlite:///../db/%sWebLab.db' % prefix
-        weblab_test_db_str = 'sqlite:///../db/%sWebLabTests%s.db' % (prefix, '%s')
-    weblab_coord_db_str = 'sqlite:///../db/%sWebLabCoordination%s.db' % (prefix, '%s')
-    weblab_sessions_db_str = 'sqlite:///../db/%sWebLabSessions.db' % prefix
-
-    def create_database(admin_username, admin_password, database_name, new_user, new_password, host = "localhost"):
-        fname = os.sep.join((db_dir, '%s.db' % database_name))
-        if os.path.exists(fname):
-            os.remove(fname)
-        sqlite3.connect(database = fname).close()
-
-else:
-    raise Exception("db engine %s not supported" % db_engine)
-
-t = time.time()
-
-if not options.avoid_real:
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLab" % prefix,              weblab_db_username, weblab_db_password)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests" % prefix,         weblab_db_username, weblab_db_password)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests2" % prefix,        weblab_db_username, weblab_db_password)
-    create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabTests3" % prefix,        weblab_db_username, weblab_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination" % prefix,  core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination2" % prefix, core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabCoordination3" % prefix, core_coordinator_db_username, core_coordinator_db_password)
-create_database(wac.wl_admin_username, wac.wl_admin_password, "%sWebLabSessions" % prefix,      weblab_sessions_db_username, weblab_sessions_db_password)
-
-print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
-
-def _insert_required_initial_data(engine):
-    Session = sessionmaker(bind=engine)    
-    session = Session()
+def insert_required_initial_data(engine):
+    session = sessionmaker(bind=engine)    
+    session = session()
 
     # Roles
     administrator = Model.DbRole("administrator")
@@ -215,24 +95,6 @@ def _insert_required_initial_data(engine):
     session.add(access_forward)
     session.commit()
 
-#####################################################################
-# 
-# Populating main database
-# 
-
-if not options.avoid_real:
-    print "Populating 'WebLab' database...   \t\t", 
-
-    t = time.time()
-
-    engine = create_engine(weblab_db_str, echo = False)
-    metadata = Model.Base.metadata
-    metadata.drop_all(engine)
-    metadata.create_all(engine)
-
-    _insert_required_initial_data(engine)
-
-    print "[done] [%1.2fs]" % (time.time() - t)
 
 #####################################################################
 # 
@@ -243,7 +105,6 @@ def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)    
     session = Session()
 
-    db = session.query(Model.DbAuthType).filter_by(name="DB").one()
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
     iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
     facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
@@ -368,29 +229,29 @@ def populate_weblab_tests(engine, tests):
     session.add(ee1)
 
     # Authentication
-    session.add(Model.DbUserAuth(admin1,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin2,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(admin3,   weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(any,      weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof1,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof2,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(prof3,    weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student5, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student6, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin2,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(admin3,   weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(any,      weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof1,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof2,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(prof3,    weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student5, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(student6, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
     session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
-    session.add(Model.DbUserAuth(studentILAB, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student3, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(fed_student4, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(consumer_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university1, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(provider_university2, weblab_db, "aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474"))
+    session.add(Model.DbUserAuth(studentILAB, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student2, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student3, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(fed_student4, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(consumer_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university1, weblab_db, _password2sha("password", 'aaaa')))
+    session.add(Model.DbUserAuth(provider_university2, weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
     session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
     session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
@@ -1034,6 +895,7 @@ def populate_weblab_tests(engine, tests):
     up_any_dummy_batch_allowed_p2 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_dummy_batch_allowed_p2)
     up_any_dummy_batch_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_dummy_batch_allowed_p3)
 
 
     up_any_pld_demo_allowed = Model.DbUserPermission(
@@ -1123,63 +985,161 @@ def populate_weblab_tests(engine, tests):
                
     session.commit()
 
-if not options.avoid_real:
-    for tests in ('','2','3'):
-        print "Populating 'WebLabTests%s' database...   \t\t" % tests, 
-        t = time.time()
+def generate_create_database(engine_str):
+    "Generate a create_database function that creates the database"
 
-        engine = create_engine(weblab_test_db_str % tests, echo = False)
-        metadata = Model.Base.metadata
-        metadata.drop_all(engine)
-        metadata.create_all(engine)   
+    if engine_str == 'sqlite':
 
-        _insert_required_initial_data(engine)
-        populate_weblab_tests(engine, tests)
+        import sqlite3
+        dbi = sqlite3
+        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+            fname = os.path.join(db_dir, '%s.db' % database_name)
+            if os.path.exists(fname):
+                os.remove(fname)
+            sqlite3.connect(database = fname).close()
+        return create_database_sqlite
 
-        print "[done] [%1.2fs]" % (time.time() - t)
+    elif engine_str == 'mysql':
 
+        try:
+            import MySQLdb
+            dbi = MySQLdb
+        except ImportError:
+            try:
+                import pymysql_sa
+            except ImportError:
+                raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install python-mysql'")
+            pymysql_sa.make_default_mysql_dialect()
+            import pymysql
+            dbi = pymysql
 
-
-#####################################################################
-# 
-# Populating Coordination database
-# 
-
-for coord in ('','2','3'):
-    print "Populating 'WebLabCoordination%s' database...\t" % coord,
-    t = time.time()
-
-    engine = create_engine(weblab_coord_db_str % coord, echo = False)
-
-    CoordinatorModel.load()
-
-    metadata = CoordinatorModel.Base.metadata
-    metadata.drop_all(engine)
-    metadata.create_all(engine)    
-
-    print "[done] [%1.2fs]" % (time.time() - t)
-
-
-#####################################################################
-# 
-# Populating Sessions database
-# 
+        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+            args = {
+                    'DATABASE_NAME' : database_name,
+                    'USER'          : new_user,
+                    'PASSWORD'      : new_password,
+                    'HOST'          : host
+                }
 
 
-print "Populating 'WebLabSessions' database...\t\t",
-t = time.time()
+            sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
+            sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
+            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
+            
+            try:
+                dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
+            except Exception, e:
+                if e[1].startswith("Unknown database"):
+                    sentence1 = "SELECT 1"
 
-engine = create_engine(weblab_sessions_db_str, echo = False)
+            for sentence in (sentence1, sentence2, sentence3):
+                try:
+                    connection = dbi.connect(user = admin_username, passwd = admin_password)
+                except dbi.OperationalError:
+                    traceback.print_exc()
+                    print >> sys.stderr, ""
+                    print >> sys.stderr, "    %s" % error_message
+                    print >> sys.stderr, ""
+                    sys.exit(-1)
+                else:
+                    cursor = connection.cursor()
+                    cursor.execute(sentence)
+                    connection.commit()
+                    connection.close()
+        return create_database_mysql
 
-metadata = DbLockData.SessionLockBase.metadata
-metadata.drop_all(engine)
-metadata.create_all(engine)    
+    else:
+        return None
 
-metadata = SessionSqlalchemyData.SessionBase.metadata
-metadata.drop_all(engine)
-metadata.create_all(engine)   
+def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+    session = sessionmaker()
 
-print "[done] [%1.2fs]" % (time.time() - t)
+    student       = session.query(Model.DbRole).filter_by(name='student').one()
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
 
-print "Total database deployment: \t\t\t[done] [%1.2fs]" % (time.time() - t_initial)
+    user    = Model.DbUser(login, user_name, mail, None, student)
+    session.add(user)
 
+    user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
+    session.add(user_auth)
+
+    session.commit()
+    session.close()
+
+def add_group(sessionmaker, group_name):
+    session = sessionmaker()
+    group = Model.DbGroup(group_name)
+    session.add(group)
+    session.commit()
+    session.close()
+
+def add_users_to_group(sessionmaker, group_name, *user_logins):
+    session = sessionmaker()
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    users = session.query(Model.DbUser).filter(Model.DbUser.login.in_(user_logins)).all()
+    for user in users:
+        group.users.append(user)
+    session.commit()
+    session.close()
+
+def add_experiment(sessionmaker, category_name, experiment_name):
+    session = sessionmaker()
+    existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
+    if existing_category is None:
+        category = Model.DbExperimentCategory(category_name)
+        session.add(category)
+    else:
+        category = existing_category
+    
+    start_date = datetime.datetime.utcnow()
+    # So leap years are not a problem
+    end_date = start_date.replace(year=start_date.year+12)
+
+    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date)
+    session.add(experiment)
+    session.commit()
+    session.close()
+
+def grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    session = sessionmaker()
+
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    
+    experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
+
+    experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
+    experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
+    experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+
+    group_permission = Model.DbGroupPermission(
+        group, experiment_allowed.group_applicable,
+        "%s users::%s@%s" % (group_name, experiment_name, category_name),
+        datetime.datetime.utcnow(),
+        "Permission for group %s users to use %s@%s" % (group_name, experiment_name, category_name))
+
+    session.add(group_permission)
+
+    group_permission_p1 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p1, experiment_name)
+    session.add(group_permission_p1)
+
+    group_permission_p2 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p2, category_name)
+    session.add(group_permission_p2)
+
+    group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p3, str(time_allowed))
+    session.add(group_permission_p3)
+
+    session.commit()
+    session.close()
+
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    add_experiment(sessionmaker, category_name, experiment_name)
+    grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
+
+def _password2sha(password, randomstuff = None):
+    if randomstuff is None:
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+    password = password if password is not None else ''
+    return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()

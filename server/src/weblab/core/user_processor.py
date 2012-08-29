@@ -171,7 +171,8 @@ class UserProcessor(object):
                 consumer_data = json.loads(serialized_consumer_data)
                 for forwarded_key in FORWARDED_KEYS:
                     if forwarded_key in consumer_data:
-                        reservation_info[forwarded_key] = consumer_data[forwarded_key]
+                        if consumer_data[forwarded_key] is not None:
+                            reservation_info[forwarded_key] = consumer_data[forwarded_key]
 
                 server_uuids = consumer_data.get(SERVER_UUIDS, [])
                 for server_uuid, server_uuid_human in server_uuids:

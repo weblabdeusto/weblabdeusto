@@ -1,6 +1,7 @@
 import MySQLdb as dbi
 import cgi
 import time
+import datetime
 import calendar
 
 from configuration import _USERNAME, _PASSWORD, DB_NAME, _FILES_PATH
@@ -77,6 +78,7 @@ padding:15px;
                 <b>User agent:</b> %(user_agent)s<br/>
                 <b>Route:</b> %(route)s</br/>
                 <b>In the name of:</b> %(external_user)s<br/>
+                <b>Longest command:</b> %(longest_command)s</br>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
                 <table>
@@ -105,21 +107,22 @@ padding:15px;
 
             result = result % {
                         'use_id'          : use_id,
-                        'mobile'          : cgi.escape(properties.get('mobile', "Don't know")),
-                        'facebook'        : cgi.escape(properties.get('facebook', "Don't know")),
-                        'referer'         : cgi.escape(properties.get('referer', "Don't know")),
-                        'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")),
-                        'external_user'   : cgi.escape(properties.get('external_user', "Himself")),
-                        'route'           : cgi.escape(properties.get('route', "Don't know")),
-                        'reservation_id'  : cgi.escape(reservation_id   or 'not stored'),
-                        'login'           : cgi.escape(login            or 'not stored'),
-                        'full_name'       : cgi.escape(full_name        or 'not stored'),
-                        'experiment_name' : cgi.escape(experiment_name  or 'not stored'),
-                        'category_name'   : cgi.escape(category_name    or 'not stored'),
-                        'date'            : cgi.escape(str(start_date)),
-                        'origin'          : cgi.escape(origin           or 'not stored'),
-                        'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")),
-                        'device'          : cgi.escape(device           or 'not stored'),
+                        'mobile'          : cgi.escape(properties.get('mobile', "Don't know")).replace('%','%%'),
+                        'facebook'        : cgi.escape(properties.get('facebook', "Don't know")).replace('%','%%'),
+                        'referer'         : cgi.escape(properties.get('referer', "Don't know")).replace('%','%%'),
+                        'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")).replace('%','%%'),
+                        'external_user'   : cgi.escape(properties.get('external_user', "Himself")).replace('%','%%'),
+                        'route'           : cgi.escape(properties.get('route', "Don't know")).replace('%','%%'),
+                        'reservation_id'  : cgi.escape(reservation_id   or 'not stored').replace('%','%%'),
+                        'login'           : cgi.escape(login            or 'not stored').replace('%','%%'),
+                        'full_name'       : cgi.escape(full_name        or 'not stored').replace('%','%%'),
+                        'experiment_name' : cgi.escape(experiment_name  or 'not stored').replace('%','%%'),
+                        'category_name'   : cgi.escape(category_name    or 'not stored').replace('%','%%'),
+                        'date'            : cgi.escape(str(start_date)).replace('%','%%'),
+                        'origin'          : cgi.escape(origin           or 'not stored').replace('%','%%'),
+                        'longest_command' : '%s',
+                        'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")).replace('%','%%'),
+                        'device'          : cgi.escape(device           or 'not stored').replace('%','%%'),
                     }
 
             # Commands
@@ -129,6 +132,8 @@ padding:15px;
                         "ORDER BY uc.timestamp_before DESC LIMIT %s" % LIMIT
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
+            command_results = ""
+            max_time_taken = 0
             for command, response, timestamp_before, timestamp_before_micro, timestamp_after, timestamp_after_micro in elements:
                 if timestamp_before is None:
                     before = "<not provided>"
@@ -138,12 +143,21 @@ padding:15px;
                     after  = "<not provided>"
                 else:
                     after  = "%s:%s" % (utc2local_str(timestamp_after), str(timestamp_after_micro).zfill(6))
+
+                if timestamp_after is not None and timestamp_before is not None:
+                    time_taken = timestamp_after.replace(microsecond=timestamp_after_micro) - timestamp_before.replace(microsecond=timestamp_before_micro)
+                else:
+                    time_taken = datetime.timedelta(0)
+                current_seconds = time_taken.days * 24 * 3600 + time_taken.seconds + time_taken.microseconds * 1e-6
+                if current_seconds > max_time_taken:
+                    max_time_taken = current_seconds
                 
                 if command is None:
                     command = "(None)"
                 if response is None:
                     response = "(None)"
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
+                command_results += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command).replace("%","%%"), cgi.escape(response).replace("%","%%") )
+            result = (result % max_time_taken) + command_results
 
             result += """</table>\n"""
             result += """<br/><br/><a name="files"><h2>Files</h2>\n"""

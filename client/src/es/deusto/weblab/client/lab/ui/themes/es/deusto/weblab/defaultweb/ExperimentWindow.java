@@ -58,6 +58,7 @@ class ExperimentWindow extends BaseWindow {
 	public interface IExperimentWindowCallback {
 		public boolean startedLoggedIn();
 		public boolean startedReserved();
+		public void disableFinishOnClose();
 		public void onLogoutButtonClicked();
 		public void onBackButtonClicked();
 		public void onReserveButtonClicked();
@@ -255,7 +256,13 @@ class ExperimentWindow extends BaseWindow {
 		button.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent event) {
+				ExperimentWindow.this.callback.disableFinishOnClose();
+				Window.Location.assign(remoteUrl);
+				/*
 				Window.open( remoteUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+				vp.remove(button);
+				vp.add(new Label(ExperimentWindow.this.i18nMessages.experimentOpenInOtherWindow()));
+				*/
 			}
 		});
 		vp.add(button);
@@ -315,6 +322,6 @@ class ExperimentWindow extends BaseWindow {
 
 	public void onExperimentInteractionFinished() {
 		this.containerPanel.clear();
-		this.containerPanel.add(new ExperimentFinishedWindow());
+		this.containerPanel.add(new ExperimentFinishedWindow(this.configurationManager).getWidget());
 	}
 }

@@ -23,6 +23,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import desc
 
+import weblab.configuration_doc as configuration_doc
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
@@ -36,8 +37,6 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbErrors
-
-from weblab.db.properties import WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME, WEBLAB_DB_PASSWORD_PROPERTY, WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
@@ -68,13 +67,13 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
 
-        user     = cfg_manager.get_value(WEBLAB_DB_USERNAME_PROPERTY, DEFAULT_WEBLAB_DB_USERNAME)
-        password = cfg_manager.get_value(WEBLAB_DB_PASSWORD_PROPERTY)
+        user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
+        password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
         host     = self.host
         dbname   = self.database_name
         engine   = self.engine_name
 
-        if DatabaseGateway.engine is None or cfg_manager.get_value(WEBLAB_DB_FORCE_ENGINE_RECREATION, DEFAULT_WEBLAB_DB_FORCE_ENGINE_RECREATION):
+        if DatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, user, password, host, dbname)
 
             if engine == 'sqlite':

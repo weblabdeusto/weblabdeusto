@@ -6,7 +6,7 @@
     
 	<g:VerticalPanel spacing="10">
 		
-		<g:Label text="{i18n.myExperiments}" styleName="title-label" horizontalAlignment='ALIGN_CENTER' />
+		<g:Label text="{i18n.myExperiments}" styleName="mobile-title-label" horizontalAlignment='ALIGN_CENTER' />
 		
 		<g:Label ui:field="generalErrorLabel" styleName="wl-error_message" />
 		

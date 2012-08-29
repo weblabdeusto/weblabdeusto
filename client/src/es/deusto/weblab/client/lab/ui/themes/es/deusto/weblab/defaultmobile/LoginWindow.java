@@ -35,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.WebLabClient;
+import es.deusto.weblab.client.WebLabClientLab;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.DefaultTheme;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
@@ -58,6 +59,8 @@ class LoginWindow extends BaseWindow {
 	
 	@UiField Anchor languages;
 	@UiField Anchor classicLink;
+	@UiField Button guestButton;
+	@UiField VerticalPanel guestPanel;
 
 	@UiField Label messages;
 
@@ -81,7 +84,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	private void setupWidgets(final Widget wid) {
-	    this.logoImage.setUrl(GWT.getModuleBaseURL() + configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
+	    this.logoImage.setUrl(GWT.getModuleBaseURL() + this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
 	    
 		// If ENTER is pressed, login as if the button had been clicked.
 		final KeyDownHandler keyboardHandler = new KeyDownHandler(){
@@ -124,6 +127,13 @@ class LoginWindow extends BaseWindow {
 		this.classicLink.setHref(WebLabClient.getNewUrl(WebLabClient.MOBILE_URL_PARAM, "false"));
 		
 		this.mainPanel.add(wid);
+		
+		final boolean demoAvailable = this.configurationManager.getBoolProperty(
+				WebLabClientLab.DEMO_AVAILABLE_PROPERTY,
+				WebLabClientLab.DEFAULT_DEMO_AVAILABLE
+			);
+		
+		this.guestPanel.setVisible(demoAvailable);
 	}
 
 	private static class LanguageButtonClickHandler implements ClickHandler{
@@ -148,15 +158,24 @@ class LoginWindow extends BaseWindow {
 		errors |= this.checkUsernameTextbox();
 		errors |= this.checkPasswordTextbox();
 		if(!errors){
-			this.waitingLabel.setStyleName(".visible-message");
-			this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
-			this.waitingLabel.start();
-			this.loginButton.setEnabled(false);
-			this.callback.onLoginButtonClicked(
-					this.usernameTextbox.getText(), 
-					this.passwordTextbox.getText()
-				);
+			startLoginProcess(this.usernameTextbox.getText(), this.passwordTextbox.getText());
 		}
+	}
+
+	private void startLoginProcess(String username, String password) {
+		this.waitingLabel.setStyleName(".visible-message");
+		this.waitingLabel.setText(LoginWindow.this.i18nMessages.loggingIn());
+		this.waitingLabel.start();
+		this.loginButton.setEnabled(false);
+		this.callback.onLoginButtonClicked(username, password);
+	}
+
+	@UiHandler("guestButton")
+	void onGuestButtonClicked(@SuppressWarnings("unused") ClickEvent e) {
+		final String demoUsername = this.configurationManager.getProperty( WebLabClientLab.DEMO_USERNAME_PROPERTY, WebLabClientLab.DEFAULT_DEMO_USERNAME);		
+		final String demoPassword = this.configurationManager.getProperty( WebLabClientLab.DEMO_PASSWORD_PROPERTY, WebLabClientLab.DEFAULT_DEMO_PASSWORD);	
+
+		startLoginProcess(demoUsername, demoPassword);
 	}
 	
 	private boolean checkUsernameTextbox(){

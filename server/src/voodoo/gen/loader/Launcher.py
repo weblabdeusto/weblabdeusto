@@ -20,9 +20,6 @@ import sys
 base_dir = os.sep.join(os.path.dirname(os.path.abspath(__file__)).split(os.sep)[:-3])
 sys.path.append(base_dir)
 
-import libraries
-libraries.load()
-
 import time
 import signal
 import threading
