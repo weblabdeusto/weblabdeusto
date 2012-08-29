@@ -15,6 +15,7 @@
 			<arg value="--environment"/>
 			<arg value="env"/>
 			<arg value="--install-all-requirements"/>
+            <arg value="--compile-client" />
 			<arg value="--deploy-stubs"/>
             <arg value="--deploy-test-db"/>
             <arg value="--test-db-engine=mysql"/>

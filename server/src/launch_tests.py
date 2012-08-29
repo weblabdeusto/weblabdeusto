@@ -408,6 +408,9 @@ if __name__ == '__main__':
     parser.add_option('--deploy-stubs',             dest='deploy_stubs', action='store_true', default=False,
                                                     help = "Creates all the ZSI SOAP stubs.")
 
+    parser.add_option('--compile-client',            dest='compile_client', action='store_true', default=False,
+                                                    help = "Compiles the client.")
+
     install_options = optparse.OptionGroup(parser, "Installation environment",
                                                    "You may want to deploy WebLab-Deusto in a virtualenv environment. " 
                                                    "Through these options you can select them and install dependencies on it.")
@@ -501,6 +504,14 @@ if __name__ == '__main__':
 
     if options.deploy_testdb:
         deploy_testdb(options)
+        if not options.tests and not options.flakes and not options.compile_client:
+            sys.exit(0)
+
+    if options.compile_client:
+        CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
+        WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
+        from weblab.admin.client_deploy import compile_client
+        compile_client(WAR_LOCATION, CLIENT_LOCATION)
         if not options.tests and not options.flakes:
             sys.exit(0)
 
