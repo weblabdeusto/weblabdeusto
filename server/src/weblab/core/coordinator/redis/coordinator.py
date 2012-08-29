@@ -13,7 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import redis
+try:
+    import redis
+except ImportError:
+    REDIS_AVAILABLE = False
+else:
+    REDIS_AVAILABLE = True
 
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged

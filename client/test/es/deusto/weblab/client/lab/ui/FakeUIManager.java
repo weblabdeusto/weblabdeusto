@@ -28,7 +28,7 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
     public static final String ON_INIT 			                    = "FakeUIManager::onInit";
     public static final String ON_LOGGED_IN 			            = "FakeUIManager::onLoggedIn";
     public static final String ON_ALLOWED_EXPERIMENTS_RETRIEVED     = "FakeUIManager::onAllowedExperimentsRetrieved";
-    public static final String ON_EXPERIMENT_CHOOSEN 		        = "FakeUIManager::onExperimentChoosen";
+    public static final String ON_EXPERIMENT_CHOSEN 		        = "FakeUIManager::onExperimentChoosen";
     public static final String ON_WAITING_RESERVATION 		        = "FakeUIManager::onWaitingReservation";
     public static final String ON_WAITING_RESERVATION_CONFIRMATION  = "FakeUIManager::onWaitingReservationConfirmation";
     public static final String ON_EXPERIMENT_RESERVED 		        = "FakeUIManager::onExperimentReserved";
@@ -56,17 +56,20 @@ public class FakeUIManager extends WebLabFake implements IUIManager {
     public void onLoggedIn(User user) {
 	this.append(FakeUIManager.ON_LOGGED_IN, new Object[]{user});
     }
-    
+
     @Override
-    public void onAllowedExperimentsRetrieved(
-	    ExperimentAllowed[] experimentsAllowed) {
+    public void setAllowedExperiments(ExperimentAllowed[] experimentsAllowed) {
+    }    
+
+    @Override
+    public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed) {
     	this.append(FakeUIManager.ON_ALLOWED_EXPERIMENTS_RETRIEVED, new Object[]{experimentsAllowed});
     }    
     
     @Override
     public void onExperimentChosen(ExperimentAllowed experimentAllowed, ExperimentBase experimentBase, boolean reserved) {
     	experimentBase.initialize();
-    	this.append(FakeUIManager.ON_EXPERIMENT_CHOOSEN, new Object[] {experimentAllowed, experimentBase});
+    	this.append(FakeUIManager.ON_EXPERIMENT_CHOSEN, new Object[] {experimentAllowed, experimentBase});
     }
     
     @Override

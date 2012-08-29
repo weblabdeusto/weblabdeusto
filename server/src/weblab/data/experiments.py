@@ -45,6 +45,9 @@ class ExperimentId(object):
     def to_weblab_str(self):
         return '%s@%s' % (self.exp_name, self.cat_name)
 
+    def __hash__(self):
+        return hash(self.to_weblab_str())
+
     @staticmethod
     def parse(weblab_str):
         pos = weblab_str.find("@")

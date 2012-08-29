@@ -21,7 +21,9 @@ import java.util.Vector;
 import junit.framework.Assert;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import com.google.gwt.user.client.History;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.comm.FakeCommonCommunication;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
@@ -334,6 +336,8 @@ public class LabControllerTest  extends GWTTestCase{
 	}
 	
 	private ReservationContext createReservationContext() throws Exception{
+		History.newItem("", false);
+		HistoryProperties.reloadHistory();
 		final ReservationContext context = new ReservationContext();
 		
 		Methods m;
@@ -362,14 +366,14 @@ public class LabControllerTest  extends GWTTestCase{
 		m = this.fakeCommunications.getMethodByName(FakeCommonCommunication.GET_USER_INFORMATION).get(0);
 		final IUserInformationCallback uic = (IUserInformationCallback)m.getParameters()[1];
 		uic.onSuccess(user);
-
+		
 		controller.retrieveAllowedExperiments();
 		m = this.fakeCommunications.getMethodByName(FakeLabCommunication.LIST_EXPERIMENTS).get(0); 
 		final IExperimentsAllowedCallback eac = (IExperimentsAllowedCallback)(m).getParameters()[1];
 		eac.onSuccess(experimentsAllowed);
 		
 		controller.chooseExperiment(experimentsAllowed[0]);
-		Assert.assertEquals(1, uimanager.getMethodByName(FakeUIManager.ON_EXPERIMENT_CHOOSEN).size());
+		Assert.assertEquals(1, uimanager.getMethodByName(FakeUIManager.ON_EXPERIMENT_CHOSEN).size());
 		
 		// Reservation test itself
 		controller.reserveExperiment(experiment.getExperimentUniqueName());

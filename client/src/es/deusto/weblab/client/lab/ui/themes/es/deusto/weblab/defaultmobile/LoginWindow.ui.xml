@@ -78,6 +78,17 @@
    		</g:Cell>
    		
    		<g:Cell horizontalAlignment="ALIGN_CENTER">
+			<g:VerticalPanel width="100%" ui:field="guestPanel" spacing="10" visible="false">
+				<g:cell horizontalAlignment="ALIGN_CENTER">
+					<g:Label text="{i18n.someExperimentsAreAvailableForDemo}" />
+				</g:cell>
+				<g:cell horizontalAlignment="ALIGN_CENTER">
+					<g:Button text="{i18n.loginAsGuest}" ui:field="guestButton" />
+				</g:cell>
+			</g:VerticalPanel>
+		</g:Cell>   		
+   		
+   		<g:Cell horizontalAlignment="ALIGN_CENTER">
 			<g:HorizontalPanel width="100%" horizontalAlignment="ALIGN_CENTER" spacing="10">
 				<g:Cell horizontalAlignment="ALIGN_RIGHT">
 					<g:Label text="mobile" styleName="{style.bold-text}"></g:Label>

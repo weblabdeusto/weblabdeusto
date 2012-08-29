@@ -20,9 +20,6 @@ import time
 import threading
 import traceback
 
-import libraries
-libraries.load()
-
 import voodoo.counter as counter
 
 import weblab.data.command as Command

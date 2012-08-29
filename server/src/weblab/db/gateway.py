@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 import weblab.db.exc as DbErrors
 import voodoo.configuration as CfgErrors
 

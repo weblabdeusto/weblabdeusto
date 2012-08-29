@@ -17,9 +17,6 @@
 
 # TODO: Add tests related to the concurrency API and maybe the heartbeater.
 
-import libraries
-libraries.load()
-
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os
@@ -74,7 +71,7 @@ DEFAULT_LOGIN_EMAIL = "guest"
 DEFAULT_LOGIN_PASSWORD = "guest"
 DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
-DEFAULT_CLIENT_URL = "visir/loader.swf"
+DEFAULT_CLIENT_URL = "../web/visir/loader.swf"
 DEFAULT_HEARTBEAT_PERIOD = 30
 DEFAULT_CIRCUITS = {}
 DEFAULT_DEBUG_PRINTS = False
@@ -243,10 +240,10 @@ DEBUG_MESSAGES = DEBUG and False
 DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES and False
 
 
-class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
+class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-        super(VisirTestExperiment, self).__init__(*args, **kwargs)
+        super(VisirExperiment, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_config()
         self._requesting_lock = threading.Lock()
@@ -620,6 +617,9 @@ class VisirTestExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id 
         
         return "ok"
+
+# Backwards compatible...
+VisirTestExperiment = VisirExperiment
 
 if __name__ == '__main__':
     regular_request = """<protocol version="1.3">

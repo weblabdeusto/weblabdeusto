@@ -13,9 +13,16 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
 from abc import ABCMeta, abstractmethod
 from voodoo.threaded import threaded
 from socket import AF_INET, SOCK_STREAM, socket
+
+import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
+import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
+import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
+from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
+from experiments.ud_xilinx.programmers import UdXilinxProgrammer
 
 class HardwareInterface(object):
 
@@ -119,21 +126,47 @@ class PicInterface(HardwareInterface):
         self._send(";0")
 
 class XilinxInterface(HardwareInterface):
-    def __init__(self, impact_file, command_sender):
-        pass
+    def __init__(self, cfg_manager):
+        self._cfg_manager = cfg_manager
+        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
+        self._programmer = self._load_programmer()
+        self._command_sender = self._load_command_sender()
+
+    def _load_xilinx_device(self):
+        self.device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
+        devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == self.device_name ]
+        if len(devices) == 1:
+            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
+        else:
+            raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(self.device_name)
+
+    def _load_programmer(self):
+        device_name = self._cfg_manager.get_value('xilinx_device_to_program')
+        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
+
+    def _load_command_sender(self):
+        device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
+        return UdXilinxCommandSender.create(device_name, self._cfg_manager)
 
     def initialize(self):
-        pass
+        if self.device_name == 'PLD':
+            file_name = 'turnon.jed'
+        else: # FPGA
+            file_name = 'turnon.bit'
+        full_file_name = os.path.join(os.path.dirname(__file__), file_name)
+        self._programmer.program(full_file_name)
 
     def send_message(self):
-        pass
+        pass # Not implemented
 
     def turn_on(self):
-        pass
+        self._command_sender.send_command("ChangeSwitch on 0")
+        self._command_sender.send_command("ChangeSwitch on 0")
 
     def turn_off(self):
-        pass
+        self._command_sender.send_command("ChangeSwitch on 0")
+        self._command_sender.send_command("ChangeSwitch on 9")
 
     def clear(self):
-        pass
+        self._command_sender.send_command("CleanInputs")
 

@@ -15,7 +15,10 @@
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -33,4 +36,8 @@ public class ExperimentFinishedWindow extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 
+	@UiHandler("backButton")
+	public void back(@SuppressWarnings("unused") ClickEvent event) {
+		History.back();
+	}
 }

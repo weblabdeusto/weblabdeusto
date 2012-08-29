@@ -372,7 +372,9 @@ public class LogicExperiment extends ExperimentBase {
 		if(this.messages != null){
 			this.messages.dispose();
 		}
-		this.sendSolutionButton.setVisible(false);
+		if(this.sendSolutionButton != null) {
+			this.sendSolutionButton.setVisible(false);
+		}
 	}
 	
 	private String getWebcamImageUrl() {

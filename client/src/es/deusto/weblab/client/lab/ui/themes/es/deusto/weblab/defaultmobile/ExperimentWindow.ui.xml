@@ -8,15 +8,15 @@
         
 		<g:VerticalPanel ui:field="upperSide" width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
 			<g:Anchor text="&lt; {i18n.backToMyExperiments}" ui:field="back" horizontalAlignment="ALIGN_LEFT"></g:Anchor>
-			<g:Label ui:field="reserveExperimentLabel" text="{i18n.reserveThisExperiment}" styleName="title-label" />
-			<g:Label ui:field="selectedExperimentLabel" text="{i18n.selectedExperiment}" styleName="title-label" />
-			<g:Grid ui:field="grid" cellSpacing='1'>
+			<g:Label ui:field="reserveExperimentLabel" text="{i18n.reserveThisExperiment}" styleName="mobile-title-label" />
+			<g:Label ui:field="selectedExperimentLabel" text="{i18n.selectedExperiment}" styleName="mobile-title-label" />
+			<g:Grid ui:field="grid" cellSpacing='1' styleName="mobile-experiment-details">
 				<g:row>
 					<g:customCell>
 						<g:Label text="{i18n.experimentName}:"/>
 					</g:customCell>
 					<g:customCell>
-						<g:Label ui:field="experimentName" styleName="experiment-detail"/>
+						<g:Label ui:field="experimentName" styleName="mobile-experiment-detail"/>
 					</g:customCell>
 				</g:row>
 				
@@ -25,7 +25,7 @@
 						<g:Label text="{i18n.experimentCategory}:"/>
 					</g:customCell>
 					<g:customCell>
-						<g:Label ui:field="experimentCategory" styleName="experiment-detail"/>
+						<g:Label ui:field="experimentCategory" styleName="mobile-experiment-detail"/>
 					</g:customCell>
 				</g:row>
 				
@@ -34,7 +34,7 @@
 						<g:Label text="{i18n.timeAllowed}:"/>
 					</g:customCell>
 					<g:customCell>
-						<g:Label ui:field="timeAllowed" styleName="experiment-detail"/>
+						<g:Label ui:field="timeAllowed" styleName="mobile-experiment-detail"/>
 					</g:customCell>
 				</g:row>
 			</g:Grid>

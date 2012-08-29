@@ -16,15 +16,13 @@
 import unittest
 import threading
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 import test.unit.configuration as configuration_module
 
 import test.unit.voodoo.gen.coordinator.SampleServerType as SampleServerType
 
 import voodoo.configuration as ConfigurationManager
-
-import voodoo.sessions.memory as SessionMemoryGateway
 
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.Access as Access

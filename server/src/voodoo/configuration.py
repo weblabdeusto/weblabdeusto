@@ -19,7 +19,7 @@ from voodoo.lock import RWLock
 
 import voodoo.exc as VoodooErrors
 
-import configuration_doc
+import weblab.configuration_doc as configuration_doc
 
 
 class _ConfigurationModule(object):

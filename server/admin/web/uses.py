@@ -107,22 +107,22 @@ padding:15px;
 
             result = result % {
                         'use_id'          : use_id,
-                        'mobile'          : cgi.escape(properties.get('mobile', "Don't know")),
-                        'facebook'        : cgi.escape(properties.get('facebook', "Don't know")),
-                        'referer'         : cgi.escape(properties.get('referer', "Don't know")),
-                        'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")),
-                        'external_user'   : cgi.escape(properties.get('external_user', "Himself")),
-                        'route'           : cgi.escape(properties.get('route', "Don't know")),
-                        'reservation_id'  : cgi.escape(reservation_id   or 'not stored'),
-                        'login'           : cgi.escape(login            or 'not stored'),
-                        'full_name'       : cgi.escape(full_name        or 'not stored'),
-                        'experiment_name' : cgi.escape(experiment_name  or 'not stored'),
-                        'category_name'   : cgi.escape(category_name    or 'not stored'),
-                        'date'            : cgi.escape(str(start_date)),
-                        'origin'          : cgi.escape(origin           or 'not stored'),
+                        'mobile'          : cgi.escape(properties.get('mobile', "Don't know")).replace('%','%%'),
+                        'facebook'        : cgi.escape(properties.get('facebook', "Don't know")).replace('%','%%'),
+                        'referer'         : cgi.escape(properties.get('referer', "Don't know")).replace('%','%%'),
+                        'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")).replace('%','%%'),
+                        'external_user'   : cgi.escape(properties.get('external_user', "Himself")).replace('%','%%'),
+                        'route'           : cgi.escape(properties.get('route', "Don't know")).replace('%','%%'),
+                        'reservation_id'  : cgi.escape(reservation_id   or 'not stored').replace('%','%%'),
+                        'login'           : cgi.escape(login            or 'not stored').replace('%','%%'),
+                        'full_name'       : cgi.escape(full_name        or 'not stored').replace('%','%%'),
+                        'experiment_name' : cgi.escape(experiment_name  or 'not stored').replace('%','%%'),
+                        'category_name'   : cgi.escape(category_name    or 'not stored').replace('%','%%'),
+                        'date'            : cgi.escape(str(start_date)).replace('%','%%'),
+                        'origin'          : cgi.escape(origin           or 'not stored').replace('%','%%'),
                         'longest_command' : '%s',
-                        'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")),
-                        'device'          : cgi.escape(device           or 'not stored'),
+                        'ip'              : cgi.escape(properties.get('from_direct_ip', "Don't know")).replace('%','%%'),
+                        'device'          : cgi.escape(device           or 'not stored').replace('%','%%'),
                     }
 
             # Commands
@@ -156,7 +156,7 @@ padding:15px;
                     command = "(None)"
                 if response is None:
                     response = "(None)"
-                command_results += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command), cgi.escape(response) )
+                command_results += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> </tr>\n" % ( before, after, cgi.escape(command).replace("%","%%"), cgi.escape(response).replace("%","%%") )
             result = (result % max_time_taken) + command_results
 
             result += """</table>\n"""

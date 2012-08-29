@@ -307,7 +307,25 @@ public class SubmarineExperiment extends ExperimentBase {
 			
 			@Override
 			public void onAction(IWlWidget widget) {
-				SubmarineExperiment.this.boardController.sendCommand("FOOD");
+				SubmarineExperiment.this.boardController.sendCommand("FOOD", new IResponseCommandCallback() {
+					
+					@Override
+					public void onFailure(CommException e) {
+						setMessage("Error feeding: " + e.getMessage());
+					}
+					
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						if(responseCommand.getCommandString().startsWith("fed")) 
+							setMessage("Fish fed!");
+						else if (responseCommand.getCommandString().startsWith("notfed:")) {
+							final String time = responseCommand.getCommandString().substring("notfed:".length());
+							setMessage("Fish already fed recently. Try again in " + time + " hours");
+						} else {
+							setMessage("Fish not fed: " + responseCommand.getCommandString());
+						}
+					}
+				});
 			}
 		});
 		
