@@ -21,9 +21,6 @@ import SimpleXMLRPCServer
 import sys, os
 sys.path.append(os.sep.join(('..','..','..','..','..')))
 
-import libraries
-libraries.load()
-
 import voodoo.configuration as CM
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact  as XilinxImpact

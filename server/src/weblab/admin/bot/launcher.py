@@ -25,25 +25,22 @@ import weblab.admin.bot.data as Data
 
 import voodoo.mapper as mapper
 
-def avg(elements):
-    if len(elements) > 0:
-        return 1.0 * sum(elements)/len(elements)
-    else:
-        return 0
-
 class BotLauncher(object):
 
-    def __init__(self, weblab_path, launch_file_name, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, ports):
+    def __init__(self, configuration, host, pickle_file_name, logging_cfg_file_name, scenario, iterations, options, verbose):
         super(BotLauncher, self).__init__()
-        self.weblab_path = weblab_path
-        self.launch_file = launch_file_name
+        self.verbose = verbose
+        self.options = options
+        if isinstance(configuration, basestring):
+            self.launch_files = [ configuration ]
+        else:
+            self.launch_files = configuration
         self.host = host
         self.pickle_file_name = pickle_file_name
         self.logging_cfg_file_name = logging_cfg_file_name
         self.scenario = scenario
         self.iterations = iterations
         self.results = []
-        self.ports   = ports # { 'soap' : (10123, 20123), ... }
 
         self._set_logging_cfg()
         self._set_users()
@@ -104,8 +101,33 @@ class BotLauncher(object):
     def _launch_iteration(self):
 
         # Launching botusers...
-        self.weblab_process = WebLabProcess.WebLabProcess(self.weblab_path, self.launch_file, self.host, self.ports)
-        self.weblab_process.start()
+        started_processes = []
+        try:
+            for launch_file in self.launch_files:
+                if self.verbose:
+                    print "[Launcher] Launching... %s" % launch_file
+                weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, self.options, verbose = self.verbose)
+                weblab_process.start()
+                if self.verbose:
+                    print "[Launcher] %s running" % launch_file
+                started_processes.append(weblab_process)
+
+            if len(started_processes) > 1:
+                started_processes[0].step_wait()
+
+            for weblab_process in started_processes:
+                weblab_process.wait_for_process_started()
+
+            if len(started_processes) > 1:
+                started_processes[0].step_started_wait()
+        except:
+            for started_process in started_processes:
+                if self.verbose:
+                    print "[Launcher] Shutting down... %s" % started_process
+                started_process.shutdown()
+            raise
+        if self.verbose:
+            print "[Launcher] All processes launched"
         try:
             botusers = []
             for botuser_creator_name, botuser_creator in self.scenario:
@@ -124,7 +146,12 @@ class BotLauncher(object):
                 time.sleep(0.3)
             iteration_time = time.time() - begin_time
         finally:
-            self.weblab_process.shutdown()
+            complete_out = ''
+            complete_err = ''
+            for started_process in started_processes:
+                started_process.shutdown()
+                complete_out += started_process.out
+                complete_err += started_process.err
 
         botuser_routes = [ botuser.route for botuser in botusers ]
         routes = {}
@@ -141,7 +168,7 @@ class BotLauncher(object):
         for botuser in botusers:
             for exception, trace in botuser.get_exceptions():
                 self._add_exception(exceptions, (exception, trace))
-        return Data.BotIteration(iteration_time, exceptions, botusers, self.weblab_process.out, self.weblab_process.err)
+        return Data.BotIteration(iteration_time, exceptions, botusers, complete_out, complete_err)
 
     def len(self):
         return self.users / self.step

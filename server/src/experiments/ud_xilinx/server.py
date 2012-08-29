@@ -106,6 +106,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
 
     @threaded()
+    @logged("info",except_for='file_content')
     def _program_file_t(self, file_content):
         """
         Running in its own thread, this method will program the board
@@ -143,18 +144,10 @@ class UdXilinxExperiment(Experiment.Experiment):
         except Exception as e:
 
             #TODO: test me
-            log.log(
-                UdXilinxExperiment,
-                log.level.Info,
-                "Exception joining sending program to device: %s" % e.args[0]
-            )
-            log.log_exc(
-                UdXilinxExperiment,
-                log.level.Debug
-            )
-            raise ExperimentErrors.SendingFileFailureError(
-                    "Error sending file to device: %s" % e
-                )
+            log.log( UdXilinxExperiment, log.level.Info,
+                "Exception joining sending program to device: %s" % e.args[0])
+            log.log_exc( UdXilinxExperiment, log.level.Debug)
+            raise ExperimentErrors.SendingFileFailureError( "Error sending file to device: %s" % e)
         self._clear()
 
     def _clear(self):

@@ -122,33 +122,41 @@ public class RobotMovementExperiment extends ExperimentBase {
 					case KeyCodes.KEY_UP:
 						RobotMovementExperiment.this.upPressed = true;
 						sendMove(UP);
+						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
 						RobotMovementExperiment.this.downPressed = true;
 						sendMove(DOWN);
+						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
 						RobotMovementExperiment.this.leftPressed = true;
 						sendMove(LEFT);
+						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
 						RobotMovementExperiment.this.rightPressed = true;
 						sendMove(RIGHT);
+						event.cancel();
 						break;
 				}
 			} else if(event.getTypeInt() == Event.ONKEYUP) {
 				switch(event.getNativeEvent().getKeyCode()) {
 					case KeyCodes.KEY_UP:
 						RobotMovementExperiment.this.upPressed = false;
+						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
 						RobotMovementExperiment.this.downPressed = false;
+						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
 						RobotMovementExperiment.this.leftPressed = false;
+						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
 						RobotMovementExperiment.this.rightPressed = false;
+						event.cancel();
 						break;
 				}
 			}

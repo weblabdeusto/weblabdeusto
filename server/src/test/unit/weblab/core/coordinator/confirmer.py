@@ -32,7 +32,7 @@ from weblab.data.experiments import ExperimentId
 from weblab.core.coordinator.resource import Resource
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 
-import weblab.core.coordinator.coordinator as Coordinator
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.core.coordinator.status as WSS
 
@@ -72,7 +72,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
             },
         })
 
-        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
+        self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager)
         self.coordinator._clean()
         self.confirmer   = self.coordinator.confirmer
 

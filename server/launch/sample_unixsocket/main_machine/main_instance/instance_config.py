@@ -22,8 +22,8 @@ mail_notification_subject = '[WebLab] CRITICAL ERROR!'
 
 session_mysql_host     = 'localhost'
 session_mysql_db_name  = 'WebLabSessions'
-session_mysql_username = 'wl_session_user'
-session_mysql_password = 'wl_session_user_password'
+session_mysql_username = 'weblab'
+session_mysql_password = 'weblab'
 
 ##########################################
 # Sessions locker database configuration #
@@ -31,8 +31,8 @@ session_mysql_password = 'wl_session_user_password'
 
 session_locker_mysql_host     = 'localhost'
 session_locker_mysql_db_name  = 'WebLabSessions'
-session_locker_mysql_username = 'wl_session_user'
-session_locker_mysql_password = 'wl_session_user_password'
+session_locker_mysql_username = 'weblab'
+session_locker_mysql_password = 'weblab'
 
 ########################
 # Loader configuration #
@@ -45,7 +45,7 @@ loader_xsd_path                   = "WebLabSkel/lib/schemas/"
 # Experiments configuration #
 #############################
 
-core_experiment_poll_time = 15 # seconds
+core_experiment_poll_time = 350 # seconds
 
 ####################################
 # Coordinator Server configuration #

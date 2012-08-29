@@ -22,8 +22,11 @@ def get_gateway_class(session_type):
     elif session_type == SessionType.sqlalchemy:
         from voodoo.sessions.sqlalchemy_gateway import SessionSqlalchemyGateway
         return SessionSqlalchemyGateway
+    elif session_type == SessionType.redis:
+        from voodoo.sessions.redis_gateway import SessionRedisGateway
+        return SessionRedisGateway
     else:
         raise SessionErrors.SessionTypeNotImplementedError(
-                "Session Type %s not implemented" % session_type.name
+                "Session Type %s not implemented" % session_type
             )
 

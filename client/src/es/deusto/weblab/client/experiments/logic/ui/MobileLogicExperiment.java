@@ -325,7 +325,9 @@ public class MobileLogicExperiment extends ExperimentBase {
 			this.messages.dispose();
 		}
 		
-		this.sendSolutionButton.setVisible(false);
+		if(this.sendSolutionButton != null) {
+			this.sendSolutionButton.setVisible(false);
+		}
 	}
 
 	@Override

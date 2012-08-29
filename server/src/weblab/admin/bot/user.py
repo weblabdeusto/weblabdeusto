@@ -20,9 +20,6 @@ import time
 import threading
 import traceback
 
-import libraries
-libraries.load()
-
 import voodoo.counter as counter
 
 import weblab.data.command as Command
@@ -47,6 +44,9 @@ class BotUser(threading.Thread):
         self.program = _Util.serialize(program)
         self.bot = Client.create_bot(protocol, url=self.url, url_login=self.url_login)
         self.initial_delay = initial_delay
+
+    def dispose(self):
+        del self.bot
 
     def time(self):
         return self.bot.time()

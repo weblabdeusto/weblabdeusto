@@ -24,6 +24,8 @@ except ImportError:
 else:
     ZSI_AVAILABLE = True
 
+import weblab.configuration_doc as configuration_doc
+
 import voodoo.sessions.session_id as SessionId
 
 import test.unit.configuration as configuration
@@ -271,7 +273,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
         MESSAGE = "The exception message"
 
         # Production mode: A general error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, False)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,
@@ -290,7 +292,7 @@ class UserProcessingFacadeManagerZSITestCase(unittest.TestCase):
                         'ZSI:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, True)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,
@@ -663,7 +665,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         MESSAGE = "The exception message"
 
         # Production mode: A general error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, False)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, False)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,
@@ -682,7 +684,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
                         'JSON:' + RFCodes.WEBLAB_GENERAL_EXCEPTION_CODE, self.weblab_general_error_message)
 
         # Debug mode: The error message is received
-        self.cfg_manager._set_value(RFM.DEBUG_MODE, True)
+        self.cfg_manager._set_value(configuration_doc.DEBUG_MODE, True)
 
         self._test_exception(method, args,
                         coreExc.WebLabCoreError, MESSAGE,

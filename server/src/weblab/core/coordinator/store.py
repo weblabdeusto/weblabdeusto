@@ -48,6 +48,9 @@ class TemporalInformationStore(object):
         except Queue.Empty:
             return None
 
+    def empty(self):
+        return self.queue.empty()
+
     @abstractmethod
     def put(self, *args, **kwargs):
         pass

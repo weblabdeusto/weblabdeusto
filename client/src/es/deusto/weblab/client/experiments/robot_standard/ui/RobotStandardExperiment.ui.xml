@@ -7,8 +7,11 @@
         
 		<g:VerticalPanel borderWidth="0" ui:field="mainWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 
-			<g:VerticalPanel ui:field="uploadStructurePanel">
-				<g:Label text="Select the .hex you wish to send:"></g:Label>
+			<g:VerticalPanel horizontalAlignment='ALIGN_CENTER'>
+				<g:VerticalPanel ui:field="uploadStructurePanel">
+					<g:Label text="Select the .hex you wish to send:"></g:Label>
+				</g:VerticalPanel>
+				<g:Button ui:field="uploadButton" visible="false">Upload</g:Button>
 			</g:VerticalPanel>
 		
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">

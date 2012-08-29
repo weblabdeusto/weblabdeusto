@@ -17,6 +17,7 @@
 import weblab.comm.web_server as WebFacadeServer
 __builtins__
 
+from weblab.util import data_filename
 import tempfile
 import traceback
 from voodoo.log import logged
@@ -30,13 +31,12 @@ import os
 import mimetypes
 
 import hashlib
-import weblab
 
 import re
 
-VISIR_RELATIVE_PATH = os.sep.join(('..','..','..','client','war','weblabclient','visir')) + os.sep
+VISIR_RELATIVE_PATH = data_filename(os.path.join('war','weblabclientlab','visir')) + os.sep
 
-VISIR_LOCATION = os.path.abspath(os.sep.join((os.path.dirname(weblab.__file__), VISIR_RELATIVE_PATH))) + os.sep
+VISIR_LOCATION = VISIR_RELATIVE_PATH
 VISIR_TEMP_FILES = os.sep.join((VISIR_LOCATION, 'temp')) + os.sep
 
 BASE_HTML_TEMPLATE="""<?xml version="1.0"?>
@@ -254,12 +254,21 @@ class  VisirMethod(WebFacadeServer.Method):
     def intercept_library(self, content, mimetype):
         cookies = self.req.headers.getheader('cookie')
         
+        sess_id = None
         reservation_id = None
         for cur_cookie in (cookies or '').split('; '):
             if cur_cookie.startswith("weblabsessionid="):
                 sess_id = SessionId('.'.join(cur_cookie[len('weblabsessionid='):].split('.')[:-1]))
             if cur_cookie.startswith('weblab_reservation_id='):
                 reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
+
+        try:
+            response = self.server.send_command( sess_id, Command("GIVE_ME_LIBRARY") )
+        except:
+            pass
+        else:
+            if response.commandstring is not None and response.commandstring != 'failed':
+                return response.commandstring
 
         if reservation_id is None and sess_id is not None:
             try:

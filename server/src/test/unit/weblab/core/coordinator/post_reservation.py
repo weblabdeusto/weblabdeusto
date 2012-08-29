@@ -18,9 +18,9 @@ import datetime
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-from test.unit.weblab.core.coordinator.coordinator import WrappedCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.coordinator import WrappedSqlCoordinator, WrappedRedisCoordinator, ConfirmerMock
 
-class PostReservationDataManagerTestCase(unittest.TestCase):
+class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
     def setUp(self):
 
         locator_mock = None
@@ -28,7 +28,7 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.post_reservation_data_manager = self.coordinator.post_reservation_data_manager
@@ -36,6 +36,7 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.coordinator.stop()
+        self.coordinator._clean()
 
     def test_create_find(self):
         reservation_id = "my-id"
@@ -60,6 +61,7 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.assertEquals(end_data, status.end_data)
 
     def test_expired(self):
+        self.post_reservation_data_manager.force_deletion = True
         reservation_id = "my-id"
         now = self.time_provider.get_datetime()
         initial_data = '{ "initial" : "data" }'
@@ -73,6 +75,7 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.assertEquals(None, status)
 
         expiration = now + datetime.timedelta(seconds=1000)
+        self.post_reservation_data_manager.force_deletion = False
 
         self.post_reservation_data_manager.create(reservation_id, now, expiration, initial_data)
         self.post_reservation_data_manager.clean_expired()
@@ -81,10 +84,18 @@ class PostReservationDataManagerTestCase(unittest.TestCase):
         self.assertNotEqual(None, status)
 
 
+class SqlPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
 
+if WrappedRedisCoordinator.REDIS_AVAILABLE:
+    class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():
-    return unittest.makeSuite(PostReservationDataManagerTestCase)
+    suites = [unittest.makeSuite(SqlPostReservationDataManagerTestCase)]
+    if WrappedRedisCoordinator.REDIS_AVAILABLE:
+        suites.append(unittest.makeSuite(RedisPostReservationDataManagerTestCase))
+    return unittest.TestSuite(suites)
 
 if __name__ == '__main__':
     unittest.main()

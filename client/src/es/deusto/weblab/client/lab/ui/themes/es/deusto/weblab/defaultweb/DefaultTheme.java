@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
@@ -105,8 +106,12 @@ public class DefaultTheme extends LabThemeBase {
 
 	@Override
 	public void onAllowedExperimentsRetrieved(ExperimentAllowed[] experimentsAllowed) {
-		this.experimentsAllowed = experimentsAllowed;
 		this.loadAllowedExperimentsWindow();
+	}
+	
+	@Override
+	public void setAllowedExperiments(ExperimentAllowed[] experimentsAllowed) {
+		this.experimentsAllowed = experimentsAllowed;
 	}
 
 	@Override
@@ -166,7 +171,8 @@ public class DefaultTheme extends LabThemeBase {
 
 	@Override	
 	public void onWrongLoginOrPasswordGiven(){
-		this.loginWindow.showWrongLoginOrPassword();
+		if(this.loginWindow != null)
+			this.loginWindow.showWrongLoginOrPassword();
 	}
 
 	@Override
@@ -220,6 +226,9 @@ public class DefaultTheme extends LabThemeBase {
 
 	private void loadAllowedExperimentsWindow() {
 		this.clearWindow();
+		
+		HistoryProperties.removeValuesWithoutUpdating(HistoryProperties.EXPERIMENT_CATEGORY, HistoryProperties.EXPERIMENT_NAME, HistoryProperties.PAGE);
+		HistoryProperties.setValue(HistoryProperties.PAGE, HistoryProperties.HOME);
 
 		this.allowedExperimentsWindow = new AllowedExperimentsWindow(this.configurationManager, this.user, this.experimentsAllowed, new IAllowedExperimentsWindowCallback(){
 			@Override
@@ -244,7 +253,7 @@ public class DefaultTheme extends LabThemeBase {
 		this.themePanel.add(this.allowedExperimentsWindow.getWidget());
 		
 		final ExperimentAllowed [] failedExperiments = this.allowedExperimentsWindow.getFailedLoadingExperiments();
-		final StringBuilder builder = new StringBuilder("Could not load:");
+		final StringBuilder builder = new StringBuilder("Due to a misconfiguration in configuration.js, the system could not load:");
 		for(ExperimentAllowed experiment : failedExperiments)
 			builder.append(" " + experiment + ",");
 		if(failedExperiments.length > 0)
@@ -256,6 +265,11 @@ public class DefaultTheme extends LabThemeBase {
 		this.clearWindow();
 
 		this.experimentWindow = new ExperimentWindow(this.configurationManager, this.user, this.experimentAllowed, this.experimentBase, new IExperimentWindowCallback(){
+			@Override
+			public void disableFinishOnClose() {
+				DefaultTheme.this.controller.disableFinishOnClose();
+			}
+			
 			@Override
 			public boolean startedLoggedIn(){
 				return DefaultTheme.this.controller.startedLoggedIn();

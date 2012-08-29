@@ -12,52 +12,48 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+
 import time
 import datetime
 import Queue
 
 import json
+import weblab.configuration_doc as configuration_doc
 
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
-import voodoo.admin_notifier as AdminNotifier
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.sessions.session_id import SessionId
+
+import voodoo.admin_notifier as AdminNotifier
 
 from weblab.data.experiments import ExperimentId, ExperimentInstanceId
 
 import weblab.core.coordinator.exc as CoordExc
-
-import weblab.core.coordinator.db as CoordinationDatabaseManager
-import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
-import weblab.core.coordinator.resource_manager as ResourcesManager
-import weblab.core.coordinator.reservations_manager as ReservationsManager
-import weblab.core.coordinator.post_reservation as PostReservationDataManager
-import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.scheduler as Scheduler
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as coord_status
-
-from weblab.core.coordinator.meta_scheduler import IndependentSchedulerAggregator
-from weblab.core.coordinator.no_scheduler import NoScheduler
-from weblab.core.coordinator.priority_queue_scheduler import PriorityQueueScheduler
-from weblab.core.coordinator.externals.weblabdeusto_scheduler import ExternalWebLabDeustoScheduler
-from weblab.core.coordinator.externals.ilab_batch_scheduler import ILabBatchScheduler
-from weblab.core.coordinator.resource import Resource
+import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
+import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.checker_threaded as ResourcesCheckerThread
+from weblab.core.coordinator.resource import Resource
+
+FINISH_FINISHED_MESSAGE = 'finished'
+FINISH_DATA_MESSAGE      = 'data'
+FINISH_ASK_AGAIN_MESSAGE = 'ask_again'
+
+POST_RESERVATION_EXPIRATION_TIME = 'core_post_reservation_expiration_time'
+DEFAULT_POST_RESERVATION_EXPIRATION_TIME = 24 * 3600 # 1 day
+
 
 NO_SCHEDULER           = 'NO_SCHEDULER'
 PRIORITY_QUEUE         = 'PRIORITY_QUEUE'
 EXTERNAL_WEBLAB_DEUSTO = 'EXTERNAL_WEBLAB_DEUSTO'
 ILAB_BATCH_QUEUE       = 'ILAB_BATCH_QUEUE'
 
-SCHEDULING_SYSTEMS = {
-        NO_SCHEDULER           : NoScheduler,
-        PRIORITY_QUEUE         : PriorityQueueScheduler,
-        EXTERNAL_WEBLAB_DEUSTO : ExternalWebLabDeustoScheduler,
-        ILAB_BATCH_QUEUE       : ILabBatchScheduler,
-    }
+RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = 'core_resources_checker_notifications_enabled'
+DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = False
 
 CORE_SCHEDULING_SYSTEMS    = 'core_scheduling_systems'
 CORE_SCHEDULER_AGGREGATORS = 'core_scheduler_aggregators'
@@ -65,9 +61,6 @@ CORE_SERVER_URL            = 'core_server_url'
 
 RESOURCES_CHECKER_FREQUENCY = 'core_resources_checker_frequency'
 DEFAULT_RESOURCES_CHECKER_FREQUENCY = 30 # seconds
-
-POST_RESERVATION_EXPIRATION_TIME = 'core_post_reservation_expiration_time'
-DEFAULT_POST_RESERVATION_EXPIRATION_TIME = 24 * 3600 # 1 day
 
 RESOURCES_CHECKER_GENERAL_RECIPIENTS = 'core_resources_checker_general_recipients'
 DEFAULT_RESOURCES_GENERAL_CHECKER_RECIPIENTS = ()
@@ -77,13 +70,6 @@ DEFAULT_RESOURCES_PARTICULAR_CHECKER_RECIPIENTS = {
             # "inst1:ud-pld@PLD Experiments" : ['admin1@whatever.edu', 'admin2@whatever.edu']
         }
 
-RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = 'core_resources_checker_notifications_enabled'
-DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED = False
-
-FINISH_FINISHED_MESSAGE = 'finished'
-FINISH_DATA_MESSAGE      = 'data'
-FINISH_ASK_AGAIN_MESSAGE = 'ask_again'
-
 class TimeProvider(object):
     def get_time(self):
         return time.time()
@@ -91,34 +77,34 @@ class TimeProvider(object):
     def get_datetime(self):
         return datetime.datetime.utcnow()
 
-class Coordinator(object):
 
+class AbstractCoordinator(object):
     CoordinatorTimeProvider = TimeProvider
 
-    def __init__(self, locator, cfg_manager, ConfirmerClass = Confirmer.ReservationConfirmer):
-        self.cfg_manager = cfg_manager
+    def __init__(self, data_manager, locator, cfg_manager, ConfirmerClass):
+        if ConfirmerClass is None:
+            ConfirmerClass = Confirmer.ReservationConfirmer
+
+        self.cfg_manager   = cfg_manager
+        self._data_manager = data_manager
 
         self.core_server_url = self.cfg_manager.get_value(CORE_SERVER_URL)
 
         self.notifier = AdminNotifier.AdminNotifier(self.cfg_manager)
         self.notifications_enabled = self.cfg_manager.get_value(RESOURCES_CHECKER_NOTIFICATIONS_ENABLED, DEFAULT_RESOURCES_CHECKER_NOTIFICATIONS_ENABLED)
 
-        coordination_database_manager = CoordinationDatabaseManager.CoordinationDatabaseManager(cfg_manager)
-        self._session_maker = coordination_database_manager.session_maker
-
         self.locator   = locator # Used by ResourcesChecker
         self.confirmer = ConfirmerClass(self, locator)
 
         self.time_provider = self.CoordinatorTimeProvider()
 
-        self.reservations_manager          = ReservationsManager.ReservationsManager(self._session_maker)
-        self.resources_manager             = ResourcesManager.ResourcesManager(self._session_maker)
-        self.post_reservation_data_manager = PostReservationDataManager.PostReservationDataManager(self._session_maker, self.time_provider)
-
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
         self.completed_store = TemporalInformationStore.CompletedInformationStore()
         self.finished_reservations_store = Queue.Queue()
+
+
+        self._initialize_managers()
 
         #
         # The system administrator must define what scheduling system is used by each resource type
@@ -135,9 +121,11 @@ class Coordinator(object):
         scheduling_systems = cfg_manager.get_value(CORE_SCHEDULING_SYSTEMS)
         for resource_type_name in scheduling_systems:
             scheduling_system, arguments = scheduling_systems[resource_type_name]
-            if not scheduling_system in SCHEDULING_SYSTEMS:
+            if not scheduling_system in self.SCHEDULING_SYSTEMS:
                 raise CoordExc.UnregisteredSchedulingSystemError("Unregistered scheduling system: %r" % scheduling_system)
-            SchedulingSystemClass = SCHEDULING_SYSTEMS[scheduling_system]
+            SchedulingSystemClass = self.SCHEDULING_SYSTEMS[scheduling_system]
+
+            data_manager = self._data_manager
 
             generic_scheduler_arguments = Scheduler.GenericSchedulerArguments(
                                                 cfg_manager          = self.cfg_manager,
@@ -145,7 +133,7 @@ class Coordinator(object):
                                                 reservations_manager = self.reservations_manager,
                                                 resources_manager    = self.resources_manager,
                                                 confirmer            = self.confirmer,
-                                                session_maker        = self._session_maker,
+                                                data_manager         = data_manager,
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,
@@ -157,7 +145,7 @@ class Coordinator(object):
             self.schedulers[resource_type_name] = SchedulingSystemClass(generic_scheduler_arguments, **arguments)
 
         self.aggregators = {
-            # experiment_id_str : IndependentSchedulerAggregator( schedulers )
+            # experiment_id_str : AGGREGATOR( schedulers )
         }
 
         coordination_configuration_parser = CoordinationConfigurationParser.CoordinationConfigurationParser(cfg_manager)
@@ -180,7 +168,7 @@ class Coordinator(object):
                                                 reservations_manager = self.reservations_manager,
                                                 resources_manager    = self.resources_manager,
                                                 confirmer            = self.confirmer,
-                                                session_maker        = self._session_maker,
+                                                data_manager         = self._data_manager,
                                                 time_provider        = self.time_provider,
                                                 core_server_url      = self.core_server_url,
                                                 initial_store        = self.initial_store,
@@ -201,10 +189,9 @@ class Coordinator(object):
 
             particular_configuration = aggregators_configuration.get(experiment_id_str)
 
-            aggregator = IndependentSchedulerAggregator(generic_scheduler_arguments, ExperimentId.parse(experiment_id_str), aggregated_schedulers, particular_configuration)
+            aggregator = self.AGGREGATOR(generic_scheduler_arguments, ExperimentId.parse(experiment_id_str), aggregated_schedulers, particular_configuration)
 
             self.aggregators[experiment_id_str] = aggregator
-
 
 
         import weblab.core.server as UserProcessingServer
@@ -228,19 +215,24 @@ class Coordinator(object):
                     resource = experiment_instance_config[experiment_instance_id]
                     self.add_experiment_instance_id(laboratory_server_coord_address_str, experiment_instance_id, resource)
 
-            session = self._session_maker()
-            try:
-                external_servers_config = coordination_configuration_parser.parse_external_servers()
-                for external_server_str in external_servers_config:
-                    for resource_type_name in external_servers_config[external_server_str]:
-                        self.resources_manager.add_experiment_id(session, ExperimentId.parse(external_server_str), resource_type_name)
-
-                session.commit()
-            finally:
-                session.close()
+            self._initial_clean(coordination_configuration_parser)
 
 
 
+    def _initialize_managers(self): 
+        pass
+
+    def _initial_clean(self, coordination_configuration_parser):
+        pass
+
+    ###########################################################################
+    #
+    # General experiments and sessions management
+    #
+    @typecheck(basestring, ExperimentInstanceId, Resource)
+    @logged()
+    def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
+        self.resources_manager.add_experiment_instance_id(laboratory_coord_address, experiment_instance_id, resource)
     ##########################################################################
     #
     #   Methods to retrieve the proper schedulers
@@ -261,21 +253,6 @@ class Coordinator(object):
         if aggregator is None:
             raise CoordExc.ExperimentNotFoundError("Could not find scheduler aggregator associated to experiment id %s." % (experiment_id_str))
         return aggregator
-
-
-    ###########################################################################
-    #
-    # General experiments and sessions management
-    #
-    @typecheck(basestring, ExperimentInstanceId, Resource)
-    @logged()
-    def add_experiment_instance_id(self, laboratory_coord_address, experiment_instance_id, resource):
-        session = self._session_maker()
-        try:
-            self.resources_manager.add_experiment_instance_id(session, laboratory_coord_address, experiment_instance_id, resource)
-            session.commit()
-        finally:
-            session.close()
 
     @logged()
     def list_experiments(self):
@@ -315,44 +292,13 @@ class Coordinator(object):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
         return self.mark_resource_as_broken(resource_instance, messages)
 
-    @typecheck(Resource, ITERATION(basestring))
-    @logged()
-    def mark_resource_as_broken(self, resource_instance, messages = []):
-        scheduler = self._get_scheduler_per_resource(resource_instance)
-
-        anything_changed = False
-        session = self._session_maker()
-        try:
-            changed = scheduler.removing_current_resource_slot(session, resource_instance)
-            anything_changed = anything_changed or changed
-
-            changed = self.resources_manager.mark_resource_as_broken(session, resource_instance)
-            anything_changed = anything_changed or changed
-            if anything_changed:
-                session.commit()
-        finally:
-            session.close()
-
-        if anything_changed:
-            log.log( Coordinator, log.level.Warning,
-                    "Resource %s marked as broken: %r" % (resource_instance, messages) )
-
-            if self.notifications_enabled:
-                self._notify_experiment_status('broken', resource_instance, messages)
-
     @typecheck(Resource)
     @logged()
     def mark_resource_as_fixed(self, resource_instance):
-        session = self._session_maker()
-        try:
-            anything_changed = self.resources_manager.mark_resource_as_fixed(session, resource_instance)
-            if anything_changed:
-                session.commit()
-        finally:
-            session.close()
+        anything_changed = self.resources_manager.mark_resource_as_fixed(resource_instance)
 
         if anything_changed:
-            log.log( Coordinator, log.level.Warning,
+            log.log( AbstractCoordinator, log.level.Warning,
                     "Resource %s marked as fixed" % resource_instance )
 
             if self.notifications_enabled:
@@ -379,9 +325,11 @@ class Coordinator(object):
         if len(recipients) > 0:
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
 
+
+
     def _retrieve_recipients(self, experiment_instance_ids):
         recipients = ()
-        server_admin = self.cfg_manager.get_value(AdminNotifier.SERVER_ADMIN_NAME, None)
+        server_admin = self.cfg_manager.get_value(configuration_doc.SERVER_ADMIN, None)
         if server_admin is not None:
             if server_admin.find(","):
                 server_admins = tuple(server_admin.replace(" ","").split(","))
@@ -436,7 +384,6 @@ class Coordinator(object):
             traceback.print_exc()
             raise
 
-
     def is_post_reservation(self, reservation_id):
         return self.post_reservation_data_manager.find(reservation_id) is not None
 
@@ -461,8 +408,8 @@ class Coordinator(object):
                 batch                 = response.get('batch', default_batch)
                 initial_configuration = response.get('initial_configuration', default_initial_configuration)
             except Exception as e:
-                log.log( Coordinator, log.level.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
-                log.log_exc( Coordinator, log.level.Warning )
+                log.log( AbstractCoordinator, log.level.Error, "Could not parse experiment server response: %s; %s; using default values" % (e, server_initialization_response) )
+                log.log_exc( AbstractCoordinator, log.level.Warning )
                 still_initializing    = default_still_initialing
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
@@ -496,6 +443,70 @@ class Coordinator(object):
 
     ################################################################
     #
+    # Called when the Laboratory Server states that the experiment
+    # was cleaned
+    #
+    @typecheck(basestring, basestring, (basestring, type(None)), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
+    @logged()
+    def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
+
+        experiment_finished  = True
+        information_to_store = None
+        time_remaining       = 0.5 # Every half a second by default
+
+        if experiment_response is None or experiment_response == 'ok' or experiment_response == '':
+            pass # Default value
+        else:
+            try:
+                response = json.loads(experiment_response)
+                experiment_finished   = response.get(FINISH_FINISHED_MESSAGE, experiment_finished)
+                time_remaining        = response.get(FINISH_ASK_AGAIN_MESSAGE, time_remaining)
+                information_to_store  = response.get(FINISH_DATA_MESSAGE, information_to_store)
+            except Exception as e:
+                log.log( AbstractCoordinator, log.level.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
+                log.log_exc( AbstractCoordinator, log.level.Warning )
+
+        if not experiment_finished:
+            time.sleep(time_remaining)
+            # We just ignore the data retrieved, if any, and perform the query again
+            self.confirmer.enqueue_free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
+            return
+        else:
+            # Otherwise we mark it as finished
+            self.post_reservation_data_manager.finish(reservation_id, json.dumps(information_to_store))
+            try:
+                # and we remove the resource
+                self._release_resource_instance(experiment_instance_id)
+            finally:
+                self.finished_store.put(reservation_id, information_to_store, initial_time, end_time)
+
+            # It's done here so it's called often enough
+            self.post_reservation_data_manager.clean_expired()
+
+    ################################################################
+    #
+    # Called when the user disconnects or finishes the experiment.
+    #
+    @typecheck(basestring)
+    @logged()
+    def finish_reservation(self, reservation_id):
+        reservation_id = reservation_id.split(';')[0]
+        if self.reservations_manager.initialize_deletion(reservation_id):
+            self.finished_reservations_store.put(SessionId(reservation_id))
+            try:
+                aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
+                aggregator.finish_reservation(reservation_id)
+                # The reservations_manager must remove the session once (not once per scheduler)
+                self._delete_reservation(reservation_id)
+            except CoordExc.ExpiredSessionError:
+                log.log(AbstractCoordinator, log.level.Info, "Ignore finish_reservation(%r), given that it had already expired" % reservation_id)
+            finally:
+                self.reservations_manager.clean_deletion(reservation_id)
+
+
+
+    ################################################################
+    #
     # Called when the experiment returns information about if the
     # session should end or not.
     #
@@ -524,89 +535,9 @@ class Coordinator(object):
 
         self.confirmer.enqueue_should_finish(lab_coordaddress_str, lab_session_id, reservation_id)
 
-
-    ################################################################
-    #
-    # Called when the Laboratory Server states that the experiment
-    # was cleaned
-    #
-    @typecheck(basestring, basestring, (basestring, type(None)), ExperimentInstanceId, (basestring, type(None)), datetime.datetime, datetime.datetime)
-    @logged()
-    def confirm_resource_disposal(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time):
-
-        experiment_finished  = True
-        information_to_store = None
-        time_remaining       = 0.5 # Every half a second by default
-
-        if experiment_response is None or experiment_response == 'ok' or experiment_response == '':
-            pass # Default value
-        else:
-            try:
-                response = json.loads(experiment_response)
-                experiment_finished   = response.get(FINISH_FINISHED_MESSAGE, experiment_finished)
-                time_remaining        = response.get(FINISH_ASK_AGAIN_MESSAGE, time_remaining)
-                information_to_store  = response.get(FINISH_DATA_MESSAGE, information_to_store)
-            except Exception as e:
-                log.log( Coordinator, log.level.Error, "Could not parse experiment server finishing response: %s; %s" % (e, experiment_response) )
-                log.log_exc( Coordinator, log.level.Warning )
-
-        if not experiment_finished:
-            time.sleep(time_remaining)
-            # We just ignore the data retrieved, if any, and perform the query again
-            self.confirmer.enqueue_free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
-            return
-        else:
-            # Otherwise we mark it as finished
-            self.post_reservation_data_manager.finish(reservation_id, json.dumps(information_to_store))
-            # and we remove the resource
-            session = self._session_maker()
-            try:
-                resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
-                self.resources_manager.release_resource_instance(session, resource_instance)
-                session.commit()
-            finally:
-                session.close()
-                self.finished_store.put(reservation_id, information_to_store, initial_time, end_time)
-
-            # It's done here so it's called often enough
-            self.post_reservation_data_manager.clean_expired()
-
-
-    ################################################################
-    #
-    # Called when the user disconnects or finishes the experiment.
-    #
-    @typecheck(basestring)
-    @logged()
-    def finish_reservation(self, reservation_id):
-        reservation_id = reservation_id.split(';')[0]
-        if self.reservations_manager.initialize_deletion(reservation_id):
-            self.finished_reservations_store.put(SessionId(reservation_id))
-            try:
-                aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
-                aggregator.finish_reservation(reservation_id)
-                # The reservations_manager must remove the session once (not once per scheduler)
-                session = self._session_maker()
-                try:
-                    self.reservations_manager.delete(session, reservation_id)
-                    session.commit()
-                finally:
-                    session.close()
-            except CoordExc.ExpiredSessionError:
-                log.log(Coordinator, log.level.Info, "Ignore finish_reservation(%r), given that it had already expired" % reservation_id)
-            finally:
-                self.reservations_manager.clean_deletion(reservation_id)
-
     @logged()
     def stop(self):
         for scheduler in self.schedulers.values():
             scheduler.stop()
 
-    def _clean(self):
-        for scheduler in self.schedulers.values():
-            scheduler._clean()
-
-        self.reservations_manager._clean()
-        self.resources_manager._clean()
-        self.post_reservation_data_manager._clean()
 

@@ -16,13 +16,13 @@ import threading
 import time
 import sys
 
+import weblab.configuration_doc as configuration_doc
+
 import voodoo.sessions.generator as SessionGenerator
 import voodoo.sessions.serializer as SessionSerializer
 import voodoo.log as log
 
 import voodoo.sessions.exc as SessionErrors
-
-SERIALIZE_MEMORY_GATEWAY_SESSIONS  = 'session_memory_gateway_serialize'
 
 class SessionObj(object):
     def __init__(self, obj):
@@ -54,7 +54,7 @@ class SessionMemoryGateway(object):
         # Using SERIALIZE_MEMORY_GATEWAY_SESSIONS has an impact on performance (it will serialize
         # and deserialize every session everytime), but isolates every session just as if they
         # were stored in the database
-        self._serialize     = cfg_manager.get_value(SERIALIZE_MEMORY_GATEWAY_SESSIONS, False)
+        self._serialize     = cfg_manager[configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE]
 
         self._cfg_manager   = cfg_manager
         self._generator     = SessionGenerator.SessionGenerator()

@@ -18,25 +18,14 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 
+import weblab.configuration_doc as configuration_doc
+
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
 import voodoo.sessions.exc as SessionErrors
 
-SESSION_LOCK_SQLALCHEMY_ENGINE = 'session_lock_sqlalchemy_engine'
-DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE = 'mysql'
-
-SESSION_LOCK_SQLALCHEMY_HOST = 'session_lock_sqlalchemy_host'
-DEFAULT_SESSION_LOCK_SQLALCHEMY_HOST = 'localhost'
-
-SESSION_LOCK_SQLALCHEMY_DB_NAME = 'session_lock_sqlalchemy_db_name'
-DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME = 'WebLabSessions'
-
-SESSION_LOCK_SQLALCHEMY_USERNAME  = 'session_lock_sqlalchemy_username'
-SESSION_LOCK_SQLALCHEMY_PASSWORD  = 'session_lock_sqlalchemy_password'
-
 MAX_TIME_TRYING_TO_LOCK  = 120 # seconds
-
 
 class DbLock(object):
 
@@ -75,11 +64,11 @@ class DbLock(object):
         self._session_maker = sessionmaker(bind=self.engine, autoflush = True, autocommit = False)
 
     def _parse_config(self):
-        engine_name = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_ENGINE, DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE)
-        host        = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_HOST, DEFAULT_SESSION_LOCK_SQLALCHEMY_HOST)
-        db_name     = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_DB_NAME, DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME)
-        username    = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_USERNAME)
-        password    = self.cfg_manager.get_value(SESSION_LOCK_SQLALCHEMY_PASSWORD)
+        engine_name = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_ENGINE)
+        host        = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_HOST)
+        db_name     = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_DB_NAME)
+        username    = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_USERNAME)
+        password    = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_PASSWORD)
         return engine_name, host, db_name, username, password
 
     def acquire(self, session_id):

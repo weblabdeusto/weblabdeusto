@@ -21,7 +21,7 @@ import threading
 import voodoo.log as log
 import voodoo.resources_manager as ResourceManager
 import voodoo.counter as counter
-
+from voodoo.resources_manager import is_testing
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
@@ -71,9 +71,12 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
         self.stop()
 
     def run(self):
+        timeout = 0.2
+        if is_testing():
+            timeout = 0.01
         while not self.stopped:
             try:
-                element = self.queue.get(timeout=0.2)
+                element = self.queue.get(timeout=timeout)
             except Queue.Empty:
                 continue
 
@@ -128,8 +131,9 @@ class SchedulerTransactionsSynchronizer(threading.Thread):
 
         self.queue.put_nowait(request_id)
 
+
         with self.pending_elements_condition:
-            while request_id in self.pending_elements:
-                self.pending_elements_condition.wait()
+            while request_id in self.pending_elements and self.isAlive():
+                self.pending_elements_condition.wait(timeout=5)
 
 

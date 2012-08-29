@@ -45,6 +45,9 @@ class ExperimentId(object):
     def to_weblab_str(self):
         return '%s@%s' % (self.exp_name, self.cat_name)
 
+    def __hash__(self):
+        return hash(self.to_weblab_str())
+
     @staticmethod
     def parse(weblab_str):
         pos = weblab_str.find("@")
@@ -67,6 +70,16 @@ class ExperimentInstanceId(object):
 
     def to_weblab_str(self):
         return "%s:%s@%s" % (self.inst_name, self.exp_name, self.cat_name)
+
+    @staticmethod
+    def parse(weblab_str):
+        if ':' not in weblab_str:
+            raise ValueError("Malformed weblab_str: ':' not found: %r" % weblab_str)
+        pos = weblab_str.find(":")
+        instance_name     = weblab_str[:pos]
+        experiment_id_str = weblab_str[pos + 1 :]
+        experiment_id     = ExperimentId.parse(experiment_id_str)
+        return ExperimentInstanceId(instance_name, experiment_id.exp_name, experiment_id.cat_name)
 
     def __cmp__(self, other):
         return cmp(str(self), str(other))

@@ -239,13 +239,13 @@ class VMExperiment(Experiment.Experiment):
             if DEBUG:
                 print "t_configured"
         except Exception as ex:
-            self.is_error = True
             self.error = ex
+            self.is_error = True
 
             log.log(
                 VMExperiment,
                 log.level.Error,
-                "Error configuring user manager: %s" % ex.args[0]
+                "Error configuring user manager: %s" % ex
             )
             log.log_exc(
                 VMExperiment,

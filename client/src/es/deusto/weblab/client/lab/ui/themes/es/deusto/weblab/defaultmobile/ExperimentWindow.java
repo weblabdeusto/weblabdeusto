@@ -41,6 +41,7 @@ class ExperimentWindow extends BaseWindow {
 		public void onBackButtonClicked();
 		public void onReserveButtonClicked();
 		public void onFinishButtonClicked();
+		public void disableFinishOnClose();
 	}
 
 	interface ExperimentWindowUiBinder extends UiBinder<Widget, ExperimentWindow> {
@@ -160,10 +161,15 @@ class ExperimentWindow extends BaseWindow {
 		vp.setWidth("100%");
 		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		final Button b = new Button(this.i18nMessages.clickHereToOpenExperiment());
+		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId;
 		b.addClickHandler(new ClickHandler(){
 			@Override
 			public void onClick(ClickEvent event) {
-				Window.open( url + "client/federated.html#reservation_id=" + remoteReservationId, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+				ExperimentWindow.this.callback.disableFinishOnClose();
+				Window.Location.assign(remoteUrl);
+				/*
+				Window.open( remoteUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
+				*/
 			}
 		});
 		vp.add(b);

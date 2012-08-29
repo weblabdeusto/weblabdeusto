@@ -13,7 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 import unittest
+import test.unit.configuration as configuration_module
 
+import voodoo.configuration as ConfigurationManager
 import experiments.logic.server as LogicExperiment
 
 class CircuitGeneratorTestCase(unittest.TestCase):
@@ -60,7 +62,10 @@ class WrappedLogicExperiment(LogicExperiment.LogicExperiment):
 
 class LogicExperimentTestCase(unittest.TestCase):
     def setUp(self):
-        self.experiment = WrappedLogicExperiment(None, None, None)
+        cfg_manager = ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration_module)
+
+        self.experiment = WrappedLogicExperiment(None, None, cfg_manager)
         self.experiment.do_start_experiment("{}","{}")
 
     def test_get_circuit(self):
