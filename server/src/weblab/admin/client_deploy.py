@@ -140,6 +140,38 @@ def compile_client(war_location, client_location):
             shutil.move(os.path.join(libclient_location, jar_in_zip_name.replace('/', os.sep)), smartgwt_location)
             print "Extracted to %s." % smartgwt_location
 
+        VERSION = "3.8.2"
+        JUNIT_URL = "http://downloads.sourceforge.net/project/junit/junit/3.8.2/junit3.8.2.zip"
+        junit_location = os.path.join(libclient_location, 'junit.jar')
+        if not os.path.exists(junit_location):
+            print >> sys.stderr, ""
+            print >> sys.stderr, "WebLab-Deusto relies on JUnit. In order to test the client, we"
+            print >> sys.stderr, "need to download it. If you already downloaded it, place the"
+            print >> sys.stderr, ".jar of the %s version in: " % VERSION
+            print >> sys.stderr, ""
+            print >> sys.stderr, "     %s" % junit_location
+            print >> sys.stderr, ""
+            print >> sys.stderr, "I will attempt to download it and place it there."
+            print >> sys.stderr, ""
+            print >> sys.stderr, "Downloading... (plase wait a few seconds; junit is ~400 KB)"
+
+            try:
+                os.mkdir(libclient_location)
+            except OSError, IOError:
+                pass # Could be already created
+
+            junit_content = urllib2.urlopen(JUNIT_URL).read()
+            junit_fileobj = StringIO.StringIO(junit_content)
+            del junit_content
+            print >> sys.stderr, "Downloaded. Extracting..."
+            zf = zipfile.ZipFile(junit_fileobj)
+            jar_in_zip_name = 'junit%s/junit.jar' % VERSION
+            zf.extract(jar_in_zip_name, libclient_location)
+            del zf
+            shutil.move(os.path.join(libclient_location, jar_in_zip_name.replace('/', os.sep)), junit_location)
+            print "Extracted to %s." % junit_location
+           
+
         #
         # Check that ant is installed. Download it otherwise.
         #
