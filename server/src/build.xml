@@ -1,21 +1,29 @@
 <project name="WebLab" default="test"> 
-	<property name="test.xml.dir" value="cruisecontrol/build/test-results" />
+	<property name="test.xml.dir"   value="cruisecontrol/build/test-results" />
+    <property name="logs.dir"       value="cruisecontrol/logs" />
+    <property name="python.version" value="" />
 
-	<target name="deploy">
-        <mkdir dir="cruisecontrol/logs"/>
-		<exec executable="python" failonerror="true">
-			<arg value="../deploy/deploy.py"/>
+	<target name="test">
+        <mkdir dir="${logs.dir}"/>
+
+		<exec executable="virtualenv" failonerror="true">
+			<arg value="env"/>
 		</exec>
-	</target>
-
-	<target name="test" depends="deploy">
         <mkdir dir="${test.xml.dir}"/>
-		<exec executable="python" failonerror="true">
-			<arg value="launch_flakes.py"/>
-		</exec>
-		<exec executable="python2.6" failonerror="true">
+		<exec executable="python${python.version}" failonerror="true">
 			<arg value="launch_tests.py"/>
+			<arg value="--environment"/>
+			<arg value="env"/>
+			<arg value="--install-all-requirements"/>
+            <arg value="--compile-client" />
+			<arg value="--deploy-stubs"/>
+            <arg value="--deploy-test-db"/>
+            <arg value="--test-db-engine=mysql"/>
+			<arg value="--flakes"/>
+			<arg value="--tests"/>
+			<arg value="--ui"/>
 			<arg value="xml"/>
+			<arg value="--dir"/>
 			<arg value="${test.xml.dir}" />
         </exec>
 	</target>

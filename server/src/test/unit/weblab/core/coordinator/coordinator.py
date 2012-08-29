@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import time
 import datetime
 import unittest
@@ -23,7 +24,9 @@ import json
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
 
-import weblab.core.coordinator.coordinator as Coordinator
+import weblab.core.coordinator.sql.coordinator as sql_coordinator
+import weblab.core.coordinator.redis.coordinator as redis_coordinator
+import weblab.core.coordinator.coordinator as AbstractCoordinator
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
@@ -42,14 +45,18 @@ DEFAULT_REQUEST_INFO = {"facebook" : False, "from_ip" : "192.168.1.1", "mobile" 
 DEFAULT_CONSUMER_DATA = {}
 DEFAULT_URL = 'http://www.weblab.deusto.es/weblab/client/...'
 
-class WrappedTimeProvider(Coordinator.TimeProvider):
+class WrappedTimeProvider(AbstractCoordinator.TimeProvider):
     def get_time(self):
         if hasattr(self, '_TEST_TIME'):
             return self._TEST_TIME
         else:
             return super(WrappedTimeProvider, self).get_time()
 
-class WrappedCoordinator(Coordinator.Coordinator):
+class WrappedSqlCoordinator(sql_coordinator.Coordinator):
+    CoordinatorTimeProvider = WrappedTimeProvider
+
+class WrappedRedisCoordinator(redis_coordinator.Coordinator):
+    REDIS_AVAILABLE = redis_coordinator.REDIS_AVAILABLE
     CoordinatorTimeProvider = WrappedTimeProvider
 
 class ConfirmerMock(object):
@@ -83,9 +90,9 @@ class SlowConfirmerMock(object):
     def enqueue_free_experiment(self, lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id):
         self.times -= 1
         if self.times == 0:
-            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "final response" })
+            experiment_response = json.dumps({ AbstractCoordinator.FINISH_FINISHED_MESSAGE : True, AbstractCoordinator.FINISH_DATA_MESSAGE : "final response" })
         else:
-            experiment_response = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : False, Coordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
+            experiment_response = json.dumps({ AbstractCoordinator.FINISH_FINISHED_MESSAGE : False, AbstractCoordinator.FINISH_ASK_AGAIN_MESSAGE : SLOW_CONFIRMER_TIME })
 
         if lab_session_id is not None:
             self.uses_free.append((lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id))
@@ -97,8 +104,10 @@ class SlowConfirmerMock(object):
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
 
-class CoordinatorTestCase(unittest.TestCase):
+class AbstractCoordinatorTestCase(unittest.TestCase):
+    
     def setUp(self):
+        self.maxDiff = None
         locator_mock = None
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -120,13 +129,14 @@ class CoordinatorTestCase(unittest.TestCase):
         self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
 
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
         self.coordinator.add_experiment_instance_id("lab2:inst@machine", ExperimentInstanceId('inst2', 'exp1','cat1'), Resource("res_type", "res_inst2"))
 
     def tearDown(self):
+        self.coordinator._clean()
         self.coordinator.stop()
 
     def test_reserve_experiment(self):
@@ -431,12 +441,17 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
-        self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
-        self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
+
+        laboratory_coord_address = u'lab1:inst@machine'
+        experiment_instance_id   = ExperimentInstanceId('inst1','exp1','cat1')
+        self.assertEquals(laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0])
+
+        self.assertEquals( laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
+        self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now)
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr("lab1:inst@machine"), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
+        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
 
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status),
@@ -458,8 +473,12 @@ class CoordinatorTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         self.assertEquals( 1, len(self.coordinator.confirmer.uses_confirm) )
-        self.assertEquals( u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0] )
-        self.assertEquals( ExperimentInstanceId('inst1','exp1','cat1'), self.coordinator.confirmer.uses_confirm[0][2] )
+        self.assertEquals(u'lab1:inst@machine', self.coordinator.confirmer.uses_confirm[0][0])
+        experiment_instance_id = ExperimentInstanceId('inst1','exp1','cat1')
+        lab_coord_address      = u'lab1:inst@machine'
+
+        self.assertEquals( lab_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
+        self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
 
         response = {
             'batch' : True,
@@ -515,6 +534,10 @@ class CoordinatorTestCase(unittest.TestCase):
         #
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.WaitingQueueStatus(reservation1_id, 0)
+        # This depends on the order of redis and sqlalchemy, so choose one or the other
+        self.assertEquals(status, expected_status)
+        status = self.coordinator.get_reservation_status(reservation2_id)
+        expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
 
         status = self.coordinator.get_reservation_status(reservation3_id)
@@ -642,7 +665,14 @@ class CoordinatorTestCase(unittest.TestCase):
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
 
-class CoordinatorMultiResourceTestCase(unittest.TestCase):
+class SqlCoordinatorTestCase(AbstractCoordinatorTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
+
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorTestCase(AbstractCoordinatorTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
+
+class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
     def setUp(self):
         self.locator_mock = None
 
@@ -657,40 +687,41 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.coordinator.stop()
+        self.coordinator._clean()
 
     def _deploy_cplds_and_fpgas_configuration(self):
         #
         # There are 3 physical devices:
-        # - pld1  (pld boards), in lab1:inst@machine
-        # - pld2  (pld boards), in lab2:inst@machine
+        # - pld1  (pld boards),  in lab1:inst@machine
+        # - pld2  (pld boards),  in lab2:inst@machine
         # - fpga1 (fpga boards), in lab3:inst@machine
         #
         # There are 3 types of experiments:
-        # - ud-pld@PLD experiments, which can only run on pld boards
-        # - ud-fpga@FPGA experiments, which can only run on fpga boards
+        # - ud-pld@PLD experiments,       which can only run on pld boards
+        # - ud-fpga@FPGA experiments,     which can only run on fpga boards
         # - ud-binary@Binary experiments, which can run on both types of boards
         #
         # And we are managing 5 experiment instances:
-        # - exp1:binary@Binary experiments (using pld1:pld boards)
-        # - exp2:binary@Binary experiments (using fpga1:fpga boards)
-        # - exp1:ud-pld@PLD experiments (using pld1:pld boards)
-        # - exp2:ud-pld@PLD experiments (using pld2@pld boards)
-        # - exp1:ud-fpga@FPGA experiments (using fpga1:fpga boards)
+        # - exp1:binary@Binary experiments (using pld1@pld   boards)
+        # - exp2:binary@Binary experiments (using fpga1@fpga boards)
+        # - exp1:ud-pld@PLD experiments    (using pld1@pld   boards)
+        # - exp2:ud-pld@PLD experiments    (using pld2@pld   boards)
+        # - exp1:ud-fpga@FPGA experiments  (using fpga1@fpga boards)
         #
         self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
             'lab1:inst@machine' : {
                 'exp1|ud-binary|Binary experiments' : 'pld1@pld boards',
-                'exp1|ud-pld|PLD experiments' : 'pld1@pld boards',
+                'exp1|ud-pld|PLD experiments'       : 'pld1@pld boards',
             },
             'lab2:inst@machine' : {
-                'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
+                'exp2|ud-pld|PLD experiments'       : 'pld2@pld boards'
             },
             'lab3:inst@machine' : {
-                'exp1|ud-fpga|FPGA experiments' : 'fpga1@fpga boards',
+                'exp1|ud-fpga|FPGA experiments'     : 'fpga1@fpga boards',
                 'exp2|ud-binary|Binary experiments' : 'fpga1@fpga boards',
             },
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -729,7 +760,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
                 'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
             }
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -748,7 +779,7 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
                 'exp2|ud-pld|PLD experiments' : 'pld2@pld boards'
             }
         })
-        self.coordinator = WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(self.locator_mock, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('exp1', 'ud-binary','Binary experiments'), Resource("pld boards",  "pld1"  ))
@@ -773,9 +804,12 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # The queues are empty:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
+        #  
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
         #
         #    RES.INST (pld1) : <empty>
         #    RES.INST (pld2) : <empty>
@@ -792,13 +826,16 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
         #
-        #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res2
-        #    RES.INST (fpga1): res3
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
+        #
+        #    RES.INST (pld1) : res1*
+        #    RES.INST (pld2) : res2*
+        #    RES.INST (fpga1): res3*
         #
 
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 1, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
@@ -820,9 +857,12 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : res4 (0)*
+        #
+        #    RES QUEUE (pld)  : res4*
+        #    RES QUEUE (fpga) : res4*
         #
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
@@ -839,10 +879,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : res6 (1)*
+        #    TYPE QUEUE (fpga)     : res5 (1)*
+        #    TYPE QUEUE (binary)   : res4 (0)
         #
+        #    RES QUEUE (pld)  : res4, res6*
+        #    RES QUEUE (fpga) : res4, res5*
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -862,10 +905,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1), res7 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0)
+        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)*
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0)
         #
+        #    RES QUEUE (pld)  : res4, res6, res7*
+        #    RES QUEUE (fpga) : res4, res5
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -881,10 +927,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res6 (1), res7 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (2)
+        #    TYPE QUEUE (pld)      : res6 (1), res7 (2)
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (2)*
         #
+        #    RES QUEUE (pld)  : res4, res6, res7, res8*
+        #    RES QUEUE (fpga) : res4, res5, res8*
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -900,10 +949,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>             [removed res6, res7]*
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8               [removed res6, res7]*
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -922,10 +974,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : res9 (2)
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : res9 (2)*
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8, res9*
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res2
         #    RES.INST (fpga1): res3
@@ -935,19 +990,22 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.assertEquals( expected_status, status )
 
         #
-        # However, if the instance of the resource of "pld boards" that doesn't support ud-pld@PLD experiments is released, this last user goes first, since
+        # However, if the instance of the resource of "pld boards" that does only support ud-pld@PLD experiments is released, this last user goes first, since
         # the other people waiting for "pld boards" are waiting for a resource instance of "pld boards" that supports "ud-binary@Binary experiments"
         #
         # Old: res2[assigned(pld2)]
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>            [moved res9]*
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8              [moved res9]*
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res9
+        #    RES.INST (pld2) : res9* [removed res2]*
         #    RES.INST (fpga1): res3
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
@@ -965,12 +1023,15 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (1)
-        #    TYPE (binary)   : res4 (0), res8 (1)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (1)
+        #    TYPE QUEUE (binary)   : res4 (0), res8 (1)
         #
+        #    RES QUEUE (pld)  : res4, res8
+        #    RES QUEUE (fpga) : res4, res5, res8
+        # 
         #    RES.INST (pld1) : res1
-        #    RES.INST (pld2) : res10
+        #    RES.INST (pld2) : res10* [removed res9]*
         #    RES.INST (fpga1): res3
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
@@ -988,13 +1049,16 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (0)
-        #    TYPE (binary)   : res8 (0)
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (0)
+        #    TYPE QUEUE (binary)   : res8 (0) [moved res4]*
         #
+        #    RES QUEUE (pld)  : res8          [moved res4]*
+        #    RES QUEUE (fpga) : res5, res8    [moved res4]*
+        # 
         #    RES.INST (pld1) : res1
         #    RES.INST (pld2) : res10
-        #    RES.INST (fpga1): res4
+        #    RES.INST (fpga1): res4*          [removed res3]*
         #
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation3_id)
@@ -1019,11 +1083,14 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : res5 (0)
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : res5 (0)
+        #    TYPE QUEUE (binary)   : <empty> [moved res8]*
         #
-        #    RES.INST (pld1) : res8
+        #    RES QUEUE (pld)  : <empty>      [moved res8]*
+        #    RES QUEUE (fpga) : res5         [moved res8]*
+        # 
+        #    RES.INST (pld1) : res8*         [removed res1]*
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
         #
@@ -1041,10 +1108,13 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty> [removed res5]*
+        #    TYPE QUEUE (binary)   : <empty>
         #
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>      [removed res5]*
+        # 
         #    RES.INST (pld1) : res8
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
@@ -1057,13 +1127,16 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         #
         # Queues:
         #
-        #    TYPE (pld)      : <empty>
-        #    TYPE (fpga)     : <empty>
-        #    TYPE (binary)   : <empty>
+        #    TYPE QUEUE (pld)      : <empty>
+        #    TYPE QUEUE (fpga)     : <empty>
+        #    TYPE QUEUE (binary)   : <empty>
         #
-        #    RES.INST (pld1) : <empty>
-        #    RES.INST (pld2) : <empty>
-        #    RES.INST (fpga1): <empty>
+        #    RES QUEUE (pld)  : <empty>
+        #    RES QUEUE (fpga) : <empty>
+        # 
+        #    RES.INST (pld1) : <empty> [removed res8 ]*
+        #    RES.INST (pld2) : <empty> [removed res10]*
+        #    RES.INST (fpga1): <empty> [removed res4 ]*
         #
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now)
         self.coordinator.finish_reservation(reservation4_id)
@@ -1073,18 +1146,40 @@ class CoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation10_id)
 
 
+class SqlCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
 
-class CoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
+
+class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
     def setUp(self):
         locator_mock = None
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value(COORDINATOR_LABORATORY_SERVERS, {
+            'lab1:inst@machine' : {
+                'inst1|exp1|cat1' : 'res_inst1@res_type'
+            },
+            'lab2:inst@machine' : {
+                'inst2|exp1|cat1' : 'res_inst2@res_type'
+            }
+        })
+        scheduling_systems = { 
+            "res_type"     : ("PRIORITY_QUEUE",     {'randomize_instances' : False}),
+        }
+        self.cfg_manager._set_value('core_scheduling_systems', scheduling_systems)
 
-        self.coordinator = WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
+        self.coordinator = self.WrappedCoordinator(locator_mock, self.cfg_manager, ConfirmerClass = SlowConfirmerMock)
         self.coordinator._clean()
 
         self.coordinator.add_experiment_instance_id("lab1:inst@machine", ExperimentInstanceId('inst1', 'exp1','cat1'), Resource("res_type", "res_inst1"))
+
+    def tearDown(self):
+        self.coordinator.stop()
+        self.coordinator._clean()
 
     def test_confirming_free_experiment(self):
         status, reservation1_id = self.coordinator.reserve_experiment(ExperimentId("exp1","cat1"), DEFAULT_TIME, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
@@ -1096,11 +1191,29 @@ class CoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
         self.assertTrue( next - previous > SLOW_CONFIRMER_TIME * 2)
         self.assertEquals( 0, self.coordinator.confirmer.times)
 
+class SqlCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+    WrappedCoordinator = WrappedSqlCoordinator
+
+if redis_coordinator.REDIS_AVAILABLE:
+    class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+        WrappedCoordinator = WrappedRedisCoordinator
+
 def suite():
-    return unittest.TestSuite( (
-                    unittest.makeSuite(CoordinatorTestCase),
-                    unittest.makeSuite(CoordinatorMultiResourceTestCase),
-                ) )
+    suites = [
+        unittest.makeSuite(SqlCoordinatorTestCase),
+        unittest.makeSuite(SqlCoordinatorMultiResourceTestCase),
+        unittest.makeSuite(SqlCoordinatorWithSlowConfirmerTestCase),
+    ]
+    if redis_coordinator.REDIS_AVAILABLE:
+            suites.extend([
+                unittest.makeSuite(RedisCoordinatorTestCase),
+                unittest.makeSuite(RedisCoordinatorMultiResourceTestCase),
+                unittest.makeSuite(RedisCoordinatorWithSlowConfirmerTestCase),
+            ])
+    else:
+        print >> sys.stderr, "redis not available. Skipping redis coordination tests"
+
+    return unittest.TestSuite(suites)
 
 if __name__ == '__main__':
     unittest.main()

@@ -20,8 +20,8 @@ mail_notification_subject = '[WebLab] CRITICAL ERROR!'
 # Sessions configuration #
 ##########################
 
-session_mysql_username = 'wl_session_user'
-session_mysql_password = 'wl_session_user_password'
+session_mysql_username = 'weblab'
+session_mysql_password = 'weblab'
 
-session_locker_mysql_username = 'wl_session_user'
-session_locker_mysql_password = 'wl_session_user_password'
+session_locker_mysql_username = 'weblab'
+session_locker_mysql_password = 'weblab'

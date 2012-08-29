@@ -16,6 +16,7 @@ import sys
 import voodoo.log as log
 from functools import wraps
 
+import weblab.configuration_doc as configuration_doc
 import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
 
@@ -32,12 +33,6 @@ import traceback
 
 import weblab.comm.context as RemoteFacadeContext
 import weblab.comm.codes as RemoteFacadeManagerCodes
-
-PROPAGATE_STACK_TRACES_TO_CLIENT                = 'propagate_stack_traces_to_client'
-DEFAULT_PROPAGATE_STACK_TRACES_TO_CLIENT        = False
-
-DEBUG_MODE                                      = 'debug_mode'
-DEFAULT_DEBUG_MODE                              = False
 
 UNEXPECTED_ERROR_MESSAGE_TEMPLATE               = "Unexpected error ocurred in WebLab-Deusto. Please contact the administrator at %s"
 SERVER_ADMIN_EMAIL                              = 'server_admin'
@@ -58,7 +53,7 @@ def check_exceptions(exceptions_to_check):
             except Exception as e:
                 for exc, code, propagate in exceptions_to_check:
                     if issubclass(e.__class__, exc):
-                        if propagate or self._cfg_manager.get_value(DEBUG_MODE, DEFAULT_DEBUG_MODE):
+                        if propagate or self._cfg_manager.get_doc_value(configuration_doc.DEBUG_MODE):
                             log.log(
                                     self.__class__,
                                     log.level.Info,
@@ -97,7 +92,7 @@ class AbstractRemoteFacadeManager(object):
 
 def _propagate_stack_trace(cfg_manager, msg):
     formatted_exc = traceback.format_exc()
-    propagate = cfg_manager.get_value(PROPAGATE_STACK_TRACES_TO_CLIENT, DEFAULT_PROPAGATE_STACK_TRACES_TO_CLIENT)
+    propagate = cfg_manager.get_doc_value(configuration_doc.PROPAGATE_STACK_TRACES_TO_CLIENT)
     if propagate:
         msg = str(msg) + "; Traceback: " + formatted_exc
     return msg

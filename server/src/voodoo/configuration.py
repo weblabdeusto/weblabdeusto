@@ -19,6 +19,8 @@ from voodoo.lock import RWLock
 
 import voodoo.exc as VoodooErrors
 
+import weblab.configuration_doc as configuration_doc
+
 
 class _ConfigurationModule(object):
     def __init__(self, module):
@@ -170,6 +172,34 @@ class ConfigurationManager(object):
                 key
             )
 
+    def get_doc_value(self, key):
+        try:
+            arg = configuration_doc.variables[key]
+        except KeyError:
+            raise KeyDocNotFound("Could not find documented variable %s" % key)
+
+        if arg.default == configuration_doc.NO_DEFAULT:
+            default_value = _not_a_default_value
+        else:
+            default_value = arg.default
+            
+        value = self.get_value(key, default_value)
+        if arg.type != configuration_doc.ANY_TYPE:
+            if isinstance(arg.type, basestring):
+                expected_type = eval(arg.type)
+            else:
+                expected_type = arg.type
+            if not isinstance(value, (expected_type, type(None))):
+                raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
+
+        return value
+
+    def __getitem__(self, key):
+        return self.get_doc_value(key)
+    
+    def get(self, key, default = None):
+        return self.get_value(key, default)
+
     def get_values(self, *args, **kargs):
         """
         The default values can be provided in two ways:
@@ -207,6 +237,13 @@ class KeyNotFoundError(ConfigurationError):
         ConfigurationError.__init__(self, msg, key, *args, **kargs)
         self.msg = msg
         self.key = key
+
+class InvalidTypeError(ConfigurationError):
+    pass
+
+class KeyDocNotFound(KeyNotFoundError):
+    def __init__(self, msg, key, *args, **kargs):
+        KeyNotFoundError.__init__(self, msg, key, *args, **kargs)
 
 class KeysNotFoundError(ConfigurationError):
     def __init__(self, *args, **kargs):

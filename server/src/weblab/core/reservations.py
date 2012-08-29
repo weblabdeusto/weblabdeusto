@@ -18,7 +18,7 @@ from abc import ABCMeta, abstractmethod
 from voodoo.sessions.session_id import SessionId
 
 import weblab.core.coordinator.status as WSS
-import weblab.core.exc as coreExc
+from weblab.core.exc import InvalidReservationStatusError
 
 NULL_POSITION = 100000
 
@@ -62,7 +62,7 @@ class Reservation(object):
         elif status.status == WSS.WebLabSchedulingStatus.POST_RESERVATION:
             reservation = PostReservationReservation(status.reservation_id, status.finished, status.initial_data, status.end_data)
         else:
-            raise coreExc.InvalidReservationStatusError( "Invalid reservation status.status: '%s'" % status.status)
+            raise InvalidReservationStatusError( "Invalid reservation status.status: '%s'" % status.status)
         return reservation
 
     @staticmethod
@@ -78,7 +78,7 @@ class Reservation(object):
         elif status_text == Reservation.POST_RESERVATION:
             reservation = PostReservationReservation(reservation_id, finished, initial_data, end_data)
         else:
-            raise coreExc.InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
+            raise InvalidReservationStatusError("Invalid reservation status_text: '%s'." % ( status_text ) )
         return reservation
 
     # XXX TODO: a new state would be required, but I don't have to deal with that

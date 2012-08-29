@@ -18,13 +18,13 @@ from abc import ABCMeta, abstractmethod
 import weblab.core.comm.user_server as comm_user_server
 
 class GenericSchedulerArguments(object):
-    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, session_maker, time_provider, core_server_url, initial_store, finished_store, completed_store, post_reservation_data_manager, **kwargs):
+    def __init__(self, cfg_manager, resource_type_name, reservations_manager, resources_manager, confirmer, data_manager, time_provider, core_server_url, initial_store, finished_store, completed_store, post_reservation_data_manager, **kwargs):
         self.cfg_manager          = cfg_manager
         self.resource_type_name   = resource_type_name
         self.reservations_manager = reservations_manager
         self.resources_manager    = resources_manager
         self.confirmer            = confirmer
-        self.session_maker        = session_maker
+        self.data_manager         = data_manager
         self.time_provider        = time_provider
         self.core_server_url      = core_server_url
         self.initial_store        = initial_store
@@ -86,13 +86,16 @@ class Scheduler(object):
 
 
         #
-        # An sqlalchemy session_maker. It is already configured, so you can directly use
-        # it to create new sessions and perform changes against the database. As long as you
+        # A data manager. It can be a redis client creator or a sqlalchemy session maker. 
+        # It is already configured, so you can directly use it to create new sessions and 
+        # perform changes against the database or the redis database. As long as you
         # have used sqlalchemy in your tables, and added your module to CoordinatorModel.load,
         # you will be able to use it. Otherwise, your scheduler should use another system and
         # require to configure it through the cfg_manager
         #
-        self.session_maker        = generic_scheduler_arguments.session_maker
+        self.session_maker        = generic_scheduler_arguments.data_manager
+        self.data_manager         = generic_scheduler_arguments.data_manager
+        self.redis_maker          = generic_scheduler_arguments.data_manager
 
         #
         # An instance of Coordinator.TimeProvider. It provides the time in different formats,

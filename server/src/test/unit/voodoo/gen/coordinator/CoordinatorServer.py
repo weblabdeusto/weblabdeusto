@@ -16,13 +16,13 @@
 import unittest
 import threading
 
+import weblab.configuration_doc as configuration_doc
+
 import test.unit.configuration as configuration_module
 
 import test.unit.voodoo.gen.coordinator.SampleServerType as SampleServerType
 
 import voodoo.configuration as ConfigurationManager
-
-import voodoo.sessions.memory as SessionMemoryGateway
 
 import voodoo.gen.coordinator.CoordinationInformation as CoordInfo
 import voodoo.gen.coordinator.Access as Access
@@ -172,7 +172,7 @@ class CoordinatorServerTestCase(unittest.TestCase):
     def test_get_server(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration_module)
-        cfg_manager._set_value(SessionMemoryGateway.SERIALIZE_MEMORY_GATEWAY_SESSIONS, True)
+        cfg_manager._set_value(configuration_doc.SESSION_MEMORY_GATEWAY_SERIALIZE, True)
 
         map = create_coordinator_map()
         coord_server = CoordinatorServer.CoordinatorServer(

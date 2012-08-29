@@ -95,18 +95,15 @@ def obtain_from_python_path(name):
     sequence_name_without = name[len(str(the_module).split("'")[1]) + 1:]
     current_block = the_module
     for i in sequence_name_without.split('.'):
+        module_name = current_block.__name__ + '.' + i
         try:
-            __import__(current_block.__name__ + '.' + i, globals(), locals())
+            __import__(module_name, globals(), locals())
         except ImportError:
-            pass
+            pass # foo.bar.MyClass will fail, but foo.bar will work
+
         try:
             current_block = getattr(current_block,i)
         except AttributeError:
-            raise LoaderErrors.InvalidConfigurationError(
-                    """Couldn't find %s in module: %s""" % (
-                            i,
-                            name
-                        )
-                )
+            raise LoaderErrors.InvalidConfigurationError( """Couldn't find %s in module: %s""" % (i, name))
     return current_block
 

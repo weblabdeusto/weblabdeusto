@@ -17,6 +17,8 @@ import unittest
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
+import weblab.configuration_doc as configuration_doc
+
 from voodoo.dbutil import get_sqlite_dbname
 import voodoo.sessions.db_lock_data as DbData
 
@@ -27,11 +29,11 @@ import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
 def _remove_sessions(cfg_manager):
-    engine_name = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_ENGINE, DbLock.DEFAULT_SESSION_LOCK_SQLALCHEMY_ENGINE)
-    host        = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_HOST, DbLock.DEFAULT_SESSION_LOCK_SQLALCHEMY_HOST)
-    db_name     = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_DB_NAME, DbLock.DEFAULT_SESSION_LOCK_SQLALCHEMY_DB_NAME)
-    username    = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_USERNAME)
-    password    = cfg_manager.get_value(DbLock.SESSION_LOCK_SQLALCHEMY_PASSWORD)
+    engine_name = cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_ENGINE)
+    host        = cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_HOST)
+    db_name     = cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_DB_NAME)
+    username    = cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_USERNAME)
+    password    = cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_PASSWORD)
 
     if engine_name == 'sqlite':
         sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(db_name)

@@ -1,2 +1,0 @@
-server/lib = [svn]http://svn.weblab.deusto.es/source/weblabtools/lib-server/
-client/external = [svn]http://svn.weblab.deusto.es/source/weblabtools/client

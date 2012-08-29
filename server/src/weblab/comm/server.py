@@ -17,6 +17,8 @@ import sys
 import threading
 import SocketServer
 
+import weblab.configuration_doc as configuration_doc
+
 # ZSI
 try:
     import ZSI.ServiceContainer as ServiceContainer
@@ -48,10 +50,7 @@ from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.comm.exc as FacadeErrors
 import voodoo.configuration as ConfigurationErrors
 
-RFS_TIMEOUT_NAME                      = 'facade_timeout'
-DEFAULT_TIMEOUT                       = 0.5
 BASE_LOCATION_PROPERTY                = 'base_location'
-
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("RemoteFacadeServer")
 
 def strdate(days=0,hours=0,minutes=0,seconds=0):
@@ -453,7 +452,7 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
             _resource_manager.remove_resource(self)
 
     def get_timeout(self):
-        return self._configuration_manager.get_value(RFS_TIMEOUT_NAME, DEFAULT_TIMEOUT)
+        return self._configuration_manager.get_doc_value(configuration_doc.FACADE_TIMEOUT)
 
     def parse_configuration(self, *args, **kargs):
         try:

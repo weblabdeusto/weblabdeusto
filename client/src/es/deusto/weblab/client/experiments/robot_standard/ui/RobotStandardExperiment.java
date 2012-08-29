@@ -14,12 +14,15 @@
 package es.deusto.weblab.client.experiments.robot_standard.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -68,6 +71,8 @@ public class RobotStandardExperiment extends ExperimentBase {
 	
 	@UiField(provided=true) WlWebcam webcam;
 	
+	@UiField Button uploadButton;
+	
 	private UploadStructure uploadStructure;
 	
 	public RobotStandardExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
@@ -77,6 +82,27 @@ public class RobotStandardExperiment extends ExperimentBase {
 		
 		RobotStandardExperiment.uiBinder.createAndBindUi(this);
 	}
+	
+	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+		
+		@Override
+		public void onFailure(CommException e) {
+			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
+			RobotStandardExperiment.this.messages.stop();
+			setMessage("Failed: " + e.getMessage());
+		}
+		
+		@Override
+		public void onSuccess(ResponseCommand responseCommand) {
+			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
+			RobotStandardExperiment.this.messages.stop();
+			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
+				setMessage("The program is being executed in the bot");
+			}else{
+				setMessage("There was an error: <" + responseCommand.getCommandString() + ">");
+			}
+		}
+	};
 	
 	/**
 	 * Setup certain widgets that require it after the experiment has been 
@@ -138,37 +164,31 @@ public class RobotStandardExperiment extends ExperimentBase {
 	    if(parseWebcamConfig(initialConfiguration))
 	    	return;
 	    
-	    this.webcam.setVisible(true);
-	    this.webcam.start();
-
-	    this.uploadStructure.getFormPanel().setVisible(false);
-		
-		this.boardController.sendFile(this.uploadStructure, new IResponseCommandCallback() {
-			
-			@Override
-			public void onFailure(CommException e) {
-				RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
-				RobotStandardExperiment.this.messages.stop();
-				setMessage("Failed: " + e.getMessage());
-			}
-			
-			@Override
-			public void onSuccess(ResponseCommand responseCommand) {
-				RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
-				RobotStandardExperiment.this.messages.stop();
-				if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
-					setMessage("The program is being executed in the bot");
-				}else{
-					setMessage("There was an error: <" + responseCommand.getCommandString() + ">");
-				}
-			}
-		});
-	    
-	    this.setMessage("Sending program");
-	    this.messages.start();
-	    
-	    this.sendGetConfigurationCommand();
+	    tryUpload();
 	}	
+	
+	@UiHandler("uploadButton")
+	void handleClick(@SuppressWarnings("unused") ClickEvent e) {
+		tryUpload();
+	}
+	
+	void tryUpload() {
+		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+		
+		if(didChooseFile) {
+		    this.webcam.setVisible(true);
+		    this.webcam.start();
+
+			this.uploadButton.setVisible(false);
+		    this.uploadStructure.getFormPanel().setVisible(false);
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+		    this.setMessage("Sending program");
+		    this.messages.start();
+		    this.sendGetConfigurationCommand();
+		} else {
+			this.uploadButton.setVisible(true);
+		}
+	}
 	
 	private boolean parseWebcamConfig(String initialConfiguration) {
 		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);

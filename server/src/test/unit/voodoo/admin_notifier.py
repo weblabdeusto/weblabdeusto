@@ -17,6 +17,8 @@
 import unittest
 import mocker
 
+import weblab.configuration_doc as configuration_doc
+
 import test.unit.configuration as configuration_module
 
 import voodoo.admin_notifier as AdminNotifier
@@ -54,6 +56,11 @@ class ConfigurationManagerFake(object):
                 'lalalaa',
                 'lelele'
             )
+    def get_doc_value(self, key):
+        default = configuration_doc.variables[key].default
+        if default == configuration_doc.NO_DEFAULT:
+            return self.get_value(key)
+        return self.get_value(key, default)
 
 class AdminNotifierTestCase(mocker.MockerTestCase):
 
@@ -85,7 +92,7 @@ class AdminNotifierTestCase(mocker.MockerTestCase):
         self.assertTrue(notifier.verify())
 
     def test_without_enough_configuration(self):
-        self.default_config.pop('server_hostaddress')
+        self.default_config.pop(configuration_doc.MAIL_SERVER_HOST)
         cfg_manager= ConfigurationManagerFake(self.default_config)
         self.smtp_mock = self.mocker.mock()
         notifier = AdminNotifierFake(cfg_manager, 'rigel.deusto.es', self.smtp_mock)

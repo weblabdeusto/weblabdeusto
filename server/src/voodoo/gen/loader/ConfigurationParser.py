@@ -38,9 +38,7 @@ class AbstractParser(object):
 
     def parse(self, directory, address = None):
         if not isinstance(self, GlobalParser) and address is None:
-            raise LoaderErrors.InvalidConfigurationError(
-                    "Missing address parameter"
-                )
+            raise LoaderErrors.InvalidConfigurationError( "Missing address parameter" )
         stream, file_path = self._retrieve_stream(directory)
         return self._parse_from_stream(stream, directory, file_path, address)
 
@@ -228,17 +226,20 @@ class AbstractConfigPlusLevelParser(AbstractParser):
         # Load important nodes
         configuration_nodes = LoaderUtilities.find_nodes(file_path, level_node,  'configuration')
         user_nodes          = LoaderUtilities.find_nodes(file_path, level_node,  'user')
+        runner_nodes        = LoaderUtilities.find_nodes(file_path, level_node,  'runner')
         sub_level_nodes     = LoaderUtilities.find_nodes(file_path, level_node, self.SUB_LEVEL)
 
         # Parse nodes
         configurations      = self._parse_configurations(directory, configuration_nodes)
+        runner              = self._parse_runner(directory, runner_nodes)
         sub_levels          = self._parse_level(address, directory, sub_level_nodes)
 
         # Return structure
         level_configuration = self.CONFIG_CLASS(
                     None,
                     configurations,
-                    sub_levels
+                    sub_levels,
+                    runner = runner,
                 )
 
         # We know there can be 0 or 1 node...
@@ -246,6 +247,12 @@ class AbstractConfigPlusLevelParser(AbstractParser):
             level_configuration.user = LoaderUtilities.obtain_text_safe(user_nodes[0])
 
         return level_configuration
+
+    def _parse_runner(self, directory, runner_nodes):
+        if len(runner_nodes) == 0:
+            return None
+        else:
+            return os.path.relpath(os.path.join(directory, '..', runner_nodes[0].getAttribute('file')))
 
     def _parse_level(self, address, directory, sub_level_nodes):
         sub_level_names = [
@@ -272,37 +279,28 @@ class AbstractConfigPlusLevelParser(AbstractParser):
 class InstanceParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.InstanceConfiguration
     XSD_FILE_PATH = INSTANCE_XSD_FILE_PATH
-    SUB_LEVEL = 'server'
+    SUB_LEVEL     = 'server'
     PARSER        = ServerParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                address.machine_id,
-                address.instance_id,
-                name
-            )
+        return CoordAddress.CoordAddress( address.machine_id, address.instance_id, name )
 
 
 class MachineParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.MachineConfiguration
     XSD_FILE_PATH = MACHINE_XSD_FILE_PATH
-    SUB_LEVEL = 'instance'
+    SUB_LEVEL     = 'instance'
     PARSER        = InstanceParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                address.machine_id,
-                name
-            )
+        return CoordAddress.CoordAddress( address.machine_id, name )
 
 class GlobalParser(AbstractConfigPlusLevelParser):
     CONFIG_CLASS  = ConfigurationData.GlobalConfiguration
     XSD_FILE_PATH = GLOBAL_XSD_FILE_PATH
-    SUB_LEVEL = 'machine'
+    SUB_LEVEL     = 'machine'
     PARSER        = MachineParser
 
     def _generate_address_of_sublevel(self, address, name):
-        return CoordAddress.CoordAddress(
-                name
-            )
+        return CoordAddress.CoordAddress( name )
 

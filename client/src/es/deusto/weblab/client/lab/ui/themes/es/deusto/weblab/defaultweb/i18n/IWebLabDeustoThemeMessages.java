@@ -57,10 +57,12 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String experimentInteractionFinishedGoBack();
 	public String information();
 	public String clickHereToOpenExperiment();
+	public String experimentOpenInOtherWindow();
 	public String someExperimentsAreAvailableForDemo();
 	public String loginAsGuest();
 	public String poweredBy();
 	public String experimentHostedBy();
 	public String directLink();
 	public String clickHere();
+	public String back();
 }

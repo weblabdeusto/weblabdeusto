@@ -14,7 +14,7 @@
 #
 import re
 
-import voodoo.gen.exceptions.coordinator.CoordinatorErrors as CoordErrors
+from voodoo.gen.exceptions.coordinator.CoordinatorErrors import CoordInvalidAddressParams, CoordInvalidLevelAddress, CoordInvalidAddressName
 
 class CoordAddress(object):
     FORMAT = '%(server)s:%(instance)s@%(machine)s'
@@ -41,13 +41,13 @@ class CoordAddress(object):
         empty are the addresses for machines.
         """
         if not type(machine_id) in (str,unicode) or machine_id == '':
-            raise CoordErrors.CoordInvalidAddressParams( "%s: not a valid machine_id" % machine_id)
+            raise CoordInvalidAddressParams( "%s: not a valid machine_id" % machine_id)
         if not type(instance_id) in (str,unicode):
-            raise CoordErrors.CoordInvalidAddressParams( "%s: not a valid instance_id" % instance_id)
+            raise CoordInvalidAddressParams( "%s: not a valid instance_id" % instance_id)
         if not type(server_id) in (str,unicode):
-            raise CoordErrors.CoordInvalidAddressParams( "%s: not a valid server_id" % server_id)
+            raise CoordInvalidAddressParams( "%s: not a valid server_id" % server_id)
         if instance_id == '' and server_id != '':
-            raise CoordErrors.CoordInvalidAddressParams( "%s, %s: not valid parameters" % (instance_id, server_id))
+            raise CoordInvalidAddressParams( "%s, %s: not valid parameters" % (instance_id, server_id))
 
         self.machine_id = machine_id
         self.instance_id = instance_id
@@ -79,9 +79,7 @@ class CoordAddress(object):
     # get_* methods
     def get_instance_address(self):
         if not self.is_server():
-            raise CoordErrors.CoordInvalidLevelAddress(
-                        '%s: not a server_address' % self
-                    )
+            raise CoordInvalidLevelAddress( '%s: not a server_address' % self)
         new_addr = self.copy()
         new_addr.server_id = ''
         new_addr._reload_address()
@@ -89,9 +87,7 @@ class CoordAddress(object):
 
     def get_machine_address(self):
         if not self.is_server() and not self.is_instance():
-            raise CoordErrors.CoordInvalidLevelAddress(
-                        '%s: not a server or instance address' % self
-                    )
+            raise CoordInvalidLevelAddress( '%s: not a server or instance address' % self)
         new_addr = self.copy()
         new_addr.server_id = new_addr.instance_id = ''
         new_addr._reload_address()
@@ -118,14 +114,14 @@ class CoordAddress(object):
         try:
             m = re.match(CoordAddress.REGEX_FORMAT,address)
         except TypeError:
-            raise CoordErrors.CoordInvalidAddressName(
+            raise CoordInvalidAddressName(
                 "%(address)s is not a valid address. Format: %(format)s" % {
                 "address" : address,
                 "format"  : CoordAddress.FORMAT
             }
             )
         if m is None:
-            raise CoordErrors.CoordInvalidAddressName(
+            raise CoordInvalidAddressName(
                     '%(address)s is not a valid address. Format: %(format)s' % {
                         'address' : address,
                         'format'  : CoordAddress.FORMAT

@@ -13,15 +13,19 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
+import json
+
+from weblab.util import data_filename
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
 import experiments.ud_xilinx.server as UdXilinxExperiment
-import os
+
 import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
 
-import json
+module_directory = os.path.join(*__name__.split('.')[:-1])
 
 class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
@@ -32,7 +36,7 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdDemoXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
-        file_path = os.path.dirname(__file__) + os.sep + self.FILES[self._xilinx_device]
+        file_path = data_filename(os.path.join(module_directory, self.FILES[self._xilinx_device]))
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)

@@ -24,13 +24,13 @@ from   test.util.module_disposer import case_uses_module
 
 from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
 import weblab.core.user_processor as UserProcessor
-import weblab.core.coordinator.coordinator as Coordinator
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 import weblab.data.server_type as ServerType
 import weblab.data.client_address as ClientAddress
+from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.data.dto.users as Group
 from weblab.data.experiments import ExperimentInstanceId
@@ -61,9 +61,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.mocker  = mocker.Mocker()
         self.lab_mock = self.mocker.mock()
 
-        self.locator = FakeLocator(
-                lab = self.lab_mock
-            )
+        self.locator = FakeLocator( lab = self.lab_mock )
         self.db      = FakeDatabase()
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
@@ -76,7 +74,7 @@ class UserProcessorTestCase(unittest.TestCase):
 
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
-        self.coordinator = Coordinator.Coordinator(self.locator, self.cfg_manager)
+        self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager, ConfirmerClass = FakeConfirmer)
         self.coordinator._clean()
         self.coordinator.add_experiment_instance_id("server:laboratoryserver@labmachine", ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), Resource("res_type", "res_inst"))
 
@@ -85,10 +83,7 @@ class UserProcessorTestCase(unittest.TestCase):
                     {
                         'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
                     },
-                    self.cfg_manager,
-                    self.coordinator,
-                    self.db,
-                    self.commands_store
+                    self.cfg_manager, self.coordinator, self.db, self.commands_store
                 )
 
     def tearDown(self):
@@ -127,19 +122,13 @@ class UserProcessorTestCase(unittest.TestCase):
         )
 
     def test_reserve_experiment_waiting_confirmation(self):
-        self.coordinator.confirmer = FakeConfirmer()
-
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}", "{}",
-                    ClientAddress.ClientAddress("127.0.0.1"), 'uuid'
-                )
-
+                    ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
         self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
 
     def test_reserve_experiment_repeated_uuid(self):
-        self.coordinator.confirmer = FakeConfirmer()
-
         uuid = self.cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
 
         status = self.processor.reserve_experiment(
@@ -207,6 +196,8 @@ class FakeLocator(object):
         raise Exception("Server not found")
 
 class FakeConfirmer(object):
+    def __init__(self, *args):
+        pass
     def enqueue_confirmation(self, *args):
         pass
     def enqueue_free_experiment(self, *args):

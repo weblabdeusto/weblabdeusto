@@ -103,7 +103,7 @@ class DbUser(Base):
     __table_args__ = (UniqueConstraint('login'), TABLE_KWARGS)
 
     id        = Column(Integer, primary_key = True)
-    login     = Column(String(32), nullable = False)
+    login     = Column(String(32), nullable = False, index = True)
     full_name = Column(String(200), nullable = False)
     email     = Column(String(255), nullable = False)
     avatar    = Column(String(255))
@@ -138,7 +138,7 @@ class DbAuthType(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(200), nullable = False)
+    name = Column(String(200), nullable = False, index = True)
 
     def __init__(self, name):
         super(DbAuthType, self).__init__()
@@ -191,8 +191,8 @@ class DbUserAuth(Base):
     __table_args__ = (TABLE_KWARGS)
 
     id            = Column(Integer, primary_key = True)
-    user_id       = Column(Integer, ForeignKey('User.id'), nullable = False)
-    auth_id       = Column(Integer, ForeignKey('Auth.id'), nullable = False)
+    user_id       = Column(Integer, ForeignKey('User.id'), nullable = False, index = True)
+    auth_id       = Column(Integer, ForeignKey('Auth.id'), nullable = False, index = True)
     configuration = Column(Text)
 
     user = relation("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))
@@ -259,8 +259,8 @@ class DbGroup(Base):
     __table_args__ = (UniqueConstraint('parent_id', 'name'), TABLE_KWARGS)
 
     id        = Column(Integer, primary_key = True)
-    name      = Column(String(250), nullable = False)
-    parent_id = Column(Integer, ForeignKey("Group.id"))
+    name      = Column(String(250), nullable = False, index = True)
+    parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
 
     children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
     users    = relation("DbUser", secondary=t_user_is_member_of, backref="groups")
@@ -297,7 +297,7 @@ class DbExperimentCategory(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False)
+    name = Column(String(255), nullable = False, index = True)
 
     def __init__(self, name):
         super(DbExperimentCategory, self).__init__()
@@ -318,8 +318,8 @@ class DbExperiment(Base):
     __table_args__ = (UniqueConstraint('name', 'category_id'), TABLE_KWARGS)
 
     id          = Column(Integer, primary_key = True)
-    name        = Column(String(255), nullable = False)
-    category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False)
+    name        = Column(String(255), nullable = False, index = True)
+    category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
     start_date  = Column(DateTime, nullable = False)
     end_date    = Column(DateTime, nullable = False)
 
@@ -363,15 +363,15 @@ class DbUserUsedExperiment(Base):
     __table_args__ = (TABLE_KWARGS)
 
     id               = Column(Integer, primary_key = True)
-    user_id          = Column(Integer, ForeignKey("User.id"), nullable = False)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False)
+    user_id          = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
+    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
     start_date       = Column(DateTime, nullable = False)
     start_date_micro = Column(Integer, nullable = False)
     end_date         = Column(DateTime)
     end_date_micro   = Column(Integer)
     origin           = Column(String(255), nullable = False)
     coord_address    = Column(String(255), nullable = False)
-    reservation_id   = Column(String(50))
+    reservation_id   = Column(String(50), index = True)
 
     user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
     experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
@@ -447,7 +447,7 @@ class DbUserUsedExperimentProperty(Base):
     __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False)
+    name = Column(String(255), nullable = False, index = True)
 
     def __init__(self, name, id = None):
         self.name = name

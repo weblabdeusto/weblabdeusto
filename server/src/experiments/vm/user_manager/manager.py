@@ -19,11 +19,13 @@ class ConfigureError(Exception):
 
 class PermanentConfigureError(ConfigureError):
     """ Configure error that would most likely occur again should we retry """
-    pass
+    def __str__(self):
+        return "PermanentConfigureError()"
 
 class TemporaryConfigureError(ConfigureError):
     """ Configure error that is likely to not be permanent. Server will retry whenever this is received. """
-    pass
+    def __str__(self):
+        return "TemporaryConfigureError()"
 
 class UserManager(object):
     
