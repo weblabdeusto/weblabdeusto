@@ -376,7 +376,6 @@ def weblab_create(directory):
     experiments.add_option("--visir-password",         dest="visir_password", default='guest', type="string", metavar='PASSWORD',
                                                        help = "If the PHP version is used, define which password should be used. Default: guest."  )
 
-    # TODO
     experiments.add_option("--logic-server",           dest="logic_server", action="store_true", default=False,
                                                        help = "Add a logic server to the deployed system. "  )
 
@@ -700,6 +699,11 @@ def weblab_create(directory):
             local_experiments += "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options.visir_experiment_name }
         local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
 
+    if options.logic_server:
+        local_experiments += "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
+        local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+
+
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
                         "core_universal_identifier_human = %(core_universal_identifier_human)r\n"
@@ -876,7 +880,9 @@ def weblab_create(directory):
                     instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
             if options.visir_server:
                 instance_configuration_xml += """    <server>visir</server>\n"""
-            
+            if options.logic_server:
+                instance_configuration_xml += """    <server>logic</server>\n"""
+           
             
         instance_configuration_xml += (
         """\n"""
@@ -1022,6 +1028,9 @@ def weblab_create(directory):
         if options.visir_server:
             lab_instance_configuration_xml += """    <server>visir</server>\n"""
 
+        if options.logic_server:
+            lab_instance_configuration_xml += """    <server>logic</server>\n"""
+
         lab_instance_configuration_xml += """</servers>\n"""
 
         open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write( lab_instance_configuration_xml )
@@ -1091,6 +1100,14 @@ def weblab_create(directory):
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 'visir_name' : options.visir_experiment_name, 'n' : n }       
+
+    if options.logic_server:
+        laboratory_config_py += (
+            """        'exp1:ud-logic@PIC experiments' : {\n"""
+            """                'coord_address' : 'logic:%(instance)s@core_machine',\n"""
+            """                'checkers' : ()\n"""
+            """            },\n"""
+        ) % { 'instance' : laboratory_instance_name }
 
     laboratory_config_py += """    }\n"""
 
@@ -1217,6 +1234,40 @@ def weblab_create(directory):
             """#\n"""
             """\n""") % {'visir_measurement_server' : visir_measurement_server })
 
+    if options.logic_server:
+        logic_dir = os.path.join(lab_instance_dir, 'logic')
+        if not os.path.exists(logic_dir):
+            os.mkdir(logic_dir)
+
+        open(os.path.join(logic_dir, 'configuration.xml'), 'w').write((
+            """<?xml version="1.0" encoding="UTF-8"?>\n"""
+            """<server\n"""
+            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+            """>\n"""
+            """\n"""
+            """    <configuration file="server_config.py" />\n"""
+            """\n"""
+            """    <type>weblab.data.server_type::Experiment</type>\n"""
+            """    <methods>weblab.methods::Experiment</methods>\n"""
+            """\n"""
+            """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+            """\n"""
+            """    <protocols>\n"""
+            """        <protocol name="Direct">\n"""
+            """            <coordinations>\n"""
+            """                <coordination></coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation></creation>\n"""
+            """        </protocol>\n"""
+            """    </protocols>\n"""
+            """</server>\n"""))
+
+        open(os.path.join(logic_dir, 'server_config.py'), 'w').write(
+        """logic_webcam_url = ""\n"""
+        """\n"""
+        )
 
 
     files_stored_dir = os.path.join(directory, 'files_stored')
