@@ -18,6 +18,7 @@ regex:
 ^server/src/.*.egg
 ^server/src/dist
 ^server/src/env
+^server/src/logs
 ^server/consumers/php/cookiefile
 ^server/launch/.*/logs$
 ^server/launch/.*/.*\.pid$

@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
 import unittest
 
 import test.util.stress as stress_util
@@ -52,6 +53,8 @@ class SessionManagerTestCase(unittest.TestCase):
 
         print "Generating... SessionManager"
         print "  threaded..."
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
         self.runner.print_graphics_threaded  ('logs/results_session_manager_threaded.png', threads, 50, 3)
         print "  sequential..."
         self.runner.print_graphics_sequential('logs/results_session_manager_sequential.png', iterations, 3)
