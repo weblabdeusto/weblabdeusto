@@ -41,7 +41,7 @@ class SessionManagerTestCase(unittest.TestCase):
 
     def test_sequential(self):
         iterations = 10000
-        max_time   = 0.3
+        max_time   = 0.9 # And this is too much, too
         print "seq",max(self.runner.run_sequential(iterations, max_time))
 
     def test_concurrent(self):
