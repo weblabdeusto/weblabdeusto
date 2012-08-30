@@ -104,7 +104,7 @@ class SlowConfirmerMock(object):
 def coord_addr(coord_addr_str):
     return CoordAddress.CoordAddress.translate_address( coord_addr_str )
 
-class AbstractCoordinatorTestCase(unittest.TestCase):
+class AbstractCoordinatorTestCase(object):
     
     def setUp(self):
         self.maxDiff = None
@@ -665,14 +665,14 @@ class AbstractCoordinatorTestCase(unittest.TestCase):
         expected_status = WSS.WaitingConfirmationQueueStatus(reservation2_id, DEFAULT_URL)
         self.assertEquals( expected_status, status )
 
-class SqlCoordinatorTestCase(AbstractCoordinatorTestCase):
+class SqlCoordinatorTestCase(AbstractCoordinatorTestCase, unittest.TestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
 if redis_coordinator.REDIS_AVAILABLE:
-    class RedisCoordinatorTestCase(AbstractCoordinatorTestCase):
+    class RedisCoordinatorTestCase(AbstractCoordinatorTestCase, unittest.TestCase):
         WrappedCoordinator = WrappedRedisCoordinator
 
-class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
+class AbstractCoordinatorMultiResourceTestCase(object):
     def setUp(self):
         self.locator_mock = None
 
@@ -1146,14 +1146,14 @@ class AbstractCoordinatorMultiResourceTestCase(unittest.TestCase):
         self.coordinator.finish_reservation(reservation10_id)
 
 
-class SqlCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+class SqlCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase, unittest.TestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
 if redis_coordinator.REDIS_AVAILABLE:
-    class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase):
+    class RedisCoordinatorMultiResourceTestCase(AbstractCoordinatorMultiResourceTestCase, unittest.TestCase):
         WrappedCoordinator = WrappedRedisCoordinator
 
-class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
+class AbstractCoordinatorWithSlowConfirmerTestCase(object):
     def setUp(self):
         locator_mock = None
 
@@ -1191,11 +1191,11 @@ class AbstractCoordinatorWithSlowConfirmerTestCase(unittest.TestCase):
         self.assertTrue( next - previous > SLOW_CONFIRMER_TIME * 2)
         self.assertEquals( 0, self.coordinator.confirmer.times)
 
-class SqlCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+class SqlCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase, unittest.TestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
 if redis_coordinator.REDIS_AVAILABLE:
-    class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase):
+    class RedisCoordinatorWithSlowConfirmerTestCase(AbstractCoordinatorWithSlowConfirmerTestCase, unittest.TestCase):
         WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():

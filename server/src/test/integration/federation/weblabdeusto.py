@@ -34,7 +34,7 @@ def debug(msg):
         print 
         sys.stdout.flush()
 
-class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
+class AbstractFederatedWebLabDeustoTestCase(object):
     def setUp(self):
 
         # Clean the global registry of servers
@@ -298,7 +298,7 @@ class AbstractFederatedWebLabDeustoTestCase(unittest.TestCase):
 
         return reservation_id
 
-class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
     FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
 
 try:
@@ -310,7 +310,7 @@ else:
     REDIS_AVAILABLE = True
 
 if REDIS_AVAILABLE:
-    class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase):
+    class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
         FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
 
 def suite():

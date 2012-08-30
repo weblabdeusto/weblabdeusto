@@ -20,7 +20,7 @@ import voodoo.configuration as ConfigurationManager
 
 from test.unit.weblab.core.coordinator.coordinator import WrappedSqlCoordinator, WrappedRedisCoordinator, ConfirmerMock
 
-class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
+class AbstractPostReservationDataManagerTestCase(object):
     def setUp(self):
 
         locator_mock = None
@@ -84,11 +84,11 @@ class AbstractPostReservationDataManagerTestCase(unittest.TestCase):
         self.assertNotEqual(None, status)
 
 
-class SqlPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+class SqlPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase, unittest.TestCase):
     WrappedCoordinator = WrappedSqlCoordinator
 
 if WrappedRedisCoordinator.REDIS_AVAILABLE:
-    class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase):
+    class RedisPostReservationDataManagerTestCase(AbstractPostReservationDataManagerTestCase, unittest.TestCase):
         WrappedCoordinator = WrappedRedisCoordinator
 
 def suite():
