@@ -18,7 +18,7 @@ import datetime
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-from test.unit.weblab.core.coordinator.coordinator import WrappedSqlCoordinator, WrappedRedisCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.test_coordinator import WrappedSqlCoordinator, WrappedRedisCoordinator, ConfirmerMock
 
 class AbstractPostReservationDataManagerTestCase(object):
     def setUp(self):

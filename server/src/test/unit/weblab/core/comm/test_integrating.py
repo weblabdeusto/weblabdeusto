@@ -51,7 +51,7 @@ import weblab.core.reservations as Reservation
 
 import weblab.core.exc as coreExc
 
-from test.unit.weblab.core.comm.user_manager import MockUPS
+from test.unit.weblab.core.comm.test_user_manager import MockUPS
 
 class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if UserProcessingFacadeServer.ZSI_AVAILABLE:

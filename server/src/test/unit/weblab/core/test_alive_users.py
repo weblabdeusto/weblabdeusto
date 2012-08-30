@@ -19,7 +19,7 @@ import Queue
 
 import test.unit.configuration as configuration_module
 
-import test.unit.weblab.core.user_processor as UserProcessorTest
+import test.unit.weblab.core.test_user_processor as UserProcessorTest
 
 import voodoo.configuration as ConfigurationManager
 import voodoo.sessions.manager as SessionManager

@@ -24,7 +24,7 @@ from weblab.data.experiments import ExperimentInstanceId
 from weblab.core.coordinator.resource import Resource
 import weblab.core.coordinator.exc as CoordExc
 
-from test.unit.weblab.core.coordinator.coordinator import WrappedRedisCoordinator as WrappedCoordinator, ConfirmerMock
+from test.unit.weblab.core.coordinator.test_coordinator import WrappedRedisCoordinator as WrappedCoordinator, ConfirmerMock
 
 REQUEST_INFO = json.dumps({'facebook' : False, 'mobile' : False})
 
