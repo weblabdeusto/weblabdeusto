@@ -102,8 +102,9 @@ def runConsole(single_test, avoid_integration, argv):
 def runXml(folder):
     def runSuite(suite, file_name):
         output = open(file_name,'w')
+        sio = StringIO.StringIO()
         try:
-            wasSuccessful = xmlrunner.XMLTestRunner(output).run(suite).wasSuccessful()
+            wasSuccessful = xmlrunner.XMLTestRunner(output, stream = sio).run(suite).wasSuccessful()
         finally:
             output.close()
         return wasSuccessful
