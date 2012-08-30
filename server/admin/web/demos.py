@@ -75,7 +75,7 @@ class _HostResolver(object):
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
         except Exception, e:
-            if ip_address.startswith("127.") or ip_address.startswith("192.168"):
+            if ip_address.startswith("127.") or ip_address.startswith("192.168") or ip_address.startswith('172.16.99'):
                 resolved = "local network"
             else:
                 # A malicious user could inject a message if he says that he's behind a proxy.
