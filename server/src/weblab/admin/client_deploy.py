@@ -89,7 +89,7 @@ def compile_client(war_location, client_location):
             print >> sys.stderr, "Downloading... (please wait a few minutes; GWT is ~90 MB)"
             try:
                 os.mkdir(external_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             # TODO: this places in memory the whole file (~90 MB). urllib.urlretrieve?
@@ -125,7 +125,7 @@ def compile_client(war_location, client_location):
 
             try:
                 os.mkdir(libclient_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             # TODO: this places in memory the whole file (~24 MB). urllib.urlretrieve?
