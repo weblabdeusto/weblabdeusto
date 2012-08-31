@@ -222,7 +222,7 @@ class ExperimentWindow extends BaseWindow {
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
-		this.directLink.setHref("../login/web/direct2experiment/?experiment_id=" + URL.encode(this.experimentAllowed.getExperiment().getUniqueName()).replaceAll("@", "%40"));
+		this.directLink.setHref(Window.Location.getHref());
 		this.updateInfolinkField();
 
 		// Important note: this MUST be done here or FileUpload will cause problems
