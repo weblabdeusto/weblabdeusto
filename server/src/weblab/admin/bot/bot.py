@@ -164,4 +164,5 @@ def main():
 
         print "Done", datetime.datetime.now()
         del raw_information
+        time.sleep(5)
 
