@@ -784,7 +784,7 @@ def weblab_create(directory):
                         "\n"
                         "%(session_redis)ssession_redis_host = %(session_redis_host)r\n"
                         "%(session_redis)ssession_redis_port = %(session_redis_port)r\n"
-                        "%(session_redis)ssession_redis_db   = %(session_redis_db)r\n"
+                        "%(session_redis)score_session_pool_id = %(session_redis_db)r\n"
                         "\n"
                         "##############################\n"
                         "# Core generic configuration #\n"
