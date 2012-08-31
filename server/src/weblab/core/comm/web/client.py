@@ -37,6 +37,7 @@ REDIRECT_CODE = """<html><head>
         <input type="submit" value="Submit"/>
     </form>
     <p>Reason:%(reason)s</p>
+    <input type="submit" value="Back" onclick="window.history.back()"/>
 </body>
 """
 
@@ -58,11 +59,12 @@ LABEL_CODE = """<html><head>
 </script>
 </head>
 <body onload="javascript:submit_form();">
-    <p>Please, click on 'Submit'</p>
+    <p>Please, click on 'Submit' to proceed, or in 'Back' to go back.</p>
     <form action="." method="POST" id="reservation_form">
         <input id="reservation_id_text" type="text" name="reservation_id" value="" />
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit"/><br/>
     </form>
+    <input type="submit" value="Back" onclick="window.history.back()"/>
 </body>
 """
 
@@ -75,7 +77,8 @@ FINAL_REDIRECT = """<html><head>
 </script>
 </head>
 <body onload="javascript:redirect_to_client();">
-Please, go to <a href="%(URL)s">%(URL)s</a>.
+Please, go to <a href="%(URL)s">%(URL)s</a>.<br/>
+<input type="submit" value="Back" onclick="window.history.back()"/>
 </body>
 """
 
@@ -83,6 +86,7 @@ ERROR_CODE = """<html><head>
 <title>WebLab-Deusto client redirect</title>
 <body>
 It was not possible to retrieve the reservation_id %s in this server.
+<input type="submit" value="Back" onclick="window.history.back()"/>
 </body>
 """
 
