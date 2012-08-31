@@ -157,7 +157,7 @@ def compile_client(war_location, client_location):
 
             try:
                 os.mkdir(libclient_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             junit_content = urllib2.urlopen(JUNIT_URL).read()

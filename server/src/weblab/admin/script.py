@@ -307,6 +307,14 @@ def weblab_create(directory):
                                                   help = "Laboratory server included in the same process as the core server. " 
                                                          "Only available if a single core is used." )
 
+    parser.add_option("--lab-copies",             dest="lab_copies", type="int",   default=1,
+                                                  help = "Each experiment can be managed by a single laboratory server. "
+                                                         "However, if the number of experiments managed by a single laboratory server "
+                                                         "is high, it can become a bottleneck. This bottleneck effect can be reduced by "
+                                                         "balancing the amount of experiments among different copies of the laboratories. "
+                                                         "By establishing a higher number of laboratories, the generated deployment will "
+                                                         "have the experiments balanced among them.")
+
     admin_data = OptionGroup(parser, "Administrator data",
                                                 "Administrator basic data: username, password, etc.")
     admin_data.add_option("--admin-user",             dest="admin_user",       type="string",    default="admin",
@@ -352,7 +360,7 @@ def weblab_create(directory):
     experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
                                                        help = "What port should the Experiment Server use. Useful for development.")
 
-    experiments.add_option("--visir-server",           dest="visir_server", action="store_true", default=False,
+    experiments.add_option("--visir", "--visir-server", dest="visir_server", action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
 
     experiments.add_option("--visir-slots",            dest="visir_slots", default=60, type="int", metavar='SLOTS',
@@ -376,11 +384,11 @@ def weblab_create(directory):
     experiments.add_option("--visir-password",         dest="visir_password", default='guest', type="string", metavar='PASSWORD',
                                                        help = "If the PHP version is used, define which password should be used. Default: guest."  )
 
-    experiments.add_option("--logic-server",           dest="logic_server", action="store_true", default=False,
+    experiments.add_option("--logic", "--logic-server", dest="logic_server", action="store_true", default=False,
                                                        help = "Add a logic server to the deployed system. "  )
 
     # TODO
-    experiments.add_option("--vm-server",              dest="vm_server", action="store_true", default=False,
+    experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest="vm_server", action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
 
     parser.add_option_group(experiments)
@@ -645,11 +653,6 @@ def weblab_create(directory):
     # Create voodoo infrastructure
     # 
 
-    if options.inline_lab_serv:
-        laboratory_instance_name = 'core_server1' 
-    else:
-        laboratory_instance_name = 'laboratory'
-
     if verbose: print "Creating configuration files and directories...",; sys.stdout.flush()
 
     open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
@@ -683,25 +686,59 @@ def weblab_create(directory):
 
     machine_configuration_xml += "\n"
     if not options.inline_lab_serv:
-        machine_configuration_xml += "    <instance>laboratory</instance>\n\n"
+        for n in range(1, options.lab_copies + 1):
+            machine_configuration_xml += "    <instance>laboratory%s</instance>\n\n" % n
     machine_configuration_xml += "</instances>\n"
 
-    local_experiments = ""
     local_scheduling  = ""
 
+    experiment_counter = 0
+    laboratory_experiments  = {}
+    laboratory_experiment_instances  = {}
+
+    for n in range(options.lab_copies):
+        laboratory_experiments[n] = ""
+        laboratory_experiment_instances[n] = {}
 
     for n in xrange(1, options.dummy_copies + 1):
-        local_experiments += "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options.dummy_name, 'dummy_category' : options.dummy_category_name, 'n' : n }
+        local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options.dummy_name, 'dummy_category' : options.dummy_category_name, 'n' : n }
+        lab_id = experiment_counter % options.lab_copies
+        laboratory_experiments[lab_id] += local_experiments
+        if 'dummy' not in laboratory_experiment_instances[lab_id]:
+            laboratory_experiment_instances[lab_id]['dummy'] = []
+        laboratory_experiment_instances[lab_id]['dummy'].append(n)
+        experiment_counter += 1
     local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
 
     if options.visir_server:
         for n in xrange(1, options.visir_slots + 1):
-            local_experiments += "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options.visir_experiment_name }
+            local_experiments = "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options.visir_experiment_name }
+            lab_id = experiment_counter % options.lab_copies
+            laboratory_experiments[lab_id] += local_experiments
+            if 'visir' not in laboratory_experiment_instances[lab_id]:
+                laboratory_experiment_instances[lab_id]['visir'] = []
+            laboratory_experiment_instances[lab_id]['visir'].append(n)
+            experiment_counter += 1
         local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
 
     if options.logic_server:
-        local_experiments += "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
+        local_experiments = "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
+        lab_id = experiment_counter % options.lab_copies
+        laboratory_experiments[lab_id] += local_experiments
+        laboratory_experiment_instances[lab_id]['logic'] = 1
+        experiment_counter += 1
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+
+    laboratory_servers = ""
+
+    for n in range(1, options.lab_copies + 1):
+        local_experiments = laboratory_experiments[n - 1]
+        laboratory_servers += (
+        "    'laboratory%(n)s:%(laboratory_instance_name)s@core_machine' : {\n"
+        "%(local_experiments)s"
+        "        },\n" % {
+                'laboratory_instance_name' : 'core_server1' if options.inline_lab_serv else 'laboratory%s' % n, 
+                'local_experiments' : local_experiments, 'n' : n })
 
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
@@ -775,9 +812,7 @@ def weblab_create(directory):
                         "%(coord_db)score_coordinator_db_password  = %(core_coordinator_db_password)r\n"
                         "\n"
                         "core_coordinator_laboratory_servers = {\n"
-                        "    'laboratory:%(laboratory_instance_name)s@core_machine' : {\n"
-                        "%(local_experiments)s"
-                        "        }\n"
+                        "%(laboratory_servers)s\n"
                         "}\n"
                         "\n"
                         "core_coordinator_external_servers = {\n"
@@ -808,7 +843,7 @@ def weblab_create(directory):
         'server_admin'                    : options.admin_mail,
         'server_url'                      : server_url,
         'poll_time'                       : options.poll_time,
-        'local_experiments'               : local_experiments,
+        'laboratory_servers'              : laboratory_servers,
         'local_scheduling'                : local_scheduling,
 
         'session_storage'                 : session_storage,
@@ -834,8 +869,6 @@ def weblab_create(directory):
         'core_coordinator_db_name'        : options.coord_db_name,
         'core_coordinator_db_engine'      : options.coord_db_engine,
         'core_coordinator_db_host'        : options.coord_db_host,
-
-        'laboratory_instance_name'        : laboratory_instance_name,
 
         'coord_db'                        : '' if options.coord_engine == 'sql' else '# ',
         'coord_redis'                     : '' if options.coord_engine == 'redis' else '# ',
@@ -874,7 +907,8 @@ def weblab_create(directory):
 		"""    <server>core</server>\n""")
 
         if options.inline_lab_serv:
-            instance_configuration_xml += """    <server>laboratory</server>\n"""
+            for n in range(1, options.lab_copies + 1):
+                instance_configuration_xml += """    <server>laboratory%s</server>\n""" % n
             if not options.xmlrpc_experiment:
                 for n in xrange(1, options.dummy_copies + 1):
                     instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
@@ -1004,270 +1038,276 @@ def weblab_create(directory):
 		"core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
 
-    if options.inline_lab_serv:
-        lab_instance_dir = latest_core_server_directory
-    else:
-        lab_instance_dir = os.path.join(machine_dir, 'laboratory')
-        if not os.path.exists(lab_instance_dir):
-            os.mkdir(lab_instance_dir)
+    for n in range(1, options.lab_copies + 1):
+        laboratory_instance_name = 'core_server1' if options.inline_lab_serv else 'laboratory%s' % n
+        experiments_in_lab = laboratory_experiment_instances[n - 1]
 
-        lab_instance_configuration_xml = (
+        if options.inline_lab_serv:
+            lab_instance_dir = latest_core_server_directory
+        else:
+            lab_instance_dir = os.path.join(machine_dir, 'laboratory%s' % n)
+            if not os.path.exists(lab_instance_dir):
+                os.mkdir(lab_instance_dir)
+
+            lab_instance_configuration_xml = (
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<servers \n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="instance_configuration.xsd"\n"""
+                """>\n"""
+                """    <user>weblab</user>\n"""
+                """\n"""
+                """    <server>laboratory%s</server>\n""" % n
+                )
+
+            for dummy_id in experiments_in_lab.get('dummy', []):
+                lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
+
+            if len(experiments_in_lab.get('visir', [])) > 0:
+                lab_instance_configuration_xml += """    <server>visir</server>\n"""
+
+            if 'logic' in experiments_in_lab:
+                lab_instance_configuration_xml += """    <server>logic</server>\n"""
+
+            lab_instance_configuration_xml += """</servers>\n"""
+
+            open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write( lab_instance_configuration_xml )
+
+        lab_dir = os.path.join(lab_instance_dir, 'laboratory%s' % n)
+        if not os.path.exists(lab_dir):
+            os.mkdir(lab_dir)
+
+        open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
             """<?xml version="1.0" encoding="UTF-8"?>\n"""
-            """<servers \n"""
+            """<server\n"""
             """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
             """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-            """    xsi:schemaLocation="instance_configuration.xsd"\n"""
+            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
             """>\n"""
-            """    <user>weblab</user>\n"""
             """\n"""
-            """    <server>laboratory</server>\n"""
-            )
-        for n in xrange(1, options.dummy_copies + 1):
-            lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
+            """    <configuration file="server_config.py" />\n"""
+            """\n"""
+            """    <type>weblab.data.server_type::Laboratory</type>\n"""
+            """    <methods>weblab.methods::Laboratory</methods>\n"""
+            """\n"""
+            """    <implementation>weblab.lab.server.LaboratoryServer</implementation>\n"""
+            """\n"""
+            """    <protocols>\n"""
+            """        <protocol name="Direct">\n"""
+            """            <coordinations>\n"""
+            """                <coordination></coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation></creation>\n"""
+            """        </protocol>\n"""
+            """        <protocol name="SOAP">\n"""
+            """            <coordinations>\n"""
+            """                <coordination>\n"""
+            """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+            """                </coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation>\n"""
+            """                <parameter name="address" value=""     />\n"""
+            """                <parameter name="port"    value="%(port)s" />\n"""
+            """            </creation>\n"""
+            """        </protocol>\n"""
+            """    </protocols>\n"""
+            """</server>\n""") % {'port' : current_port})
+        current_port += 1
 
-        if options.visir_server:
-            lab_instance_configuration_xml += """    <server>visir</server>\n"""
+        laboratory_config_py = (
+            """##################################\n"""
+            """# Laboratory Server configuration #\n"""
+            """##################################\n"""
+            """\n"""
+            """laboratory_assigned_experiments = {\n"""
+        )
 
-        if options.logic_server:
-            lab_instance_configuration_xml += """    <server>logic</server>\n"""
+        for dummy_id in experiments_in_lab.get('dummy', []):
+            laboratory_config_py += (
+                """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
+                """                'coord_address' : 'experiment%(n)s:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name, 
+                  'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name, 'n' : dummy_id }
 
-        lab_instance_configuration_xml += """</servers>\n"""
-
-        open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write( lab_instance_configuration_xml )
-
-    lab_dir = os.path.join(lab_instance_dir, 'laboratory')
-    if not os.path.exists(lab_dir):
-        os.mkdir(lab_dir)
-
-    open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
-		"""<?xml version="1.0" encoding="UTF-8"?>\n"""
-		"""<server\n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-		""">\n"""
-		"""\n"""
-		"""    <configuration file="server_config.py" />\n"""
-		"""\n"""
-		"""    <type>weblab.data.server_type::Laboratory</type>\n"""
-		"""    <methods>weblab.methods::Laboratory</methods>\n"""
-		"""\n"""
-		"""    <implementation>weblab.lab.server.LaboratoryServer</implementation>\n"""
-		"""\n"""
-		"""    <protocols>\n"""
-		"""        <protocol name="Direct">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination></coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation></creation>\n"""
-		"""        </protocol>\n"""
-		"""        <protocol name="SOAP">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination>\n"""
-		"""                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
-		"""                </coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation>\n"""
-		"""                <parameter name="address" value=""     />\n"""
-		"""                <parameter name="port"    value="%(port)s" />\n"""
-		"""            </creation>\n"""
-		"""        </protocol>\n"""
-		"""    </protocols>\n"""
-		"""</server>\n""") % {'port' : current_port})
-    current_port += 1
-
-    laboratory_config_py = (
-		"""##################################\n"""
-		"""# Laboratory Server configuration #\n"""
-		"""##################################\n"""
-		"""\n"""
-		"""laboratory_assigned_experiments = {\n"""
-    )
-
-    for n in xrange(1, options.dummy_copies + 1):
-        laboratory_config_py += (
-            """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
-            """                'coord_address' : 'experiment%(n)s:%(instance)s@core_machine',\n"""
-            """                'checkers' : ()\n"""
-            """            },\n"""
-        ) % { 'instance' : laboratory_instance_name, 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name, 'n' : n}
-
-    if options.visir_server:
-        for n in xrange(1, options.visir_slots + 1):
+        for visir_id in experiments_in_lab.get('visir', []):
             laboratory_config_py += (
                 """        'exp%(n)s:%(visir_name)s@Visir experiments' : {\n"""
                 """                'coord_address' : 'visir:%(instance)s@core_machine',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
-            ) % { 'instance' : laboratory_instance_name, 'visir_name' : options.visir_experiment_name, 'n' : n }       
+            ) % { 'instance' : laboratory_instance_name, 
+                  'visir_name' : options.visir_experiment_name, 'n' : visir_id }
 
-    if options.logic_server:
-        laboratory_config_py += (
-            """        'exp1:ud-logic@PIC experiments' : {\n"""
-            """                'coord_address' : 'logic:%(instance)s@core_machine',\n"""
-            """                'checkers' : ()\n"""
-            """            },\n"""
-        ) % { 'instance' : laboratory_instance_name }
+        if 'logic' in experiments_in_lab:
+            laboratory_config_py += (
+                """        'exp1:ud-logic@PIC experiments' : {\n"""
+                """                'coord_address' : 'logic:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name }
 
-    laboratory_config_py += """    }\n"""
+        laboratory_config_py += """    }\n"""
 
-    open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
+        open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
 
-    for n in xrange(1, options.dummy_copies + 1):
-        experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % n)
-        if not os.path.exists(experiment_dir):
-            os.mkdir(experiment_dir)
+        for dummy_id in experiments_in_lab.get('dummy', []):
+            experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
+            if not os.path.exists(experiment_dir):
+                os.mkdir(experiment_dir)
 
-        open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
-            """<?xml version="1.0" encoding="UTF-8"?>\n"""
-            """<server\n"""
-            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-            """>\n"""
-            """\n"""
-            """    <configuration file="server_config.py" />\n"""
-            """\n"""
-            """    <type>weblab.data.server_type::Experiment</type>\n"""
-            """    <methods>weblab.methods::Experiment</methods>\n"""
-            """\n"""
-            """    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
-            """\n"""
-            """    <restriction>%(dummy)s@%(dummy_category_name)s</restriction>\n"""
-            """\n"""
-            """    <protocols>\n"""
-            """        <protocol name="Direct">\n"""
-            """            <coordinations>\n"""
-            """                <coordination></coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation></creation>\n"""
-            """        </protocol>\n"""
-            """    </protocols>\n"""
-            """</server>\n""") % { 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name } )
+            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
+                """\n"""
+                """    <restriction>%(dummy)s@%(dummy_category_name)s</restriction>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n""") % { 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name } )
 
-        open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
-            "dummy_verbose = True\n")
+            open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
+                "dummy_verbose = True\n")
 
 
-    if options.visir_server:
-        visir_dir = os.path.join(lab_instance_dir, 'visir')
-        if not os.path.exists(visir_dir):
-            os.mkdir(visir_dir)
+        if len(experiments_in_lab.get('visir', [])) > 0:
+            visir_dir = os.path.join(lab_instance_dir, 'visir')
+            if not os.path.exists(visir_dir):
+                os.mkdir(visir_dir)
 
-        open(os.path.join(visir_dir, 'configuration.xml'), 'w').write((
-            """<?xml version="1.0" encoding="UTF-8"?>\n"""
-            """<server\n"""
-            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-            """>\n"""
-            """\n"""
-            """    <configuration file="server_config.py" />\n"""
-            """\n"""
-            """    <type>weblab.data.server_type::Experiment</type>\n"""
-            """    <methods>weblab.methods::Experiment</methods>\n"""
-            """\n"""
-            """    <implementation>experiments.visir.VisirExperiment</implementation>\n"""
-            """\n"""
-            """    <protocols>\n"""
-            """        <protocol name="Direct">\n"""
-            """            <coordinations>\n"""
-            """                <coordination></coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation></creation>\n"""
-            """        </protocol>\n"""
-            """    </protocols>\n"""
-            """</server>\n"""))
+            open(os.path.join(visir_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.visir.VisirExperiment</implementation>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n"""))
 
-        if options.visir_measurement_server is not None:
-            if not ':' in options.visir_measurement_server or options.visir_measurement_server.startswith(('http://','https://')) or '/' in options.visir_measurement_server.split(':')[1]:
-                print >> sys.stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
-            visir_measurement_server = options.visir_measurement_server
-        else:
-            result = urllib2.urlparse.urlparse(options.visir_base_url)
-            visir_measurement_server = result.netloc.split(':')[0] + ':8080'
+            if options.visir_measurement_server is not None:
+                if not ':' in options.visir_measurement_server or options.visir_measurement_server.startswith(('http://','https://')) or '/' in options.visir_measurement_server.split(':')[1]:
+                    print >> sys.stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
+                visir_measurement_server = options.visir_measurement_server
+            else:
+                result = urllib2.urlparse.urlparse(options.visir_base_url)
+                visir_measurement_server = result.netloc.split(':')[0] + ':8080'
 
-        if options.visir_use_php:
-            visir_php = ("""vt_use_visir_php = True\n"""
-            """vt_base_url = "%(visir_base_url)s"\n"""
-            """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
-            """vt_login_email = "%(visir_login)s"\n"""
-            """vt_login_password = "%(visir_password)s"\n""" % {
-                'visir_base_url' : options.visir_base_url,
-                'visir_login'    : options.visir_login,
-                'visir_password' : options.visir_password,
-            })
-        else:
-            visir_php = """vt_use_visir_php = False\n"""
-           
+            if options.visir_use_php:
+                visir_php = ("""vt_use_visir_php = True\n"""
+                """vt_base_url = "%(visir_base_url)s"\n"""
+                """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
+                """vt_login_email = "%(visir_login)s"\n"""
+                """vt_login_password = "%(visir_password)s"\n""" % {
+                    'visir_base_url' : options.visir_base_url,
+                    'visir_login'    : options.visir_login,
+                    'visir_password' : options.visir_password,
+                })
+            else:
+                visir_php = """vt_use_visir_php = False\n"""
+               
 
-        open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
-            """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
-            """vt_measure_server_target = "/measureserver"\n"""
-            """\n"""
-            + visir_php +
-            """\n"""
-            """# You can also specify a directory where different circuits will be loaded, such as:\n"""
-            """#\n"""
-            """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
-            """#\n"""
-            """#\n"""
-            """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
-            """#\n"""
-            """# vt_library = \"\"\"\n"""
-            """# <!DOCTYPE components PUBLIC "-//Open labs//DTD COMPONENTS 1.0//EN" "http://openlabs.bth.se/DTDs/components-1.0.dtd">\n"""
-            """# <components>\n"""
-            """#    <component type="R" value="1.5M" pins="2">\n"""
-            """#        <rotations>\n"""
-            """#            <rotation ox="-27" oy ="-6" image="r_1.5M.png" rot="0">\n"""
-            """#                <pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>\n"""
-            """#            </rotation>\n"""
-            """#            <rotation ox="-7" oy ="-27" image="r_1.5M.png" rot="90">\n"""
-            """#                <pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>\n"""
-            """#            </rotation>\n"""
-            """#        </rotations>\n"""
-            """#    </component>\n"""
-            """#    <!-- More components -->\n"""
-            """#\n"""
-            """# </components>\n"""
-            """# \"\"\"\n"""
-            """#\n"""
-            """\n""") % {'visir_measurement_server' : visir_measurement_server })
+            open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
+                """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
+                """vt_measure_server_target = "/measureserver"\n"""
+                """\n"""
+                + visir_php +
+                """\n"""
+                """# You can also specify a directory where different circuits will be loaded, such as:\n"""
+                """#\n"""
+                """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
+                """#\n"""
+                """#\n"""
+                """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
+                """#\n"""
+                """# vt_library = \"\"\"\n"""
+                """# <!DOCTYPE components PUBLIC "-//Open labs//DTD COMPONENTS 1.0//EN" "http://openlabs.bth.se/DTDs/components-1.0.dtd">\n"""
+                """# <components>\n"""
+                """#    <component type="R" value="1.5M" pins="2">\n"""
+                """#        <rotations>\n"""
+                """#            <rotation ox="-27" oy ="-6" image="r_1.5M.png" rot="0">\n"""
+                """#                <pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>\n"""
+                """#            </rotation>\n"""
+                """#            <rotation ox="-7" oy ="-27" image="r_1.5M.png" rot="90">\n"""
+                """#                <pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>\n"""
+                """#            </rotation>\n"""
+                """#        </rotations>\n"""
+                """#    </component>\n"""
+                """#    <!-- More components -->\n"""
+                """#\n"""
+                """# </components>\n"""
+                """# \"\"\"\n"""
+                """#\n"""
+                """\n""") % {'visir_measurement_server' : visir_measurement_server })
 
-    if options.logic_server:
-        logic_dir = os.path.join(lab_instance_dir, 'logic')
-        if not os.path.exists(logic_dir):
-            os.mkdir(logic_dir)
+        if 'logic' in experiments_in_lab:
+            logic_dir = os.path.join(lab_instance_dir, 'logic')
+            if not os.path.exists(logic_dir):
+                os.mkdir(logic_dir)
 
-        open(os.path.join(logic_dir, 'configuration.xml'), 'w').write((
-            """<?xml version="1.0" encoding="UTF-8"?>\n"""
-            """<server\n"""
-            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-            """>\n"""
-            """\n"""
-            """    <configuration file="server_config.py" />\n"""
-            """\n"""
-            """    <type>weblab.data.server_type::Experiment</type>\n"""
-            """    <methods>weblab.methods::Experiment</methods>\n"""
-            """\n"""
-            """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
-            """\n"""
-            """    <protocols>\n"""
-            """        <protocol name="Direct">\n"""
-            """            <coordinations>\n"""
-            """                <coordination></coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation></creation>\n"""
-            """        </protocol>\n"""
-            """    </protocols>\n"""
-            """</server>\n"""))
+            open(os.path.join(logic_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n"""))
 
-        open(os.path.join(logic_dir, 'server_config.py'), 'w').write(
-        """logic_webcam_url = ""\n"""
-        """\n"""
-        )
+            open(os.path.join(logic_dir, 'server_config.py'), 'w').write(
+            """logic_webcam_url = ""\n"""
+            """\n"""
+            )
 
 
     files_stored_dir = os.path.join(directory, 'files_stored')
@@ -1298,7 +1338,8 @@ def weblab_create(directory):
         server_names.append('server%s' % core_number)
 
     if not options.inline_lab_serv:
-        server_names.append('laboratory')
+        for n in range(1, options.lab_copies + 1):
+            server_names.append('laboratory%s' % n)
     if options.xmlrpc_experiment or not options.inline_lab_serv:
         server_names.append('experiment')
 
@@ -1506,7 +1547,8 @@ def weblab_create(directory):
         launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
     
     if not options.inline_lab_serv:
-        launch_script += ("""                    "laboratory" : "logs%sconfig%slogging.configuration.laboratory.txt",\n""" % (os.sep, os.sep))
+        for n in range(1, options.lab_copies + 1):
+            launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
     launch_script += (
         """                },\n"""
         """                before_shutdown,\n"""
