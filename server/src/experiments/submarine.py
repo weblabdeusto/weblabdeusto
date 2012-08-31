@@ -21,11 +21,15 @@ import threading
 import datetime
 import time
 import StringIO
+import subprocess
 
+from weblab.util import data_filename
 from voodoo.log import logged
 from voodoo.lock import locked
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
+
+module_directory = os.path.join(*__name__.split('.')[:-1])
 
 class EventManager(threading.Thread):
     """ Call the tick method of the submarine_experiment every hour """
@@ -50,6 +54,10 @@ class Submarine(Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Submarine, self).__init__(*args, **kwargs)
+
+        thermometer_svg_path = data_filename(os.path.join(module_directory, 'submarine-thermometer.svg'))
+        self.thermometer     = open(thermometer_svg_path, "rb").read()
+
         self._cfg_manager    = cfg_manager
 
         self._lock           = threading.Lock()
@@ -59,11 +67,12 @@ class Submarine(Experiment):
         self.debug           = self._cfg_manager.get_value('debug', True)
         self.debug_dir       = self._cfg_manager.get_value('debug_dir', None)
         self.real_device     = self._cfg_manager.get_value('real_device', True)
-        self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  8)
-        self.lights_off_time = self._cfg_manager.get_value('lights_off_time', 16)
+        self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  10)
+        self.lights_off_time = self._cfg_manager.get_value('lights_off_time', 15)
         self.feed_period     = self._cfg_manager.get_value('feed_period', 8)
         self.pic_location    = self._cfg_manager.get_value('submarine_pic_location', 'http://192.168.0.90/')
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
+        self.thermometer_path = self._cfg_manager.get_value('thermometer_path', None)
 
         self.up              = False
         self.down            = False
@@ -184,8 +193,21 @@ class Submarine(Experiment):
         self._clean()
 
         current_config = self.initial_configuration.copy()
-        # current_config['light'] = not self._send('STATELIGHT').startswith('0')
-        current_config['light'] = self.lights_should_be_on()
+        current_state_str = self._send('STATE')
+        current_state = json.loads(current_state_str.replace("'", '"'))
+
+        current_config['light']       = current_state['light']
+        if 'temp' in current_state:
+            temperature = current_state['temp']
+            current_config['temperature'] = temperature
+            if self.thermometer_path is not None:
+                temperature_image_level = ((temperature - 15) * 10) / 20.0
+                thermo_image = self.thermometer.replace('height="10"', 'height="%s"' % temperature_image_level)
+                try:
+                    p = subprocess.Popen(["rsvg-convert","--width","40","--height","80","-o",self.thermometer_path], stdin = subprocess.PIPE)
+                    p.communicate(thermo_image)
+                except:
+                    traceback.print_exc()
 
         self._lock.acquire()
         self.in_use = True
@@ -311,7 +333,10 @@ class Submarine(Experiment):
             return self.opener.open(self.pic_location, command).read()
         else:
             print "Simulating request...",command
-            return "ok"
+            if command == 'STATE':
+                return "{ 'light' : true, 'temp' : 27.4 }"
+            else:
+                return "ok"
 
 
     @Override(Experiment)
