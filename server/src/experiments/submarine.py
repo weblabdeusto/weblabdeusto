@@ -202,6 +202,10 @@ class Submarine(Experiment):
             current_config['temperature'] = temperature
             if self.thermometer_path is not None:
                 temperature_image_level = ((temperature - 15) * 10) / 20.0
+                if temperature_image_level > 10:
+                    temperature_image_level = 10
+                elif temperature_image_level < 0:
+                    temperature_image_level = 0
                 thermo_image = self.thermometer.replace('height="10"', 'height="%s"' % temperature_image_level)
                 try:
                     p = subprocess.Popen(["rsvg-convert","--width","40","--height","80","-o",self.thermometer_path], stdin = subprocess.PIPE)
