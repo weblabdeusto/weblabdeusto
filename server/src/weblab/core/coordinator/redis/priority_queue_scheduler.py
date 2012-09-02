@@ -228,7 +228,6 @@ class PriorityQueueScheduler(Scheduler):
                 return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
 
             # Or the experiment server already responded and therefore we have all this data
-            experiment_instance_id       = ExperimentInstanceId.parse(reservation_data[EXPERIMENT_INSTANCE])
             str_lab_coord_address        = reservation_data[LAB_COORD]
             obtained_time                = reservation_data[TIME]
             initialization_in_accounting = reservation_data[INITIALIZATION_IN_ACCOUNTING]
@@ -549,7 +548,6 @@ class PriorityQueueScheduler(Scheduler):
     def _remove_expired_reservations(self):
         now = self.time_provider.get_time()
 
-        reservations_removed = False
         enqueue_free_experiment_args_retrieved = []
 
         client = self.redis_maker()
@@ -564,7 +562,6 @@ class PriorityQueueScheduler(Scheduler):
             pipeline.get(weblab_reservation_pqueue)
         results = pipeline.execute()
        
-        current_values = []
         for reservation_id, reservation_data in zip(reservations, results):
             if reservation_data is not None:
                 data = json.loads(reservation_data)
@@ -583,7 +580,6 @@ class PriorityQueueScheduler(Scheduler):
                             enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                             self._delete_reservation(reservation_id)
                             self.reservations_manager.delete(reservation_id)
-                            reservations_removed = True
 
         # Anybody with latest_access later than this point is expired
         current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
@@ -602,7 +598,6 @@ class PriorityQueueScheduler(Scheduler):
 
             self._delete_reservation(expired_reservation_id)
             self.reservations_manager.delete(expired_reservation_id)
-            reservations_removed = True
 
         for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
             if enqueue_free_experiment_args is not None:
