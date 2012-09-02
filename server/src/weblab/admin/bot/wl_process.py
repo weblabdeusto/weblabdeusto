@@ -76,7 +76,6 @@ class WebLabProcess(object):
 
     def _has_started(self):
         running  = []
-        failures = []
         try:
             matches = True
 
