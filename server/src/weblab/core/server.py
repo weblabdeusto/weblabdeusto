@@ -236,7 +236,8 @@ class UserProcessingServer(object):
     def _check_reservation_not_expired_and_poll(self, reservation_processor, check_expired = True):
         if check_expired and reservation_processor.is_expired():
             reservation_processor.finish()
-            raise coreExc.NoCurrentReservationError( 'Current user does not have any experiment assigned' )
+            reservation_id = reservation_processor.get_reservation_id()
+            raise coreExc.NoCurrentReservationError( 'Current user (identified by reservation %r) does not have any experiment assigned' % reservation_id )
 
         try:
             reservation_processor.poll()
