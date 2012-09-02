@@ -101,6 +101,7 @@ class SocketWait(EventWait):
 
     def wait(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
         self.s.bind(('localhost', self.port))
         self.s.listen(5)
         self.s.accept()
@@ -260,6 +261,7 @@ class MachineLauncher(AbstractLauncher):
 
     def _create_socket(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
         self.socket.bind(('',self.waiting_port))
         self.socket.listen(5)
 
