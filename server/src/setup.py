@@ -13,6 +13,13 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+"""
+setup.py is a setuptools script that installs WebLab-Deusto in your system.
+Running "python setup.py install" will install it, and then you can run the
+"weblab-admin" command to create and manage instances. It is highly 
+recommended to use virtualenv first to create a user-level environment.
+"""
+
 import os
 import shutil
 from setuptools import setup
