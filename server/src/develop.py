@@ -13,6 +13,17 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+"""
+develop.py is a script used for the development of WebLab-Deusto. It 
+runs the tests with different UIs, install the requirements, deploys 
+the database used for tests, shows the test coverage, etc.
+
+In order to see the options, run:
+
+ $ ./develop.py --help
+
+"""
+
 import os
 import sys
 import glob
@@ -215,7 +226,7 @@ def check_flakes():
     try:
         from pyflakes.scripts.pyflakes import main as main_pyflakes
     except ImportError:
-        print >> sys.stderr, "pyflakes not installed. Did you run pip install -r requirements_tests.txt or python launch_tests.py --install-basic-requirements?"
+        print >> sys.stderr, "pyflakes not installed. Did you run pip install -r requirements_tests.txt or python develop.py --install-basic-requirements?"
         return -1
 
     stdout = sys.stdout
@@ -488,7 +499,7 @@ if __name__ == '__main__':
             coverage_script.remove('-c')
         exit_value = os.system(' '.join(coverage_script))
         if exit_value == 0:
-            os.system('coverage %s --omit="test/*,launch_tests*,conf*,env*,voodoo/patcher*"' % options.coverage_report)
+            os.system('coverage %s --omit="test/*,develop*,conf*,env*,voodoo/patcher*"' % options.coverage_report)
             sys.exit(0)
         else:
             sys.exit(exit_value)

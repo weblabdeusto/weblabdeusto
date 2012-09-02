@@ -11,7 +11,7 @@
 		</exec>
         <mkdir dir="${test.xml.dir}"/>
 		<exec executable="python${python.version}" failonerror="true">
-			<arg value="launch_tests.py"/>
+			<arg value="develop.py"/>
 			<arg value="--environment"/>
 			<arg value="env"/>
 			<arg value="--install-all-requirements"/>
