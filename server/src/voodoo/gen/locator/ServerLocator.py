@@ -12,6 +12,8 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+
+import sys
 import threading
 import random
 import time
@@ -462,19 +464,15 @@ class ServerLocator(object):
                 self._registry.register_server(address.address,server)
             except RegistryErrors.RegistryError as e:
                 # TODO: not unittested
-                log.log(
-                        ServerLocator,
-                        log.level.Info,
-                        "RegistryError found registring server %s with address %s in registry: %s" % (server,address.address,e)
-                    )
-                log.log_exc(
-                        ServerLocator,
-                        log.level.Debug
-                    )
+                log.log( ServerLocator, log.level.Info,
+                        "RegistryError found registring server %s with address %s in registry: %s" % (server,address.address,e))
+                log.log_exc( ServerLocator, log.level.Debug )
+                print >> sys.stderr, "RegistryError found registring server %s with address %s in registry: %s" % (server,address.address,e)
                 import traceback
                 traceback.print_stack()
-                print
-                print
+                print >> sys.stderr, "Reregistering..."
+                print >> sys.stderr, ""
+                print >> sys.stderr, ""
             self._registry.reregister_server(address.address,server)
         finally:
             self._cache_lock.release()
