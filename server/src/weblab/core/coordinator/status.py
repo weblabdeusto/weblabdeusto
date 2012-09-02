@@ -90,6 +90,35 @@ class WaitingQueueStatus(WebLabSchedulingStatus):
 
 ############################################################
 #
+# This status represents users which are actively using
+# the experiment.
+#
+class PostReservationStatus(WebLabSchedulingStatus):
+    def __init__(self, reservation_id, finished, initial_data, end_data):
+        super(PostReservationStatus,self).__init__(WebLabSchedulingStatus.POST_RESERVATION, reservation_id)
+        self.finished     = finished
+        self.initial_data = initial_data
+        self.end_data     = end_data
+
+    def __repr__(self):
+        full_name = self.__class__.__module__ + '.' + self.__class__.__name__
+        return "%s( reservation_id = %r, finished = %r, initial_data = %r, end_data = %r)" % (full_name, self.reservation_id, self.finished, self.initial_data, self.end_data)
+
+    def __eq__(self, other):
+        if not isinstance(other, PostReservationStatus):
+            return False
+        return self.finished == other.finished and self.initial_data == other.initial_data and self.end_data == other.end_data
+
+    def __cmp__(self, other):
+        if isinstance(other, (WaitingConfirmationQueueStatus, LocalReservedStatus, RemoteReservedStatus)):
+            return 1
+        if isinstance(other, PostReservationStatus):
+            return 0
+        return -1
+
+
+############################################################
+#
 # This status represents users which have been granted to
 # use an experiment but who are still waiting the experiment
 # server to reply that the experiment has been initialized.
@@ -107,7 +136,7 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
         return isinstance(other, WaitingConfirmationQueueStatus)
 
     def __cmp__(self, other):
-        if isinstance(other, (LocalReservedStatus, RemoteReservedStatus, PostReservationStatus)):
+        if isinstance(other, (LocalReservedStatus, RemoteReservedStatus)):
             return 1
         if isinstance(other, WaitingConfirmationQueueStatus):
             return 0
@@ -145,8 +174,6 @@ class LocalReservedStatus(WebLabSchedulingStatus):
                 and self.initialization_in_accounting == other.initialization_in_accounting
 
     def __cmp__(self, other):
-        if isinstance(other, PostReservationStatus):
-            return 1
         if isinstance(other, LocalReservedStatus):
             return 0
         if isinstance(other, RemoteReservedStatus):
@@ -180,38 +207,10 @@ class RemoteReservedStatus(WebLabSchedulingStatus):
         return self.remaining_time == other.remaining_time and self.initial_configuration == other.initial_configuration and self.remote_reservation_id == other.remote_reservation_id
 
     def __cmp__(self, other):
-        if isinstance(other, PostReservationStatus):
-            return 1
         if isinstance(other, RemoteReservedStatus):
             return 0
         if isinstance(other, LocalReservedStatus):
             return 0
         return -1
 
-
-############################################################
-#
-# This status represents users which are actively using
-# the experiment.
-#
-class PostReservationStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, finished, initial_data, end_data):
-        super(PostReservationStatus,self).__init__(WebLabSchedulingStatus.POST_RESERVATION, reservation_id)
-        self.finished     = finished
-        self.initial_data = initial_data
-        self.end_data     = end_data
-
-    def __repr__(self):
-        full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, finished = %r, initial_data = %r, end_data = %r)" % (full_name, self.reservation_id, self.finished, self.initial_data, self.end_data)
-
-    def __eq__(self, other):
-        if not isinstance(other, PostReservationStatus):
-            return False
-        return self.finished == other.finished and self.initial_data == other.initial_data and self.end_data == other.end_data
-
-    def __cmp__(self, other):
-        if isinstance(other, PostReservationStatus):
-            return 0
-        return -1
 

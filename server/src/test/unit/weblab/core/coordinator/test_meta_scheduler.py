@@ -82,24 +82,24 @@ class MetaSchedulerTestCase(unittest.TestCase):
 
     def test_query_best_reservation__waiting_confirmation_wins(self):
         "WaitingConfirmation wins to Waiting and WaitingInstances"
-        self._test_schedulers(self.wc1,    (self.wc1, self.w_four, self.wi_four))
-        self._test_schedulers(self.wc1,    (self.w_four, self.wc1, self.wi_four))
-        self._test_schedulers(self.wc1,    (self.w_four, self.wi_four, self.wc1))
+        self._test_schedulers(self.wc1,    (self.wc1, self.w_four, self.wi_four, self.post1))
+        self._test_schedulers(self.wc1,    (self.w_four, self.wc1, self.wi_four, self.post1))
+        self._test_schedulers(self.wc1,    (self.w_four, self.wi_four, self.wc1, self.post1))
 
     def test_query_best_reservation__reserved_wins(self):
         "Reserved wins them all"
-        self._test_schedulers(self.res1,   (self.res1, self.wc1, self.w_four, self.wi_four))
-        self._test_schedulers(self.res1,   (self.wc1, self.res1, self.w_four, self.wi_four))
-        self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.res1, self.wi_four))
-        self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.wi_four, self.res1))
+        self._test_schedulers(self.res1,   (self.res1, self.wc1, self.w_four, self.wi_four, self.post1))
+        self._test_schedulers(self.res1,   (self.wc1, self.res1, self.w_four, self.wi_four, self.post1))
+        self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.res1, self.wi_four, self.post1))
+        self._test_schedulers(self.res1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
 
     def test_query_best_reservation__post_reservation_wins(self):
         "PostReservation wins them all"
-        self._test_schedulers(self.post1,   (self.post1, self.res1, self.wc1, self.w_four, self.wi_four))
-        self._test_schedulers(self.post1,   (self.wc1, self.post1, self.res1, self.w_four, self.wi_four))
-        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.post1, self.res1, self.wi_four))
-        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.post1, self.res1))
-        self._test_schedulers(self.post1,   (self.wc1, self.w_four, self.wi_four, self.res1, self.post1))
+        self._test_schedulers(self.post1,   (self.post1, self.w_four, self.wi_four))
+        self._test_schedulers(self.post1,   (self.post1, self.w_four, self.wi_four))
+        self._test_schedulers(self.post1,   (self.w_four, self.post1, self.wi_four))
+        self._test_schedulers(self.post1,   (self.w_four, self.wi_four, self.post1 ))
+        self._test_schedulers(self.post1,   (self.w_four, self.wi_four, self.post1))
 
     def _test_schedulers(self, best, all_status):
         best_reservation_status = sorted(all_status)[0]
