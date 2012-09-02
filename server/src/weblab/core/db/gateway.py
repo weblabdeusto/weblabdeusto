@@ -195,14 +195,18 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:
+                if f.is_loaded():
+                    saved = f.save(self.cfg_manager, experiment_usage.reservation_id)
+                else:
+                    saved = f
                 session.add(model.DbUserFile(
                                 use,
-                                f.file_path,
-                                f.file_hash,
-                                f.timestamp_before,
-                                f.file_info,
-                                f.response.commandstring,
-                                f.timestamp_after
+                                saved.file_path,
+                                saved.file_hash,
+                                saved.timestamp_before,
+                                saved.file_info,
+                                saved.response.commandstring,
+                                saved.timestamp_after
                             ))
 
             for reservation_info_key in experiment_usage.request_info:

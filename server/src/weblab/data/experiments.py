@@ -15,12 +15,16 @@
 
 import base64
 import os
+import traceback
+import StringIO
 import weblab.data.command as Command
 
 from voodoo.override import Override
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
 from voodoo.representable import AbstractRepresentable, Representable
 from voodoo.typechecker import typecheck
+
+from weblab.core.file_storer import FileStorer
 
 class ExperimentId(object):
 
@@ -114,8 +118,21 @@ class LoadedFileSent(object):
         self.file_info        = file_info
 
     # Just in case
-    def load(self):
+    def load(self, storage_path):
         return self
+
+    def is_loaded(self):
+        return True
+
+    @typecheck(basestring)
+    def save(self, cfg_manager, reservation_id):
+        content = base64.decodestring(self.file_content)
+
+        storer = FileStorer(cfg_manager, reservation_id)
+        file_stored = storer.store_file(content, self.file_info)
+        file_path = file_stored.file_path
+        file_hash = file_stored.file_hash
+        return FileSent(file_path, file_hash, self.timestamp_before, self.response, self.timestamp_after, self.file_info)
 
 class FileSent(object):
 
@@ -133,10 +150,25 @@ class FileSent(object):
             self.response = response
         self.timestamp_after  = timestamp_after
 
+    def is_loaded(self):
+        return False
+
     @typecheck(basestring)
     def load(self, storage_path):
-        content = base64.encodestring(open(os.sep.join((storage_path, self.file_path)), 'rb').read())
-        return LoadedFileSent(content, self.timestamp_before, self.response, self.timestamp_after, self.file_info)
+        try:
+            content = open(os.path.join(storage_path, self.file_path), 'rb').read()
+        except:
+            sio = StringIO.StringIO()
+            traceback.print_exc(file=sio)
+            content = "ERROR:File could not be retrieved. Reason: %s" % sio.getvalue()
+
+        content_serialized = base64.encodestring(content)
+        return LoadedFileSent(content_serialized, self.timestamp_before, self.response, self.timestamp_after, self.file_info)
+
+    # Just in case
+    @typecheck(basestring)
+    def save(self, cfg_manager, reservation_id):
+        return self
 
 class ExperimentUsage(object):
 
@@ -202,6 +234,15 @@ class ExperimentUsage(object):
             loaded_sent_file = sent_file.load(path)
             loaded_sent_files.append(loaded_sent_file)
         self.sent_files = loaded_sent_files
+        return self
+
+    @typecheck(basestring)
+    def save_files(self, cfg_manager):
+        saved_sent_files = []
+        for sent_file in self.sent_files:
+            saved_sent_file = sent_file.save(cfg_manager, self.reservation_id)
+            saved_sent_files.append(saved_sent_file)
+        self.sent_files = saved_sent_files
         return self
 
 class ReservationResult(object):

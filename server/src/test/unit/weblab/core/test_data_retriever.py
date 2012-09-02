@@ -71,7 +71,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         self.commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
         self.completed_store = TemporalInformationStore.CompletedInformationStore()
 
-        self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(self.initial_store, self.finished_store, self.commands_store, self.completed_store, self.dbmanager)
+        self.retriever = TemporalInformationRetriever.TemporalInformationRetriever(cfg_manager, self.initial_store, self.finished_store, self.commands_store, self.completed_store, self.dbmanager)
         self.retriever.timeout = 0.001 # Be quicker instead of waiting for half a second
 
         self.initial_time = self.end_time = datetime.datetime.now()
@@ -287,7 +287,11 @@ class IterationFailerTemporalInformationRetrieverTestCase(unittest.TestCase):
         finished_store   = TemporalInformationStore.FinishTemporalInformationStore()
         commands_store   = TemporalInformationStore.CommandsTemporalInformationStore()
         completed_store  = TemporalInformationStore.CompletedInformationStore()
-        fake = FakeTemporalInformationRetriever(initial_store, finished_store, commands_store, completed_store, None)
+
+        cfg_manager = ConfigurationManager.ConfigurationManager()
+        cfg_manager.append_module(configuration)
+
+        fake = FakeTemporalInformationRetriever(cfg_manager, initial_store, finished_store, commands_store, completed_store, None)
         fake.start()
         try:
             initial_time = time.time()

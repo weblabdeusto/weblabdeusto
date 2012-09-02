@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import threading
 import time
 
@@ -20,6 +21,7 @@ import voodoo.log as log
 
 import weblab.db.session as DbSession
 from weblab.data.experiments import CommandSent, ExperimentUsage, FileSent
+import weblab.core.file_storer as file_storer
 import weblab.data.command as Command
 
 class TemporalInformationRetriever(threading.Thread):
@@ -29,9 +31,10 @@ class TemporalInformationRetriever(threading.Thread):
 
     PRINT_ERRORS = True
 
-    def __init__(self, initial_store, finished_store, commands_store, completed_store, db_manager):
+    def __init__(self, cfg_manager, initial_store, finished_store, commands_store, completed_store, db_manager):
         threading.Thread.__init__(self)
 
+        self.cfg_manager          = cfg_manager
         self.keep_running         = True
         self.initial_store        = initial_store
         self.finished_store       = finished_store
@@ -77,8 +80,16 @@ class TemporalInformationRetriever(threading.Thread):
 
             request_info  = initial_information.request_info
             from_ip       = request_info.pop('from_ip','<address not found>')
-            username      = request_info.pop('username')
-            role          = request_info.pop('role')
+
+            try:
+                username      = request_info.pop('username')
+                role          = request_info.pop('role')
+            except:
+                log.log( TemporalInformationRetriever, log.level.Critical, "Provided information did not contain some relevant fields (such as username or role). Provided request_info: %r; provided data: %r" % (request_info, initial_information), max_size = 10000)
+                log.log_exc( TemporalInformationRetriever, log.level.Critical )
+
+                print >> sys.stderr, "Provided information did not contain some relevant fields (such as username or role). Provided: %r" % request_info
+                raise
 
             usage = ExperimentUsage()
             usage.start_date     = initial_timestamp
@@ -189,7 +200,16 @@ class TemporalInformationRetriever(threading.Thread):
                         file_request = file_requests.pop(information.entry_id, None)
                         if file_request is not None:
                             reservation_id, file_sent = file_request
-                            complete_file = FileSent(file_sent.file_path, file_sent.file_hash, file_sent.timestamp_before,
+                            if file_sent.is_loaded():
+                                storer = file_storer.FileStorer(self.cfg_manager, reservation_id)
+                                stored = storer.store_file(self, file_sent.file_content, file_sent.file_info)
+                                file_path = stored.file_path
+                                file_hash = stored.file_hash
+                            else:
+                                file_path = file_sent.file_path
+                                file_hash = file_sent.file_hash
+
+                            complete_file = FileSent(file_path, file_hash, file_sent.timestamp_before,
                                                     information.payload, information.timestamp)
                             file_pairs.append((reservation_id, information.entry_id, complete_file))
                         else:
