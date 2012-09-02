@@ -25,6 +25,11 @@ Date: (pending)
   - big module and package naming changes
     - modules are now lowercase and have more straightforward names
 
+    - setup.py is now used to deploy the system.
+
+  - weblab-admin is the script than now manages and creates weblab-deusto 
+    instances.
+
   (...)
 
 - experiments

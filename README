@@ -1,0 +1,13 @@
+The full documentation of WebLab-Deusto is available in:
+
+   http://code.google.com/p/weblabdeusto/
+
+However, the quick version for deploying it is to run:
+
+  $ python setup.py install
+
+And then run:
+
+  $ weblab-admin create my-instance
+
+To create a WebLab-Deusto instance. You can then manage that instance with the weblab-admin script.
