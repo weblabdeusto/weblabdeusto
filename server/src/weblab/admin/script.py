@@ -602,7 +602,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         options = OptionWrapper(parser_options)
     else:
         options = parser.defaults.copy()
-        print options
         options[Creation.NOT_INTERACTIVE] = True
         options.update(options_dict)
 
