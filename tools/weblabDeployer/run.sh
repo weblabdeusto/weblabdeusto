@@ -1,0 +1,1 @@
+gunicorn weblab_deployer:app
