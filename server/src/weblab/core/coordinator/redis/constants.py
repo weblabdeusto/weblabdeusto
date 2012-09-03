@@ -41,6 +41,8 @@ WEBLAB_RESERVATION                    = 'weblab:reservations:%s'
 WEBLAB_RESERVATION_STATUS             = 'weblab:reservations:%s:status'
 WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS = 'weblab:reservations:%s:active_schedulers'
 
+WEBLAB_RESERVATIONS_INDIVIDUAL_LOCK   = 'weblab:reservations:%s:lock'
+
 WEBLAB_POST_RESERVATIONS              = "weblab:reservations:post_reservations"
 WEBLAB_POST_RESERVATION               = "weblab:reservations:%s:post_reservation"
 
