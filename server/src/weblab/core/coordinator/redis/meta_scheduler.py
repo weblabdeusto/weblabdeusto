@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import voodoo.log as log
 from voodoo.log import logged
 from weblab.core.coordinator.exc import NoSchedulerFoundError, ExpiredSessionError
 from weblab.core.coordinator.scheduler import Scheduler
@@ -116,6 +117,10 @@ class IndependentSchedulerAggregator(Scheduler):
         if any_assigned:
             for resource_type_name in used_schedulers:
                 used_scheduler = self.schedulers[resource_type_name]
+                log.log(
+                    IndependentSchedulerAggregator, log.level.Info,
+                    "reserve_experiment: %s: assigned to %s, so finishing in scheduler %s" % (reservation_id, scheduler.__class__.__name__, used_scheduler.__class__.__name__), max_size = 1000)
+
                 used_scheduler.finish_reservation(reservation_id)
                 all_reservation_status.pop(resource_type_name)
                 self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
@@ -161,6 +166,9 @@ class IndependentSchedulerAggregator(Scheduler):
 
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
                 assigned_resource_type_name = resource_type_name
+                log.log(
+                    IndependentSchedulerAggregator, log.level.Info,
+                    "get_reservation_status: %s: assigned to %s" % (reservation_id, scheduler.__class__.__name__), max_size = 1000)
                 break
 
         if assigned_resource_type_name is not None:
@@ -172,6 +180,9 @@ class IndependentSchedulerAggregator(Scheduler):
 
                     self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
                     used_scheduler = self.schedulers[resource_type_name]
+                    log.log(
+                        IndependentSchedulerAggregator, log.level.Info,
+                        "get_reservation_status: %s: finishing from %s" % (reservation_id, used_scheduler.__class__.__name__), max_size = 1000)
                     used_scheduler.finish_reservation(reservation_id)
                     all_reservation_status.pop(resource_type_name, None)
 
@@ -180,6 +191,9 @@ class IndependentSchedulerAggregator(Scheduler):
             raise ExpiredSessionError("Expired reservation")
 
         best_reservation = self.select_best_reservation_status(all_reservation_status.values())
+        log.log(
+            IndependentSchedulerAggregator, log.level.Info,
+            "Had to select for reservation_id %s among %s and chose %s" % (reservation_id, str(all_reservation_status.values()), str(best_reservation) ), max_size = 1000)
 
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"

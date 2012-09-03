@@ -99,7 +99,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     # Given a reservation_id, it returns in which state the reservation is
     #
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         server_uuids = list(request_info.get(SERVER_UUIDS, []))
@@ -134,7 +134,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             return None
 
         remote_reservation_id = external_reservation.reservation_id.id
-        log.log(ExternalWebLabDeustoScheduler, log.level.Info, "Local reservation_id %s is linked to remote reservation %s" % (reservation_id, remote_reservation_id))
+        log.log(ExternalWebLabDeustoScheduler, log.level.Warning, "Local reservation_id %s is linked to remote reservation %s" % (reservation_id, remote_reservation_id))
 
         cookies = client.get_cookies()
         serialized_cookies = pickle.dumps(cookies)
@@ -165,7 +165,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     # Given a reservation_id, it returns in which state the reservation is
     #
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
 
@@ -234,7 +234,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         # At some point, we must call the upper level to say that we want to confirm
@@ -246,7 +246,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     # Called when the user disconnects or finishes the resource.
     #
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
         redis_client = self.redis_maker()
