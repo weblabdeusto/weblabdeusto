@@ -15,6 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 import Queue
+from voodoo.representable import Representable
 
 class TemporalInformationStore(object):
     """ Temporal synchronized store for initial and finishing information.
@@ -56,7 +57,10 @@ class TemporalInformationStore(object):
         pass
 
 class InitialInformationEntry(object):
-    def __init__(self, reservation_id, experiment_id, exp_coordaddr, initial_configuration, initial_time, end_time, request_info, serialized_client_initial_data):
+    
+    __metaclass__ = Representable
+
+    def __init__(self, reservation_id, experiment_id, exp_coordaddr, initial_configuration, initial_time, end_time, request_info, client_initial_data):
         self.reservation_id        = reservation_id
         self.experiment_id         = experiment_id
         self.exp_coordaddr         = exp_coordaddr
@@ -64,7 +68,7 @@ class InitialInformationEntry(object):
         self.initial_time          = initial_time
         self.end_time              = end_time
         self.request_info          = request_info
-        self.client_initial_data   = serialized_client_initial_data
+        self.client_initial_data   = client_initial_data
 
 class InitialTemporalInformationStore(TemporalInformationStore):
     def put(self, initial_information_entry):
@@ -75,6 +79,9 @@ class FinishTemporalInformationStore(TemporalInformationStore):
         self.queue.put_nowait((reservation_id, obj, initial_time, end_time))
 
 class CommandOrFileInformationEntry(object):
+    
+    __metaclass__ = Representable
+
     def __init__(self, reservation_id, is_before, is_command, entry_id, payload, timestamp):
         self.reservation_id  = reservation_id
         self.is_before       = is_before  # or after
