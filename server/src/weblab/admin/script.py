@@ -97,6 +97,24 @@ def weblab():
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
+class OptionWrapper(object):
+    """ OptionWrapper is a wrapper of an OptionParser options object, 
+    which makes it possible to refer to options['force'] instead of options.force.
+    """
+    def __init__(self, options):
+        self._options = options
+
+    def __getitem__(self, name):
+        return getattr(self._options, name)
+
+    def __getattribute__(self, name):
+        if name == '_options':
+            return object.__getattribute__(self, '_options')
+        return getattr(self._options, name)
+
+    def __repr__(self):
+        return repr(self._options)
+
 
 #########################################################################################
 # 
@@ -107,14 +125,96 @@ def weblab():
 # 
 # 
 
+class Creation(object):
 
+    """ This class wraps the options for creating a new WebLab-Deusto directory """
+    
+    FORCE             = 'force'
+    VERBOSE           = 'verbose'
+
+    # General information
+
+    ADD_TEST_DATA     = 'add_test_data'
+    CORES             = 'cores'
+    START_PORTS       = 'start_ports'
+    SYSTEM_IDENTIFIER = 'system_identifier'
+    ENABLE_HTTPS      = 'enable_https'
+    BASE_URL          = 'base_url'
+    ENTITY_LINK       = 'entity_link'
+    SERVER_HOST       = 'server_host'
+    POLL_TIME         = 'poll_time'
+    INLINE_LAB_SERV   = 'inline_lab_serv'
+    LAB_COPIES        = 'lab_copies'
+    ADMIN_USER        = 'admin_user'
+    ADMIN_NAME        = 'admin_name'
+    ADMIN_PASSWORD    = 'admin_password'
+    ADMIN_MAIL        = 'admin_mail'
+
+    # XMLRPC experiment
+    XMLRPC_EXPERIMENT      = 'xmlrpc_experiment'
+    XMLRPC_EXPERIMENT_PORT = 'xmlrpc_experiment_port'
+
+    # Dummy experiment
+    DUMMY_NAME          = 'dummy_name'
+    DUMMY_CATEGORY_NAME = 'dummy_category_name'
+    DUMMY_COPIES        = 'dummy_copies'
+
+    # Visir
+    VISIR_SERVER             = 'visir_server'
+    VISIR_SLOTS              = 'visir_slots'
+    VISIR_EXPERIMENT_NAME    = 'visir_experiment_name'
+    VISIR_BASE_URL           = 'visir_base_url'
+    VISIR_MEASUREMENT_SERVER = 'visir_measurement_server'
+    VISIR_USE_PHP            = 'visir_use_php'
+    VISIR_LOGIN              = 'visir_login'
+    VISIR_PASSWORD           = 'visir_password'
+
+    # Logic experiment
+    LOGIC_SERVER       = 'logic_server'
+    
+    # Virtual Machine experiment
+    VM_SERVER          = 'vm_server'
+    
+    # Sessions
+    SESSION_STORAGE    = 'session_storage'
+    SESSION_DB_ENGINE  = 'session_db_engine'
+    SESSION_DB_HOST    = 'session_db_host'
+    SESSION_DB_NAME    = 'session_db_name'
+    SESSION_DB_USER    = 'session_db_user'
+    SESSION_DB_PASSWD  = 'session_db_passwd'
+    SESSION_REDIS_DB   = 'session_redis_db'
+    SESSION_REDIS_HOST = 'session_redis_host'
+    SESSION_REDIS_PORT = 'session_redis_port'
+
+    # Database
+    DB_ENGINE          = 'db_engine'
+    DB_NAME            = 'db_name'
+    DB_HOST            = 'db_host'
+    DB_USER            = 'db_user'
+    DB_PASSWD          = 'db_passwd'
+    
+    # Coordination
+    COORD_ENGINE       = 'coord_engine'
+    COORD_DB_ENGINE    = 'coord_db_engine'
+    COORD_DB_NAME      = 'coord_db_name'
+    COORD_DB_USER      = 'coord_db_user'
+    COORD_DB_PASSWD    = 'coord_db_passwd'
+    COORD_DB_HOST      = 'coord_db_host'
+    COORD_REDIS_DB     = 'coord_redis_db'
+    COORD_REDIS_PASSWD = 'coord_redis_passwd'
+    COORD_REDIS_PORT   = 'coord_redis_port'
+
+    # Other
+    NOT_INTERACTIVE      = 'not_interactive'
+    MYSQL_ADMIN_USER     = 'mysql_admin_username'
+    MYSQL_ADMIN_PASSWORD = 'mysql_admin_password'
 
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
 
-def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host):
-    if verbose: print "Checking redis connection for %s..." % what,; sys.stdout.flush()
+def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func):
+    if verbose: print >> stdout, "Checking redis connection for %s..." % what,; stdout.flush()
     kwargs = {}
     if redis_port   is not None: kwargs['port']     = redis_port
     if redis_passwd is not None: kwargs['password'] = redis_passwd
@@ -123,18 +223,18 @@ def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host):
     try:
         import redis
     except ImportError:
-        print >> sys.stderr, "redis selected for %s; but redis module is not available. Try installing it with 'pip install redis'" % what
-        sys.exit(-1)
+        print >> stderr, "redis selected for %s; but redis module is not available. Try installing it with 'pip install redis'" % what
+        exit_func(-1)
     else:
         try:
             client = redis.Redis(**kwargs)
             client.get("this.should.not.exist")
         except:
-            print >> sys.stderr, "redis selected for %s; but could not use the provided configuration" % what
-            traceback.print_exc()
-            sys.exit(-1)
+            print >> stderr, "redis selected for %s; but could not use the provided configuration" % what
+            traceback.print_exc(file=stderr)
+            exit_func(-1)
         else:
-            if verbose: print "[done]"
+            if verbose: print >> stdout, "[done]"
 
 def uncomment_json(lines):
     new_lines = []
@@ -174,8 +274,8 @@ def uncomment_json(lines):
 DB_ROOT     = None
 DB_PASSWORD = None
 
-def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd):
-    if verbose: print "Checking database connection for %s..." % what,; sys.stdout.flush()
+def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
+    if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
 
     if db_engine == 'sqlite':
         base_location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
@@ -203,111 +303,111 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
         engine = create_engine(db_str, echo = False)
         engine.execute("select 1")
     except Exception as e:
-        print >> sys.stderr, "error: database used for %s is misconfigured" % what
-        print >> sys.stderr, "error: %s"  % str(e)
+        print >> stderr, "error: database used for %s is misconfigured" % what
+        print >> stderr, "error: %s"  % str(e)
         if verbose:
-            traceback.print_exc()
+            traceback.print_exc(file=stderr)
         else:
-            print >> sys.stderr, "error: Use -v to get more detailed information"
+            print >> stderr, "error: Use -v to get more detailed information"
 
         try:
             create_database = deploy.generate_create_database(db_engine)
         except Exception as e:
-            print >> sys.stderr, "error: You must create the database and the db credentials"
-            print >> sys.stderr, "error: reason: there was an error trying to offer you the creation of users:", str(e)
-            sys.exit(-1)
+            print >> stderr, "error: You must create the database and the db credentials"
+            print >> stderr, "error: reason: there was an error trying to offer you the creation of users:", str(e)
+            exit_func(-1)
         else:
             if create_database is None:
-                print >> sys.stderr, "error: You must create the database and the db credentials"
-                print >> sys.stderr, "error: reason: weblab does not support creating a database with engine %s" % db_engine
-                sys.exit(-1)
+                print >> stderr, "error: You must create the database and the db credentials"
+                print >> stderr, "error: reason: weblab does not support creating a database with engine %s" % db_engine
+                exit_func(-1)
             else:
-                should_create = raw_input('Would you like to create it now? (y/N) ').lower().startswith('y')
-                if not should_create:
-                    print >> sys.stderr, "not creating"
-                    sys.exit(-1)
+                if Creation.NOT_INTERACTIVE in options and options[Creation.NOT_INTERACTIVE]:
+                    should_create = True
+                else:
+                    should_create = raw_input('Would you like to create it now? (y/N) ').lower().startswith('y')
+                    if not should_create:
+                        print >> stderr, "not creating"
+                        exit_func(-1)
                 if db_engine == 'sqlite':
                     create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
                 elif db_engine == 'mysql':
-                    global DB_ROOT, DB_PASSWORD
-                    if DB_ROOT is None or DB_PASSWORD is None:
-                        admin_username = raw_input("Enter the MySQL administrator username (typically root): ") or 'root'
-                        admin_password = getpass.getpass("Enter the MySQL administrator password: ")
+                    if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
+                        admin_username = options[Creation.MYSQL_ADMIN_USER]
+                        admin_password = options[Creation.MYSQL_ADMIN_PASSWORD]
                     else:
-                        admin_username = DB_ROOT
-                        admin_password = DB_PASSWORD
+                        if Creation.NOT_INTERACTIVE in options and options[Creation.NOT_INTERACTIVE]:
+                            exit_func(-5)
+                        global DB_ROOT, DB_PASSWORD
+                        if DB_ROOT is None or DB_PASSWORD is None:
+                            admin_username = raw_input("Enter the MySQL administrator username (typically root): ") or 'root'
+                            admin_password = getpass.getpass("Enter the MySQL administrator password: ")
+                        else:
+                            admin_username = DB_ROOT
+                            admin_password = DB_PASSWORD
                     try:
                         create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host)
                     except Exception as e:
-                        print >> sys.stderr, "error: could not create database. reason:", str(e)
-                        sys.exit(-1)
+                        print >> stderr, "error: could not create database. reason:", str(e)
+                        exit_func(-1)
                     else:
                         DB_ROOT     = admin_username
                         DB_PASSWORD = admin_password
                 else:
-                    print >> sys.stderr, "error: You must create the database and the db credentials"
-                    print >> sys.stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
-                    sys.exit(-1)
+                    print >> stderr, "error: You must create the database and the db credentials"
+                    print >> stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
+                    exit_func(-1)
 
 
 
-    if verbose: print "[done]"
-    if verbose: print "Adding information to the %s database..." % what,; sys.stdout.flush()
+    if verbose: print >> stdout, "[done]"
+    if verbose: print >> stdout, "Adding information to the %s database..." % what,; stdout.flush()
     metadata.drop_all(engine)
     metadata.create_all(engine)
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
     return engine
 
-
-
-def weblab_create(directory):
-
-    ###########################################
-    # 
-    # Define possible options
-    # 
-
-
+def _build_parser():
     parser = OptionParser(usage="%prog create DIR [options]")
 
-    parser.add_option("-f", "--force",            dest="force", action="store_true", default=False,
+    parser.add_option("-f", "--force",            dest = Creation.FORCE, action="store_true", default=False,
                                                    help = "Overwrite the contents even if the directory already existed.")
 
-    parser.add_option("-v", "--verbose",          dest="verbose", action="store_true", default=False,
+    parser.add_option("-v", "--verbose",          dest = Creation.VERBOSE, action="store_true", default=False,
                                                    help = "Show more information about the process.")
 
-    parser.add_option("--add-test-data",          dest="add_test_data", action="store_true", default=False,
+    parser.add_option("--add-test-data",          dest = Creation.ADD_TEST_DATA, action="store_true", default=False,
                                                   help = "Populate the database with sample data")
 
-    parser.add_option("--cores",                  dest="cores",           type="int",    default=1,
+    parser.add_option("--cores",                  dest = Creation.CORES,           type="int",    default=1,
                                                   help = "Number of core servers.")
 
-    parser.add_option("--start-port",             dest="start_ports",     type="int",    default=10000,
+    parser.add_option("--start-port",             dest = Creation.START_PORTS,     type="int",    default=10000,
                                                   help = "From which port start counting.")
 
-    parser.add_option("-i", "--system-identifier",dest="system_identifier", type="string", default="",
+    parser.add_option("-i", "--system-identifier",dest = Creation.SYSTEM_IDENTIFIER, type="string", default="",
                                                   help = "A human readable identifier for this system.")
 
-    parser.add_option("--enable-https",           dest="enable_https",   action="store_true", default=False,
+    parser.add_option("--enable-https",           dest = Creation.ENABLE_HTTPS,   action="store_true", default=False,
                                                   help = "Tell external federated servers that they must use https when connecting here")
 
-    parser.add_option("--base-url",               dest="base_url",       type="string",    default="",
+    parser.add_option("--base-url",               dest = Creation.BASE_URL,       type="string",    default="",
                                                   help = "Base location, before /weblab/. Example: /deusto.")
 
-    parser.add_option("--entity-link",            dest="entity_link",       type="string",  default="http://www.yourentity.edu",
+    parser.add_option("--entity-link",            dest = Creation.ENTITY_LINK,       type="string",  default="http://www.yourentity.edu",
                                                   help = "Link of the host entity (e.g. http://www.deusto.es ).")
 
-    parser.add_option("--server-host",            dest="server_host",     type="string",    default="localhost",
+    parser.add_option("--server-host",            dest = Creation.SERVER_HOST,     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
-    parser.add_option("--poll-time",              dest="poll_time",     type="int",    default=350,
+    parser.add_option("--poll-time",              dest = Creation.POLL_TIME,     type="int",    default=350,
                                                   help = "Time in seconds that will wait before expiring a user session.")
 
-    parser.add_option("--inline-lab-server",      dest="inline_lab_serv", action="store_true", default=False,
+    parser.add_option("--inline-lab-server",      dest = Creation.INLINE_LAB_SERV, action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. " 
                                                          "Only available if a single core is used." )
 
-    parser.add_option("--lab-copies",             dest="lab_copies", type="int",   default=1,
+    parser.add_option("--lab-copies",             dest = Creation.LAB_COPIES, type="int",   default=1,
                                                   help = "Each experiment can be managed by a single laboratory server. "
                                                          "However, if the number of experiments managed by a single laboratory server "
                                                          "is high, it can become a bottleneck. This bottleneck effect can be reduced by "
@@ -317,13 +417,13 @@ def weblab_create(directory):
 
     admin_data = OptionGroup(parser, "Administrator data",
                                                 "Administrator basic data: username, password, etc.")
-    admin_data.add_option("--admin-user",             dest="admin_user",       type="string",    default="admin",
+    admin_data.add_option("--admin-user",             dest = Creation.ADMIN_USER,       type="string",    default="admin",
                                                   help = "Username for the WebLab-Deusto administrator")
-    admin_data.add_option("--admin-name",             dest="admin_name",       type="string",    default="Administrator",
+    admin_data.add_option("--admin-name",             dest = Creation.ADMIN_NAME,       type="string",    default="Administrator",
                                                   help = "Full name of the administrator")
-    admin_data.add_option("--admin-password",       dest="admin_password", type="string",    default="password",
+    admin_data.add_option("--admin-password",       dest = Creation.ADMIN_PASSWORD, type="string",    default="password",
                                                   help = "Administrator password ('password' is the default)")
-    admin_data.add_option("--admin-mail",             dest="admin_mail",       type="string",    default="",
+    admin_data.add_option("--admin-mail",             dest = Creation.ADMIN_MAIL,       type="string",    default="",
                                                   help = "E-mail address of the system administrator.")
 
     parser.add_option_group(admin_data)
@@ -338,57 +438,57 @@ def weblab_create(directory):
                                 "development purposes, the XML-RPC experiment is particularly useful.")
 
     # TODO
-    experiments.add_option("--xmlrpc-experiment",      dest="xmlrpc_experiment", action="store_true", default=False,
+    experiments.add_option("--xmlrpc-experiment",      dest = Creation.XMLRPC_EXPERIMENT, action="store_true", default=False,
                                                        help = "By default, the Experiment Server is located in the same process as the  " 
                                                               "Laboratory server. However, it is possible to force that the laboratory  "
                                                               "uses XML-RPC to contact the Experiment Server. If you want to test a "
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
 
-    experiments.add_option("--dummy-experiment-name",  dest="dummy_name", type="string",    default="dummy",
+    experiments.add_option("--dummy-experiment-name",  dest = Creation.DUMMY_NAME, type="string",    default="dummy",
                                                        help = "There is a testing experiment called 'dummy'. You may change this name "
                                                               "(e.g. to dummy1 or whatever) by changing this option." )
 
-    experiments.add_option("--dummy-category-name",    dest="dummy_category_name", type="string",    default="Dummy experiments",
+    experiments.add_option("--dummy-category-name",    dest = Creation.DUMMY_CATEGORY_NAME, type="string",    default="Dummy experiments",
                                                        help = "You can change the category name of the dummy experiments. (by default,"
                                                               " Dummy experiments).")
 
-    experiments.add_option("--dummy-copies",           dest="dummy_copies", type="int",    default=1,
+    experiments.add_option("--dummy-copies",           dest = Creation.DUMMY_COPIES, type="int",    default=1,
                                                        help = "You may want to test the load balance among different copies of dummy." )
 
     # TODO
-    experiments.add_option("--xmlrpc-experiment-port", dest="xmlrpc_experiment_port", type="int",    default=None,
+    experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
                                                        help = "What port should the Experiment Server use. Useful for development.")
 
-    experiments.add_option("--visir", "--visir-server", dest="visir_server", action="store_true", default=False,
+    experiments.add_option("--visir", "--visir-server", dest = Creation.VISIR_SERVER, action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
 
-    experiments.add_option("--visir-slots",            dest="visir_slots", default=60, type="int", metavar='SLOTS',
+    experiments.add_option("--visir-slots",            dest = Creation.VISIR_SLOTS, default=60, type="int", metavar='SLOTS',
                                                        help = "Number of concurrent users of VISIR. "  )
 
-    experiments.add_option("--visir-experiment-name",  dest="visir_experiment_name", default='visir', type="string", metavar='EXPERIMENT_NAME',
+    experiments.add_option("--visir-experiment-name",  dest = Creation.VISIR_EXPERIMENT_NAME, default='visir', type="string", metavar='EXPERIMENT_NAME',
                                                        help = "Name of the VISIR experiment. "  )
 
-    experiments.add_option("--visir-base-url",         dest="visir_base_url", default='', type="string", metavar='VISIR_BASE_URL',
+    experiments.add_option("--visir-base-url",         dest = Creation.VISIR_BASE_URL, default='', type="string", metavar='VISIR_BASE_URL',
                                                        help = "URL of the VISIR system (e.g. http://weblab-visir.deusto.es/electronics/ ). It should contain login.php, for instance. "  )
 
-    experiments.add_option("--visir-measurement-server", dest="visir_measurement_server", default=None, type="string", metavar='MEASUREMENT_SERVER',
+    experiments.add_option("--visir-measurement-server", dest = Creation.VISIR_MEASUREMENT_SERVER, default=None, type="string", metavar='MEASUREMENT_SERVER',
                                                        help = "Measurement server. E.g. weblab-visir.deusto.es:8080 "  )
 
-    experiments.add_option("--visir-use-php",          dest="visir_use_php", action="store_true", default=True,
+    experiments.add_option("--visir-use-php",          dest = Creation.VISIR_USE_PHP, action="store_true", default=True,
                                                        help = "VISIR can manage the authentication through a PHP code. This option is slower, but required if that scheme is used."  )
 
-    experiments.add_option("--visir-login",            dest="visir_login", default='guest', type="string", metavar='USERNAME',
+    experiments.add_option("--visir-login",            dest = Creation.VISIR_LOGIN, default='guest', type="string", metavar='USERNAME',
                                                        help = "If the PHP version is used, define which username should be used. Default: guest."  )
 
-    experiments.add_option("--visir-password",         dest="visir_password", default='guest', type="string", metavar='PASSWORD',
+    experiments.add_option("--visir-password",         dest = Creation.VISIR_PASSWORD, default='guest', type="string", metavar='PASSWORD',
                                                        help = "If the PHP version is used, define which password should be used. Default: guest."  )
 
-    experiments.add_option("--logic", "--logic-server", dest="logic_server", action="store_true", default=False,
+    experiments.add_option("--logic", "--logic-server", dest = Creation.LOGIC_SERVER, action="store_true", default=False,
                                                        help = "Add a logic server to the deployed system. "  )
 
     # TODO
-    experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest="vm_server", action="store_true", default=False,
+    experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest = Creation.VM_SERVER, action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
 
     parser.add_option_group(experiments)
@@ -397,31 +497,31 @@ def weblab_create(directory):
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
                                 "Choose one system and configure it." )
 
-    sess.add_option("--session-storage",          dest="session_storage", choices = SESSION_ENGINES, default='memory',
+    sess.add_option("--session-storage",          dest = Creation.SESSION_STORAGE, choices = SESSION_ENGINES, default='memory',
                                                   help = "Session storage used. Values: %s." % (', '.join(SESSION_ENGINES)) )
 
-    sess.add_option("--session-db-engine",        dest="session_db_engine", type="string", default="sqlite",
+    sess.add_option("--session-db-engine",        dest = Creation.SESSION_DB_ENGINE, type="string", default="sqlite",
                                                   help = "Select the engine of the sessions database.")
 
-    sess.add_option("--session-db-host",          dest="session_db_host", type="string", default="localhost",
+    sess.add_option("--session-db-host",          dest = Creation.SESSION_DB_HOST, type="string", default="localhost",
                                                   help = "Select the host of the session server, if any.")
 
-    sess.add_option("--session-db-name",          dest="session_db_name", type="string", default="WebLabSessions",
+    sess.add_option("--session-db-name",          dest = Creation.SESSION_DB_NAME, type="string", default="WebLabSessions",
                                                   help = "Select the name of the sessions database.")
 
-    sess.add_option("--session-db-user",          dest="session_db_user", type="string", default="",
+    sess.add_option("--session-db-user",          dest = Creation.SESSION_DB_USER, type="string", default="",
                                                   help = "Select the username to access the sessions database.")
 
-    sess.add_option("--session-db-passwd",        dest="session_db_passwd", type="string", default="",
+    sess.add_option("--session-db-passwd",        dest = Creation.SESSION_DB_PASSWD, type="string", default="",
                                                   help = "Select the password to access the sessions database.")
                                                   
-    sess.add_option("--session-redis-db",         dest="session_redis_db", type="int", default=1,
+    sess.add_option("--session-redis-db",         dest = Creation.SESSION_REDIS_DB, type="int", default=1,
                                                   help = "Select the redis db on which store the sessions.")
 
-    sess.add_option("--session-redis-host",       dest="session_redis_host", type="string", default="localhost",
+    sess.add_option("--session-redis-host",       dest = Creation.SESSION_REDIS_HOST, type="string", default="localhost",
                                                   help = "Select the redis server host on which store the sessions.")
 
-    sess.add_option("--session-redis-port",       dest="session_redis_port", type="int", default=6379,
+    sess.add_option("--session-redis-port",       dest = Creation.SESSION_REDIS_PORT, type="int", default=6379,
                                                   help = "Select the redis server port on which store the sessions.")
 
     parser.add_option_group(sess)
@@ -430,19 +530,19 @@ def weblab_create(directory):
                                 "WebLab-Deusto uses a relational database for storing users, permissions, etc."
                                 "The database must be configured: which engine, database name, user and password." )
 
-    dbopt.add_option("--db-engine",               dest="db_engine",       choices = DATABASE_ENGINES, default = 'sqlite',
+    dbopt.add_option("--db-engine",               dest = Creation.DB_ENGINE,       choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Core database engine to use. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
-    dbopt.add_option("--db-name",                 dest="db_name",         type="string", default="WebLab",
+    dbopt.add_option("--db-name",                 dest = Creation.DB_NAME,         type="string", default="WebLab",
                                                   help = "Core database name.")
 
-    dbopt.add_option("--db-host",                 dest="db_host",         type="string", default="localhost",
+    dbopt.add_option("--db-host",                 dest = Creation.DB_HOST,         type="string", default="localhost",
                                                   help = "Core database host.")
 
-    dbopt.add_option("--db-user",                 dest="db_user",         type="string", default="weblab",
+    dbopt.add_option("--db-user",                 dest = Creation.DB_USER,         type="string", default="weblab",
                                                   help = "Core database username.")
 
-    dbopt.add_option("--db-passwd",               dest="db_passwd",       type="string", default="weblab",
+    dbopt.add_option("--db-passwd",               dest = Creation.DB_PASSWD,       type="string", default="weblab",
                                                   help = "Core database password.")
 
     
@@ -452,200 +552,222 @@ def weblab_create(directory):
                                 "These options are related to the scheduling system.  "
                                 "You must select if you want to use a database or redis, and configure it.")
 
-    coord.add_option("--coordination-engine",    dest="coord_engine",    choices = COORDINATION_ENGINES, default = 'sql',
+    coord.add_option("--coordination-engine",    dest = Creation.COORD_ENGINE,    choices = COORDINATION_ENGINES, default = 'sql',
                                                   help = "Coordination engine used. Values: %s." % (', '.join(COORDINATION_ENGINES)))
 
-    coord.add_option("--coordination-db-engine", dest="coord_db_engine", choices = DATABASE_ENGINES, default = 'sqlite',
+    coord.add_option("--coordination-db-engine", dest = Creation.COORD_DB_ENGINE, choices = DATABASE_ENGINES, default = 'sqlite',
                                                   help = "Coordination database engine used, if the coordination is based on a database. Values: %s." % (', '.join(DATABASE_ENGINES)))
 
-    coord.add_option("--coordination-db-name",   dest="coord_db_name",   type="string", default="WebLabCoordination",
+    coord.add_option("--coordination-db-name",   dest = Creation.COORD_DB_NAME,   type="string", default="WebLabCoordination",
 
                                                   help = "Coordination database name used, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-db-user",   dest="coord_db_user",   type="string", default="",
+    coord.add_option("--coordination-db-user",   dest = Creation.COORD_DB_USER,   type="string", default="",
                                                   help = "Coordination database userused, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-db-passwd", dest="coord_db_passwd",  type="string", default="",
+    coord.add_option("--coordination-db-passwd", dest = Creation.COORD_DB_PASSWD,  type="string", default="",
                                                   help = "Coordination database password used, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-db-host",    dest="coord_db_host",    type="string", default="localhost",
+    coord.add_option("--coordination-db-host",    dest = Creation.COORD_DB_HOST,    type="string", default="localhost",
                                                   help = "Coordination database host used, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-redis-db",  dest="coord_redis_db",   type="int", default=None,
+    coord.add_option("--coordination-redis-db",  dest = Creation.COORD_REDIS_DB,   type="int", default=None,
                                                   help = "Coordination redis DB used, if the coordination is based on redis.")
 
-    coord.add_option("--coordination-redis-passwd",  dest="coord_redis_passwd",   type="string", default=None,
+    coord.add_option("--coordination-redis-passwd",  dest = Creation.COORD_REDIS_PASSWD,   type="string", default=None,
                                                   help = "Coordination redis password used, if the coordination is based on redis.")
 
-    coord.add_option("--coordination-redis-port",  dest="coord_redis_port",   type="int", default=None,
+    coord.add_option("--coordination-redis-port",  dest = Creation.COORD_REDIS_PORT,   type="int", default=None,
                                                   help = "Coordination redis port used, if the coordination is based on redis.")
 
     parser.add_option_group(coord)
 
-    options, args = parser.parse_args()
+    return parser
+   
+def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = sys.stderr, exit_func = sys.exit):
+    """Creates a new WebLab-Deusto instance in the directory "directory". If options_dict is None, it uses sys.argv to
+    retrieve the arguments from the Command Line Interface. If it is provided, then it uses the default values unless
+    a value is provided. The stdout, stderr and exit_func arguments are sys.stdout, sys.stderr and sys.exit by default, so
+    they can be properly managed. More arguments can be passed, such as:
 
-    verbose = options.verbose
+     - MYSQL_ADMIN_USERNAME 
+     - MYSQL_ADMIN_PASSWORD 
+
+    To avoid using the standard input to retrieve usernames and passwords.
+    """
+    parser = _build_parser()
+
+    if options_dict is None:
+        parser_options, _ = parser.parse_args()
+        options = OptionWrapper(parser_options)
+    else:
+        options = parser.defaults.copy()
+        print options
+        options[Creation.NOT_INTERACTIVE] = True
+        options.update(options_dict)
+
+    verbose = options[Creation.VERBOSE]
 
     ###########################################
     # 
     # Validate basic options
     # 
 
-    if verbose: print "Validating basic operations...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Validating basic operations...",; stdout.flush()
 
-    if options.coord_engine == 'sql':
+    if options[Creation.COORD_ENGINE] == 'sql':
         coord_engine = 'sqlalchemy'
     else:
-        coord_engine = options.coord_engine
+        coord_engine = options[Creation.COORD_ENGINE]
 
-    if options.session_storage == 'sql':
+    if options[Creation.SESSION_STORAGE] == 'sql':
         session_storage = 'sqlalchemy'
-    elif options.session_storage == 'memory':
+    elif options[Creation.SESSION_STORAGE] == 'memory':
         session_storage = 'Memory'
     else:
-        session_storage = options.session_storage
+        session_storage = options[Creation.SESSION_STORAGE]
 
-    if options.cores > 1:
-        if (coord_engine == 'sqlalchemy' and options.coord_db_engine == 'sqlite') or options.db_engine == 'sqlite':
+    if options[Creation.CORES] > 1:
+        if (coord_engine == 'sqlalchemy' and options[Creation.COORD_DB_ENGINE] == 'sqlite') or options[Creation.DB_ENGINE] == 'sqlite':
             sqlite_purpose = ''
-            if coord_engine == 'sqlalchemy' and options.coord_db_engine == 'sqlite':
+            if coord_engine == 'sqlalchemy' and options[Creation.COORD_DB_ENGINE] == 'sqlite':
                 sqlite_purpose = 'coordination'
-            if options.db_engine =='sqlite':
+            if options[Creation.DB_ENGINE] =='sqlite':
                 if sqlite_purpose:
                     sqlite_purpose += ', '
                 sqlite_purpose += 'general database'
                 
-            print >> sys.stderr, "ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose
-            sys.exit(-1)
+            print >> stderr, "ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose
+            exit_func(-1)
 
-    if options.cores <= 0:
-        print >> sys.stderr, "ERROR: There must be at least one core server."
-        sys.exit(-1)
+    if options[Creation.CORES] <= 0:
+        print >> stderr, "ERROR: There must be at least one core server."
+        exit_func(-1)
 
-    base_url = options.base_url
+    base_url = options[Creation.BASE_URL]
     if base_url != '' and not base_url.startswith('/'):
         base_url = '/' + base_url
     if base_url.endswith('/'):
         base_url = base_url[:len(base_url) - 1]
-    if options.enable_https:
+    if options[Creation.ENABLE_HTTPS]:
         protocol = 'https://'
     else:
         protocol = 'http://'
-    server_url = protocol + options.server_host + base_url + '/weblab/'
+    server_url = protocol + options[Creation.SERVER_HOST] + base_url + '/weblab/'
 
 
 
-    if options.start_ports < 1 or options.start_ports >= 65535:
-        print >> sys.stderr, "ERROR: starting port number must be at least 1"
-        sys.exit(-1)
+    if options[Creation.START_PORTS] < 1 or options[Creation.START_PORTS] >= 65535:
+        print >> stderr, "ERROR: starting port number must be at least 1"
+        exit_func(-1)
 
-    if options.inline_lab_serv and options.cores > 1:
-        print >> sys.stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
-        sys.exit(-1)
+    if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
+        print >> stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
+        exit_func(-1)
         
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
 
-    if os.path.exists(directory) and not options.force:
-        print >> sys.stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
-        sys.exit(-1)
+    if os.path.exists(directory) and not options[Creation.FORCE]:
+        print >> stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
+        exit_func(-1)
 
     if os.path.exists(directory):
         if not os.path.isdir(directory):
-            print >> sys.stderr, "ERROR: %s is not a directory. Delete it before proceeding." % directory
-            sys.exit(-1)
+            print >> stderr, "ERROR: %s is not a directory. Delete it before proceeding." % directory
+            exit_func(-1)
     else:
         try:
             os.mkdir(directory)
         except Exception as e:
-            print >> sys.stderr, "ERROR: Could not create directory %s: %s" % (directory, str(e))
-            sys.exit(-1)
+            print >> stderr, "ERROR: Could not create directory %s: %s" % (directory, str(e))
+            exit_func(-1)
 
     ###########################################
     # 
     # Validate database configurations
     # 
 
-    if verbose: print "Start building database configuration"; sys.stdout.flush()
+    if verbose: print >> stdout, "Start building database configuration"; stdout.flush()
 
     db_dir = os.path.join(directory, 'db')
     if not os.path.exists(db_dir):
         os.mkdir(db_dir)
 
-    if options.coord_engine == 'redis':
-        redis_passwd = options.coord_redis_passwd
-        redis_port   = options.coord_redis_port
-        redis_db     = options.coord_redis_db
+    if options[Creation.COORD_ENGINE] == 'redis':
+        redis_passwd = options[Creation.COORD_REDIS_PASSWD]
+        redis_port   = options[Creation.COORD_REDIS_PORT]
+        redis_db     = options[Creation.COORD_REDIS_DB]
         redis_host   = None
-        _test_redis('coordination', verbose, redis_port, redis_passwd, redis_db, redis_host)
-    elif options.coord_engine in ('sql', 'sqlalchemy'):
-        db_engine  = options.coord_db_engine
-        db_host    = options.coord_db_host
-        db_name    = options.coord_db_name
-        db_user    = options.coord_db_user
-        db_passwd  = options.coord_db_passwd
+        _test_redis('coordination', verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func)
+    elif options[Creation.COORD_ENGINE] in ('sql', 'sqlalchemy'):
+        db_engine  = options[Creation.COORD_DB_ENGINE]
+        db_host    = options[Creation.COORD_DB_HOST]
+        db_name    = options[Creation.COORD_DB_NAME]
+        db_user    = options[Creation.COORD_DB_USER]
+        db_passwd  = options[Creation.COORD_DB_PASSWD]
         import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
-        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
-        print >> sys.stderr, "The coordination engine %s is not registered" % options.coord_engine
-        sys.exit(-1)
+        print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
+        exit_func(-1)
         
 
-    if options.session_storage == 'redis':
+    if options[Creation.SESSION_STORAGE] == 'redis':
         redis_passwd = None
-        redis_port   = options.session_redis_port
-        redis_db     = options.session_redis_db
-        redis_host   = options.session_redis_host
-        _test_redis('sessions', verbose, redis_port, redis_passwd, redis_db, redis_host)
-    elif options.session_storage in ('sql', 'sqlalchemy'):
-        db_engine = options.session_db_engine
-        db_host   = options.session_db_host
-        db_name   = options.session_db_name
-        db_user   = options.session_db_user
-        db_passwd = options.session_db_passwd
-        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
-        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
-    elif options.session_storage != 'memory':
-        print >> sys.stderr, "The session engine %s is not registered" % options.session_storage
-        sys.exit(-1)
+        redis_port   = options[Creation.SESSION_REDIS_PORT]
+        redis_db     = options[Creation.SESSION_REDIS_DB]
+        redis_host   = options[Creation.SESSION_REDIS_HOST]
+        _test_redis('sessions', verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func)
+    elif options[Creation.SESSION_STORAGE] in ('sql', 'sqlalchemy'):
+        db_engine = options[Creation.SESSION_DB_ENGINE]
+        db_host   = options[Creation.SESSION_DB_HOST]
+        db_name   = options[Creation.SESSION_DB_NAME]
+        db_user   = options[Creation.SESSION_DB_USER]
+        db_passwd = options[Creation.SESSION_DB_PASSWD]
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    elif options[Creation.SESSION_STORAGE] != 'memory':
+        print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
+        exit_func(-1)
 
-    db_engine = options.db_engine
-    db_name   = options.db_name
-    db_host   = options.db_host
-    db_user   = options.db_user
-    db_passwd = options.db_passwd
-    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd)
+    db_engine = options[Creation.DB_ENGINE]
+    db_name   = options[Creation.DB_NAME]
+    db_host   = options[Creation.DB_HOST]
+    db_user   = options[Creation.DB_USER]
+    db_passwd = options[Creation.DB_PASSWD]
+    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
-    if verbose: print "Adding required initial data...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
-    if verbose: print "[done]"
-    if options.add_test_data:
-        if verbose: print "Adding test data...",; sys.stdout.flush()
+    if verbose: print >> stdout, "[done]"
+    if options[Creation.ADD_TEST_DATA]:
+        if verbose: print >> stdout, "Adding test data...",; stdout.flush()
         deploy.populate_weblab_tests(engine, '1')
-        if verbose: print "[done]"
+        if verbose: print >> stdout, "[done]"
     
     Session = sessionmaker(bind=engine)
     group_name = 'Administrators'
     deploy.add_group(Session, group_name)
-    deploy.add_user(Session, options.admin_user, options.admin_password, options.admin_name, options.admin_mail)
-    deploy.add_users_to_group(Session, group_name, options.admin_user)
+    deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL])
+    deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
     # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, options.dummy_category_name, options.dummy_name, group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
 
     # visir@Visir experiments (optional)
-    if options.visir_server:
-        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options.visir_experiment_name, group_name, 1800)
+    if options[Creation.VISIR_SERVER]:
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 1800)
 
     # vm@VM experiments (optional)
-    if options.vm_server:
+    if options[Creation.VM_SERVER]:
         deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', 'vm', group_name, 200)
 
     # logic@PIC experiments (optional)
-    if options.logic_server:
+    if options[Creation.LOGIC_SERVER]:
         deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
 
     ###########################################
@@ -653,7 +775,7 @@ def weblab_create(directory):
     # Create voodoo infrastructure
     # 
 
-    if verbose: print "Creating configuration files and directories...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
 
     open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
     """<machines
@@ -681,12 +803,12 @@ def weblab_create(directory):
     <configuration file="machine_config.py"/>
 
     """)
-    for core_n in range(1, options.cores + 1):
+    for core_n in range(1, options[Creation.CORES] + 1):
         machine_configuration_xml += "<instance>core_server%s</instance>\n    " % core_n
 
     machine_configuration_xml += "\n"
-    if not options.inline_lab_serv:
-        for n in range(1, options.lab_copies + 1):
+    if not options[Creation.INLINE_LAB_SERV]:
+        for n in range(1, options[Creation.LAB_COPIES] + 1):
             machine_configuration_xml += "    <instance>laboratory%s</instance>\n\n" % n
     machine_configuration_xml += "</instances>\n"
 
@@ -696,13 +818,13 @@ def weblab_create(directory):
     laboratory_experiments  = {}
     laboratory_experiment_instances  = {}
 
-    for n in range(options.lab_copies):
+    for n in range(options[Creation.LAB_COPIES]):
         laboratory_experiments[n] = ""
         laboratory_experiment_instances[n] = {}
 
-    for n in xrange(1, options.dummy_copies + 1):
-        local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options.dummy_name, 'dummy_category' : options.dummy_category_name, 'n' : n }
-        lab_id = experiment_counter % options.lab_copies
+    for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
+        local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : n }
+        lab_id = experiment_counter % options[Creation.LAB_COPIES]
         laboratory_experiments[lab_id] += local_experiments
         if 'dummy' not in laboratory_experiment_instances[lab_id]:
             laboratory_experiment_instances[lab_id]['dummy'] = []
@@ -710,10 +832,10 @@ def weblab_create(directory):
         experiment_counter += 1
     local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
 
-    if options.visir_server:
-        for n in xrange(1, options.visir_slots + 1):
-            local_experiments = "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options.visir_experiment_name }
-            lab_id = experiment_counter % options.lab_copies
+    if options[Creation.VISIR_SERVER]:
+        for n in xrange(1, options[Creation.VISIR_SLOTS] + 1):
+            local_experiments = "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+            lab_id = experiment_counter % options[Creation.LAB_COPIES]
             laboratory_experiments[lab_id] += local_experiments
             if 'visir' not in laboratory_experiment_instances[lab_id]:
                 laboratory_experiment_instances[lab_id]['visir'] = []
@@ -721,9 +843,9 @@ def weblab_create(directory):
             experiment_counter += 1
         local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
 
-    if options.logic_server:
+    if options[Creation.LOGIC_SERVER]:
         local_experiments = "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
-        lab_id = experiment_counter % options.lab_copies
+        lab_id = experiment_counter % options[Creation.LAB_COPIES]
         laboratory_experiments[lab_id] += local_experiments
         laboratory_experiment_instances[lab_id]['logic'] = 1
         experiment_counter += 1
@@ -731,13 +853,13 @@ def weblab_create(directory):
 
     laboratory_servers = ""
 
-    for n in range(1, options.lab_copies + 1):
+    for n in range(1, options[Creation.LAB_COPIES] + 1):
         local_experiments = laboratory_experiments[n - 1]
         laboratory_servers += (
         "    'laboratory%(n)s:%(laboratory_instance_name)s@core_machine' : {\n"
         "%(local_experiments)s"
         "        },\n" % {
-                'laboratory_instance_name' : 'core_server1' if options.inline_lab_serv else 'laboratory%s' % n, 
+                'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n, 
                 'local_experiments' : local_experiments, 'n' : n })
 
 
@@ -834,45 +956,45 @@ def weblab_create(directory):
                         "    }\n"
                         "\n") % {
         'core_universal_identifier'       : str(uuid.uuid4()),
-        'core_universal_identifier_human' : options.system_identifier or 'Generic system; not identified',
-        'db_engine'                       : options.db_engine,
-        'db_host'                         : options.db_host,
-        'db_name'                         : options.db_name,
-        'db_user'                         : options.db_user,
-        'db_password'                     : options.db_passwd,
-        'server_hostaddress'              : options.server_host,
-        'server_admin'                    : options.admin_mail,
+        'core_universal_identifier_human' : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
+        'db_engine'                       : options[Creation.DB_ENGINE],
+        'db_host'                         : options[Creation.DB_HOST],
+        'db_name'                         : options[Creation.DB_NAME],
+        'db_user'                         : options[Creation.DB_USER],
+        'db_password'                     : options[Creation.DB_PASSWD],
+        'server_hostaddress'              : options[Creation.SERVER_HOST],
+        'server_admin'                    : options[Creation.ADMIN_MAIL],
         'server_url'                      : server_url,
-        'poll_time'                       : options.poll_time,
+        'poll_time'                       : options[Creation.POLL_TIME],
         'laboratory_servers'              : laboratory_servers,
         'local_scheduling'                : local_scheduling,
 
         'session_storage'                 : session_storage,
 
-        'session_db_engine'               : options.session_db_engine,
-        'session_db_host'                 : options.session_db_host,
-        'session_db_name'                 : options.session_db_name,
-        'session_db_user'                 : options.session_db_user,
-        'session_db_passwd'               : options.session_db_passwd,
+        'session_db_engine'               : options[Creation.SESSION_DB_ENGINE],
+        'session_db_host'                 : options[Creation.SESSION_DB_HOST],
+        'session_db_name'                 : options[Creation.SESSION_DB_NAME],
+        'session_db_user'                 : options[Creation.SESSION_DB_USER],
+        'session_db_passwd'               : options[Creation.SESSION_DB_PASSWD],
 
-        'session_redis_host'              : options.session_redis_host,
-        'session_redis_port'              : options.session_redis_port,
-        'session_redis_db'                : options.session_redis_db,
+        'session_redis_host'              : options[Creation.SESSION_REDIS_HOST],
+        'session_redis_port'              : options[Creation.SESSION_REDIS_PORT],
+        'session_redis_db'                : options[Creation.SESSION_REDIS_DB],
 
         'core_coordinator_engine'         : coord_engine,
 
-        'core_coordinator_redis_db'       : options.coord_redis_db,
-        'core_coordinator_redis_password' : options.coord_redis_passwd,
-        'core_coordinator_redis_port'     : options.coord_redis_port,
+        'core_coordinator_redis_db'       : options[Creation.COORD_REDIS_DB],
+        'core_coordinator_redis_password' : options[Creation.COORD_REDIS_PASSWD],
+        'core_coordinator_redis_port'     : options[Creation.COORD_REDIS_PORT],
 
-        'core_coordinator_db_username'    : options.coord_db_user,
-        'core_coordinator_db_password'    : options.coord_db_passwd,
-        'core_coordinator_db_name'        : options.coord_db_name,
-        'core_coordinator_db_engine'      : options.coord_db_engine,
-        'core_coordinator_db_host'        : options.coord_db_host,
+        'core_coordinator_db_username'    : options[Creation.COORD_DB_USER],
+        'core_coordinator_db_password'    : options[Creation.COORD_DB_PASSWD],
+        'core_coordinator_db_name'        : options[Creation.COORD_DB_NAME],
+        'core_coordinator_db_engine'      : options[Creation.COORD_DB_ENGINE],
+        'core_coordinator_db_host'        : options[Creation.COORD_DB_HOST],
 
-        'coord_db'                        : '' if options.coord_engine == 'sql' else '# ',
-        'coord_redis'                     : '' if options.coord_engine == 'redis' else '# ',
+        'coord_db'                        : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
+        'coord_redis'                     : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
         'session_db'                      : '' if session_storage == 'sqlalchemy' else '# ',
         'session_redis'                   : '' if session_storage == 'redis' else '# ',
     }
@@ -886,10 +1008,10 @@ def weblab_create(directory):
         'login' : [],
     }
 
-    current_port = options.start_ports
+    current_port = options[Creation.START_PORTS]
 
     latest_core_server_directory = None
-    for core_number in range(1, options.cores + 1):
+    for core_number in range(1, options[Creation.CORES] + 1):
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
         latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
@@ -907,15 +1029,15 @@ def weblab_create(directory):
 		"""    <server>login</server>\n"""
 		"""    <server>core</server>\n""")
 
-        if options.inline_lab_serv:
-            for n in range(1, options.lab_copies + 1):
+        if options[Creation.INLINE_LAB_SERV]:
+            for n in range(1, options[Creation.LAB_COPIES] + 1):
                 instance_configuration_xml += """    <server>laboratory%s</server>\n""" % n
-            if not options.xmlrpc_experiment:
-                for n in xrange(1, options.dummy_copies + 1):
+            if not options[Creation.XMLRPC_EXPERIMENT]:
+                for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
                     instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
-            if options.visir_server:
+            if options[Creation.VISIR_SERVER]:
                 instance_configuration_xml += """    <server>visir</server>\n"""
-            if options.logic_server:
+            if options[Creation.LOGIC_SERVER]:
                 instance_configuration_xml += """    <server>logic</server>\n"""
            
             
@@ -1039,11 +1161,11 @@ def weblab_create(directory):
 		"core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
 
-    for n in range(1, options.lab_copies + 1):
-        laboratory_instance_name = 'core_server1' if options.inline_lab_serv else 'laboratory%s' % n
+    for n in range(1, options[Creation.LAB_COPIES] + 1):
+        laboratory_instance_name = 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
         experiments_in_lab = laboratory_experiment_instances[n - 1]
 
-        if options.inline_lab_serv:
+        if options[Creation.INLINE_LAB_SERV]:
             lab_instance_dir = latest_core_server_directory
         else:
             lab_instance_dir = os.path.join(machine_dir, 'laboratory%s' % n)
@@ -1131,7 +1253,7 @@ def weblab_create(directory):
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 
-                  'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name, 'n' : dummy_id }
+                  'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
 
         for visir_id in experiments_in_lab.get('visir', []):
             laboratory_config_py += (
@@ -1140,7 +1262,7 @@ def weblab_create(directory):
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 
-                  'visir_name' : options.visir_experiment_name, 'n' : visir_id }
+                  'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
 
         if 'logic' in experiments_in_lab:
             laboratory_config_py += (
@@ -1184,7 +1306,7 @@ def weblab_create(directory):
                 """            <creation></creation>\n"""
                 """        </protocol>\n"""
                 """    </protocols>\n"""
-                """</server>\n""") % { 'dummy' : options.dummy_name, 'dummy_category_name' : options.dummy_category_name } )
+                """</server>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } )
 
             open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
                 "dummy_verbose = True\n")
@@ -1220,23 +1342,23 @@ def weblab_create(directory):
                 """    </protocols>\n"""
                 """</server>\n"""))
 
-            if options.visir_measurement_server is not None:
-                if not ':' in options.visir_measurement_server or options.visir_measurement_server.startswith(('http://','https://')) or '/' in options.visir_measurement_server.split(':')[1]:
-                    print >> sys.stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
-                visir_measurement_server = options.visir_measurement_server
+            if options[Creation.VISIR_MEASUREMENT_SERVER] is not None:
+                if not ':' in options[Creation.VISIR_MEASUREMENT_SERVER] or options[Creation.VISIR_MEASUREMENT_SERVER].startswith(('http://','https://')) or '/' in options[Creation.VISIR_MEASUREMENT_SERVER].split(':')[1]:
+                    print >> stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
+                visir_measurement_server = options[Creation.VISIR_MEASUREMENT_SERVER]
             else:
-                result = urllib2.urlparse.urlparse(options.visir_base_url)
+                result = urllib2.urlparse.urlparse(options[Creation.VISIR_BASE_URL])
                 visir_measurement_server = result.netloc.split(':')[0] + ':8080'
 
-            if options.visir_use_php:
+            if options[Creation.VISIR_USE_PHP]:
                 visir_php = ("""vt_use_visir_php = True\n"""
                 """vt_base_url = "%(visir_base_url)s"\n"""
                 """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
                 """vt_login_email = "%(visir_login)s"\n"""
                 """vt_login_password = "%(visir_password)s"\n""" % {
-                    'visir_base_url' : options.visir_base_url,
-                    'visir_login'    : options.visir_login,
-                    'visir_password' : options.visir_password,
+                    'visir_base_url' : options[Creation.VISIR_BASE_URL],
+                    'visir_login'    : options[Creation.VISIR_LOGIN],
+                    'visir_password' : options[Creation.VISIR_PASSWORD],
                 })
             else:
                 visir_php = """vt_use_visir_php = False\n"""
@@ -1315,14 +1437,14 @@ def weblab_create(directory):
     if not os.path.exists(files_stored_dir):
         os.mkdir(files_stored_dir)
 
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
 
     ###########################################
     # 
     # Generate logs directory and config
     # 
 
-    if verbose: print "Creating logs directories and configuration files...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Creating logs directories and configuration files...",; stdout.flush()
 
     logs_dir = os.path.join(directory, 'logs')
     if not os.path.exists(logs_dir):
@@ -1335,13 +1457,13 @@ def weblab_create(directory):
     # TODO: use the generation module instead of hardcoding it here
 
     server_names = []
-    for core_number in range(1, options.cores + 1):
+    for core_number in range(1, options[Creation.CORES] + 1):
         server_names.append('server%s' % core_number)
 
-    if not options.inline_lab_serv:
-        for n in range(1, options.lab_copies + 1):
+    if not options[Creation.INLINE_LAB_SERV]:
+        for n in range(1, options[Creation.LAB_COPIES] + 1):
             server_names.append('laboratory%s' % n)
-    if options.xmlrpc_experiment or not options.inline_lab_serv:
+    if options[Creation.XMLRPC_EXPERIMENT] or not options[Creation.INLINE_LAB_SERV]:
         server_names.append('experiment')
 
     for server_name in server_names:
@@ -1515,14 +1637,14 @@ def weblab_create(directory):
         open(os.path.join(logs_config_dir, 'logging.configuration.%s.txt' % server_name), 'w').write(logging_file)
 
 
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
 
     ###########################################
     # 
     # Generate launch script
     # 
 
-    if verbose: print "Creating launch file...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Creating launch file...",; stdout.flush()
 
     launch_script = (
         """#!/usr/bin/env python\n"""
@@ -1544,11 +1666,11 @@ def weblab_create(directory):
         """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
         """                ),\n"""
         """                {\n""")
-    for core_number in range(1, options.cores + 1):
+    for core_number in range(1, options[Creation.CORES] + 1):
         launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
     
-    if not options.inline_lab_serv:
-        for n in range(1, options.lab_copies + 1):
+    if not options[Creation.INLINE_LAB_SERV]:
+        for n in range(1, options[Creation.LAB_COPIES] + 1):
             launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
     launch_script += (
         """                },\n"""
@@ -1562,7 +1684,7 @@ def weblab_create(directory):
     launch_script += """                waiting_port = %r,\n""" % waiting_port
     launch_script += """                debugger_ports = { \n"""
     debugging_ports = []
-    for core_number in range(1, options.cores + 1):
+    for core_number in range(1, options[Creation.CORES] + 1):
         debugging_core_port = current_port
         debugging_ports.append(debugging_core_port)
         current_port += 1
@@ -1608,14 +1730,14 @@ def weblab_create(directory):
     open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
     os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
 
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
 
     ###########################################
     # 
     # Generate apache configuration file
     # 
 
-    if verbose: print "Creating apache configuration files...",; sys.stdout.flush()
+    if verbose: print >> stdout, "Creating apache configuration files...",; stdout.flush()
 
     apache_dir = os.path.join(directory, 'apache')
     if not os.path.exists(apache_dir):
@@ -1818,7 +1940,7 @@ def weblab_create(directory):
         apache_windows_conf_path = os.path.join(apache_dir, 'apache_weblab_windows.conf')
         open(apache_windows_conf_path, 'w').write( apache_windows_conf )
 
-    if verbose: print "[done]"
+    if verbose: print >> stdout, "[done]"
 
     ###########################################
     # 
@@ -1834,10 +1956,10 @@ def weblab_create(directory):
     dummy_list = list(configuration_js['experiments']['dummy'])
     found      = False
     for element in dummy_list:
-        if element['experiment.name'] == options.dummy_name:
+        if element['experiment.name'] == options[Creation.DUMMY_NAME]:
             found = True
     if not found:
-        dummy_list.append({'experiment.name' : options.dummy_name, 'experiment.category' : options.dummy_category_name })
+        dummy_list.append({'experiment.name' : options[Creation.DUMMY_NAME], 'experiment.category' : options[Creation.DUMMY_CATEGORY_NAME] })
     configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
@@ -1856,53 +1978,53 @@ def weblab_create(directory):
         configuration_js['host.entity.image']              = '/img/sample/sample.png'
         configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
 
-    configuration_js['host.entity.link']               = options.entity_link
+    configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False
     configuration_js['create.account.visible']         = False
     json.dump(configuration_js, open(os.path.join(client_dir, 'configuration.js'), 'w'), indent = True)
 
-    print
-    print "Congratulations!"
-    print "WebLab-Deusto system created"
-    print 
+    print >> stdout, ""
+    print >> stdout, "Congratulations!"
+    print >> stdout, "WebLab-Deusto system created"
+    print >> stdout, "" 
     apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
     if os.path.exists("/etc/apache2/httpd.conf"):
         apache_httpd_path = '/etc/apache2/httpd.conf'
     elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
         apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
 
-    print r"Append the following to", apache_httpd_path
-    print 
-    print "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
+    print >> stdout, r"Append the following to", apache_httpd_path
+    print >> stdout, ""
+    print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
     if sys.platform.find('win') == 0:
-        print "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+        print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
     else:
-        print
-        print "And enable the modules proxy proxy_balancer proxy_http."
-        print "For instance, in Ubuntu you can run: "
-        print 
-        print "    $ sudo a2enmod proxy proxy_balancer proxy_http"
-    print 
-    print "Then restart apache and execute:"
-    print 
-    print "     %s start %s" % (os.path.basename(sys.argv[0]), directory)
-    print 
-    print "to start the WebLab-Deusto system. From that point, you'll be able to access: "
-    print
-    print "     %s " % server_url
-    print
-    print "And log in as '%s' using '%s' as password." % (options.admin_user, options.admin_password)
-    print 
-    print "You should also configure the images directory with two images called:"
-    print 
-    print "     %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
-    print 
-    print "You can also add users, permissions, etc. from the admin CLI by typing:"
-    print
-    print "    %s admin %s" % (os.path.basename(sys.argv[0]), directory)
-    print 
-    print "Enjoy!"
-    print 
+        print >> stdout, ""
+        print >> stdout, "And enable the modules proxy proxy_balancer proxy_http."
+        print >> stdout, "For instance, in Ubuntu you can run: "
+        print >> stdout, ""
+        print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http"
+    print >> stdout, ""
+    print >> stdout, "Then restart apache and execute:"
+    print >> stdout, ""
+    print >> stdout, "     %s start %s" % (os.path.basename(sys.argv[0]), directory)
+    print >> stdout, ""
+    print >> stdout, "to start the WebLab-Deusto system. From that point, you'll be able to access: "
+    print >> stdout, ""
+    print >> stdout, "     %s " % server_url
+    print >> stdout, ""
+    print >> stdout, "And log in as '%s' using '%s' as password." % (options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD])
+    print >> stdout, ""
+    print >> stdout, "You should also configure the images directory with two images called:"
+    print >> stdout, ""
+    print >> stdout, "     %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
+    print >> stdout, ""
+    print >> stdout, "You can also add users, permissions, etc. from the admin CLI by typing:"
+    print >> stdout, ""
+    print >> stdout, "    %s admin %s" % (os.path.basename(sys.argv[0]), directory)
+    print >> stdout, ""
+    print >> stdout, "Enjoy!"
+    print >> stdout, ""
 
 #########################################################################################
 # 
