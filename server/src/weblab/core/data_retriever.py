@@ -85,11 +85,9 @@ class TemporalInformationRetriever(threading.Thread):
                 username      = request_info.pop('username')
                 role          = request_info.pop('role')
             except:
-                log.log( TemporalInformationRetriever, log.level.Critical, "Provided information did not contain some relevant fields (such as username or role). Provided request_info: %r; provided data: %r" % (request_info, initial_information), max_size = 10000)
+                log.log( TemporalInformationRetriever, log.level.Critical, "Provided information did not contain some required fields (such as username or role). This usually means that the reservation has previously been expired. Provided request_info: %r; provided data: %r" % (request_info, initial_information), max_size = 10000)
                 log.log_exc( TemporalInformationRetriever, log.level.Critical )
-
-                print >> sys.stderr, "Provided information did not contain some relevant fields (such as username or role). Provided: %r" % request_info
-                raise
+                return
 
             usage = ExperimentUsage()
             usage.start_date     = initial_timestamp
