@@ -13,6 +13,7 @@
     {% from "macros/_formhelpers.html" import render_field %}
     <form method=post action="{{ url_for('register') }}">
       <dl>
+        {{ form.hidden_tag() }}
         {{ render_field(form.full_name) }}
         {{ render_field(form.email) }}
         {{ render_field(form.password) }}
