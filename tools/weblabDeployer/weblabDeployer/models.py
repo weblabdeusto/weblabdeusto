@@ -36,7 +36,9 @@ class User(db.Model):
                                 backref=db.backref('user', uselist=False)) #and this are for one-to-one
 
     entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'))
-    entity = db.relationship('Entity', backref=db.backref('users')) #many-to-one
+    entity = db.relationship('Entity', single_parent=True,
+                                uselist=False, #This 
+                                backref=db.backref('user', uselist=False))
      
     def __init__(self, email, password):
         self.email = email
