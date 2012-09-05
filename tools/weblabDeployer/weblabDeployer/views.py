@@ -19,8 +19,9 @@
 
 from weblabDeployer import app, db, utils
 from flask import render_template, request, url_for, flash, redirect, session
-from weblabDeployer.forms import RegistrationForm, LoginForm
-from weblabDeployer.models import User, Token
+from weblabDeployer.forms import RegistrationForm, LoginForm, ConfigurationForm
+from weblabDeployer.models import User, Token, Entity
+from werkzeug import secure_filename
 import hashlib
 import uuid
 from functools import wraps
@@ -160,4 +161,67 @@ def confirm():
     
     flash('Account confirmed. Please login', 'success')
     return redirect(url_for('login'))
-    
+
+@login_required
+@app.route('/configure', methods=['GET', 'POST'])
+def configure():
+    form = ConfigurationForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        # Exract data from the form
+        logo = request.files['logo']
+        logo_data = logo.stream.read()
+        name = form.name.data
+        base_url = form.base_url.data
+        link_url = form.link_url.data
+        google_analytics_number = form.google_analytics_number.data
+        
+        # Get user
+        email = session['user_email']
+        user = User.query.filter_by(email=email).first()
+        
+        # Create entity
+        if user.entity is None:
+            entity = Entity(name, base_url)
+            entity.logo = logo_data
+            entity.link_url = link_url
+            entity.google_analytics_number = google_analytics_number
+        
+            user.entity = entity
+
+        # Update
+        else:
+            if logo_data is not None : user.entity.logo = logo_data
+            if name is not None : user.entity.name = name
+            if base_url is not None : user.entity.base_url = base_url
+            if link_url is not None : user.entity.link_url = link_url
+            if google_analytics_number is not None :
+                user.entity.google_analytics_number = google_analytics_number
+            
+        # Save
+        db.session.add(user)
+        db.session.commit()
+     
+        flash('Configuration saved.', 'success')
+        
+    else:
+         # Get user
+        email = session['user_email']
+        user = User.query.filter_by(email=email).first()
+        entity = user.entity
+        if entity is not None:
+            form.name.data = entity.name
+            form.base_url.data = entity.base_url
+            form.link_url.data = entity.link_url
+            form.google_analytics_number.data = entity.google_analytics_number
+
+    return render_template('configuration.html', form=form)
+
+#Testing image upload/save
+@app.route('/save-image')
+def save():
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    f = open('/tmp/test.png', 'w+')
+    f.write(user.entity.logo)
+    f.close

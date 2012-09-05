@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+<ul class="nav">
+    <li class="active"><a href="#">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+</ul>
+{% endblock navbar %}
+
+{% block body %}
+    {% from "macros/_formhelpers.html" import render_field %}
+    <form method=post enctype=multipart/form-data action="{{ url_for('configure') }}">
+      <dl>
+        {{ form.hidden_tag() }}
+        {{ render_field(form.name) }}
+        {{ render_field(form.logo) }}
+        {{ render_field(form.base_url) }}
+        {{ render_field(form.link_url) }}
+        {{ render_field(form.google_analytics_number) }}
+      </dl>
+      <p><input type=submit value=Save>
+    </form>
+{% endblock body %}
+
+{% block footer %}
+   CC 3.0
+{% endblock footer %}
