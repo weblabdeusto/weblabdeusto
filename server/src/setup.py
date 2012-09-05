@@ -175,6 +175,6 @@ setup(name='weblabdeusto',
       scripts=scripts,
       install_requires=install_requires,
       tests_require=tests_require,
-      test_suite="launch_tests.suite",
+      test_suite="develop.suite",
       zip_safe=False,
      )
