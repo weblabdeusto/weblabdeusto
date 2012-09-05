@@ -17,10 +17,14 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wtforms import Form, BooleanField, TextField, PasswordField, validators
+from flask.ext.wtf import Form, BooleanField, TextField, PasswordField,\
+    FileField, validators, file_allowed
+from flask.ext.uploads import UploadSet, IMAGES
+
 
 class LoginForm(Form):
-    email = TextField('Email Address', [validators.Length(min=6, max=35), validators.Email('No es un email valido')])
+    email = TextField('Email Address', [validators.Length(min=6, max=35),
+                        validators.Email('No es un email valido')])
     password = PasswordField('New Password', [
         validators.Required(),
     ])
@@ -28,10 +32,26 @@ class LoginForm(Form):
 
 class RegistrationForm(Form):
     full_name = TextField('Full name', [validators.Length(min=4, max=25)])
-    email = TextField('Email Address', [validators.Length(min=6, max=35), validators.Email('No es un email valido')])
+    email = TextField('Email Address', [validators.Length(min=6, max=35),
+                                validators.Email('No es un email valido')])
     password = PasswordField('New Password', [
         validators.Required(),
         validators.EqualTo('confirm', message='Passwords must match')
     ])
     confirm = PasswordField('Repeat Password')
-    accept_tos = BooleanField('I accept the TOS', [validators.Required()]) 
+    accept_tos = BooleanField('I accept the TOS', [validators.Required()])
+    
+
+images = UploadSet("images", IMAGES)
+
+class ConfigurationForm(Form):
+    name = TextField('Company name', [validators.Length(min=4, max=100)])
+    logo = FileField('Company logo', validators=[
+                                        file_allowed(images, "Images only")])
+    base_url = TextField('Base url', [validators.Length(min=4, max=100),
+                                validators.Regexp('\w|\/\?\-')])
+    link_url = TextField('Link url', [validators.Length(min=4, max=100),
+                                validators.Regexp('^http:\/\/.*')])
+    google_analytics_number = TextField('Google analytics number',
+                                        [validators.Length(min=4, max=100)])
+    
