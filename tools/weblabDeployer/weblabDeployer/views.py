@@ -216,12 +216,3 @@ def configure():
             form.google_analytics_number.data = entity.google_analytics_number
 
     return render_template('configuration.html', form=form)
-
-#Testing image upload/save
-@app.route('/save-image')
-def save():
-    email = session['user_email']
-    user = User.query.filter_by(email=email).first()
-    f = open('/tmp/test.png', 'w+')
-    f.write(user.entity.logo)
-    f.close
