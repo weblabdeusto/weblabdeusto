@@ -38,12 +38,17 @@ Installation
 ============
 
 The full instructions to install the development version are `here
-<https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto>`_.However,
-the quick version for deploying it is to run (in a virtualenv)::
+<code.google.com/p/weblabdeusto/wiki/4_5_Developers>`_. However,
+the quick version is:
+
+#. Install `Python 2.7 <http://www.python.org/download/>`_ and the `Java Development Kit 6 <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_.
+#. Install `setuptools <http://pypi.python.org/pypi/setuptools>`_, `pip <http://www.pip-installer.org/en/latest/installing.html#using-the-installer>`_ and `virtualenv <http://www.virtualenv.org/en/latest/index.html#installation>`_.
+
+Create a virtualenv and then install it::
 
   $ python setup.py install
 
-And then run::
+From this point, you can run::
 
   $ weblab-admin create my-instance
 
