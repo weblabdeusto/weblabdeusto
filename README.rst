@@ -38,7 +38,7 @@ Installation
 ============
 
 The full instructions to install the development version are `here
-<code.google.com/p/weblabdeusto/wiki/4_5_Developers>`_. However,
+<http://code.google.com/p/weblabdeusto/wiki/4_5_Developers>`_. However,
 the quick version is:
 
 #. Install `Python 2.7 <http://www.python.org/download/>`_ and the `Java Development Kit 6 <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_.
