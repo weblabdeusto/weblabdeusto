@@ -23,6 +23,7 @@ import time
 import traceback
 import sqlite3
 import urllib2
+import urlparse
 import json
 from optparse import OptionParser, OptionGroup
 
@@ -1346,7 +1347,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                     print >> stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
                 visir_measurement_server = options[Creation.VISIR_MEASUREMENT_SERVER]
             else:
-                result = urllib2.urlparse.urlparse(options[Creation.VISIR_BASE_URL])
+                result = urlparse.urlparse(options[Creation.VISIR_BASE_URL])
                 visir_measurement_server = result.netloc.split(':')[0] + ':8080'
 
             if options[Creation.VISIR_USE_PHP]:
