@@ -18,18 +18,18 @@
 #
 
 import os
-from weblabDeployer import app, db, utils, task_manager
-from flask import render_template, request, url_for, flash, redirect, session
-from weblabDeployer.forms import RegistrationForm, LoginForm, ConfigurationForm
-from weblabDeployer.models import User, Token, Entity
-from werkzeug import secure_filename
 import hashlib
 import uuid
-from functools import wraps
-from weblabDeployer import deploymentsettings
 import StringIO
+from functools import wraps
+
+from flask import render_template, request, url_for, flash, redirect, session
+from werkzeug import secure_filename
 from weblab.admin.script import Creation, weblab_create
 
+from weblabDeployer import app, db, utils, task_manager, deploymentsettings
+from weblabDeployer.forms import RegistrationForm, LoginForm, ConfigurationForm
+from weblabDeployer.models import User, Token, Entity
 
 SESSION_TYPE = 'labdeployer_admin'
 
