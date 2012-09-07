@@ -67,6 +67,7 @@ class DigilentAdept(object):
         self._reserve_device()
         try:
             res, out, err = self._execute(cmd_params, digilent_adept)
+            print res, out, err
         finally:
             self._release_device()
 
@@ -87,7 +88,9 @@ class DigilentAdept(object):
     def _execute(self, cmd_params, digilent_adept):
         # Kludge!
         full_cmd_line = digilent_adept + cmd_params.split(" ")
-        
+
+        log.log(DigilentAdept,log.level.Warning,"Executing %s" % full_cmd_line)
+
         try:
             popen = subprocess.Popen(
                 full_cmd_line,

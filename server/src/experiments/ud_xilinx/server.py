@@ -139,7 +139,10 @@ class UdXilinxExperiment(Experiment.Experiment):
                     os.close(fd)
                 self._programmer.program(file_name)
             finally:
-                os.remove(file_name)
+                # os.remove(file_name)
+                print file_name
+                import sys
+                sys.stdout.flush()
         except Exception as e:
 
             #TODO: test me
