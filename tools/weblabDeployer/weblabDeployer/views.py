@@ -17,7 +17,8 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from weblabDeployer import app, db, utils
+import os
+from weblabDeployer import app, db, utils, task_manager
 from flask import render_template, request, url_for, flash, redirect, session
 from weblabDeployer.forms import RegistrationForm, LoginForm, ConfigurationForm
 from weblabDeployer.models import User, Token, Entity
@@ -25,6 +26,9 @@ from werkzeug import secure_filename
 import hashlib
 import uuid
 from functools import wraps
+from weblabDeployer import deploymentsettings
+import StringIO
+from weblab.admin.script import Creation, weblab_create
 
 
 SESSION_TYPE = 'labdeployer_admin'
@@ -216,3 +220,42 @@ def configure():
             form.google_analytics_number.data = entity.google_analytics_number
 
     return render_template('configuration.html', form=form)
+
+@app.route('/deploy')
+def deploy():
+    
+    # Get user settings
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    entity = user.entity
+    
+    if entity is None:
+        flash('Configure before usinng the deployment app', 'error')
+        return redirect(url_for('configure'))
+    
+    # Step 1, create the deployments dir if necessary
+    if not os.path.exists(deploymentsettings.DIR_BASE):
+        os.mkdir(deploymentsettings.DIR_BASE)
+    
+    # Step 2, deploy
+    def exit_func(code): print "Exited with code %s" % code
+    
+    options = {
+        Creation.CORES        : deploymentsettings.CORES,
+        Creation.COORD_ENGINE : deploymentsettings.COORD_ENGINE,
+        Creation.DB_ENGINE    : deploymentsettings.DB_ENGINE,
+        Creation.BASE_URL     : entity.base_url
+    }
+    
+    directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
+    stdout = open('/tmp/weblab_out.txt', 'w+')
+    stderr = open('/tmp/weblab_error.txt', 'w+')
+
+    
+    task = {'directory': directory, 'options': options,
+        'stdout': stdout, 'stderr': stderr, 'exit_func': exit_func}
+
+    task_manager.submit_task(task)
+
+    from time import time
+    return str(time())
