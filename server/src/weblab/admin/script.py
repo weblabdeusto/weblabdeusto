@@ -144,6 +144,7 @@ class Creation(object):
     SERVER_HOST       = 'server_host'
     POLL_TIME         = 'poll_time'
     INLINE_LAB_SERV   = 'inline_lab_serv'
+    HTTP_SERVER_PORT  = 'http_server_port'
     LAB_COPIES        = 'lab_copies'
     ADMIN_USER        = 'admin_user'
     ADMIN_NAME        = 'admin_name'
@@ -208,6 +209,9 @@ class Creation(object):
     NOT_INTERACTIVE      = 'not_interactive'
     MYSQL_ADMIN_USER     = 'mysql_admin_username'
     MYSQL_ADMIN_PASSWORD = 'mysql_admin_password'
+
+class CreationFlags(object):
+    HTTP_SERVER_PORT = '--http-server-port'
 
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
@@ -393,6 +397,9 @@ def _build_parser():
 
     parser.add_option("--base-url",               dest = Creation.BASE_URL,       type="string",    default="",
                                                   help = "Base location, before /weblab/. Example: /deusto.")
+
+    parser.add_option(CreationFlags.HTTP_SERVER_PORT,  dest = Creation.HTTP_SERVER_PORT,   type="int",    default=None,
+                                                  help = "Enable the builtin HTTP server (so as to not require apache while testing) and listen in that port.")
 
     parser.add_option("--entity-link",            dest = Creation.ENTITY_LINK,       type="string",  default="http://www.yourentity.edu",
                                                   help = "Link of the host entity (e.g. http://www.deusto.es ).")
@@ -748,6 +755,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     Session = sessionmaker(bind=engine)
     group_name = 'Administrators'
     deploy.add_group(Session, group_name)
+    deploy.grant_admin_panel_on_group(Session, group_name)
     deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL])
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
@@ -1689,7 +1697,22 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         current_port += 1
         launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
     launch_script += ("""                }\n"""
-        """            )\n"""
+        """            )\n""")
+
+
+    httpd_dir = os.path.join(directory, 'httpd')
+    local_simple_server_conf_path = os.path.join('httpd', 'simple_server_config.py')
+    simple_server_conf_path = os.path.join(httpd_dir, 'simple_server_config.py')
+
+    http_server_port = options[Creation.HTTP_SERVER_PORT]
+    if http_server_port is not None:
+        launch_script += ("""\n"""
+            """    from weblab.comm.proxy_server import start as start_proxy\n"""
+            """    execfile(%r)\n"""
+            """    start_proxy(%s, PATHS)\n"""
+            """\n""") % (local_simple_server_conf_path, http_server_port)
+
+    launch_script += ("""\n"""
         """    launcher.launch()\n"""
         """except:\n"""
         """    import traceback\n"""
@@ -1738,7 +1761,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if verbose: print >> stdout, "Creating apache configuration files...",; stdout.flush()
 
-    httpd_dir = os.path.join(directory, 'httpd')
     if not os.path.exists(httpd_dir):
         os.mkdir(httpd_dir)
 
@@ -1763,7 +1785,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%(directory)s/client/images/'),
 
         ('%(root)s/weblab/client',      'file:%(war_path)s'),
-        ('%(root)s/weblab/',            'file:%(webserver_path)s'),
     ]
 
     apache_conf = (
@@ -1929,6 +1950,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     
+    proxy_paths.append(('%(root)s/weblab/',            'file:%(webserver_path)s'))
+    proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
+
     if base_url in ('','/'):
         apache_root    = ''
         apache_img_dir = '/sample' 
@@ -1949,7 +1973,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         proxy_paths_str += "    %s,\n" % repr(proxy_path)
     proxy_paths_str += "]\n"
 
-    simple_server_conf_path = os.path.join(httpd_dir, 'simple_server_config.py')
     open(simple_server_conf_path, 'w').write( proxy_paths_str )
 
     apache_conf_path = os.path.join(httpd_dir, 'apache_weblab_generic.conf')
@@ -2037,31 +2060,42 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     print >> stdout, "Congratulations!"
     print >> stdout, "WebLab-Deusto system created"
-    print >> stdout, "" 
-    apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
-    if os.path.exists("/etc/apache2/httpd.conf"):
-        apache_httpd_path = '/etc/apache2/httpd.conf'
-    elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
-        apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
+    print >> stdout, ""
+    if http_server_port is None:
+        apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
+        if os.path.exists("/etc/apache2/httpd.conf"):
+            apache_httpd_path = '/etc/apache2/httpd.conf'
+        elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
+            apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
 
-    print >> stdout, r"Append the following to", apache_httpd_path
-    print >> stdout, ""
-    print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
-    if sys.platform.find('win') == 0:
-        print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+        print >> stdout, r"Append the following to", apache_httpd_path
+        print >> stdout, ""
+        print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
+        if sys.platform.find('win') == 0:
+            print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+        else:
+            print >> stdout, ""
+            print >> stdout, "And enable the modules proxy proxy_balancer proxy_http."
+            print >> stdout, "For instance, in Ubuntu you can run: "
+            print >> stdout, ""
+            print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http"
+        print >> stdout, ""
+        print >> stdout, "Then restart apache. If you don't have apache don't worry, delete %s and " % directory
+        print >> stdout, "run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT
+        print >> stdout, ""
+        print >> stdout, "Then run:"
     else:
-        print >> stdout, ""
-        print >> stdout, "And enable the modules proxy proxy_balancer proxy_http."
-        print >> stdout, "For instance, in Ubuntu you can run: "
-        print >> stdout, ""
-        print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http"
-    print >> stdout, ""
-    print >> stdout, "Then restart apache and execute:"
+        print >> stdout, "Run:"
     print >> stdout, ""
     print >> stdout, "     %s start %s" % (os.path.basename(sys.argv[0]), directory)
     print >> stdout, ""
     print >> stdout, "to start the WebLab-Deusto system. From that point, you'll be able to access: "
     print >> stdout, ""
+    if http_server_port is not None:
+        print >> stdout, "   http://localhost:%s/" % http_server_port
+        print >> stdout, ""
+        print >> stdout, "Or in production if you later want to deploy it in Apache:"
+        print >> stdout, ""
     print >> stdout, "     %s " % server_url
     print >> stdout, ""
     print >> stdout, "And log in as '%s' using '%s' as password." % (options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD])

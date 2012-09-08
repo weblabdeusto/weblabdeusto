@@ -17,7 +17,6 @@ import sys
 import os
 import SocketServer
 import BaseHTTPServer
-import StringIO
 import shutil
 import urllib2
 import mimetypes
@@ -39,11 +38,14 @@ def generate_proxy_handler(paths):
 
     previous_paths = []
     for pos, (_path, _) in enumerate(paths):
+
         if '$' in _path and (_path.count('$') > 1 or not _path.endswith('$')):
             print >> sys.stderr, "The $ char is a special character meaning the end of the path. It can appear only once and at the end. Expect errors with %s!" % _path
+
         for _previous_path in previous_paths:
             if _path.startswith(_previous_path.replace('$','')):
-                if '$' in _previous_path and _path != _previous_path.replace('$',''):
+                if '$' in _previous_path and _path != _previous_path:
+                    # This previous_path has a $ and it is not the same as _path, so forget it
                     continue
                 print >> sys.stderr, "ProxyHandler: Path %s (number %s) will not be managed since a previous one manages %s!" % (_path, pos, _previous_path)
                 break
@@ -59,17 +61,25 @@ def generate_proxy_handler(paths):
         proxies_count_lock = threading.Lock()
 
         def do_GET(self):
-            f = self.send_head()
-            if f:
-                shutil.copyfileobj(f, self.wfile)
-                f.close()
+            try:
+                f = self.send_head()
+                if f:
+                    shutil.copyfileobj(f, self.wfile)
+                    f.close()
+            except:
+                self.log_error('Error processing %s' % self.path)
+                raise
 
         def do_POST(self):
-            length = int(self.headers['content-length'])
-            f = self.send_head(self.rfile.read(length))
-            if f:
-                shutil.copyfileobj(f, self.wfile)
-                f.close()
+            try:
+                length = int(self.headers['content-length'])
+                f = self.send_head(self.rfile.read(length))
+                if f:
+                    shutil.copyfileobj(f, self.wfile)
+                    f.close()
+            except:
+                self.log_error('Error processing %s' % self.path)
+                raise
 
         def do_HEAD(self):
             self.send_head()
@@ -79,7 +89,10 @@ def generate_proxy_handler(paths):
                 if self.path.startswith(path.replace('$','')):
                     if path.endswith('$') and self.path != path.replace('$',''):
                         continue
-                    path = self.path.split(path, 1)[1]
+                    if path.replace('$','') == '':
+                        path = self.path
+                    else:
+                        path = self.path.split(path.replace('$',''), 1)[1]
                     if processor.startswith(FILE):
                         base_path = processor.split(FILE, 1)[1]
                         return self.send_head_file(data, path, base_path)
@@ -194,20 +207,21 @@ class ProxyServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     request_queue_size  = 50
     allow_reuse_address = True
 
-    def __init__(self, server_address, paths):
-        BaseHTTPServer.HTTPServer.__init__(self, server_address, generate_proxy_handler(paths))
+    def __init__(self, server_address, proxy_handler):
+        BaseHTTPServer.HTTPServer.__init__(self, server_address, proxy_handler)
 
     def get_request(self):
         sock, addr = BaseHTTPServer.HTTPServer.get_request(self)
         sock.settimeout(None)
         return sock, addr
 
-def run(port, paths):
-    server = ProxyServer(('',port), paths)
+def run(port, proxy_handler):
+    server = ProxyServer(('',port), proxy_handler)
     server.serve_forever()
 
 def start(port, paths):
-    t = threading.Thread(target=run, args = (port, paths))
+    proxy_handler = generate_proxy_handler(paths)
+    t = threading.Thread(target=run, args = (port, proxy_handler))
     t.setName('proxy-server:%s' % port)
     t.setDaemon(True)
     t.start()

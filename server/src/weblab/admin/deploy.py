@@ -1131,6 +1131,27 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     session.commit()
     session.close()
 
+def grant_admin_panel_on_group(sessionmaker, group_name):
+    session = sessionmaker()
+
+    permission_type = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
+    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    group_permission = Model.DbGroupPermission(
+                                    group,
+                                    permission_type.group_applicable,
+                                    'Administrators:admin-panel', datetime.datetime.now(), ''
+                                )
+    session.add(group_permission)
+    group_permission_p1 = Model.DbGroupPermissionParameter(
+                                    group_permission,
+                                    permission_type.get_parameter("full_privileges"),
+                                    True
+                                )
+    session.add(group_permission_p1)
+    session.commit()
+    session.close()
+
+
 def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
     add_experiment(sessionmaker, category_name, experiment_name)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
