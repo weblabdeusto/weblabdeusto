@@ -22,7 +22,6 @@ import uuid
 import time
 import traceback
 import sqlite3
-import urllib2
 import urlparse
 import json
 from optparse import OptionParser, OptionGroup
@@ -1739,9 +1738,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if verbose: print >> stdout, "Creating apache configuration files...",; stdout.flush()
 
-    apache_dir = os.path.join(directory, 'apache')
-    if not os.path.exists(apache_dir):
-        os.mkdir(apache_dir)
+    httpd_dir = os.path.join(directory, 'httpd')
+    if not os.path.exists(httpd_dir):
+        os.mkdir(httpd_dir)
 
     client_dir = os.path.join(directory, 'client')
     if not os.path.exists(client_dir):
@@ -1750,6 +1749,22 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     client_images_dir = os.path.join(client_dir, 'images')
     if not os.path.exists(client_images_dir):
         os.mkdir(client_images_dir)
+
+    proxy_paths = [
+        ('%(root)s$',                    'redirect:%(root)s/weblab/client'),
+        ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
+        ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
+        ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
+
+        ('%(root)s/weblab/client/weblabclientlab/configuration.js',      'file:%(directory)s/client/configuration.js'),
+        ('%(root)s/weblab/client/weblabclientadmin/configuration.js',    'file:%(directory)s/client/configuration.js'),
+
+        ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%(directory)s/client/images/'),
+        ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%(directory)s/client/images/'),
+
+        ('%(root)s/weblab/client',      'file:%(war_path)s'),
+        ('%(root)s/weblab/',            'file:%(webserver_path)s'),
+    ]
 
     apache_conf = (
         "\n"
@@ -1813,76 +1828,103 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += "\n"
     apache_conf += "<Proxy balancer://%(root-no-slash)s_weblab_cluster_soap>\n"
     
+    proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % {
-            'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % d 
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/soap,' % d
+    proxy_paths.append(('%(root)s/weblab/soap/',  proxy_path))
     
     apache_conf += "</Proxy>\n"
     apache_conf += "\n"
     
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
 
+    proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % {
-            'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json,' % d
+    proxy_paths.append(('%(root)s/weblab/json/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_xmlrpc>\n"""
 
+    proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/xmlrpc route=%(route)s\n""" % {
-            'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/xmlrpc route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/xmlrpc,' % d
+    proxy_paths.append(('%(root)s/weblab/xmlrpc/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_web>\n"""
 
+    proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % {
-            'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d 
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/web/,' % d
+    proxy_paths.append(('%(root)s/weblab/web/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_administration>\n"""
 
+    proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration/ route=%(route)s\n""" % {
-            'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration/ route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration/,' % d
+    proxy_paths.append(('%(root)s/weblab/administration/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_soap>\n"""
 
+    proxy_path = "proxy-sessions:loginweblabsessionid:"
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/soap route=%(route)s \n""" % {
-            'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/soap route=%(route)s \n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/soap,' % d
+    proxy_paths.append(('%(root)s/weblab/login/soap/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
 
+    proxy_path = "proxy-sessions:loginweblabsessionid:"
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % {
-            'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json,' % d
+    proxy_paths.append(('%(root)s/weblab/login/json/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_xmlrpc>\n"""
 
+    proxy_path = "proxy-sessions:loginweblabsessionid:"
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/xmlrpc route=%(route)s\n""" % {
-            'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/xmlrpc route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/xmlrpc,' % d
+    proxy_paths.append(('%(root)s/weblab/login/xmlrpc/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_web>\n"""
 
+    proxy_path = "proxy-sessions:loginweblabsessionid:"
     for core_configuration in ports['login']:
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % {
-            'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/web,' % d
+    proxy_paths.append(('%(root)s/weblab/login/web/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
@@ -1896,12 +1938,21 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
-    apache_conf = apache_conf % { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash,
+    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash,
                 'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'), 
                 'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
-    apache_conf_path = os.path.join(apache_dir, 'apache_weblab_generic.conf')
+    apache_conf = apache_conf % server_conf_dict
+    proxy_paths = eval(repr(proxy_paths) % server_conf_dict)
+    proxy_paths_str = "PATHS = [ \n"
+    for proxy_path in proxy_paths:
+        proxy_paths_str += "    %s,\n" % repr(proxy_path)
+    proxy_paths_str += "]\n"
 
+    simple_server_conf_path = os.path.join(httpd_dir, 'simple_server_config.py')
+    open(simple_server_conf_path, 'w').write( proxy_paths_str )
+
+    apache_conf_path = os.path.join(httpd_dir, 'apache_weblab_generic.conf')
     open(apache_conf_path, 'w').write( apache_conf )
 
     if sys.platform.find('win') == 0:
@@ -1937,7 +1988,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         LoadModule slotmem_shm_module modules/mod_slotmem_shm.so
         </IfModule>
         """
-        apache_windows_conf_path = os.path.join(apache_dir, 'apache_weblab_windows.conf')
+        apache_windows_conf_path = os.path.join(httpd_dir, 'apache_weblab_windows.conf')
         open(apache_windows_conf_path, 'w').write( apache_windows_conf )
 
     if verbose: print >> stdout, "[done]"
