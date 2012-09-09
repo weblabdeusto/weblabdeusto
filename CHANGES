@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-4.5
+5.0
 ===
 
 Date: (pending)
@@ -10,6 +10,12 @@ Date: (pending)
 - server
   - scheduling
     - support for batch experiments
+
+    - scheduling system reimplemented in redis. Right now, to versions are
+      supported: redis and sql. The SQL one has been tested on sqlite and MySQL
+      (using pymysql and using MySQLdb). The redis version is the fastest, the
+      sqlite is better one a single core is used, but the MySQLdb version is
+      faster than the sqlite when more than one core server is used.
 
   - federation
     - support for federated experiments (sharing experiments among different 
@@ -30,16 +36,25 @@ Date: (pending)
   - weblab-admin is the script than now manages and creates weblab-deusto 
     instances.
 
-  (...)
+  - Drop MySQL, Apache as mandatory requirements. If you pass --http-server-port
+    8000 to the weblab-admin creation script, it will deploy a small server
+    useful for testing. MySQL is not mandatory since sqlite can also be used.
 
 - experiments
-  - Experimental support for LabVIEW Remote Panel as a unmanaged experiment
+  - Experimental support for LabVIEW Remote Panel as an unmanaged experiment
+
+  - New experiments API to support concurrent experiments (where more than one
+    user can be interacting with the equipment).
+
+  - New expermients API that supports that students are kicked out if the
+    laboratory considers that their session should end (e.g. if they fail in a
+    game).
 
 - requirements
   - Drop support for Python 2.5
 
 - other
-  - migrated from SVN to Mercurial
+  - migrated from SVN to Mercurial and then to git.
 
 4.0M1 
 =====
