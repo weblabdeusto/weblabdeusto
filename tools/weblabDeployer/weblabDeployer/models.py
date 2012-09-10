@@ -66,6 +66,8 @@ class Entity(db.Model):
     base_url = db.Column(db.String)#e.g. /myschool.
     link_url = db.Column(db.String)#e.g. http://www.deusto.es
     google_analytics_number = db.Column(db.String)#e.g. UA-1234-1234
+    start_port_number = db.Column(db.Integer)
+    end_port_number = db.Column(db.Integer)
     
     def __init__(self, name, base_url):
         self.name = name
