@@ -61,12 +61,18 @@ SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instan
 
 COMMANDS = dict(SORTED_COMMANDS)
 
-def check_dir_exists(directory):
+def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
-        print >> sys.stderr,"ERROR: Directory %s does not exist" % directory
+        if parser is not None:
+            parser.error("ERROR: Directory %s does not exist" % directory)
+        else:
+            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
         sys.exit(-1)
     if not os.path.isdir(directory):
-        print >> sys.stderr,"ERROR: File %s exists, but it is not a directory" % directory
+        if parser is not None:
+            parser.error("ERROR: File %s exists, but it is not a directory" % directory)
+        else:
+            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
         sys.exit(-1)
 
 def weblab():
@@ -83,7 +89,6 @@ def weblab():
         weblab_create(sys.argv[2])
         sys.exit(0)
 
-    check_dir_exists(sys.argv[2])
     if main_command == 'start':
         weblab_start(sys.argv[2])
     elif main_command == 'stop':
@@ -2163,6 +2168,8 @@ def weblab_start(directory):
 
     options, args = parser.parse_args()
 
+    check_dir_exists(directory, parser)
+
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
@@ -2211,6 +2218,9 @@ def weblab_start(directory):
         os.chdir(old_cwd)
 
 def weblab_stop(directory):
+    parser = OptionParser(usage="%prog stop DIR [options]")
+
+    check_dir_exists(directory, parser)
     if sys.platform.lower().startswith('win'):
         print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
         sys.exit(-1)
@@ -2226,6 +2236,7 @@ def weblab_stop(directory):
 # 
 
 def weblab_admin(directory):
+    check_dir_exists(directory)
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
@@ -2259,6 +2270,7 @@ def weblab_admin(directory):
 # 
 
 def weblab_monitor(directory):
+    check_dir_exists(directory)
     new_globals = {}
     new_locals  = {}
     execfile(os.path.join(directory, 'debugging.py'), new_globals, new_locals)
