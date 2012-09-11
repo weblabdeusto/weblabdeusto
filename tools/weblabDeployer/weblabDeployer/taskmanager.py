@@ -18,13 +18,18 @@
 #
 
 
+import os
 import Queue
 import threading
 import StringIO
 import time
 import traceback
+import subprocess
+import urllib2
 
 from weblab.admin.script import weblab_create
+
+from weblabDeployer import deploymentsettings
 
 class TaskManager(threading.Thread):
     
@@ -77,10 +82,39 @@ class TaskManager(threading.Thread):
             task = self.queue.get()
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
-                
+                #Create the entity
                 weblab_create(task['directory'] , task['options'],
                     task['stdout'], task['stderr'], task['exit_func'])
                 time.sleep(0.5)
+                
+                # Create Apache configuration
+                with open(os.path.join(deploymentsettings.DIR_BASE,
+                            deploymentsettings.APACHE_CONF_NAME), 'a') as f:
+                    conf_dir = task['directory'] + \
+                                '/httpd/apache_weblab_generic.conf'
+                    f.write('Include "%s"\n' % conf_dir) # TODO: apache_weblab_generic should be a constant
+                
+                # Reload apache
+                print(urllib2.urlopen('http://127.0.0.1:22110').read())
+                
+                # Add instance to weblab instance runner daemon
+                f = open(os.path.join(deploymentsettings.DIR_BASE,
+                                      'instances.txt'), 'a')
+                f.write('%s\n' % task['directory'])
+                
+                # Start now the new weblab instance
+                process = subprocess.Popen(['nohup','weblab-admin','start',
+                            task['directory']],
+                    stdout = open(os.path.join(task['directory'], \
+                                               'stdout.txt'), 'w'),
+                    stderr = open(os.path.join(task['directory'], \
+                                               'stderr.txt'), 'w'),
+                    stdin = subprocess.PIPE)
+                
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
+            
+                #Copy image
             except:
+                import traceback
+                print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
