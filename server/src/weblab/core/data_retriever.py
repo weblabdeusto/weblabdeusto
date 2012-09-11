@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import sys
 import threading
 import time
 

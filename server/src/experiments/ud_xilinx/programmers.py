@@ -77,6 +77,7 @@ class DigilentAdeptSvfProgrammer(UdXilinxProgrammer):
 
     @Override(UdXilinxProgrammer)
     def program(self, file_name):
-        self._xilinx_impact_device.source2svf(file_name)
-        svf_file_name = file_name.replace("."+self._xilinx_impact_device.get_suffix(), ".svf")
-        self._digilent_adept.program_device(svf_file_name)
+        # self._xilinx_impact_device.source2svf(file_name)
+        # svf_file_name = file_name.replace("."+self._xilinx_impact_device.get_suffix(), ".svf")
+        # self._digilent_adept.program_device(svf_file_name)
+        self._digilent_adept.program_device(file_name)

@@ -28,6 +28,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESERVATIONS,
     WEBLAB_RESERVATION,
     WEBLAB_RESERVATION_STATUS,
+    WEBLAB_RESERVATIONS_INDIVIDUAL_LOCK,
 
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_EXPERIMENT_TYPES,
@@ -55,6 +56,7 @@ class ReservationsManager(object):
             client.delete(WEBLAB_RESERVATION % reservation_id)
             client.delete(WEBLAB_RESERVATION_STATUS % reservation_id)
             client.delete(WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id)
+            client.delete(WEBLAB_RESERVATIONS_INDIVIDUAL_LOCK % reservation_id)
 
         client.delete(WEBLAB_RESERVATIONS_LOCK)
         client.delete(WEBLAB_RESERVATIONS)
@@ -62,6 +64,18 @@ class ReservationsManager(object):
     def list_all_reservations(self):
         client = self._redis_maker()
         return client.smembers(WEBLAB_RESERVATIONS)
+
+    def lock_reservation(self, reservation_id, timeout = 10):
+        client = self._redis_maker()
+        individual_lock = WEBLAB_RESERVATIONS_INDIVIDUAL_LOCK % reservation_id
+        initial = time.time()
+        while not client.setnx(individual_lock, '') and time.time() < initial + 10:
+            time.sleep(0.05)
+        client.expire(individual_lock, 5)
+
+    def unlock_reservation(self, reservation_id):
+        client = self._redis_maker()
+        client.delete(WEBLAB_RESERVATIONS_INDIVIDUAL_LOCK % reservation_id)
 
     @typecheck(ExperimentId, (basestring, dict), basestring, typecheck.ANY)
     def create(self, experiment_id, client_initial_data, request_info, now = None):

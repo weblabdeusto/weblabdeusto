@@ -21,7 +21,7 @@ import voodoo.gen.loader.ServerLoader as ServerLoader
 from voodoo.gen.registry.server_registry import _registry
 
 from weblab.data.command import Command
-from weblab.data.experiments import ExperimentId, WaitingReservationResult, RunningReservationResult
+from weblab.data.experiments import ExperimentId, RunningReservationResult
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.core.reservations import Reservation
 

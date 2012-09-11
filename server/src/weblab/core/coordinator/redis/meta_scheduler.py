@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import voodoo.log as log
 from voodoo.log import logged
 from weblab.core.coordinator.exc import NoSchedulerFoundError, ExpiredSessionError
 from weblab.core.coordinator.scheduler import Scheduler
@@ -65,7 +66,10 @@ class IndependentSchedulerAggregator(Scheduler):
         #
         # Local schedulers go first
         #
-        self.ordered_schedulers = local_schedulers + remote_schedulers
+        self.sorted_schedulers = local_schedulers + remote_schedulers
+
+        log.log( IndependentSchedulerAggregator, log.level.Info,
+                 "Creating a new IndependentSchedulerAggregator. experiment_id: %s; schedulers: %s" % (experiment_id, self.sorted_schedulers), max_size = 100000)
 
         self.experiment_id            = experiment_id
         self.schedulers               = schedulers
@@ -91,7 +95,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
         used_schedulers = []
         any_assigned = False
-        for resource_type_name in self.ordered_schedulers:
+        for resource_type_name in self.sorted_schedulers:
 
             # TODO: catch possible exceptions and "continue"
 
@@ -116,6 +120,10 @@ class IndependentSchedulerAggregator(Scheduler):
         if any_assigned:
             for resource_type_name in used_schedulers:
                 used_scheduler = self.schedulers[resource_type_name]
+                log.log(
+                    IndependentSchedulerAggregator, log.level.Info,
+                    "reserve_experiment: %s: assigned to %s, so finishing in scheduler %s" % (reservation_id, scheduler.__class__.__name__, used_scheduler.__class__.__name__), max_size = 1000)
+
                 used_scheduler.finish_reservation(reservation_id)
                 all_reservation_status.pop(resource_type_name)
                 self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
@@ -141,45 +149,62 @@ class IndependentSchedulerAggregator(Scheduler):
 
             print tabs, "<", url, self.schedulers.values(), ">"
 
-        assigned_resource_type_name = None
+        self.reservations_manager.lock_reservation(reservation_id)
+        try:
+            assigned_resource_type_name = None
 
-        reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+            reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
 
-        for resource_type_name in reservation_schedulers:
-            scheduler = self.schedulers[resource_type_name]
-            try:
-                reservation_status = scheduler.get_reservation_status(reservation_id)
-            except:
-                new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
-                if resource_type_name in new_reservation_schedulers:
-                    raise
-                else:
-                    continue # That scheduler is not relevant anymore
-            if DEBUG:
-                print tabs, scheduler, reservation_status
-            all_reservation_status[resource_type_name] = reservation_status
-
-            if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
-                assigned_resource_type_name = resource_type_name
-                break
-
-        if assigned_resource_type_name is not None:
             for resource_type_name in reservation_schedulers:
-                if resource_type_name != assigned_resource_type_name:
+                scheduler = self.schedulers[resource_type_name]
+                try:
+                    reservation_status = scheduler.get_reservation_status(reservation_id)
+                except:
                     new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
-                    if resource_type_name not in new_reservation_schedulers:
-                        continue
+                    if resource_type_name in new_reservation_schedulers:
+                        raise
+                    else:
+                        continue # That scheduler is not relevant anymore
+                if DEBUG:
+                    print tabs, scheduler, reservation_status
+                all_reservation_status[resource_type_name] = reservation_status
 
-                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
-                    used_scheduler = self.schedulers[resource_type_name]
-                    used_scheduler.finish_reservation(reservation_id)
-                    all_reservation_status.pop(resource_type_name, None)
+                if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
+                    assigned_resource_type_name = resource_type_name
+                    log.log(
+                        IndependentSchedulerAggregator, log.level.Info,
+                        "get_reservation_status: %s: assigned to %s" % (reservation_id, scheduler.__class__.__name__), max_size = 1000)
+                    break
+
+            log.log(
+                IndependentSchedulerAggregator, log.level.Debug,
+                "Got reservation_status (%s) for reservation_id %s. Got assigned? %s" % (str(all_reservation_status.values()), reservation_id, assigned_resource_type_name is not None ), max_size = 100000)
+
+            if assigned_resource_type_name is not None:
+                for resource_type_name in reservation_schedulers:
+                    if resource_type_name != assigned_resource_type_name:
+                        new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+                        if resource_type_name not in new_reservation_schedulers:
+                            continue
+
+                        self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                        used_scheduler = self.schedulers[resource_type_name]
+                        log.log(
+                            IndependentSchedulerAggregator, log.level.Info,
+                            "get_reservation_status: %s: finishing from %s" % (reservation_id, used_scheduler.__class__.__name__), max_size = 1000)
+                        used_scheduler.finish_reservation(reservation_id)
+                        all_reservation_status.pop(resource_type_name, None)
 
 
-        if len(all_reservation_status) == 0:
-            raise ExpiredSessionError("Expired reservation")
+            if len(all_reservation_status) == 0:
+                raise ExpiredSessionError("Expired reservation")
 
-        best_reservation = self.select_best_reservation_status(all_reservation_status.values())
+            best_reservation = self.select_best_reservation_status(all_reservation_status.values())
+            log.log(
+                IndependentSchedulerAggregator, log.level.Info,
+                "Had to select for reservation_id %s among %s and chose %s" % (reservation_id, str(all_reservation_status.values()), str(best_reservation) ), max_size = 100000)
+        finally:
+            self.reservations_manager.unlock_reservation(reservation_id)
 
         if DEBUG:
             print tabs, "</", url, best_reservation, "/>"
