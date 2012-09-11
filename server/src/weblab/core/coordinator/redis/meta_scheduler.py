@@ -23,29 +23,28 @@ import weblab.core.coordinator.status as WSS
 
 DEBUG = False
 
-#############################################################
-#
-# The Independent Scheduler Aggregator aggregates different
-# schedulers that schedule independent resources. For
-# instance, one experiment that can be executed in two
-# different types of "rigs" will be waiting in two queues
-# at the same time. This class will handle established
-# policies such as priorities among schedulers.
-#
-# Take into account that a possible scheduler is an external
-# scheduler (such as another WebLab-Deusto). Therefore
-# policies can become complex here.
-#
-# In summary, IndependentSchedulerAggregator is an 'OR'
-# aggregator, since it reserves in all the aggregated
-# schedulers and then it it responds with the best option.
-#
-# Therefore, while it is compliant with the Scheduler
-# API, it can not be configured as such in the core config
-# files: it will be created by the coordinator in the
-# constructor, creating one per experiment_id.
-#
 class IndependentSchedulerAggregator(Scheduler):
+    """
+    The Independent Scheduler Aggregator aggregates different
+    schedulers that schedule independent resources. For
+    instance, one experiment that can be executed in two
+    different types of "rigs" will be waiting in two queues
+    at the same time. This class will handle established
+    policies such as priorities among schedulers.
+
+    Take into account that a possible scheduler is an external
+    scheduler (such as another WebLab-Deusto). Therefore
+    policies can become complex here.
+
+    In summary, IndependentSchedulerAggregator is an 'OR'
+    aggregator, since it reserves in all the aggregated
+    schedulers and then it it responds with the best option.
+
+    Therefore, while it is compliant with the Scheduler
+    API, it can not be configured as such in the core config
+    files: it will be created by the coordinator in the
+    constructor, creating one per experiment_id.
+    """
 
     def __init__(self, generic_scheduler_arguments, experiment_id, schedulers, particular_configuration):
         super(IndependentSchedulerAggregator, self).__init__(generic_scheduler_arguments)
