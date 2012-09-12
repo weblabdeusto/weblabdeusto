@@ -516,7 +516,7 @@ class PriorityQueueScheduler(Scheduler):
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
                         # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
-                        self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data)
+                        self.confirmer.enqueue_confirmation(laboratory_coord_address, reservation_id, experiment_instance_id, client_initial_data, server_initial_data, self.resource_type_name)
                         #
                         # After it, keep in the while True in order to add the next
                         # reservation

@@ -61,12 +61,18 @@ SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instan
 
 COMMANDS = dict(SORTED_COMMANDS)
 
-def check_dir_exists(directory):
+def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
-        print >> sys.stderr,"ERROR: Directory %s does not exist" % directory
+        if parser is not None:
+            parser.error("ERROR: Directory %s does not exist" % directory)
+        else:
+            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
         sys.exit(-1)
     if not os.path.isdir(directory):
-        print >> sys.stderr,"ERROR: File %s exists, but it is not a directory" % directory
+        if parser is not None:
+            parser.error("ERROR: File %s exists, but it is not a directory" % directory)
+        else:
+            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
         sys.exit(-1)
 
 def weblab():
@@ -83,7 +89,6 @@ def weblab():
         weblab_create(sys.argv[2])
         sys.exit(0)
 
-    check_dir_exists(sys.argv[2])
     if main_command == 'start':
         weblab_start(sys.argv[2])
     elif main_command == 'stop':
@@ -590,7 +595,20 @@ def _build_parser():
     parser.add_option_group(coord)
 
     return parser
-   
+
+class CreationResult(dict):
+    """Object returned by the weblab_create method, providing information about what was done and in which files."""
+
+    APACHE_FILE      = 'apache_file'
+    IMG_FILE         = 'img_file'
+    IMG_MOBILE_FILE  = 'img_mobile_file'
+    START_PORT       = 'start_port'
+    END_PORT         = 'end_port'
+
+    COORD_REDIS_PORT = 'coord_redis_port'
+    COORD_REDIS_DB   = 'coord_redis_db'
+
+
 def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = sys.stderr, exit_func = sys.exit):
     """Creates a new WebLab-Deusto instance in the directory "directory". If options_dict is None, it uses sys.argv to
     retrieve the arguments from the Command Line Interface. If it is provided, then it uses the default values unless
@@ -602,6 +620,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     To avoid using the standard input to retrieve usernames and passwords.
     """
+    creation_results = CreationResult()
+    
     parser = _build_parser()
 
     if options_dict is None:
@@ -705,6 +725,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         redis_db     = options[Creation.COORD_REDIS_DB]
         redis_host   = None
         _test_redis('coordination', verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func)
+        creation_results[CreationResult.COORD_REDIS_PORT] = redis_port
+        creation_results[CreationResult.COORD_REDIS_DB]   = redis_db
     elif options[Creation.COORD_ENGINE] in ('sql', 'sqlalchemy'):
         db_engine  = options[Creation.COORD_DB_ENGINE]
         db_host    = options[Creation.COORD_DB_HOST]
@@ -1016,6 +1038,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     }
 
     current_port = options[Creation.START_PORTS]
+    creation_results[CreationResult.START_PORT] = current_port
 
     latest_core_server_directory = None
     for core_number in range(1, options[Creation.CORES] + 1):
@@ -1772,6 +1795,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if not os.path.exists(client_images_dir):
         os.mkdir(client_images_dir)
 
+    images_dir = '%(directory)s/client/images/'
+
     proxy_paths = [
         ('%(root)s$',                    'redirect:%(root)s/weblab/client'),
         ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
@@ -1781,8 +1806,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         ('%(root)s/weblab/client/weblabclientlab/configuration.js',      'file:%(directory)s/client/configuration.js'),
         ('%(root)s/weblab/client/weblabclientadmin/configuration.js',    'file:%(directory)s/client/configuration.js'),
 
-        ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%(directory)s/client/images/'),
-        ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%(directory)s/client/images/'),
+        ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%s' % images_dir),
+        ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%s' % images_dir),
 
         ('%(root)s/weblab/client',      'file:%(war_path)s'),
     ]
@@ -1978,6 +2003,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf_path = os.path.join(httpd_dir, 'apache_weblab_generic.conf')
     open(apache_conf_path, 'w').write( apache_conf )
 
+    creation_results[CreationResult.APACHE_FILE] = apache_conf_path
+
     if sys.platform.find('win') == 0:
         apache_windows_conf = """# At least in Debian based distributions as Debian itself
         # or Ubuntu, this can be done with the a2enmod command:
@@ -2052,6 +2079,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         configuration_js['host.entity.image']              = '/img/sample/sample.png'
         configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
 
+    
+
+    creation_results[CreationResult.IMG_FILE]        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/img',1)[1])
+    creation_results[CreationResult.IMG_MOBILE_FILE] = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/img',1)[1])
+
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False
     configuration_js['create.account.visible']         = False
@@ -2111,6 +2143,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, "Enjoy!"
     print >> stdout, ""
 
+    creation_results[CreationResult.END_PORT] = current_port
+    return creation_results
+
 #########################################################################################
 # 
 # 
@@ -2132,6 +2167,8 @@ def weblab_start(directory):
                                                    help = "If the runner option is not available, which script should be used.")
 
     options, args = parser.parse_args()
+
+    check_dir_exists(directory, parser)
 
     old_cwd = os.getcwd()
     os.chdir(directory)
@@ -2181,6 +2218,9 @@ def weblab_start(directory):
         os.chdir(old_cwd)
 
 def weblab_stop(directory):
+    parser = OptionParser(usage="%prog stop DIR [options]")
+
+    check_dir_exists(directory, parser)
     if sys.platform.lower().startswith('win'):
         print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
         sys.exit(-1)
@@ -2196,6 +2236,7 @@ def weblab_stop(directory):
 # 
 
 def weblab_admin(directory):
+    check_dir_exists(directory)
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
@@ -2229,6 +2270,7 @@ def weblab_admin(directory):
 # 
 
 def weblab_monitor(directory):
+    check_dir_exists(directory)
     new_globals = {}
     new_locals  = {}
     execfile(os.path.join(directory, 'debugging.py'), new_globals, new_locals)
