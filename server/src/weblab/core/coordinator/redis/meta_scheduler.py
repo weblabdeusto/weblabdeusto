@@ -88,49 +88,61 @@ class IndependentSchedulerAggregator(Scheduler):
     def removing_current_resource_slot(self, session, resource_instance):
         pass
 
-    @logged()
+    @logged('info', max_size = 1000)
     @Override(Scheduler)
     def reserve_experiment(self, reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info):
         all_reservation_status = {}
 
         used_schedulers = []
         any_assigned = False
-        for resource_type_name in self.sorted_schedulers:
 
-            # TODO: catch possible exceptions and "continue"
+        self.reservations_manager.lock_reservation(reservation_id)
+        try:
 
-            scheduler = self.schedulers[resource_type_name]
+            for resource_type_name in self.sorted_schedulers:
 
-            self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
+                # TODO: catch possible exceptions and "continue"
+
+                scheduler = self.schedulers[resource_type_name]
+
+                self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
 
 
-            reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info)
-            if reservation_status is None:
-                self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
-                continue
+                reservation_status = scheduler.reserve_experiment(reservation_id, experiment_id, time, priority, initialization_in_accounting, client_initial_data, request_info)
+                if reservation_status is None:
+                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                    continue
 
-            all_reservation_status[resource_type_name] = reservation_status
+                all_reservation_status[resource_type_name] = reservation_status
 
-            if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
-                any_assigned = True
-                break
-            else:
-                used_schedulers.append(resource_type_name)
+                if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
+                    any_assigned = True
+                    break
+                else:
+                    used_schedulers.append(resource_type_name)
 
-        if any_assigned:
-            for resource_type_name in used_schedulers:
-                used_scheduler = self.schedulers[resource_type_name]
-                log.log(
-                    IndependentSchedulerAggregator, log.level.Info,
-                    "reserve_experiment: %s: assigned to %s, so finishing in scheduler %s" % (reservation_id, scheduler.__class__.__name__, used_scheduler.__class__.__name__), max_size = 1000)
+            if any_assigned:
+                for resource_type_name in used_schedulers:
+                    used_scheduler = self.schedulers[resource_type_name]
+                    log.log(
+                        IndependentSchedulerAggregator, log.level.Info,
+                        "reserve_experiment: %s: assigned to %s (%s), so finishing in scheduler %s" % (reservation_id, scheduler.__class__.__name__, resource_type_name, used_scheduler.__class__.__name__), max_size = 1000)
 
-                used_scheduler.finish_reservation(reservation_id)
-                all_reservation_status.pop(resource_type_name)
-                self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                    used_scheduler.finish_reservation(reservation_id)
+                    all_reservation_status.pop(resource_type_name)
+                    dissociated = self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                    if not dissociated:
+                        log.log(
+                            IndependentSchedulerAggregator, log.level.Critical,
+                            "reserve_experiment: error: %s: still associated to %s!!!" % (reservation_id, used_scheduler.__class__.__name__), max_size = 1000)
 
-        return self.select_best_reservation_status(all_reservation_status.values())
 
-    @logged()
+            return self.select_best_reservation_status(all_reservation_status.values())
+
+        finally:
+            self.reservations_manager.unlock_reservation(reservation_id)
+
+    @logged('info', max_size = 1000)
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
         all_reservation_status = {}
@@ -158,13 +170,20 @@ class IndependentSchedulerAggregator(Scheduler):
             for resource_type_name in reservation_schedulers:
                 scheduler = self.schedulers[resource_type_name]
                 try:
-                    reservation_status = scheduler.get_reservation_status(reservation_id)
+                    try:
+                        reservation_status = scheduler.get_reservation_status(reservation_id)
+                    except:
+                        new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+                        if resource_type_name in new_reservation_schedulers:
+                            raise
+                        else:
+                            continue # That scheduler is not relevant anymore
                 except:
-                    new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
-                    if resource_type_name in new_reservation_schedulers:
-                        raise
-                    else:
-                        continue # That scheduler is not relevant anymore
+                    log.log(
+                        IndependentSchedulerAggregator, log.level.Warning,
+                        "get_reservation_status: scheduler %s (%s) raised an exception to %s" % (scheduler.__class__.__name__, resource_type_name, reservation_id), max_size = 1000)
+                    log.log_exc( IndependentSchedulerAggregator, log.level.Warning)
+                    raise
                 if DEBUG:
                     print tabs, scheduler, reservation_status
                 all_reservation_status[resource_type_name] = reservation_status
@@ -173,7 +192,7 @@ class IndependentSchedulerAggregator(Scheduler):
                     assigned_resource_type_name = resource_type_name
                     log.log(
                         IndependentSchedulerAggregator, log.level.Info,
-                        "get_reservation_status: %s: assigned to %s" % (reservation_id, scheduler.__class__.__name__), max_size = 1000)
+                        "get_reservation_status: %s: assigned to %s (%s)" % (reservation_id, scheduler.__class__.__name__, resource_type_name), max_size = 1000)
                     break
 
             log.log(
@@ -187,7 +206,12 @@ class IndependentSchedulerAggregator(Scheduler):
                         if resource_type_name not in new_reservation_schedulers:
                             continue
 
-                        self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                        dissociated = self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                        if not dissociated:
+                            log.log(
+                                IndependentSchedulerAggregator, log.level.Critical,
+                                "get_reservation_status: error: %s: still associated to %s!!!" % (reservation_id, resource_type_name), max_size = 1000)
+
                         used_scheduler = self.schedulers[resource_type_name]
                         log.log(
                             IndependentSchedulerAggregator, log.level.Info,
@@ -220,7 +244,7 @@ class IndependentSchedulerAggregator(Scheduler):
 
         return sorted(all_reservation_status)[0]
 
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
         resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
@@ -228,7 +252,7 @@ class IndependentSchedulerAggregator(Scheduler):
             scheduler = self.schedulers[resource_type_name]
             scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
 
-    @logged()
+    @logged('info')
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
         for resource_type_name in self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id):

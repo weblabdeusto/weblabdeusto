@@ -93,6 +93,7 @@ class BotLauncher(object):
         for i in range(self.iterations):
             self._print(" iteration %i " % i)
             bot_iteration = self._launch_iteration()
+            self._print(" [ %s exceptions ] " % len(bot_iteration.exceptions))
             iterations.append(bot_iteration)
             self._print("\n")
 
