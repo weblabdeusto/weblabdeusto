@@ -93,7 +93,7 @@ class IndependentSchedulerAggregator(Scheduler):
         all_reservation_status = {}
 
         used_schedulers = []
-        any_assigned = False
+        assigned_resource_type_name = None
         for resource_type_name in self.sorted_schedulers:
 
             # TODO: catch possible exceptions and "continue"
@@ -111,21 +111,16 @@ class IndependentSchedulerAggregator(Scheduler):
             all_reservation_status[resource_type_name] = reservation_status
 
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
-                any_assigned = True
+                assigned_resource_type_name = resource_type_name
                 break
             else:
                 used_schedulers.append(resource_type_name)
 
-        if any_assigned:
-            for resource_type_name in used_schedulers:
-                used_scheduler = self.schedulers[resource_type_name]
-                log.log(
-                    IndependentSchedulerAggregator, log.level.Info,
-                    "reserve_experiment: %s: assigned to %s, so finishing in scheduler %s" % (reservation_id, scheduler.__class__.__name__, used_scheduler.__class__.__name__), max_size = 1000)
-
-                used_scheduler.finish_reservation(reservation_id)
-                all_reservation_status.pop(resource_type_name)
-                self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+        if assigned_resource_type_name is not None:
+            removed = self.assign_single_scheduler(reservation_id, assigned_resource_type_name, True)
+            if removed is not None:
+                for removed_resource_name in removed:
+                    all_reservation_status.pop(removed_resource_name, None)
 
         return self.select_best_reservation_status(all_reservation_status.values())
 
@@ -180,19 +175,10 @@ class IndependentSchedulerAggregator(Scheduler):
                 "Got reservation_status (%s) for reservation_id %s. Got assigned? %s" % (str(all_reservation_status.values()), reservation_id, assigned_resource_type_name is not None ), max_size = 100000)
 
             if assigned_resource_type_name is not None:
-                for resource_type_name in reservation_schedulers:
-                    if resource_type_name != assigned_resource_type_name:
-                        new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
-                        if resource_type_name not in new_reservation_schedulers:
-                            continue
-
-                        self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
-                        used_scheduler = self.schedulers[resource_type_name]
-                        log.log(
-                            IndependentSchedulerAggregator, log.level.Info,
-                            "get_reservation_status: %s: finishing from %s" % (reservation_id, used_scheduler.__class__.__name__), max_size = 1000)
-                        used_scheduler.finish_reservation(reservation_id)
-                        all_reservation_status.pop(resource_type_name, None)
+                removed = self.assign_single_scheduler(reservation_id, assigned_resource_type_name, False)
+                if removed is not None:
+                    for removed_resource_name in removed:
+                        all_reservation_status.pop(removed_resource_name, None)
 
 
             if len(all_reservation_status) == 0:
@@ -210,6 +196,44 @@ class IndependentSchedulerAggregator(Scheduler):
             print
         return best_reservation
 
+    @logged()
+    @Override(Scheduler)
+    def assign_single_scheduler(self, reservation_id, assigned_resource_type_name, locking):
+        removed = set()
+
+        if locking:
+            self.reservations_manager.lock_reservation(reservation_id)
+        try:
+            initial_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+            if assigned_resource_type_name not in initial_reservation_schedulers:
+                log.log(
+                        IndependentSchedulerAggregator, log.level.Info,
+                        "assign_single_scheduler: reservation_id=%s; calling %s, but it is not on %s" % (reservation_id, assigned_resource_type_name, initial_reservation_schedulers), max_size = 1000)
+                print "No, %r is not in %r" % (assigned_resource_type_name, initial_reservation_schedulers)
+                import traceback
+                traceback.print_stack()
+                return None
+
+            for resource_type_name in initial_reservation_schedulers:
+                if resource_type_name != assigned_resource_type_name:
+                    new_reservation_schedulers = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
+                    if resource_type_name not in new_reservation_schedulers:
+                        continue
+
+                    self.resources_manager.dissociate_scheduler_from_reservation(reservation_id, self.experiment_id, resource_type_name)
+                    used_scheduler = self.schedulers[resource_type_name]
+                    log.log(
+                        IndependentSchedulerAggregator, log.level.Info,
+                        "assign_single_scheduler: %s: finishing from %s" % (reservation_id, used_scheduler.__class__.__name__), max_size = 1000)
+                    used_scheduler.finish_reservation(reservation_id)
+                    removed.add(resource_type_name)
+        finally:
+            if locking:
+                self.reservations_manager.unlock_reservation(reservation_id)
+
+        return removed
+
+        
 
     def select_best_reservation_status(self, all_reservation_status):
         if len(all_reservation_status) == 0:
