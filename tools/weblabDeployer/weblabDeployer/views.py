@@ -28,7 +28,8 @@ from werkzeug import secure_filename
 from weblab.admin.script import Creation, weblab_create
 
 from weblabDeployer import app, db, utils, task_manager, deploymentsettings
-from weblabDeployer.forms import RegistrationForm, LoginForm, ConfigurationForm
+from weblabDeployer.forms import RegistrationForm, LoginForm, \
+                            ConfigurationForm, DeployForm
 from weblabDeployer.models import User, Token, Entity
 
 SESSION_TYPE = 'labdeployer_admin'
@@ -218,44 +219,47 @@ def configure():
             form.base_url.data = entity.base_url
             form.link_url.data = entity.link_url
             form.google_analytics_number.data = entity.google_analytics_number
-
+            
     return render_template('configuration.html', form=form)
 
-@app.route('/deploy')
+@app.route('/deploy', methods=['GET', 'POST'])
 def deploy():
-    
-    # Get user settings
-    email = session['user_email']
-    user = User.query.filter_by(email=email).first()
-    entity = user.entity
-    
-    if entity is None:
-        flash('Configure before usinng the deployment app', 'error')
-        return redirect(url_for('configure'))
-    
-    # Step 1, create the deployments dir if necessary
-    if not os.path.exists(deploymentsettings.DIR_BASE):
-        os.mkdir(deploymentsettings.DIR_BASE)
-    
-    # Step 2, deploy
-    def exit_func(code): print "Exited with code %s" % code
-    
-    options = {
-        Creation.CORES        : deploymentsettings.CORES,
-        Creation.COORD_ENGINE : deploymentsettings.COORD_ENGINE,
-        Creation.DB_ENGINE    : deploymentsettings.DB_ENGINE,
-        Creation.BASE_URL     : entity.base_url
-    }
-    
-    directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
-    stdout = open('/tmp/weblab_out.txt', 'w+')
-    stderr = open('/tmp/weblab_error.txt', 'w+')
+    form = DeployForm(request.form)
 
+    if request.method == 'POST' and form.validate():
+        admin_user = form.admin_user.data
+        admin_name = form.admin_name.data
+        admin_email = form.admin_email.data
+        admin_password = form.admin_password.data
     
-    task = {'directory': directory, 'options': options,
-        'stdout': stdout, 'stderr': stderr, 'exit_func': exit_func}
+        # Get user settings
+        email = session['user_email']
+        user = User.query.filter_by(email=email).first()
+        entity = user.entity
+        
+        if entity is None:
+            flash('Configure before usinng the deployment app', 'error')
+            return redirect(url_for('configure'))
+        
+        # Step 1, create the deployments dir if necessary
+        if not os.path.exists(deploymentsettings.DIR_BASE):
+            os.mkdir(deploymentsettings.DIR_BASE)
+        
+        # Step 2, deploy
+        def exit_func(code): print "Exited with code %s" % code
+        
+        directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
+        stdout = open('/tmp/weblab_out.txt', 'w+')
+        stderr = open('/tmp/weblab_error.txt', 'w+')
+    
+        
+        task = {'directory': directory, 'stdout': stdout, 'stderr': stderr,
+                'exit_func': exit_func}
+    
+        task_manager.submit_task(task)
+    
+        from time import time
+        return str(time())
+    
+    return render_template('deploy.html', form=form)
 
-    task_manager.submit_task(task)
-
-    from time import time
-    return str(time())

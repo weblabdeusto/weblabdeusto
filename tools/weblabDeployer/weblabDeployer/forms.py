@@ -54,4 +54,12 @@ class ConfigurationForm(Form):
                                 validators.Regexp('^http:\/\/.*')])
     google_analytics_number = TextField('Google analytics number',
                                         [validators.Length(min=4, max=100)])
+
+class DeployForm(Form):
+    admin_name = TextField('Admin name', [validators.Length(min=4, max=100)])
+    admin_user = TextField('Admin user', [validators.Length(min=4, max=100)])
+    admin_password = PasswordField('Admin password', [validators.Length(min=4, max=100)])
+    admin_email = TextField('Admin email', [validators.Length(min=4, max=100),
+                                validators.Email('No es un email valido')])
+    
     
