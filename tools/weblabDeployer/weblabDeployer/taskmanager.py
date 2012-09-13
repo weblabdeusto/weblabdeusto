@@ -83,7 +83,21 @@ class TaskManager(threading.Thread):
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
                 #Create the entity
-                weblab_create(task['directory'] , task['options'],
+                settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
+                
+                settings['BASE_URL'] = ''
+                settings['DB_NAME'] = ''
+                settings['DB_USER'] = ''
+                settings['DB_PASSWD'] = ''
+                settings['ADMIN_USER'] = ''
+                settings['ADMIN_NAME'] = ''
+                settings['ADMIN_PASSWORD'] = ''
+                settings['ADMIN_MAIL'] = ''
+                settings['START_PORTS'] = ''
+                settings['SYSTEM_IDENTIFIER'] = ''
+                settings['SERVER_HOST'] = ''
+
+                info = weblab_create(task['directory'] , settings,
                     task['stdout'], task['stderr'], task['exit_func'])
                 time.sleep(0.5)
                 
@@ -98,9 +112,9 @@ class TaskManager(threading.Thread):
                 print(urllib2.urlopen('http://127.0.0.1:22110').read())
                 
                 # Add instance to weblab instance runner daemon
-                f = open(os.path.join(deploymentsettings.DIR_BASE,
-                                      'instances.txt'), 'a')
-                f.write('%s\n' % task['directory'])
+                with open(os.path.join(deploymentsettings.DIR_BASE,
+                                      'instances.txt'), 'a') as f:
+                    f.write('%s\n' % task['directory']) 
                 
                 # Start now the new weblab instance
                 process = subprocess.Popen(['nohup','weblab-admin','start',
@@ -118,3 +132,4 @@ class TaskManager(threading.Thread):
                 import traceback
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
+    
