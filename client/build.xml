@@ -136,7 +136,7 @@
     <target name="version">
         <exec executable="python">
             <arg value="version.py"/>
-            <arg value="--file" />
+            <arg value="-f" />
             <arg value="war/version.js"/>
         </exec>
     </target>
@@ -144,7 +144,7 @@
     <target name="gwtc-lab" depends="javac">
         <exec executable="python">
             <arg value="version.py"/>
-            <arg value="--file" />
+            <arg value="-f" />
             <arg value="war/version.js"/>
         </exec>
       <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
