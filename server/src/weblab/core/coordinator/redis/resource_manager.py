@@ -303,7 +303,7 @@ class ResourcesManager(object):
         reservations_active_schedulers = WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS % reservation_id
         serialized = json.dumps({ EXPERIMENT_TYPE : experiment_id.to_weblab_str(), RESOURCE_TYPE : resource_type_name })
 
-        client.srem(reservations_active_schedulers, serialized)
+        return client.srem(reservations_active_schedulers, serialized) != 0
 
     def clean_associations_for_reservation(self, reservation_id, experiment_id):
         client = self._redis_maker()
