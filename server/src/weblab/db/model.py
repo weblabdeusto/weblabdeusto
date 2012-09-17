@@ -120,7 +120,7 @@ class DbUser(Base):
         link_relation(self, role, "role")
 
     def __repr__(self):
-        return "DbUser(id = %r, login = '%s', full_name = '%s', email = '%s', avatar = '%s', role = %r)" % (
+        user_repr = "DbUser(id = %r, login = '%s', full_name = '%s', email = '%s', avatar = '%s', role = %r)" % (
                 self.id,
                 self.login,
                 self.full_name,
@@ -128,6 +128,9 @@ class DbUser(Base):
                 self.avatar,
                 self.role
             )
+        if isinstance(user_repr, unicode):
+            user_repr = user_repr.encode('utf-8')
+        return user_repr
 
     def to_dto(self):
         return User(self.login, self.full_name, self.email, self.role.to_dto())
@@ -208,12 +211,15 @@ class DbUserAuth(Base):
         configuration_str = "None"
         if self.configuration is not None:
             configuration_str = ( "*".join("" for _ in self.configuration) )
-        return "DbUserAuth(id = %r, user = %r, auth = %r, configuration = '%s')" % (
+        user_auth_repr = "DbUserAuth(id = %r, user = %r, auth = %r, configuration = '%s')" % (
             self.id,
             self.user,
             self.auth,
             configuration_str
         )
+        if isinstance(user_auth_repr, unicode):
+            user_auth_repr = user_auth_repr.encode('utf-8')
+        return user_auth_repr
 
     def to_business(self):
         return UserAuth.UserAuth.create_user_auth(self.auth.auth_type.name, self.auth.configuration) #TODO: Add DbUserAuth's configuration too
