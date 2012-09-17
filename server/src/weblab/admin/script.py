@@ -1686,7 +1686,35 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    \n"""
         """    def before_shutdown():\n"""
         """        print "Stopping servers..."\n"""
-        """    \n"""
+        """    \n""")
+
+    debugging_ports = []
+
+    if options[Creation.INLINE_LAB_SERV]:
+        debugging_core_port = current_port
+        debugging_ports.append(debugging_core_port)
+        current_port += 1
+
+        launch_script += (
+        """    launcher = Launcher.Launcher(\n"""
+        """                '.',\n"""
+        """                'core_machine',\n"""
+        """                'core_server1',\n"""
+        """                (\n"""
+        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                    Launcher.SignalWait(signal.SIGINT),\n"""
+        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """                ),\n"""
+        """                "logs/config/logging.configuration.server1.txt",\n"""
+        """                before_shutdown,\n"""
+        """                (\n"""
+        """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """                )\n"""
+        """             )\n\n"""
+        """    import voodoo.rt_debugger as rt_debugger\n"""
+        """    rt_debugger.launch_debugger(%s)\n""") % debugging_core_port
+    else:
+        launch_script += (
         """    launcher = Launcher.MachineLauncher(\n"""
         """                '.',\n"""
         """                'core_machine',\n"""
@@ -1696,31 +1724,31 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
         """                ),\n"""
         """                {\n""")
-    for core_number in range(1, options[Creation.CORES] + 1):
-        launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
+
+        for core_number in range(1, options[Creation.CORES] + 1):
+            launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
     
-    if not options[Creation.INLINE_LAB_SERV]:
         for n in range(1, options[Creation.LAB_COPIES] + 1):
             launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
-    launch_script += (
+
+        launch_script += (
         """                },\n"""
         """                before_shutdown,\n"""
         """                (\n"""
         """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
         """                ),\n"""
         """                pid_file = 'weblab.pid',\n""")
-    waiting_port = current_port
-    current_port += 1
-    launch_script += """                waiting_port = %r,\n""" % waiting_port
-    launch_script += """                debugger_ports = { \n"""
-    debugging_ports = []
-    for core_number in range(1, options[Creation.CORES] + 1):
-        debugging_core_port = current_port
-        debugging_ports.append(debugging_core_port)
+        waiting_port = current_port
         current_port += 1
-        launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
-    launch_script += ("""                }\n"""
-        """            )\n""")
+        launch_script += """                waiting_port = %r,\n""" % waiting_port
+        launch_script += """                debugger_ports = { \n"""
+        for core_number in range(1, options[Creation.CORES] + 1):
+            debugging_core_port = current_port
+            debugging_ports.append(debugging_core_port)
+            current_port += 1
+            launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
+        launch_script += ("""                }\n"""
+            """            )\n""")
 
 
     httpd_dir = os.path.join(directory, 'httpd')
