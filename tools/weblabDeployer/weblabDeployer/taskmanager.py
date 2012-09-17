@@ -30,6 +30,7 @@ import urllib2
 from weblab.admin.script import weblab_create
 
 from weblabDeployer import deploymentsettings
+from weblabDeployer.models import User
 
 class TaskManager(threading.Thread):
     
@@ -97,16 +98,18 @@ class TaskManager(threading.Thread):
                 settings['SYSTEM_IDENTIFIER'] = ''
                 settings['SERVER_HOST'] = ''
 
-                info = weblab_create(task['directory'] , settings,
-                    task['stdout'], task['stderr'], task['exit_func'])
+                results = weblab_create(task['directory'] ,
+                                        settings,
+                                        task['stdout'],
+                                        task['stderr'],
+                                        task['exit_func'])
                 time.sleep(0.5)
                 
                 # Create Apache configuration
                 with open(os.path.join(deploymentsettings.DIR_BASE,
                             deploymentsettings.APACHE_CONF_NAME), 'a') as f:
-                    conf_dir = task['directory'] + \
-                                '/httpd/apache_weblab_generic.conf'
-                    f.write('Include "%s"\n' % conf_dir) # TODO: apache_weblab_generic should be a constant
+                    conf_dir = results['apache_file']
+                    f.write('Include "%s"\n' % conf_dir) 
                 
                 # Reload apache
                 print(urllib2.urlopen('http://127.0.0.1:22110').read())
@@ -128,6 +131,13 @@ class TaskManager(threading.Thread):
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
             
                 #Copy image
+                user = User.query.filter_by(email=task['email']).first()
+                img_dir = os.path.dirname(results['img_file'])
+                os.makedirs(img_dir)
+                f = open(results['img_file'], 'w+')
+                f.write(user.entity.logo)
+                f.close
+                
             except:
                 import traceback
                 print(traceback.format_exc())

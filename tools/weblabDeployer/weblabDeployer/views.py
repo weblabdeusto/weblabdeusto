@@ -254,7 +254,7 @@ def deploy():
     
         
         task = {'directory': directory, 'stdout': stdout, 'stderr': stderr,
-                'exit_func': exit_func}
+                'exit_func': exit_func, 'email': email}
     
         task_manager.submit_task(task)
     

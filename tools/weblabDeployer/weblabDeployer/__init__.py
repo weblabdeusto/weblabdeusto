@@ -20,7 +20,6 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 import settings
-from taskmanager import TaskManager
 
 app = Flask(__name__)
 
@@ -37,11 +36,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conn_string
 #Extensions
 db = SQLAlchemy(app)
 
+
+#neccessary imports
+
+#Import before use because we need to create the databases and to manage without running the webapp
+import weblabDeployer.models
+
+from taskmanager import TaskManager
 #exec task manager
 task_manager = TaskManager()
 task_manager.start()
 
-#neccessary imports
 import weblabDeployer.views
-#Import before use because we need to create the databases and to manage without running the webapp
-import weblabDeployer.models
