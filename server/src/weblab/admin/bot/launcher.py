@@ -100,7 +100,8 @@ class BotLauncher(object):
         return Data.BotTrial(iterations)
 
     def _start_processes(self):
-        if not self.options['dont_start_processes']:
+        if self.options['dont_start_processes']:
+            time.sleep(10)
             return
         started_processes = []
         try:
@@ -130,7 +131,7 @@ class BotLauncher(object):
         return started_processes
 
     def _stop_processes(self, started_processes):
-        if not self.options['dont_start_processes']:
+        if self.options['dont_start_processes']:
             return 'Nothing started', 'Nothing started'
 
         complete_out = ''
