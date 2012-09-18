@@ -18,6 +18,7 @@
 #
 
 from weblabDeployer import db
+from sqlalchemy import func
 
 class User(db.Model):
     
@@ -43,7 +44,10 @@ class User(db.Model):
     def __init__(self, email, password):
         self.email = email
         self.password = password
-
+    
+    @staticmethod
+    def total_users():
+        return db.session.query(func.count(User.id)).first()[0]
 
 class Token(db.Model):
     
@@ -72,3 +76,7 @@ class Entity(db.Model):
     def __init__(self, name, base_url):
         self.name = name
         self.base_url = base_url
+    
+    @staticmethod
+    def last_port():
+        return db.session.query(func.max(Entity.end_port_number)).first()[0]
