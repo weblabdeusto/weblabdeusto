@@ -109,8 +109,14 @@ class OptionWrapper(object):
     def __init__(self, options):
         self._options = options
 
+    def __contains__(self, name):
+        return hasattr(self._options, name)
+
     def __getitem__(self, name):
         return getattr(self._options, name)
+
+    def __setitem__(self, name, value):
+        return setattr(self._options, name, value)
 
     def __getattribute__(self, name):
         if name == '_options':
@@ -331,7 +337,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                 print >> stderr, "error: reason: weblab does not support creating a database with engine %s" % db_engine
                 exit_func(-1)
             else:
-                if Creation.NOT_INTERACTIVE in options and options[Creation.NOT_INTERACTIVE]:
+                if options[Creation.NOT_INTERACTIVE]:
                     should_create = True
                 else:
                     should_create = raw_input('Would you like to create it now? (y/N) ').lower().startswith('y')
@@ -340,12 +346,13 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         exit_func(-1)
                 if db_engine == 'sqlite':
                     create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
+                    engine = create_engine(db_str, echo = False)
                 elif db_engine == 'mysql':
                     if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
                         admin_username = options[Creation.MYSQL_ADMIN_USER]
                         admin_password = options[Creation.MYSQL_ADMIN_PASSWORD]
                     else:
-                        if Creation.NOT_INTERACTIVE in options and options[Creation.NOT_INTERACTIVE]:
+                        if options[Creation.NOT_INTERACTIVE]:
                             exit_func(-5)
                         global DB_ROOT, DB_PASSWORD
                         if DB_ROOT is None or DB_PASSWORD is None:
@@ -356,6 +363,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                             admin_password = DB_PASSWORD
                     try:
                         create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host)
+                        engine = create_engine(db_str, echo = False)
                     except Exception as e:
                         print >> stderr, "error: could not create database. reason:", str(e)
                         exit_func(-1)
@@ -574,10 +582,10 @@ def _build_parser():
 
                                                   help = "Coordination database name used, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-db-user",   dest = Creation.COORD_DB_USER,   type="string", default="",
+    coord.add_option("--coordination-db-user",   dest = Creation.COORD_DB_USER,   type="string", default="weblab",
                                                   help = "Coordination database userused, if the coordination is based on a database.")
 
-    coord.add_option("--coordination-db-passwd", dest = Creation.COORD_DB_PASSWD,  type="string", default="",
+    coord.add_option("--coordination-db-passwd", dest = Creation.COORD_DB_PASSWD,  type="string", default="weblab",
                                                   help = "Coordination database password used, if the coordination is based on a database.")
 
     coord.add_option("--coordination-db-host",    dest = Creation.COORD_DB_HOST,    type="string", default="localhost",
@@ -627,6 +635,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options_dict is None:
         parser_options, _ = parser.parse_args()
         options = OptionWrapper(parser_options)
+        options[Creation.NOT_INTERACTIVE] = False
     else:
         options = parser.defaults.copy()
         options[Creation.NOT_INTERACTIVE] = True
@@ -1686,7 +1695,35 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    \n"""
         """    def before_shutdown():\n"""
         """        print "Stopping servers..."\n"""
-        """    \n"""
+        """    \n""")
+
+    debugging_ports = []
+
+    if options[Creation.INLINE_LAB_SERV]:
+        debugging_core_port = current_port
+        debugging_ports.append(debugging_core_port)
+        current_port += 1
+
+        launch_script += (
+        """    launcher = Launcher.Launcher(\n"""
+        """                '.',\n"""
+        """                'core_machine',\n"""
+        """                'core_server1',\n"""
+        """                (\n"""
+        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                    Launcher.SignalWait(signal.SIGINT),\n"""
+        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """                ),\n"""
+        """                "logs/config/logging.configuration.server1.txt",\n"""
+        """                before_shutdown,\n"""
+        """                (\n"""
+        """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """                )\n"""
+        """             )\n\n"""
+        """    import voodoo.rt_debugger as rt_debugger\n"""
+        """    rt_debugger.launch_debugger(%s)\n""") % debugging_core_port
+    else:
+        launch_script += (
         """    launcher = Launcher.MachineLauncher(\n"""
         """                '.',\n"""
         """                'core_machine',\n"""
@@ -1696,31 +1733,31 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
         """                ),\n"""
         """                {\n""")
-    for core_number in range(1, options[Creation.CORES] + 1):
-        launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
+
+        for core_number in range(1, options[Creation.CORES] + 1):
+            launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
     
-    if not options[Creation.INLINE_LAB_SERV]:
         for n in range(1, options[Creation.LAB_COPIES] + 1):
             launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
-    launch_script += (
+
+        launch_script += (
         """                },\n"""
         """                before_shutdown,\n"""
         """                (\n"""
         """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
         """                ),\n"""
         """                pid_file = 'weblab.pid',\n""")
-    waiting_port = current_port
-    current_port += 1
-    launch_script += """                waiting_port = %r,\n""" % waiting_port
-    launch_script += """                debugger_ports = { \n"""
-    debugging_ports = []
-    for core_number in range(1, options[Creation.CORES] + 1):
-        debugging_core_port = current_port
-        debugging_ports.append(debugging_core_port)
+        waiting_port = current_port
         current_port += 1
-        launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
-    launch_script += ("""                }\n"""
-        """            )\n""")
+        launch_script += """                waiting_port = %r,\n""" % waiting_port
+        launch_script += """                debugger_ports = { \n"""
+        for core_number in range(1, options[Creation.CORES] + 1):
+            debugging_core_port = current_port
+            debugging_ports.append(debugging_core_port)
+            current_port += 1
+            launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
+        launch_script += ("""                }\n"""
+            """            )\n""")
 
 
     httpd_dir = os.path.join(directory, 'httpd')

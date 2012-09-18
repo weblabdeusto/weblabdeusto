@@ -18,6 +18,7 @@ import sys
 import datetime
 import random
 import sha
+import traceback
 import weblab.configuration_doc as configuration_doc
 
 from console_ui import ConsoleUI
@@ -328,16 +329,17 @@ class Controller(object):
                 try:
                     user = self.db.insert_user(user_data["login"], user_data["full_name"], user_data["email"], None, role)
                     if user is not None:
-                        self.ui.notify("User created:\n%r" % user)
+                        self.ui.notify(u"User created:\n%r" % repr(user))
                         user_auth = self.db.insert_user_auth(user, auth, None)
                         assert user_auth is not None
-                        self.ui.notify("UserAuth created:\n%r" % user_auth)
+                        self.ui.notify(u"UserAuth created:\n%r" % repr(user_auth))
                         users_created_successfully += 1
                     else:
                         self.ui.error("The User '%s' already exists." % user_data["login"])
                         self.db.session.rollback()
                 except Exception, ex:
-                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: %s" % (user_data["login"], ex.__repr__()))
+                    traceback.print_exc()
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
         except GoBackError:
