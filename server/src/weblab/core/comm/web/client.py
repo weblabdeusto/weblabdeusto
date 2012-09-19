@@ -20,6 +20,7 @@ from weblab.core.exc import SessionNotFoundError
 import weblab.comm.web_server as WebFacadeServer
 
 RESERVATION_ID   = 'reservation_id'
+BACK_URL         = 'back_url'
 FORMAT_PARAMETER = 'format'
 
 REDIRECT_CODE = """<html><head>
@@ -34,6 +35,7 @@ REDIRECT_CODE = """<html><head>
     <p>Please, click on 'Submit'</p>
     <form action="." method="POST" id="reservation_form">
         <input type="text" name="reservation_id" value="%(reservation_id)s" />
+        <input type="text" name="back_url" value="%(back_url)s" />
         <input type="submit" value="Submit"/>
     </form>
     <p>Reason:%(reason)s</p>
@@ -47,13 +49,17 @@ LABEL_CODE = """<html><head>
     function submit_form(){
         var cur_hash = location.hash.substring(1);
         var reservation_id = 'Reservation id not found in history object';
+        var back_url       = '';
         var variables = cur_hash.split('&');
         for(var i in variables){
             var cur_variable = variables[i];
             if(cur_variable.indexOf('reservation_id=') == 0)
                 reservation_id = cur_variable.substring('reservation_id='.length);
+            if(cur_variable.indexOf('back_url=') == 0)
+                back_url       = cur_variable.substring('back_url='.length);
         }
         document.getElementById('reservation_id_text').value = reservation_id;
+        document.getElementById('back_url_text').value = back_url;
         document.getElementById('reservation_form').submit();
     }
 </script>
@@ -62,6 +68,7 @@ LABEL_CODE = """<html><head>
     <p>Please, click on 'Submit' to proceed, or in 'Back' to go back.</p>
     <form action="." method="POST" id="reservation_form">
         <input id="reservation_id_text" type="text" name="reservation_id" value="" />
+        <input id="back_url_text" type="text" name="back_url" value="" />
         <input type="submit" value="Submit"/><br/>
     </form>
     <input type="submit" value="Back" onclick="window.history.back()"/>
@@ -104,10 +111,12 @@ class ClientMethod(WebFacadeServer.Method):
 
         # If it is passed as a GET argument, send it as POST
         reservation_id = self.get_GET_argument(RESERVATION_ID)
+        back_url       = self.get_GET_argument(BACK_URL)
         if reservation_id is not None:
             return REDIRECT_CODE % {
                 'reason'         : 'GET performed',
-                'reservation_id' : urllib.unquote(reservation_id)
+                'reservation_id' : urllib.unquote(reservation_id),
+                'back_url'       : back_url,
             }
 
         # If it is passed as History (i.e. it was not passed by GET neither POST),
@@ -115,6 +124,8 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_id = self.get_POST_argument(RESERVATION_ID)
         if reservation_id is None:
             return LABEL_CODE
+
+        back_url = self.get_POST_argument(BACK_URL)
 
         reservation_id = urllib.unquote(reservation_id)
 
@@ -129,7 +140,8 @@ class ClientMethod(WebFacadeServer.Method):
                 self.req.login_weblab_cookie = 'loginweblabsessionid=%s' % partial_reservation_id
                 return REDIRECT_CODE % {
                     'reason'         : 'reservation_id %s does not end in server_route %s' % (reservation_id, self.req.server_route),
-                    'reservation_id' : reservation_id
+                    'reservation_id' : reservation_id,
+                    'back_url'       : back_url,
                 }
 
         if reservation_id.find(';') >= 0:
@@ -148,10 +160,11 @@ class ClientMethod(WebFacadeServer.Method):
         except SessionNotFoundError:
             return ERROR_CODE % reservation_id
 
-        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment" % {
+        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment&back_url=%(back_url)s" % {
             'reservation_id' : reservation_id,
             'exp_name'       : experiment_id.exp_name,
-            'exp_cat'        : experiment_id.cat_name
+            'exp_cat'        : experiment_id.cat_name,
+            'back_url'       : back_url,
         }
 
         format_parameter = self.get_POST_argument(FORMAT_PARAMETER)

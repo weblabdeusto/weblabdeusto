@@ -29,6 +29,7 @@ public class HistoryProperties {
 	
 	public static final String HOME                = "home";
 	public static final String EXPERIMENT          = "experiment";
+	public static final String BACK                = "back_url";
 	
 	private static final Map<String, String []> values = new HashMap<String, String[]>();
 	

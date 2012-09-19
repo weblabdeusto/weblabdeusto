@@ -251,7 +251,7 @@ class ExperimentWindow extends BaseWindow {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
 		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId;
+		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + URL.encode(Window.Location.getHref());
 		final Button button = new Button(this.i18nMessages.clickHereToOpenExperiment());
 		button.addClickHandler(new ClickHandler(){
 			@Override
