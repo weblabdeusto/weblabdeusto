@@ -193,6 +193,15 @@ class Submarine(Experiment):
         self._clean()
 
         current_config = self.initial_configuration.copy()
+
+        # 
+        # First, turn on the light, so everyone can see it
+        # 
+        self._send('LIGHT ON')
+
+        #
+        # Then, check the state
+        # 
         current_state_str = self._send('STATE')
         current_state = json.loads(current_state_str.replace("'", '"'))
 

@@ -32,6 +32,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -117,6 +118,9 @@ public class SubmarineExperiment extends ExperimentBase {
 	@UiField Widget submarineGrid;
 	@UiField Widget submarinePanel;
 	@UiField Widget activateSubmarinePanel;
+	@UiField Widget activateSubmarinePanel2;
+	
+	@UiField Image lookHereImage;
 	
 	private boolean forwardPressed = false;
 	private boolean backwardPressed = false;
@@ -326,9 +330,17 @@ public class SubmarineExperiment extends ExperimentBase {
 					
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
-						if(responseCommand.getCommandString().startsWith("fed")) 
+						if(responseCommand.getCommandString().startsWith("fed")) {
+							SubmarineExperiment.this.lookHereImage.setVisible(true);
+							final Timer t = new Timer() {
+								@Override
+								public void run() {
+									SubmarineExperiment.this.lookHereImage.setVisible(false);
+								}
+							};
+							t.schedule(5000);
 							setMessage("Fish fed!");
-						else if (responseCommand.getCommandString().startsWith("notfed:")) {
+						} else if (responseCommand.getCommandString().startsWith("notfed:")) {
 							final String time = responseCommand.getCommandString().substring("notfed:".length());
 							setMessage("Fish already fed recently. Try again in " + time + " hours");
 						} else {
@@ -422,18 +434,25 @@ public class SubmarineExperiment extends ExperimentBase {
 	    this.webcam2.start();
 
 		this.inputWidgetsPanel.setVisible(true);
-		this.messages.setText("You can now control the submarine");
+		this.messages.setText("You can now control the aquarium");
 		this.messages.stop();
 	}
 
 	@SuppressWarnings("unused")
 	@UiHandler("activateSubmarineButton")
 	public void onSubmarineActivate(ClickEvent event) {
+		this.activateSubmarinePanel.setVisible(false);
+		this.activateSubmarinePanel2.setVisible(true);
+	}
+	
+	@SuppressWarnings("unused")
+	@UiHandler("activateSubmarineButton2")
+	public void onSubmarineActivateConfirm(ClickEvent event) {
 		Event.addNativePreviewHandler(this.nativeEventHandler);
 		this.nativeEventHandler.activate();
 		this.submarineGrid.setVisible(true);
 		this.submarinePanel.setVisible(true);
-		this.activateSubmarinePanel.setVisible(false);
+		this.activateSubmarinePanel2.setVisible(false);
 	}
 		
 	@SuppressWarnings("unused")
