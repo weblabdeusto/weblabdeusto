@@ -60,6 +60,25 @@ public class HistoryProperties {
 		}
 	}
 	
+	public static String encode(String text) {
+		String encoded = URL.encode(text);
+		encoded = encoded.replace(":", "%3A"); 
+		encoded = encoded.replace("/", "%2F");
+		encoded = encoded.replace("#", "%23");
+		encoded = encoded.replace("&", "%26");
+		encoded = encoded.replace("=", "%3D");
+		return encoded;
+	}
+	
+	public static String decode(String encoded) {
+		String text = encoded.replace("%3A", ":"); 
+		text = text.replace("%2F", "/");
+		text = text.replace("%23", "#");
+		text = text.replace("%26", "&");
+		text = text.replace("%3D", "=");
+		return URL.decode(text);
+	}
+	
 	static void load(){
 		new HistoryProperties();
 	}
