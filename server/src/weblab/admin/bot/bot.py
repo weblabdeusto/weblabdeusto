@@ -45,6 +45,9 @@ def main():
     parser.add_option("--dont-delete-logs",         dest="delete_logs", default=True, action='store_false',
                                                     help = "Do not delete logs.")
 
+    parser.add_option("--dont-start-processes",     dest="dont_start_processes", default=False, action='store_true',
+                                                    help = "Do not start processes (asume that they are already started).")
+
 
     options, args = parser.parse_args()
 

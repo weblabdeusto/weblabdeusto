@@ -1024,7 +1024,7 @@ def generate_create_database(engine_str):
 
             sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
             sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
-            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO %(USER)s@%(HOST)s IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%(HOST)s' IDENTIFIED BY '%(PASSWORD)s';" % args
             
             try:
                 dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()

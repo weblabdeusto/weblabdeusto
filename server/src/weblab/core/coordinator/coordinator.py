@@ -391,9 +391,13 @@ class AbstractCoordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
-    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime)
+    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime, basestring)
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time):
+    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name):
+
+        # 
+        # Options parsing
+        # 
         default_still_initialing      = False
         default_batch                 = False
         default_initial_configuration = "{}"
@@ -414,6 +418,20 @@ class AbstractCoordinator(object):
                 batch                 = default_batch
                 initial_configuration = default_initial_configuration
 
+        # 
+        # 
+        # Ensuring that no other reservation has been confirmed in the meanwhile
+        # 
+        # 
+        aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
+        removed    = aggregator.assign_single_scheduler(reservation_id, resource_type_name, True)
+        if removed is None:
+            return
+
+        
+        #
+        # Proceeding with this reservation
+        # 
         serialized_request_info, serialized_client_initial_data = self.reservations_manager.get_request_info_and_client_initial_data(reservation_id)
         request_info  = json.loads(serialized_request_info)
 

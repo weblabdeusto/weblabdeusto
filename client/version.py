@@ -6,7 +6,7 @@ import subprocess
 import optparse
 
 def get_version():
-    cmd = ['git','show']
+    cmd = ['git','--no-pager','show']
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     result = p.wait()
     if result != 0:
@@ -16,7 +16,7 @@ def get_version():
 
 def get_number_of_versions(version):
     # git log 9bfcfb14afefd80473d4028c24f6b5019ebc3a5b --format="%h"
-    cmd = ['git','log', version, '--format="%at"']
+    cmd = ['git','--no-pager','log', version, '--format="%at"']
     p = subprocess.Popen(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     result = p.wait()
     if result != 0:

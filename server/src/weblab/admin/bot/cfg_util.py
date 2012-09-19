@@ -83,9 +83,9 @@ def new_bot_users(number, func, initial_delay, delay_step, *args, **kwargs):
 
 def generate_revision():
     try:
-        p = subprocess.Popen("hg identify -ni",shell=True,stdout=subprocess.PIPE)
+        p = subprocess.Popen("git show",shell=True,stdout=subprocess.PIPE)
         p.wait()
-        return ':'.join(p.stdout.read().strip().split())
+        return p.stdout.read().split('\n')[0].split()[1]
     except Exception, e:
         print "Could not gather revision:",e
         traceback.print_exc()
