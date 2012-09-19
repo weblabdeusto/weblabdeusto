@@ -27,10 +27,10 @@ import traceback
 import subprocess
 import urllib2
 
-from weblab.admin.script import weblab_create
+from weblab.admin.script import weblab_create, Creation
 
-from weblabDeployer import deploymentsettings
-from weblabDeployer.models import User
+from weblabDeployer import deploymentsettings, db
+from weblabDeployer.models import User, Entity
 
 class TaskManager(threading.Thread):
     
@@ -83,20 +83,23 @@ class TaskManager(threading.Thread):
             task = self.queue.get()
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
+                user = User.query.filter_by(email=task['email']).first()
+                
                 #Create the entity
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
                 
-                settings['BASE_URL'] = ''
-                settings['DB_NAME'] = ''
-                settings['DB_USER'] = ''
-                settings['DB_PASSWD'] = ''
-                settings['ADMIN_USER'] = ''
-                settings['ADMIN_NAME'] = ''
-                settings['ADMIN_PASSWORD'] = ''
-                settings['ADMIN_MAIL'] = ''
-                settings['START_PORTS'] = ''
-                settings['SYSTEM_IDENTIFIER'] = ''
-                settings['SERVER_HOST'] = ''
+                settings[Creation.BASE_URL] = user.entity.base_url
+                settings[Creation.DB_NAME] = 'weblabDeployer' + \
+                                        str(User.total_users() + 1)
+                print(settings[Creation.DB_NAME])
+                settings[Creation.ADMIN_USER] = task['admin_user']
+                settings[Creation.ADMIN_NAME] = task['admin_name']
+                settings[Creation.ADMIN_PASSWORD] = task['admin_password']
+                settings[Creation.ADMIN_MAIL] = task['admin_email']
+                if Entity.last_port(): last_port = 0
+                settings[Creation.START_PORTS] =  last_port + 1
+                settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
+                settings[Creation.ENTITY_LINK] = user.entity.link_url
 
                 results = weblab_create(task['directory'] ,
                                         settings,
@@ -131,12 +134,19 @@ class TaskManager(threading.Thread):
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
             
                 #Copy image
-                user = User.query.filter_by(email=task['email']).first()
                 img_dir = os.path.dirname(results['img_file'])
                 os.makedirs(img_dir)
                 f = open(results['img_file'], 'w+')
                 f.write(user.entity.logo)
                 f.close
+                
+                #TODO
+                #Save in database data like last port
+                user.entity.start_port_number = results['start_port']
+                user.entity.end_port_number = results['end_port']
+                # Save
+                db.session.add(user)
+                db.session.commit()
                 
             except:
                 import traceback

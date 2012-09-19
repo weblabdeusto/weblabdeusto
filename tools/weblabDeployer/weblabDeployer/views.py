@@ -191,7 +191,7 @@ def configure():
             entity.logo = logo_data
             entity.link_url = link_url
             entity.google_analytics_number = google_analytics_number
-        
+            entity.end_port_number = 9999 #start in 10000
             user.entity = entity
 
         # Update
@@ -246,15 +246,23 @@ def deploy():
             os.mkdir(deploymentsettings.DIR_BASE)
         
         # Step 2, deploy
-        def exit_func(code): print "Exited with code %s" % code
+        def exit_func(code):
+            raise Exception("Error creating weblab: %s" % code)
         
         directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
         stdout = open('/tmp/weblab_out.txt', 'w+')
         stderr = open('/tmp/weblab_error.txt', 'w+')
     
         
-        task = {'directory': directory, 'stdout': stdout, 'stderr': stderr,
-                'exit_func': exit_func, 'email': email}
+        task = {'directory': directory,
+                'stdout': stdout,
+                'stderr': stderr,
+                'exit_func': exit_func,
+                'email': email,
+                'admin_user': admin_user,
+                'admin_name': admin_name,
+                'admin_email': admin_email,
+                'admin_password': admin_password,}
     
         task_manager.submit_task(task)
     
