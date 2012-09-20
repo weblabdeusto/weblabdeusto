@@ -17,7 +17,6 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -251,7 +250,7 @@ class ExperimentWindow extends BaseWindow {
 		final VerticalPanel vp = new VerticalPanel();
 		vp.setWidth("100%");
 		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId;
+		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
 		final Button button = new Button(this.i18nMessages.clickHereToOpenExperiment());
 		button.addClickHandler(new ClickHandler(){
 			@Override

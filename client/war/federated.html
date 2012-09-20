@@ -8,11 +8,14 @@
 
             var cur_hash = location.hash.substring(1);
             var reservation_id = null;
+            var back_url = null;
             var variables = cur_hash.split('&');
             for(var i in variables){
                 var cur_variable = variables[i];
                 if(cur_variable.indexOf('reservation_id=') == 0)
                     reservation_id = cur_variable.substring('reservation_id='.length);
+                if(cur_variable.indexOf('back=') == 0)
+                    back_url = cur_variable.substring('back='.length);
             }
             if(reservation_id == null){ 
                 messages.innerHTML = 'Could not find a reservation_id';
@@ -37,6 +40,8 @@
             document.cookie = 'weblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=' + expected_path;
 
             document.getElementById('reservation_id_text').value = reservation_id;
+            if(back_url != null)
+                document.getElementById('back_url_text').value       = back_url;
             document.getElementById('reservation_form').submit();
         }
     //-->
@@ -48,6 +53,7 @@
     <p>Please, click on 'Submit'</p>
     <form action="../../weblab/web/client/" method="POST" id="reservation_form">
         <input id="reservation_id_text" type="text" name="reservation_id" value="" />
+        <input id="back_url_text"       type="text" name="back_url" value="" />
         <input type="submit" value="Submit"/>
     </form>
     </div>
