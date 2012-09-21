@@ -311,6 +311,19 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
             port_str = ':%s' % db_port
         else:
             port_str = ''
+
+        if db_engine == 'mysql':
+            try:
+                import MySQLdb
+                assert MySQLdb is not None # Avoid warnings
+            except ImportError:
+                try:
+                    import pymysql_sa
+                except ImportError:
+                    pass
+                else:
+                    pymysql_sa.make_default_mysql_dialect()
+                    
         location = "%(user)s:%(password)s@%(host)s%(port)s/%(name)s" % { 
                         'user'     : db_user, 
                         'password' : db_passwd, 
