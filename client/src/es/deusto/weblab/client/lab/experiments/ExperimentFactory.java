@@ -103,9 +103,12 @@ public class ExperimentFactory {
 	}
 	
 	public static IConfigurationRetriever getExperimentConfigurationRetriever(ExperimentID experimentId){
-		for(ExperimentEntry entry : EntryRegistry.entries)
+		//System.out.println("DBG: Now listing entries");
+		for(ExperimentEntry entry : EntryRegistry.entries) {
+			//System.out.println("DBG: " + entry.getExperimentID());
 			if(entry.getExperimentID().equals(experimentId))
 				return entry.getConfigurationRetriever();
+		}
 
 		throw new IllegalArgumentException("Experiment ID is missing from the configuration file or the registry! " + experimentId);
 	} 
