@@ -28,6 +28,7 @@ from optparse import OptionParser, OptionGroup
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+import sqlalchemy
 
 from weblab.util import data_filename
 from weblab.admin.monitor.monitor import WebLabMonitor
@@ -42,6 +43,7 @@ import weblab.admin.deploy as deploy
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
+from voodoo.dbutil import generate_getconn
 from voodoo.gen.loader.ConfigurationParser import GlobalParser
 
 # 
@@ -191,6 +193,7 @@ class Creation(object):
     SESSION_STORAGE    = 'session_storage'
     SESSION_DB_ENGINE  = 'session_db_engine'
     SESSION_DB_HOST    = 'session_db_host'
+    SESSION_DB_PORT    = 'session_db_port'
     SESSION_DB_NAME    = 'session_db_name'
     SESSION_DB_USER    = 'session_db_user'
     SESSION_DB_PASSWD  = 'session_db_passwd'
@@ -202,6 +205,7 @@ class Creation(object):
     DB_ENGINE          = 'db_engine'
     DB_NAME            = 'db_name'
     DB_HOST            = 'db_host'
+    DB_PORT            = 'db_port'
     DB_USER            = 'db_user'
     DB_PASSWD          = 'db_passwd'
     
@@ -212,6 +216,7 @@ class Creation(object):
     COORD_DB_USER      = 'coord_db_user'
     COORD_DB_PASSWD    = 'coord_db_passwd'
     COORD_DB_HOST      = 'coord_db_host'
+    COORD_DB_PORT      = 'coord_db_port'
     COORD_REDIS_DB     = 'coord_redis_db'
     COORD_REDIS_PASSWD = 'coord_redis_passwd'
     COORD_REDIS_PORT   = 'coord_redis_port'
@@ -289,7 +294,7 @@ def uncomment_json(lines):
 DB_ROOT     = None
 DB_PASSWORD = None
 
-def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
+def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
 
     if db_engine == 'sqlite':
@@ -302,11 +307,16 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
             location = '/' + base_location
         sqlite3.connect(database = sqlite_location).close()
     else:
-        location = "%(user)s:%(password)s@%(host)s/%(name)s" % { 
+        if db_port is not None:
+            port_str = ':%s' % db_port
+        else:
+            port_str = ''
+        location = "%(user)s:%(password)s@%(host)s%(port)s/%(name)s" % { 
                         'user'     : db_user, 
                         'password' : db_passwd, 
                         'host'     : db_host,
-                        'name'     : db_name
+                        'name'     : db_name,
+                        'port'     : port_str,
                     }
     
     db_str = "%(engine)s://%(location)s" % { 
@@ -314,8 +324,11 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         'location' : location,
                     }
     
+    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name)
+    pool = sqlalchemy.pool.QueuePool(getconn)
+
     try:
-        engine = create_engine(db_str, echo = False)
+        engine = create_engine(db_str, echo = False, pool = pool)
         engine.execute("select 1")
     except Exception as e:
         print >> stderr, "error: database used for %s is misconfigured" % what
@@ -346,7 +359,6 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         exit_func(-1)
                 if db_engine == 'sqlite':
                     create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
-                    engine = create_engine(db_str, echo = False)
                 elif db_engine == 'mysql':
                     if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
                         admin_username = options[Creation.MYSQL_ADMIN_USER]
@@ -356,14 +368,13 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                             exit_func(-5)
                         global DB_ROOT, DB_PASSWORD
                         if DB_ROOT is None or DB_PASSWORD is None:
-                            admin_username = raw_input("Enter the MySQL administrator username (typically root): ") or 'root'
+                            admin_username = raw_input("Enter the MySQL administrator username [default: root]: ") or 'root'
                             admin_password = getpass.getpass("Enter the MySQL administrator password: ")
                         else:
                             admin_username = DB_ROOT
                             admin_password = DB_PASSWORD
                     try:
-                        create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host)
-                        engine = create_engine(db_str, echo = False)
+                        create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host, db_port)
                     except Exception as e:
                         print >> stderr, "error: could not create database. reason:", str(e)
                         exit_func(-1)
@@ -374,6 +385,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                     print >> stderr, "error: You must create the database and the db credentials"
                     print >> stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
                     exit_func(-1)
+                engine = create_engine(db_str, echo = False, pool = pool)
 
 
 
@@ -526,6 +538,9 @@ def _build_parser():
     sess.add_option("--session-db-host",          dest = Creation.SESSION_DB_HOST, type="string", default="localhost",
                                                   help = "Select the host of the session server, if any.")
 
+    sess.add_option("--session-db-port",          dest = Creation.SESSION_DB_PORT, type="int", default=None,
+                                                  help = "Select the port of the session server, if any.")
+
     sess.add_option("--session-db-name",          dest = Creation.SESSION_DB_NAME, type="string", default="WebLabSessions",
                                                   help = "Select the name of the sessions database.")
 
@@ -559,6 +574,9 @@ def _build_parser():
     dbopt.add_option("--db-host",                 dest = Creation.DB_HOST,         type="string", default="localhost",
                                                   help = "Core database host.")
 
+    dbopt.add_option("--db-port",                 dest = Creation.DB_PORT,         type="int", default=None,
+                                                  help = "Core database port.")
+
     dbopt.add_option("--db-user",                 dest = Creation.DB_USER,         type="string", default="weblab",
                                                   help = "Core database username.")
 
@@ -590,6 +608,9 @@ def _build_parser():
 
     coord.add_option("--coordination-db-host",    dest = Creation.COORD_DB_HOST,    type="string", default="localhost",
                                                   help = "Coordination database host used, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-db-port",    dest = Creation.COORD_DB_PORT,    type="int", default=None,
+                                                  help = "Coordination database port used, if the coordination is based on a database.")
 
     coord.add_option("--coordination-redis-db",  dest = Creation.COORD_REDIS_DB,   type="int", default=None,
                                                   help = "Coordination redis DB used, if the coordination is based on redis.")
@@ -739,12 +760,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     elif options[Creation.COORD_ENGINE] in ('sql', 'sqlalchemy'):
         db_engine  = options[Creation.COORD_DB_ENGINE]
         db_host    = options[Creation.COORD_DB_HOST]
+        db_port    = options[Creation.COORD_DB_PORT]
         db_name    = options[Creation.COORD_DB_NAME]
         db_user    = options[Creation.COORD_DB_USER]
         db_passwd  = options[Creation.COORD_DB_PASSWD]
         import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
-        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
         print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
         exit_func(-1)
@@ -759,11 +781,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     elif options[Creation.SESSION_STORAGE] in ('sql', 'sqlalchemy'):
         db_engine = options[Creation.SESSION_DB_ENGINE]
         db_host   = options[Creation.SESSION_DB_HOST]
+        db_host   = options[Creation.SESSION_DB_PORT]
         db_name   = options[Creation.SESSION_DB_NAME]
         db_user   = options[Creation.SESSION_DB_USER]
         db_passwd = options[Creation.SESSION_DB_PASSWD]
-        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
-        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     elif options[Creation.SESSION_STORAGE] != 'memory':
         print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
         exit_func(-1)
@@ -771,9 +794,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_engine = options[Creation.DB_ENGINE]
     db_name   = options[Creation.DB_NAME]
     db_host   = options[Creation.DB_HOST]
+    db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
@@ -997,6 +1021,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'core_universal_identifier_human' : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
         'db_engine'                       : options[Creation.DB_ENGINE],
         'db_host'                         : options[Creation.DB_HOST],
+        'db_port'                         : options[Creation.DB_PORT],
         'db_name'                         : options[Creation.DB_NAME],
         'db_user'                         : options[Creation.DB_USER],
         'db_password'                     : options[Creation.DB_PASSWD],
@@ -1011,6 +1036,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         'session_db_engine'               : options[Creation.SESSION_DB_ENGINE],
         'session_db_host'                 : options[Creation.SESSION_DB_HOST],
+        'session_db_port'                 : options[Creation.SESSION_DB_PORT],
         'session_db_name'                 : options[Creation.SESSION_DB_NAME],
         'session_db_user'                 : options[Creation.SESSION_DB_USER],
         'session_db_passwd'               : options[Creation.SESSION_DB_PASSWD],
@@ -1030,6 +1056,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'core_coordinator_db_name'        : options[Creation.COORD_DB_NAME],
         'core_coordinator_db_engine'      : options[Creation.COORD_DB_ENGINE],
         'core_coordinator_db_host'        : options[Creation.COORD_DB_HOST],
+        'core_coordinator_db_port'        : options[Creation.COORD_DB_PORT],
 
         'coord_db'                        : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
         'coord_redis'                     : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
