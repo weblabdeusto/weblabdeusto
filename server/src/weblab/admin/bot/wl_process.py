@@ -21,7 +21,6 @@ import glob
 import subprocess
 import time
 import urllib2
-import voodoo.killer as killer
 
 class WebLabProcess(object):
 
@@ -192,13 +191,13 @@ class WebLabProcess(object):
                 time.sleep(0.1)
                 time_expired = time.time() > initialtime + maxtime
             if time_expired:
-                killer.term(self.popen)
+                self.popen.terminate()
                 initialtime = time.time()
                 while not self._has_finished() and not time_expired:
                     time.sleep(0.1)
                     time_expired = time.time() > initialtime + maxtime
                 if time_expired:
-                    killer.kill(self.popen)
+                    self.popen.kill()
         else:
             try:
                 self.out = self.popen.stdout.read()
