@@ -21,8 +21,13 @@ import glob
 import subprocess
 import time
 import urllib2
+import datetime
+import threading
 
 class WebLabProcess(object):
+
+    identifiers = 1
+    identifiers_lock = threading.Lock()
 
     def __init__(self, launch_file, host, options, base_location = '', verbose = False):
         super(WebLabProcess, self).__init__()
@@ -138,16 +143,25 @@ class WebLabProcess(object):
         return self.popen.poll() is not None
 
     def start(self):
+        with WebLabProcess.identifiers_lock:
+            self.identifier = WebLabProcess.identifiers
+            WebLabProcess.identifiers += 1
+        self.stdout_name = 'stdout_%s.txt' % self.identifier
+        self.stderr_name = 'stderr_%s.txt' % self.identifier
+        stdout_f = open(self.stdout_name,'w')
+        stderr_f = open(self.stderr_name,'w')
+        stdout_f.write('Process %s started at %s\n' % (self.launch_file, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        stdout_f.flush()
         self.popen = subprocess.Popen(["python", "-OO", self.launch_file],
                                       cwd=self.launch_path,
                                       stdin=subprocess.PIPE,
-                                      stdout=subprocess.PIPE,
-                                      stderr=subprocess.PIPE)
+                                      stdout=stdout_f,
+                                      stderr=stderr_f)
 
         time.sleep(2)
         if self.popen.poll() is not None:
-            print self.popen.stdout.read()
-            print self.popen.stderr.read()
+            print open(self.stdout_name).read()
+            print open(self.stderr_name).read()
             raise Exception("Server couldn't start!")
 
     def step_wait(self):
@@ -163,8 +177,8 @@ class WebLabProcess(object):
             time.sleep(4)
         if max_iterations == 0:
             if self.popen.poll() is not None:
-                print self.popen.stdout.read()
-                print self.popen.stderr.read()
+                print open(self.stdout_name).read()
+                print open(self.stderr_name).read()
             raise Exception("Server couldn't start! Failure: %s" % failure)
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
 
@@ -182,8 +196,12 @@ class WebLabProcess(object):
         #time.sleep(1)
 
     def shutdown(self):
+        with WebLabProcess.identifiers_lock:
+            WebLabProcess.identifiers -= 1
         if not self._has_finished():
-            (self.out, self.err) = self.popen.communicate(input="\n")
+            self.popen.communicate(input="\n")
+            self.out = open(self.stdout_name).read()
+            self.err = open(self.stderr_name).read()
             maxtime = 5 # seconds
             time_expired = False
             initialtime = time.time()
@@ -200,8 +218,8 @@ class WebLabProcess(object):
                     self.popen.kill()
         else:
             try:
-                self.out = self.popen.stdout.read()
-                self.err = self.popen.stderr.read()
+                self.out = open(self.stdout_name).read()
+                self.err = open(self.stderr_name).read()
             except Exception as e:
                 self.out = "Couldn't read process output: %s" % e
                 self.err = "Couldn't read process output: %s" % e
