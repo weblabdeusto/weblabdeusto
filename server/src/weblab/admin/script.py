@@ -944,6 +944,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "db_engine          = %(db_engine)r\n"
                         "db_host            = %(db_host)r\n"
+                        "db_port            = %(db_port)r # None for default\n"
                         "db_database        = %(db_name)r\n"
                         "weblab_db_username = %(db_user)r\n"
                         "weblab_db_password = %(db_password)r\n"
