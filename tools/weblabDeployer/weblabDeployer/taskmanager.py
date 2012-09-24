@@ -57,28 +57,32 @@ class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         
-        # /task/{identifier}
-        match = re.match(r"/task/([\w-]+)/?$", self.path)
-        if match is not None:
-            results = dict(TaskManagerServer.tasks[match.group(1)])
-            del results['stdout']
-            del results['stderr']
-            del results['exit_func']
-            self.wfile.write(json.dumps(results))
-            return
-            
-        # /task/{identifier}/stdout
-        match = re.match(r"/task/([\w-]+)/stdout/?$", self.path)
-        if match is not None:
-           
-            return 
-            
-        # /task/{identifier}/stderror
-        match = re.match(r"/task/([\w-]+)/stderror/?$", self.path)
-        if match is not None:
-            self.wfile.write('OK stderror:' + match.group(1))
-            return
-            
+        try:
+            # /task/{identifier}
+            match = re.match(r"/task/([\w-]+)/?$", self.path)
+            if match is not None:
+                results = dict(TaskManagerServer.tasks[match.group(1)])
+                del results['stdout']
+                del results['stderr']
+                del results['exit_func']
+                self.wfile.write(json.dumps(results))
+                return
+                
+            # /task/{identifier}/stdout
+            match = re.match(r"/task/([\w-]+)/stdout/?$", self.path)
+            if match is not None:
+                stringio = TaskManagerServer.tasks[match.group(1)]['stdout']
+                self.wfile.write(stringio.getvalue())
+                return 
+                
+            # /task/{identifier}/stderror
+            match = re.match(r"/task/([\w-]+)/stderror/?$", self.path)
+            if match is not None:
+                stringio = TaskManagerServer.tasks[match.group(1)]['stderr']
+                self.wfile.write(stringio.getvalue())
+                return
+        except:
+            pass
         self.send_response(400)
         self.end_headers()
         self.wfile.write('ERROR')        
