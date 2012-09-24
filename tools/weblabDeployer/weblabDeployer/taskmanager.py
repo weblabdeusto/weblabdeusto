@@ -17,20 +17,111 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-
 import os
+import sys
+path_aux = sys.path[0].split('/')
+path_aux = os.path.join('/', *path_aux[0:len(path_aux)-1])
+sys.path.append(path_aux)
 import Queue
 import threading
-import StringIO
 import time
 import traceback
 import subprocess
 import urllib2
+import BaseHTTPServer
+import re
+import json
+import uuid
+from cStringIO import StringIO
 
 from weblab.admin.script import weblab_create, Creation
-
 from weblabDeployer import deploymentsettings, db
 from weblabDeployer.models import User, Entity
+
+
+
+
+class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
+    """ Simple server for calling the task manager process.
+    API:
+        - GET /task/{identifier} - Gets task with identifier 
+        - POST /task - creates new task and responds with the identifier
+        - GET /task/{identifier}/stdout - gets the stdout from a concrete task
+        - GET /task/{identifier}/stderror - get the stdout from a concrete task
+    """
+    
+    tasks = {}
+
+    def do_GET(self):
+        
+        self.send_response(200)
+        self.end_headers()
+        
+        # /task/{identifier}
+        match = re.match(r"/task/([\w-]+)/?$", self.path)
+        if match is not None:
+            results = TaskManagerServer.tasks[match.group(1)]
+            del results['stdout']
+            del results['stderr']
+            del results['exit_func']
+            self.wfile.write(json.dumps(results))
+            return
+            
+        # /task/{identifier}/stdout
+        match = re.match(r"/task/([\w-]+)/stdout/?$", self.path)
+        if match is not None:
+           
+            return 
+            
+        # /task/{identifier}/stderror
+        match = re.match(r"/task/([\w-]+)/stderror/?$", self.path)
+        if match is not None:
+            self.wfile.write('OK stderror:' + match.group(1))
+            return
+            
+        self.send_response(400)
+        self.end_headers()
+        self.wfile.write('ERROR')        
+    
+    def do_POST(self):
+        # /task
+        match = re.match(r"/task/?$", self.path)
+        if match is not None:
+            
+            #Decode json
+            post_vars = self.rfile.read(int(self.headers['Content-Length']))
+            settings = json.loads(post_vars)
+            
+            #create needed resources
+            task_id = (str(uuid.uuid4()))
+            stdout = StringIO()
+            stderr = StringIO()
+            
+            def exit_func(code):
+                raise Exception("Error creating weblab: %s" % code)
+            
+            #create task settings and submit to the task manager
+            settings_update = {'stdout': stdout,
+                                'stderr': stderr,
+                                'exit_func': exit_func,
+                                'task_id': task_id}
+        
+            settings.update(settings_update)
+
+            print(settings)
+
+            #Submit task
+            task_manager.submit_task(settings)
+        
+            #send response to client with the client id
+            self.send_response(200)
+            self.end_headers()        
+            self.wfile.write(task_id)
+            return
+        
+        self.send_response(400)
+        self.end_headers()
+        self.wfile.write('ERROR')
 
 class TaskManager(threading.Thread):
     
@@ -61,8 +152,6 @@ class TaskManager(threading.Thread):
         with self.lock:
             self.task_counter += 1
             self.task_status[self.task_counter] = TaskManager.STATUS_WAITING
-            self.task_output[self.task_counter] = StringIO.StringIO()
-            task['task_id'] = self.task_counter
             self.queue.put(task)
             
             return self.task_counter
@@ -83,7 +172,7 @@ class TaskManager(threading.Thread):
             task = self.queue.get()
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
-                user = User.query.filter_by(email=task['email']).first()
+                user = User.query.filter_by(email=task[u'email']).first()
                 
                 #Create the entity
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
@@ -91,12 +180,12 @@ class TaskManager(threading.Thread):
                 settings[Creation.BASE_URL] = user.entity.base_url
                 settings[Creation.DB_NAME] = 'weblabDeployer' + \
                                         str(User.total_users() + 1)
-                print(settings[Creation.DB_NAME])
                 settings[Creation.ADMIN_USER] = task['admin_user']
                 settings[Creation.ADMIN_NAME] = task['admin_name']
                 settings[Creation.ADMIN_PASSWORD] = task['admin_password']
                 settings[Creation.ADMIN_MAIL] = task['admin_email']
-                if Entity.last_port(): last_port = 0
+                last_port = Entity.last_port()
+                if last_port is None: last_port = deploymentsettings.MIN_PORT
                 settings[Creation.START_PORTS] =  last_port + 1
                 settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
                 settings[Creation.ENTITY_LINK] = user.entity.link_url
@@ -108,6 +197,9 @@ class TaskManager(threading.Thread):
                                         task['exit_func'])
                 time.sleep(0.5)
                 
+                settings.update(task)
+                TaskManagerServer.tasks[task['task_id']] = settings
+                
                 # Create Apache configuration
                 with open(os.path.join(deploymentsettings.DIR_BASE,
                             deploymentsettings.APACHE_CONF_NAME), 'a') as f:
@@ -115,7 +207,8 @@ class TaskManager(threading.Thread):
                     f.write('Include "%s"\n' % conf_dir) 
                 
                 # Reload apache
-                print(urllib2.urlopen('http://127.0.0.1:22110').read())
+                print(urllib2.urlopen(deploymentsettings.APACHE_RELOAD_SERVICE)\
+                      .read())
                 
                 # Add instance to weblab instance runner daemon
                 with open(os.path.join(deploymentsettings.DIR_BASE,
@@ -131,6 +224,9 @@ class TaskManager(threading.Thread):
                                                'stderr.txt'), 'w'),
                     stdin = subprocess.PIPE)
                 
+                time.sleep(30)
+                if process.poll() is not None: raise Exception
+                
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
             
                 #Copy image
@@ -140,7 +236,6 @@ class TaskManager(threading.Thread):
                 f.write(user.entity.logo)
                 f.close
                 
-                #TODO
                 #Save in database data like last port
                 user.entity.start_port_number = results['start_port']
                 user.entity.end_port_number = results['end_port']
@@ -152,4 +247,9 @@ class TaskManager(threading.Thread):
                 import traceback
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
-    
+
+if __name__ == "__main__":
+    task_manager = TaskManager()
+    task_manager.start()
+    x = BaseHTTPServer.HTTPServer(('127.0.0.1', 1661), TaskManagerServer)    
+    x.serve_forever()

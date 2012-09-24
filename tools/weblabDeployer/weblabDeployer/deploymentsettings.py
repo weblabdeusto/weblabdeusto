@@ -3,7 +3,8 @@ from weblab.admin.script import Creation
 
 DIR_BASE = os.path.expanduser(os.path.join('~', '.weblab')) # home path
 APACHE_CONF_NAME = 'apache.conf'
-
+MIN_PORT = 10000
+APACHE_RELOAD_SERVICE = 'http://127.0.0.1:22110'
 CUSTOM_DEPLOYMENT_SETTINGS = {}
 
 DEFAULT_DEPLOYMENT_SETTINGS = {

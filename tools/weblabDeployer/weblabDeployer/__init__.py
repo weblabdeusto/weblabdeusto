@@ -36,15 +36,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conn_string
 #Extensions
 db = SQLAlchemy(app)
 
-
-#neccessary imports
-
 #Import before use because we need to create the databases and to manage without running the webapp
 import weblabDeployer.models
-
-from taskmanager import TaskManager
-#exec task manager
-task_manager = TaskManager()
-task_manager.start()
 
 import weblabDeployer.views

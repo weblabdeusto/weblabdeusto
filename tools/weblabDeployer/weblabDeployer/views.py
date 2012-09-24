@@ -22,12 +22,14 @@ import hashlib
 import uuid
 import StringIO
 from functools import wraps
+import json
+import urllib2
 
 from flask import render_template, request, url_for, flash, redirect, session
 from werkzeug import secure_filename
 from weblab.admin.script import Creation, weblab_create
 
-from weblabDeployer import app, db, utils, task_manager, deploymentsettings
+from weblabDeployer import app, db, utils, deploymentsettings
 from weblabDeployer.forms import RegistrationForm, LoginForm, \
                             ConfigurationForm, DeployForm
 from weblabDeployer.models import User, Token, Entity
@@ -246,28 +248,26 @@ def deploy():
             os.mkdir(deploymentsettings.DIR_BASE)
         
         # Step 2, deploy
-        def exit_func(code):
-            raise Exception("Error creating weblab: %s" % code)
         
         directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
-        stdout = open('/tmp/weblab_out.txt', 'w+')
-        stderr = open('/tmp/weblab_error.txt', 'w+')
-    
         
         task = {'directory': directory,
-                'stdout': stdout,
-                'stderr': stderr,
-                'exit_func': exit_func,
                 'email': email,
                 'admin_user': admin_user,
                 'admin_name': admin_name,
                 'admin_email': admin_email,
                 'admin_password': admin_password,}
     
-        task_manager.submit_task(task)
-    
-        from time import time
-        return str(time())
+        task_json = json.dumps(task)
+        url = "http://127.0.0.1:1661/task"
+        req = urllib2.Request(url,
+                            task_json,
+                            {'Content-Type': 'application/json',
+                             'Content-Length': len(task_json)})
+        f = urllib2.urlopen(req)
+        response = f.read()
+        f.close()
+        return response
     
     return render_template('deploy.html', form=form)
 
