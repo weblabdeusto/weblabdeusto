@@ -60,7 +60,7 @@ class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
         # /task/{identifier}
         match = re.match(r"/task/([\w-]+)/?$", self.path)
         if match is not None:
-            results = TaskManagerServer.tasks[match.group(1)]
+            results = dict(TaskManagerServer.tasks[match.group(1)])
             del results['stdout']
             del results['stderr']
             del results['exit_func']
