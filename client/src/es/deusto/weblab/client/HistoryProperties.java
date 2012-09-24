@@ -29,6 +29,7 @@ public class HistoryProperties {
 	
 	public static final String HOME                = "home";
 	public static final String EXPERIMENT          = "experiment";
+	public static final String BACK                = "back_url";
 	
 	private static final Map<String, String []> values = new HashMap<String, String[]>();
 	
@@ -57,6 +58,25 @@ public class HistoryProperties {
 			}else if(!key.isEmpty())
 				values.put(key, new String[]{ value });
 		}
+	}
+	
+	public static String encode(String text) {
+		String encoded = URL.encode(text);
+		encoded = encoded.replace(":", "%3A"); 
+		encoded = encoded.replace("/", "%2F");
+		encoded = encoded.replace("#", "%23");
+		encoded = encoded.replace("&", "%26");
+		encoded = encoded.replace("=", "%3D");
+		return encoded;
+	}
+	
+	public static String decode(String encoded) {
+		String text = encoded.replace("%3A", ":"); 
+		text = text.replace("%2F", "/");
+		text = text.replace("%23", "#");
+		text = text.replace("%26", "&");
+		text = text.replace("%3D", "=");
+		return URL.decode(text);
 	}
 	
 	static void load(){

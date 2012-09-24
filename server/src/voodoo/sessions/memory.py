@@ -74,6 +74,8 @@ class SessionMemoryGateway(object):
             self._session_locks[first_char] = {}
 
     def _get_lock_and_sessions(self, session_id):
+        if len(session_id) == 0:
+            raise SessionErrors.SessionNotFoundError("Empty session ('')")
         return self._sessions[session_id[:1]]
 
     def _get_session_lock(self, session_id):

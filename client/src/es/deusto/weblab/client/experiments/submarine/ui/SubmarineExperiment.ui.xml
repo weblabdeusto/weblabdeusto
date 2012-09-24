@@ -9,8 +9,13 @@
 		<g:VerticalPanel borderWidth="0" ui:field="mainWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 		
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
-				<w:WlWebcam ui:field="webcam1" visible="false"></w:WlWebcam>
-				<w:WlWebcam ui:field="webcam2" visible="false"></w:WlWebcam>
+				<g:VerticalPanel>
+					<g:Image ui:field="lookHereImage" resource="{res.lookHere}" visible="false"/>
+					<w:WlWebcam ui:field="webcam1" visible="false"></w:WlWebcam>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<w:WlWebcam ui:field="webcam2" visible="false"></w:WlWebcam>
+				</g:VerticalPanel>
 			</g:HorizontalPanel>
 
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
@@ -40,6 +45,13 @@
 						<g:VerticalPanel ui:field="activateSubmarinePanel" width="100%"  horizontalAlignment="ALIGN_CENTER" spacing="30">
 							<g:Label width="500px">The submarine is only available few times, since the battery is usually empty. If you're lucky, you'll see the submarine and the green light of the submarine on, so you can play with it. Otherwise you'll only be able to feed the fish (you can see the food in the top left side of the first camera) and turn on and off the lights.</g:Label>
 							<g:Button ui:field="activateSubmarineButton">Activate the submarine control panel</g:Button>
+						</g:VerticalPanel>
+					</g:cell>
+					<g:cell width="100%">
+						<g:VerticalPanel ui:field="activateSubmarinePanel2" width="100%"  horizontalAlignment="ALIGN_CENTER" spacing="30" visible="false">
+							<g:Image resource="{res.playWithLights}"/>
+							<g:Label width="500px">The submarine is probably out of battery! Don't you want to feed the fish or play with the lights?</g:Label>
+							<g:Button ui:field="activateSubmarineButton2">Yes, activate the submarine panel</g:Button>
 						</g:VerticalPanel>
 					</g:cell>
 					<g:Grid ui:field="submarineGrid" visible="false">

@@ -21,6 +21,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -84,7 +85,14 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	
 	@UiHandler("backButton")
 	public void back(@SuppressWarnings("unused") ClickEvent event) {
-		History.back();
+		final String backURL = HistoryProperties.getValue(HistoryProperties.BACK);
+		if(backURL == null)
+			History.back();
+		else {
+			final String decoded = HistoryProperties.decode(backURL);
+			System.out.println("Voy a llevarle a: " + decoded);
+			Location.assign(decoded);
+		}
 	}
 	
 	@Override

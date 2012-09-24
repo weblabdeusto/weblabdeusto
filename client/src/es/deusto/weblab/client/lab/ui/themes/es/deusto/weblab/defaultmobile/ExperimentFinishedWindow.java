@@ -19,8 +19,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
+
+import es.deusto.weblab.client.HistoryProperties;
 
 public class ExperimentFinishedWindow extends Composite {
 
@@ -38,6 +41,12 @@ public class ExperimentFinishedWindow extends Composite {
 
 	@UiHandler("backButton")
 	public void back(@SuppressWarnings("unused") ClickEvent event) {
-		History.back();
+		final String backURL = HistoryProperties.getValue(HistoryProperties.BACK);
+		if(backURL == null)
+			History.back();
+		else {
+			final String decoded = HistoryProperties.decode(backURL);
+			Location.assign(decoded);
+		}
 	}
 }
