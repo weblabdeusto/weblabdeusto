@@ -21,13 +21,13 @@ from voodoo.log import logged
 import json
 import time
 
-DEBUG = True
+DEBUG = False
 
 
-class RobotMovement(Experiment.Experiment):
+class RobotArm(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-        super(RobotMovement, self).__init__(*args, **kwargs)
+        super(RobotArm, self).__init__(*args, **kwargs)
         self._cfg_manager = cfg_manager
         self.read_base_config()
 
