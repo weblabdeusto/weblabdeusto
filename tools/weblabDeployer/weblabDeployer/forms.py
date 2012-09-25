@@ -20,7 +20,8 @@
 from flask.ext.wtf import Form, BooleanField, TextField, PasswordField,\
     FileField, validators, file_allowed
 from flask.ext.uploads import UploadSet, IMAGES
-from weblabDeployer.models import User
+from weblabDeployer.models import User, Entity
+from flask import session
 
 #Validators
 class UserExists(object):
@@ -32,6 +33,17 @@ class UserExists(object):
     def __call__(self, form, field):
         if User.user_exists(field.data):
             raise validators.ValidationError(self.message)
+
+class BaseURLExists(object):
+    def __init__(self, message=None):
+        if not message:
+            message = u"Base url already exists"
+        self.message = message
+
+    def __call__(self, form, field):
+        if Entity.url_exists(session['user_email'], field.data):
+            raise validators.ValidationError(self.message)
+
 
 #Forms
 class LoginForm(Form):
@@ -62,7 +74,8 @@ class ConfigurationForm(Form):
     logo = FileField('Company logo', validators=[
                                         file_allowed(images, "Images only")])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^\w|\/\?\-$')])
+                                validators.Regexp('^\w|\/\?\-$'),
+                                BaseURLExists('Base url already exists')])
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^http:\/\/.*$')])
     google_analytics_number = TextField('Google analytics number',

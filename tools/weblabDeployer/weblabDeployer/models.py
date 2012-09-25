@@ -84,3 +84,9 @@ class Entity(db.Model):
     @staticmethod
     def last_port():
         return db.session.query(func.max(Entity.end_port_number)).first()[0]
+    
+    @staticmethod
+    def url_exists(user_email, base_url):
+        entity = Entity.query.filter_by(base_url=base_url).first()
+        return entity is not None and entity.user.email != user_email
+        
