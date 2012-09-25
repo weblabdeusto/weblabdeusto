@@ -74,10 +74,10 @@ class ConfigurationForm(Form):
     logo = FileField('Company logo', validators=[
                                         file_allowed(images, "Images only")])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^\w|\/\?\-$'),
+                                validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')])
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^http:\/\/.*$')])
+                                validators.Regexp('^http:\/\/[\w-]+$')])
     google_analytics_number = TextField('Google analytics number',
                                         [validators.Length(min=4, max=100)])
 
