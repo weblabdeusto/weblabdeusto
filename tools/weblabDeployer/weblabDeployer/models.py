@@ -48,6 +48,10 @@ class User(db.Model):
     @staticmethod
     def total_users():
         return db.session.query(func.count(User.id)).first()[0]
+    
+    @staticmethod
+    def user_exists(email):
+        return User.query.filter_by(email=email).first() is not None
 
 class Token(db.Model):
     

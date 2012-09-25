@@ -20,8 +20,20 @@
 from flask.ext.wtf import Form, BooleanField, TextField, PasswordField,\
     FileField, validators, file_allowed
 from flask.ext.uploads import UploadSet, IMAGES
+from weblabDeployer.models import User
 
+#Validators
+class UserExists(object):
+    def __init__(self, message=None):
+        if not message:
+            message = u"User already exists"
+        self.message = message
 
+    def __call__(self, form, field):
+        if User.user_exists(field.data):
+            raise validators.ValidationError(self.message)
+
+#Forms
 class LoginForm(Form):
     email = TextField('Email Address', [validators.Length(min=6, max=35),
                         validators.Email('No es un email valido')])
@@ -33,7 +45,8 @@ class LoginForm(Form):
 class RegistrationForm(Form):
     full_name = TextField('Full name', [validators.Length(min=4, max=25)])
     email = TextField('Email Address', [validators.Length(min=6, max=35),
-                                validators.Email('No es un email valido')])
+                                validators.Email('No es un email valido'),
+                                UserExists('User already exists')])
     password = PasswordField('New Password', [
         validators.Required(),
         validators.EqualTo('confirm', message='Passwords must match')
@@ -49,9 +62,9 @@ class ConfigurationForm(Form):
     logo = FileField('Company logo', validators=[
                                         file_allowed(images, "Images only")])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
-                                validators.Regexp('\w|\/\?\-')])
+                                validators.Regexp('^\w|\/\?\-$')])
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^http:\/\/.*')])
+                                validators.Regexp('^http:\/\/.*$')])
     google_analytics_number = TextField('Google analytics number',
                                         [validators.Length(min=4, max=100)])
 
@@ -61,5 +74,3 @@ class DeployForm(Form):
     admin_password = PasswordField('Admin password', [validators.Length(min=4, max=100)])
     admin_email = TextField('Admin email', [validators.Length(min=4, max=100),
                                 validators.Email('No es un email valido')])
-    
-    
