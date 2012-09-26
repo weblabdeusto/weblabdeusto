@@ -69,6 +69,7 @@ _sorted_variables.extend([
 DATABASE = (COMMON, 'Database')
 
 DB_HOST                         = 'db_host'
+DB_PORT                         = 'db_port'
 DB_DATABASE                     = 'db_database'
 DB_ENGINE                       = 'db_engine'
 WEBLAB_DB_USERNAME              = 'weblab_db_username'
@@ -77,6 +78,7 @@ WEBLAB_DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
 
 _sorted_variables.extend([
     (DB_HOST,                         _Argument(DATABASE, str,  'localhost', "Location of the database server")),
+    (DB_PORT,                         _Argument(DATABASE, int,  None,        "Port where the database is listening, if any")),
     (DB_DATABASE,                     _Argument(DATABASE, str,  'WebLab',    "Name of the main database")),
     (DB_ENGINE,                       _Argument(DATABASE, str,  'mysql',     "Engine used. Example: mysql, sqlite")),
     (WEBLAB_DB_USERNAME,              _Argument(DATABASE, str,  "weblab",    "WebLab database username")),
@@ -99,12 +101,14 @@ SESSION_MEMORY_GATEWAY_SERIALIZE             = 'session_memory_gateway_serialize
 
 SESSION_SQLALCHEMY_ENGINE                    = 'session_sqlalchemy_engine'
 SESSION_SQLALCHEMY_HOST                      = 'session_sqlalchemy_host'
+SESSION_SQLALCHEMY_PORT                      = 'session_sqlalchemy_port'
 SESSION_SQLALCHEMY_DB_NAME                   = 'session_sqlalchemy_db_name'
 SESSION_SQLALCHEMY_USERNAME                  = 'session_sqlalchemy_username'
 SESSION_SQLALCHEMY_PASSWORD                  = 'session_sqlalchemy_password'
 
 SESSION_LOCK_SQLALCHEMY_ENGINE               = 'session_lock_sqlalchemy_engine'
 SESSION_LOCK_SQLALCHEMY_HOST                 = 'session_lock_sqlalchemy_host'
+SESSION_LOCK_SQLALCHEMY_PORT                 = 'session_lock_sqlalchemy_port'
 SESSION_LOCK_SQLALCHEMY_DB_NAME              = 'session_lock_sqlalchemy_db_name'
 SESSION_LOCK_SQLALCHEMY_USERNAME             = 'session_lock_sqlalchemy_username'
 SESSION_LOCK_SQLALCHEMY_PASSWORD             = 'session_lock_sqlalchemy_password'
@@ -112,12 +116,14 @@ SESSION_LOCK_SQLALCHEMY_PASSWORD             = 'session_lock_sqlalchemy_password
 _sorted_variables.extend([
     (SESSION_SQLALCHEMY_ENGINE,                    _Argument(SESSIONS, str,  'mysql',           "Database engine used for sessions the database. Example: mysql")),
     (SESSION_SQLALCHEMY_HOST,                      _Argument(SESSIONS, str,  'localhost',       "Location of the sessions database server")),
+    (SESSION_SQLALCHEMY_PORT,                      _Argument(SESSIONS, int,  None,              "Location of the sessions database server")),
     (SESSION_SQLALCHEMY_DB_NAME,                   _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the sessions database")),
     (SESSION_SQLALCHEMY_USERNAME,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the sessions database" )),
     (SESSION_SQLALCHEMY_PASSWORD,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the sessions database")),
 
     (SESSION_LOCK_SQLALCHEMY_ENGINE,               _Argument(SESSIONS, str,  'mysql',           "Database engine used for locking the database. Example: mysql")),
     (SESSION_LOCK_SQLALCHEMY_HOST,                 _Argument(SESSIONS, str,  'localhost',       "Location of the locking database server")),
+    (SESSION_LOCK_SQLALCHEMY_PORT,                 _Argument(SESSIONS, int,  None,              "Location of the locking database server")),
     (SESSION_LOCK_SQLALCHEMY_DB_NAME,              _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the locking database")),
     (SESSION_LOCK_SQLALCHEMY_USERNAME,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the locking database" )),
     (SESSION_LOCK_SQLALCHEMY_PASSWORD,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the locking database")),
@@ -190,6 +196,7 @@ _sorted_variables.extend([
 COORDINATOR = (CORE_SERVER, 'Coordinator')
 
 COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
+COORDINATOR_DB_PORT            = 'core_coordinator_db_port'
 COORDINATOR_DB_NAME            = 'core_coordinator_db_name'
 COORDINATOR_DB_USERNAME        = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD        = 'core_coordinator_db_password'
@@ -199,6 +206,7 @@ COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
     (COORDINATOR_DB_HOST,            _Argument(COORDINATOR, str, "localhost", """Host of the database server.""")), 
+    (COORDINATOR_DB_PORT,            _Argument(COORDINATOR, int, None,        """Port of the database server.""")), 
     (COORDINATOR_DB_NAME,            _Argument(COORDINATOR, str, "WebLabCoordination", """Name of the coordination database.""")), 
     (COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, str, NO_DEFAULT, """Username to access the coordination database.""")), 
     (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, str, NO_DEFAULT, """Password to access the coordination database.""")), 
