@@ -92,7 +92,7 @@ def login():
             if next_url != '' and next_url != None:
                 return redirect(url_for(next_url))
                 
-            return redirect(url_for('index'))
+            return redirect(url_for('configure'))
         else:
             flash('Failure login', 'error')
     
