@@ -32,6 +32,7 @@ import BaseHTTPServer
 import re
 import json
 import uuid
+import mmap
 from cStringIO import StringIO
 
 from weblab.admin.script import weblab_create, Creation
@@ -112,8 +113,6 @@ class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
         
             settings.update(settings_update)
 
-            print(settings)
-
             #Submit task
             task_manager.submit_task(settings)
         
@@ -193,7 +192,6 @@ class TaskManager(threading.Thread):
                 settings[Creation.START_PORTS] =  last_port + 1
                 settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
                 settings[Creation.ENTITY_LINK] = user.entity.link_url
-
                 results = weblab_create(task['directory'] ,
                                         settings,
                                         task['stdout'],
@@ -216,8 +214,17 @@ class TaskManager(threading.Thread):
                 
                 # Add instance to weblab instance runner daemon
                 with open(os.path.join(deploymentsettings.DIR_BASE,
-                                      'instances.txt'), 'a') as f:
-                    f.write('%s\n' % task['directory']) 
+                                      'instances.txt'), 'a+') as f:
+                    
+                    #If the line already exists then don't add
+                    
+                    found = False
+                    for line in f:
+                        if task['directory'] in line:
+                            found = True
+                            break
+                        
+                    if not found: f.write('%s\n' % task['directory']) 
                 
                 # Start now the new weblab instance
                 process = subprocess.Popen(['nohup','weblab-admin','start',
