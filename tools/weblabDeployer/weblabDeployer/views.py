@@ -49,6 +49,9 @@ def login_required(f):
 
 @app.route('/')
 def index():
+    if session.get('logged_in', False):
+        return redirect(url_for('configure'))
+    
     return render_template('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
