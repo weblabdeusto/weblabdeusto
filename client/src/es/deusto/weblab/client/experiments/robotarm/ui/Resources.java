@@ -12,7 +12,7 @@
 *
 */
 
-package es.deusto.weblab.client.experiments.robot_movement.ui;
+package es.deusto.weblab.client.experiments.robotarm.ui;
 
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;

@@ -11,7 +11,7 @@
 * Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 * 		  
 */ 
-package es.deusto.weblab.client.experiments.robot_movement.ui;
+package es.deusto.weblab.client.experiments.robotarm.ui;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
-public class RobotMovementExperiment extends ExperimentBase {
+public class RobotArmExperiment extends ExperimentBase {
 
 	private static final String RIGHT = "RIGHT";
 
@@ -65,10 +65,10 @@ public class RobotMovementExperiment extends ExperimentBase {
 	 * UIBINDER RELATED
 	 ******************/
 	
-	interface RobotMovementBoardUiBinder extends UiBinder<Widget, RobotMovementExperiment> {
+	interface RobotArmBoardUiBinder extends UiBinder<Widget, RobotArmExperiment> {
 	}
 	
-	private static final RobotMovementBoardUiBinder uiBinder = GWT.create(RobotMovementBoardUiBinder.class);
+	private static final RobotArmBoardUiBinder uiBinder = GWT.create(RobotArmBoardUiBinder.class);
 	
 	public static class Style   {
 		public static final String TIME_REMAINING          = "wl-time_remaining";
@@ -120,22 +120,22 @@ public class RobotMovementExperiment extends ExperimentBase {
 			if(event.getTypeInt() == Event.ONKEYDOWN) {
 				switch(event.getNativeEvent().getKeyCode()) {
 					case KeyCodes.KEY_UP:
-						RobotMovementExperiment.this.upPressed = true;
+						RobotArmExperiment.this.upPressed = true;
 						sendMove(UP);
 						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
-						RobotMovementExperiment.this.downPressed = true;
+						RobotArmExperiment.this.downPressed = true;
 						sendMove(DOWN);
 						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
-						RobotMovementExperiment.this.leftPressed = true;
+						RobotArmExperiment.this.leftPressed = true;
 						sendMove(LEFT);
 						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
-						RobotMovementExperiment.this.rightPressed = true;
+						RobotArmExperiment.this.rightPressed = true;
 						sendMove(RIGHT);
 						event.cancel();
 						break;
@@ -143,19 +143,19 @@ public class RobotMovementExperiment extends ExperimentBase {
 			} else if(event.getTypeInt() == Event.ONKEYUP) {
 				switch(event.getNativeEvent().getKeyCode()) {
 					case KeyCodes.KEY_UP:
-						RobotMovementExperiment.this.upPressed = false;
+						RobotArmExperiment.this.upPressed = false;
 						event.cancel();
 						break;
 					case KeyCodes.KEY_DOWN:
-						RobotMovementExperiment.this.downPressed = false;
+						RobotArmExperiment.this.downPressed = false;
 						event.cancel();
 						break;
 					case KeyCodes.KEY_LEFT:
-						RobotMovementExperiment.this.leftPressed = false;
+						RobotArmExperiment.this.leftPressed = false;
 						event.cancel();
 						break;
 					case KeyCodes.KEY_RIGHT:
-						RobotMovementExperiment.this.rightPressed = false;
+						RobotArmExperiment.this.rightPressed = false;
 						event.cancel();
 						break;
 				}
@@ -165,12 +165,12 @@ public class RobotMovementExperiment extends ExperimentBase {
 	
 	private final InternalNativePreviewHandler nativeEventHandler;
 	
-	public RobotMovementExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
+	public RobotArmExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
 		
 		this.createProvidedWidgets();
 		
-		RobotMovementExperiment.uiBinder.createAndBindUi(this);
+		RobotArmExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
 		this.buttons.put(UP,    this.upButton);
@@ -189,7 +189,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 		this.timer.setTimerFinishedCallback(new IWlTimerFinishedCallback(){
 			@Override
 			public void onFinished() {
-			    RobotMovementExperiment.this.boardController.clean();
+			    RobotArmExperiment.this.boardController.clean();
 			}
 		});
 		this.timer.start();
@@ -209,8 +209,8 @@ public class RobotMovementExperiment extends ExperimentBase {
 	
 	private int getWebcamRefreshingTime() {
 		return this.configurationRetriever.getIntProperty(
-			RobotMovementExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotMovementExperiment.DEFAULT_WEBCAM_REFRESH_TIME
+			RobotArmExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
+			RobotArmExperiment.DEFAULT_WEBCAM_REFRESH_TIME
 		);
 	}	
 	
@@ -246,16 +246,16 @@ public class RobotMovementExperiment extends ExperimentBase {
 			@Override
 			public void onFailure(CommException e) {
 				e.printStackTrace();
-				RobotMovementExperiment.this.messages.setText("Failed: " + e.getMessage());
-				RobotMovementExperiment.this.messages.stop();
+				RobotArmExperiment.this.messages.setText("Failed: " + e.getMessage());
+				RobotArmExperiment.this.messages.stop();
 			}
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
-				RobotMovementExperiment.this.messages.setText("You can now control the bot");
-				RobotMovementExperiment.this.messages.stop();
-				RobotMovementExperiment.this.nativeEventHandler.activate();
+				RobotArmExperiment.this.inputWidgetsPanel.setVisible(true);
+				RobotArmExperiment.this.messages.setText("You can now control the bot");
+				RobotArmExperiment.this.messages.stop();
+				RobotArmExperiment.this.nativeEventHandler.activate();
 			}
 	    });
 	    
@@ -422,16 +422,16 @@ public class RobotMovementExperiment extends ExperimentBase {
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotMovementExperiment.this.buttonsEnabled = true;
-				if(currentMove == RobotMovementExperiment.this.moveNumber){
+				RobotArmExperiment.this.buttonsEnabled = true;
+				if(currentMove == RobotArmExperiment.this.moveNumber){
 					enableButtons();
-					if(RobotMovementExperiment.this.upPressed) {
+					if(RobotArmExperiment.this.upPressed) {
 						sendMove(UP);
-					} else if(RobotMovementExperiment.this.downPressed) {
+					} else if(RobotArmExperiment.this.downPressed) {
 						sendMove(DOWN);
-					} else if(RobotMovementExperiment.this.rightPressed) {
+					} else if(RobotArmExperiment.this.rightPressed) {
 						sendMove(RIGHT);
-					} else if(RobotMovementExperiment.this.leftPressed) {
+					} else if(RobotArmExperiment.this.leftPressed) {
 						sendMove(LEFT);
 					}
 				}else
