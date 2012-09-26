@@ -2,6 +2,7 @@ import traceback
 from weblabDeployer import db
 
 try:
+    db.drop_all()
     db.create_all()
 except:
     traceback.print_exc()
