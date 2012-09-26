@@ -77,7 +77,7 @@ class ConfigurationForm(Form):
                                 validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')])
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^http:\/\/[\w-]+$')])
+                                validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')])
     google_analytics_number = TextField('Google analytics number',
                                         [validators.Length(min=4, max=100)])
 
