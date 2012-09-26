@@ -10,8 +10,19 @@
 {% endblock navbar %}
 
 {% block body %}
-    <a href="{{ url_for('login') }}"><input type="button" class="btn btn-success" value="Login" /></a>
-    <a href="{{ url_for('register') }}"><input type="button" class="btn btn-primary"value="Register" /></a>
+     <div class="hero-unit">
+        <h1>Welcome to Weblab deployer</h1>
+        <p>Deploy your weblab instances in a few steps!</p>
+        <ul>
+            <li>Register/Login</li>
+            <li>Configure your account (needed for the deployment)</li>
+            <li>Fill some basic information for the deployment</li>
+            <li>Say hi to weblab!</li>
+        </ul>
+        <a href="{{ url_for('login') }}"><input type="button" class="btn btn-success btn-large" value="Login" /></a>
+        <a href="{{ url_for('register') }}"><input type="button" class="btn btn-primary btn-large"value="Register" /></a>
+      </div>
+    
 {% endblock body %}
 
 {% block footer %}
