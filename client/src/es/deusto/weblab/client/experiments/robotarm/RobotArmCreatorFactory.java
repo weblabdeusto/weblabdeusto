@@ -18,7 +18,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.robot_movement.ui.RobotMovementExperiment;
+import es.deusto.weblab.client.experiments.robotarm.ui.RobotArmExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
@@ -40,7 +40,7 @@ public class RobotArmCreatorFactory implements IExperimentCreatorFactory {
 				GWT.runAsync(new RunAsyncCallback() {
 					@Override
 					public void onSuccess() {
-						callback.onExperimentLoaded(new RobotMovementExperiment(
+						callback.onExperimentLoaded(new RobotArmExperiment(
 								configurationRetriever,
 								boardController
 							));

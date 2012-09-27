@@ -9,6 +9,7 @@
 * listed below:
 *
 * Author: Pablo Orduña <pablo@ordunya.com>
+* 		  Luis Rodriguez <luis.rodriguez@opendeusto.es>
 *
 */
 
@@ -17,18 +18,15 @@ package es.deusto.weblab.client.experiments.robotarm.ui;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
-interface Resources extends ClientBundle {
-	
-	@Source("res/up.png")
-	ImageResource up();
-
-	@Source("res/down.png")
-	ImageResource down();
+public interface Resources extends ClientBundle {
 
 	@Source("res/left.png")
 	ImageResource left();
 
 	@Source("res/right.png")
 	ImageResource right();
+	
+	@Source("res/roboticarm.jpg")
+	ImageResource roboticarm();
 
 }

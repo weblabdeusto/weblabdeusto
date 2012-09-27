@@ -2,7 +2,7 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
-    <ui:with field='res' type='es.deusto.weblab.client.experiments.robot_movement.ui.Resources'/>
+    <ui:with field='res' type='es.deusto.weblab.client.experiments.robotarm.ui.Resources'/>
     
     <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
         
@@ -15,13 +15,41 @@
 			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
 				<w:WlTimer ui:field="timer" width="100%" styleName="wl-time_remaining"></w:WlTimer>
 			</g:HorizontalPanel>
+			
+			<g:HorizontalPanel borderWidth="0" visible="true" horizontalAlignment="ALIGN_CENTER">
+				<g:VerticalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<g:Image resource='{res.roboticarm}' styleName="wl-img-button"/>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+				</g:VerticalPanel>
+			</g:HorizontalPanel>
 
 			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
 			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment='ALIGN_CENTER'>
 				<g:Grid>
 					<g:row>
 						<g:customCell><g:Label/></g:customCell>
-						<g:customCell><g:Image ui:field="upButton" resource='{res.up}' styleName="wl-img-button"/></g:customCell>
+						<g:customCell><g:Image ui:field="upButton" resource='{res.left}' styleName="wl-img-button"/></g:customCell>
 						<g:customCell><g:Label/></g:customCell>
 					</g:row>
 					<g:row>
@@ -31,7 +59,7 @@
 					</g:row>
 					<g:row>
 						<g:customCell><g:Label/></g:customCell>
-						<g:customCell><g:Image ui:field="downButton" resource='{res.down}' styleName="wl-img-button"/></g:customCell>
+						<g:customCell><g:Image ui:field="downButton" resource='{res.right}' styleName="wl-img-button"/></g:customCell>
 						<g:customCell><g:Label/></g:customCell>
 					</g:row>
 				</g:Grid>

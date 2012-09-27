@@ -31,6 +31,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -164,6 +165,23 @@ public class RobotArmExperiment extends ExperimentBase {
 	}
 	
 	private final InternalNativePreviewHandler nativeEventHandler;
+	
+	
+	public RobotArmExperiment() {
+		super(null, null);
+		
+		
+		RobotArmExperiment.uiBinder.createAndBindUi(this);
+		
+		
+		this.buttons = new HashMap<String, Image>();
+		this.buttons.put(UP,    this.upButton);
+		this.buttons.put(DOWN,  this.downButton);
+		this.buttons.put(LEFT,  this.leftButton);
+		this.buttons.put(RIGHT, this.rightButton);
+		
+		this.nativeEventHandler = new InternalNativePreviewHandler();
+	}
 	
 	public RobotArmExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
