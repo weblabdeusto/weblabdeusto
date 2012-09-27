@@ -19,8 +19,6 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.MouseDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -49,13 +47,22 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotArmExperiment extends ExperimentBase {
 
+	// TODO: Get rid of those 4.
 	private static final String RIGHT = "RIGHT";
-
 	private static final String LEFT = "LEFT";
-
 	private static final String DOWN = "BACK";
-
 	private static final String UP = "FORWARD";
+	
+	private static final String RAIL_RIGHT = "RAIL_RIGHT";
+	private static final String RAIL_LEFT = "RAIL_LEFT";
+	private static final String LOWERJOINT_LEFT = "LOWERJOINT_LEFT";
+	private static final String LOWERJOINT_RIGHT = "LOWERJOINT_RIGHT";
+	private static final String MEDIUMJOINT_LEFT = "MEDIUMJOINT_LEFT";
+	private static final String MEDIUMJOINT_RIGHT = "MEDIUMJOINT_RIGHT";
+	private static final String HIGHERJOINT_LEFT = "HIGHERJOINT_LEFT";
+	private static final String HIGHERJOINT_RIGHT = "HIGHERJOINT_RIGHT";
+	private static final String GRIP_OPEN = "GRIP_OPEN";
+	private static final String GRIP_CLOSE = "GRIP_CLOSE";
 
 
 	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
@@ -74,14 +81,15 @@ public class RobotArmExperiment extends ExperimentBase {
 		public static final String TIME_REMAINING          = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
 	}
-
-	@UiField(provided = true) WlTimer timer;
 	
 	// Root panel.
 	@UiField VerticalPanel widget;
 	
 	@UiField VerticalPanel mainWidgetsPanel;
 	@UiField HorizontalPanel inputWidgetsPanel;
+
+	@UiField(provided = true) WlTimer timer;
+	
 	
 	@UiField WlWaitingLabel messages;
 	@UiField Image upButton;
@@ -332,88 +340,71 @@ public class RobotArmExperiment extends ExperimentBase {
 	    return false;
 	}
 	
+	// Note about these handlers: In the similar implementation in RobotMovement, there are more kinds of handler.
+	// Click handlers seem to be enough. If they aren't, TODO, add others.
+	
 	@SuppressWarnings("unused")
-	@UiHandler("upButton")
-	public void onUpClick(ClickEvent event){
-		sendMove(UP);
+	@UiHandler("railRight")
+	public void onRailRightClick(ClickEvent event){
+		sendMove(RAIL_RIGHT);
 	}
 	
 	@SuppressWarnings("unused")
-	@UiHandler("downButton")
-	public void onDownClick(ClickEvent event){
-		sendMove(DOWN);
+	@UiHandler("railLeft")
+	public void onRailLeftClick(ClickEvent event){
+		sendMove(RAIL_LEFT);
 	}
 	
 	@SuppressWarnings("unused")
-	@UiHandler("leftButton")
-	public void onLeftClick(ClickEvent event){
-		sendMove(LEFT);
+	@UiHandler("lowerJointRight")
+	public void onLowerJointRightClick(ClickEvent event){
+		sendMove(LOWERJOINT_RIGHT);
 	}
 	
 	@SuppressWarnings("unused")
-	@UiHandler("rightButton")
-	public void onRightClick(ClickEvent event){
-		sendMove(RIGHT);
+	@UiHandler("lowerJointLeft")
+	public void onLowerJointLeftClick(ClickEvent event){
+		sendMove(LOWERJOINT_LEFT);
 	}
 	
 	@SuppressWarnings("unused")
-	@UiHandler("upButton")
-	public void onUpMouseDown(MouseDownEvent event) {
-		sendMove(UP);
-		this.upPressed = true;
+	@UiHandler("mediumJointRight")
+	public void onMediumJointRightClick(ClickEvent event){
+		sendMove(MEDIUMJOINT_RIGHT);
 	}
-
 	
 	@SuppressWarnings("unused")
-	@UiHandler("downButton")
-	public void onDownMouseDown(MouseDownEvent event) {
-		sendMove(DOWN);
-		this.downPressed = true;
+	@UiHandler("mediumJointLeft")
+	public void onMediumJointLeftClick(ClickEvent event){
+		sendMove(MEDIUMJOINT_LEFT);
 	}
-
 	
 	@SuppressWarnings("unused")
-	@UiHandler("leftButton")
-	public void onLeftMouseDown(MouseDownEvent event) {
-		sendMove(LEFT);
-		this.leftPressed = true;
+	@UiHandler("higherJointRight")
+	public void onHigherJointRightClick(ClickEvent event){
+		sendMove(HIGHERJOINT_RIGHT);
 	}
-
 	
 	@SuppressWarnings("unused")
-	@UiHandler("rightButton")
-	public void onRightMouseDown(MouseDownEvent event) {
-		sendMove(RIGHT);
-		this.rightPressed = true;
+	@UiHandler("higherJointLeft")
+	public void onHigherJointLeftClick(ClickEvent event){
+		sendMove(HIGHERJOINT_LEFT);
 	}
-
-	@SuppressWarnings("unused")
-	@UiHandler("upButton")
-	public void onUpMouseUp(MouseUpEvent event) {
-		this.upPressed = false;
-	}
-
 	
 	@SuppressWarnings("unused")
-	@UiHandler("downButton")
-	public void onDownMouseUp(MouseUpEvent event) {
-		this.downPressed = false;
+	@UiHandler("gripClose")
+	public void onGripCloseClick(ClickEvent event){
+		sendMove(GRIP_CLOSE);
 	}
-
 	
 	@SuppressWarnings("unused")
-	@UiHandler("leftButton")
-	public void onLeftMouseUp(MouseUpEvent event) {
-		this.leftPressed = false;
+	@UiHandler("gripOpen")
+	public void onGripOpenClick(ClickEvent event){
+		sendMove(GRIP_OPEN);
 	}
-
 	
-	@SuppressWarnings("unused")
-	@UiHandler("rightButton")
-	public void onRightMouseUp(MouseUpEvent event) {
-		this.rightPressed = false;
-	}
-
+	
+	
 	
 	private void enableButton(String button){
 		this.buttons.get(button).setStyleName("wl-img-button");
