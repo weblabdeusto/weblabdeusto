@@ -31,7 +31,6 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -89,6 +88,18 @@ public class RobotArmExperiment extends ExperimentBase {
 	@UiField Image downButton;
 	@UiField Image rightButton;
 	@UiField Image leftButton;
+	
+	// The following fields are for the different buttons that control the robot arm.
+	@UiField Image railRight;
+	@UiField Image railLeft;
+	@UiField Image lowerJointRight;
+	@UiField Image lowerJointLeft;
+	@UiField Image mediumJointRight;
+	@UiField Image mediumJointLeft;
+	@UiField Image higherJointRight;
+	@UiField Image higherJointLeft;
+	@UiField Image gripClose;
+	@UiField Image gripOpen;
 	
 	private boolean upPressed = false;
 	private boolean downPressed = false;
