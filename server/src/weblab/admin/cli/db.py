@@ -26,9 +26,9 @@ import weblab.db.model as Model
 
 class DbGateway(object):
 
-    def __init__(self, engine, host, dbname, user, password):
+    def __init__(self, engine, host, port, dbname, user, password):
         super(DbGateway, self).__init__()
-        getconn = generate_getconn(engine, user, password, host, dbname)
+        getconn = generate_getconn(engine, user, password, host, port, dbname)
 
         if engine == 'sqlite':
             connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)

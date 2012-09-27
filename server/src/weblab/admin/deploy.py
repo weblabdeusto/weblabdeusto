@@ -992,7 +992,7 @@ def generate_create_database(engine_str):
 
         import sqlite3
         dbi = sqlite3
-        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", port = None, db_dir = '.'):
             fname = os.path.join(db_dir, '%s.db' % database_name)
             if os.path.exists(fname):
                 os.remove(fname)
@@ -1013,28 +1013,35 @@ def generate_create_database(engine_str):
             import pymysql
             dbi = pymysql
 
-        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", port = None, db_dir = '.'):
             args = {
                     'DATABASE_NAME' : database_name,
                     'USER'          : new_user,
                     'PASSWORD'      : new_password,
-                    'HOST'          : host
                 }
 
 
             sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
             sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
-            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%(HOST)s' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%%' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence4 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'localhost' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence5 = "FLUSH PRIVILEGES;" % args
             
             try:
-                dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
+                kwargs = dict(db=database_name, user = admin_username, passwd = admin_password, host = host)
+                if port is not None:
+                    kwargs['port'] = port
+                dbi.connect(**kwargs).close()
             except Exception, e:
                 if e[1].startswith("Unknown database"):
                     sentence1 = "SELECT 1"
 
-            for sentence in (sentence1, sentence2, sentence3):
+            for sentence in (sentence1, sentence2, sentence3, sentence4, sentence5):
                 try:
-                    connection = dbi.connect(user = admin_username, passwd = admin_password)
+                    kwargs = dict(user = admin_username, passwd = admin_password, host = host)
+                    if port is not None:
+                        kwargs['port'] = port
+                    connection = dbi.connect(**kwargs)
                 except dbi.OperationalError:
                     traceback.print_exc()
                     print >> sys.stderr, ""
