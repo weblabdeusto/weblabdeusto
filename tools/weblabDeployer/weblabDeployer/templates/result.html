@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+<ul class="nav">
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li><a href="{{ url_for('configure') }}">Configure</a></li>
+    <li class="active"><a href="{{ url_for('deploy') }}">Deploy</a></li>
+</ul>
+{% endblock navbar %}
+
+{% block body %}
+   <pre>
+    {{stdout}}
+   </pre>
+    <a href="{{ url_for('result', deploy_id = deploy_id) }}"><input type="button" class="btn btn-success" value="Reload log" /></a>
+{% endblock body %}
+
+{% block footer %}
+   CC 3.0
+{% endblock footer %}

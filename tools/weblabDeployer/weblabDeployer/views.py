@@ -258,6 +258,7 @@ def deploy():
         
         directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
         
+        
         task = {'directory': directory,
                 'email': email,
                 'admin_user': admin_user,
@@ -274,9 +275,25 @@ def deploy():
         f = urllib2.urlopen(req)
         response = f.read()
         f.close()
-        return response
+        print('-'*50)
+        print(response)
+        print('-'*50)
+        return redirect(url_for('result', deploy_id = response))
     
     return render_template('deploy.html', form=form)
+
+@app.route('/deploy/result/<deploy_id>')
+@login_required
+def result(deploy_id):
+    url = "http://127.0.0.1:1661/task/%s/stdout" % deploy_id
+    req = urllib2.Request(url)
+    f = urllib2.urlopen(req)
+    response = f.read()
+    f.close()
+
+    return render_template('result.html',
+                           stdout=response,
+                           deploy_id = deploy_id)
 
 
 @app.route('/logout')
