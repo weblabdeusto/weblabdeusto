@@ -41,6 +41,7 @@ def login_required(f):
     def decorated(*args, **kwargs):
         logged_in = session.get('logged_in', False)
         session_type = session.get('session_type', '')
+        print(session_type)
         if not logged_in or session_type != SESSION_TYPE:
            return redirect(url_for('login', next = request.url))
         return f(*args, **kwargs)
@@ -172,8 +173,9 @@ def confirm():
     flash('Account confirmed. Please login', 'success')
     return redirect(url_for('login'))
 
-@login_required
+
 @app.route('/configure', methods=['GET', 'POST'])
+@login_required
 def configure():
     form = ConfigurationForm(request.form)
 
@@ -227,7 +229,9 @@ def configure():
             
     return render_template('configuration.html', form=form)
 
+
 @app.route('/deploy', methods=['GET', 'POST'])
+@login_required
 def deploy():
     form = DeployForm(request.form)
 
@@ -274,3 +278,15 @@ def deploy():
     
     return render_template('deploy.html', form=form)
 
+
+@app.route('/logout')
+@login_required
+def logout():
+    #Insert data in session    
+    session.pop('logged_in', None)
+    session.pop('session_type', None)
+    session.pop('user_id', None)
+    session.pop('user_email', None)
+    
+    flash('logout', 'success')
+    return redirect(url_for('index'))
