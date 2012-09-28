@@ -40,7 +40,7 @@ from weblabDeployer import deploymentsettings, db
 from weblabDeployer.models import User, Entity
 
 
-
+PORT = 1661
 
 class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
     """ Simple server for calling the task manager process.
@@ -262,5 +262,6 @@ class TaskManager(threading.Thread):
 if __name__ == "__main__":
     task_manager = TaskManager()
     task_manager.start()
-    x = BaseHTTPServer.HTTPServer(('127.0.0.1', 1661), TaskManagerServer)    
+    print("Task manager started in  127.0.0.1:%d" % PORT)
+    x = BaseHTTPServer.HTTPServer(('127.0.0.1', PORT), TaskManagerServer)    
     x.serve_forever()

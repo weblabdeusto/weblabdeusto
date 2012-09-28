@@ -15,7 +15,7 @@ DEFAULT_DEPLOYMENT_SETTINGS = {
     Creation.DB_ENGINE: 'mysql',
     Creation.DB_NAME: 'CHANGE_ME', # --db-name=WebLabDeployment(1)
     Creation.DB_USER: 'root', # --db-user=(de settings)
-    Creation.DB_PASSWD: '', # --db-passwd=(de settings)
+    Creation.DB_PASSWD: 'larrakoetxea', # --db-passwd=(de settings)
     Creation.ADMIN_USER: 'CHANGE_ME', # --admin-user=admin
     Creation.ADMIN_NAME: 'CHANGE_ME', #  --admin-name=(lo que diga)
     Creation.ADMIN_PASSWORD: 'CHANGE_ME', # --admin-password=(lo que diga)
