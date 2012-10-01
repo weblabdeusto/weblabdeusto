@@ -44,18 +44,24 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
         password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
         host     = self.host
+        port     = self.port
         dbname   = self.database_name
         engine   = self.engine_name
 
         if AuthDatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
-            getconn = generate_getconn(engine, user, password, host, dbname)
+            getconn = generate_getconn(engine, user, password, host, port, dbname)
 
             if engine == 'sqlite':
                 connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
                 pool = sqlalchemy.pool.NullPool(getconn)
             else:
-                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                                { "ENGINE":   engine,
+                if port is None:
+                    port_str = ''
+                else:
+                    port_str = ':%s' % port
+
+                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s%(PORT)s/%(DATABASE)s" % \
+                                { "ENGINE":   engine, 'PORT'  : port_str,
                                   "USER":     user, "PASSWORD": password,
                                   "HOST":     host, "DATABASE": dbname }
 

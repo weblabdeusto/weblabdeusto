@@ -47,6 +47,7 @@ class SessionSqlalchemyGateway(object):
         (
             engine_name,
             host,
+            port,
             dbname,
             username,
             password
@@ -55,6 +56,7 @@ class SessionSqlalchemyGateway(object):
         SessionSqlalchemyGateway.username = username
         SessionSqlalchemyGateway.password = password
         SessionSqlalchemyGateway.host     = host
+        SessionSqlalchemyGateway.port     = port
         SessionSqlalchemyGateway.dbname = dbname
 
         self._generator  = SessionGenerator.SessionGenerator()
@@ -63,13 +65,17 @@ class SessionSqlalchemyGateway(object):
         self._lock       = DbLock.DbLock(cfg_manager, session_pool_id)
 
         if SessionSqlalchemyGateway.engine is None:
-            getconn = generate_getconn(engine_name, username, password, host, dbname)
+            getconn = generate_getconn(engine_name, username, password, host, port, dbname)
 
             if engine_name == 'sqlite':
                 sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
                 pool = sqlalchemy.pool.NullPool(getconn)
             else:
-                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+                if port is None:
+                    port_str = ''
+                else:
+                    port_str = ':%s' % port
+                sqlalchemy_engine_str = "%s://%s:%s@%s%s/%s" % (engine_name, username, password, host, port_str, dbname)
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
             SessionSqlalchemyGateway.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
@@ -80,10 +86,11 @@ class SessionSqlalchemyGateway(object):
     def _parse_config(self):
         engine   = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_ENGINE)
         host     = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_HOST)
+        port     = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_PORT)
         db_name  = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_DB_NAME)
         username = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_USERNAME)
         password = self.cfg_manager.get_doc_value(configuration_doc.SESSION_SQLALCHEMY_PASSWORD)
-        return engine, host, db_name, username, password
+        return engine, host, port, db_name, username, password
 
 
     def create_session(self, desired_sess_id=None):

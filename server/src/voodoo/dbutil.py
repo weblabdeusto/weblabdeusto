@@ -15,7 +15,7 @@
 
 import os
 
-def generate_getconn(engine, user, password, host, dbname):
+def generate_getconn(engine, user, password, host, port, dbname):
 
     kwargs = {}
 
@@ -62,7 +62,10 @@ def generate_getconn(engine, user, password, host, dbname):
         getconn = getconn_sqlite
     else:
         def getconn_else():
-            return dbi.connect(user = user, passwd = password, host = host, db = dbname, **kwargs)
+            kwargs.update(dict(user = user, passwd = password, host = host, db = dbname))
+            if port is not None:
+                kwargs['port'] = port
+            return dbi.connect(**kwargs)
         getconn = getconn_else
 
     return getconn

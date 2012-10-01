@@ -28,7 +28,6 @@ import socket
 
 import logging.config
 
-import voodoo.killer as killer
 import voodoo.counter as counter
 import voodoo.process_starter as process_starter
 import voodoo.gen.loader.ServerLoader as ServerLoader
@@ -317,13 +316,13 @@ class MachineLauncher(AbstractLauncher):
 
         if len(processes) > 0:
             for process in processes:
-                killer.term(process)
+                process.terminate()
 
         self.wait_for_subprocesses(processes)
 
         if len(processes) > 0:
             for process in processes:
-                killer.kill(process)
+                process.kill()
 
         self.wait_for_subprocesses(processes)
 

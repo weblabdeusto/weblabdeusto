@@ -16,7 +16,6 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -90,7 +89,7 @@ public class ExperimentFinishedWindow extends BaseWindow {
 		if(backURL == null)
 			History.back();
 		else {
-			final String decoded = URL.decode(backURL);
+			final String decoded = HistoryProperties.decode(backURL);
 			System.out.println("Voy a llevarle a: " + decoded);
 			Location.assign(decoded);
 		}

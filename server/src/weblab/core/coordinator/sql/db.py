@@ -25,6 +25,7 @@ from weblab.configuration_doc import WEBLAB_DB_FORCE_ENGINE_CREATION
 COORDINATOR_DB_USERNAME   = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD   = 'core_coordinator_db_password'
 COORDINATOR_DB_HOST       = 'core_coordinator_db_host'
+COORDINATOR_DB_PORT       = 'core_coordinator_db_port'
 COORDINATOR_DB_NAME       = 'core_coordinator_db_name'
 COORDINATOR_DB_ENGINE     = 'core_coordinator_db_engine'
 
@@ -42,10 +43,11 @@ class CoordinationDatabaseManager(object):
         username = CoordinationDatabaseManager.username = cfg_manager.get_value(COORDINATOR_DB_USERNAME) # REQUIRED!
         password = CoordinationDatabaseManager.password = cfg_manager.get_value(COORDINATOR_DB_PASSWORD) # REQUIRED!
         host     = CoordinationDatabaseManager.host     = cfg_manager.get_value(COORDINATOR_DB_HOST,    DEFAULT_COORDINATOR_DB_HOST)
+        port     = CoordinationDatabaseManager.port     = cfg_manager.get_value(COORDINATOR_DB_PORT,    None)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_value(COORDINATOR_DB_NAME,    DEFAULT_COORDINATOR_DB_NAME)
 
         if CoordinationDatabaseManager.engine is None or cfg_manager.get_doc_value(WEBLAB_DB_FORCE_ENGINE_CREATION):
-            getconn = generate_getconn(engine, username, password, host, dbname)
+            getconn = generate_getconn(engine, username, password, host, port, dbname)
 
             connect_args = {}
 
@@ -57,7 +59,11 @@ class CoordinationDatabaseManager(object):
                 else:
                     pool = sqlalchemy.pool.NullPool(getconn)
             else:
-                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine, username, password, host, dbname)
+                if port is None:
+                    port_str = ''
+                else:
+                    port_str = ':%s' % port
+                sqlalchemy_engine_str = "%s://%s:%s@%s%s/%s" % (engine, username, password, host, port_str, dbname)
 
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
