@@ -1,0 +1,73 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w='urn:import:es.deusto.weblab.client.ui.widgets'>
+    
+    <ui:with field='res' type='es.deusto.weblab.client.experiments.robotarm.ui.Resources'/>
+    
+    <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:VerticalPanel borderWidth="0" ui:field="mainWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+		
+			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
+				<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
+			</g:HorizontalPanel>
+
+			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
+				<w:WlTimer ui:field="timer" width="100%" styleName="wl-time_remaining"></w:WlTimer>
+			</g:HorizontalPanel>
+			
+			<!--  The following panel contains the robot arm controls, with an image representing the robot in the center -->
+			<!-- TODO: Initially hide them -->
+			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
+			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment="ALIGN_CENTER">
+				<g:VerticalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="gripClose" resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="higherJointLeft" resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="mediumJointLeft" resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="lowerJointLeft" resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="railLeft" resource='{res.left}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<g:Image resource='{res.roboticarm}' styleName="wl-img-button"/>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="gripOpen" resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="higherJointRight" resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="mediumJointRight" resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="lowerJointRight" resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+					<g:HorizontalPanel>
+						<g:Image ui:field="railRight" resource='{res.right}' styleName="wl-img-button"/>
+					</g:HorizontalPanel>
+				</g:VerticalPanel>
+			</g:HorizontalPanel>
+
+	
+			
+			<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
+								
+		</g:VerticalPanel>
+		
+	</g:VerticalPanel>
+
+				
+	
+
+</ui:UiBinder>
