@@ -47,12 +47,6 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotArmExperiment extends ExperimentBase {
 
-	// TODO: Get rid of those 4.
-	private static final String RIGHT = "RIGHT";
-	private static final String LEFT = "LEFT";
-	private static final String DOWN = "BACK";
-	private static final String UP = "FORWARD";
-	
 	private static final String RAIL_RIGHT = "RAIL_RIGHT";
 	private static final String RAIL_LEFT = "RAIL_LEFT";
 	private static final String LOWERJOINT_LEFT = "LOWERJOINT_LEFT";
@@ -92,10 +86,6 @@ public class RobotArmExperiment extends ExperimentBase {
 	
 	
 	@UiField WlWaitingLabel messages;
-	@UiField Image upButton;
-	@UiField Image downButton;
-	@UiField Image rightButton;
-	@UiField Image leftButton;
 	
 	// The following fields are for the different buttons that control the robot arm.
 	@UiField Image railRight;
@@ -119,87 +109,12 @@ public class RobotArmExperiment extends ExperimentBase {
 	private boolean buttonsEnabled = true;
 	
 	@UiField(provided = true) WlWebcam webcam;
-	
-	private class InternalNativePreviewHandler implements NativePreviewHandler {
 		
-		private boolean active = false;
-		
-		void activate() {
-			this.active = true;
-		}
-
-		void deactivate() {
-			this.active = false;
-		}
-		
-		@Override
-		public void onPreviewNativeEvent(NativePreviewEvent event) {
-			if(!this.active)
-				return;
-		
-			if(event.getTypeInt() == Event.ONKEYDOWN) {
-				switch(event.getNativeEvent().getKeyCode()) {
-					case KeyCodes.KEY_UP:
-						RobotArmExperiment.this.upPressed = true;
-						sendMove(UP);
-						event.cancel();
-						break;
-					case KeyCodes.KEY_DOWN:
-						RobotArmExperiment.this.downPressed = true;
-						sendMove(DOWN);
-						event.cancel();
-						break;
-					case KeyCodes.KEY_LEFT:
-						RobotArmExperiment.this.leftPressed = true;
-						sendMove(LEFT);
-						event.cancel();
-						break;
-					case KeyCodes.KEY_RIGHT:
-						RobotArmExperiment.this.rightPressed = true;
-						sendMove(RIGHT);
-						event.cancel();
-						break;
-				}
-			} else if(event.getTypeInt() == Event.ONKEYUP) {
-				switch(event.getNativeEvent().getKeyCode()) {
-					case KeyCodes.KEY_UP:
-						RobotArmExperiment.this.upPressed = false;
-						event.cancel();
-						break;
-					case KeyCodes.KEY_DOWN:
-						RobotArmExperiment.this.downPressed = false;
-						event.cancel();
-						break;
-					case KeyCodes.KEY_LEFT:
-						RobotArmExperiment.this.leftPressed = false;
-						event.cancel();
-						break;
-					case KeyCodes.KEY_RIGHT:
-						RobotArmExperiment.this.rightPressed = false;
-						event.cancel();
-						break;
-				}
-			}
-		}
-	}
-	
-	private final InternalNativePreviewHandler nativeEventHandler;
-	
 	
 	public RobotArmExperiment() {
 		super(null, null);
 		
-		
 		RobotArmExperiment.uiBinder.createAndBindUi(this);
-		
-		
-		this.buttons = new HashMap<String, Image>();
-		this.buttons.put(UP,    this.upButton);
-		this.buttons.put(DOWN,  this.downButton);
-		this.buttons.put(LEFT,  this.leftButton);
-		this.buttons.put(RIGHT, this.rightButton);
-		
-		this.nativeEventHandler = new InternalNativePreviewHandler();
 	}
 	
 	public RobotArmExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
@@ -210,12 +125,6 @@ public class RobotArmExperiment extends ExperimentBase {
 		RobotArmExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
-		this.buttons.put(UP,    this.upButton);
-		this.buttons.put(DOWN,  this.downButton);
-		this.buttons.put(LEFT,  this.leftButton);
-		this.buttons.put(RIGHT, this.rightButton);
-		
-		this.nativeEventHandler = new InternalNativePreviewHandler();
 	}
 	
 	/**
@@ -267,7 +176,6 @@ public class RobotArmExperiment extends ExperimentBase {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		Event.addNativePreviewHandler(this.nativeEventHandler);
 	    this.widget.setVisible(true);
 	    
 	    this.setupWidgets();
@@ -292,7 +200,6 @@ public class RobotArmExperiment extends ExperimentBase {
 				RobotArmExperiment.this.inputWidgetsPanel.setVisible(true);
 				RobotArmExperiment.this.messages.setText("You can now control the bot");
 				RobotArmExperiment.this.messages.stop();
-				RobotArmExperiment.this.nativeEventHandler.activate();
 			}
 	    });
 	    
@@ -445,15 +352,15 @@ public class RobotArmExperiment extends ExperimentBase {
 				RobotArmExperiment.this.buttonsEnabled = true;
 				if(currentMove == RobotArmExperiment.this.moveNumber){
 					enableButtons();
-					if(RobotArmExperiment.this.upPressed) {
-						sendMove(UP);
-					} else if(RobotArmExperiment.this.downPressed) {
-						sendMove(DOWN);
-					} else if(RobotArmExperiment.this.rightPressed) {
-						sendMove(RIGHT);
-					} else if(RobotArmExperiment.this.leftPressed) {
-						sendMove(LEFT);
-					}
+//					if(RobotArmExperiment.this.upPressed) {
+//						sendMove(UP);
+//					} else if(RobotArmExperiment.this.downPressed) {
+//						sendMove(DOWN);
+//					} else if(RobotArmExperiment.this.rightPressed) {
+//						sendMove(RIGHT);
+//					} else if(RobotArmExperiment.this.leftPressed) {
+//						sendMove(LEFT);
+//					}
 				}else
 					disableButton(s);
 			}
@@ -472,8 +379,6 @@ public class RobotArmExperiment extends ExperimentBase {
 
 	@Override
 	public void end() {
-		this.nativeEventHandler.deactivate();
-		
 		if(this.timer != null){
 			this.timer.dispose();
 			this.timer = null;

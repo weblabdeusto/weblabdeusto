@@ -51,10 +51,10 @@
 						<g:Image ui:field="mediumJointRight" resource='{res.right}' styleName="wl-img-button"/>
 					</g:HorizontalPanel>
 					<g:HorizontalPanel>
-						<g:Image ui:field="lowerJointRight" resource='{res.left}' styleName="wl-img-button"/>
+						<g:Image ui:field="lowerJointRight" resource='{res.right}' styleName="wl-img-button"/>
 					</g:HorizontalPanel>
 					<g:HorizontalPanel>
-						<g:Image ui:field="railRight" resource='{res.left}' styleName="wl-img-button"/>
+						<g:Image ui:field="railRight" resource='{res.right}' styleName="wl-img-button"/>
 					</g:HorizontalPanel>
 				</g:VerticalPanel>
 			</g:HorizontalPanel>
