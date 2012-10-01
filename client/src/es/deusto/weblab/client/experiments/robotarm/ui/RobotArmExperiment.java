@@ -18,16 +18,12 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Event.NativePreviewEvent;
-import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -104,11 +100,6 @@ public class RobotArmExperiment extends ExperimentBase {
 	@UiField Image gripClose;
 	@UiField Image gripOpen;
 	
-	private boolean upPressed = false;
-	private boolean downPressed = false;
-	private boolean leftPressed = false;
-	private boolean rightPressed = false;
-	
 	private final Map<String, Image> buttons;
 	private int moveNumber = 0;
 	private boolean buttonsEnabled = true;
@@ -131,16 +122,16 @@ public class RobotArmExperiment extends ExperimentBase {
 		RobotArmExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
-		this.buttons.put("RAIL_RIGHT", railRight);
-		this.buttons.put("RAIL_LEFT", railLeft);
-		this.buttons.put("LOWERJOINT_LEFT", lowerJointLeft);
-		this.buttons.put("LOWERJOINT_RIGHT", lowerJointRight);
-		this.buttons.put("MEDIUMJOINT_LEFT", mediumJointLeft);
-		this.buttons.put("MEDIUMJOINT_RIGHT", mediumJointRight);
-		this.buttons.put("HIGHERJOINT_LEFT", higherJointLeft);
-		this.buttons.put("HIGHERJOINT_RIGHT", higherJointRight);
-		this.buttons.put("GRIP_OPEN", gripOpen);
-		this.buttons.put("GRIP_CLOSE", gripClose);
+		this.buttons.put("RAIL_RIGHT", this.railRight);
+		this.buttons.put("RAIL_LEFT", this.railLeft);
+		this.buttons.put("LOWERJOINT_LEFT", this.lowerJointLeft);
+		this.buttons.put("LOWERJOINT_RIGHT", this.lowerJointRight);
+		this.buttons.put("MEDIUMJOINT_LEFT", this.mediumJointLeft);
+		this.buttons.put("MEDIUMJOINT_RIGHT", this.mediumJointRight);
+		this.buttons.put("HIGHERJOINT_LEFT", this.higherJointLeft);
+		this.buttons.put("HIGHERJOINT_RIGHT", this.higherJointRight);
+		this.buttons.put("GRIP_OPEN", this.gripOpen);
+		this.buttons.put("GRIP_CLOSE", this.gripClose);
 		
 		if(DBG_WIDGETS_START_VISIBLE)
 			this.inputWidgetsPanel.setVisible(true);
@@ -336,9 +327,9 @@ public class RobotArmExperiment extends ExperimentBase {
 		this.buttons.get(button).setStyleName("wl-img-button");
 	}
 	
-	private void disableButton(String button){
-		this.buttons.get(button).setStyleName("wl-disabled-img-button");
-	}
+//	private void disableButton(String button){
+//		this.buttons.get(button).setStyleName("wl-disabled-img-button");
+//	}
 	
 	private void enableButtons(){
 		for(Image img : this.buttons.values())
@@ -357,8 +348,7 @@ public class RobotArmExperiment extends ExperimentBase {
 		disableButtons();
 		enableButton(s);
 		this.buttonsEnabled = false;
-		final int currentMove = ++this.moveNumber;
-		
+
 		System.out.println("[DBG]: Sending move: " + s);
 		
 		this.boardController.sendCommand("move:" + s, new IResponseCommandCallback() {
