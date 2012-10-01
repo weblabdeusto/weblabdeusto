@@ -50,7 +50,7 @@ public class RobotArmExperiment extends ExperimentBase {
 	// If this is enabled, the input widgets will be visible without needing
 	// to successfully reserve the experiment. This is only for debugging purposes.
 	// Should be set to false on deploy.
-	private static final boolean DBG_WIDGETS_START_VISIBLE = true;
+	private static final boolean DBG_WIDGETS_START_VISIBLE = false;
 
 	private static final String RAIL_RIGHT = "RAIL_RIGHT";
 	private static final String RAIL_LEFT = "RAIL_LEFT";
