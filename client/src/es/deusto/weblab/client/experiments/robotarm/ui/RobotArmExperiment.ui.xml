@@ -19,7 +19,7 @@
 			<!--  The following panel contains the robot arm controls, with an image representing the robot in the center -->
 			<!-- TODO: Initially hide them -->
 			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
-			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="true" horizontalAlignment="ALIGN_CENTER">
+			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment="ALIGN_CENTER">
 				<g:VerticalPanel>
 					<g:HorizontalPanel>
 						<g:Image ui:field="gripClose" resource='{res.left}' styleName="wl-img-button"/>

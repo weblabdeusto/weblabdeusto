@@ -209,7 +209,7 @@ public class RobotArmExperiment extends ExperimentBase {
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
 				RobotArmExperiment.this.inputWidgetsPanel.setVisible(true);
-				RobotArmExperiment.this.messages.setText("You can now control the bot");
+				RobotArmExperiment.this.messages.setText("You can now control the robot arm");
 				RobotArmExperiment.this.messages.stop();
 			}
 	    });
@@ -358,6 +358,8 @@ public class RobotArmExperiment extends ExperimentBase {
 			@Override
 			public void onFailure(CommException e) {
 				System.out.println("[DBG]: On failure");
+				RobotArmExperiment.this.buttonsEnabled = true;
+				enableButtons();
 			}
 			
 			@Override
