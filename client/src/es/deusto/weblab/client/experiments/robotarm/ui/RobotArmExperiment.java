@@ -114,6 +114,7 @@ public class RobotArmExperiment extends ExperimentBase {
 	public RobotArmExperiment() {
 		super(null, null);
 		
+		this.buttons = new HashMap<String, Image>();
 		RobotArmExperiment.uiBinder.createAndBindUi(this);
 	}
 	
@@ -125,6 +126,16 @@ public class RobotArmExperiment extends ExperimentBase {
 		RobotArmExperiment.uiBinder.createAndBindUi(this);
 		
 		this.buttons = new HashMap<String, Image>();
+		this.buttons.put("RAIL_RIGHT", railRight);
+		this.buttons.put("RAIL_LEFT", railLeft);
+		this.buttons.put("LOWERJOINT_LEFT", lowerJointLeft);
+		this.buttons.put("LOWERJOINT_RIGHT", lowerJointRight);
+		this.buttons.put("MEDIUMJOINT_LEFT", mediumJointLeft);
+		this.buttons.put("MEDIUMJOINT_RIGHT", mediumJointRight);
+		this.buttons.put("HIGHERJOINT_LEFT", higherJointLeft);
+		this.buttons.put("HIGHERJOINT_RIGHT", higherJointRight);
+		this.buttons.put("GRIP_OPEN", gripOpen);
+		this.buttons.put("GRIP_CLOSE", gripClose);
 	}
 	
 	/**
@@ -340,29 +351,20 @@ public class RobotArmExperiment extends ExperimentBase {
 		this.buttonsEnabled = false;
 		final int currentMove = ++this.moveNumber;
 		
+		System.out.println("[DBG]: Sending move: " + s);
+		
 		this.boardController.sendCommand("move:" + s, new IResponseCommandCallback() {
 			
 			@Override
 			public void onFailure(CommException e) {
-				
+				System.out.println("[DBG]: On failure");
 			}
 			
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
+				System.out.println("[DBG]: On success");
 				RobotArmExperiment.this.buttonsEnabled = true;
-				if(currentMove == RobotArmExperiment.this.moveNumber){
-					enableButtons();
-//					if(RobotArmExperiment.this.upPressed) {
-//						sendMove(UP);
-//					} else if(RobotArmExperiment.this.downPressed) {
-//						sendMove(DOWN);
-//					} else if(RobotArmExperiment.this.rightPressed) {
-//						sendMove(RIGHT);
-//					} else if(RobotArmExperiment.this.leftPressed) {
-//						sendMove(LEFT);
-//					}
-				}else
-					disableButton(s);
+				enableButtons();
 			}
 		});
 	}
