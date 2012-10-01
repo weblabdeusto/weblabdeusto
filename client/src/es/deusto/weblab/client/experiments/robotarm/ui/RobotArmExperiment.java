@@ -46,6 +46,11 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotArmExperiment extends ExperimentBase {
+	
+	// If this is enabled, the input widgets will be visible without needing
+	// to successfully reserve the experiment. This is only for debugging purposes.
+	// Should be set to false on deploy.
+	private static final boolean DBG_WIDGETS_START_VISIBLE = true;
 
 	private static final String RAIL_RIGHT = "RAIL_RIGHT";
 	private static final String RAIL_LEFT = "RAIL_LEFT";
@@ -136,6 +141,9 @@ public class RobotArmExperiment extends ExperimentBase {
 		this.buttons.put("HIGHERJOINT_RIGHT", higherJointRight);
 		this.buttons.put("GRIP_OPEN", gripOpen);
 		this.buttons.put("GRIP_CLOSE", gripClose);
+		
+		if(DBG_WIDGETS_START_VISIBLE)
+			this.inputWidgetsPanel.setVisible(true);
 	}
 	
 	/**
