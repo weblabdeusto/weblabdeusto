@@ -187,7 +187,19 @@ class Creation(object):
     LOGIC_SERVER       = 'logic_server'
     
     # Virtual Machine experiment
-    VM_SERVER          = 'vm_server'
+    VM_SERVER                       = 'vm_server'
+    VM_EXPERIMENT_NAME              = 'vm_experiment_name'
+    VM_STORAGE_DIR                  = 'vm_storage_dir'
+    VBOX_VM_NAME                    = 'vbox_vm_name'
+    VBOX_BASE_SNAPSHOT              = 'vbox_base_snapshot'
+    VM_URL                          = 'vm_url'
+    VM_VM_TYPE                      = 'vm_vm_type'
+    VM_USER_MANAGER_TYPE            = 'vm_user_manager_type'
+    HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
+    VM_SHOULD_STORE_IMAGE           = 'vm_should_store_image'
+    VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
+    
+    
     
     # Sessions
     SESSION_STORAGE    = 'session_storage'
@@ -839,7 +851,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', 'vm', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER]:
@@ -925,6 +937,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         laboratory_experiment_instances[lab_id]['logic'] = 1
         experiment_counter += 1
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+        
+    if options[Creation.VM_SERVER]:
+        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+        lab_id = experiment_counter % options[Creation.LAB_COPIES]
+        laboratory_experiments[lab_id] += local_experiments
+        laboratory_experiment_instances[lab_id]['vm'] = 1
+        experiment_counter += 1
+        local_scheduling  += "        'vm'            : ('PRIORITY_QUEUE', {}),\n"
 
     laboratory_servers = ""
 
@@ -1095,7 +1115,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
         latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
-           os.mkdir(core_instance_dir)
+            os.mkdir(core_instance_dir)
        
         instance_configuration_xml = (
         """<?xml version="1.0" encoding="UTF-8"?>"""
@@ -1343,6 +1363,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 
                   'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
+            
+        if 'vm' in experiments_in_lab:
+            laboratory_config_py += (
+                """        'exp1:%(name)s@VM experiments' : {\n"""
+                """                'coord_address' : 'vm:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name,
+                  'name' : options[Creation.VM_EXPERIMENT_NAME] }
 
         if 'logic' in experiments_in_lab:
             laboratory_config_py += (
