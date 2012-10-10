@@ -1505,6 +1505,36 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """# \"\"\"\n"""
                 """#\n"""
                 """\n""") % {'visir_measurement_server' : visir_measurement_server })
+        
+        if 'vm' in experiments_in_lab:
+            vm_dir = os.path.join(lab_instance_dir, 'vm')
+            if not os.path.exists(vm_dir):
+                os.mkdir(vm_dir)
+                
+            open(os.path.join(vm_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n"""))
 
         if 'logic' in experiments_in_lab:
             logic_dir = os.path.join(lab_instance_dir, 'logic')
