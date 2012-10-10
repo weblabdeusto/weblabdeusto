@@ -547,6 +547,9 @@ def _build_parser():
     # TODO
     experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest = Creation.VM_SERVER, action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
+    
+    experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
+                                                       help = "Name of the VM experiment. "  )
 
     parser.add_option_group(experiments)
 
@@ -1535,6 +1538,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """        </protocol>\n"""
                 """    </protocols>\n"""
                 """</server>\n"""))
+            
+            open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
+            """logic_webcam_url = ""\n"""
+            """\n"""
+            )
 
         if 'logic' in experiments_in_lab:
             logic_dir = os.path.join(lab_instance_dir, 'logic')
