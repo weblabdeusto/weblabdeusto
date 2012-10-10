@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import os
@@ -193,10 +194,7 @@ class Creation(object):
     VBOX_VM_NAME                    = 'vbox_vm_name'
     VBOX_BASE_SNAPSHOT              = 'vbox_base_snapshot'
     VM_URL                          = 'vm_url'
-    VM_VM_TYPE                      = 'vm_vm_type'
-    VM_USER_MANAGER_TYPE            = 'vm_user_manager_type'
     HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
-    VM_SHOULD_STORE_IMAGE           = 'vm_should_store_image'
     VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
     
     
@@ -244,6 +242,19 @@ class CreationFlags(object):
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
+
+
+def load_template(name, stdout = sys.stdout, stderr = sys.stderr):
+    """ Reads the specified template file. Only the name needs to be specified. The file should be located
+    in the config_templates folder. """
+    path = "weblab" + os.sep + "admin" + os.sep + "config_templates" + os.sep + name
+    try:
+        f = file(path, "r")
+        template = f.read()
+        f.close()
+    except:
+        print >> stderr, "Error: Could not load template file %s. Probably couldn't be found." % path
+    return template
 
 def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking redis connection for %s..." % what,; stdout.flush()
@@ -550,6 +561,26 @@ def _build_parser():
     
     experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
                                                        help = "Name of the VM experiment. "  )
+
+    experiments.add_option("--vm-storage-dir",  dest = Creation.VM_STORAGE_DIR, default='C:\Users\lrg\.VirtualBox\Machines', type="string", metavar='STORAGE_DIR',
+                                                   help = "Directory where the VirtualBox machines are located. For example: c:\users\lrg\.VirtualBox\Machines"  )
+
+    experiments.add_option("--vbox-vm-name",  dest = Creation.VBOX_VM_NAME, default='UbuntuDefVM2', type="string", metavar='VBOX_VM_NAME',
+                                                   help = "Name of the Virtual Box machine which this experiment uses. Is often different from the Hard Disk name."  )
+    
+    experiments.add_option("--vbox-base-snapshot",  dest = Creation.VBOX_BASE_SNAPSHOT, default='Ready', type="string", metavar='VBOX_BASE_SNAPSHOT',
+                                                   help = "Name of the VirtualBox snapshot to which the system will be reset after every usage. It should be an snapshot of an started machine. Otherwise, it will take too long to start."  ) 
+
+    experiments.add_option("--vm-url",  dest = Creation.VM_URL, default='vnc://192.168.51.82:5901', type="string", metavar='URL',
+                                                   help = "URL which will be provided to users so that they can access the VM through VNC. For instance: vnc://192.168.51.82:5901"  )
+    
+    experiments.add_option("--http-query-user-manager-url",  dest = Creation.HTTP_QUERY_USER_MANAGER_URL, default='http://192.168.51.82:18080', type="string", metavar='URL',
+                                                   help = "URL through which the user manager (which runs on the VM and resets it when needed) can be reached. For instance: http://192.168.51.82:18080"  )
+    
+    experiments.add_option("--vm-estimated-load-time",  dest = Creation.VM_ESTIMATED_LOAD_TIME, default='20', type="string", metavar='LOAD_TIME',
+                                                   help = "Estimated time which is required for restarting the VM. Does not need to be accurate. It is displayed to the user and is essentially for cosmetic purposes. "  )
+    
+    
 
     parser.add_option_group(experiments)
 
@@ -1539,9 +1570,17 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """    </protocols>\n"""
                 """</server>\n"""))
             
+            # Load and fill the config file template
+            template = load_template("vm_server_config.py.template")
+            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR], 
+                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME], 
+                                  "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
+                                  "vm_url" : options[Creation.VM_URL],
+                                  "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
+                                  "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
+            
             open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
-            """logic_webcam_url = ""\n"""
-            """\n"""
+                cfgfile
             )
 
         if 'logic' in experiments_in_lab:
