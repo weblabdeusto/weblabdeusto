@@ -148,6 +148,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_robot_proglist:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:robotarm@Robot experiments':
+            {
+                 'coord_address': 'experiment_robotarm:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:blink-led@LabVIEW experiments':
             {
                  'coord_address': 'experiment_blinkled:main_instance@main_machine',

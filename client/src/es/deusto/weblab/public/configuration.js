@@ -261,6 +261,15 @@
 	                        	    "experiment.info.description" : "wiki"
 	                			}
 	                		],
+	                "robotarm" : [
+	    	                			{
+	    	                				"experiment.name" : "robotarm",
+	    						        	"experiment.picture"  : "/img/experiments/robot.jpg",
+	    	                				"experiment.category" : "Robot experiments",
+	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Proglist",
+	    	                        	    "experiment.info.description" : "wiki"
+	    	                			}
+	    	                		],
 	                "blank" : [
 	                           {
 	                        	   "experiment.name"     : "external-robot-movement",

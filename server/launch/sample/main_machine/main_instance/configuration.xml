@@ -29,6 +29,7 @@
 	<server>experiment_robot_standard</server>
 	<server>experiment_robot_movement</server>
 	<server>experiment_robot_proglist</server>
+	<server>experiment_robotarm</server>
 	<server>experiment_blinkled</server>
 	<server>experiment_pic18</server>
 	<server>experiment_submarine</server>
