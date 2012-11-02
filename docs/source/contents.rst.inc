@@ -8,6 +8,7 @@ documentation is still there.
 .. toctree::
    :maxdepth: 2
 
+   summary
    installation
    first_steps
 
