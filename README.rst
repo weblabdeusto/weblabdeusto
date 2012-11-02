@@ -54,6 +54,9 @@ From this point, you can run::
 
 To create a WebLab-Deusto instance. You can then manage that instance with the weblab-admin script.
 
+An example of a more complex instance creation (which uses MySQL for every database and which configures a Virtual Machine experiment):
+  $ weblab-admin create MyInstance --session-db-engine mysql --coordination-db-engine mysql --db-engine mysql --force --vm --vbox-base-snapshot TestSnapshot --vm-storage-dir C:\Users\whoever\.VirtualBox\Machines --vbox-vm-name UbuntuDef --vm-url vnc://whatever.com:5900 --vm-estimated-load-time 30
+
 Contact
 =======
 

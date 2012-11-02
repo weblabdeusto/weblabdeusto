@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import os
@@ -187,7 +188,16 @@ class Creation(object):
     LOGIC_SERVER       = 'logic_server'
     
     # Virtual Machine experiment
-    VM_SERVER          = 'vm_server'
+    VM_SERVER                       = 'vm_server'
+    VM_EXPERIMENT_NAME              = 'vm_experiment_name'
+    VM_STORAGE_DIR                  = 'vm_storage_dir'
+    VBOX_VM_NAME                    = 'vbox_vm_name'
+    VBOX_BASE_SNAPSHOT              = 'vbox_base_snapshot'
+    VM_URL                          = 'vm_url'
+    HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
+    VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
+    
+    
     
     # Sessions
     SESSION_STORAGE    = 'session_storage'
@@ -232,6 +242,19 @@ class CreationFlags(object):
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
+
+
+def load_template(name, stdout = sys.stdout, stderr = sys.stderr):
+    """ Reads the specified template file. Only the name needs to be specified. The file should be located
+    in the config_templates folder. """
+    path = "weblab" + os.sep + "admin" + os.sep + "config_templates" + os.sep + name
+    try:
+        f = file(path, "r")
+        template = f.read()
+        f.close()
+    except:
+        print >> stderr, "Error: Could not load template file %s. Probably couldn't be found." % path
+    return template
 
 def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking redis connection for %s..." % what,; stdout.flush()
@@ -535,6 +558,29 @@ def _build_parser():
     # TODO
     experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest = Creation.VM_SERVER, action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
+    
+    experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
+                                                       help = "Name of the VM experiment. "  )
+
+    experiments.add_option("--vm-storage-dir",  dest = Creation.VM_STORAGE_DIR, default='C:\Users\lrg\.VirtualBox\Machines', type="string", metavar='STORAGE_DIR',
+                                                   help = "Directory where the VirtualBox machines are located. For example: c:\users\lrg\.VirtualBox\Machines"  )
+
+    experiments.add_option("--vbox-vm-name",  dest = Creation.VBOX_VM_NAME, default='UbuntuDefVM2', type="string", metavar='VBOX_VM_NAME',
+                                                   help = "Name of the Virtual Box machine which this experiment uses. Is often different from the Hard Disk name."  )
+    
+    experiments.add_option("--vbox-base-snapshot",  dest = Creation.VBOX_BASE_SNAPSHOT, default='Ready', type="string", metavar='VBOX_BASE_SNAPSHOT',
+                                                   help = "Name of the VirtualBox snapshot to which the system will be reset after every usage. It should be an snapshot of an started machine. Otherwise, it will take too long to start."  ) 
+
+    experiments.add_option("--vm-url",  dest = Creation.VM_URL, default='vnc://192.168.51.82:5901', type="string", metavar='URL',
+                                                   help = "URL which will be provided to users so that they can access the VM through VNC. For instance: vnc://192.168.51.82:5901"  )
+    
+    experiments.add_option("--http-query-user-manager-url",  dest = Creation.HTTP_QUERY_USER_MANAGER_URL, default='http://192.168.51.82:18080', type="string", metavar='URL',
+                                                   help = "URL through which the user manager (which runs on the VM and resets it when needed) can be reached. For instance: http://192.168.51.82:18080"  )
+    
+    experiments.add_option("--vm-estimated-load-time",  dest = Creation.VM_ESTIMATED_LOAD_TIME, default='20', type="string", metavar='LOAD_TIME',
+                                                   help = "Estimated time which is required for restarting the VM. Does not need to be accurate. It is displayed to the user and is essentially for cosmetic purposes. "  )
+    
+    
 
     parser.add_option_group(experiments)
 
@@ -839,7 +885,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', 'vm', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER]:
@@ -925,6 +971,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         laboratory_experiment_instances[lab_id]['logic'] = 1
         experiment_counter += 1
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+        
+    if options[Creation.VM_SERVER]:
+        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+        lab_id = experiment_counter % options[Creation.LAB_COPIES]
+        laboratory_experiments[lab_id] += local_experiments
+        laboratory_experiment_instances[lab_id]['vm'] = 1
+        experiment_counter += 1
+        local_scheduling  += "        'vm'            : ('PRIORITY_QUEUE', {}),\n"
 
     laboratory_servers = ""
 
@@ -1095,7 +1149,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
         latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
-           os.mkdir(core_instance_dir)
+            os.mkdir(core_instance_dir)
        
         instance_configuration_xml = (
         """<?xml version="1.0" encoding="UTF-8"?>"""
@@ -1343,6 +1397,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 
                   'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
+            
+        if 'vm' in experiments_in_lab:
+            laboratory_config_py += (
+                """        'exp1:%(name)s@VM experiments' : {\n"""
+                """                'coord_address' : 'vm:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name,
+                  'name' : options[Creation.VM_EXPERIMENT_NAME] }
 
         if 'logic' in experiments_in_lab:
             laboratory_config_py += (
@@ -1476,6 +1539,49 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """# \"\"\"\n"""
                 """#\n"""
                 """\n""") % {'visir_measurement_server' : visir_measurement_server })
+        
+        if 'vm' in experiments_in_lab:
+            vm_dir = os.path.join(lab_instance_dir, 'vm')
+            if not os.path.exists(vm_dir):
+                os.mkdir(vm_dir)
+                
+            open(os.path.join(vm_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n"""))
+            
+            # Load and fill the config file template
+            template = load_template("vm_server_config.py.template")
+            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR], 
+                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME], 
+                                  "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
+                                  "vm_url" : options[Creation.VM_URL],
+                                  "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
+                                  "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
+            
+            open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
+                cfgfile
+            )
 
         if 'logic' in experiments_in_lab:
             logic_dir = os.path.join(lab_instance_dir, 'logic')
