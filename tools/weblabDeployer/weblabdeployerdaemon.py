@@ -28,7 +28,7 @@ with open(os.path.join(deploymentsettings.DIR_BASE,
     
     for line in f:
         # Start now the new weblab instance
-        line = line.replace('\n', '').strip()
+        line = line.strip()
         print("Deploying task: %s..." % line)
         process = subprocess.Popen(['nohup','weblab-admin','start', line])
         print("Finished deploying")
