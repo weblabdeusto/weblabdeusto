@@ -369,8 +369,8 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         'engine'   : db_engine,
                         'location' : location,
                     }
-    
-    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name)
+
+    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name, dirname = directory)
     pool = sqlalchemy.pool.QueuePool(getconn)
 
     try:
@@ -404,7 +404,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         print >> stderr, "not creating"
                         exit_func(-1)
                 if db_engine == 'sqlite':
-                    create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
+                    create_database(admin_username = None, admin_password = None, database_name = db_name, new_user = None, new_password = None, db_dir = os.path.join(directory, 'db'))
                 elif db_engine == 'mysql':
                     if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
                         admin_username = options[Creation.MYSQL_ADMIN_USER]
