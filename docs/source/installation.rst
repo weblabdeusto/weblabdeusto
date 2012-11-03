@@ -1,4 +1,5 @@
 .. _toctree-directive:
+.. _installation:
 
 Installation
 ============
