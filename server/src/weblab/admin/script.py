@@ -2514,6 +2514,7 @@ def weblab_monitor(directory):
                               dest="list_users",
                               nargs=1,
                               default=None,
+                              metavar='EXPERIMENT_ID',
                               help="Lists all users using a certain experiment (format: experiment@category)" )
 
     option_parser.add_option( "-a", "--list-experiment-users",
@@ -2535,12 +2536,14 @@ def weblab_monitor(directory):
                               dest="kick_session",
                               nargs=1,
                               default=None,
+                              metavar='SESSION_ID',
                               help="Given the full UPS Session ID, it kicks out a user from the system" )
 
     option_parser.add_option( "-b", "--kick-user",
                               dest="kick_user",
                               nargs=1,
                               default=None,
+                              metavar='USER_LOGIN',
                               help="Given the user login, it kicks him out from the system" )
 
     options, _ = option_parser.parse_args()
