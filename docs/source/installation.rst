@@ -7,22 +7,38 @@ Installing the core of WebLab-Deusto is pretty straightforward. It does not have
 many requirements. However, supporting more features and tuning the performance
 requires installing more software infrastructure.
 
-Through this tutorial, we'll go through the most simple deployment possible.
-Then, we will explain how to go deep to more complex deployments.
+Through this tutorial, we'll go through the most simple deployment possible. It
+will not require any web server (such as Apache), neither a database engine
+(such as MySQL). Instead it will use its internal web server and a simple sqlite
+database.  Then, we will explain how to go deep to more complex deployments.
+
+**Note:** during the whole documentation, some examples of commands run in a
+terminal will be presented. Given that terminals are different from system to
+system, we will show *$* to represent the terminal prompt. For instance, the
+following example::
+
+    $ weblab-admin --version
+    5.0
+
+The *$* will represent *C:\\something>* in Windows environments and
+*user\@machine:directory$* in certain UNIX environments. You must not write that.
+Whenever there is no *$* in the beginning of the line (such as *5.0* in the
+example), is the expected output. Finally, sometimes the output is too long, so
+*[...]* is used to declare "a long output will be shown".
 
 Obtaining WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 At the time of this writing, there are two ways to obtain WebLab-Deusto:
 
-#. Downloading it from github using the web browser. That's the simplest version. Just go to the `github repository <https://github.com/porduna/weblabdeusto>`_ and click on the ZIP link. Uncompress the file. 
+#. Downloading it from github using the web browser. That's the simplest and **easiest** version. Just go to the `github repository <https://github.com/porduna/weblabdeusto>`_ and click on the ZIP link. Uncompress the file. 
     * **Windows users:** in certain versions of Microsoft Windows, sometimes there are problems with too-long file paths, so if any problem is reported by your uncompressing program, just make sure that the directory where you are uncompressing WebLab is not very long (for instance, uncompressing it in *C:\\weblab* or *C:\\Users\\Tom\\weblab* will surely work, whereas downloading it in *C:\\Users\\My full name\\Downloads\\Other downloads\\Yet other downloads\\weblabdeusto-long-name* might fail).
 
 .. image:: /_static/download_weblabdeusto_zip.png
    :width: 300 px
    :align: center
 
-2. Downloading it from github using git. That's the recommended version, since that allows you to upgrade WebLab-Deusto automatically in the future, and even contribute easily. However, it requires installing git. This process is detailed in :ref:`sec-download-git`.
+2. Downloading it from github using git. That's the **recommended** version, since that allows you to upgrade WebLab-Deusto automatically in the future, and even contribute easily. However, it requires installing git. This process is detailed in :ref:`sec-download-git`.
 
 
 Installing the requirements
@@ -37,7 +53,9 @@ Installing the requirements
 #. Once installed, put both in the system path:
     * In Linux and Mac OS X, this is probably done by default.
     * In Microsoft Windows, go to Control Panel -> System -> Advanced -> Environment variables -> (down) PATH -> edit and append: *;C:\Python27\;C:\Python27\Scripts\;*, as well as the Java path (which depends on the particular version, it is usually somewhere in *C:\Program Files\Java\jdkSOMETHING\bin*).
-#. At this step, you should be able to open a terminal (in Microsoft Windows, click on the Start menu -> run -> type *cmd*) and run (don't take into account the particular versions, these are just examples)::
+#. At this step, you should be able to open a terminal (in Microsoft Windows, click on the Start menu -> run -> type *cmd*) and test that both tools are installed.
+
+Run the following (don't take into account the particular versions, these are just examples)::
 
   $ python --version 
 
@@ -47,14 +65,18 @@ Installing the requirements
 
   javac 1.6.0_24
 
-#. Install setuptools following `the instructions <http://pypi.python.org/pypi/setuptools#installation-instructions>`_. It should be as simple as downloading and executing a file.
-#. Once installed, open a terminal and run::
+5. Install setuptools following `the instructions <http://pypi.python.org/pypi/setuptools#installation-instructions>`_. It should be as simple as downloading and executing a file.
+#. Once setuptools are installed, you can install *pip* and *virtualenv*. 
+
+In Linux systems you can get them in the package repositories (e.g. in Ubuntu they are python-pip and python-virtualenv), but in other systems you can install them by running::
 
   $ easy_install pip
 
   $ easy_install virtualenv
 
-#. At this point, you should be able to open a terminal and run (don't take into account the particular versions)::
+7. At this point, you should be able to open a terminal and test that both tools are installed.
+
+Run the following (don't take into account the particular versions)::
 
   $ pip --version
 
@@ -69,11 +91,13 @@ Installing WebLab-Deusto
 
 Create a virtualenv. In UNIX systems (Linux, Mac OS X)::
 
-  $ cd WHEREVER-IS-WEBLAB (e.g. /opt/weblabdeusto/ )
+  user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g. /opt/weblabdeusto/ )
 
-  $ virtualenv env
+  user@machine:/opt/weblabdeusto$ virtualenv env
 
-  $ . env/bin/activate
+  user@machine:/opt/weblabdeusto$ . env/bin/activate
+
+  (env) user@machine:/opt/weblabdeusto$
 
 In Microsoft Windows environments::
 
@@ -88,10 +112,43 @@ In Microsoft Windows environments::
 And then, install WebLab-Deusto::
 
   $ python setup.py install
+  [...]
+  Finished processing dependencies for weblabdeusto==5.0
 
-This process will take several minutes. Once this process is finished, you can safely run::
+The first time you run this, it will take several minutes, and it will require a
+lot of available RAM memory. If you ever change anything on the client or you
+upgrade the system through git, and you want to re-install it, go to the
+*client* directory and run *./gwtc.sh* in UNIX systems or *gwtc* in Microsoft
+Windows environments.
 
-  $ weblab-admin create my-instance
+Once the process is over, you can test the installation by running::
 
-To create a WebLab-Deusto instance. You can then manage that instance with the weblab-admin script.
+  $ weblab-admin --version
+  5.0
 
+If it displays 5.0 or higher, then you have successfully installed the system in
+that virtual environment. Virtual environments in Python are environments where
+a set of libraries (with particular versions) are installed. For instance, you
+may have different virtual environments for different applications relying on
+different versions of libraries. There are even highly recommendable `tools for
+managing virtual environments
+<http://www.doughellmann.com/projects/virtualenvwrapper/>`_ (and `versions for
+Microsoft Windows <http://pypi.python.org/pypi/virtualenvwrapper-win/>`_) which
+make this management even easier.
+
+Whenever you open a new terminal, you'll find that *weblab-admin* is not
+installed. However, whenever you activate the environment where you installed
+WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
+do the following in UNIX systems::
+
+    user@machine:~$ . /opt/weblabdeusto/env/bin/activate
+    (env) user@machine:~$ weblab-admin --version
+    5.0
+
+Or the following in Microsoft Windows systems::
+
+    C:\Users\John\Desktop> C:\weblabdeusto\env\Scripts\activate
+    (env) C:\Users\John\Desktop> weblab-admin --version
+    5.0
+
+Now you can continue with the :ref:`first steps <first_steps>`.
