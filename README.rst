@@ -23,11 +23,15 @@ If you want to see examples of running laboratories, try the demo version at:
 Documentation
 =============
 
+We are starting to document the new release here:
+
+   https://weblabdeusto.readthedocs.org/en/latest/
+
 The full documentation of WebLab-Deusto prior to WebLab-Deusto 5 is available in:
 
    http://code.google.com/p/weblabdeusto/
 
-Please take into account that this documentation can not be applied to the
+Please take into account that this older documentation can not be applied to the
 current development version of WebLab-Deusto, and certain things are different.
 We are working on a new version of the documentation. In the meanwhile, please
 refer to the `Google Group
