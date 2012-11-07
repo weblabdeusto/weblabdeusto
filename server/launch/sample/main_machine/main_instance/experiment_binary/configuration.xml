@@ -10,7 +10,7 @@
 	<type>weblab.data.server_type::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>experiments.ud_binary.server.BinaryExperiment</implementation>
+	<implementation>experiments.binary.server.BinaryExperiment</implementation>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->
