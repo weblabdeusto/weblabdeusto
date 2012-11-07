@@ -33,7 +33,10 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
+        print args, kwargs
+
         self._clear()
+        return "ok"
 
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
@@ -56,7 +59,7 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @caller_check(ServerType.Laboratory)
     @logged("info")
     def do_get_api(self):
-        return "1"
+        return "2"
 
     def do_send_command_to_device(self, command):
         if command == 'AutoProgram':
