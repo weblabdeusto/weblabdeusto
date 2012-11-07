@@ -31,6 +31,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import sqlalchemy
 
+from weblab import __version__ as weblab_version
 from weblab.util import data_filename
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
@@ -63,6 +64,7 @@ SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab insta
 SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instance')), 
 
 COMMANDS = dict(SORTED_COMMANDS)
+HIDDEN_COMMANDS = ('-version', '--version', '-V')
 
 def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
@@ -79,6 +81,12 @@ def check_dir_exists(directory, parser = None):
         sys.exit(-1)
 
 def weblab():
+    if len(sys.argv) == 2 and sys.argv[1] in HIDDEN_COMMANDS:
+        if sys.argv[1] in ('--version', '-version', '-V'):
+            print weblab_version
+        else:
+            print >> sys.stderr, "Command %s not implemented" % sys.argv[1]
+        sys.exit(0)
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
         max_size = max((len(command) for command in COMMANDS))
@@ -102,6 +110,8 @@ def weblab():
         weblab_admin(sys.argv[2])
     elif main_command == 'rebuild-db':
         weblab_rebuild_db(sys.argv[2])
+    elif main_command == '--version':
+        print weblab_version
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
@@ -359,8 +369,8 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         'engine'   : db_engine,
                         'location' : location,
                     }
-    
-    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name)
+
+    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name, dirname = directory)
     pool = sqlalchemy.pool.QueuePool(getconn)
 
     try:
@@ -394,7 +404,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         print >> stderr, "not creating"
                         exit_func(-1)
                 if db_engine == 'sqlite':
-                    create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
+                    create_database(admin_username = None, admin_password = None, database_name = db_name, new_user = None, new_password = None, db_dir = os.path.join(directory, 'db'))
                 elif db_engine == 'mysql':
                     if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
                         admin_username = options[Creation.MYSQL_ADMIN_USER]
@@ -2504,6 +2514,7 @@ def weblab_monitor(directory):
                               dest="list_users",
                               nargs=1,
                               default=None,
+                              metavar='EXPERIMENT_ID',
                               help="Lists all users using a certain experiment (format: experiment@category)" )
 
     option_parser.add_option( "-a", "--list-experiment-users",
@@ -2525,12 +2536,14 @@ def weblab_monitor(directory):
                               dest="kick_session",
                               nargs=1,
                               default=None,
+                              metavar='SESSION_ID',
                               help="Given the full UPS Session ID, it kicks out a user from the system" )
 
     option_parser.add_option( "-b", "--kick-user",
                               dest="kick_user",
                               nargs=1,
                               default=None,
+                              metavar='USER_LOGIN',
                               help="Given the user login, it kicks him out from the system" )
 
     options, _ = option_parser.parse_args()
