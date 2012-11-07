@@ -18,6 +18,8 @@ import com.google.gwt.event.dom.client.ErrorEvent;
 import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -79,6 +81,38 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 			}
 		};
 		this.reload();
+	}
+	
+	public void configureWebcam(JSONObject initialConfigObject) {
+		final JSONValue webcamValue = initialConfigObject.get("webcam");
+	    if(webcamValue != null) {
+	    	final String urlWebcam = webcamValue.isString().stringValue();
+	    	setUrl(urlWebcam);
+	    }
+	    
+	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg");
+	    if(mjpegValue != null) {
+	    	final String mjpeg = mjpegValue.isString().stringValue();
+	    	int width = 320;
+	    	int height = 240;
+	    	if(initialConfigObject.get("mjpegWidth") != null) {
+	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth");
+	    		if(mjpegWidth.isNumber() != null) {
+	    			width = (int)mjpegWidth.isNumber().doubleValue();
+	    		} else if(mjpegWidth.isString() != null) {
+	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
+	    		}
+	    	}
+	    	if(initialConfigObject.get("mjpegHeight") != null) {
+	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight");
+	    		if(mjpegHeight.isNumber() != null) {
+	    			height = (int)mjpegHeight.isNumber().doubleValue();
+	    		} else if(mjpegHeight.isString() != null) {
+	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
+	    		}
+	    	}
+	    	setStreamingUrl(mjpeg, width, height);
+	    }
 	}
 	
 	public void stop(){
@@ -149,8 +183,8 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 		reload();
 	}
 	
-	public void setTime(int time) {
-		this.time = time;
+	public void setTime(int milliseconds) {
+		this.time = milliseconds;
 		if(this.running) {
 			stop();
 			start();

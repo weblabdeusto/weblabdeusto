@@ -343,13 +343,24 @@
 	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
 	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
 	                        	   "experiment.info.description" : "wiki"
+	                           },
+	                           {
+	                        	   "experiment.name"     : "logic",
+	                        	   "experiment.category" : "Games",
+	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
+	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
+	                        	   "experiment.info.description" : "wiki"
 	                           }
 	                       ],
 	                "binary" : [
 	                            {
 	                               "experiment.name"     : "ud-binary",
 	                               "experiment.category" : "PLD experiments"
-	                            }
+	                            },
+	                            {
+		                           "experiment.name"     : "binary",
+		                           "experiment.category" : "Games"
+		                        }
 	                       ],
 	                "gpib"   : [
 	                            {

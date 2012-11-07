@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.ui.audio.AudioManager;
 
-public class WlTimer extends Widget implements IWlWidget{
+public class WlTimer extends Label implements IWlWidget{
 
 	public static int DEFAULT_START_VALUE = 5;
 	
@@ -32,7 +32,6 @@ public class WlTimer extends Widget implements IWlWidget{
 		public void onFinished();
 	}
 	
-	private final Label label;
 	private int time;
 	private Timer timer;
 	private IWlTimerFinishedCallback timerFinishedCallback = null;
@@ -40,7 +39,7 @@ public class WlTimer extends Widget implements IWlWidget{
 	private int timeRunningOutAudioLimit = 6;
 
 	public void start() {
-		this.label.setText(Integer.toString(this.time));
+		this.setText(Integer.toString(this.time));
 		this.timer = new Timer(){
 			@Override
 			public void run(){
@@ -62,9 +61,7 @@ public class WlTimer extends Widget implements IWlWidget{
 	 */
 	public WlTimer(boolean startNow) {
 		this.time = WlTimer.DEFAULT_START_VALUE;
-		this.label = new Label();
-		this.label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.setElement(this.label.getElement());
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
 		if(startNow)
 			this.start();
@@ -78,9 +75,7 @@ public class WlTimer extends Widget implements IWlWidget{
 	 */
 	public WlTimer(int startValue, boolean startNow) {
 		this.time = startValue;
-		this.label = new Label();
-		this.label.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		this.setElement(this.label.getElement());
+		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		
 		if(startNow)
 			this.start();
@@ -92,7 +87,6 @@ public class WlTimer extends Widget implements IWlWidget{
 	
 	public WlTimer(int startValue){
 		this.time = startValue;
-		this.label = new Label();
 		this.start();
 	}
 	
@@ -138,7 +132,7 @@ public class WlTimer extends Widget implements IWlWidget{
 			sb.append('0');
 		sb.append(seconds);
 		
-		this.label.setText(sb.toString());
+		this.setText(sb.toString());
 	}
 	
 	protected void decrement(){
@@ -186,13 +180,8 @@ public class WlTimer extends Widget implements IWlWidget{
 	}
 	
 	@Override
-	public void setStyleName(String style){
-		this.label.setStyleName(style);
-	}
-	
-	@Override
 	public Widget getWidget() {
-		return this.label;
+		return this;
 	}
 
 }

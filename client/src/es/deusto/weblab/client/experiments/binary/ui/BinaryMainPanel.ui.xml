@@ -1,0 +1,15 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	<g:VerticalPanel width="100%" horizontalAlignment="ALIGN_CENTER" borderWidth="0" spacing="10">
+		<w:WlTimer ui:field="timer" styleName="wl-time_remaining" />
+		<w:WlWebcam ui:field="camera" />
+		<g:HorizontalPanel spacing="10" width="100%" >
+			<w:WlSwitch ui:field="switch1" />
+			<w:WlSwitch ui:field="switch2" />
+			<w:WlSwitch ui:field="switch3" />
+			<w:WlSwitch ui:field="switch4" />
+		</g:HorizontalPanel>		
+	</g:VerticalPanel>
+</ui:UiBinder> 
