@@ -26,7 +26,8 @@ import es.deusto.weblab.client.ui.audio.AudioManager;
 
 public class WlTimer extends Label implements IWlWidget{
 
-	public static int DEFAULT_START_VALUE = 5;
+	public static final int DEFAULT_START_VALUE = 5;
+	public static final String DEFAULT_STYLE = "wl-time_remaining"; 
 	
 	public interface IWlTimerFinishedCallback{
 		public void onFinished();
@@ -61,8 +62,8 @@ public class WlTimer extends Label implements IWlWidget{
 	 */
 	public WlTimer(boolean startNow) {
 		this.time = WlTimer.DEFAULT_START_VALUE;
-		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		
+		setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		setStyleName(DEFAULT_STYLE);
 		if(startNow)
 			this.start();
 	}
@@ -76,7 +77,7 @@ public class WlTimer extends Label implements IWlWidget{
 	public WlTimer(int startValue, boolean startNow) {
 		this.time = startValue;
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		
+		setStyleName(DEFAULT_STYLE);
 		if(startNow)
 			this.start();
 	}
@@ -87,6 +88,7 @@ public class WlTimer extends Label implements IWlWidget{
 	
 	public WlTimer(int startValue){
 		this.time = startValue;
+		setStyleName(DEFAULT_STYLE);
 		this.start();
 	}
 	

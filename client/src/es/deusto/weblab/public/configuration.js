@@ -355,11 +355,13 @@
 	                "binary" : [
 	                            {
 	                               "experiment.name"     : "ud-binary",
-	                               "experiment.category" : "PLD experiments"
+	                               "experiment.category" : "PLD experiments",
+	                               "experiment.picture"   : "/img/experiments/binary.jpg"
 	                            },
 	                            {
 		                           "experiment.name"     : "binary",
-		                           "experiment.category" : "Games"
+		                           "experiment.category" : "Games",
+		                           "experiment.picture"   : "/img/experiments/binary.jpg"
 		                        }
 	                       ],
 	                "gpib"   : [

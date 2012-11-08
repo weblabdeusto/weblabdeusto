@@ -7,8 +7,8 @@
 		<g:Label>Welcome to the binary laboratory! Choose one option:</g:Label>
 		
 		<g:VerticalPanel>
-			<g:RadioButton ui:field="optionBCD"   name="game" checked="true">BCD</g:RadioButton>
-			<g:RadioButton ui:field="optionOther" name="game">Other</g:RadioButton>
+			<g:RadioButton ui:field="optionBCD"   name="game" checked="true">Pure BCD</g:RadioButton>
+			<g:RadioButton ui:field="optionOther" name="game">Other BCDs</g:RadioButton>
 		</g:VerticalPanel>
 	</g:VerticalPanel>
 </ui:UiBinder> 

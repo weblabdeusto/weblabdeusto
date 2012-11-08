@@ -15,52 +15,45 @@
 package es.deusto.weblab.client.experiments.binary.ui;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.WlSwitch;
 import es.deusto.weblab.client.ui.widgets.WlSwitch.SwitchEvent;
-import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
-public class BinaryMainPanel extends Composite {
-	
-	private static BinaryMainPanelUiBinder uiBinder = GWT.create(BinaryMainPanelUiBinder.class);
-	
-	@UiField WlWebcam camera;
-	@UiField WlTimer timer;
-	
+class InteractivePanel extends Composite {
+
+	interface InteractivePanelUiBinder extends UiBinder<Widget, InteractivePanel> { }
+	private static InteractivePanelUiBinder uiBinder = GWT.create(InteractivePanelUiBinder.class);
+
 	@UiField WlSwitch switch1;
 	@UiField WlSwitch switch2;
 	@UiField WlSwitch switch3;
 	@UiField WlSwitch switch4;
+	@UiField Label exerciseLabel;
+
+	private final IBoardBaseController controller;
+	private final MainPanel mainPanel;
 	
-	private IBoardBaseController controller;
-	
-	interface BinaryMainPanelUiBinder extends UiBinder<Widget, BinaryMainPanel> {
-	}
-	
-	public BinaryMainPanel() {
-		initWidget(uiBinder.createAndBindUi(this));
-	}
-	
-	public BinaryMainPanel(IBoardBaseController controller) {
+	public InteractivePanel(MainPanel mainPanel, IBoardBaseController controller, String label) {
 		this.controller = controller;
+		this.mainPanel  = mainPanel;
 		initWidget(uiBinder.createAndBindUi(this));
+		this.exerciseLabel.setText(label);
 	}
 	
-	public WlWebcam getWebcam() {
-		return this.camera;
+	@SuppressWarnings("unused")
+	@UiHandler("otherCodeButton")
+	public void onOtherCodeButton(ClickEvent event) {
+		this.mainPanel.loadButtons();
 	}
-	
-	public WlTimer getTimer() {
-		return this.timer;
-	}
-	
+
 	@UiHandler("switch1")
 	public void onSwitch1click(SwitchEvent event) {
 		processSwitch(1, event.isOn());
@@ -82,7 +75,7 @@ public class BinaryMainPanel extends Composite {
 	}
 	
 	private void processSwitch(int number, boolean state) {
-		final String message = "TURN SWITCH " + number + " " + (state?"ON":"OFF");
+		final String message = "switch:" + number + "," + (state?"on":"off");
 		if(this.controller != null) {
 			this.controller.sendCommand(message);
 		} else{

@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
 
-public class InitializationPanel extends Composite {
+class InitializationPanel extends Composite {
 
 	private static InitializationPanelUiBinder uiBinder = GWT.create(InitializationPanelUiBinder.class);
 	

@@ -2,14 +2,22 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
-	<g:VerticalPanel width="100%" horizontalAlignment="ALIGN_CENTER" borderWidth="0" spacing="10">
-		<w:WlTimer ui:field="timer" styleName="wl-time_remaining" />
-		<w:WlWebcam ui:field="camera" />
+	
+	<ui:style>
+    	.bold-label { font-weight: bold; }
+  	</ui:style>
+  	
+	<g:VerticalPanel ui:field="switchesPanel" horizontalAlignment="CENTER" width="100%" spacing="15">
+	
 		<g:HorizontalPanel spacing="10" width="100%" >
 			<w:WlSwitch ui:field="switch1" />
 			<w:WlSwitch ui:field="switch2" />
 			<w:WlSwitch ui:field="switch3" />
 			<w:WlSwitch ui:field="switch4" />
-		</g:HorizontalPanel>		
+		</g:HorizontalPanel>
+		
+		<g:Label text="exercise" ui:field="exerciseLabel" styleName="{style.bold-label}"/>
+			
+		<g:Button text="Select other code" ui:field="otherCodeButton"/>
 	</g:VerticalPanel>
 </ui:UiBinder> 
