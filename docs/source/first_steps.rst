@@ -10,7 +10,7 @@ instance. This section assumes that you have successfully :ref:`installed the
 system <installation>`. It also assumes that you have activated the proper
 virtual environment in the current terminal, so running weblab-admin works::
 
-  $ weblab-admin --version
+  $ weblab-admin.py --version
   5.0
 
 The deployment we are running here is very small and relies of very few
@@ -31,7 +31,7 @@ users, its own queues, etc.
 
 So as to create a new WebLab-Deusto instance, run the following::
 
-  $ weblab-admin create example --http-server-port=8000
+  $ weblab-admin.py create example --http-server-port=8000
   Congratulations!
   WebLab-Deusto system created
   [...]
@@ -50,11 +50,11 @@ Starting the WebLab-Deusto instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The WebLab-Deusto instance at this point is configured, but it is not started.
-So as to start it, we will use once again the *weblab-admin* command. As you'll
+So as to start it, we will use once again the *weblab-admin.py* command. As you'll
 find out, this is the command that you will use for any management related with
 the instances. Run the following::
 
-  $ weblab-admin start example
+  $ weblab-admin.py start example
   Press <enter> or send a sigterm or a sigint to finish
 
 As you can see, the server is running. By pressing enter, the server will stop::
@@ -65,7 +65,7 @@ As you can see, the server is running. By pressing enter, the server will stop::
 
 So, let's start it again::
 
-  $ weblab-admin start example
+  $ weblab-admin.py start example
   Press <enter> or send a sigterm or a sigint to finish
 
 
@@ -91,7 +91,7 @@ Ok, so everything is working for the *admin* user. What about creating a class
 of 20 students who can access only the dummy, and other class who can access the
 federated laboratories?
 
-In order to manage users, we have to use the *weblab-admin admin* tool. Usually,
+In order to manage users, we have to use the *weblab-admin.py admin* tool. Usually,
 you can do it while the server is running. However, in this small deployment, we
 are using `sqlite <http://www.sqlite.org/>`_, a small and fast database engine
 that does not support concurrent access. Therefore, while using sqlite, we will
@@ -104,9 +104,9 @@ need first to stop the application so as to manage users::
    Stopping servers...
    $ 
 
-And then, we can run the *weblab-admin admin* tool safely::
+And then, we can run the *weblab-admin.py admin* tool safely::
 
-   $ weblab-admin admin example
+   $ weblab-admin.py admin example
    ----------------------------------
    - WebLab-Deusto Database Manager -
    ----------------------------------
@@ -436,17 +436,17 @@ Monitoring users
 ~~~~~~~~~~~~~~~~
 
 You can also check in real time who is using the system, what is the position of
-the queues, etc., by using the *weblab-admin monitor* command. While the system
+the queues, etc., by using the *weblab-admin.py monitor* command. While the system
 is started and running, you can call from other terminal::
 
-  $ weblab-admin monitor example -e
+  $ weblab-admin.py monitor example -e
   dummy@Dummy experiments
   external-robot-movement@Robot experiments
 
 To see the active laboratories. If you want to see who is using a particular
 laboratory, you can call::
 
-  $ weblab-admin monitor example -u "dummy@Dummy experiments"
+  $ weblab-admin.py monitor example -u "dummy@Dummy experiments"
   Server 1
             LOGIN                    STATUS    UPS_SESSID   RESERV_ID
             user1            reserved_local   4efeaf0a... Session ID: '4efeaf0a-abe6-407f-be9f-82f1271510df'...
@@ -456,7 +456,7 @@ Waiting: 0 means that this user is in the first slot of the queue. Other users
 with the same or lower priorities will be in positions 1, 2, 3, etc. If you need
 further information, you can pass the -f flag::
 
-  $ weblab-admin monitor example -u "dummy@Dummy experiments" -f
+  $ weblab-admin.py monitor example -u "dummy@Dummy experiments" -f
   Server 1
             LOGIN                    STATUS    UPS_SESSID   RESERV_ID
             user1            reserved_local   4efeaf0a-abe6-407f-be9f-82f1271510df    Session ID: '4efeaf0a-abe6-407f-be9f-82f1271510df'
@@ -465,9 +465,9 @@ further information, you can pass the -f flag::
 Furthermore, you can even kick a particular user (such as user1 in this case,
 who is using the system), and check how the queue advances::
 
-  $ weblab-admin monitor example -b user1
+  $ weblab-admin.py monitor example -b user1
   Server 1
-  $ weblab-admin monitor example -u "dummy@Dummy experiments" -f
+  $ weblab-admin.py monitor example -u "dummy@Dummy experiments" -f
   Server 1
             LOGIN                    STATUS    UPS_SESSID   RESERV_ID
             user5            reserved_local   1e38293d-8775-4740-9516-060a71af8675    Session ID: '1e38293d-8775-4740-9516-060a71af8675'
@@ -484,12 +484,12 @@ are some settings that we can modify at this level.
 
 Running::
 
-  $ weblab-admin create --help
+  $ weblab-admin.py create --help
 
 Displays the full help regarding the create command. A more advanced example
 would be::
 
-  $ weblab-admin create other.example --http-server-port=8001 --start-port=20000 \
+  $ weblab-admin.py create other.example --http-server-port=8001 --start-port=20000 \
   --system-identifier='My example' --entity-link='http://www.myuniversity.edu/'  \
   --poll-time=300 --admin-user=administrator --admin-name='John Doe'             \
   --admin-password=secret --admin-mail='admin@weblab.myuniversity.edu' --logic

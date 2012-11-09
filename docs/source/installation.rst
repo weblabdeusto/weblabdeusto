@@ -18,7 +18,7 @@ terminal will be presented. Given that terminals are different from system to
 system, we will show *$* to represent the terminal prompt. For instance, the
 following example::
 
-    $ weblab-admin --version
+    $ weblab-admin.py --version
     5.0
 
 The *$* will represent *C:\\something>* in Windows environments and
@@ -124,8 +124,13 @@ Windows environments.
 
 Once the process is over, you can test the installation by running::
 
-  $ weblab-admin --version
+  $ weblab-admin.py --version
   5.0
+
+**Note for UNIX systems:** The command *weblab-admin* does not work on Microsoft
+Windows itself, and therefore the command *weblab-admin.py* is provided for both
+frameworks. However, in UNIX you're safe to use *weblab-admin* wherever we
+establish *weblab-admin.py* in the whole documentation.
 
 If it displays 5.0 or higher, then you have successfully installed the system in
 that virtual environment. Virtual environments in Python are environments where
@@ -137,19 +142,19 @@ managing virtual environments
 Microsoft Windows <http://pypi.python.org/pypi/virtualenvwrapper-win/>`_) which
 make this management even easier.
 
-Whenever you open a new terminal, you'll find that *weblab-admin* is not
+Whenever you open a new terminal, you'll find that *weblab-admin.py* is not
 installed. However, whenever you activate the environment where you installed
 WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
 do the following in UNIX systems::
 
     user@machine:~$ . /opt/weblabdeusto/env/bin/activate
-    (env) user@machine:~$ weblab-admin --version
+    (env) user@machine:~$ weblab-admin.py --version
     5.0
 
 Or the following in Microsoft Windows systems::
 
     C:\Users\John\Desktop> C:\weblabdeusto\env\Scripts\activate
-    (env) C:\Users\John\Desktop> weblab-admin --version
+    (env) C:\Users\John\Desktop> weblab-admin.py --version
     5.0
 
 Now you can continue with the :ref:`first steps <first_steps>`.
