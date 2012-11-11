@@ -198,5 +198,129 @@ Congratulations. If everything went ok, you now have a virtual windows machine o
 	   in your `system properties`. (If you check this way, enable remote access now, and you will save a step for later).
 	
 
+	
+Installing the WebLab In-VM Manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. Warning::
+	**CHECKLIST** *(Before proceeding to this section, please check the following. Feel free to skip those checks you have done already.)*
+	
+	#. I have a working, Windows VM which uses VirtualBox as its engine.
+	#. My Windows VM supports Remote Desktop server.
+	#. I can access the Internet from my Windows VM.
+	#. My virtualized Windows supports the Remote Desktop server. You can check whether the `enable remote access` option exists
+	   in your `system properties`. (If you check this way, enable remote access now, and you will save a step for later).
+	#. The terminal command VBoxManage is accessible. To check this: Open a Windows console terminal. Type `vboxmanage -v` and hit enter.
+	   If it **is** accessible, a version number should appear (such as `4.1.12`). If an error occurs, then it
+	   **is not** accessible, and the previous steps should be redone.
+
+What is the Manager?
+--------------------
+
+Users will access the virtualized Windows machine through the RDP protocol (that is, Windows' Remote Desktop). 
+So that only one user (the one who has a reservation) can access the machine at a given time, a different, unique,
+random password will be provided for each session. 
+
+This means that somehow, something will need to change the password of the virtualized Windows each session.
+
+That is the mission of the WebLab In-VM Manager.
+
+The WebLab In-VM Manager is a service which will run within the virtualized Windows, and its main purpose will be
+to receive password change requests from WebLab. 
+
+Because as of now, the VM you have created does not yet have such a service, we will need to install it.
+
+
+Manager Prerrequisites
+----------------------
+
+.NET Framework 3.5
+^^^^^^^^^^^^^^^^^^
+
+The In-VM Manager requires the Microsoft .NET Framework version 3.5. 
+The In-VM Manager is meant to run within the Windows VM, so it is that machine, and not your physical, host machine, 
+which needs to have it installed.
+
+You may download Microsoft .NET Framework 3.5 from the official Microsoft website. It is advisable that you download
+it from the Windows VM itself. Once downloaded, install it.
+
+Some versions of Windows may come with .NET Framework 3.5 pre-installed. That is, however, likely not the case.
+
+
+Making the VM accessible
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Configuring the network
+.......................
+
+The VM needs to be accessible from the host machine through an IP address, so the VM network settings will need to be 
+configured properly.
+
+Especifically, the host machine will need to connect to two ports on the windows Virtual Machine:
+
+	* Remote Desktop port (3389). The port end users will connect to. VM will need to accept connections to it from the Internet. 
+	* In-VM Manager port (6791). The WebLab-Deusto server will connect to it and command a password change when needed. 
+	
+.. Warning:: RDP port needs to be accessible from the Internet. Otherwise, end-users will not be able to connect to the machine.
+			 The VM Manager port, however, **should only** be accessible from the host machine. Otherwise, an attacker could
+			 change the password of the VM at will. Note that, however, the security risk isn't high. An attacker could gain
+			 temporary control over the VM (which will last until the next experiment session begins, and the VM is reset). 
+			 However, the host system itself would not be compromised.
+
+To open the *network settings* dialog:
+
+	#. Go to VirtualBox administrator dialog (the one with the VM list on the left)
+	#. Right click on the windows VM
+	#. Go to *settings*
+	#. When the *settings* dialog appears, go to *network*
+	
+There are essentially two ways to configure the network:
+
+	#. **NAT**: The VM will connect to the Internet through the host machine's connection. In order for it to work, you would 
+	   need to forward port 3389 and 6791 properly. That is not particularly hard, but isn't trivial either, so NAT **is not
+	   recommended**.
+	#. **Bridged Adapter**: The VM will connect to the Internet directly. This **is the recommended** way. The Windows VM will be given
+	   its own IP on your local network. If your local network doesn't support DHCP, further configuration may be needed.
+	   
+It is hence suggested that you choose *Bridged Adapter*.
+
+.. Note:: You might need to restart the VM before network configuration changes take effect.	
+
+.. Note:: From this point, this guide will assume that you are indeed using a *Bridged Adapter* network. 
+
+
+Checking the network config
+...........................
+
+If the network was properly configured, the virtualized Windows:
+
+	* Will still have Internet access
+	* Will have been assigned an IP in the local network
+	
+We will now find out which IP has been assigned to the VM.
+
+There are several ways to do this. The easiest is (everything is done on the virtualized Windows):
+
+	* Open a terminal (a command line)
+	* Type `ipconfig`
+	
+You will see a list of every network adapter in your machine, along with its IP addresses.
+The adapter we seek is our standard `Local Network Ethernet Connection` (or a similar name).
+The IP we seek is the `IPv4 address`.
+Write out that IP address.
+
+.. Note:: An example of a valid IP would be `192.168.1.105`, or any LAN IP. An example of an *invalid* IP would be `localhost` or `127.0.0.1`. 
+		  Often, but not always, an IP that starts with `10` won't be valid either. If any of this happens, and further checks are unable to
+		  access the VM, then re-check your network settings.
+		  
+
+
+	
+
+
+
+
+
+
 
 
