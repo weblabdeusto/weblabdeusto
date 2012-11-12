@@ -3,3 +3,4 @@
 *.txt
 configuration.py
 nohup.*
+debug.sh

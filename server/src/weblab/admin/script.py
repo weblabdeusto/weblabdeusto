@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
 import os
@@ -28,7 +29,9 @@ from optparse import OptionParser, OptionGroup
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+import sqlalchemy
 
+from weblab import __version__ as weblab_version
 from weblab.util import data_filename
 from weblab.admin.monitor.monitor import WebLabMonitor
 import weblab.core.coordinator.status as WebLabQueueStatus
@@ -42,6 +45,7 @@ import weblab.admin.deploy as deploy
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
+from voodoo.dbutil import generate_getconn
 from voodoo.gen.loader.ConfigurationParser import GlobalParser
 
 # 
@@ -60,6 +64,7 @@ SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab insta
 SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instance')), 
 
 COMMANDS = dict(SORTED_COMMANDS)
+HIDDEN_COMMANDS = ('-version', '--version', '-V')
 
 def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
@@ -76,6 +81,12 @@ def check_dir_exists(directory, parser = None):
         sys.exit(-1)
 
 def weblab():
+    if len(sys.argv) == 2 and sys.argv[1] in HIDDEN_COMMANDS:
+        if sys.argv[1] in ('--version', '-version', '-V'):
+            print weblab_version
+        else:
+            print >> sys.stderr, "Command %s not implemented" % sys.argv[1]
+        sys.exit(0)
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
         max_size = max((len(command) for command in COMMANDS))
@@ -99,6 +110,8 @@ def weblab():
         weblab_admin(sys.argv[2])
     elif main_command == 'rebuild-db':
         weblab_rebuild_db(sys.argv[2])
+    elif main_command == '--version':
+        print weblab_version
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
 
@@ -185,12 +198,22 @@ class Creation(object):
     LOGIC_SERVER       = 'logic_server'
     
     # Virtual Machine experiment
-    VM_SERVER          = 'vm_server'
+    VM_SERVER                       = 'vm_server'
+    VM_EXPERIMENT_NAME              = 'vm_experiment_name'
+    VM_STORAGE_DIR                  = 'vm_storage_dir'
+    VBOX_VM_NAME                    = 'vbox_vm_name'
+    VBOX_BASE_SNAPSHOT              = 'vbox_base_snapshot'
+    VM_URL                          = 'vm_url'
+    HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
+    VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
+    
+    
     
     # Sessions
     SESSION_STORAGE    = 'session_storage'
     SESSION_DB_ENGINE  = 'session_db_engine'
     SESSION_DB_HOST    = 'session_db_host'
+    SESSION_DB_PORT    = 'session_db_port'
     SESSION_DB_NAME    = 'session_db_name'
     SESSION_DB_USER    = 'session_db_user'
     SESSION_DB_PASSWD  = 'session_db_passwd'
@@ -202,6 +225,7 @@ class Creation(object):
     DB_ENGINE          = 'db_engine'
     DB_NAME            = 'db_name'
     DB_HOST            = 'db_host'
+    DB_PORT            = 'db_port'
     DB_USER            = 'db_user'
     DB_PASSWD          = 'db_passwd'
     
@@ -212,6 +236,7 @@ class Creation(object):
     COORD_DB_USER      = 'coord_db_user'
     COORD_DB_PASSWD    = 'coord_db_passwd'
     COORD_DB_HOST      = 'coord_db_host'
+    COORD_DB_PORT      = 'coord_db_port'
     COORD_REDIS_DB     = 'coord_redis_db'
     COORD_REDIS_PASSWD = 'coord_redis_passwd'
     COORD_REDIS_PORT   = 'coord_redis_port'
@@ -227,6 +252,19 @@ class CreationFlags(object):
 COORDINATION_ENGINES = ['sql',   'redis'  ]
 DATABASE_ENGINES     = ['mysql', 'sqlite' ]
 SESSION_ENGINES      = ['sql',   'redis', 'memory']
+
+
+def load_template(name, stdout = sys.stdout, stderr = sys.stderr):
+    """ Reads the specified template file. Only the name needs to be specified. The file should be located
+    in the config_templates folder. """
+    path = "weblab" + os.sep + "admin" + os.sep + "config_templates" + os.sep + name
+    try:
+        f = file(path, "r")
+        template = f.read()
+        f.close()
+    except:
+        print >> stderr, "Error: Could not load template file %s. Probably couldn't be found." % path
+    return template
 
 def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking redis connection for %s..." % what,; stdout.flush()
@@ -289,7 +327,7 @@ def uncomment_json(lines):
 DB_ROOT     = None
 DB_PASSWORD = None
 
-def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
+def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
 
     if db_engine == 'sqlite':
@@ -302,20 +340,41 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
             location = '/' + base_location
         sqlite3.connect(database = sqlite_location).close()
     else:
-        location = "%(user)s:%(password)s@%(host)s/%(name)s" % { 
+        if db_port is not None:
+            port_str = ':%s' % db_port
+        else:
+            port_str = ''
+
+        if db_engine == 'mysql':
+            try:
+                import MySQLdb
+                assert MySQLdb is not None # Avoid warnings
+            except ImportError:
+                try:
+                    import pymysql_sa
+                except ImportError:
+                    pass
+                else:
+                    pymysql_sa.make_default_mysql_dialect()
+                    
+        location = "%(user)s:%(password)s@%(host)s%(port)s/%(name)s" % { 
                         'user'     : db_user, 
                         'password' : db_passwd, 
                         'host'     : db_host,
-                        'name'     : db_name
+                        'name'     : db_name,
+                        'port'     : port_str,
                     }
     
     db_str = "%(engine)s://%(location)s" % { 
                         'engine'   : db_engine,
                         'location' : location,
                     }
-    
+
+    getconn = generate_getconn(db_engine, db_user, db_passwd, db_host, db_port, db_name, dirname = directory)
+    pool = sqlalchemy.pool.QueuePool(getconn)
+
     try:
-        engine = create_engine(db_str, echo = False)
+        engine = create_engine(db_str, echo = False, pool = pool)
         engine.execute("select 1")
     except Exception as e:
         print >> stderr, "error: database used for %s is misconfigured" % what
@@ -345,8 +404,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                         print >> stderr, "not creating"
                         exit_func(-1)
                 if db_engine == 'sqlite':
-                    create_database("Error", None, None, db_name, None, None, db_dir = os.path.join(directory, 'db'))
-                    engine = create_engine(db_str, echo = False)
+                    create_database(admin_username = None, admin_password = None, database_name = db_name, new_user = None, new_password = None, db_dir = os.path.join(directory, 'db'))
                 elif db_engine == 'mysql':
                     if Creation.MYSQL_ADMIN_USER in options and Creation.MYSQL_ADMIN_PASSWORD in options:
                         admin_username = options[Creation.MYSQL_ADMIN_USER]
@@ -356,14 +414,13 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                             exit_func(-5)
                         global DB_ROOT, DB_PASSWORD
                         if DB_ROOT is None or DB_PASSWORD is None:
-                            admin_username = raw_input("Enter the MySQL administrator username (typically root): ") or 'root'
+                            admin_username = raw_input("Enter the MySQL administrator username [default: root]: ") or 'root'
                             admin_password = getpass.getpass("Enter the MySQL administrator password: ")
                         else:
                             admin_username = DB_ROOT
                             admin_password = DB_PASSWORD
                     try:
-                        create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host)
-                        engine = create_engine(db_str, echo = False)
+                        create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host, db_port)
                     except Exception as e:
                         print >> stderr, "error: could not create database. reason:", str(e)
                         exit_func(-1)
@@ -374,6 +431,7 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
                     print >> stderr, "error: You must create the database and the db credentials"
                     print >> stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
                     exit_func(-1)
+                engine = create_engine(db_str, echo = False, pool = pool)
 
 
 
@@ -510,6 +568,29 @@ def _build_parser():
     # TODO
     experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest = Creation.VM_SERVER, action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
+    
+    experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
+                                                       help = "Name of the VM experiment. "  )
+
+    experiments.add_option("--vm-storage-dir",  dest = Creation.VM_STORAGE_DIR, default='C:\Users\lrg\.VirtualBox\Machines', type="string", metavar='STORAGE_DIR',
+                                                   help = "Directory where the VirtualBox machines are located. For example: c:\users\lrg\.VirtualBox\Machines"  )
+
+    experiments.add_option("--vbox-vm-name",  dest = Creation.VBOX_VM_NAME, default='UbuntuDefVM2', type="string", metavar='VBOX_VM_NAME',
+                                                   help = "Name of the Virtual Box machine which this experiment uses. Is often different from the Hard Disk name."  )
+    
+    experiments.add_option("--vbox-base-snapshot",  dest = Creation.VBOX_BASE_SNAPSHOT, default='Ready', type="string", metavar='VBOX_BASE_SNAPSHOT',
+                                                   help = "Name of the VirtualBox snapshot to which the system will be reset after every usage. It should be an snapshot of an started machine. Otherwise, it will take too long to start."  ) 
+
+    experiments.add_option("--vm-url",  dest = Creation.VM_URL, default='vnc://192.168.51.82:5901', type="string", metavar='URL',
+                                                   help = "URL which will be provided to users so that they can access the VM through VNC. For instance: vnc://192.168.51.82:5901"  )
+    
+    experiments.add_option("--http-query-user-manager-url",  dest = Creation.HTTP_QUERY_USER_MANAGER_URL, default='http://192.168.51.82:18080', type="string", metavar='URL',
+                                                   help = "URL through which the user manager (which runs on the VM and resets it when needed) can be reached. For instance: http://192.168.51.82:18080"  )
+    
+    experiments.add_option("--vm-estimated-load-time",  dest = Creation.VM_ESTIMATED_LOAD_TIME, default='20', type="string", metavar='LOAD_TIME',
+                                                   help = "Estimated time which is required for restarting the VM. Does not need to be accurate. It is displayed to the user and is essentially for cosmetic purposes. "  )
+    
+    
 
     parser.add_option_group(experiments)
 
@@ -525,6 +606,9 @@ def _build_parser():
 
     sess.add_option("--session-db-host",          dest = Creation.SESSION_DB_HOST, type="string", default="localhost",
                                                   help = "Select the host of the session server, if any.")
+
+    sess.add_option("--session-db-port",          dest = Creation.SESSION_DB_PORT, type="int", default=None,
+                                                  help = "Select the port of the session server, if any.")
 
     sess.add_option("--session-db-name",          dest = Creation.SESSION_DB_NAME, type="string", default="WebLabSessions",
                                                   help = "Select the name of the sessions database.")
@@ -559,6 +643,9 @@ def _build_parser():
     dbopt.add_option("--db-host",                 dest = Creation.DB_HOST,         type="string", default="localhost",
                                                   help = "Core database host.")
 
+    dbopt.add_option("--db-port",                 dest = Creation.DB_PORT,         type="int", default=None,
+                                                  help = "Core database port.")
+
     dbopt.add_option("--db-user",                 dest = Creation.DB_USER,         type="string", default="weblab",
                                                   help = "Core database username.")
 
@@ -590,6 +677,9 @@ def _build_parser():
 
     coord.add_option("--coordination-db-host",    dest = Creation.COORD_DB_HOST,    type="string", default="localhost",
                                                   help = "Coordination database host used, if the coordination is based on a database.")
+
+    coord.add_option("--coordination-db-port",    dest = Creation.COORD_DB_PORT,    type="int", default=None,
+                                                  help = "Coordination database port used, if the coordination is based on a database.")
 
     coord.add_option("--coordination-redis-db",  dest = Creation.COORD_REDIS_DB,   type="int", default=None,
                                                   help = "Coordination redis DB used, if the coordination is based on redis.")
@@ -739,12 +829,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     elif options[Creation.COORD_ENGINE] in ('sql', 'sqlalchemy'):
         db_engine  = options[Creation.COORD_DB_ENGINE]
         db_host    = options[Creation.COORD_DB_HOST]
+        db_port    = options[Creation.COORD_DB_PORT]
         db_name    = options[Creation.COORD_DB_NAME]
         db_user    = options[Creation.COORD_DB_USER]
         db_passwd  = options[Creation.COORD_DB_PASSWD]
         import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
-        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
         print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
         exit_func(-1)
@@ -759,11 +850,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     elif options[Creation.SESSION_STORAGE] in ('sql', 'sqlalchemy'):
         db_engine = options[Creation.SESSION_DB_ENGINE]
         db_host   = options[Creation.SESSION_DB_HOST]
+        db_host   = options[Creation.SESSION_DB_PORT]
         db_name   = options[Creation.SESSION_DB_NAME]
         db_user   = options[Creation.SESSION_DB_USER]
         db_passwd = options[Creation.SESSION_DB_PASSWD]
-        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
-        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     elif options[Creation.SESSION_STORAGE] != 'memory':
         print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
         exit_func(-1)
@@ -771,9 +863,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_engine = options[Creation.DB_ENGINE]
     db_name   = options[Creation.DB_NAME]
     db_host   = options[Creation.DB_HOST]
+    db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
@@ -802,7 +895,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', 'vm', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER]:
@@ -888,6 +981,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         laboratory_experiment_instances[lab_id]['logic'] = 1
         experiment_counter += 1
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+        
+    if options[Creation.VM_SERVER]:
+        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+        lab_id = experiment_counter % options[Creation.LAB_COPIES]
+        laboratory_experiments[lab_id] += local_experiments
+        laboratory_experiment_instances[lab_id]['vm'] = 1
+        experiment_counter += 1
+        local_scheduling  += "        'vm'            : ('PRIORITY_QUEUE', {}),\n"
 
     laboratory_servers = ""
 
@@ -907,6 +1008,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "db_engine          = %(db_engine)r\n"
                         "db_host            = %(db_host)r\n"
+                        "db_port            = %(db_port)r # None for default\n"
                         "db_database        = %(db_name)r\n"
                         "weblab_db_username = %(db_user)r\n"
                         "weblab_db_password = %(db_password)r\n"
@@ -997,6 +1099,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'core_universal_identifier_human' : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
         'db_engine'                       : options[Creation.DB_ENGINE],
         'db_host'                         : options[Creation.DB_HOST],
+        'db_port'                         : options[Creation.DB_PORT],
         'db_name'                         : options[Creation.DB_NAME],
         'db_user'                         : options[Creation.DB_USER],
         'db_password'                     : options[Creation.DB_PASSWD],
@@ -1011,6 +1114,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         'session_db_engine'               : options[Creation.SESSION_DB_ENGINE],
         'session_db_host'                 : options[Creation.SESSION_DB_HOST],
+        'session_db_port'                 : options[Creation.SESSION_DB_PORT],
         'session_db_name'                 : options[Creation.SESSION_DB_NAME],
         'session_db_user'                 : options[Creation.SESSION_DB_USER],
         'session_db_passwd'               : options[Creation.SESSION_DB_PASSWD],
@@ -1030,6 +1134,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'core_coordinator_db_name'        : options[Creation.COORD_DB_NAME],
         'core_coordinator_db_engine'      : options[Creation.COORD_DB_ENGINE],
         'core_coordinator_db_host'        : options[Creation.COORD_DB_HOST],
+        'core_coordinator_db_port'        : options[Creation.COORD_DB_PORT],
 
         'coord_db'                        : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
         'coord_redis'                     : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
@@ -1054,7 +1159,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
         latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
-           os.mkdir(core_instance_dir)
+            os.mkdir(core_instance_dir)
        
         instance_configuration_xml = (
         """<?xml version="1.0" encoding="UTF-8"?>"""
@@ -1302,6 +1407,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name, 
                   'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
+            
+        if 'vm' in experiments_in_lab:
+            laboratory_config_py += (
+                """        'exp1:%(name)s@VM experiments' : {\n"""
+                """                'coord_address' : 'vm:%(instance)s@core_machine',\n"""
+                """                'checkers' : ()\n"""
+                """            },\n"""
+            ) % { 'instance' : laboratory_instance_name,
+                  'name' : options[Creation.VM_EXPERIMENT_NAME] }
 
         if 'logic' in experiments_in_lab:
             laboratory_config_py += (
@@ -1435,6 +1549,49 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """# \"\"\"\n"""
                 """#\n"""
                 """\n""") % {'visir_measurement_server' : visir_measurement_server })
+        
+        if 'vm' in experiments_in_lab:
+            vm_dir = os.path.join(lab_instance_dir, 'vm')
+            if not os.path.exists(vm_dir):
+                os.mkdir(vm_dir)
+                
+            open(os.path.join(vm_dir, 'configuration.xml'), 'w').write((
+                """<?xml version="1.0" encoding="UTF-8"?>\n"""
+                """<server\n"""
+                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+                """>\n"""
+                """\n"""
+                """    <configuration file="server_config.py" />\n"""
+                """\n"""
+                """    <type>weblab.data.server_type::Experiment</type>\n"""
+                """    <methods>weblab.methods::Experiment</methods>\n"""
+                """\n"""
+                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+                """\n"""
+                """    <protocols>\n"""
+                """        <protocol name="Direct">\n"""
+                """            <coordinations>\n"""
+                """                <coordination></coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation></creation>\n"""
+                """        </protocol>\n"""
+                """    </protocols>\n"""
+                """</server>\n"""))
+            
+            # Load and fill the config file template
+            template = load_template("vm_server_config.py.template")
+            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR], 
+                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME], 
+                                  "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
+                                  "vm_url" : options[Creation.VM_URL],
+                                  "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
+                                  "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
+            
+            open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
+                cfgfile
+            )
 
         if 'logic' in experiments_in_lab:
             logic_dir = os.path.join(lab_instance_dir, 'logic')
@@ -2357,6 +2514,7 @@ def weblab_monitor(directory):
                               dest="list_users",
                               nargs=1,
                               default=None,
+                              metavar='EXPERIMENT_ID',
                               help="Lists all users using a certain experiment (format: experiment@category)" )
 
     option_parser.add_option( "-a", "--list-experiment-users",
@@ -2378,12 +2536,14 @@ def weblab_monitor(directory):
                               dest="kick_session",
                               nargs=1,
                               default=None,
+                              metavar='SESSION_ID',
                               help="Given the full UPS Session ID, it kicks out a user from the system" )
 
     option_parser.add_option( "-b", "--kick-user",
                               dest="kick_user",
                               nargs=1,
                               default=None,
+                              metavar='USER_LOGIN',
                               help="Given the user login, it kicks him out from the system" )
 
     options, _ = option_parser.parse_args()

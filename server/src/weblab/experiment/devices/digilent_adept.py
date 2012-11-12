@@ -104,20 +104,14 @@ class DigilentAdept(object):
             )
         # TODO: make use of popen.poll to make this asynchronous
         try:
+            stdout, stderr = popen.communicate('N\n')
             result = popen.wait()
         except Exception as e:
             raise ErrorWaitingForProgrammingFinishedError(
                 "There was an error while waiting for Digilent Adept to finish: %s" % e
             )
 
-        try:
-            stdout_result = popen.stdout.read()
-            stderr_result = popen.stderr.read()
-        except Exception as e:
-            raise ErrorRetrievingOutputFromProgrammingProgramError(
-                "There was an error while retrieving the output of Digilent Adept: %s" % e
-            )
-        return result, stdout_result, stderr_result
+        return result, stdout, stderr
 
     def _parse_configuration_to_program(self):
         try:

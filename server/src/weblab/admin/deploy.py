@@ -324,6 +324,9 @@ def populate_weblab_tests(engine, tests):
     cat_dummy = Model.DbExperimentCategory("Dummy experiments")
     session.add(cat_dummy)
 
+    cat_games = Model.DbExperimentCategory("Games")
+    session.add(cat_games)
+
     cat_pld = Model.DbExperimentCategory("PLD experiments")
     session.add(cat_pld)
 
@@ -389,6 +392,9 @@ def populate_weblab_tests(engine, tests):
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
     session.add(logic)
 
+    binary = Model.DbExperiment("binary", cat_games, start_date, end_date)
+    session.add(binary)
+
     pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
     session.add(pld)
 
@@ -427,6 +433,9 @@ def populate_weblab_tests(engine, tests):
 
     submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
     session.add(submarine)
+    
+    rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date)
+    session.add(rob_arm)
 
     rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
     session.add(rob_std)
@@ -692,6 +701,22 @@ def populate_weblab_tests(engine, tests):
     up_any_logic_allowed_p3 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p3, "200")
     session.add(up_any_logic_allowed_p3)    
 
+    up_any_binary_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-binary",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_binary_allowed)
+    up_any_binary_allowed_p1 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p1, "binary")
+    session.add(up_any_binary_allowed_p1)
+    up_any_binary_allowed_p2 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p2, "Games")
+    session.add(up_any_binary_allowed_p2)
+    up_any_binary_allowed_p3 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_binary_allowed_p3)    
+
     up_any_dummy_allowed = Model.DbUserPermission(
         any,
         experiment_allowed.group_applicable,
@@ -777,6 +802,23 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_submarine_allowed_p2)
     up_any_submarine_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p3, "200")
     session.add(up_any_submarine_allowed_p3)
+         
+
+    up_any_rob_robotarm_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-robotarm",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-robotarm"
+    )
+
+    session.add(up_any_rob_robotarm_allowed)
+    up_any_rob_robotarm_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p1, "robotarm")
+    session.add(up_any_rob_robotarm_allowed_p1)
+    up_any_rob_robotarm_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p2, "Robot experiments")
+    session.add(up_any_rob_robotarm_allowed_p2)
+    up_any_rob_robotarm_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_rob_robotarm_allowed_p3)
          
           
     up_any_rob_std_allowed = Model.DbUserPermission(
@@ -992,7 +1034,7 @@ def generate_create_database(engine_str):
 
         import sqlite3
         dbi = sqlite3
-        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+        def create_database_sqlite(admin_username, admin_password, database_name, new_user, new_password, host = "localhost", port = None, db_dir = '.'):
             fname = os.path.join(db_dir, '%s.db' % database_name)
             if os.path.exists(fname):
                 os.remove(fname)
@@ -1013,28 +1055,35 @@ def generate_create_database(engine_str):
             import pymysql
             dbi = pymysql
 
-        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", db_dir = '.'):
+        def create_database_mysql(error_message, admin_username, admin_password, database_name, new_user, new_password, host = "localhost", port = None, db_dir = '.'):
             args = {
                     'DATABASE_NAME' : database_name,
                     'USER'          : new_user,
                     'PASSWORD'      : new_password,
-                    'HOST'          : host
                 }
 
 
             sentence1 = "DROP DATABASE IF EXISTS %(DATABASE_NAME)s;" % args
             sentence2 = "CREATE DATABASE %(DATABASE_NAME)s;" % args
-            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%(HOST)s' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%%' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence4 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'localhost' IDENTIFIED BY '%(PASSWORD)s';" % args
+            sentence5 = "FLUSH PRIVILEGES;" % args
             
             try:
-                dbi.connect(db=database_name, user = admin_username, passwd = admin_password).close()
+                kwargs = dict(db=database_name, user = admin_username, passwd = admin_password, host = host)
+                if port is not None:
+                    kwargs['port'] = port
+                dbi.connect(**kwargs).close()
             except Exception, e:
                 if e[1].startswith("Unknown database"):
                     sentence1 = "SELECT 1"
 
-            for sentence in (sentence1, sentence2, sentence3):
+            for sentence in (sentence1, sentence2, sentence3, sentence4, sentence5):
                 try:
-                    connection = dbi.connect(user = admin_username, passwd = admin_password)
+                    kwargs = dict(user = admin_username, passwd = admin_password, host = host)
+                    if port is not None:
+                        kwargs['port'] = port
+                    connection = dbi.connect(**kwargs)
                 except dbi.OperationalError:
                     traceback.print_exc()
                     print >> sys.stderr, ""

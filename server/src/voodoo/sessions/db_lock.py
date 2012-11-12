@@ -39,6 +39,7 @@ class DbLock(object):
         (
             engine_name,
             host,
+            port,
             dbname,
             username,
             password
@@ -47,16 +48,21 @@ class DbLock(object):
         DbLock.username = username
         DbLock.password = password
         DbLock.host     = host
+        DbLock.port     = port
         DbLock.dbname   = dbname
 
         if DbLock.engine is None:
-            getconn = generate_getconn(engine_name, username, password, host, dbname)
+            getconn = generate_getconn(engine_name, username, password, host, port, dbname)
 
             if engine_name == 'sqlite':
                 sqlalchemy_engine_str = 'sqlite:///%s' % get_sqlite_dbname(dbname)
                 pool = sqlalchemy.pool.NullPool(getconn)
             else:
-                sqlalchemy_engine_str = "%s://%s:%s@%s/%s" % (engine_name, username, password, host, dbname)
+                if port is None:
+                    port_str = ''
+                else:
+                    port_str = ':%s' % port
+                sqlalchemy_engine_str = "%s://%s:%s@%s%s/%s" % (engine_name, username, password, host, port_str, dbname)
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
             DbLock.engine = sqlalchemy.create_engine(sqlalchemy_engine_str, convert_unicode=True, echo=False, pool = pool)
@@ -66,10 +72,11 @@ class DbLock(object):
     def _parse_config(self):
         engine_name = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_ENGINE)
         host        = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_HOST)
+        port        = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_PORT)
         db_name     = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_DB_NAME)
         username    = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_USERNAME)
         password    = self.cfg_manager.get_doc_value(configuration_doc.SESSION_LOCK_SQLALCHEMY_PASSWORD)
-        return engine_name, host, db_name, username, password
+        return engine_name, host, port, db_name, username, password
 
     def acquire(self, session_id):
         time_to_sleep = 0.1

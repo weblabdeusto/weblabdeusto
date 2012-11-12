@@ -70,7 +70,7 @@ def compile_client(war_location, client_location):
         # Check that GWT is downloaded. Download it otherwise.
         # 
         
-        GWT_VERSION = 'gwt-2.4.0'
+        GWT_VERSION = 'gwt-2.5.0'
         GWT_URL = "http://google-web-toolkit.googlecode.com/files/%s.zip" % GWT_VERSION
         external_location = os.path.join(client_location, 'external')
         gwt_location = os.path.join(external_location,'gwt')

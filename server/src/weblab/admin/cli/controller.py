@@ -54,6 +54,7 @@ class Controller(object):
         global_vars = globals()
 
         self.db_host           = get_variable(global_vars, configuration_doc.DB_HOST)
+        self.db_port           = get_variable(global_vars, configuration_doc.DB_PORT)
         self.db_engine         = get_variable(global_vars, configuration_doc.DB_ENGINE)
         self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
         self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
@@ -83,10 +84,10 @@ class Controller(object):
 
     def init(self):
         if self.db_name is not None and self.db_user is not None and self.db_pass is not None:
-            self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_port, self.db_name, self.db_user, self.db_pass)
         else:
             db_name, db_user, db_pass = self.ui.dialog_init(self.default_db_name, self.default_db_user, self.default_db_pass)
-            self.db = DbGateway(self.db_engine, self.db_host, db_name, db_user, db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_port, db_name, db_user, db_pass)
 
     def menu(self):
         option = None
