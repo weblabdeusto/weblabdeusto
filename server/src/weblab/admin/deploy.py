@@ -324,6 +324,9 @@ def populate_weblab_tests(engine, tests):
     cat_dummy = Model.DbExperimentCategory("Dummy experiments")
     session.add(cat_dummy)
 
+    cat_games = Model.DbExperimentCategory("Games")
+    session.add(cat_games)
+
     cat_pld = Model.DbExperimentCategory("PLD experiments")
     session.add(cat_pld)
 
@@ -388,6 +391,9 @@ def populate_weblab_tests(engine, tests):
 
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
     session.add(logic)
+
+    binary = Model.DbExperiment("binary", cat_games, start_date, end_date)
+    session.add(binary)
 
     pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
     session.add(pld)
@@ -694,6 +700,22 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_logic_allowed_p2)
     up_any_logic_allowed_p3 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p3, "200")
     session.add(up_any_logic_allowed_p3)    
+
+    up_any_binary_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-binary",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_binary_allowed)
+    up_any_binary_allowed_p1 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p1, "binary")
+    session.add(up_any_binary_allowed_p1)
+    up_any_binary_allowed_p2 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p2, "Games")
+    session.add(up_any_binary_allowed_p2)
+    up_any_binary_allowed_p3 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_binary_allowed_p3)    
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,
