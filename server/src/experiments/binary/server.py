@@ -31,6 +31,9 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(BinaryExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+
+        self._cfg_manager = cfg_manager
+
         self.exercises = {
             'bcd'    : ['cod1', 'cod2',     'cod3',    'cod4',  'cod5'],
             'others' : ['cod1', 'cod_gray', 'cod_xs3', 'cod_gray_xs3'],
@@ -58,10 +61,12 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         self._clear()
 
         initial_configuration = {}
-        initial_configuration['webcam']      = 'https://www.weblab.deusto.es/webcam/proxied.py/robot1'
-        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
-        initial_configuration['mjpegHeight'] = 240
-        initial_configuration['mjpegWidth']  = 320
+        webcam = cfg_manager.get_value('webcam', None)
+        if webcam is not None:
+            initial_configuration['webcam']  = webcam
+#        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
+#        initial_configuration['mjpegHeight'] = 240
+#        initial_configuration['mjpegWidth']  = 320
         initial_configuration['labels']      = self.current_labels
         return json.dumps({ 'initial_configuration' : json.dumps(initial_configuration), 'batch' : False })
 
