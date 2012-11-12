@@ -332,7 +332,11 @@ Try to connect to the VM IP. It should work. If it doesn't:
 	#. Check this section again and ensure that the network is configured properly.
 	
 	
-
+.. Warning::
+	**CHECKLIST** *(Ensure the following before skipping to the next section)*
+	
+	#. My guest Windows (virtualized Windows) supports Microsoft .NET Framework 3.5
+	#. My guest Windows can be accessed through Remote Desktop from my host Windows
 
 
 
