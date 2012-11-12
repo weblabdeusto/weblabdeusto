@@ -340,6 +340,49 @@ Try to connect to the VM IP. It should work. If it doesn't:
 
 
 
+Installing the In-VM Manager itself
+-----------------------------------
+
+Deploying the binaries
+......................
+
+Locate the In-VM Manager binaries. All WebLab distributions should include them. 
+If %WEBLAB% is the WebLab folder, then the binaries we seek should be in:
+`%WEBLAB%\\experiments\\unmanaged\\vm_services\\WindowsVM\\WindowsVMService\\bin\\Release
+
+Place those binaries into your guest Windows. For instance, you may place them into
+the `c:\\vmservice` folder (create it, it won't exist).
+
+Installing as a service
+.......................
+
+The Manager will run as a Windows service. To install it, you can't execute WindowsVMService.exe
+straightaway. Instead, you should execute the `sc_install_service.bat` script. Depending on your
+version of Windows, you might have to right click on the .bat file, and click **run as administrator**.
+
+If for any reason `sc_install_service.bat` failed, you may try with `install_service.bat`.
+
+When those succeed, your service will be installed as a standard Windows service, and can be
+started and stopped as one. Alternatively, `sc_start_service` and `sc_stop_service` scripts
+are provided, but they probably will only work if the service was installed through `sc_install_service`.
+
+Before going on, check whether your service is indeed installed.
+
+Open the windows *Service Manager* by running `services.msc` (hit [WINKEY]+R to be able to run programs).
+
+Among the services there, a new one, `WeblabVMService`, should appear. If it doesn't, do not go on, as
+something went wrong.
+
+Starting the service
+....................
+
+Locate the service in the Windows *Service Manager*. If the service is not started already, then click on
+it and start it.
+
+If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0.
+
+
+
 
 
 
