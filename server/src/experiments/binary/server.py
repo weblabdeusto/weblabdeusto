@@ -14,6 +14,8 @@
 #
 
 import os
+
+from weblab.util import data_filename
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
@@ -33,6 +35,16 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
             'bcd'    : ['cod1', 'cod2',     'cod3',    'cod4',  'cod5'],
             'others' : ['cod1', 'cod_gray', 'cod_xs3', 'cod_gray_xs3'],
         }
+
+        # module_directory = os.path.join(*__name__.split('.')[:-1])
+        module_directory = ('experiments', 'binary', 'server')
+        self.contents = {}
+        for values in self.exercises.values():
+            for value in values:
+                if value not in self.contents:
+                    file_path = data_filename(os.path.join(module_directory, value + '.jed'))
+                    self.contents = open(file_path, 'rb').read()
+
         self.current_labels = []
 
     @Override(Experiment.Experiment)
@@ -60,9 +72,9 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         return 'Sending files not supported by this laboratory'
 
     def _autoprogram(self, label):
-        GAME_FILE_PATH = os.path.dirname(__file__) + os.sep + label
+        content = self.contents[label]
         try:
-            serialized_file_content = ExperimentUtil.serialize(open(GAME_FILE_PATH, 'r').read())
+            serialized_file_content = ExperimentUtil.serialize(content)
             super(BinaryExperiment, self).do_send_file_to_device(serialized_file_content, 'game')
         except:
             import traceback
