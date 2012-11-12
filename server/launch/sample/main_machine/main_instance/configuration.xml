@@ -12,6 +12,7 @@
 	<server>proxy</server>
 	<server>laboratory</server>
 	<server>experiment_pld</server>
+	<server>experiment_binary</server>
 	<server>experiment_demo_pld</server>
 	<server>experiment_fpga</server>
 	<server>experiment_demo_fpga</server>

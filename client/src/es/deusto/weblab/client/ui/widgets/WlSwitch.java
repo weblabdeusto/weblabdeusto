@@ -16,11 +16,14 @@ package es.deusto.weblab.client.ui.widgets;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventHandler;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Image;
 
 import es.deusto.weblab.client.ui.audio.AudioManager;
 
-public class WlSwitch extends WlWidgetWithPressable{
+public class WlSwitch extends WlWidgetWithPressable {
 	
 	public static final String DEFAULT_SWITCHED_ON_IMAGE = GWT.getModuleBaseURL() + "img/switch_on.png";
 	public static final String DEFAULT_SWITCHED_OFF_IMAGE = GWT.getModuleBaseURL() + "img/switch_off.png";
@@ -41,6 +44,7 @@ public class WlSwitch extends WlWidgetWithPressable{
 			@Override
 			public void onClick(ClickEvent sender) {
 				WlSwitch.this.switchedOn = !WlSwitch.this.switchedOn;
+				fireEvent(new SwitchEvent(WlSwitch.this.switchedOn));
 				WlSwitch.this.press();
 				AudioManager.getInstance().playBest("snd/switch");
 				WlSwitch.this.fireActionListeners();
@@ -53,6 +57,10 @@ public class WlSwitch extends WlWidgetWithPressable{
 		this.setOldImage(this.switchedOnImage);
 		this.setCurrentVisibleImage(this.switchedDownImage);
 		this.switchedOn = false;
+	}
+	
+	public HandlerRegistration addClickHandler(SwitchHandler handler) {
+	    return addHandler(handler, SwitchEvent.TYPE);
 	}
 	
 	public void switchWithoutFiring(boolean newState) {
@@ -68,4 +76,38 @@ public class WlSwitch extends WlWidgetWithPressable{
 	public boolean isSwitched(){
 		return this.switchedOn;
 	}
+	
+	public static interface SwitchHandler extends EventHandler{
+		void onClick(SwitchEvent event);
+	}
+	
+	public static class SwitchEvent extends GwtEvent<SwitchHandler> {
+
+		private static final Type<SwitchHandler> TYPE = new Type<SwitchHandler>();
+		
+		@Override
+		public com.google.gwt.event.shared.GwtEvent.Type<SwitchHandler> getAssociatedType() {
+			return TYPE;
+		}
+		
+		private boolean on;
+		
+		public SwitchEvent(boolean on) {
+			this.on = on;
+		}
+		
+		public boolean isOn() {
+			return this.on;
+		}
+		
+		public boolean isOff() {
+			return !this.on;
+		}
+
+		@Override
+		protected void dispatch(SwitchHandler handler) {
+			handler.onClick(this);
+		}
+		
+	}	
 }

@@ -1,0 +1,14 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	
+	<g:VerticalPanel width="100%" horizontalAlignment="CENTER" spacing="10">
+	
+		<g:Label>Welcome to the binary laboratory! Choose one option:</g:Label>
+		
+		<g:VerticalPanel>
+			<g:RadioButton ui:field="optionBCD"   name="game" checked="true">Pure BCD</g:RadioButton>
+			<g:RadioButton ui:field="optionOther" name="game">Other BCDs</g:RadioButton>
+		</g:VerticalPanel>
+	</g:VerticalPanel>
+</ui:UiBinder> 
