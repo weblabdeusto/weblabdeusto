@@ -348,7 +348,7 @@ Deploying the binaries
 
 Locate the In-VM Manager binaries. All WebLab distributions should include them. 
 If %WEBLAB% is the WebLab folder, then the binaries we seek should be in:
-`%WEBLAB%\\experiments\\unmanaged\\vm_services\\WindowsVM\\WindowsVMService\\bin\\Release
+`%WEBLAB%\\experiments\\unmanaged\\vm_services\\WindowsVM\\WindowsVMService\\bin\\Release`
 
 Place those binaries into your guest Windows. For instance, you may place them into
 the `c:\\vmservice` folder (create it, it won't exist).
