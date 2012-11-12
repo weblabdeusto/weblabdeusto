@@ -357,10 +357,15 @@ Installing as a service
 .......................
 
 The Manager will run as a Windows service. To install it, you can't execute WindowsVMService.exe
-straightaway. Instead, you should execute the `sc_install_service.bat` script. Depending on your
-version of Windows, you might have to right click on the .bat file, and click **run as administrator**.
+straightaway. Instead, you should execute the `sc_install_service.bat` script.
+If your VM is running a relatively modern version of Windows you should right click on the script
+and **run as administrator**.
 
-If for any reason `sc_install_service.bat` failed, you may try with `install_service.bat`.
+.. Warning:: If you do not run the script with administrator priviledges, it will be unable to
+			 install it properly.
+
+If for any reason `sc_install_service.bat` failed, you may try with `install_service.bat`, though this
+is not recommended.
 
 When those succeed, your service will be installed as a standard Windows service, and can be
 started and stopped as one. Alternatively, `sc_start_service` and `sc_stop_service` scripts
@@ -379,7 +384,61 @@ Starting the service
 Locate the service in the Windows *Service Manager*. If the service is not started already, then click on
 it and start it.
 
-If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0.
+.. Note:: Alternatively, if you installed the service through the `sc_install_service` script, you may
+		  use the `sc_start_service` and the `sc_stop_service` to start and stop it.
+
+If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0, 
+and that the service is installed properly. 
+
+Testing the service
+...................
+
+.. Warning::
+	**CHECKLIST** *(Ensure the following before starting this section. All of them apply to the **guest** Windows (virtualized one))*
+	
+	#. WeblabVMService appears in my list of processes (which can be checked through the Windows' *services.msc* utility.
+	#. When I start WeblabVMService, no errors occur. The status of the service changes to *started* and stays so.
+	
+We will now carry out a few tests to check whether WeblabVMService is working as expected with our current settings.
+
+**Test 1**
+This test should be done within the guest OS. That is, within the virtualized Windows.
+
+	#. If the WeblabVMService is not running already, start it.
+	#. Open a browser window.
+	#. Do the following query: `http://localhost:6789/?sessionid=testone
+	#. It should take a while and then take you to a blank page with only the word `Done` written in black. If the 
+	   page cannot be loaded or if an error occurs, then the service is either not running or failing. If that is the case, do not proceed. It is 
+	   suggested that you contact the developers for support. From this point on, we will assume `Done` was printed.
+	#. The password of your Windows `weblab` account has now been changed to `testone`. That is essentially what the previous query did.
+	   You should now verify that this is indeed the case. Logout and try to login into your `weblab` account, using `testone` as password.
+	#. If you manage to login using that password, then congratulations, the first test was successful, you may go on. If you can't login
+	   using that password, then something failed. If `done` was printed to the screen, this is fortunately unlikely. Make sure you 
+	   followed every step right. If it still doesn't work, please contact the developers for support.
+	   
+	   
+**Test 2**
+This test assumes that the first test was successful. We will try the following:
+
+	#. If the WeblabVMService is not running already, start it.
+	#. Find out the IP that has been assigned to your Virtual Machine in your local network. This is the IP we used
+	   in previous sections to connect to the machine through RDP. It will most likely be something such as `192.168.100.5`, but it
+	   may start with `172` instead, or with other digits.
+	#. Open a browser in your **host** machine (that is, **not** your guest machine). 
+	#. Do the following query: `http://192.168.100.5:6789/?sessionid=testtwo`. Replace 192.168.100.5 with your actual VM IP.
+	#. It should take you to the same page as in the first test. A blank page with `Done` in black. If it worked, congratulations. The
+	   second test was successful. You may try to login with the password `testtwo` into the `weblab` account of your Virtual Machine
+	   if you wish to be sure. If it didn't, see the following note.
+	   
+.. Note:: The previous test should have loaded a blank page with `Done` written in black. If it did, you may skip this note. If it didn't,
+		  something went wrong. Most often, this means that the guest OS is not accessible from the host OS. Try to login into your host
+		  OS through RDP, in the same way you did before when you configured the *network settings* of the VM (in previous sections of this guide).
+		  If you still can connect to the machine through RDP, then you should repeat the first test, to make sure the service is still working.
+		  If RDP is working, and the first test is working, but the second test is still failing, please repeat the second test with a different
+		  browser. If it still does not work, please contact the developers for support. (In this guide, from this point, we will assume that
+		  the second test did work. If it didn't, you may not want to proceed until the issue is solved).
+		  
+Congratulations, if you are here, both tests should have passed. This means that WeblabVMService is properly installed and working.
 
 
 
