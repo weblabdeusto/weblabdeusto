@@ -28,7 +28,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
-import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
@@ -93,7 +92,7 @@ class MainPanel extends Composite {
 
 						@Override
 						public void onSuccess(ResponseCommand responseCommand) {
-							loadTimer(responseCommand.getCommandString());
+							loadTimer(label);
 						}
 						
 						@Override
@@ -124,21 +123,13 @@ class MainPanel extends Composite {
 			@Override
 			public void run() {
 				
-				// Build the command to query the state.
-				final Command command = new Command() {
-					@Override
-					public String getCommandString() {
-						return "STATE";
-					}
-				};
-				
-				
 				// Send the command and react to the response
-				controller.sendCommand(command, new IResponseCommandCallback() {
+				controller.sendCommand("STATE", new IResponseCommandCallback() {
 					@Override
 					public void onFailure(CommException e) {
 						messages.setText("There was an error while trying to find out whether the experiment is ready");
 					}
+					
 					@Override
 					public void onSuccess(ResponseCommand responseCommand) {
 						
@@ -172,7 +163,8 @@ class MainPanel extends Composite {
 					} 
 				}); 
 			} 
-		}; 
+		};
+		this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 	}
 	
 	private void disableButtons(String label) {

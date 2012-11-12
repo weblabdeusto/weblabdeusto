@@ -14,6 +14,8 @@
 #
 
 import os
+
+from weblab.util import data_filename
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
@@ -29,10 +31,27 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(BinaryExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+
+        self._cfg_manager = cfg_manager
+
         self.exercises = {
             'bcd'    : ['cod1', 'cod2',     'cod3',    'cod4',  'cod5'],
             'others' : ['cod1', 'cod_gray', 'cod_xs3', 'cod_gray_xs3'],
         }
+
+        # module_directory = os.path.join(*__name__.split('.')[:-1])
+        module_directory = ('experiments', 'binary')
+        self.contents = {}
+        for values in self.exercises.values():
+            for value in values:
+                if value not in self.contents:
+                    filename = value + '.jed'
+                    full_relative_path_tuple = module_directory + (filename,)
+                    full_relative_path = os.path.join(*full_relative_path_tuple)
+                    file_path = data_filename( full_relative_path )
+                    print file_path
+                    self.contents = open(file_path, 'rb').read()
+
         self.current_labels = []
 
     @Override(Experiment.Experiment)
@@ -46,10 +65,12 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         self._clear()
 
         initial_configuration = {}
-        initial_configuration['webcam']      = 'https://www.weblab.deusto.es/webcam/proxied.py/robot1'
-        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
-        initial_configuration['mjpegHeight'] = 240
-        initial_configuration['mjpegWidth']  = 320
+        webcam = cfg_manager.get_value('webcam', None)
+        if webcam is not None:
+            initial_configuration['webcam']  = webcam
+#        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
+#        initial_configuration['mjpegHeight'] = 240
+#        initial_configuration['mjpegWidth']  = 320
         initial_configuration['labels']      = self.current_labels
         return json.dumps({ 'initial_configuration' : json.dumps(initial_configuration), 'batch' : False })
 
@@ -60,9 +81,9 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         return 'Sending files not supported by this laboratory'
 
     def _autoprogram(self, label):
-        GAME_FILE_PATH = os.path.dirname(__file__) + os.sep + label
+        content = self.contents[label]
         try:
-            serialized_file_content = ExperimentUtil.serialize(open(GAME_FILE_PATH, 'r').read())
+            serialized_file_content = ExperimentUtil.serialize(content)
             super(BinaryExperiment, self).do_send_file_to_device(serialized_file_content, 'game')
         except:
             import traceback
