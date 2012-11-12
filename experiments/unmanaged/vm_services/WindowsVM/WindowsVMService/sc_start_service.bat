@@ -7,3 +7,4 @@ sc start WeblabVMService
 echo ---------------------------------------------------
 echo Done.
 pause
+
