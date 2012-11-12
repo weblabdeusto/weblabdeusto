@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo.orduna@deusto.es>
 *
 */
 
@@ -19,6 +19,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -27,6 +28,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
+import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
@@ -35,6 +37,12 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 @SuppressWarnings("unqualified-field-access")
 class MainPanel extends Composite {
+	
+	private static final int IS_READY_QUERY_TIMER = 1000;
+	private static final String STATE_NOT_READY = "not_ready";
+	private static final String STATE_PROGRAMMING = "programming";
+	private static final String STATE_READY = "ready";
+	private static final String STATE_FAILED = "failed";
 	
 	// GWT UiBinder stuff
 	interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
@@ -51,6 +59,7 @@ class MainPanel extends Composite {
 	private final IBoardBaseController controller;
 	private final String [] labels;
 	private final Button [] buttons;
+	private Timer readyTimer;
 	
 	public MainPanel(IBoardBaseController controller, String [] labels) {
 		this.controller = controller;
@@ -84,15 +93,13 @@ class MainPanel extends Composite {
 
 						@Override
 						public void onSuccess(ResponseCommand responseCommand) {
-							enableButtons();
-							loadInteractivePanel(label);
+							loadTimer(responseCommand.getCommandString());
 						}
 						
 						@Override
 						public void onFailure(CommException e) {
 							e.printStackTrace();
-							Window.alert("Command " + label + " failed: " + e.getMessage());
-							enableButtons();
+							onDeviceProgrammingFailed(": " + e.getMessage(), label);
 						}
 					});
 				}
@@ -100,6 +107,72 @@ class MainPanel extends Composite {
 			this.buttons[i] = b;
 			this.contentPanel.add(b);
 		}
+	}
+	
+	void onDeviceReady(String label) {
+		enableButtons();
+		loadInteractivePanel(label);
+	}
+	
+	void onDeviceProgrammingFailed(String errorMessage, String label) {
+		Window.alert("Command " + label + " failed" + errorMessage);
+		enableButtons();
+	}
+	
+	private void loadTimer(final String label) {
+		this.readyTimer = new Timer() {
+			@Override
+			public void run() {
+				
+				// Build the command to query the state.
+				final Command command = new Command() {
+					@Override
+					public String getCommandString() {
+						return "STATE";
+					}
+				};
+				
+				
+				// Send the command and react to the response
+				controller.sendCommand(command, new IResponseCommandCallback() {
+					@Override
+					public void onFailure(CommException e) {
+						messages.setText("There was an error while trying to find out whether the experiment is ready");
+					}
+					@Override
+					public void onSuccess(ResponseCommand responseCommand) {
+						
+						// Read the full message returned by the exp server and ensure it's not empty
+						final String resp = responseCommand.getCommandString();
+						if(resp.length() == 0) 
+							messages.setText("The STATE query returned an empty result");
+						
+						// The command follows the format STATE=ready
+						// Extract both parts
+						final String [] tokens = resp.split("=", 2);
+						if(tokens.length != 2 || !tokens[0].equals("STATE")) {
+							messages.setText("Unexpected response ot the STATE query: " + resp);
+							return;
+						}
+						
+						final String state = tokens[1];
+						
+						if(state.equals(STATE_NOT_READY)) {
+							readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_READY)) {
+							// Ready
+							onDeviceReady(label);
+						} else if(state.equals(STATE_PROGRAMMING)) {
+							readyTimer.schedule(IS_READY_QUERY_TIMER);
+						} else if(state.equals(STATE_FAILED)) {
+							onDeviceProgrammingFailed("", label);
+						} else {
+							messages.setText("Received unexpected response to the STATE query");
+						}
+					} 
+				}); 
+			} 
+		}; 
 	}
 	
 	private void disableButtons(String label) {
