@@ -307,14 +307,30 @@ There are several ways to do this. The easiest is (everything is done on the vir
 You will see a list of every network adapter in your machine, along with its IP addresses.
 The adapter we seek is our standard `Local Network Ethernet Connection` (or a similar name).
 The IP we seek is the `IPv4 address`.
-Write out that IP address.
+Write out that IP address. From now on, we will refer to that IP as the *VM IP*.
 
 .. Note:: An example of a valid IP would be `192.168.1.105`, or any LAN IP. An example of an *invalid* IP would be `localhost` or `127.0.0.1`. 
 		  Often, but not always, an IP that starts with `10` won't be valid either. If any of this happens, and further checks are unable to
 		  access the VM, then re-check your network settings.
 		  
+We should now be able to access our VM through the VM IP. 
 
+Our first check will be the following:
 
+	#. Start a command line. 
+	#. Type `ping <VM IP>` on it. Replace <VM IP> with your actual VM IP. For instance: `ping 192.168.1.105`. Hit enter.
+
+If timeout errors appear, then the test failed. Your VM, for some reason, is not reachable through that IP. Check the previous steps.
+If, however, ping does send several packets, and certain times appear on the screen, then congratulations, your machine, for now,
+seems to be reachable.
+
+We will now carry out yet another check. In your host machine (not your VM one) open the Windows Remote Desktop client.
+Try to connect to the VM IP. It should work. If it doesn't:
+
+	#. Check that the version of Windows that the VM is running supports the Remote Desktop server.
+	#. Check (in the VM) that remote access is enabled.
+	#. Check this section again and ensure that the network is configured properly.
+	
 	
 
 
