@@ -40,12 +40,16 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         }
 
         # module_directory = os.path.join(*__name__.split('.')[:-1])
-        module_directory = ('experiments', 'binary', 'server')
+        module_directory = ('experiments', 'binary')
         self.contents = {}
         for values in self.exercises.values():
             for value in values:
                 if value not in self.contents:
-                    file_path = data_filename(os.path.join(module_directory, value + '.jed'))
+                    filename = value + '.jed'
+                    full_relative_path_tuple = module_directory + (filename,)
+                    full_relative_path = os.path.join(*full_relative_path_tuple)
+                    file_path = data_filename( full_relative_path )
+                    print file_path
                     self.contents = open(file_path, 'rb').read()
 
         self.current_labels = []
