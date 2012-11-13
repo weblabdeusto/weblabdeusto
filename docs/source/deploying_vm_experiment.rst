@@ -402,7 +402,7 @@ Testing the service
 .. Warning::
 	**CHECKLIST** *(Ensure the following before starting this section. All of them apply to the **guest** Windows (virtualized one))*
 	
-	#. WeblabVMService appears in my list of processes (which can be checked through the Windows' *services.msc* utility.
+	#. WeblabVMService appears in my list of processes (which can be checked through the Windows' *services.msc* utility).
 	#. When I start WeblabVMService, no errors occur. The status of the service changes to *started* and stays so.
 	
 We will now carry out a few tests to check whether WeblabVMService is working as expected with our current settings.
@@ -512,7 +512,41 @@ We will make sure we are on the right track. Do the following:
 	   Your machine should turn off. If it doesn't, make sure you installed VirtualBox properly, as described in previous sections, and that you
 	   specified the right `VM name` in your command.
 	   
+	#. We will now restore the `base` snapshot using the command line. Type the following: `vboxmanage snapshot "Windows VM" restore "base"`.
+	   Replace *Windows VM* with the actual name of your Virtual Machine, and replace *base* with the actual name of your snapshot (which is most likely *base*
+	   too, if you followed the previous sections accurately). The following is what should happen::
+	   
+	    C:\Users\lrg>vboxmanage snapshot "Windows VM" restore "base"
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+		
+	#. Finally, we will start the VM through the command line. Type the following: `vboxmanage startvm "Windows VM"`.
+	   Again, replace *Windows VM* with the actual name of your Virtual Machine. The Virtual Machine should appear, loading your 
+	   virtualized Windows, and the following should appear in your console::
 	
+		C:\Users\lrg>vboxmanage startvm "Windows VM"
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+		
+	#. If an error occurs, something is wrong. Check the previous steps. Note that your Windows snapshot should have loaded. What you see is exactly
+	   what your experiment users will see. If something is amiss, for instance, if Windows had to boot (if it wasn't started already) or if
+	   the programs you left open when you created your `base` snapshot are not open anymore, then you probably did not create the snapshot
+	   properly or you did not restore it. You might want to check the previous sections if that is the case.
+	   
+	
+
+.. Warning::
+	**CHECKLIST** *(Please ensure the following before going on to the next section)*
+	
+	#. My VM was loaded properly. Windows did not need to boot. 
+	#. The programs I left open when I created my `base` snapshot were there still.
+	#. I was able to accomplish all of the above through the command line.
+
+If nothing went wrong, congratulations, your snapshot is ready.
+
+
 
 
 
