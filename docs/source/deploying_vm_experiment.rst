@@ -183,7 +183,13 @@ Once we have it, create the VM by following these broad steps:
 	   starts but no installation media is found, then check the previous steps (particularly, make sure you configured the installation media right, and 
 	   that your CD or ISO image is right).
 	#. Install Windows normally. 
+	#. Apart from whichever administrator account you create, create a second admin account called `weblab`. Naming it `weblab` is important. 
 	#. Once Windows is installed, make sure the Internet can be accessed from the Virtual Machine. 
+	
+	
+.. Note:: 
+	The `weblab` account we created in previous steps could actually be named differently. But then, additional configuration changes would be required
+	in the In-VM Manager (which we will install in later sections of this guide), and for simplicity, these won't be covered here.
 	
 
 Congratulations. If everything went ok, you now have a virtual windows machine on your VirtualBox.
@@ -441,6 +447,72 @@ This test assumes that the first test was successful. We will try the following:
 Congratulations, if you are here, both tests should have passed. This means that WeblabVMService is properly installed and working.
 
 
+
+
+Preparing the Virtual Machine: Base Snapshot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What is a snapshot?
+-------------------
+
+Most VM systems (such as VirtualBox) support snapshots. Snapshots describe the exact state of the Virtual Machine at a given point of time.
+Once you have taken a shapshot, you can at any time restore your VM to it. This is how WebLab-Deusto VM experiment ensures that any change
+a user makes to the VM, is restored before the next session.
+
+Base Snapshot
+-------------
+
+We will take an snapshot, which will be our `base snapshot`, the one every user will get to use. After the user is done,
+WebLab-Deusto will restore the system to that same `base snapshot` again.
+
+To prepare a first base snapshot, you can follow these steps:
+
+	#. Start your guest Windows.
+	#. Login into your `weblab` account.
+	#. Start the In-VM Manager if it is not running already.
+	#. Install any software you wish the users to have.
+	#. Open any program that you want the users to see.
+	#. Prepare everything for the user. Arrange every open window. 
+	#. Your machine should now be ready. Without closing it, it's time to take a snapshot. In VirtualBox menu, go to
+	   Machine->Take a snapshot. It will let you choose a name. Type `base`. You can actually choose a different one and configure
+	   it later, but we will use `base` for simplicity.
+	  
+.. Note:: Probably, your actual experiment is not ready yet. When it is, you will probably have to modify the base snapshot to include it.
+		  Fortunately, that is easy. Though the previous steps are somewhat linear, really the only important things are:
+		  
+			#. Your guest windows needs to be logged in the `weblab` account.
+			#. The In-VM manager needs to be started.
+			#. The machine must be turned on when you take the snapshot. If it isn't, it will have to be boot-up everytime, and this
+			   takes too long of a time. 
+		
+		  These are essentially the three points that you have to take into account when creating your own base snapshots.
+		  
+Testing the Base Snapshot
+-------------------------
+
+We will make sure we are on the right track. Do the following:
+
+	#. Start your guest Windows.
+	#. In your guest Windows, create some new file, and add it to the desktop. It can be any file, and have any name. For instance,
+	   you may create a `TESTING.TXT` text file.
+	#. From this point on, we will use the command line, to ensure that it is working as expected too.
+	#. Open a command line in your **host** Windows. (That is, not on your virtualized Windows). We will use it to manage virtualbox.
+	#. Recall your `VM name`. As we established in previous sections of this guide, that is the name that appears in VirtualBox's list,
+	   and which you can right click to start the machine, etc.
+	#. Type the following command in the command line: `vboxmanage controlvm "Windows VM" poweroff`. You should replace `Windows VM` with your
+	   actual `VM name`. The following is what should happen::
+	   
+		C:\Users\lrg>vboxmanage controlvm "Windows VM" poweroff
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+
+		0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+
+	   Your machine should turn off. If it doesn't, make sure you installed VirtualBox properly, as described in previous sections, and that you
+	   specified the right `VM name` in your command.
+	   
+	
 
 
 
