@@ -549,8 +549,135 @@ If nothing went wrong, congratulations, your snapshot is ready.
 
 
 
-Preparing the Virtual Machine: Base Snapshot
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuring the WebLab instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have followed the guide up to here, every prerrequisite is now ready. In this last section, we will configure and test the WebLab
+experiment itself. That is, the experiment server which will actually control the VM we have created, through the means we have provided.
+
+
+Recalling important variables
+-----------------------------
+
+Before going on we will need to remember some variables which we established during the previous sections. We need the following:
+
+	#. **VM name**: The name you gave to your VM. The one you used with the *vboxmanage* commands. 
+	#. **VM ip**: The local IP of your VM. That is the IP that you used to connect to it through RDP.
+	
+	
+Creating the instance through Weblab-admin
+------------------------------------------
+
+As we mentioned in the first sections of this guide, you need to have the weblab-admin script properly installed.
+The next steps assume you do.
+
+We will next use weblab-admin to create a new WebLab instance with our VM experiment. We will run the following command::
+
+	weblab-admin.py create WLTest --vm --vbox-base-snapshot "base" --vbox-vm-name "Windows VM" --vm-estimated-load-time 30 
+	--http-query-user-manager-url "http://192.168.64.143:6789" --vm-url 192.168.64.143 --http-server-port 8000
+	
+However, you will need to make a few changes to the command:
+
+	#. Change the IP, 192.168.64.143 for your **VM ip**. You need to change it for the http-query-user-manager-url, which is,
+	   essentially, the address to which the password changing queries that we have explained in previous sections are sent.
+	   You also need to change it for the vm-url variable. This isn't that important, because it is simply the URL that will
+	   be displayed to experiment users, so that they can connect through RDP.
+	#. Change the Virtual Machine name, "Windows VM", for your own **VM name**.
+	#. Note that VMDeploy is, in this case, the name we have given to our new instance. You may change it, if you want to.
+	
+
+This is what should happen::
+
+	(weblab.dev) C:\shared\weblab_github\weblabdeusto_lrg\server\src>weblab-admin.py 
+	create WLTest --force --vm --vbox-base-snapshot base --vbox-vm-name "Windows VM" 
+	--vm-estimated-load-time 30 --http-query-user-manager-url "http://192.168.64.143:6789"
+	--vm-url 192.168.64.143 --http-server-port 8000
+
+	patchZsiPyExpat skipped; ZSI not installed
+	patchZsiFaultFromException skipped; ZSI not installed
+
+	Congratulations!
+	WebLab-Deusto system created
+
+	Run:
+
+		 weblab-admin.py start VMTestTwoS
+
+	to start the WebLab-Deusto system. From that point, you'll be able to access:
+
+	   http://localhost:8000/
+
+	Or in production if you later want to deploy it in Apache:
+
+		 http://localhost/weblab/
+
+	And log in as 'admin' using 'password' as password.
+
+	You should also configure the images directory with two images called:
+
+		 sample.png and sample-mobile.png
+
+	You can also add users, permissions, etc. from the admin CLI by typing:
+
+		weblab-admin.py admin VMTestTwoS
+
+	Enjoy!
+	
+
+If an error occurs here, it is likely that it is not related to the VM experiment. Please, make sure that you have installed weblab 
+properly and that you can deploy instances (without vm experiments) through *weblab-admin*. Unfortunately, doing that is
+beyond the scope of this guide, but you can check the weblab installation documentation. From this point, we will assume
+your instance was deployed properly.
+
+
+Testing our new instance
+------------------------
+
+To start our new instance, type the following::
+
+	weblab-admin.py start WLTest
+	
+Replace `WLTest` with the name you gave to your weblab instance (which is most likely `WLTest` either way.
+
+Your WebLab instance should now start. 
+
+Open a browser in your computer, and connect to it through http://localhost:8000, which is the port we specified.
+
+You can log into it with the account name `admin` and the password `password`. There should be a few experiments, among
+them, your new VM experiment.
+
+Check, reserve, and check whether it works as expected.
+
+If the experiment is reserved properly, and you can connect to your Virtual Machine through RDP using the provided address, and if you can see
+the snapshot we set in previous sections. **Congratulations, you have successfully deployed an VM experiment!**
+
+If no error occurred, this guide is **over**. 
+
+If something went wrong, take a look at the next section.
+
+
+Something failed
+----------------
+
+If you are in this section, some problem occurred and your VM deployment is not working. We will here describe some likely errors. 
+
+*My experiment seems to work properly, but I can't connect through RDP to the provided address.*
+
+Make sure that the IP that you are being provided with is the same as the IP you tested with, on the `network configuration` section of this guide.
+If it is and the `network configuration` section's test still succeeds, please contact the Weblab developers for support.
+
+*The VM experiment appears, but an error occurs before the reservation succeeds.*
+
+Make sure that you installed Weblab properly. That is, make sure that experiments other than the VM one work. If other experiments don't work,
+then the problem is most likely not related to VMs. Check the weblab installation guide. If it's only the VM experiment which does not work,
+then please contact the Weblab developers for support.
+
+*The VM experiment appears, I can reserve, but when the experiment loads, the progress bar never finishes.*
+
+Check the console in case there is an error. If there is, please contact the Weblab developers for support. 
+
+
+
 
 
 
