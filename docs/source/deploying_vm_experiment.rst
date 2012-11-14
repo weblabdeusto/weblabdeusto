@@ -412,7 +412,7 @@ This test should be done within the guest OS. That is, within the virtualized Wi
 
 	#. If the WeblabVMService is not running already, start it.
 	#. Open a browser window.
-	#. Do the following query: `http://localhost:6789/?sessionid=testone
+	#. Do the following query: `http://localhost:6789/?sessionid=testone`
 	#. It should take a while and then take you to a blank page with only the word `Done` written in black. If the 
 	   page cannot be loaded or if an error occurs, then the service is either not running or failing. If that is the case, do not proceed. It is 
 	   suggested that you contact the developers for support. From this point on, we will assume `Done` was printed.
@@ -549,6 +549,8 @@ If nothing went wrong, congratulations, your snapshot is ready.
 
 
 
+Preparing the Virtual Machine: Base Snapshot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
