@@ -73,10 +73,23 @@ class Compiler(object):
                 result = self.par()
                 return result
         return False
+    
+    def generate(self):
+        process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "Untitled.ut", 
+                                    "Untitled.ncd"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   cwd = self.BASE_PATH)
+        
+        #so, se = process.communicate()
+        
+        r = process.wait()
+        
+        return r == 0
 
 c = Compiler()
 
-c.synthesize()
-c.implement()
+#print c.synthesize()
+#print c.implement()
+print c.generate()
 
 print "Good bye"
