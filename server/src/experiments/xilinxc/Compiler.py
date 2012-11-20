@@ -1,8 +1,5 @@
 
 import subprocess
-import os
-
-# xst -intstyle ise -ifn "C:/pfc/PruebaWL/Untitled.xst" -ofn "C:/pfc/PruebaWL/Untitled.syr"
 
 
 class Compiler(object):
@@ -33,7 +30,7 @@ class Compiler(object):
 
         so, se = process.communicate()
 
-        if "NGDBUILD done." in so:
+        if len(se) == 0 and "NGDBUILD done." in so:
             return True
         
         return False
@@ -47,7 +44,7 @@ class Compiler(object):
         
         so, se = process.communicate()
         
-        if "Mapping completed." in so:
+        if len(se) == 0 and "Mapping completed." in so:
             return True
         
         return False;
@@ -60,7 +57,7 @@ class Compiler(object):
         
         so, se = process.communicate()
         
-        if "PAR done!" in so:
+        if len(se) == 0 and "PAR done!" in so:
             return True
         
         return False
@@ -80,16 +77,22 @@ class Compiler(object):
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
         
-        #so, se = process.communicate()
+        # We use process.wait rather than process.communicate because
+        # when bitgen is executed, WebTalk stays running in the background,
+        # which causes an error. And there seems to be no way to disable it.
         
         r = process.wait()
         
-        return r == 0
+        if(r == 0):
+            return True
+        
+        return False
+        
 
 c = Compiler()
 
-#print c.synthesize()
-#print c.implement()
+print c.synthesize()
+print c.implement()
 print c.generate()
 
 print "Good bye"
