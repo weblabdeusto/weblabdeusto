@@ -1,13 +1,16 @@
 
 import subprocess
+import os
 
 
 class Compiler(object):
     
-    BASE_PATH = "C:/pfc/PruebaWL"
+    BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
+    DEBUG = True
     
     def __init__(self):
-        pass
+        if(self.DEBUG):
+            print "[Xilinxc Compiler]: Running from " + os.getcwd()
     
     def synthesize(self):
         process = subprocess.Popen(["xst", "-intstyle", "ise", "-ifn", "Untitled.xst", 
@@ -16,6 +19,9 @@ class Compiler(object):
                                    cwd = self.BASE_PATH)
         
         so, se = process.communicate()
+        
+        if(self.DEBUG):
+            print so, se
         
         if len(se) > 0 or "ERROR:" in so:
             return False
@@ -29,6 +35,9 @@ class Compiler(object):
                                    cwd = self.BASE_PATH)
 
         so, se = process.communicate()
+        
+        if(self.DEBUG): 
+            print so, se
 
         if len(se) == 0 and "NGDBUILD done." in so:
             return True
@@ -44,6 +53,9 @@ class Compiler(object):
         
         so, se = process.communicate()
         
+        if(self.DEBUG):
+            print so, se
+        
         if len(se) == 0 and "Mapping completed." in so:
             return True
         
@@ -56,6 +68,9 @@ class Compiler(object):
                                    cwd = self.BASE_PATH)
         
         so, se = process.communicate()
+        
+        if(self.DEBUG):
+            print so, se
         
         if len(se) == 0 and "PAR done!" in so:
             return True
@@ -83,6 +98,9 @@ class Compiler(object):
         
         r = process.wait()
         
+        if(self.DEBUG):
+            print process.stdout.read()
+        
         if(r == 0):
             return True
         
@@ -92,7 +110,7 @@ class Compiler(object):
 c = Compiler()
 
 print c.synthesize()
-print c.implement()
-print c.generate()
+#print c.implement()
+#print c.generate()
 
 print "Good bye"
