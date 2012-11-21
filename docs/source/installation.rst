@@ -67,15 +67,21 @@ Run the following (don't take into account the particular versions, these are ju
   javac 1.6.0_24
 
 5. Install setuptools following `the instructions <http://pypi.python.org/pypi/setuptools#installation-instructions>`_. It should be as simple as downloading and executing a file.
-#. Once setuptools are installed, you can install *pip* and *virtualenv*. 
+#. Once setuptools are installed, you can install *pip*, *virtualenv* and *virtualenvwrapper* (*virtualenvwrapper-win* in Microsoft Windows). 
 
-In Linux systems you can get them in the package repositories (e.g. in Ubuntu they are python-pip and python-virtualenv), but in other systems you can install them by running::
+In Linux systems you can get them in the package repositories (e.g. in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running::
 
   $ easy_install pip
 
   $ easy_install virtualenv
 
-7. At this point, you should be able to open a terminal and test that both tools are installed.
+  IN UNIX:
+  $ easy_install virtualenvwrapper 
+
+  IN WINDOWS:
+  $ easy_install virtualenvwrapper-win
+
+7. At this point, you should be able to open a terminal and test that these tools are installed.
 
 Run the following (don't take into account the particular versions)::
 
@@ -87,28 +93,28 @@ Run the following (don't take into account the particular versions)::
 
   1.7.1.2
 
+  $ mkvirtualenv --version
+
+  1.7.1.2
+
 Installing WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a virtualenv. In UNIX systems (Linux, Mac OS X)::
+Create a virtualenv. In UNIX systems::
 
   user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g. /opt/weblabdeusto/ )
 
-  user@machine:/opt/weblabdeusto$ virtualenv env
+  user@machine:/opt/weblabdeusto$ mkvirtualenv weblab
 
-  user@machine:/opt/weblabdeusto$ . env/bin/activate
-
-  (env) user@machine:/opt/weblabdeusto$
+  (weblab) user@machine:/opt/weblabdeusto$
 
 In Microsoft Windows environments::
 
   C:\> cd WHEREVER-IS-WEBLAB (e.g. C:\weblabdeusto\ )
 
-  C:\weblabdeusto> virtualenv env
+  C:\weblabdeusto> mkvirtualenv weblab
 
-  C:\weblabdeusto> .\env\Scripts\activate
-
-  (env) C:\weblabdeusto> 
+  (weblab) C:\weblabdeusto> 
 
 And then, install WebLab-Deusto::
 
@@ -136,25 +142,21 @@ If it displays 5.0 or higher, then you have successfully installed the system in
 that virtual environment. Virtual environments in Python are environments where
 a set of libraries (with particular versions) are installed. For instance, you
 may have different virtual environments for different applications relying on
-different versions of libraries. There are even highly recommendable `tools for
-managing virtual environments
-<http://www.doughellmann.com/projects/virtualenvwrapper/>`_ (and `versions for
-Microsoft Windows <http://pypi.python.org/pypi/virtualenvwrapper-win/>`_) which
-make this management even easier.
+different versions of libraries.
 
 Whenever you open a new terminal, you'll find that *weblab-admin.py* is not
 installed. However, whenever you activate the environment where you installed
 WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
 do the following in UNIX systems::
 
-    user@machine:~$ . /opt/weblabdeusto/env/bin/activate
-    (env) user@machine:~$ weblab-admin.py --version
+    user@machine:~$ workon weblab
+    (weblab) user@machine:~$ weblab-admin.py --version
     5.0
 
 Or the following in Microsoft Windows systems::
 
-    C:\Users\John\Desktop> C:\weblabdeusto\env\Scripts\activate
-    (env) C:\Users\John\Desktop> weblab-admin.py --version
+    C:\Users\John\Desktop> workon weblab
+    (weblab) C:\Users\John\Desktop> weblab-admin.py --version
     5.0
 
 Now you can continue with the :ref:`first steps <first_steps>`.
