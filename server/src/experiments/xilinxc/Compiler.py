@@ -13,8 +13,8 @@ class Compiler(object):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
     
     def synthesize(self):
-        process = subprocess.Popen(["xst", "-intstyle", "ise", "-ifn", "Untitled.xst", 
-                                    "-ofn", "Untitled.syr"], 
+        process = subprocess.Popen(["xst", "-intstyle", "ise", "-ifn", "base.xst", 
+                                    "-ofn", "base.syr"], 
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
         
@@ -30,7 +30,7 @@ class Compiler(object):
     
     def ngdbuild(self):
         process = subprocess.Popen(["ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
-                                    "-p", "xc3s1000-ft256-4", "Untitled.ngc", "Untitled.ngd"],
+                                    "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
 
@@ -47,7 +47,7 @@ class Compiler(object):
     def map(self):
         process = subprocess.Popen(["map", "-intstyle", "ise", "-p", "xc3s1000-ft256-4", 
                                     "-cm", "area", "-ir", "off", "-pr", "off", "-c", "100", 
-                                    "-o", "Untitled_map.ncd", "Untitled.ngd", "Untitled.pcf"],
+                                    "-o", "base_map.ncd", "base.ngd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
         
@@ -63,7 +63,7 @@ class Compiler(object):
         
     def par(self):
         process = subprocess.Popen(["par", "-w", "-intstyle", "ise", "-ol", "high", "-t", "1",
-                                    "Untitled_map.ncd", "Untitled.ncd", "Untitled.pcf"],
+                                    "base_map.ncd", "base.ncd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
         
@@ -87,8 +87,8 @@ class Compiler(object):
         return False
     
     def generate(self):
-        process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "Untitled.ut", 
-                                    "Untitled.ncd"],
+        process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "base.ut", 
+                                    "base.ncd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
         
@@ -110,9 +110,9 @@ class Compiler(object):
 
 c = Compiler()
 
-#print c.synthesize()
+print c.synthesize()
 print c.ngdbuild()
-#print c.implement()
-#print c.generate()
+print c.implement()
+print c.generate()
 
 print "Good bye"

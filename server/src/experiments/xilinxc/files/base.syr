@@ -4,15 +4,15 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.11 secs
+Total CPU time to Xst completion: 0.12 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.11 secs
+Total CPU time to Xst completion: 0.12 secs
  
---> Reading design: Untitled.prj
+--> Reading design: base.prj
 
 TABLE OF CONTENTS
   1) Synthesis Options Summary
@@ -35,12 +35,12 @@ TABLE OF CONTENTS
 *                      Synthesis Options Summary                        *
 =========================================================================
 ---- Source Parameters
-Input File Name                    : "Untitled.prj"
+Input File Name                    : "base.prj"
 Input Format                       : mixed
 Ignore Synthesis Constraint File   : NO
 
 ---- Target Parameters
-Output File Name                   : "Untitled"
+Output File Name                   : "base"
 Output Format                      : NGC
 Target Device                      : xc3s1000-4-ft256
 
@@ -104,7 +104,7 @@ Slice Utilization Ratio Delta      : 5
 =========================================================================
 *                          HDL Compilation                              *
 =========================================================================
-Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/Prueba.vhd" in Library work.
+Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd" in Library work.
 Architecture behavioral of Entity untitled is up to date.
 
 =========================================================================
@@ -128,7 +128,7 @@ Entity <Untitled> analyzed. Unit <Untitled> generated.
 Performing bidirectional port resolution...
 
 Synthesizing Unit <Untitled>.
-    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/Prueba.vhd".
+    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd".
 WARNING:Xst:647 - Input <ck> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:647 - Input <inicio> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:646 - Signal <estado<0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -186,8 +186,8 @@ Partition Implementation Status
 *                            Final Report                               *
 =========================================================================
 Final Results
-RTL Top Level Output File Name     : Untitled.ngr
-Top Level Output File Name         : Untitled
+RTL Top Level Output File Name     : base.ngr
+Top Level Output File Name         : base
 Output Format                      : NGC
 Optimization Goal                  : Speed
 Keep Hierarchy                     : No
@@ -251,12 +251,12 @@ All values displayed in nanoseconds (ns)
 =========================================================================
 
 
-Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 4.45 secs
+Total REAL time to Xst completion: 4.00 secs
+Total CPU time to Xst completion: 4.92 secs
  
 --> 
 
-Total memory usage is 216008 kilobytes
+Total memory usage is 215752 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    4 (   0 filtered)

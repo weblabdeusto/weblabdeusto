@@ -1,9 +1,9 @@
 set -tmpdir "xst/projnav.tmp"
 set -xsthdpdir "xst"
 run
--ifn Untitled.prj
+-ifn base.prj
 -ifmt mixed
--ofn Untitled
+-ofn base
 -ofmt NGC
 -p xc3s1000-4-ft256
 -top Untitled
