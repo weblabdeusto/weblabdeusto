@@ -895,7 +895,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER]:
@@ -983,7 +983,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
         
     if options[Creation.VM_SERVER]:
-        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VM_EXPERIMENT_NAME] }
         lab_id = experiment_counter % options[Creation.LAB_COPIES]
         laboratory_experiments[lab_id] += local_experiments
         laboratory_experiment_instances[lab_id]['vm'] = 1
@@ -1183,6 +1183,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 instance_configuration_xml += """    <server>visir</server>\n"""
             if options[Creation.LOGIC_SERVER]:
                 instance_configuration_xml += """    <server>logic</server>\n"""
+            if options[Creation.VM_SERVER]:
+                instance_configuration_xml += """     <server>vm</server>\n"""
            
             
         instance_configuration_xml += (
@@ -1336,6 +1338,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
             if 'logic' in experiments_in_lab:
                 lab_instance_configuration_xml += """    <server>logic</server>\n"""
+				
+            if 'vm' in experiments_in_lab:
+                lab_instance_configuration_xml += """     <server>vm</server>\n"""
 
             lab_instance_configuration_xml += """</servers>\n"""
 
@@ -1568,7 +1573,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """    <type>weblab.data.server_type::Experiment</type>\n"""
                 """    <methods>weblab.methods::Experiment</methods>\n"""
                 """\n"""
-                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
+                """    <implementation>experiments.vm.server.VMExperiment</implementation>\n"""
                 """\n"""
                 """    <protocols>\n"""
                 """        <protocol name="Direct">\n"""
