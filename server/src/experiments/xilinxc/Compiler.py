@@ -29,7 +29,7 @@ class Compiler(object):
         return True
     
     def ngdbuild(self):
-        process = subprocess.Popen(["ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "C:/Users/lrg/Downloads/PINES_FPGA_2012_2013_def (1).ucf", 
+        process = subprocess.Popen(["ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
                                     "-p", "xc3s1000-ft256-4", "Untitled.ngc", "Untitled.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.BASE_PATH)
@@ -100,6 +100,7 @@ class Compiler(object):
         
         if(self.DEBUG):
             print process.stdout.read()
+            print process.stderr.read()
         
         if(r == 0):
             return True
@@ -109,7 +110,8 @@ class Compiler(object):
 
 c = Compiler()
 
-print c.synthesize()
+#print c.synthesize()
+print c.ngdbuild()
 #print c.implement()
 #print c.generate()
 

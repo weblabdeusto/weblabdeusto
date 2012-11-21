@@ -4,13 +4,13 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.12 secs
+Total CPU time to Xst completion: 0.11 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.12 secs
+Total CPU time to Xst completion: 0.11 secs
  
 --> Reading design: Untitled.prj
 
@@ -105,8 +105,7 @@ Slice Utilization Ratio Delta      : 5
 *                          HDL Compilation                              *
 =========================================================================
 Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/Prueba.vhd" in Library work.
-Entity <Untitled> compiled.
-Entity <Untitled> (Architecture <behavioral>) compiled.
+Architecture behavioral of Entity untitled is up to date.
 
 =========================================================================
 *                     Design Hierarchy Analysis                         *
@@ -253,7 +252,7 @@ All values displayed in nanoseconds (ns)
 
 
 Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 4.55 secs
+Total CPU time to Xst completion: 4.45 secs
  
 --> 
 
