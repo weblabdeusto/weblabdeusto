@@ -6,7 +6,7 @@ import os
 class Compiler(object):
     
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
-    DEBUG = True
+    DEBUG = False
     
     def __init__(self):
         if(self.DEBUG):
@@ -106,13 +106,17 @@ class Compiler(object):
             return True
         
         return False
-        
+    
 
-c = Compiler()
+if __name__ == "__main__":
+    
+    Compiler.DEBUG = True
 
-print c.synthesize()
-print c.ngdbuild()
-print c.implement()
-print c.generate()
-
-print "Good bye"
+    c = Compiler()
+    
+    print c.synthesize()
+    print c.ngdbuild()
+    print c.implement()
+    print c.generate()
+    
+    print "Good bye"
