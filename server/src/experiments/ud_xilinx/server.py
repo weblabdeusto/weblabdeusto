@@ -39,6 +39,7 @@ from voodoo.threaded import threaded
 # Though it would be slightly more efficient to use single characters, it's a text protocol
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
+STATE_AWAITING_CODE = "awaiting_code"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
@@ -69,6 +70,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        
+        self._ucf_file = None
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -101,8 +104,20 @@ class UdXilinxExperiment(Experiment.Experiment):
         Will spawn a new thread which will program the xilinx board with the
         provided file.
         """
-        self._programming_thread = self._program_file_t(file_content)
-        return "STATE=" + STATE_PROGRAMMING
+        
+        # TODO:
+        # We will distinguish the file type according to its size.
+        # This is an extremely bad method, which should be changed in the
+        # future.
+        if len(file_content) > 30000:
+            self._handle_ucf_file(file_content)
+            return "STATE=" + STATE_AWAITING_CODE
+        else:
+            self._programming_thread = self._program_file_t(file_content)
+            return "STATE=" + STATE_PROGRAMMING
+        
+    def _handle_ucf_file(self, file_content):
+        pass
 
 
     @threaded()
