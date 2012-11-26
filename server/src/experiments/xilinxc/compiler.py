@@ -34,13 +34,28 @@ class Compiler(object):
         Warning: It will replace the file contents.
         @param vhdl String containing the new VHDL code.
         """
-        vhdlpath = self.filespath + os.sep + "base.vhdl"
+        vhdlpath = self.filespath + os.sep + "base.vhd"
         if(debugging):
             print "[DBG]: Feed_vhdl pretending to replace %s with: " % (vhdlpath)
             print vhdl
         else:
             f = file(vhdlpath, "w")
             f.write(vhdl)
+            f.close()
+            
+    def feed_ucf(self, ucf, debugging = False):
+        """
+        Replaces the local ucf file contents with the provided ucf.
+        Warning: It will replace the file contents.
+        @param ucf String containing the new UCF code.
+        """
+        ucfpath = self.filespath + os.sep + "FPGA_2012_2013_def.ucf"
+        if(debugging):
+            print "[DBG]: Feed_ucf pretending to replace %s with " % (ucfpath)
+            print ucf
+        else:
+            f = file(ucfpath, "w")
+            f.write(ucf)
             f.close()
     
     def synthesize(self):
