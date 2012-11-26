@@ -45,3 +45,5 @@ xilinx_http_device_app_FPGA       = ""
 xilinx_programmer_time = 5 # seconds
 
 fpga_webcam_url          = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''
+
+xilinx_compiling_files_path = "main_machine/main_instance/experiment_fpga/files"

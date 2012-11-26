@@ -46,6 +46,8 @@ STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
 
+CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
+
 
 #TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
@@ -72,6 +74,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        
+        self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         
         self._ucf_file = None
 
@@ -123,9 +127,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             return "STATE=" + STATE_PROGRAMMING
         
     def _handle_ucf_file(self, file_content):
-        c = Compiler()
+        print os.getcwd()
+        c = Compiler(self._compiling_files_path)
         content = base64.b64decode(file_content)
-        c.feed_vhdl(content, True)
+        c.feed_vhdl(content)
 
 
     @threaded()
