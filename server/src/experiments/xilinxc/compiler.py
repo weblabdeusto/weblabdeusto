@@ -23,15 +23,31 @@ class Compiler(object):
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
     DEBUG = False
     
-    def __init__(self):
+    def __init__(self, filespath = BASE_PATH):
+        self.filespath = filespath
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
+            
+    def feed_vhdl(self, vhdl, debugging = False):
+        """
+        Replaces the local vhdl file contents with the provided code.
+        Warning: It will replace the file contents.
+        @param vhdl String containing the new VHDL code.
+        """
+        vhdlpath = self.filespath + os.sep + "base.vhdl"
+        if(debugging):
+            print "[DBG]: Feed_vhdl pretending to replace %s with: " % (vhdlpath)
+            print vhdl
+        else:
+            f = file(vhdlpath, "w")
+            f.write(vhdl)
+            f.close()
     
     def synthesize(self):
         process = subprocess.Popen(["xst", "-intstyle", "ise", "-ifn", "base.xst", 
                                     "-ofn", "base.syr"], 
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.BASE_PATH)
+                                   cwd = self.filespath)
         
         so, se = process.communicate()
         
@@ -47,7 +63,7 @@ class Compiler(object):
         process = subprocess.Popen(["ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
                                     "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.BASE_PATH)
+                                   cwd = self.filespath)
 
         so, se = process.communicate()
         
@@ -64,7 +80,7 @@ class Compiler(object):
                                     "-cm", "area", "-ir", "off", "-pr", "off", "-c", "100", 
                                     "-o", "base_map.ncd", "base.ngd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.BASE_PATH)
+                                   cwd = self.filespath)
         
         so, se = process.communicate()
         
@@ -80,7 +96,7 @@ class Compiler(object):
         process = subprocess.Popen(["par", "-w", "-intstyle", "ise", "-ol", "high", "-t", "1",
                                     "base_map.ncd", "base.ncd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.BASE_PATH)
+                                   cwd = self.filespath)
         
         so, se = process.communicate()
         
@@ -105,7 +121,7 @@ class Compiler(object):
         process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "base.ut", 
                                     "base.ncd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.BASE_PATH)
+                                   cwd = self.filespath)
         
         # We use process.wait rather than process.communicate because
         # when bitgen is executed, WebTalk stays running in the background,

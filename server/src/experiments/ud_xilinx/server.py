@@ -30,8 +30,10 @@ import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
+from experiments.xilinxc.compiler import Compiler
 
 import json
+import base64
 
 from voodoo.threaded import threaded
 
@@ -109,15 +111,21 @@ class UdXilinxExperiment(Experiment.Experiment):
         # We will distinguish the file type according to its size.
         # This is an extremely bad method, which should be changed in the
         # future.
-        if len(file_content) > 30000:
-            self._handle_ucf_file(file_content)
-            return "STATE=" + STATE_AWAITING_CODE
+        if len(file_content) < 30000:
+            try:
+                self._handle_ucf_file(file_content)
+                return "STATE=" + STATE_AWAITING_CODE
+            except Exception as ex:
+                print "EXCEPTION: " + ex
+                raise ex
         else:
             self._programming_thread = self._program_file_t(file_content)
             return "STATE=" + STATE_PROGRAMMING
         
     def _handle_ucf_file(self, file_content):
-        pass
+        c = Compiler()
+        content = base64.b64decode(file_content)
+        c.feed_vhdl(content, True)
 
 
     @threaded()
