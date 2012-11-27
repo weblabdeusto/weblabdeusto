@@ -121,7 +121,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         # future. Currently we assume that if the file length is small,
         # then it's a VHDL file rather than a BITSTREAM. Explicit UCF
         # is not yet supported.
-        if len(file_content) < 30000:
+        extension = file_info
+        if extension == "vhd":
             try:
                 print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
