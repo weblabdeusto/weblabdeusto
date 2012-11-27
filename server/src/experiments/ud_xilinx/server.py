@@ -126,7 +126,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             try:
                 print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
-                return "STATE=" + STATE_PROGRAMMING
+                return "STATE=" + STATE_COMPILING
             except Exception as ex:
                 print "EXCEPTION: " + ex
                 raise ex
@@ -151,6 +151,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         Running in its own thread, this method will compile the provided
         VHDL code and then program the board if the result is successful.
         """
+        self._current_state = STATE_COMPILING
         c = Compiler(self._compiling_files_path)
         c.DEBUG = True
         content = base64.b64decode(file_content)
@@ -251,6 +252,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             # will need to know whether the programming has been done and whether we are
             # hence ready to start receiving real commands.
             if command == 'STATE':
+                if(DEBUG):
+                    print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE="+ self._current_state
                 return reply
 

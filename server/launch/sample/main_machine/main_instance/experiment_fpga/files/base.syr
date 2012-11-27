@@ -10,7 +10,7 @@ Total CPU time to Xst completion: 0.13 secs
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.14 secs
+Total CPU time to Xst completion: 0.13 secs
  
 --> Reading design: base.prj
 
@@ -253,11 +253,11 @@ All values displayed in nanoseconds (ns)
 
 
 Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 5.20 secs
+Total CPU time to Xst completion: 5.13 secs
  
 --> 
 
-Total memory usage is 216136 kilobytes
+Total memory usage is 216008 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    4 (   0 filtered)
