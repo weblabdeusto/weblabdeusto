@@ -16,6 +16,7 @@
 
 import subprocess
 import os
+import base64
 
 
 class Compiler(object):
@@ -132,6 +133,18 @@ class Compiler(object):
                 return result
         return False
     
+    def retrieve_bitfile(self):
+        """
+        Retrieves the last bitfile generated, as a b64 string. Note that if you previously
+        tried to generate a bitstream file but it failed, then the wrong bitfile will most
+        likely be returned.
+        """
+        f = file(self.filespath + os.sep + "base.bit")
+        contents = f.read()
+        f.close()
+        b64contents = base64.b64encode(contents)
+        return b64contents
+    
     def generate(self):
         process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "base.ut", 
                                     "base.ncd"],
@@ -153,6 +166,9 @@ class Compiler(object):
         
         return False
     
+    def compile(self):
+        return self.synthesize() and self.implement() and self.generate()
+    
 
 if __name__ == "__main__":
     
@@ -161,8 +177,8 @@ if __name__ == "__main__":
     c = Compiler()
     
     print c.synthesize()
-    print c.ngdbuild()
     print c.implement()
     print c.generate()
+    print c.retrieve_bitfile()
     
     print "Good bye"

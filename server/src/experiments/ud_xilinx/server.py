@@ -42,11 +42,15 @@ from voodoo.threaded import threaded
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
 STATE_AWAITING_CODE = "awaiting_code"
+STATE_COMPILING = "compiling"
+STATE_COMPILER_ERROR = "compiler_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
 
 CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
+
+DEBUG = True
 
 
 #TODO: which exceptions should the user see and which ones should not?
@@ -114,11 +118,13 @@ class UdXilinxExperiment(Experiment.Experiment):
         # TODO:
         # We will distinguish the file type according to its size.
         # This is an extremely bad method, which should be changed in the
-        # future.
+        # future. Currently we assume that if the file length is small,
+        # then it's a VHDL file rather than a BITSTREAM. Explicit UCF
+        # is not yet supported.
         if len(file_content) < 30000:
             try:
-                self._handle_ucf_file(file_content)
-                return "STATE=" + STATE_AWAITING_CODE
+                self._handle_vhd_file(file_content, file_info)
+                return "STATE=" + STATE_PROGRAMMING
             except Exception as ex:
                 print "EXCEPTION: " + ex
                 raise ex
@@ -126,12 +132,36 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._programming_thread = self._program_file_t(file_content)
             return "STATE=" + STATE_PROGRAMMING
         
-    def _handle_ucf_file(self, file_content):
+    def _handle_ucf_file(self, file_content, file_info):
         print os.getcwd()
         c = Compiler(self._compiling_files_path)
         content = base64.b64decode(file_content)
+        c.feed_ucf(content)
+        
+    def _handle_vhd_file(self, file_content, file_info):
+        print "[DBG] In _handle_vhd_file. Info is " + file_info
+        self._compile_program_file_t(file_content)
+        
+    @threaded()
+    @logged("info",except_for='file_content')
+    def _compile_program_file_t(self, file_content):
+        """
+        Running in its own thread, this method will compile the provided
+        VHDL code and then program the board if the result is successful.
+        """
+        c = Compiler(self._compiling_files_path)
+        c.DEBUG = True
+        content = base64.b64decode(file_content)
         c.feed_vhdl(content)
-
+        print "[DBG]: VHDL fed. Now compiling."
+        success = c.compile()
+        if(not success):
+            self._current_state = STATE_COMPILER_ERROR
+        else:
+            bitfile = c.retrieve_bitfile()
+            print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            self._program_file_t(bitfile)
+        
 
     @threaded()
     @logged("info",except_for='file_content')

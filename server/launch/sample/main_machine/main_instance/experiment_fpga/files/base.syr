@@ -4,13 +4,13 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.13 secs
+Total CPU time to Xst completion: 0.14 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.13 secs
+Total CPU time to Xst completion: 0.14 secs
  
 --> Reading design: base.prj
 
@@ -104,8 +104,9 @@ Slice Utilization Ratio Delta      : 5
 =========================================================================
 *                          HDL Compilation                              *
 =========================================================================
-Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd" in Library work.
-Architecture behavioral of Entity untitled is up to date.
+Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd" in Library work.
+Entity <untitled> compiled.
+Entity <untitled> (Architecture <behavioral>) compiled.
 
 =========================================================================
 *                     Design Hierarchy Analysis                         *
@@ -128,7 +129,7 @@ Entity <Untitled> analyzed. Unit <Untitled> generated.
 Performing bidirectional port resolution...
 
 Synthesizing Unit <Untitled>.
-    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd".
+    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd".
 WARNING:Xst:647 - Input <ck> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:647 - Input <inicio> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:646 - Signal <estado<0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -251,12 +252,12 @@ All values displayed in nanoseconds (ns)
 =========================================================================
 
 
-Total REAL time to Xst completion: 7.00 secs
-Total CPU time to Xst completion: 6.34 secs
+Total REAL time to Xst completion: 6.00 secs
+Total CPU time to Xst completion: 5.99 secs
  
 --> 
 
-Total memory usage is 215688 kilobytes
+Total memory usage is 216200 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    4 (   0 filtered)
