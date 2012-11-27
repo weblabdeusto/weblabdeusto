@@ -81,9 +81,13 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final String STATE_COMPILER_ERROR = "compiler_error";
 	private static final String STATE_AWAITING_CODE = "awaiting_code";
 	private static final String STATE_NOT_READY = "not_ready";
+	private static final String STATE_COMPILING = "compiling";
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
+	
+	// The state the experiment is currently in. Must be a string within the states list.
+	private String currentState;
 	
 	public static class Style{
 		public static final String TIME_REMAINING         = "wl-time_remaining";
@@ -405,15 +409,32 @@ public class XilinxExperiment extends ExperimentBase{
 						
 						final String state = tokens[1];
 						
+						// Update the current state. This is needed in other places within this experiment.
+						XilinxExperiment.this.currentState = state;
+						
+						System.out.println("[DBG]: Current state is: " + state);
+						
 						if(state.equals(STATE_NOT_READY)) {
 							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_READY)) {
 							// Ready
 							XilinxExperiment.this.onDeviceReady();
+						} else if(state.equals(STATE_COMPILING)) {
+							// Check in a few seconds whether the state changed.
+							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_PROGRAMMING)) {
+							// Check in a few seconds whether the state changed.
 							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_FAILED)) {
+							// Something failed in the programming.
 							XilinxExperiment.this.onDeviceProgrammingFailed();
+						} else if(state.equals(STATE_COMPILER_ERROR)) {
+							// Compiling failed. 
+							XilinxExperiment.this.onDeviceCompilerError();
+						} else if(state.equals(STATE_AWAITING_CODE)) {
+							// Awaiting for VHDL code.
+							// TODO: Implement this. THIS IS NOT YET SUPPORTED.
+							XilinxExperiment.this.messages.setText("STATE_AWAITING_CODE is not yet supported");
 						} else {
 							XilinxExperiment.this.messages.setText("Received unexpected response to the STATE query");
 						}
@@ -432,7 +453,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	XilinxExperiment.this.messages.setText("File sent. Programming device");
+	    	XilinxExperiment.this.messages.setText("File sent.");
 	    }
 
 	    @Override
@@ -495,6 +516,25 @@ public class XilinxExperiment extends ExperimentBase{
 		this.messages.stop();	
 	}
 	
+	// TODO: Implement this properly.
+	/**
+	 * Called when the STATE query tells us that the compiling process failed.
+	 */
+	private void onDeviceCompilerError() {
+		this.deviceReady = false;
+		
+		if(XilinxExperiment.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+			// Make the bar finish in a few seconds, it will make itself
+			// invisible once it is full.
+			this.progressBar.finish(300);
+		
+		this.messages.setText("Compiling failed");
+		this.messages.stop();
+	}
+	
 	private void loadWidgets() {
 		
 		this.webcam.setVisible(true);
@@ -521,7 +561,17 @@ public class XilinxExperiment extends ExperimentBase{
 		this.progressBar.setTextUpdater(new IProgressBarTextUpdater(){
 			@Override
 			public String generateText(double progress) {
-				return "Programming device (" + (int)(progress*100) + "%)";
+				// Set the current action. Depending on the state, it will
+				// be either compiling or programming the device.
+				final String currentAction;
+				if( XilinxExperiment.this.currentState == STATE_PROGRAMMING )
+					currentAction = "Programming device";
+				else if( XilinxExperiment.this.currentState == STATE_COMPILING )
+					currentAction = "Compiling VHDL";
+				else
+					currentAction = "Processing";
+				
+				return currentAction + " (" + (int)(progress*100) + "%)";
 			}});
 		
 		// Set up a listener to automatically remove the progress
