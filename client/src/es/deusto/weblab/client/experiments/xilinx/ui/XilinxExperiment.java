@@ -563,10 +563,14 @@ public class XilinxExperiment extends ExperimentBase{
 			public String generateText(double progress) {
 				// Set the current action. Depending on the state, it will
 				// be either compiling or programming the device.
+				
+				// TODO: Remove this.
+				System.out.println("[DBG/GT]: State: " + XilinxExperiment.this.currentState);
+				
 				final String currentAction;
-				if( XilinxExperiment.this.currentState == STATE_PROGRAMMING )
+				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
-				else if( XilinxExperiment.this.currentState == STATE_COMPILING )
+				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
 					currentAction = "Compiling VHDL";
 				else
 					currentAction = "Processing";
