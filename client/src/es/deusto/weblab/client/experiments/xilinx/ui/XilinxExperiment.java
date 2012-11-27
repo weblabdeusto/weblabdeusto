@@ -307,6 +307,8 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		final JSONValue parsedInitialConfiguration = JSONParser.parseStrict(initialConfiguration);
 		
+		this.currentState = STATE_NOT_READY;
+		
 		try {
 			final String webcamUrl = parsedInitialConfiguration.isObject().get("webcam").isString().stringValue();
 			this.webcam.setUrl(webcamUrl);
