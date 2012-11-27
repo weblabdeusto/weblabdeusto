@@ -123,6 +123,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         # is not yet supported.
         if len(file_content) < 30000:
             try:
+                print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
                 return "STATE=" + STATE_PROGRAMMING
             except Exception as ex:

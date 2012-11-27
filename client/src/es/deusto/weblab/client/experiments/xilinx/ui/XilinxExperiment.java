@@ -252,7 +252,7 @@ public class XilinxExperiment extends ExperimentBase{
 	 */
 	@UiHandler("uploadButton")
 	void handleClick(ClickEvent e) {
-		boolean success = this.tryUpload();
+		final boolean success = this.tryUpload();
 		
 		if(success)
 			this.uploadButton.setVisible(false);
@@ -270,7 +270,17 @@ public class XilinxExperiment extends ExperimentBase{
 		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
 		
 		if(didChooseFile) {
+			
+			// Extract the file extension.
+			final String filename = this.uploadStructure.getFileUpload().getFilename();
+			final String [] split = filename.split("\\.");
+			String extension;
+			if(split.length == 0)
+				extension = "bit"; // BIT as default
+			extension = split[split.length-1];
+			
 			this.uploadStructure.getFormPanel().setVisible(false);
+			this.uploadStructure.setFileInfo(extension.toLowerCase());
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 			this.loadStartControls();
 		} else {
