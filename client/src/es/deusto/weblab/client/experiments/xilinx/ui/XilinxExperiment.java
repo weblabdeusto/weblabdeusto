@@ -78,6 +78,8 @@ public class XilinxExperiment extends ExperimentBase{
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
+	private static final String STATE_COMPILER_ERROR = "compiler_error";
+	private static final String STATE_AWAITING_CODE = "awaiting_code";
 	private static final String STATE_NOT_READY = "not_ready";
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
