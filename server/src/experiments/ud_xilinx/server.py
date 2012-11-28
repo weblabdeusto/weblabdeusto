@@ -48,7 +48,9 @@ STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
 
+# Names for the configuration variables.
 CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
+CFG_XILINX_COMPILING_TOOLS_PATH = "xilinx_compiling_tools_path"
 
 DEBUG = True
 
@@ -80,6 +82,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
+        self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
         
         self._ucf_file = None
 
@@ -152,7 +155,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         VHDL code and then program the board if the result is successful.
         """
         self._current_state = STATE_COMPILING
-        c = Compiler(self._compiling_files_path)
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path)
         c.DEBUG = True
         content = base64.b64decode(file_content)
         c.feed_vhdl(content)

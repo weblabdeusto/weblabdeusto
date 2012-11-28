@@ -46,4 +46,10 @@ xilinx_programmer_time = 60  # seconds
 
 fpga_webcam_url          = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''
 
+# Path to the UCF, VHD, and project files, which is also the path where the .BIT files will be
+# generated.
 xilinx_compiling_files_path = "main_machine/main_instance/experiment_fpga/files"
+
+# Path to the Xilinx tools used for compiling (par, xst, etc). This is not required if those
+# command line tools are available from the path.
+xilinx_compiling_tools_path = ""
