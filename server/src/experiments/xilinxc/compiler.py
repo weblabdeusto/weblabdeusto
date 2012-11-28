@@ -24,8 +24,18 @@ class Compiler(object):
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
     DEBUG = False
     
-    def __init__(self, filespath = BASE_PATH):
+    def __init__(self, filespath = BASE_PATH, toolspath = ""):
+        """
+        Constructs a new Compiler object.
+        @param filespath Path to the Xilinx base project and VHD/UCF files.
+        @param toolspath Path to the Xilinx command line tools (xst, par, etc). If those are in the 
+        path, this may be blank.
+        """
         self.filespath = filespath
+        self.toolspath = toolspath
+        if self.toolspath != "":
+            self.toolspath += os.sep
+            
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
             
@@ -60,7 +70,7 @@ class Compiler(object):
             f.close()
     
     def synthesize(self):
-        process = subprocess.Popen(["xst", "-intstyle", "ise", "-ifn", "base.xst", 
+        process = subprocess.Popen([self.toolspath + "xst", "-intstyle", "ise", "-ifn", "base.xst", 
                                     "-ofn", "base.syr"], 
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
@@ -76,7 +86,7 @@ class Compiler(object):
         return True
     
     def ngdbuild(self):
-        process = subprocess.Popen(["ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
+        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
                                     "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
@@ -92,7 +102,7 @@ class Compiler(object):
         return False
     
     def map(self):
-        process = subprocess.Popen(["map", "-intstyle", "ise", "-p", "xc3s1000-ft256-4", 
+        process = subprocess.Popen([self.toolspath + "map", "-intstyle", "ise", "-p", "xc3s1000-ft256-4", 
                                     "-cm", "area", "-ir", "off", "-pr", "off", "-c", "100", 
                                     "-o", "base_map.ncd", "base.ngd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -109,7 +119,7 @@ class Compiler(object):
         return False;
         
     def par(self):
-        process = subprocess.Popen(["par", "-w", "-intstyle", "ise", "-ol", "high", "-t", "1",
+        process = subprocess.Popen([self.toolspath + "par", "-w", "-intstyle", "ise", "-ol", "high", "-t", "1",
                                     "base_map.ncd", "base.ncd", "base.pcf"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
@@ -146,7 +156,7 @@ class Compiler(object):
         return b64contents
     
     def generate(self):
-        process = subprocess.Popen(["bitgen", "-intstyle", "ise", "-f", "base.ut", 
+        process = subprocess.Popen([self.toolspath + "bitgen", "-intstyle", "ise", "-f", "base.ut", 
                                     "base.ncd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
