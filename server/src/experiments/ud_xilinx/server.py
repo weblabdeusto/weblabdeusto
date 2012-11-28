@@ -52,7 +52,7 @@ STATE_FAILED = "failed"
 CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
 CFG_XILINX_COMPILING_TOOLS_PATH = "xilinx_compiling_tools_path"
 
-DEBUG = True
+DEBUG = False
 
 
 #TODO: which exceptions should the user see and which ones should not?
@@ -127,11 +127,11 @@ class UdXilinxExperiment(Experiment.Experiment):
         extension = file_info
         if extension == "vhd":
             try:
-                print "[DBG]: File received: Info: " + file_info
+                if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
                 return "STATE=" + STATE_COMPILING
             except Exception as ex:
-                print "EXCEPTION: " + ex
+                if DEBUG: print "EXCEPTION: " + ex
                 raise ex
         else:
             self._programming_thread = self._program_file_t(file_content)
@@ -144,7 +144,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         c.feed_ucf(content)
         
     def _handle_vhd_file(self, file_content, file_info):
-        print "[DBG] In _handle_vhd_file. Info is " + file_info
+        if DEBUG: print "[DBG] In _handle_vhd_file. Info is " + file_info
         self._compile_program_file_t(file_content)
         
     @threaded()
@@ -156,16 +156,16 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         self._current_state = STATE_COMPILING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path)
-        c.DEBUG = True
+        #c.DEBUG = True
         content = base64.b64decode(file_content)
         c.feed_vhdl(content)
-        print "[DBG]: VHDL fed. Now compiling."
+        if DEBUG: print "[DBG]: VHDL fed. Now compiling."
         success = c.compile()
         if(not success):
             self._current_state = STATE_COMPILER_ERROR
         else:
             bitfile = c.retrieve_bitfile()
-            print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
             self._program_file_t(bitfile)
         
 
