@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity Untitled is
-	Port (
+	Port (			Clk : in std_logic;			Leds : out std_logic_vector (7 downto 0);		Enable_seg_out : out std_logic_vector (3 downto 0);		Seven_seg : out std_logic_vector (6 downto 0);		Punto: out std_logic;			Buttons: in std_logic_vector (3 downto 0);		Switches: in std_logic_vector (9 downto 0);		
 		inicio: in std_logic;
 		ck: in std_logic;
 		I0: in std_logic;

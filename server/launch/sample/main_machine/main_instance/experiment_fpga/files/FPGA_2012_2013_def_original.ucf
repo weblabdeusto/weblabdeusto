@@ -1,45 +1,45 @@
 
 # CUIDADO, El WebLab-DEUSTO permite usar uno de dos relojes: el interno a 4 MHz (T9) o el definido por el usuario en el interface del WebLab-DEUSTO (D9). El usuario decide.
 #NET "clk"  LOC = "D9"  ; //Reloj externo controlable por el usuario en el Weblab en frecuencia
-#
-#NET "clk"  LOC = "T9"  ; //Reloj interno de 4 MHz (o 1 MHz, no lo recuerdo)
-#
-#NET "enable_seg_out<3>"  LOC = "E13"  ;
-#NET "enable_seg_out<2>"  LOC = "F14"  ;
-#NET "enable_seg_out<1>"  LOC = "G14"  ;
-#NET "enable_seg_out<0>"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
-#
-#NET "seven_seg<6>"  LOC = "E14"  ; //segmento a NIVEL BAJO
-#NET "seven_seg<5>"  LOC = "G13"  ; //segmento b NIVEL BAJO
-#NET "seven_seg<4>"  LOC = "N15"  ; //segmento c NIVEL BAJO
-#NET "seven_seg<3>"  LOC = "P15"  ; //segmento d NIVEL BAJO
-#NET "seven_seg<2>"  LOC = "R16"  ; //segmento e NIVEL BAJO
-#NET "seven_seg<1>"  LOC = "F13"  ; //segmento f NIVEL BAJO
-#NET "seven_seg<0>"  LOC = "N16"  ; //segmento g NIVEL BAJO
-#NET "punto"  LOC = "P16"  ; //punto
-#
-#NET "Buttons<0>"  LOC = "H16"  ; //Pulsador derecha
-#NET "Buttons<1>"  LOC = "J16"  ;
-#NET "Buttons<2>"  LOC = "K16"  ;
-#NET "Buttons<3>"  LOC = "K15"  ; // Pulsador izquierda
-#
-#NET "Leds<0>"  LOC = "K12"  ; //Led de la derecha
-#NET "Leds<1>"  LOC = "P14"  ;
-#NET "Leds<2>"  LOC = "L12"  ;
-#NET "Leds<3>"  LOC = "N14"  ;
-#NET "Leds<4>"  LOC = "P13"  ;
-#NET "Leds<5>"  LOC = "N12"  ;
-#NET "Leds<6>"  LOC = "P12"  ;
-#NET "Leds<7>"  LOC = "P11"  ; //Led de la izquierda
-#
-#NET "Switches<9>"  LOC = "C15"  ; //Interruptor de la izquierda
-#NET "Switches<8>"  LOC = "C16"  ;
-#NET "Switches<7>"  LOC = "D15"  ;
-#NET "Switches<6>"  LOC = "D16"  ; 
-#NET "Switches<5>"  LOC = "E15"  ;
-#NET "Switches<4>"  LOC = "E16"  ;
-#NET "Switches<3>"  LOC = "F15"  ;
-#NET "Switches<2>"  LOC = "G15"  ;  
 
-#NET "Switches<1>"  LOC = "G16"  ; 
-#NET "Switches<0>"  LOC = "H15"  ; // Interruptor de la derecha
+#NET "clk"  LOC = "T9"  ; //Reloj interno de 4 MHz (o 1 MHz, no lo recuerdo)
+
+NET "enable_seg_out<3>"  LOC = "E13"  ;
+NET "enable_seg_out<2>"  LOC = "F14"  ;
+NET "enable_seg_out<1>"  LOC = "G14"  ;
+NET "enable_seg_out<0>"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
+
+NET "seven_seg<6>"  LOC = "E14"  ; //segmento a NIVEL BAJO
+NET "seven_seg<5>"  LOC = "G13"  ; //segmento b NIVEL BAJO
+NET "seven_seg<4>"  LOC = "N15"  ; //segmento c NIVEL BAJO
+NET "seven_seg<3>"  LOC = "P15"  ; //segmento d NIVEL BAJO
+NET "seven_seg<2>"  LOC = "R16"  ; //segmento e NIVEL BAJO
+NET "seven_seg<1>"  LOC = "F13"  ; //segmento f NIVEL BAJO
+NET "seven_seg<0>"  LOC = "N16"  ; //segmento g NIVEL BAJO
+NET "punto"  LOC = "P16"  ; //punto
+
+NET "Buttons<0>"  LOC = "H16"  ; //Pulsador derecha
+NET "Buttons<1>"  LOC = "J16"  ;
+NET "Buttons<2>"  LOC = "K16"  ;
+NET "Buttons<3>"  LOC = "K15"  ; // Pulsador izquierda
+
+NET "Leds<0>"  LOC = "K12"  ; //Led de la derecha
+NET "Leds<1>"  LOC = "P14"  ;
+NET "Leds<2>"  LOC = "L12"  ;
+NET "Leds<3>"  LOC = "N14"  ;
+NET "Leds<4>"  LOC = "P13"  ;
+NET "Leds<5>"  LOC = "N12"  ;
+NET "Leds<6>"  LOC = "P12"  ;
+NET "Leds<7>"  LOC = "P11"  ; //Led de la izquierda
+
+NET "Switches<9>"  LOC = "C15"  ; //Interruptor de la izquierda
+NET "Switches<8>"  LOC = "C16"  ;
+NET "Switches<7>"  LOC = "D15"  ;
+NET "Switches<6>"  LOC = "D16"  ; 
+NET "Switches<5>"  LOC = "E15"  ;
+NET "Switches<4>"  LOC = "E16"  ;
+NET "Switches<3>"  LOC = "F15"  ;
+NET "Switches<2>"  LOC = "G15"  ;  
+
+NET "Switches<1>"  LOC = "G16"  ; 
+NET "Switches<0>"  LOC = "H15"  ; // Interruptor de la derecha

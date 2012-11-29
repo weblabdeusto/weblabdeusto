@@ -4,13 +4,13 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.54 secs
+Total CPU time to Xst completion: 0.11 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.54 secs
+Total CPU time to Xst completion: 0.11 secs
  
 --> Reading design: base.prj
 
@@ -105,8 +105,7 @@ Slice Utilization Ratio Delta      : 5
 *                          HDL Compilation                              *
 =========================================================================
 Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd" in Library work.
-Entity <untitled> compiled.
-Entity <untitled> (Architecture <behavioral>) compiled.
+Architecture behavioral of Entity untitled is up to date.
 
 =========================================================================
 *                     Design Hierarchy Analysis                         *
@@ -130,7 +129,14 @@ Performing bidirectional port resolution...
 
 Synthesizing Unit <Untitled>.
     Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd".
+WARNING:Xst:647 - Input <Clk> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:647 - Input <ck> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:647 - Input <Switches> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:1306 - Output <Leds> is never assigned.
+WARNING:Xst:1306 - Output <Seven_seg> is never assigned.
+WARNING:Xst:1306 - Output <Enable_seg_out> is never assigned.
+WARNING:Xst:647 - Input <Buttons> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:1306 - Output <Punto> is never assigned.
 WARNING:Xst:647 - Input <inicio> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:646 - Signal <estado<0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <entrada_aux> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -194,7 +200,7 @@ Optimization Goal                  : Speed
 Keep Hierarchy                     : No
 
 Design Statistics
-# IOs                              : 4
+# IOs                              : 39
 
 Cell Usage :
 # BELS                             : 1
@@ -209,7 +215,7 @@ Device utilization summary:
 Selected Device : 3s1000ft256-4 
 
  Number of Slices:                        0  out of   7680     0%  
- Number of IOs:                           4
+ Number of IOs:                          39
  Number of bonded IOBs:                   1  out of    173     0%  
 
 ---------------------------
@@ -253,13 +259,13 @@ All values displayed in nanoseconds (ns)
 
 
 Total REAL time to Xst completion: 6.00 secs
-Total CPU time to Xst completion: 6.68 secs
+Total CPU time to Xst completion: 5.38 secs
  
 --> 
 
-Total memory usage is 216392 kilobytes
+Total memory usage is 215816 kilobytes
 
 Number of errors   :    0 (   0 filtered)
-Number of warnings :    4 (   0 filtered)
+Number of warnings :   11 (   0 filtered)
 Number of infos    :    1 (   0 filtered)
 
