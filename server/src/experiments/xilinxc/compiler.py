@@ -39,6 +39,7 @@ class Compiler(object):
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
             
+
     def feed_vhdl(self, vhdl, debugging = False):
         """
         Replaces the local vhdl file contents with the provided code.
