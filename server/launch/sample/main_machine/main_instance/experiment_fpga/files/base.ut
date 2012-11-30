@@ -18,7 +18,7 @@
 -g UserID:0xFFFFFFFF
 -g DCMShutdown:Disable
 -g DCIUpdateMode:AsRequired
--g StartUpClk:CClk
+-g StartUpClk:JtagClk
 -g DONE_cycle:4
 -g GTS_cycle:5
 -g GWE_cycle:6

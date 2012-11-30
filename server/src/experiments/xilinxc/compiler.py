@@ -158,7 +158,7 @@ class Compiler(object):
     
     def generate(self):
         process = subprocess.Popen([self.toolspath + "bitgen", "-intstyle", "ise", "-f", "base.ut", 
-                                    "base.ncd"],
+                                    "base.ncd", "-g", "StartUpClk:JtagClk"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
         
@@ -183,13 +183,16 @@ class Compiler(object):
 
 if __name__ == "__main__":
     
-    Compiler.DEBUG = True
+
 
     c = Compiler()
+    
+    c.DEBUG = True
+    Compiler.DEBUG = True
     
     print c.synthesize()
     print c.implement()
     print c.generate()
-    print c.retrieve_bitfile()
+#    print c.retrieve_bitfile()
     
     print "Good bye"

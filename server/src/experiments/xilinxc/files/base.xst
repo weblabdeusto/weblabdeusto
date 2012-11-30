@@ -6,7 +6,7 @@ run
 -ofn base
 -ofmt NGC
 -p xc3s1000-4-ft256
--top Untitled
+-top base
 -opt_mode Speed
 -opt_level 1
 -iuc NO

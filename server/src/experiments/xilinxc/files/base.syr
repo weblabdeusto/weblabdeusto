@@ -4,13 +4,13 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.22 secs
+Total CPU time to Xst completion: 0.12 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.22 secs
+Total CPU time to Xst completion: 0.12 secs
  
 --> Reading design: base.prj
 
@@ -45,7 +45,7 @@ Output Format                      : NGC
 Target Device                      : xc3s1000-4-ft256
 
 ---- Source Options
-Top Module Name                    : Untitled
+Top Module Name                    : base
 Automatic FSM Extraction           : YES
 FSM Encoding Algorithm             : Auto
 Safe Implementation                : No
@@ -104,21 +104,21 @@ Slice Utilization Ratio Delta      : 5
 =========================================================================
 *                          HDL Compilation                              *
 =========================================================================
-Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd" in Library work.
-Architecture behavioral of Entity untitled is up to date.
+Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd" in Library work.
+Entity <base> compiled.
+Entity <base> (Architecture <behavioral>) compiled.
 
 =========================================================================
 *                     Design Hierarchy Analysis                         *
 =========================================================================
-Analyzing hierarchy for entity <Untitled> in library <work> (architecture <behavioral>).
+Analyzing hierarchy for entity <base> in library <work> (architecture <behavioral>).
 
 
 =========================================================================
 *                            HDL Analysis                               *
 =========================================================================
-Analyzing Entity <Untitled> in library <work> (Architecture <behavioral>).
-INFO:Xst:2679 - Register <estado> in unit <Untitled> has a constant value of 0 during circuit operation. The register is replaced by logic.
-Entity <Untitled> analyzed. Unit <Untitled> generated.
+Analyzing Entity <base> in library <work> (Architecture <behavioral>).
+Entity <base> analyzed. Unit <base> generated.
 
 
 =========================================================================
@@ -127,13 +127,24 @@ Entity <Untitled> analyzed. Unit <Untitled> generated.
 
 Performing bidirectional port resolution...
 
-Synthesizing Unit <Untitled>.
-    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/src/experiments/xilinxc/files/base.vhd".
-WARNING:Xst:647 - Input <ck> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
-WARNING:Xst:647 - Input <inicio> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
-WARNING:Xst:646 - Signal <estado<0>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-WARNING:Xst:646 - Signal <entrada_aux> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-Unit <Untitled> synthesized.
+Synthesizing Unit <base>.
+    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd".
+WARNING:Xst:647 - Input <Clk> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:2565 - Inout <Seven_seg<0>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<1>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<2>> is never assigned.
+WARNING:Xst:2565 - Inout <Enable_seg_out<0>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<3>> is never assigned.
+WARNING:Xst:647 - Input <Switches<9:8>> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:2565 - Inout <Enable_seg_out<1>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<4>> is never assigned.
+WARNING:Xst:2565 - Inout <Enable_seg_out<2>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<5>> is never assigned.
+WARNING:Xst:2565 - Inout <Enable_seg_out<3>> is never assigned.
+WARNING:Xst:2565 - Inout <Seven_seg<6>> is never assigned.
+WARNING:Xst:647 - Input <Buttons> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:2565 - Inout <Punto> is never assigned.
+Unit <base> synthesized.
 
 
 =========================================================================
@@ -157,11 +168,11 @@ Found no macro
 *                         Low Level Synthesis                           *
 =========================================================================
 
-Optimizing unit <Untitled> ...
+Optimizing unit <base> ...
 
 Mapping all equations...
 Building and optimizing final netlist ...
-Found area constraint ratio of 100 (+ 5) on block Untitled, actual ratio is 0.
+Found area constraint ratio of 100 (+ 5) on block base, actual ratio is 0.
 
 Final Macro Processing ...
 
@@ -193,13 +204,14 @@ Optimization Goal                  : Speed
 Keep Hierarchy                     : No
 
 Design Statistics
-# IOs                              : 4
+# IOs                              : 39
 
 Cell Usage :
-# BELS                             : 1
-#      VCC                         : 1
-# IO Buffers                       : 1
-#      OBUF                        : 1
+# BELS                             : 2
+#      LUT2                        : 2
+# IO Buffers                       : 20
+#      IBUF                        : 10
+#      OBUF                        : 10
 =========================================================================
 
 Device utilization summary:
@@ -207,9 +219,10 @@ Device utilization summary:
 
 Selected Device : 3s1000ft256-4 
 
- Number of Slices:                        0  out of   7680     0%  
- Number of IOs:                           4
- Number of bonded IOBs:                   1  out of    173     0%  
+ Number of Slices:                        1  out of   7680     0%  
+ Number of 4 input LUTs:                  2  out of  15360     0%  
+ Number of IOs:                          39
+ Number of bonded IOBs:                  20  out of    173    11%  
 
 ---------------------------
 Partition Resource Summary:
@@ -242,23 +255,42 @@ Speed Grade: -4
    Minimum period: No path found
    Minimum input arrival time before clock: No path found
    Maximum output required time after clock: No path found
-   Maximum combinational path delay: No path found
+   Maximum combinational path delay: 9.033ns
 
 Timing Detail:
 --------------
 All values displayed in nanoseconds (ns)
 
 =========================================================================
+Timing constraint: Default path analysis
+  Total number of paths / destination ports: 12 / 10
+-------------------------------------------------------------------------
+Delay:               9.033ns (Levels of Logic = 3)
+  Source:            A (PAD)
+  Destination:       S0 (PAD)
+
+  Data Path: A to S0
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     IBUF:I->O             2   0.821   1.216  A_IBUF (A_IBUF)
+     LUT2:I0->O            1   0.551   0.801  S01 (S0_OBUF)
+     OBUF:I->O                 5.644          S0_OBUF (S0)
+    ----------------------------------------
+    Total                      9.033ns (7.016ns logic, 2.017ns route)
+                                       (77.7% logic, 22.3% route)
+
+=========================================================================
 
 
-Total REAL time to Xst completion: 7.00 secs
-Total CPU time to Xst completion: 7.40 secs
+Total REAL time to Xst completion: 4.00 secs
+Total CPU time to Xst completion: 4.58 secs
  
 --> 
 
-Total memory usage is 216520 kilobytes
+Total memory usage is 216008 kilobytes
 
 Number of errors   :    0 (   0 filtered)
-Number of warnings :    4 (   0 filtered)
-Number of infos    :    1 (   0 filtered)
+Number of warnings :   15 (   0 filtered)
+Number of infos    :    0 (   0 filtered)
 
