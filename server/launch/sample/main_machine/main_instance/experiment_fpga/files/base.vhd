@@ -5,6 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity base is
 	Port (
+	
 		A: in std_logic;
 		B: in std_logic;
 		S0: out std_logic;

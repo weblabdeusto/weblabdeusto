@@ -4,13 +4,13 @@ Copyright (c) 1995-2012 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.12 secs
+Total CPU time to Xst completion: 0.13 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.12 secs
+Total CPU time to Xst completion: 0.13 secs
  
 --> Reading design: base.prj
 
@@ -104,9 +104,8 @@ Slice Utilization Ratio Delta      : 5
 =========================================================================
 *                          HDL Compilation                              *
 =========================================================================
-Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd" in Library work.
-Entity <base> compiled.
-Entity <base> (Architecture <behavioral>) compiled.
+Compiling vhdl file "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base_copy.vhd" in Library work.
+Architecture behavioral of Entity base is up to date.
 
 =========================================================================
 *                     Design Hierarchy Analysis                         *
@@ -128,7 +127,7 @@ Entity <base> analyzed. Unit <base> generated.
 Performing bidirectional port resolution...
 
 Synthesizing Unit <base>.
-    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base.vhd".
+    Related source file is "C:/shared/weblab_github/weblabdeusto_lrg/server/launch/sample/main_machine/main_instance/experiment_fpga/files/base_copy.vhd".
 WARNING:Xst:647 - Input <Clk> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:2565 - Inout <Seven_seg<0>> is never assigned.
 WARNING:Xst:2565 - Inout <Seven_seg<1>> is never assigned.
@@ -283,12 +282,12 @@ Delay:               9.033ns (Levels of Logic = 3)
 =========================================================================
 
 
-Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 4.96 secs
+Total REAL time to Xst completion: 4.00 secs
+Total CPU time to Xst completion: 4.55 secs
  
 --> 
 
-Total memory usage is 215688 kilobytes
+Total memory usage is 216392 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :   15 (   0 filtered)

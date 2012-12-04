@@ -55,6 +55,18 @@ class Compiler(object):
             f.write(vhdl)
             f.close()
             
+    def restore_ucf(self):
+        """
+        Restores the local ucf file contents with the default UCF
+        contents.
+        """
+        original_ucfpath = self.filespath + os.sep + "FPGA_2012_2013_def_original.ucf"
+        fi = file(original_ucfpath, "r")
+        original_ucf = fi.read()
+        fi.close()
+        
+        self.feed_ucf(original_ucf)
+            
     def feed_ucf(self, ucf, debugging = False):
         """
         Replaces the local ucf file contents with the provided ucf.
@@ -182,8 +194,6 @@ class Compiler(object):
     
 
 if __name__ == "__main__":
-    
-
 
     c = Compiler()
     
