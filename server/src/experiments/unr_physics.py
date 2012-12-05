@@ -73,12 +73,13 @@ class UnrExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
 
-        print serialized_server_initial_data
-
         dtime = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        username   = 'porduna'      # TODO
-        fullname   = 'Pablo Orduna' # TODO
+        server_initial_data = json.loads(serialized_server_initial_data)
+
+        username   = server_initial_data.get('request.username')
+        fullname   = server_initial_data.get('request.full_name')
+
         random_str = uuid.uuid4()
         data       = "username=%(username)s&fullname=%(fullname)s&timestamp=%(timestamp)s" % {
             'username'  : username,
