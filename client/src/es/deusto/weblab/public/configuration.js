@@ -407,6 +407,13 @@
 								   "is.demo"             : true
 	                			}
 	                		], 
+	                "unr-physics" : [
+	                            {
+		                			"experiment.name"	 : "unr-physics",
+		                			"experiment.category" : "Physics experiments",
+		                			"experiment.picture"  : "/img/experiments/unr.jpg"
+	                            }
+	                        ],
                     "ilab-batch" : [
                                 {
                                 	"experiment.reserve.button.shown" : false,
