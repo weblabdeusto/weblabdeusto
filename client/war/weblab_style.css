@@ -42,6 +42,17 @@ a img{
 
 .experiment-list-category-panel {
 	padding: 5px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.experiment-list-category-panel .header {
+/*	margin: 60px 0 10px;
+	font-size: 60px;
+	font-weight: 200;
+	line-height: 1;
+	letter-spacing: -1px;
+	color: #5A5A5A;
+	text-rendering: optimizelegibility;*/
 }
 
 /************************************************
