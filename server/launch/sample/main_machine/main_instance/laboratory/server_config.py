@@ -133,6 +133,12 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_submarine:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:unr-physics@Physics experiments':
+            {
+                 'coord_address': 'experiment_unr:main_instance@main_machine',
+                 'checkers': ()
+            },
+
         'exp1:robot-standard@Robot experiments':
             {
                  'coord_address': 'experiment_robot_standard:main_instance@main_machine',
