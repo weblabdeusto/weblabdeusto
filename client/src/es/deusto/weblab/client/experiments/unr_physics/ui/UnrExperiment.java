@@ -14,7 +14,8 @@
 
 package es.deusto.weblab.client.experiments.unr_physics.ui;
 
-import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Label;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
@@ -35,7 +36,8 @@ public class UnrExperiment extends UIExperimentBase {
 	@Override
 	public void postEnd(String initialData, String endData){
 		this.boardController.stopPolling();
-		putWidget(new Anchor("Click here to open the laboratory session", initialData));
+		putWidget(new Label("Redirecting to..." + initialData));
+		Window.Location.replace(initialData);
 	}
 	
 }
