@@ -34,6 +34,7 @@ public class UnrExperiment extends UIExperimentBase {
 	
 	@Override
 	public void postEnd(String initialData, String endData){
+		this.boardController.stopPolling();
 		putWidget(new Anchor("Click here to open the laboratory session", initialData));
 	}
 	

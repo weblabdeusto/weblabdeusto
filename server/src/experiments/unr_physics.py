@@ -73,6 +73,8 @@ class UnrExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
 
+        print serialized_server_initial_data
+
         dtime = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
         username   = 'porduna'      # TODO
