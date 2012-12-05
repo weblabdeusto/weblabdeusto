@@ -48,6 +48,7 @@ public interface ILabController {
 	public void finishReservationAndLogout();
 	
 	public void poll();
+	public void stopPolling();
 	
 	public void setReservationId(String reservationId);
 	public void removeReservationId();

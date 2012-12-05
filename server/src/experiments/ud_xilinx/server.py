@@ -30,8 +30,10 @@ import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
+from experiments.xilinxc.compiler import Compiler
 
 import json
+import base64
 
 from voodoo.threaded import threaded
 
@@ -39,9 +41,18 @@ from voodoo.threaded import threaded
 # Though it would be slightly more efficient to use single characters, it's a text protocol
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
+STATE_AWAITING_CODE = "awaiting_code"
+STATE_COMPILING = "compiling"
+STATE_COMPILER_ERROR = "compiler_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
+
+# Names for the configuration variables.
+CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
+CFG_XILINX_COMPILING_TOOLS_PATH = "xilinx_compiling_tools_path"
+
+DEBUG = False
 
 
 #TODO: which exceptions should the user see and which ones should not?
@@ -69,6 +80,11 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        
+        self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
+        self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
+        
+        self._ucf_file = None
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -101,9 +117,57 @@ class UdXilinxExperiment(Experiment.Experiment):
         Will spawn a new thread which will program the xilinx board with the
         provided file.
         """
-        self._programming_thread = self._program_file_t(file_content)
-        return "STATE=" + STATE_PROGRAMMING
-
+        
+        # TODO:
+        # We will distinguish the file type according to its size.
+        # This is an extremely bad method, which should be changed in the
+        # future. Currently we assume that if the file length is small,
+        # then it's a VHDL file rather than a BITSTREAM. Explicit UCF
+        # is not yet supported.
+        extension = file_info
+        if extension == "vhd":
+            try:
+                if DEBUG: print "[DBG]: File received: Info: " + file_info
+                self._handle_vhd_file(file_content, file_info)
+                return "STATE=" + STATE_COMPILING
+            except Exception as ex:
+                if DEBUG: print "EXCEPTION: " + ex
+                raise ex
+        else:
+            self._programming_thread = self._program_file_t(file_content)
+            return "STATE=" + STATE_PROGRAMMING
+        
+    def _handle_ucf_file(self, file_content, file_info):
+        print os.getcwd()
+        c = Compiler(self._compiling_files_path)
+        content = base64.b64decode(file_content)
+        c.feed_ucf(content)
+        
+    def _handle_vhd_file(self, file_content, file_info):
+        if DEBUG: print "[DBG] In _handle_vhd_file. Info is " + file_info
+        self._compile_program_file_t(file_content)
+        
+    @threaded()
+    @logged("info",except_for='file_content')
+    def _compile_program_file_t(self, file_content):
+        """
+        Running in its own thread, this method will compile the provided
+        VHDL code and then program the board if the result is successful.
+        """
+        self._current_state = STATE_COMPILING
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path)
+        #c.DEBUG = True
+        content = base64.b64decode(file_content)
+        c.feed_vhdl(content)
+        if DEBUG: print "[DBG]: VHDL fed. Now compiling."
+        success = c.compile()
+        if(not success):
+            self._current_state = STATE_COMPILER_ERROR
+        else:
+            bitfile = c.retrieve_bitfile()
+            if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            self._program_file_t(bitfile)
+        
 
     @threaded()
     @logged("info",except_for='file_content')
@@ -191,6 +255,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             # will need to know whether the programming has been done and whether we are
             # hence ready to start receiving real commands.
             if command == 'STATE':
+                if(DEBUG):
+                    print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE="+ self._current_state
                 return reply
 

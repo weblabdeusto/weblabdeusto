@@ -183,7 +183,13 @@ Once we have it, create the VM by following these broad steps:
 	   starts but no installation media is found, then check the previous steps (particularly, make sure you configured the installation media right, and 
 	   that your CD or ISO image is right).
 	#. Install Windows normally. 
+	#. Apart from whichever administrator account you create, create a second admin account called `weblab`. Naming it `weblab` is important. 
 	#. Once Windows is installed, make sure the Internet can be accessed from the Virtual Machine. 
+	
+	
+.. Note:: 
+	The `weblab` account we created in previous steps could actually be named differently. But then, additional configuration changes would be required
+	in the In-VM Manager (which we will install in later sections of this guide), and for simplicity, these won't be covered here.
 	
 
 Congratulations. If everything went ok, you now have a virtual windows machine on your VirtualBox.
@@ -357,10 +363,15 @@ Installing as a service
 .......................
 
 The Manager will run as a Windows service. To install it, you can't execute WindowsVMService.exe
-straightaway. Instead, you should execute the `sc_install_service.bat` script. Depending on your
-version of Windows, you might have to right click on the .bat file, and click **run as administrator**.
+straightaway. Instead, you should execute the `sc_install_service.bat` script.
+If your VM is running a relatively modern version of Windows you should right click on the script
+and **run as administrator**.
 
-If for any reason `sc_install_service.bat` failed, you may try with `install_service.bat`.
+.. Warning:: If you do not run the script with administrator priviledges, it will be unable to
+			 install it properly.
+
+If for any reason `sc_install_service.bat` failed, you may try with `install_service.bat`, though this
+is not recommended.
 
 When those succeed, your service will be installed as a standard Windows service, and can be
 started and stopped as one. Alternatively, `sc_start_service` and `sc_stop_service` scripts
@@ -379,8 +390,291 @@ Starting the service
 Locate the service in the Windows *Service Manager*. If the service is not started already, then click on
 it and start it.
 
-If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0.
+.. Note:: Alternatively, if you installed the service through the `sc_install_service` script, you may
+		  use the `sc_start_service` and the `sc_stop_service` to start and stop it.
 
+If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0, 
+and that the service is installed properly. 
+
+Testing the service
+...................
+
+.. Warning::
+	**CHECKLIST** *(Ensure the following before starting this section. All of them apply to the **guest** Windows (virtualized one))*
+	
+	#. WeblabVMService appears in my list of processes (which can be checked through the Windows' *services.msc* utility).
+	#. When I start WeblabVMService, no errors occur. The status of the service changes to *started* and stays so.
+	
+We will now carry out a few tests to check whether WeblabVMService is working as expected with our current settings.
+
+**Test 1**
+This test should be done within the guest OS. That is, within the virtualized Windows.
+
+	#. If the WeblabVMService is not running already, start it.
+	#. Open a browser window.
+	#. Do the following query: `http://localhost:6789/?sessionid=testone`
+	#. It should take a while and then take you to a blank page with only the word `Done` written in black. If the 
+	   page cannot be loaded or if an error occurs, then the service is either not running or failing. If that is the case, do not proceed. It is 
+	   suggested that you contact the developers for support. From this point on, we will assume `Done` was printed.
+	#. The password of your Windows `weblab` account has now been changed to `testone`. That is essentially what the previous query did.
+	   You should now verify that this is indeed the case. Logout and try to login into your `weblab` account, using `testone` as password.
+	#. If you manage to login using that password, then congratulations, the first test was successful, you may go on. If you can't login
+	   using that password, then something failed. If `done` was printed to the screen, this is fortunately unlikely. Make sure you 
+	   followed every step right. If it still doesn't work, please contact the developers for support.
+	   
+	   
+**Test 2**
+This test assumes that the first test was successful. We will try the following:
+
+	#. If the WeblabVMService is not running already, start it.
+	#. Find out the IP that has been assigned to your Virtual Machine in your local network. This is the IP we used
+	   in previous sections to connect to the machine through RDP. It will most likely be something such as `192.168.100.5`, but it
+	   may start with `172` instead, or with other digits.
+	#. Open a browser in your **host** machine (that is, **not** your guest machine). 
+	#. Do the following query: `http://192.168.100.5:6789/?sessionid=testtwo`. Replace 192.168.100.5 with your actual VM IP.
+	#. It should take you to the same page as in the first test. A blank page with `Done` in black. If it worked, congratulations. The
+	   second test was successful. You may try to login with the password `testtwo` into the `weblab` account of your Virtual Machine
+	   if you wish to be sure. If it didn't, see the following note.
+	   
+.. Note:: The previous test should have loaded a blank page with `Done` written in black. If it did, you may skip this note. If it didn't,
+		  something went wrong. Most often, this means that the guest OS is not accessible from the host OS. Try to login into your host
+		  OS through RDP, in the same way you did before when you configured the *network settings* of the VM (in previous sections of this guide).
+		  If you still can connect to the machine through RDP, then you should repeat the first test, to make sure the service is still working.
+		  If RDP is working, and the first test is working, but the second test is still failing, please repeat the second test with a different
+		  browser. If it still does not work, please contact the developers for support. (In this guide, from this point, we will assume that
+		  the second test did work. If it didn't, you may not want to proceed until the issue is solved).
+		  
+Congratulations, if you are here, both tests should have passed. This means that WeblabVMService is properly installed and working.
+
+
+
+
+Preparing the Virtual Machine: Base Snapshot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What is a snapshot?
+-------------------
+
+Most VM systems (such as VirtualBox) support snapshots. Snapshots describe the exact state of the Virtual Machine at a given point of time.
+Once you have taken a shapshot, you can at any time restore your VM to it. This is how WebLab-Deusto VM experiment ensures that any change
+a user makes to the VM, is restored before the next session.
+
+Base Snapshot
+-------------
+
+We will take an snapshot, which will be our `base snapshot`, the one every user will get to use. After the user is done,
+WebLab-Deusto will restore the system to that same `base snapshot` again.
+
+To prepare a first base snapshot, you can follow these steps:
+
+	#. Start your guest Windows.
+	#. Login into your `weblab` account.
+	#. Start the In-VM Manager if it is not running already.
+	#. Install any software you wish the users to have.
+	#. Open any program that you want the users to see.
+	#. Prepare everything for the user. Arrange every open window. 
+	#. Your machine should now be ready. Without closing it, it's time to take a snapshot. In VirtualBox menu, go to
+	   Machine->Take a snapshot. It will let you choose a name. Type `base`. You can actually choose a different one and configure
+	   it later, but we will use `base` for simplicity.
+	  
+.. Note:: Probably, your actual experiment is not ready yet. When it is, you will probably have to modify the base snapshot to include it.
+		  Fortunately, that is easy. Though the previous steps are somewhat linear, really the only important things are:
+		  
+			#. Your guest windows needs to be logged in the `weblab` account.
+			#. The In-VM manager needs to be started.
+			#. The machine must be turned on when you take the snapshot. If it isn't, it will have to be boot-up everytime, and this
+			   takes too long of a time. 
+		
+		  These are essentially the three points that you have to take into account when creating your own base snapshots.
+		  
+Testing the Base Snapshot
+-------------------------
+
+We will make sure we are on the right track. Do the following:
+
+	#. Start your guest Windows.
+	#. In your guest Windows, create some new file, and add it to the desktop. It can be any file, and have any name. For instance,
+	   you may create a `TESTING.TXT` text file.
+	#. From this point on, we will use the command line, to ensure that it is working as expected too.
+	#. Open a command line in your **host** Windows. (That is, not on your virtualized Windows). We will use it to manage virtualbox.
+	#. Recall your `VM name`. As we established in previous sections of this guide, that is the name that appears in VirtualBox's list,
+	   and which you can right click to start the machine, etc.
+	#. Type the following command in the command line: `vboxmanage controlvm "Windows VM" poweroff`. You should replace `Windows VM` with your
+	   actual `VM name`. The following is what should happen::
+	   
+		C:\Users\lrg>vboxmanage controlvm "Windows VM" poweroff
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+
+		0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+
+	   Your machine should turn off. If it doesn't, make sure you installed VirtualBox properly, as described in previous sections, and that you
+	   specified the right `VM name` in your command.
+	   
+	#. We will now restore the `base` snapshot using the command line. Type the following: `vboxmanage snapshot "Windows VM" restore "base"`.
+	   Replace *Windows VM* with the actual name of your Virtual Machine, and replace *base* with the actual name of your snapshot (which is most likely *base*
+	   too, if you followed the previous sections accurately). The following is what should happen::
+	   
+	    C:\Users\lrg>vboxmanage snapshot "Windows VM" restore "base"
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+		
+	#. Finally, we will start the VM through the command line. Type the following: `vboxmanage startvm "Windows VM"`.
+	   Again, replace *Windows VM* with the actual name of your Virtual Machine. The Virtual Machine should appear, loading your 
+	   virtualized Windows, and the following should appear in your console::
+	
+		C:\Users\lrg>vboxmanage startvm "Windows VM"
+		Oracle VM VirtualBox Command Line Management Interface Version 3.2.10
+		(C) 2005-2010 Oracle Corporation
+		All rights reserved.
+		
+	#. If an error occurs, something is wrong. Check the previous steps. Note that your Windows snapshot should have loaded. What you see is exactly
+	   what your experiment users will see. If something is amiss, for instance, if Windows had to boot (if it wasn't started already) or if
+	   the programs you left open when you created your `base` snapshot are not open anymore, then you probably did not create the snapshot
+	   properly or you did not restore it. You might want to check the previous sections if that is the case.
+	   
+	
+
+.. Warning::
+	**CHECKLIST** *(Please ensure the following before going on to the next section)*
+	
+	#. My VM was loaded properly. Windows did not need to boot. 
+	#. The programs I left open when I created my `base` snapshot were there still.
+	#. I was able to accomplish all of the above through the command line.
+
+If nothing went wrong, congratulations, your snapshot is ready.
+
+
+
+
+Configuring the WebLab instance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have followed the guide up to here, every prerrequisite is now ready. In this last section, we will configure and test the WebLab
+experiment itself. That is, the experiment server which will actually control the VM we have created, through the means we have provided.
+
+
+Recalling important variables
+-----------------------------
+
+Before going on we will need to remember some variables which we established during the previous sections. We need the following:
+
+	#. **VM name**: The name you gave to your VM. The one you used with the *vboxmanage* commands. 
+	#. **VM ip**: The local IP of your VM. That is the IP that you used to connect to it through RDP.
+	
+	
+Creating the instance through Weblab-admin
+------------------------------------------
+
+As we mentioned in the first sections of this guide, you need to have the weblab-admin script properly installed.
+The next steps assume you do.
+
+We will next use weblab-admin to create a new WebLab instance with our VM experiment. We will run the following command::
+
+	weblab-admin.py create WLTest --vm --vbox-base-snapshot "base" --vbox-vm-name "Windows VM" --vm-estimated-load-time 30 
+	--http-query-user-manager-url "http://192.168.64.143:6789" --vm-url 192.168.64.143 --http-server-port 8000
+	
+However, you will need to make a few changes to the command:
+
+	#. Change the IP, 192.168.64.143 for your **VM ip**. You need to change it for the http-query-user-manager-url, which is,
+	   essentially, the address to which the password changing queries that we have explained in previous sections are sent.
+	   You also need to change it for the vm-url variable. This isn't that important, because it is simply the URL that will
+	   be displayed to experiment users, so that they can connect through RDP.
+	#. Change the Virtual Machine name, "Windows VM", for your own **VM name**.
+	#. Note that VMDeploy is, in this case, the name we have given to our new instance. You may change it, if you want to.
+	
+
+This is what should happen::
+
+	(weblab.dev) C:\shared\weblab_github\weblabdeusto_lrg\server\src>weblab-admin.py 
+	create WLTest --force --vm --vbox-base-snapshot base --vbox-vm-name "Windows VM" 
+	--vm-estimated-load-time 30 --http-query-user-manager-url "http://192.168.64.143:6789"
+	--vm-url 192.168.64.143 --http-server-port 8000
+
+	patchZsiPyExpat skipped; ZSI not installed
+	patchZsiFaultFromException skipped; ZSI not installed
+
+	Congratulations!
+	WebLab-Deusto system created
+
+	Run:
+
+		 weblab-admin.py start VMTestTwoS
+
+	to start the WebLab-Deusto system. From that point, you'll be able to access:
+
+	   http://localhost:8000/
+
+	Or in production if you later want to deploy it in Apache:
+
+		 http://localhost/weblab/
+
+	And log in as 'admin' using 'password' as password.
+
+	You should also configure the images directory with two images called:
+
+		 sample.png and sample-mobile.png
+
+	You can also add users, permissions, etc. from the admin CLI by typing:
+
+		weblab-admin.py admin VMTestTwoS
+
+	Enjoy!
+	
+
+If an error occurs here, it is likely that it is not related to the VM experiment. Please, make sure that you have installed weblab 
+properly and that you can deploy instances (without vm experiments) through *weblab-admin*. Unfortunately, doing that is
+beyond the scope of this guide, but you can check the weblab installation documentation. From this point, we will assume
+your instance was deployed properly.
+
+
+Testing our new instance
+------------------------
+
+To start our new instance, type the following::
+
+	weblab-admin.py start WLTest
+	
+Replace `WLTest` with the name you gave to your weblab instance (which is most likely `WLTest` either way.
+
+Your WebLab instance should now start. 
+
+Open a browser in your computer, and connect to it through http://localhost:8000, which is the port we specified.
+
+You can log into it with the account name `admin` and the password `password`. There should be a few experiments, among
+them, your new VM experiment.
+
+Check, reserve, and check whether it works as expected.
+
+If the experiment is reserved properly, and you can connect to your Virtual Machine through RDP using the provided address, and if you can see
+the snapshot we set in previous sections. **Congratulations, you have successfully deployed an VM experiment!**
+
+If no error occurred, this guide is **over**. 
+
+If something went wrong, take a look at the next section.
+
+
+Something failed
+----------------
+
+If you are in this section, some problem occurred and your VM deployment is not working. We will here describe some likely errors. 
+
+*My experiment seems to work properly, but I can't connect through RDP to the provided address.*
+
+Make sure that the IP that you are being provided with is the same as the IP you tested with, on the `network configuration` section of this guide.
+If it is and the `network configuration` section's test still succeeds, please contact the Weblab developers for support.
+
+*The VM experiment appears, but an error occurs before the reservation succeeds.*
+
+Make sure that you installed Weblab properly. That is, make sure that experiments other than the VM one work. If other experiments don't work,
+then the problem is most likely not related to VMs. Check the weblab installation guide. If it's only the VM experiment which does not work,
+then please contact the Weblab developers for support.
+
+*The VM experiment appears, I can reserve, but when the experiment loads, the progress bar never finishes.*
+
+Check the console in case there is an error. If there is, please contact the Weblab developers for support. 
 
 
 

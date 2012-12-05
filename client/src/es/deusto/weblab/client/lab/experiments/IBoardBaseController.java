@@ -123,4 +123,9 @@ public interface IBoardBaseController{
 	 * Finish the experiment.
 	 */
 	public void finish();
+	
+	/**
+	 * Indicate that polling is not required in this type of experiment.
+	 */
+	public void stopPolling();
 }

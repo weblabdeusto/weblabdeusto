@@ -36,7 +36,7 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
         self.exercises = {
             'bcd'    : ['cod1', 'cod2',     'cod3',    'cod4',  'cod5'],
-            'others' : ['cod1', 'cod_gray', 'cod_xs3', 'cod_gray_xs3'],
+            'other'  : ['cod1', 'cod_gray', 'cod_xs3', 'cod_gray_xs3'],
         }
 
         # module_directory = os.path.join(*__name__.split('.')[:-1])
@@ -49,8 +49,7 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
                     full_relative_path_tuple = module_directory + (filename,)
                     full_relative_path = os.path.join(*full_relative_path_tuple)
                     file_path = data_filename( full_relative_path )
-                    print file_path
-                    self.contents = open(file_path, 'rb').read()
+                    self.contents[value] = open(file_path, 'rb').read()
 
         self.current_labels = []
 
@@ -59,13 +58,13 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
     @logged('info')
     def do_start_experiment(self, client_initial_data, server_initial_data, *args, **kwargs):
         deserialized_client_request = json.loads(client_initial_data)
-        exercise = deserialized_client_request['exercise']
+        exercise = deserialized_client_request.get('exercise', 'bcd')
         self.current_labels = self.exercises.get(exercise, ['Exercise', exercise, 'not found'])
 
         self._clear()
 
         initial_configuration = {}
-        webcam = cfg_manager.get_value('webcam', None)
+        webcam = self._cfg_manager.get_value('webcam', None)
         if webcam is not None:
             initial_configuration['webcam']  = webcam
 #        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
@@ -99,11 +98,15 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     def do_send_command_to_device(self, command):
         if command.startswith('label:') and command[len('label:'):] in self.current_labels:
-            self._autoprogram(command[len('label:'):])
+            return self._autoprogram(command[len('label:'):])
         elif command.startswith('switch:'):
-            print command
             switch_number, on = command[len('switch:'):].split(',')
+            switch_number = 5 + int(switch_number)
 
             new_command = 'ChangeSwitch %s %s' % (on, switch_number)
-            super(BinaryExperiment, self).do_send_command_to_device(new_command)
+
+            return super(BinaryExperiment, self).do_send_command_to_device(new_command)
+
+        elif command.startswith('STATE'):
+            return super(BinaryExperiment, self).do_send_command_to_device(command)
 

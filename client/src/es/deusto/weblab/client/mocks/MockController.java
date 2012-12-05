@@ -211,4 +211,10 @@ public class MockController implements ILabController {
 	@Override
 	public void disableFinishOnClose() {
 	}
+
+	@Override
+	public void stopPolling() {
+		// TODO Auto-generated method stub
+		
+	}
 }

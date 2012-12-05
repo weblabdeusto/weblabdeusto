@@ -672,4 +672,8 @@ public class LabController implements ILabController {
 	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentUniqueName(), experimentLoadedCallback, this.isMobile);
 	}
 
+	@Override
+	public void stopPolling() {
+		this.pollingHandler.stop();
+	}
 }
