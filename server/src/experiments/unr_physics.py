@@ -53,14 +53,14 @@ def rc4(data, key):
 
     return ''.join(output)
 
-
+DEFAULT_URL = 'http://labremf4a.fceia.unr.edu.ar/accesodeusto.aspx?id_instalacion=%(INSTALLATION)s&cadena=%(DATA)s&checksum=%(HASH)s'
 
 class UnrExperiment(Experiment.Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UnrExperiment,self).__init__(*args, **kwargs)
         self._user     = cfg_manager.get_value('unr_user', None)
         self._password = cfg_manager.get_value('unr_password', None)
-        self._url_tpl  = cfg_manager.get_value('unr_url', None)
+        self._url_tpl  = cfg_manager.get_value('unr_url', DEFAULT_URL)
 
         if self._user is None or self._password is None:
             raise Exception("Attempting to instanciate UnrExperiment without configuring unr_user or unr_password")
