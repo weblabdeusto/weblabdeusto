@@ -81,7 +81,7 @@ class UnrExperiment(Experiment.Experiment):
         fullname   = server_initial_data.get('request.full_name')
 
         random_str = uuid.uuid4()
-        data       = "username=%(username)s&fullname=%(fullname)s&timestamp=%(timestamp)s" % {
+        data       = "username=%(username)s&fullname=%(fullname)s&timestamp=%(timestamp)s&random=%(random)s" % {
             'username'  : username,
             'fullname'  : fullname,
             'timestamp' : dtime,
