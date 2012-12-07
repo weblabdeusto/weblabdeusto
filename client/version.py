@@ -36,7 +36,7 @@ def get_number_of_versions(version):
 def generate(filename):
     version = get_version()
     number, date = get_number_of_versions(version)
-    msg = r"""var wlVersionMessage = "WebLab-Deusto r<a href=\"https://github.com/porduna/weblabdeusto/commits/%(version)s\">%(version_number)s</a> | Last update: %(date)s";""" % {
+    msg = r"""var wlVersionMessage = "WebLab-Deusto r<a href=\"https://github.com/weblabdeusto/weblabdeusto/commits/%(version)s\">%(version_number)s</a> | Last update: %(date)s";""" % {
         'version'         : version,
         'version_number'  : number,
         'date'            : date,
