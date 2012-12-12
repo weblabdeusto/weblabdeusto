@@ -25,6 +25,7 @@ system and connect existing laboratories.
    first_steps
    installation_next_steps
    federation
+   authentication
 
 
 Remote laboratory development
@@ -41,10 +42,14 @@ External systems
 
 This section is intended for people who is going to integrate WebLab-Deusto in
 external systems, such as Learning Management Systems, Content Management
-Systems, OAuth providers or so.
+Systems, OAuth providers or similar.
 
 .. toctree::
    :maxdepth: 2
+
+   federation_for_external_tools
+   other_approaches
+   lms4labs
 
 WebLab-Deusto Development
 -------------------------
@@ -52,3 +57,4 @@ WebLab-Deusto Development
 This documentation is aimed for developers of the WebLab-Deusto system itself.
 
 
+**TO BE WRITTEN**
