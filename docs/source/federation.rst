@@ -1,9 +1,16 @@
+.. _federation:
+
 Federation
 ==========
 
 WebLab-Deusto natively supports federating remote laboratories. This means that
 if two universities install WebLab-Deusto, any of the systems will be able to 
 consume laboratories provided by the other university.
+
+.. image:: /_static/federation.png
+   :width: 500 px
+   :align: center
+
 
 See it in action
 ----------------
@@ -32,11 +39,22 @@ Features
 
 Two main features are provided by WebLab-Deusto: 
 
-* Transitivity: if you're a provider of a laboratory, your consumers may
-  technically re-share this laboratory.
+Transitivity
+^^^^^^^^^^^^
 
-* Federated load balance: if there are multiple providers of a copy of a
-  laboratory, you can balance the load of users among them automatically.
+If you're a provider of a laboratory, your consumers may technically re-share this laboratory. Basically, this enables subcontracting laboratories.
 
+.. image:: /_static/transitivity.png
+   :width: 500 px
+   :align: center
 
-**This section must be extended**
+Federated load balance
+^^^^^^^^^^^^^^^^^^^^^^
+
+If there are multiple providers of a copy of a laboratory, you can balance the load of users among them automatically.
+
+.. image:: /_static/federated_load_balance.png
+   :width: 500 px
+   :align: center
+
+**MUST BE EXTENDED**

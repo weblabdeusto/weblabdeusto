@@ -1,7 +1,14 @@
 Technical description
 =====================
 
-WebLab-Deusto is based on the distributed architecture shown in following diagram:
+This section describes the internals of a single WebLab-Deusto deployment.
+However, the architecture is enriched supporting federation. Go to the
+:ref:`federation <federation>` section for further information.
+
+Architecture
+------------
+
+Locally, WebLab-Deusto is based on the distributed architecture shown in following diagram:
 
 .. image:: /_static/local_architecture.png
    :width: 600 px
@@ -36,3 +43,4 @@ Because of this protocol-agnostic system, the Remote Laboratory can be configure
    :align: center
 
 The system administrator is responsible for deploying in a secure way. If the system is deployed with a single process running the whole system using "direct", then if the Experiment Server code fails at process level, it may shut the whole server down. Or, if an attacker manages to exploit a vulnerability in a layer of the system and the Login Server is running with the same privileges, the attacker could access sensitive information such as the stored password hashes (or even more, the passwords sent by the users when they log in).
+
