@@ -1,4 +1,3 @@
-.. _toctree-directive:
 .. _first_steps:
 
 First steps
@@ -496,8 +495,9 @@ would be::
 
 This example will be run in other port (8001), so you can start it at the same
 time as the other deployment without problems. Just go to
-`http://localhost:8001/`_ instead, log in with user *administrator* and password
-*secret*, and see how there is another laboratory called *logic*.
+`http://localhost:8001/ <http://localhost:8001/>`_ instead, log in with user
+*administrator* and password *secret*, and see how there is another laboratory
+called *logic*.
 
 Other examples, such as using Virtual Machines, VISIR, etc., are documented in
 the :ref:`next section <installation_further>`.

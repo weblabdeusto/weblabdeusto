@@ -8,8 +8,12 @@ documentation is still there.
 General
 -------
 
-* :ref:`Screenshots <screenshots>`
-* `Publications <https://www.weblab.deusto.es/web/publications.html>`_
+.. toctree::
+   :maxdepth: 2
+
+   summary
+   screenshots
+   publications
 
 Users
 -----
@@ -20,7 +24,6 @@ system and connect existing laboratories.
 .. toctree::
    :maxdepth: 2
 
-   summary
    installation
    first_steps
    installation_next_steps
@@ -56,5 +59,11 @@ WebLab-Deusto Development
 
 This documentation is aimed for developers of the WebLab-Deusto system itself.
 
-
 **TO BE WRITTEN**
+
+Appendixes
+----------
+
+.. toctree::
+
+   download_from_github

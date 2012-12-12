@@ -1,4 +1,3 @@
-.. _toctree-directive:
 .. _installation_further:
 
 Installation: further steps

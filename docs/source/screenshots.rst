@@ -1,8 +1,9 @@
-.. _toctree-directive:
 .. _screenshots:
 
 Screenshots
 ===========
+
+.. contents:: Table of Contents
 
 User interface
 --------------
