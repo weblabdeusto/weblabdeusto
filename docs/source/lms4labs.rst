@@ -13,4 +13,6 @@ and .LRN, but it is easily extensible for other management systems. Right now,
 ongoing work is focused on supporting the IMS LTI standard.
 
 Refer to the `lms4labs documentation
-<http://lms4labs.readthedocs.org/en/latest/>`_ for further information.
+<http://lms4labs.readthedocs.org/en/latest/>`_ for further information. The
+approach taken from the WebLab-Deusto perspective, is the one described in the
+:ref:`federation for external tools section <external_tools_federation>`.
