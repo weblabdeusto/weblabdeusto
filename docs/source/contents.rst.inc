@@ -4,6 +4,8 @@
     `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_, so most
     documentation is still there.
 
+.. contents:: Table of Contents
+
 General
 -------
 
@@ -29,6 +31,7 @@ system and connect existing laboratories.
    installation_next_steps
    federation
    authentication
+   tools
 
 
 Remote laboratory development
@@ -57,9 +60,10 @@ Systems, OAuth providers or similar.
 WebLab-Deusto Development
 -------------------------
 
-This documentation is aimed for developers of the WebLab-Deusto system itself.
+.. toctree::
+   :maxdepth: 2
 
-**TO BE WRITTEN**
+   development
 
 Appendixes
 ----------
