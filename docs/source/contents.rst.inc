@@ -1,8 +1,8 @@
 .. note::
 
     At this moment, we are migrating the documentation from the
-    `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_, so most
-    documentation is still there.
+    `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_,
+    where we have the documentation of the previous release.
 
 .. contents:: Table of Contents
 
@@ -40,8 +40,10 @@ Remote laboratory development
 This section is intended for people who is going to create a new laboratory
 using the WebLab-Deusto tools.
 
-**TO BE WRITTEN**
+.. toctree::
+   :maxdepth: 2
 
+   remote_lab_development
 
 External systems
 ----------------
@@ -54,8 +56,8 @@ Systems, OAuth providers or similar.
    :maxdepth: 2
 
    federation_for_external_tools
-   other_approaches
    lms4labs
+   other_approaches
 
 WebLab-Deusto Development
 -------------------------
