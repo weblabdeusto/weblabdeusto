@@ -13,6 +13,7 @@ General
    :maxdepth: 1
 
    summary
+   federation
    screenshots
    technical
    publications
@@ -29,7 +30,6 @@ system and connect existing laboratories.
    installation
    first_steps
    installation_next_steps
-   federation
    authentication
    tools
 

@@ -57,4 +57,3 @@ If there are multiple providers of a copy of a laboratory, you can balance the l
    :width: 500 px
    :align: center
 
-**MUST BE EXTENDED**
