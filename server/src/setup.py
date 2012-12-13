@@ -23,6 +23,7 @@ recommended to use virtualenv first to create a user-level environment.
 import os
 import shutil
 from setuptools import setup
+from setuptools.command.build_py import build_py as _build_py
 
 # TODO: in the weblab-admin script, choose between the absolute directory
 # to the source code and sys.prefix
@@ -42,34 +43,41 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
-##########################################################
-# 
-# 
-#       S O A P     S T U B S  ( O P T I O N A L )
-# 
-# 
+def _build_requirements():
+    ##########################################################
+    # 
+    # 
+    #       S O A P     S T U B S  ( O P T I O N A L )
+    # 
+    # 
 
-import weblab.comm.util as comm_util
-comm_util.deploy_stubs()
+    import weblab.comm.util as comm_util
+    comm_util.deploy_stubs()
 
-##########################################################
-#
-# 
-#       C L I E N T 
-# 
-# 
+    ##########################################################
+    #
+    # 
+    #       C L I E N T 
+    # 
+    # 
 
-CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
-WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
-from weblab.admin.client_deploy import compile_client
-compile_client(WAR_LOCATION, CLIENT_LOCATION)
+    CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
+    WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
+    from weblab.admin.client_deploy import compile_client
+    compile_client(WAR_LOCATION, CLIENT_LOCATION)
 
-# In any case, the client was compiled in the past or just now. Let's copy it here.
-print "Copying...",
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
-shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
-print "[done]"
+    # In any case, the client was compiled in the past or just now. Let's copy it here.
+    print "Copying...",
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
+    shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
+    print "[done]"
+
+class WebLabBuild(_build_py):
+    def run(self):
+        _build_requirements()
+        _build_py.run(self)
+
 
 ##########################################################
 #
@@ -166,6 +174,7 @@ setup(name='weblabdeusto',
       version='5.0',
       description="WebLab-Deusto Remote Laboratory Management System",
       classifiers=classifiers,
+      cmdclass = { 'build_py' : WebLabBuild },
       author='WebLab-Deusto Team',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',
