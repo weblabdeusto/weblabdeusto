@@ -21,32 +21,139 @@ ud-fpga will automatically program the FPGA board with the binary you provided, 
 
 However, due to certain safety concerns, in the demo version you can't upload your own file for this demo. Instead, a specific demo program (which has already been uploaded) will be used. Everything else will work as in the standard FPGA experiment.
 
+.. image:: /_static/weblab_box.jpg
+   :align: center
+
 The FPGA laboratory, as other WebLab-Deusto laboratories (PIC or CPLD), is
 developed within the WebLab-Box. On the WebLab-Box, the device, as well as a
 `fit-pc <http://www.fit-pc.com/>`_, a PIC microcontroller, a camera, lighting
 system and networking materials is installed, so as to make it easier to create
 and deploy new laboratories.
 
-.. image:: /_static/weblab_box.jpg
-   :align: center
-
 .. image:: /_static/WebLabBox.jpg
    :align: center
 
+CPLD
+----
+
+`ud-demo-pld
+<https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=PLD%20experiments&exp.name=ud-demo-pld>`_
+lets you remotely practise with a `Programmable Logic Device
+<http://en.wikipedia.org/wiki/CPLD>`_.
+
+With the standard PLD experiment, through the Xilinx software you can write a
+PLD program locally as you normally would. Once the program is compiled, and
+ready to be tested, you can simply upload the binary ".jed" file, and it will be
+programmed on the physical board and run.
+
+However, due to certain safety concerns, you can't upload your own file for this
+demo. Instead, a specific demo program (which has already been uploaded) will be
+used. Everything else will work as in the standard FPGA experiment.
+
+That binary file will be automatically programmed into the board, and it will
+start running. To see the results, a Webcam is provided. You may also interact
+with the board remotely, by using the provided widgets. Though the widgets
+themselves might appear artificial, they will send a signal to the board just
+like their physical counterparts would.
+
+As the FPGA, the CPLD laboratory is running in the WebLab-Box. However, two
+different laboratories are available. The queue of students is balanced between
+both copies, so it goes twice faster.
+
+.. image:: /_static/demo-pld.jpg
+   :align: center
 
 Aquarium
 --------
+The `aquarium laboratory
+<https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=Aquatic%20experiments&exp.name=submarine>`_
+creates an access to a real aquarium located in the University of Deusto. On it,
+it is possible to feed the fish, turn on and off the lights, and, if the
+submarine is in the water and it is charged, control the submarine. The problem
+is that most of the time, the submarine is out of battery so we only put it in
+the fishtank certain days.
 
-**TO BE WRITTEN**
+Regarding feeding the fish, it may seem dangerous, but it is not. The system
+feeds them automatically three times a day, every 8 hour. If a user feeds them,
+then it does not let any other user to feed them before the next shift,
+guaranteeing that they are only fed three times. So go ahead and try it!
+
+The initial rationale behind this laboratory is that groups of primary school
+students are responsible of the life of these fish (even if they are not under a
+real danger). Teachers may know which groups of students have feed them
+correctly, which students didn't forget and which students coordinated correctly
+so no one overfed the fish. 
+
+However, at the time of this writing ongoing work is being done for adding more
+sensors to this laboratory, so stay tuned ;-)
+
+From a technical perspective, the whole laboratory is deployed in
+http://fishtank.weblab.deusto.es/, which uses a low cost ARM microprocessor
+called `IGEPv2
+<http://igep.es/index.php?option=com_content&view=article&id=46&Itemid=55>`_. So
+basically it is an example of :ref:`federated system <federation>`.
+
+.. image:: /_static/submarine.jpg
+   :align: center
+
 
 Robot
 -----
 
-robot-movement
-^^^^^^^^^^^^^^
+The robot laboratory uses the commercial robot *Azkar-bot*, with an attached
+microcontroller. WebLab-Deusto manages to establish that three different
+learning activities are using the same equipment, so the scheduling system will
+queue other users internally.
+
+.. image:: /_static/robot.jpg
+   :align: center
 
 robot-proglist
 ^^^^^^^^^^^^^^
+
+`robot-proglist
+<https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=Robot%20experiments&exp.name=robot-proglist>`_
+lets you choose one among a few of predefined programs to program the bot with.
+
+The programs currently available are the following:
+
+**Follow black line**
+
+The robot will first move randomly while avoiding obstacles (walls) until it
+finds the black line. It will then position itself on the line and follow it
+using its infrared sensors
+
+**Walk alone**
+
+Will simply walk around while avoiding any obstacles in its way.
+
+**Interactive Demo**
+
+Programs it with the same program that is used in the robot-movement. Doesn’t
+really do much because there are no controls available in this mode.
+
+**Turn left & turn right**
+
+Rotates left and right, non-stop.
+
+
+robot-movement
+^^^^^^^^^^^^^^
+
+`robot-movement
+<https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=Robot%20experiments&exp.name=robot-movement>`_
+lets you control a bot remotely. The bot can move forward or backward, and turn
+to both sides.
+
+To make the bot move, simply click on the appropriate button. Alternatively, you
+can control the bot by using the arrows on your keyboard. Remember that the bot
+will move according to its own position, and not to the position of the camera.
+
+The bot will not obey you if it finds a wall in its way, in which case it will
+try to avoid it.
+
+.. image:: /_static/screenshots/weblab-robot.jpg
+   :align: center
 
 robot-standard
 ^^^^^^^^^^^^^^
@@ -184,7 +291,7 @@ Full documentation may be downloaded from:
 VISIR
 -----
 
-The `VISIR experiment <https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=VISIR%20experiments&exp.name=visir>`_
+The `VISIR experiment <https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=Visir%20experiments&exp.name=visir>`_
 lets you access the `BTH OpenLabs VISIR <http://openlabs.bth.se/electronics>`_
 through WebLab-Deusto.
 
@@ -197,7 +304,7 @@ Students create circuits using the web interface, such as the following (where
 two resistors, of 10k and 1k are placed in serial and connected to the Digital
 MultiMeter):
 
-.. image:: /_static/example_logic.png
+.. image:: /_static/visir_circuit.png
    :align: center
 
 And as a result of this, the digital multimeter will show the sum of the two
@@ -226,11 +333,11 @@ ud-logic
 --------
 
 `ud-logic <https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=PIC%20experiments&exp.name=ud-logic>`_
-is a rather simple game implemented as an experiment. It is mainly for
-demonstration purposes. Players are presented with a circuit diagram made up of
-6 connected logic gates. Five of these gates show the type of gate: AND, NAND,
-OR, NOR or XOR. The symbols, as described in `the wikipedia
-<http://en.wikipedia.org/wiki/Logic_gate#Symbols>`_, are the following:
+is a simple game implemented as an experiment. Players are presented with a
+circuit diagram made up of 6 connected logic gates. Five of these gates show the
+type of gate: AND, NAND, OR, NOR or XOR. The symbols, as described in `the
+wikipedia <http://en.wikipedia.org/wiki/Logic_gate#Symbols>`_, are the
+following:
 
 .. |AND| image:: /_static/logic/small_AND.png
 
@@ -253,8 +360,8 @@ NOR    |NOR|
 =====  ======
 
 Players must choose the type of the sixth gate so the result of the circuit is
-1. Sometimes, several types might yield the desired result, and they will all be
-considered correct.
+**1**. Sometimes, several types might yield the desired result, and they will
+all be considered correct.
 
 When the players succeed, they are awarded one point and a new diagram is
 generated and they may choose a gate again. The process continues until the time
@@ -280,3 +387,28 @@ of **? AND 1**, being **?** the result of the unknown gate.
 Therefore, we need to have **1** as output of the unknown gate. So the question is:
 which gate has **0** and **0** as inputs and **1** as output? **AND, OR** and
 **XOR** fail to do this, so the solutions in this case are **NOR** or **NAND**.
+
+Virtual Machine lab
+-------------------
+
+The `linux-vm
+<https://www.weblab.deusto.es/weblab/client/#page=experiment&exp.category=VM%20experiments&exp.name=ud-linux-vm>`_
+experiment gives you full access to a virtual machine running the Ubuntu Linux
+distribution.
+
+The user is presented with a few demo programs, among which is a sample Labview
+application. The user is free to do whatever he wishes on the machine for the
+assigned time, and the virtual machine will be reset by Weblab to its original
+state once the session ends. For instance, you can test that the sudoku game
+running in the virtual machine is always the same, since the state is always
+restored.
+
+The purpose of this experiment is mainly to showcase WebLab's ability to host
+easy-to-develop unmanaged experiments.
+
+More detailed and technical information on VM-based experiments is available
+:ref:`here <deploying_vm_experiment>`.
+
+.. image:: /_static/screenshots/weblab_vm.png
+   :align: center
+

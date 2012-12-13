@@ -13,11 +13,12 @@ General
    :maxdepth: 1
 
    summary
-   federation
    screenshots
+   sample_labs
+   federation
    technical
    publications
-   sample_labs
+
 
 Users
 -----
