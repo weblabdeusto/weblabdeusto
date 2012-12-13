@@ -4,6 +4,17 @@ Sample laboratories
 This section presents the a set of sample laboratories available in the
 University of Deusto.
 
+.. note::
+
+    The terms *laboratory*, *experiment* or *rig* are a common problem
+    in the remote laboratories literature. We will use laboratory or 
+    experiment identically in this document. But take into account that
+    in the case of the CPLD there is a single laboratory but there are
+    two copies (commonly called *rigs*) of them, and students are balanced
+    among them. But on the Robot laboratory, there are three different
+    *laboratories* running on the same single *rig*. This way, 
+    WebLab-Deusto separates *resources* (*rigs*) from *laboratories*.
+
 .. contents:: Table of Contents
 
 FPGA
@@ -32,6 +43,8 @@ and deploy new laboratories.
 
 .. image:: /_static/WebLabBox.jpg
    :align: center
+
+* **Target audience:** *Electronics Engineering students*.
 
 CPLD
 ----
@@ -62,6 +75,8 @@ both copies, so it goes twice faster.
 
 .. image:: /_static/demo-pld.jpg
    :align: center
+
+* **Target audience:** *Electronics Engineering students*.
 
 Aquarium
 --------
@@ -96,6 +111,8 @@ basically it is an example of :ref:`federated system <federation>`.
 .. image:: /_static/submarine.jpg
    :align: center
 
+
+* **Target audience:** initially, *primary school students*. Right now the focus is changing to take into account physics principles with sensors.
 
 Robot
 -----
@@ -288,6 +305,8 @@ Full documentation may be downloaded from:
 * English: http://www.weblab.deusto.es/pub/docs/robot_module_english.docx
 * Spanish: http://www.weblab.deusto.es/pub/docs/robot_module_spanish.docx
 
+* **Target audience:** *engineering students in general, certain secondary schools*.
+
 VISIR
 -----
 
@@ -328,6 +347,8 @@ There is more information in the website of the `VISIR project
 <http://openlabs.bth.se/electronics>`_ or in `related
 papers <http://scholar.google.es/scholar?q=visir+electronics>`_.
 
+
+* **Target audience:** It depends on how many principles are taught. It has been used with *secondary school students*, as well as with *electronics engineering courses*.
 
 ud-logic
 --------
@@ -388,6 +409,8 @@ Therefore, we need to have **1** as output of the unknown gate. So the question 
 which gate has **0** and **0** as inputs and **1** as output? **AND, OR** and
 **XOR** fail to do this, so the solutions in this case are **NOR** or **NAND**.
 
+* **Target audience:** *secondary school students*, as well as first course of certain engineerings.
+
 Virtual Machine lab
 -------------------
 
@@ -412,3 +435,4 @@ More detailed and technical information on VM-based experiments is available
 .. image:: /_static/screenshots/weblab_vm.png
    :align: center
 
+* **Target audience:** It depends on what equipment is used internally. The one running in the demo is only for demonstration purposes.
