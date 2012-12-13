@@ -57,3 +57,13 @@ If there are multiple providers of a copy of a laboratory, you can balance the l
    :width: 500 px
    :align: center
 
+Examples
+--------
+
+Other WebLab-Deusto deployments:
+
+* `UNED <http://www.uned.es/>`_: http://weblab.ieec.uned.es/
+* `Colegio Urdaneta (secondary school) <http://www.colegiourdaneta.com>`_: http://weblab.colegiourdaneta.com/
+* `Unidades Tecnologicas de Santander <http://www.uts.edu.co/>`_: http://www.weblab.deusto.es/utsantander/
+
+If you wish us to host a new deployment, contact us at weblab@deusto.es.
