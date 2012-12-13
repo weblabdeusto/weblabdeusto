@@ -1,8 +1,10 @@
 .. note::
 
-    At this moment, we are migrating the documentation from the
-    `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_,
-    where we have the documentation of the previous release.
+    At this moment, we are migrating and extending the documentation from the
+    `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_.
+    If there was anything missing here, you may want to look there, but take into account
+    that whatever you find in the old documentation site might be old and deprecated. In
+    case of doubt, contact the `mailing list <https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto>`_.
 
 .. contents:: Table of Contents
 
