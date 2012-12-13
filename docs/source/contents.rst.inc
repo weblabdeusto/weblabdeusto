@@ -17,6 +17,7 @@ General
    screenshots
    technical
    publications
+   sample_labs
 
 Users
 -----
