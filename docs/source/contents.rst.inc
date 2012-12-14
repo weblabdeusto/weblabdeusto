@@ -20,6 +20,7 @@ General
    federation
    technical
    publications
+   contact
 
 
 Users
