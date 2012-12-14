@@ -34,6 +34,8 @@ WebLab-Deusto. By adding different users and granting them permissions to the
 robots lab, and after accessing the lab with this user you'll be able to see
 in the administrator panel that it has been used.
 
+Finally, you can also `see the federation video <http://www.youtube.com/watch?v=TMdSYlFErX0>`_.
+
 Features
 --------
 
@@ -42,7 +44,7 @@ Two main features are provided by WebLab-Deusto:
 Transitivity
 ^^^^^^^^^^^^
 
-If you're a provider of a laboratory, your consumers may technically re-share this laboratory. Basically, this enables subcontracting laboratories.
+If you're a provider of a laboratory, your consumers may technically re-share this laboratory. Basically, this enables subcontracting laboratories. `See the transitive federation video <http://www.youtube.com/watch?v=tRMwoliXy5Q>`_.
 
 .. image:: /_static/transitivity.png
    :width: 500 px

@@ -77,6 +77,7 @@ both copies, so it goes twice faster.
    :align: center
 
 * **Target audience:** *Electronics Engineering students*.
+* **Video:** http://www.youtube.com/watch?v=zON7oYtssrw
 
 Aquarium
 --------
@@ -124,6 +125,8 @@ queue other users internally.
 
 .. image:: /_static/robot.jpg
    :align: center
+
+* **Video:** http://www.youtube.com/watch?v=1WWAZVyuOBg
 
 robot-proglist
 ^^^^^^^^^^^^^^
@@ -349,6 +352,7 @@ papers <http://scholar.google.es/scholar?q=visir+electronics>`_.
 
 
 * **Target audience:** It depends on how many principles are taught. It has been used with *secondary school students*, as well as with *electronics engineering courses*.
+* **Video:** http://www.youtube.com/watch?v=vI5aM6Yq3S4
 
 ud-logic
 --------
@@ -436,3 +440,4 @@ More detailed and technical information on VM-based experiments is available
    :align: center
 
 * **Target audience:** It depends on what equipment is used internally. The one running in the demo is only for demonstration purposes.
+* **Video:** http://www.youtube.com/watch?v=b-L2LXRr23A
