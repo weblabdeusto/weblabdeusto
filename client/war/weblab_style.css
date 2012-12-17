@@ -70,9 +70,25 @@ body
 
 .gwt-Anchor
 {
-	text-decoration: underline;
+	text-decoration: none;
+    color: #04a;
     cursor: pointer;
 	cursor: hand;
+}
+
+a
+{
+	text-decoration: none;
+    color: #04a;
+    cursor: pointer;
+	cursor: hand;
+}
+
+
+a:hover
+{
+    color: #005580;
+    text-decoration: underline;
 }
 
 .odd-row
