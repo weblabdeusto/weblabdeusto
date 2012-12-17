@@ -1,8 +1,11 @@
 .. _toctree-directive:
 .. _deploying_vm_experiment:
 
+Virtual Machines based remote labs
+==================================
+
 Introduction
-============
+------------
 
 WebLab-Deusto supports two kinds of experiments: **Managed** and **Unmanaged** experiments.
 
@@ -23,7 +26,7 @@ do so. For these cases, WebLab-Deusto provides Virtual Machine based Unmanaged e
 
 
 Virtual Machine Experiment
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Virtual Machine experiments work differently than traditional Managed experiments. A Virtual Machine experiment does not include any WebLab-specific code. 
 Instead, the experiment is developed anyhow and deployed on a Virtual Machine image. WebLab-Deusto then manages that Virtual Machine. 
@@ -33,7 +36,7 @@ Once the time has run out, WebLab-Deusto will close the Virtual Machine and rest
 
 
 Supported Virtual Machine, OSes, and Protocols
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Currently WebLab-Deusto VM system has been tested on Linux, under which the VNC protocol through the TightVNC server (and compatible clients) is supported. 
 It has also been tested on Windows, under which both UltraVNC and Remote Desktop are supported.
@@ -45,14 +48,14 @@ VM software or new Protocols.
 
 
 WebLab-Deusto VM software
-~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For the password of a Virtual Machine remote managing protocol to be changed upon WebLab-Deusto's request, it is necessary to install certain software on the Virtual Machine snapshot. 
 Currently, WebLab-Deusto provides a Vino password changer for Linux and a Remote Desktop and UltraVNC password changer for Windows.
 
 
 Safety
-~~~~~~
+^^^^^^
 
 The power this system gives to the user is significant, as it grants potentially full access to a Virtual Machine. 
 However, WebLab-Deusto uses the snapshot system provided by most Virtual Machine software to reset the machine to a predefined state before every use. 
@@ -65,10 +68,8 @@ It is also noteworthy that in the case of an unmanaged experiment, this is sligh
 
 
 
-
-
 Creating a new VM based experiment
-============================================
+----------------------------------
 
 In this section we will create and deploy a new VM based experiment.
 
@@ -92,11 +93,11 @@ Our goal here will be to deploy a new VM experiment, with the following characte
 
 
 Prerrequisites
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 
 WebLab-Deusto instance
-----------------------
+""""""""""""""""""""""
 
 Before being able to create a new VM based experiment, and before being able to start following this guide, 
 you will need to have a *working instance* of WebLab-Deusto. 
@@ -116,7 +117,7 @@ If you do not have a working instance yet, you can find out how to create it in 
 
 
 VirtualBox
------------
+""""""""""
 
 **Oracle VM VirtualBox** is a virtualization engine. It will be the engine under which the machine
 with our experiment will be run.
@@ -149,7 +150,7 @@ need to be accessible from the command line. To do this:
 
 
 Virtualized Windows machine
----------------------------
+"""""""""""""""""""""""""""
 
 We now have *Oracle VirtualBox* installed. However, we do not really have a *Virtual Machine* yet. We will create one now.
 In order to do this, we will require a copy of any version of Windows with RDP support. Windows XP is recommended, though later versions of
@@ -206,7 +207,7 @@ Congratulations. If everything went ok, you now have a virtual windows machine o
 
 	
 Installing the WebLab In-VM Manager
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. Warning::
 	**CHECKLIST** *(Before proceeding to this section, please check the following. Feel free to skip those checks you have done already.)*
@@ -221,7 +222,7 @@ Installing the WebLab In-VM Manager
 	   **is not** accessible, and the previous steps should be redone.
 
 What is the Manager?
---------------------
+""""""""""""""""""""
 
 Users will access the virtualized Windows machine through the RDP protocol (that is, Windows' Remote Desktop). 
 So that only one user (the one who has a reservation) can access the machine at a given time, a different, unique,
@@ -238,10 +239,9 @@ Because as of now, the VM you have created does not yet have such a service, we 
 
 
 Manager Prerrequisites
-----------------------
+""""""""""""""""""""""
 
-.NET Framework 3.5
-^^^^^^^^^^^^^^^^^^
+**.NET Framework 3.5**
 
 The In-VM Manager requires the Microsoft .NET Framework version 3.5. 
 The In-VM Manager is meant to run within the Windows VM, so it is that machine, and not your physical, host machine, 
@@ -253,11 +253,9 @@ it from the Windows VM itself. Once downloaded, install it.
 Some versions of Windows may come with .NET Framework 3.5 pre-installed. That is, however, likely not the case.
 
 
-Making the VM accessible
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Making the VM accessible**
 
-Configuring the network
-.......................
+*Configuring the network*
 
 The VM needs to be accessible from the host machine through an IP address, so the VM network settings will need to be 
 configured properly.
@@ -295,8 +293,7 @@ It is hence suggested that you choose *Bridged Adapter*.
 .. Note:: From this point, this guide will assume that you are indeed using a *Bridged Adapter* network. 
 
 
-Checking the network config
-...........................
+*Checking the network config*
 
 If the network was properly configured, the virtualized Windows:
 
@@ -347,10 +344,10 @@ Try to connect to the VM IP. It should work. If it doesn't:
 
 
 Installing the In-VM Manager itself
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Deploying the binaries
-......................
+*Deploying the binaries*
+
 
 Locate the In-VM Manager binaries. All WebLab distributions should include them. 
 If %WEBLAB% is the WebLab folder, then the binaries we seek should be in:
@@ -359,8 +356,7 @@ If %WEBLAB% is the WebLab folder, then the binaries we seek should be in:
 Place those binaries into your guest Windows. For instance, you may place them into
 the `c:\\vmservice` folder (create it, it won't exist).
 
-Installing as a service
-.......................
+*Installing as a service*
 
 The Manager will run as a Windows service. To install it, you can't execute WindowsVMService.exe
 straightaway. Instead, you should execute the `sc_install_service.bat` script.
@@ -384,8 +380,7 @@ Open the windows *Service Manager* by running `services.msc` (hit [WINKEY]+R to 
 Among the services there, a new one, `WeblabVMService`, should appear. If it doesn't, do not go on, as
 something went wrong.
 
-Starting the service
-....................
+*Starting the service*
 
 Locate the service in the Windows *Service Manager*. If the service is not started already, then click on
 it and start it.
@@ -396,8 +391,7 @@ it and start it.
 If for any reason it fails to start, then something went wrong. Do not go on. Verify that you have .NET 3.0, 
 and that the service is installed properly. 
 
-Testing the service
-...................
+*Testing the service*
 
 .. Warning::
 	**CHECKLIST** *(Ensure the following before starting this section. All of them apply to the **guest** Windows (virtualized one))*
@@ -450,17 +444,17 @@ Congratulations, if you are here, both tests should have passed. This means that
 
 
 Preparing the Virtual Machine: Base Snapshot
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 What is a snapshot?
--------------------
+"""""""""""""""""""
 
 Most VM systems (such as VirtualBox) support snapshots. Snapshots describe the exact state of the Virtual Machine at a given point of time.
 Once you have taken a shapshot, you can at any time restore your VM to it. This is how WebLab-Deusto VM experiment ensures that any change
 a user makes to the VM, is restored before the next session.
 
 Base Snapshot
--------------
+"""""""""""""
 
 We will take an snapshot, which will be our `base snapshot`, the one every user will get to use. After the user is done,
 WebLab-Deusto will restore the system to that same `base snapshot` again.
@@ -488,7 +482,7 @@ To prepare a first base snapshot, you can follow these steps:
 		  These are essentially the three points that you have to take into account when creating your own base snapshots.
 		  
 Testing the Base Snapshot
--------------------------
+"""""""""""""""""""""""""
 
 We will make sure we are on the right track. Do the following:
 
@@ -550,14 +544,14 @@ If nothing went wrong, congratulations, your snapshot is ready.
 
 
 Configuring the WebLab instance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you have followed the guide up to here, every prerrequisite is now ready. In this last section, we will configure and test the WebLab
 experiment itself. That is, the experiment server which will actually control the VM we have created, through the means we have provided.
 
 
 Recalling important variables
------------------------------
+"""""""""""""""""""""""""""""
 
 Before going on we will need to remember some variables which we established during the previous sections. We need the following:
 
@@ -566,7 +560,7 @@ Before going on we will need to remember some variables which we established dur
 	
 	
 Creating the instance through Weblab-admin
-------------------------------------------
+""""""""""""""""""""""""""""""""""""""""""
 
 As we mentioned in the first sections of this guide, you need to have the weblab-admin script properly installed.
 The next steps assume you do.
@@ -631,7 +625,7 @@ your instance was deployed properly.
 
 
 Testing our new instance
-------------------------
+""""""""""""""""""""""""
 
 To start our new instance, type the following::
 
@@ -657,7 +651,7 @@ If something went wrong, take a look at the next section.
 
 
 Something failed
-----------------
+""""""""""""""""
 
 If you are in this section, some problem occurred and your VM deployment is not working. We will here describe some likely errors. 
 

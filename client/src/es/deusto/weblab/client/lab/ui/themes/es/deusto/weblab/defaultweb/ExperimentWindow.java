@@ -247,26 +247,10 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentAreaPanel.clear();
-		final VerticalPanel vp = new VerticalPanel();
-		vp.setWidth("100%");
-		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
-		final Button button = new Button(this.i18nMessages.clickHereToOpenExperiment());
-		button.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent event) {
-				ExperimentWindow.this.callback.disableFinishOnClose();
-				Window.Location.assign(remoteUrl);
-				/*
-				Window.open( remoteUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
-				vp.remove(button);
-				vp.add(new Label(ExperimentWindow.this.i18nMessages.experimentOpenInOtherWindow()));
-				*/
-			}
-		});
-		vp.add(button);
-		
-		this.experimentAreaPanel.add(vp);
+
+        this.callback.disableFinishOnClose();
+		Window.Location.assign(remoteUrl);
 	}
 
 	

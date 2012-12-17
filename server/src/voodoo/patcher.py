@@ -61,7 +61,7 @@ def patchZsiPyExpat():
     try:
         import ZSI
     except ImportError:
-        print >> sys.stderr, "patchZsiPyExpat skipped; ZSI not installed"
+        print >> sys.stderr, "patchZsiPyExpat skipped; optional library ZSI (SOAP) not installed"
         return
 
     #
@@ -109,7 +109,7 @@ def patchZsiFaultFromException():
     try:
         import ZSI
     except ImportError:
-        print >> sys.stderr, "patchZsiFaultFromException skipped; ZSI not installed"
+        print >> sys.stderr, "patchZsiFaultFromException skipped; optional library ZSI (SOAP) not installed"
         return
 
     original = ZSI.FaultFromException

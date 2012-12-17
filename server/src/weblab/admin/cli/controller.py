@@ -49,6 +49,7 @@ class Controller(object):
                 print >> sys.stderr, "Could not file configuration file", configuration_file
                 sys.exit(1)
 
+            globals()['CURRENT_PATH'] = configuration_file
             execfile(configuration_file, globals(), globals())
 
         global_vars = globals()
