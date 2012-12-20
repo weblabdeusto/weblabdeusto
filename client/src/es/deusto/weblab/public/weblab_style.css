@@ -2,12 +2,8 @@ a img{
 	border: 0;
 }
 
-input .textbox {
-	 width: 10em;
-}
-
-.textbox input {
-	 width: 10em;
+input {
+	 font-family: sans-serif;
 }
 
  
