@@ -45,14 +45,9 @@ a img{
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.experiment-list-category-panel .header {
-/*	margin: 60px 0 10px;
-	font-size: 60px;
-	font-weight: 200;
-	line-height: 1;
-	letter-spacing: -1px;
+.gwt-DisclosurePanel .header, .gwt-DisclosurePanel .header a, .gwt-DisclosurePanel .header td {
+	font-size: 18px;
 	color: #5A5A5A;
-	text-rendering: optimizelegibility;*/
 }
 
 /************************************************
@@ -63,9 +58,10 @@ a img{
  *
  */
  
-body
+body, table td, select
 {
 	font: 14px normal "Lucida Grande", Arial;
+	text-rendering: optimizelegibility;
 }
 
 .gwt-Anchor
@@ -230,10 +226,11 @@ a:hover
 
 .web-logged-content-title
 {
-    font-size: 18px;
+    font-size: 35px;
     font-weight: bold;
+    color: #5A5A5A;
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 30px;
 }
 
 /*

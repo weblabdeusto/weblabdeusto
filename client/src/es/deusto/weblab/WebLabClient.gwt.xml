@@ -40,5 +40,7 @@
 		</any>
 	</replace-with>
 	
+	<stylesheet src="weblab_style.css" />
+	
 	<public path="public"></public>
 </module>
