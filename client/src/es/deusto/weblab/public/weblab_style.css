@@ -2,6 +2,36 @@ a img{
 	border: 0;
 }
 
+.gwt-Button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffffff), color-stop(1, #f0f0f0) );
+	background:-moz-linear-gradient( center top, #ffffff 5%, #f0f0f0 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f0f0f0');
+	background-color:#ffffff;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	color:#000000;
+	font-family:Arial;
+	font-size:13px;
+	font-weight:normal;
+	padding:6px 10px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #ffffff;
+}.gwt-Button:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0f0f0), color-stop(1, #ffffff) );
+	background:-moz-linear-gradient( center top, #f0f0f0 5%, #ffffff 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0f0f0', endColorstr='#ffffff');
+	background-color:#f0f0f0;
+}.gwt-Button:active {
+	position:relative;
+	top:1px;
+}
+
 .wl-time_remaining
 {
 	color : #FF0000;
@@ -226,7 +256,7 @@ a:hover
 
 .web-logged-content-title
 {
-    font-size: 35px;
+    font-size: 27px;
     font-weight: bold;
     color: #5A5A5A;
     text-align: center;
