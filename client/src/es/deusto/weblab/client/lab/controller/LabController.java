@@ -568,7 +568,8 @@ public class LabController implements ILabController {
 			@Override
 			public void onFailure(CommException e) {
 				LabController.this.sessionVariables.hideExperiment();
-				LabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+				LabController.this.uimanager.onCleanReservation();
+				LabController.this.logout();
 			}
 		});
 	}
