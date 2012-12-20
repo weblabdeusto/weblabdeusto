@@ -64,8 +64,7 @@ a img{
 }
 
 .experiment-list-DecoratorPanel .middleCenter {
-   height: 100%;
-   width: 100%;
+   width: 250px;
    background: #FFFFFF;
    padding: 5px;
 }
@@ -73,6 +72,11 @@ a img{
 .experiment-list-category-panel {
 	padding: 5px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.experiment-list-category-container {
+	float: left;
+	margin: 10px;
 }
 
 .gwt-DisclosurePanel .header, .gwt-DisclosurePanel .header a, .gwt-DisclosurePanel .header td {
@@ -210,7 +214,8 @@ a:hover
 
 .web-logged-container
 {
-	width: 800px;
+	width: 80%;
+	min-width: 450px;
 	margin-right: auto;
 	margin-left: auto;
 }

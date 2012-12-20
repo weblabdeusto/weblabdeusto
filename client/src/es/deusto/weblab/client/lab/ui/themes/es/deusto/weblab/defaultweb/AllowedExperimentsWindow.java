@@ -29,11 +29,12 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -69,7 +70,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField AbsolutePanel navigationPanel;
 	@UiField Label contentTitleLabel;
-	@UiField Grid experimentsTable;
+	@UiField HTMLPanel experimentsTable;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
@@ -84,6 +85,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	private final User user;
 	private Map<String, Map<ExperimentAllowed, IConfigurationRetriever>> experimentsAllowed;
 	private ExperimentAllowed [] failedExperiments;
+	private List<SimplePanel> allCategories = new Vector<SimplePanel>();
 	
 	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
@@ -129,6 +131,17 @@ class AllowedExperimentsWindow extends BaseWindow {
 		return this.containerPanel;
 	}		
 	
+	void update() {
+		int maxHeight = 0;
+		for(SimplePanel categoryPanelContainer : this.allCategories){
+			if(categoryPanelContainer.getOffsetHeight() > maxHeight)
+				maxHeight = categoryPanelContainer.getWidget().getOffsetHeight();
+		}
+		for(SimplePanel categoryPanelContainer : this.allCategories){
+			categoryPanelContainer.setSize("250px", maxHeight + "px");
+		}
+	}
+	
 	protected void loadWidgets(){
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
 
@@ -144,23 +157,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-
-	    final int INTENDED_COLUMNS = 3;
-	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
-	    
-		this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
-
-//		final Label experimentCategoryHeader = new Label(this.i18nMessages.experimentCategory());
-//		experimentCategoryHeader.setStyleName("web-allowedexperiments-table-header");
-//		this.experimentsTable.setWidget(0, 0, experimentCategoryHeader);
-//
-//		final Label experimentNameHeader = new Label(this.i18nMessages.experimentName());
-//		experimentNameHeader.setStyleName("web-allowedexperiments-table-header");
-//		this.experimentsTable.setWidget(0, 1, experimentNameHeader);
-		
-		//final Label experimentPictureHeader = new Label(this.i18nMessages.experimentPicture());
-		//experimentPictureHeader.setStyleName("web-allowedexperiments-table-header");
-		//this.experimentsTable.setWidget(0,2, experimentPictureHeader);
 
 		final List<String> categories = new Vector<String>(this.experimentsAllowed.keySet());
 		Collections.sort(categories);
@@ -202,22 +198,21 @@ class AllowedExperimentsWindow extends BaseWindow {
 				categoryGrid.getCellFormatter().setHorizontalAlignment(j, 1, HasHorizontalAlignment.ALIGN_CENTER);
 			}
 			
-			categoryGrid.setWidth("100%");
+			categoryGrid.setWidth("250px");
 			
 			final DisclosurePanel categoryPanel = new DisclosurePanel(category);
 			categoryPanel.add(categoryGrid);
 			categoryPanel.setAnimationEnabled(true);
 			categoryPanel.setOpen(true);
-			categoryPanel.setWidth("100%");
+			categoryPanel.setWidth("250px");
 			categoryPanel.addStyleName("experiment-list-category-panel");
 			
-//			final DecoratorPanel decoratedCategoryPanel = new DecoratorPanel();
-//			decoratedCategoryPanel.add(categoryPanel);
-//			decoratedCategoryPanel.setWidth("100%");
-//			decoratedCategoryPanel.addStyleName("experiment-list-DecoratorPanel");
+			final SimplePanel decoratedCategoryPanel = new SimplePanel(categoryPanel);
+			decoratedCategoryPanel.setWidth("250px");
+			decoratedCategoryPanel.addStyleName("experiment-list-category-container");
 			
-			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, categoryPanel);
-			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
+			this.allCategories.add(decoratedCategoryPanel);
+			this.experimentsTable.add(decoratedCategoryPanel);
 		}
 		
 	    if(this.callback.startedLoggedIn()){
