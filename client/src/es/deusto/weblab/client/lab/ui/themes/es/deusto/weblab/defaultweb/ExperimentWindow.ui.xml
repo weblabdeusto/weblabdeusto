@@ -56,64 +56,70 @@
 				<g:Anchor ui:field="contentTitleLabelInfo" text="{i18n.information}" visible="false" target="_blank"/>
 			</g:cell>
 			
-			<g:Grid ui:field="detailsGrid" styleName="web-experiment-details">
-                <g:row>
-                    <g:customCell>
-    					<g:Label text="{i18n.experimentName}:"></g:Label>
-                    </g:customCell>
-                    <g:customCell>
-    					<g:Label ui:field="experimentNameLabel" styleName="web-experiment-detail"></g:Label>
-                    </g:customCell>
-				</g:row>
-                <g:row>
-                    <g:customCell>
-                        <g:Label text="{i18n.experimentCategory}:"></g:Label>
-                    </g:customCell>
-                    <g:customCell>
-    					<g:Label ui:field="experimentCategoryLabel" styleName="web-experiment-detail"></g:Label>
-                    </g:customCell>
-				</g:row>
-                <g:row>
-                    <g:customCell>
-    					<g:Label text="{i18n.timeAllowed}:"></g:Label>
-                    </g:customCell>
-                    <g:customCell>
-                        <g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
-                    </g:customCell>
-                </g:row>
-                <g:row>
-                    <g:customCell>
-    					<g:Label text="{i18n.directLink}:"></g:Label>
-                    </g:customCell>
-                    <g:customCell>
-                        <w:WlAHref ui:field="directLink" target="_blank" styleName="web-experiment-detail"><g:Label text="{i18n.clickHere}"></g:Label></w:WlAHref>
-                    </g:customCell>
-                </g:row>
-                <g:row>
-                	<g:customCell>
-                		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
-                	</g:customCell>
-                	<g:customCell>
-                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail" target="_blank"></g:Anchor>
-                    </g:customCell>
-                </g:row>
-			</g:Grid>
+			<g:cell horizontalAlignment="ALIGN_CENTER">
+				<g:DecoratorPanel ui:field="detailsGrid" styleName="web-experiment-details-DecoratorPanel gwt-DecoratorPanel">
+					<g:Grid styleName="web-experiment-details">
+		                <g:row>
+		                    <g:customCell>
+		    					<g:Label text="{i18n.experimentName}:"></g:Label>
+		                    </g:customCell>
+		                    <g:customCell>
+		    					<g:Label ui:field="experimentNameLabel" styleName="web-experiment-detail"></g:Label>
+		                    </g:customCell>
+						</g:row>
+		                <g:row>
+		                    <g:customCell>
+		                        <g:Label text="{i18n.experimentCategory}:"></g:Label>
+		                    </g:customCell>
+		                    <g:customCell>
+		    					<g:Label ui:field="experimentCategoryLabel" styleName="web-experiment-detail"></g:Label>
+		                    </g:customCell>
+						</g:row>
+		                <g:row>
+		                    <g:customCell>
+		    					<g:Label text="{i18n.timeAllowed}:"></g:Label>
+		                    </g:customCell>
+		                    <g:customCell>
+		                        <g:Label ui:field="timeAllowedLabel" styleName="web-experiment-detail"></g:Label>
+		                    </g:customCell>
+		                </g:row>
+		                <g:row>
+		                    <g:customCell>
+		    					<g:Label text="{i18n.directLink}:"></g:Label>
+		                    </g:customCell>
+		                    <g:customCell>
+		                        <w:WlAHref ui:field="directLink" target="_blank" styleName="web-experiment-detail"><g:Label text="{i18n.clickHere}"></g:Label></w:WlAHref>
+		                    </g:customCell>
+		                </g:row>
+		                <g:row>
+		                	<g:customCell>
+		                		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
+		                	</g:customCell>
+		                	<g:customCell>
+		                        <g:Anchor ui:field="informationLink" styleName="web-experiment-detail" target="_blank"></g:Anchor>
+		                    </g:customCell>
+		                </g:row>
+					</g:Grid>
+				</g:DecoratorPanel>
+			</g:cell>
 			
-			<g:VerticalPanel width="100%" styleName="web-experiment-upload-form">
-			
-				<g:VerticalPanel width="100%" ui:field='experimentAreaPanel' styleName="web-experiment-upload-form-fields">
+			<g:cell horizontalAlignment="CENTER">
+				<g:VerticalPanel width="100%" styleName="web-experiment-upload-form">
+				
+					<g:VerticalPanel width="100%" horizontalAlignment="CENTER" ui:field='experimentAreaPanel' styleName="web-experiment-upload-form-fields">
+					
+					</g:VerticalPanel>
+	
+					<g:HorizontalPanel styleName="web-experiment-reserve-button">			
+						<g:Button ui:field="reserveButton" text="{i18n.reserve}"></g:Button>
+					</g:HorizontalPanel>
+								
+					<g:HorizontalPanel styleName="web-experiment-finish-button">
+						<g:Button ui:field="finishButton" text="{i18n.finish}" visible="false"></g:Button>
+					</g:HorizontalPanel>					
 				
 				</g:VerticalPanel>
-
-				<g:HorizontalPanel styleName="web-experiment-reserve-button">			
-					<g:Button ui:field="reserveButton" text="{i18n.reserve}"></g:Button>
-				</g:HorizontalPanel>
-							
-				<g:HorizontalPanel styleName="web-experiment-finish-button">
-					<g:Button ui:field="finishButton" text="{i18n.finish}" visible="false"></g:Button>
-				</g:HorizontalPanel>					
-			
-			</g:VerticalPanel>
+			</g:cell>
 					
 			<w:WlWaitingLabel ui:field="waitingLabel" styleName="web-waiting-label"></w:WlWaitingLabel>
 			<g:Label ui:field="generalErrorLabel" styleName="web-error-message"></g:Label>

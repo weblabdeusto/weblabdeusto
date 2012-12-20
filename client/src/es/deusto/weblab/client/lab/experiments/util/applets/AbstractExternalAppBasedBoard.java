@@ -87,11 +87,12 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.pageFooterPanel.add(this.pageFooter);
 		
 		this.panel = new VerticalPanel();
-		this.message = new Label();
 		this.html = new HTML("<div/>");
 		this.panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.panel.add(this.standardTimerPanel);
 		this.panel.add(this.html);
+		this.message = new Label();
+		this.message.addStyleName("wl-message");
 		this.panel.add(this.message);
 		this.panel.add(this.pageFooterPanel);
 	}
