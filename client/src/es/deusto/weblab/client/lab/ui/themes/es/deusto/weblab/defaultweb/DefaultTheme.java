@@ -259,7 +259,7 @@ public class DefaultTheme extends LabThemeBase {
 		if(failedExperiments.length > 0)
 			showError(builder.toString());
 		
-		this.allowedExperimentsWindow.update();
+		this.allowedExperimentsWindow.initializeWidgetSizes();
 	}	
 
 	private void loadExperimentWindow()

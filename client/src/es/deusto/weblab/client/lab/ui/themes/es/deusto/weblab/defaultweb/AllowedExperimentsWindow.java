@@ -22,6 +22,10 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -85,7 +89,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	private final User user;
 	private Map<String, Map<ExperimentAllowed, IConfigurationRetriever>> experimentsAllowed;
 	private ExperimentAllowed [] failedExperiments;
-	private List<SimplePanel> allCategories = new Vector<SimplePanel>();
+	
+	private Map<SimplePanel, Integer> allCategories = new HashMap<SimplePanel, Integer>();
 	
 	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
@@ -131,15 +136,52 @@ class AllowedExperimentsWindow extends BaseWindow {
 		return this.containerPanel;
 	}		
 	
-	void update() {
+	// Important: call it once it has been added to the panel
+	void initializeWidgetSizes() {
 		int maxHeight = 0;
-		for(SimplePanel categoryPanelContainer : this.allCategories){
-			if(categoryPanelContainer.getOffsetHeight() > maxHeight)
+		for(SimplePanel categoryPanelContainer : this.allCategories.keySet()){
+			if(categoryPanelContainer.getWidget().getOffsetHeight() > maxHeight)
 				maxHeight = categoryPanelContainer.getWidget().getOffsetHeight();
+			this.allCategories.put(categoryPanelContainer, categoryPanelContainer.getOffsetHeight());
 		}
-		for(SimplePanel categoryPanelContainer : this.allCategories){
-			categoryPanelContainer.setSize("250px", maxHeight + "px");
+		
+		setCategoryPanelsHeight(maxHeight);
+	}
+	
+	private void setCategoryPanelsHeight(int height) {
+		if(height <= 0)
+			return;
+		
+		for(SimplePanel categoryPanelContainer : this.allCategories.keySet())
+			categoryPanelContainer.setSize("250px", (height + 20) + "px");
+	}
+	
+	void onClosePanel(SimplePanel categoryPanelContainer) {
+		// Take into account only the rest, and not the current one
+		int maxHeight = 0;
+		
+		for(SimplePanel currentContainer : this.allCategories.keySet()){
+			
+			if(categoryPanelContainer != currentContainer) {
+				if(currentContainer.getWidget().getOffsetHeight() > maxHeight)
+					maxHeight = currentContainer.getWidget().getOffsetHeight();
+			}
 		}
+		
+		setCategoryPanelsHeight(maxHeight);
+	}
+	
+	void onOpenPanel(SimplePanel categoryPanelContainer) {
+		// Take into account only the rest, and not the current one
+		int maxHeight = 0;
+		for(SimplePanel currentContainer : this.allCategories.keySet()){
+			if(currentContainer.getWidget().getOffsetHeight() > maxHeight)
+				maxHeight = currentContainer.getWidget().getOffsetHeight();
+		}
+		if(this.allCategories.get(categoryPanelContainer).intValue() > maxHeight)
+			maxHeight = this.allCategories.get(categoryPanelContainer).intValue();
+		
+		setCategoryPanelsHeight(maxHeight);
 	}
 	
 	protected void loadWidgets(){
@@ -198,8 +240,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 				categoryGrid.getCellFormatter().setHorizontalAlignment(j, 1, HasHorizontalAlignment.ALIGN_CENTER);
 			}
 			
-			categoryGrid.setWidth("250px");
-			
 			final DisclosurePanel categoryPanel = new DisclosurePanel(category);
 			categoryPanel.add(categoryGrid);
 			categoryPanel.setAnimationEnabled(true);
@@ -210,8 +250,23 @@ class AllowedExperimentsWindow extends BaseWindow {
 			final SimplePanel decoratedCategoryPanel = new SimplePanel(categoryPanel);
 			decoratedCategoryPanel.setWidth("250px");
 			decoratedCategoryPanel.addStyleName("experiment-list-category-container");
+
+			categoryPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
+				@Override
+				public void onOpen(OpenEvent<DisclosurePanel> event) {
+					onOpenPanel(decoratedCategoryPanel);
+				}
+			});
 			
-			this.allCategories.add(decoratedCategoryPanel);
+			categoryPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
+				
+				@Override
+				public void onClose(CloseEvent<DisclosurePanel> event) {
+					onClosePanel(decoratedCategoryPanel);
+				}
+			});
+
+			this.allCategories.put(decoratedCategoryPanel, Integer.valueOf(0));
 			this.experimentsTable.add(decoratedCategoryPanel);
 		}
 		
