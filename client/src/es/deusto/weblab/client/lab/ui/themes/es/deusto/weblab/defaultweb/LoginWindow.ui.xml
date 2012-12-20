@@ -111,7 +111,7 @@
 												<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
 											</g:customCell>
 											<g:customCell>
-												<g:TextBox ui:field="usernameTextbox" visibleLength="24"></g:TextBox>
+												<g:TextBox ui:field="usernameTextbox" styleName="textbox"></g:TextBox>
 											</g:customCell>
 										</g:row>
 										
@@ -120,7 +120,7 @@
 												<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
 											</g:customCell>
 											<g:customCell>
-												<g:PasswordTextBox ui:field="passwordTextbox" visibleLength="24"></g:PasswordTextBox>
+												<g:PasswordTextBox ui:field="passwordTextbox" styleName="textbox"></g:PasswordTextBox>
 											</g:customCell>
 							    		</g:row>
 							    	</g:Grid>			    	

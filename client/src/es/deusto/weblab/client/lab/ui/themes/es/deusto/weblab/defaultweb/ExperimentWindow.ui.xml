@@ -57,7 +57,7 @@
 			</g:cell>
 			
 			<g:cell horizontalAlignment="ALIGN_CENTER">
-				<g:DecoratorPanel ui:field="detailsGrid" styleName="web-experiment-details-DecoratorPanel gwt-DecoratorPanel">
+				<g:DecoratorPanel ui:field="detailsGrid" styleName="web-experiment-details-DecoratorPanel gwt-DecoratorPanel" width="300px">
 					<g:Grid styleName="web-experiment-details">
 		                <g:row>
 		                    <g:customCell>

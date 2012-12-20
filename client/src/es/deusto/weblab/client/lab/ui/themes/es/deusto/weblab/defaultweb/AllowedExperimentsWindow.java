@@ -139,11 +139,14 @@ class AllowedExperimentsWindow extends BaseWindow {
 	// Important: call it once it has been added to the panel
 	void initializeWidgetSizes() {
 		int maxHeight = 0;
+		// System.out.println("Initializing...");
 		for(SimplePanel categoryPanelContainer : this.allCategories.keySet()){
+			// System.out.println("Current maxHeight: " + maxHeight);
 			if(categoryPanelContainer.getWidget().getOffsetHeight() > maxHeight)
 				maxHeight = categoryPanelContainer.getWidget().getOffsetHeight();
 			this.allCategories.put(categoryPanelContainer, categoryPanelContainer.getOffsetHeight());
 		}
+		// System.out.println("Final max height: " + maxHeight);
 		
 		setCategoryPanelsHeight(maxHeight);
 	}
@@ -211,6 +214,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 			
 			final Grid categoryGrid = new Grid();
 			categoryGrid.resize(categoryExperiments.size(), 2);
+			categoryGrid.setWidth("100%");
 
 			for(int j = 0; j < categoryExperiments.size(); ++j) {
 				final ExperimentAllowed experiment = categoryExperiments.get(j);
@@ -236,7 +240,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 							
 				categoryGrid.setWidget(j, 0, nameLink);
 				
-				categoryGrid.setWidget(j, 1, img);
+				categoryGrid.setWidget(j, 1, new SimplePanel(img));
 				categoryGrid.getCellFormatter().setHorizontalAlignment(j, 1, HasHorizontalAlignment.ALIGN_CENTER);
 			}
 			

@@ -2,6 +2,15 @@ a img{
 	border: 0;
 }
 
+input .textbox {
+	 width: 10em;
+}
+
+.textbox input {
+	 width: 10em;
+}
+
+ 
 .gwt-Button {
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -38,6 +47,14 @@ a img{
 	font-weight: bold;
 	font-size: 150%;
 	display: block;
+	margin: 10px;
+}
+
+.wl-message
+{
+	margin: 10px;
+	width: 60%;
+	min-width: 300px;
 }
 
 .wl-img-button{
@@ -67,6 +84,10 @@ a img{
    width: 250px;
    background: #FFFFFF;
    padding: 5px;
+}
+
+.web-experiment-details-DecoratorPanel .middleCenter {
+   background: #FDFDFD;
 }
 
 .experiment-list-category-panel {
