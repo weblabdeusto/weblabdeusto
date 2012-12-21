@@ -313,6 +313,9 @@ a:hover
 	//border: 1px solid navy;
 	cursor:pointer;
 	cursor:hand;
+	float: right;
+	width: auto;
+	margin: 3px;
 }
 
 /*
