@@ -22,19 +22,16 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.event.logical.shared.OpenEvent;
-import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -74,7 +71,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField AbsolutePanel navigationPanel;
 	@UiField Label contentTitleLabel;
-	@UiField HTMLPanel experimentsTable;
+	@UiField Grid experimentsTable;
 	@UiField WlWaitingLabel waitingLabel;
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
@@ -89,8 +86,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 	private final User user;
 	private Map<String, Map<ExperimentAllowed, IConfigurationRetriever>> experimentsAllowed;
 	private ExperimentAllowed [] failedExperiments;
-	
-	private Map<SimplePanel, Integer> allCategories = new HashMap<SimplePanel, Integer>();
 	
 	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
@@ -136,57 +131,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 		return this.containerPanel;
 	}		
 	
-	// Important: call it once it has been added to the panel
-	void initializeWidgetSizes() {
-		int maxHeight = 0;
-		// System.out.println("Initializing...");
-		for(SimplePanel categoryPanelContainer : this.allCategories.keySet()){
-			// System.out.println("Current maxHeight: " + maxHeight);
-			if(categoryPanelContainer.getWidget().getOffsetHeight() > maxHeight)
-				maxHeight = categoryPanelContainer.getWidget().getOffsetHeight();
-			this.allCategories.put(categoryPanelContainer, categoryPanelContainer.getOffsetHeight());
-		}
-		// System.out.println("Final max height: " + maxHeight);
-		
-		setCategoryPanelsHeight(maxHeight);
-	}
-	
-	private void setCategoryPanelsHeight(int height) {
-		if(height <= 0)
-			return;
-		
-		for(SimplePanel categoryPanelContainer : this.allCategories.keySet())
-			categoryPanelContainer.setSize("250px", (height + 20) + "px");
-	}
-	
-	void onClosePanel(SimplePanel categoryPanelContainer) {
-		// Take into account only the rest, and not the current one
-		int maxHeight = 0;
-		
-		for(SimplePanel currentContainer : this.allCategories.keySet()){
-			
-			if(categoryPanelContainer != currentContainer) {
-				if(currentContainer.getWidget().getOffsetHeight() > maxHeight)
-					maxHeight = currentContainer.getWidget().getOffsetHeight();
-			}
-		}
-		
-		setCategoryPanelsHeight(maxHeight);
-	}
-	
-	void onOpenPanel(SimplePanel categoryPanelContainer) {
-		// Take into account only the rest, and not the current one
-		int maxHeight = 0;
-		for(SimplePanel currentContainer : this.allCategories.keySet()){
-			if(currentContainer.getWidget().getOffsetHeight() > maxHeight)
-				maxHeight = currentContainer.getWidget().getOffsetHeight();
-		}
-		if(this.allCategories.get(categoryPanelContainer).intValue() > maxHeight)
-			maxHeight = this.allCategories.get(categoryPanelContainer).intValue();
-		
-		setCategoryPanelsHeight(maxHeight);
-	}
-	
 	protected void loadWidgets(){
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
 
@@ -203,6 +147,11 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 
+	    final int INTENDED_COLUMNS = (80 * Window.getClientWidth() / 100) / 260;
+	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
+	    
+	    this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
+	    
 		final List<String> categories = new Vector<String>(this.experimentsAllowed.keySet());
 		Collections.sort(categories);
 		
@@ -255,23 +204,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 			decoratedCategoryPanel.setWidth("250px");
 			decoratedCategoryPanel.addStyleName("experiment-list-category-container");
 
-			categoryPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {
-				@Override
-				public void onOpen(OpenEvent<DisclosurePanel> event) {
-					onOpenPanel(decoratedCategoryPanel);
-				}
-			});
-			
-			categoryPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {
-				
-				@Override
-				public void onClose(CloseEvent<DisclosurePanel> event) {
-					onClosePanel(decoratedCategoryPanel);
-				}
-			});
-
-			this.allCategories.put(decoratedCategoryPanel, Integer.valueOf(0));
-			this.experimentsTable.add(decoratedCategoryPanel);
+			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, categoryPanel);
+			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
 		}
 		
 	    if(this.callback.startedLoggedIn()){

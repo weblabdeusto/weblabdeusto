@@ -13,7 +13,6 @@
 */ 
 package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -259,19 +258,6 @@ public class DefaultTheme extends LabThemeBase {
 			builder.append(" " + experiment + ",");
 		if(failedExperiments.length > 0)
 			showError(builder.toString());
-		
-		this.allowedExperimentsWindow.initializeWidgetSizes();
-		
-		// XXX: kludge
-		// In Mozilla Firefox, sometimes it takes some milliseconds to load all the images
-		// and calculate properly the height of the elements. Therefore, we try it twice.
-		final Timer timer = new Timer() {
-			@Override
-			public void run() {
-				DefaultTheme.this.allowedExperimentsWindow.initializeWidgetSizes();
-			}
-		};
-		timer.schedule(500);
 	}	
 
 	private void loadExperimentWindow()
