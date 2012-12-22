@@ -184,7 +184,9 @@ class AllowedExperimentsWindow extends BaseWindow {
 	}
 
 	private void loadExperimentsTable() {
-		final int INTENDED_COLUMNS = (80 * Window.getClientWidth() / 100) / 250;
+		int INTENDED_COLUMNS = (80 * Window.getClientWidth() / 100) / 250;
+        if(INTENDED_COLUMNS == 0)
+            INTENDED_COLUMNS = 1;
 	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
 	    
 	    this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
