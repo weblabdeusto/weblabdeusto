@@ -22,6 +22,8 @@ import java.util.Vector;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -38,6 +40,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 
 import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
@@ -82,12 +85,14 @@ class AllowedExperimentsWindow extends BaseWindow {
 	// Callbacks
 	private final IAllowedExperimentsWindowCallback callback;
 
+	private static HandlerRegistration RESIZE_HANDLER = null;
+	
 	// DTOs
 	private final User user;
 	private Map<String, Map<ExperimentAllowed, IConfigurationRetriever>> experimentsAllowed;
 	private ExperimentAllowed [] failedExperiments;
 	
-	public AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
+	AllowedExperimentsWindow(IConfigurationManager configurationManager, User user, ExperimentAllowed[] experimentsAllowed, IAllowedExperimentsWindowCallback callback) {
 	    super(configurationManager);
 	    
 	    this.user = user;
@@ -96,6 +101,28 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    loadExperimentsAllowedConfigurations(experimentsAllowed);
 	    
 	    this.loadWidgets();
+	    
+	    if(RESIZE_HANDLER != null)
+	    	RESIZE_HANDLER.removeHandler();
+	    
+	    RESIZE_HANDLER = Window.addResizeHandler(new ResizeHandler() {
+			
+			@Override
+			public void onResize(ResizeEvent event) {
+				System.out.println("Resizing. New width: " + event.getWidth());
+				AllowedExperimentsWindow.this.experimentsTable.clear();
+			    while(AllowedExperimentsWindow.this.experimentsTable.getRowCount() > 0)
+			    	AllowedExperimentsWindow.this.experimentsTable.removeRow(0);
+				loadExperimentsTable();
+			}
+		});
+	}
+	
+	void dispose() {
+	    if(RESIZE_HANDLER != null) {
+	    	RESIZE_HANDLER.removeHandler();
+	    	RESIZE_HANDLER = null;
+	    }
 	}
 	
 	private void loadExperimentsAllowedConfigurations(ExperimentAllowed [] experimentsAllowed) {
@@ -147,7 +174,17 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 
-	    final int INTENDED_COLUMNS = (80 * Window.getClientWidth() / 100) / 260;
+	    loadExperimentsTable();
+		
+	    if(this.callback.startedLoggedIn()){
+	    	this.logoutLink.setVisible(false);
+	    	this.separatorLabel.setVisible(false);
+	    	this.separatorLabel2.setVisible(false);
+	    }
+	}
+
+	private void loadExperimentsTable() {
+		final int INTENDED_COLUMNS = (80 * Window.getClientWidth() / 100) / 250;
 	    final int COLUMNS = this.experimentsAllowed.size() > INTENDED_COLUMNS? INTENDED_COLUMNS : this.experimentsAllowed.size();
 	    
 	    this.experimentsTable.resize(this.experimentsAllowed.size() / COLUMNS + 1, COLUMNS);
@@ -207,12 +244,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 			this.experimentsTable.setWidget(i / COLUMNS, i % COLUMNS, decoratedCategoryPanel);
 			this.experimentsTable.getCellFormatter().setVerticalAlignment(i / COLUMNS, i % COLUMNS, HasVerticalAlignment.ALIGN_TOP);
 		}
-		
-	    if(this.callback.startedLoggedIn()){
-	    	this.logoutLink.setVisible(false);
-	    	this.separatorLabel.setVisible(false);
-	    	this.separatorLabel2.setVisible(false);
-	    }
 	}
 	
     @Override

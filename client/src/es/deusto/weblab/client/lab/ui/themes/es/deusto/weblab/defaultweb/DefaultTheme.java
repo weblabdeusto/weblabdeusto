@@ -310,7 +310,10 @@ public class DefaultTheme extends LabThemeBase {
 
 	 private void clearWindow(){
 		 this.loginWindow = null;
-		 this.allowedExperimentsWindow = null;
+		 if(this.allowedExperimentsWindow != null) {
+			 this.allowedExperimentsWindow.dispose();
+			 this.allowedExperimentsWindow = null;
+		 }
 		 this.experimentWindow = null;
 		 while(this.themePanel.getWidgetCount() > 0)
 			 this.themePanel.remove(0);
