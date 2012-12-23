@@ -1,0 +1,6 @@
+*.dump
+*.html
+*.txt
+configuration.py
+nohup.*
+debug.sh

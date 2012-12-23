@@ -70,18 +70,23 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
         password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
         host     = self.host
+        port     = self.port
         dbname   = self.database_name
         engine   = self.engine_name
 
         if DatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
-            getconn = generate_getconn(engine, user, password, host, dbname)
+            getconn = generate_getconn(engine, user, password, host, port, dbname)
 
             if engine == 'sqlite':
                 connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
                 pool = sqlalchemy.pool.NullPool(getconn)
             else:
-                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
-                                { "ENGINE":   engine,
+                if port is None:
+                    port_str = ''
+                else:
+                    port_str = ':%s' % port
+                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s%(PORT)s/%(DATABASE)s" % \
+                                { "ENGINE":   engine, 'PORT' : port_str,
                                   "USER":     user, "PASSWORD": password,
                                   "HOST":     host, "DATABASE": dbname  }
 
@@ -195,14 +200,18 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                     c.timestamp_after
                                 ))
             for f in experiment_usage.sent_files:
+                if f.is_loaded():
+                    saved = f.save(self.cfg_manager, experiment_usage.reservation_id)
+                else:
+                    saved = f
                 session.add(model.DbUserFile(
                                 use,
-                                f.file_path,
-                                f.file_hash,
-                                f.timestamp_before,
-                                f.file_info,
-                                f.response.commandstring,
-                                f.timestamp_after
+                                saved.file_path,
+                                saved.file_hash,
+                                saved.timestamp_before,
+                                saved.file_info,
+                                saved.response.commandstring,
+                                saved.timestamp_after
                             ))
 
             for reservation_info_key in experiment_usage.request_info:

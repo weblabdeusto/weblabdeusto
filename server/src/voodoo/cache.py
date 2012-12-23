@@ -83,6 +83,10 @@ class _CacheCleaner(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.setName("CacheCleaner")
+        self.stopping = False
+
+    def stop(self):
+        self.stopping = True
 
     def clean_cache_obj(self, cache_obj):
 
@@ -118,7 +122,7 @@ class _CacheCleaner(threading.Thread):
                         fast_cache_obj.pop(keys[0])
 
     def run(self):
-        while True:
+        while not self.stopping:
             try:
                 copy = _cache_registry[:]
                 for cache_obj in copy:

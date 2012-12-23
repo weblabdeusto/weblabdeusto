@@ -119,7 +119,7 @@ class SequentialRunner(object):
 
 class MainRunner(object):
 
-    MATPLOTLIB_BACKEND      = 'cairo.pdf'
+    MATPLOTLIB_BACKEND      = 'Agg'
     DEFAULT_NUMBER_OF_TIMES =  2
 
     matplotlib = None

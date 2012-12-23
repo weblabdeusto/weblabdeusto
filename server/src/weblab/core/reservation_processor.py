@@ -15,26 +15,22 @@
 #
 
 import random
-import hashlib
 import time as time_module
 
 import voodoo.log as log
 
 import weblab.data.server_type as ServerType
 import weblab.data.command as Command
-from weblab.data.experiments import FileSent
 
 import weblab.core.exc as core_exc
 import weblab.core.reservations as Reservation
+from weblab.core.file_storer import FileStorer
 
 import weblab.core.coordinator.exc as coord_exc
 import weblab.core.coordinator.status as scheduling_status
 import weblab.core.coordinator.store as TemporalInformationStore
 
 import weblab.lab.exc as LaboratoryErrors
-
-import weblab.experiment.util as ExperimentUtil
-
 
 DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
@@ -82,6 +78,9 @@ class ReservationProcessor(object):
     def get_reservation_session_id(self):
         return self._reservation_session_id
 
+    def get_reservation_id(self):
+        return self._reservation_id
+
     def get_info(self):
         return self._reservation_session['experiment_id']
 
@@ -106,7 +105,7 @@ class ReservationProcessor(object):
             log.log_exc(ReservationProcessor, log.level.Debug)
             human   = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, "human universal identifier not provided")
             core_id = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, "universal identifier not provided")
-            raise core_exc.NoCurrentReservationError("get_reservation_status at %s (%s) called but coordinator rejected reservation id. Reason: %s" % (human, core_id, str(e)))
+            raise core_exc.NoCurrentReservationError("get_reservation_status at %s (%s) called but coordinator rejected reservation id (%s). Reason: %s" % (human, core_id, self._reservation_id, str(e)))
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)
@@ -518,38 +517,5 @@ class ReservationProcessor(object):
         return self.time_module.time()
 
     def _store_file(self, file_content, file_info):
-        # TODO: this is a very dirty way to implement this. Anyway until the good approach is taken, this will store the students programs
-        # TODO: there should be two global variables: first, if store_student_files is not activated, do nothing.
-        #       but, if store_student_files is activated, it should check that for a given experiment, they should be stored or not.
-        #       For instance, I may want to store GPIB experiments but not FPGA experiments. Indeed, this should be stored in the db
-        #       in the permission of the student/group with the particular experiment, with a default value to True.
-        should_i_store = self._cfg_manager.get_value('core_store_students_programs',False)
-        timestamp_before   = self._utc_timestamp()
-        if should_i_store:
-            # TODO not tested
-            def get_time_in_str():
-                cur_time = time_module.time()
-                s = time_module.strftime('%Y_%m_%d___%H_%M_%S_',time_module.gmtime(cur_time))
-                millis = int((cur_time - int(cur_time)) * 1000)
-                return s + str(millis)
-
-            if isinstance(file_content, unicode):
-                file_content_encoded = file_content.encode('utf8')
-            else:
-                file_content_encoded = file_content
-            deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
-            storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
-            relative_file_path = get_time_in_str() + '_' + self._reservation_id
-            sha_obj            = hashlib.new('sha')
-            sha_obj.update(deserialized_file_content)
-            file_hash          = sha_obj.hexdigest()
-
-            where = storage_path + '/' + relative_file_path
-            f = open(where,'w')
-            f.write(deserialized_file_content)
-            f.close()
-
-            return FileSent(relative_file_path, "{sha}%s" % file_hash, timestamp_before, file_info = file_info)
-        else:
-            return FileSent("<file not stored>","<file not stored>", timestamp_before, file_info = file_info)
-
+        storer = FileStorer(self._cfg_manager, self._reservation_id, self.time_module)
+        return storer.store_file(file_content, file_info)

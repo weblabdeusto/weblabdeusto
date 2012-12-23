@@ -133,24 +133,20 @@
       <delete dir="war/weblabclientadmin/.junit_symbolMaps" failonerror="false" />
     </target>
 
-    <target name="version" depends="javac">
-       <java classname="es.deusto.weblab.server.VersionWriter">
-          <classpath>
-            <path refid="project.class.path"/>
-          </classpath>
-          <arg value="war/version.js"/>
-          <arg value="${ant.file}"/>
-       </java>
+    <target name="version">
+        <exec executable="python">
+            <arg value="version.py"/>
+            <arg value="-f" />
+            <arg value="war/version.js"/>
+        </exec>
     </target>
 
     <target name="gwtc-lab" depends="javac">
-       <java classname="es.deusto.weblab.server.VersionWriter">
-          <classpath>
-            <path refid="project.class.path"/>
-          </classpath>
-          <arg value="war/version.js"/>
-          <arg value="${ant.file}"/>
-       </java>
+        <exec executable="python">
+            <arg value="version.py"/>
+            <arg value="-f" />
+            <arg value="war/version.js"/>
+        </exec>
       <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
 	      <classpath>
 	        <pathelement location="src"/>

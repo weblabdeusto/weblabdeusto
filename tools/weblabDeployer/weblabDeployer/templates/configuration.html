@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+
+{% block navbar %}
+<ul class="nav">
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li class="active"><a href="{{ url_for('configure') }}">Configure</a></li>
+    <li><a href="{{ url_for('deploy') }}">Deploy</a></li>
+</ul>
+<ul class="nav pull-right" >
+    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
+</ul>
+{% endblock navbar %}
+
+{% block body %}
+    {% from "macros/_formhelpers.html" import render_field %}
+    <form method=post enctype=multipart/form-data action="{{ url_for('configure') }}">
+      <dl>
+        {{ form.hidden_tag() }}
+        {{ render_field(form.name) }}
+        {{ render_field(form.logo) }}
+        {{ render_field(form.base_url) }}
+        {{ render_field(form.link_url) }}
+        {{ render_field(form.google_analytics_number) }}
+      </dl>
+      <p><input type=submit value=Save>
+    </form>
+    
+    <a href="{{ url_for('deploy') }}"><input type="button" class="btn btn-success" value="Deploy!" /></a>
+    
+{% endblock body %}
+
+{% block footer %}
+   CC 3.0
+{% endblock footer %}

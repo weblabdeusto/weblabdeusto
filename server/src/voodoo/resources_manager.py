@@ -21,6 +21,9 @@ from abc import ABCMeta, abstractmethod
 import voodoo.log as log
 
 def is_testing():
+    # if the runner is unittest or nose, then it is running
+    if 'unittest' in sys.argv[0] or 'nose' in sys.argv[0]:
+        return True
     # if there is no test module loaded, it's not testing
     if not 'test' in sys.modules:
         return False

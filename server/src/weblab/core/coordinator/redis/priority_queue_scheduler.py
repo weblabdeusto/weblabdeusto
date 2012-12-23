@@ -47,6 +47,7 @@ from weblab.core.coordinator.redis.constants import (
 
     LAB_COORD,
     CLIENT_INITIAL_DATA,
+    REQUEST_INFO,
     EXPERIMENT_TYPE,
     EXPERIMENT_INSTANCE,
     START_TIME,
@@ -228,7 +229,6 @@ class PriorityQueueScheduler(Scheduler):
                 return WSS.WaitingConfirmationQueueStatus(reservation_id_with_route, self.core_server_url)
 
             # Or the experiment server already responded and therefore we have all this data
-            experiment_instance_id       = ExperimentInstanceId.parse(reservation_data[EXPERIMENT_INSTANCE])
             str_lab_coord_address        = reservation_data[LAB_COORD]
             obtained_time                = reservation_data[TIME]
             initialization_in_accounting = reservation_data[INITIALIZATION_IN_ACCOUNTING]
@@ -492,6 +492,8 @@ class PriorityQueueScheduler(Scheduler):
                 initialization_in_accounting               = pqueue_reservation_data[INITIALIZATION_IN_ACCOUNTING]
 
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
+                username                  = json.loads(reservation_data[REQUEST_INFO]).get('username')
+
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
 
                 selected_experiment_instance = None
@@ -529,12 +531,14 @@ class PriorityQueueScheduler(Scheduler):
                         'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                         'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
+                        'request.username'                                 : username,
+                        'request.full_name'                                : username,
                         # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)
                 # server_initial_data will contain information such as "what was the last experiment used?".
                 # If a single resource was used by a binary experiment, then the next time may not require reprogramming the device
-                self.confirmer.enqueue_confirmation(laboratory_coord_address, first_waiting_reservation_id, selected_experiment_instance, client_initial_data, server_initial_data)
+                self.confirmer.enqueue_confirmation(laboratory_coord_address, first_waiting_reservation_id, selected_experiment_instance, client_initial_data, server_initial_data, self.resource_type_name)
                 #
                 # After it, keep in the while True in order to add the next
                 # reservation
@@ -549,7 +553,6 @@ class PriorityQueueScheduler(Scheduler):
     def _remove_expired_reservations(self):
         now = self.time_provider.get_time()
 
-        reservations_removed = False
         enqueue_free_experiment_args_retrieved = []
 
         client = self.redis_maker()
@@ -564,7 +567,6 @@ class PriorityQueueScheduler(Scheduler):
             pipeline.get(weblab_reservation_pqueue)
         results = pipeline.execute()
        
-        current_values = []
         for reservation_id, reservation_data in zip(reservations, results):
             if reservation_data is not None:
                 data = json.loads(reservation_data)
@@ -583,7 +585,6 @@ class PriorityQueueScheduler(Scheduler):
                             enqueue_free_experiment_args_retrieved.append(enqueue_free_experiment_args)
                             self._delete_reservation(reservation_id)
                             self.reservations_manager.delete(reservation_id)
-                            reservations_removed = True
 
         # Anybody with latest_access later than this point is expired
         current_expiration_time = datetime.datetime.utcfromtimestamp(now - EXPIRATION_TIME)
@@ -602,7 +603,6 @@ class PriorityQueueScheduler(Scheduler):
 
             self._delete_reservation(expired_reservation_id)
             self.reservations_manager.delete(expired_reservation_id)
-            reservations_removed = True
 
         for enqueue_free_experiment_args in enqueue_free_experiment_args_retrieved:
             if enqueue_free_experiment_args is not None:

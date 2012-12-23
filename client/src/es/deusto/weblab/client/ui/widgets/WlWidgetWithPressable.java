@@ -13,6 +13,9 @@
 */ 
 package es.deusto.weblab.client.ui.widgets;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -41,8 +44,6 @@ public abstract class WlWidgetWithPressable extends VerticalPanel implements IWl
 		this.add(this.visiblePanel);
 	}
 	
-	
-	
 	/**
 	 * Retrieves the title of the switch. The title is empty by default
 	 * and may be set through the setTitle method.
@@ -61,7 +62,6 @@ public abstract class WlWidgetWithPressable extends VerticalPanel implements IWl
 		this.title.setVisible(true);
 		this.title.setText(title);
 	}
-	
 	
 	public void addActionListener(IWlActionListener listener){
 		this.actionListenerContainer.addActionListener(listener);

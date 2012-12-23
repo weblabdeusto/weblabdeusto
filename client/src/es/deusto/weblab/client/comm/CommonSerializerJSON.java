@@ -116,7 +116,17 @@ public class CommonSerializerJSON implements ICommonSerializer {
 	private void throwException(JSONObject responseObject) throws WebLabServerException {
 		// {"message": "No UserAuth found", "code": "JSON:Server.WebLab", "is_exception": true}
 		final String faultCode = responseObject.get("code").isString().stringValue();
-		final String faultString = responseObject.get("message").isString().stringValue();
+		final JSONString strMessage = responseObject.get("message").isString();
+		final String faultString;
+		if(strMessage == null) {
+			JSONNumber intMessage = responseObject.get("message").isNumber();
+			if(intMessage == null)
+				faultString = "unknown message: " + responseObject.get("message").toString();
+			else
+				faultString = "Error retrieved from server: " + intMessage.toString() + "; probably a database configuration error. Contact the administrator.";
+		} else {
+			faultString = strMessage.stringValue();
+		}
 		
 		throw this.buildException(faultCode, faultString);
 	}

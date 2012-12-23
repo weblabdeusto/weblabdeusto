@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2012 onwards University of Deusto
@@ -13,9 +13,17 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+"""
+setup.py is a setuptools script that installs WebLab-Deusto in your system.
+Running "python setup.py install" will install it, and then you can run the
+"weblab-admin" command to create and manage instances. It is highly 
+recommended to use virtualenv first to create a user-level environment.
+"""
+
 import os
 import shutil
 from setuptools import setup
+from setuptools.command.build_py import build_py as _build_py
 
 # TODO: in the weblab-admin script, choose between the absolute directory
 # to the source code and sys.prefix
@@ -35,34 +43,46 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
-##########################################################
-# 
-# 
-#       S O A P     S T U B S  ( O P T I O N A L )
-# 
-# 
+def _build_requirements():
+    ##########################################################
+    # 
+    # 
+    #       S O A P     S T U B S  ( O P T I O N A L )
+    # 
+    # 
 
-import weblab.comm.util as comm_util
-comm_util.deploy_stubs()
+    import weblab.comm.util as comm_util
+    comm_util.deploy_stubs()
 
-##########################################################
-#
-# 
-#       C L I E N T 
-# 
-# 
+    ##########################################################
+    #
+    # 
+    #       C L I E N T 
+    # 
+    # 
 
-CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
-WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
-from weblab.admin.client_deploy import compile_client
-compile_client(WAR_LOCATION, CLIENT_LOCATION)
+    CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
+    WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
+    from weblab.admin.client_deploy import compile_client
+    compile_client(WAR_LOCATION, CLIENT_LOCATION)
 
-# In any case, the client was compiled in the past or just now. Let's copy it here.
-print "Copying...",
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
-shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
-print "[done]"
+    # In any case, the client was compiled in the past or just now. Let's copy it here.
+    print "Copying...",
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
+    shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
+    print "[done]"
+
+class WebLabBuild(_build_py):
+    def run(self):
+        if not self.dry_run:
+            _build_requirements()
+            lib_war = os.path.join(self.build_lib, 'weblabdeusto_data', 'war')
+            if os.path.exists(lib_war):
+                shutil.rmtree(lib_war)
+            shutil.copytree(os.path.join('weblabdeusto_data', 'war'), lib_war)
+        _build_py.run(self)
+
 
 ##########################################################
 #
@@ -139,7 +159,7 @@ load_requires(tests_require,    'requirements_testing.txt')
 # 
 # 
 
-scripts = [ 'weblab/admin/weblab-admin', 'weblab/admin/weblab-bot' ]
+scripts = [ 'weblab/admin/weblab-admin', 'weblab/admin/weblab-bot', 'weblab/admin/weblab-admin.py', 'weblab/admin/weblab-bot.py' ]
 
 classifiers=[
     "Development Status :: 5 - Production/Stable",
@@ -159,6 +179,7 @@ setup(name='weblabdeusto',
       version='5.0',
       description="WebLab-Deusto Remote Laboratory Management System",
       classifiers=classifiers,
+      cmdclass = { 'build_py' : WebLabBuild },
       author='WebLab-Deusto Team',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',
@@ -168,6 +189,6 @@ setup(name='weblabdeusto',
       scripts=scripts,
       install_requires=install_requires,
       tests_require=tests_require,
-      test_suite="launch_tests.suite",
+      test_suite="develop.suite",
       zip_safe=False,
      )

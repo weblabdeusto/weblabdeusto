@@ -3,6 +3,8 @@
 
 submarine_pic_location = 'http://192.168.0.90/'
 
+thermometer_path = '../../../client/war/weblabclientlab/img/experiments/submarine-thermometer.png'
+
 webcams_info = [
     dict(
         webcam_url             = 'http://www.weblab.deusto.es/webcam/proxied.py/fishtank1',

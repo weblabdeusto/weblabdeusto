@@ -34,13 +34,17 @@ class SessionManagerCleaner(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.setName("SessionManagerCleaner")
+        self.stopping = False
 
     @staticmethod
     def append_session_manager(session_manager):
         SessionManagerCleaner._session_managers.append( weakref.ref( session_manager ) )
 
+    def stop(self):
+        self.stopping = True
+
     def run(self):
-        while True:
+        while not self.stopping:
             time.sleep(5)
             try:
                 session_managers = SessionManagerCleaner._session_managers[:]

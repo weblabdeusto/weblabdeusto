@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
@@ -157,23 +158,8 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentArea.clear();
-		final VerticalPanel vp = new VerticalPanel();
-		vp.setWidth("100%");
-		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		final Button b = new Button(this.i18nMessages.clickHereToOpenExperiment());
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId;
-		b.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent event) {
-				ExperimentWindow.this.callback.disableFinishOnClose();
-				Window.Location.assign(remoteUrl);
-				/*
-				Window.open( remoteUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
-				*/
-			}
-		});
-		vp.add(b);
-		this.experimentArea.add(vp);
+		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+        this.callback.disableFinishOnClose();
 	}
 	
 	@UiHandler("finishButton")

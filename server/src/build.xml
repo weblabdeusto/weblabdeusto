@@ -11,14 +11,14 @@
 		</exec>
         <mkdir dir="${test.xml.dir}"/>
 		<exec executable="python${python.version}" failonerror="true">
-			<arg value="launch_tests.py"/>
+			<arg value="develop.py"/>
 			<arg value="--environment"/>
 			<arg value="env"/>
 			<arg value="--install-all-requirements"/>
             <arg value="--compile-client" />
 			<arg value="--deploy-stubs"/>
             <arg value="--deploy-test-db"/>
-            <arg value="--test-db-engine=mysql"/>
+            <arg value="--db-engine=mysql"/>
 			<arg value="--flakes"/>
 			<arg value="--tests"/>
 			<arg value="--ui"/>

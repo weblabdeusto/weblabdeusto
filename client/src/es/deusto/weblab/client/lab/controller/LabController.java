@@ -568,7 +568,8 @@ public class LabController implements ILabController {
 			@Override
 			public void onFailure(CommException e) {
 				LabController.this.sessionVariables.hideExperiment();
-				LabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+				LabController.this.uimanager.onCleanReservation();
+				LabController.this.logout();
 			}
 		});
 	}
@@ -672,4 +673,8 @@ public class LabController implements ILabController {
 	    factory.experimentFactory(experimentAllowed.getExperiment().getExperimentUniqueName(), experimentLoadedCallback, this.isMobile);
 	}
 
+	@Override
+	public void stopPolling() {
+		this.pollingHandler.stop();
+	}
 }

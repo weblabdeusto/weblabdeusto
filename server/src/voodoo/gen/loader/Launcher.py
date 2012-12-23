@@ -28,7 +28,6 @@ import socket
 
 import logging.config
 
-import voodoo.killer as killer
 import voodoo.counter as counter
 import voodoo.process_starter as process_starter
 import voodoo.gen.loader.ServerLoader as ServerLoader
@@ -101,6 +100,7 @@ class SocketWait(EventWait):
 
     def wait(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
         self.s.bind(('localhost', self.port))
         self.s.listen(5)
         self.s.accept()
@@ -260,6 +260,7 @@ class MachineLauncher(AbstractLauncher):
 
     def _create_socket(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
         self.socket.bind(('',self.waiting_port))
         self.socket.listen(5)
 
@@ -315,13 +316,13 @@ class MachineLauncher(AbstractLauncher):
 
         if len(processes) > 0:
             for process in processes:
-                killer.term(process)
+                process.terminate()
 
         self.wait_for_subprocesses(processes)
 
         if len(processes) > 0:
             for process in processes:
-                killer.kill(process)
+                process.kill()
 
         self.wait_for_subprocesses(processes)
 

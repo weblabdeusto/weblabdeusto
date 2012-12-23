@@ -44,10 +44,13 @@ class SessionRedisGateway(object):
         try:
             int(session_pool_id)
         except ValueError:
-            raise TypeError("Session pool id needs to be an integer")
+            raise TypeError("Session pool id needs to be an integer. Got '%s'" % session_pool_id)
         
         self.session_pool_id = session_pool_id
-        self.timeout         = timeout
+        if timeout is None:
+            self.timeout = 10 * 365 * 24 * 3600 # expire in 10 years (also known as "never expire")
+        else:
+            self.timeout         = timeout
         self.cfg_manager     = cfg_manager
         (
             host,

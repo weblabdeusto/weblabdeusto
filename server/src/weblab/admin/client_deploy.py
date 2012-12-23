@@ -70,7 +70,7 @@ def compile_client(war_location, client_location):
         # Check that GWT is downloaded. Download it otherwise.
         # 
         
-        GWT_VERSION = 'gwt-2.4.0'
+        GWT_VERSION = 'gwt-2.5.0'
         GWT_URL = "http://google-web-toolkit.googlecode.com/files/%s.zip" % GWT_VERSION
         external_location = os.path.join(client_location, 'external')
         gwt_location = os.path.join(external_location,'gwt')
@@ -86,10 +86,11 @@ def compile_client(war_location, client_location):
             print >> sys.stderr, "or somewhere else and create an environment variable called GWT_HOME pointing"
             print >> sys.stderr, "to it. Anyway, I will attempt to download it and place it there."
             print >> sys.stderr, ""
-            print >> sys.stderr, "Downloading... (please wait a few minutes; GWT is ~90 MB)"
+            print >> sys.stderr, "Downloading %s..." % GWT_URL
+            print >> sys.stderr, "(please wait a few minutes; GWT is ~90 MB)"
             try:
                 os.mkdir(external_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             # TODO: this places in memory the whole file (~90 MB). urllib.urlretrieve?
@@ -100,8 +101,17 @@ def compile_client(war_location, client_location):
             zf = zipfile.ZipFile(gwt_fileobj)
             zf.extractall(external_location)
             del gwt_fileobj, zf
+
             shutil.move(os.path.join(external_location, GWT_VERSION), gwt_location)
             print >> sys.stderr, "Extracted at %s" % gwt_location
+
+            # These two directories are amost 200MB, so it's better to remove them
+            try:
+                shutil.rmtree(os.path.join(gwt_location, 'doc'))
+                shutil.rmtree(os.path.join(gwt_location, 'samples'))
+            except (OSError, IOError) as e:
+                print >> sys.stderr, "WARNING: Error trying to remove GWT doc and samples directories: %s" % e
+
            
         # 
         # Check that smartgwt is downloaded. Download it otherwise.
@@ -121,11 +131,12 @@ def compile_client(war_location, client_location):
             print >> sys.stderr, ""
             print >> sys.stderr, "I will attempt to download it and place it there."
             print >> sys.stderr, ""
-            print >> sys.stderr, "Downloading... (plase wait a few minutes; smartgwt is ~24 MB)"
+            print >> sys.stderr, "Downloading %s..." % SMARTGWT_URL
+            print >> sys.stderr, "(plase wait a few minutes; smartgwt is ~24 MB)"
 
             try:
                 os.mkdir(libclient_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             # TODO: this places in memory the whole file (~24 MB). urllib.urlretrieve?
@@ -153,11 +164,12 @@ def compile_client(war_location, client_location):
             print >> sys.stderr, ""
             print >> sys.stderr, "I will attempt to download it and place it there."
             print >> sys.stderr, ""
-            print >> sys.stderr, "Downloading... (plase wait a few seconds; junit is ~400 KB)"
+            print >> sys.stderr, "Downloading %s..." % JUNIT_URL
+            print >> sys.stderr, "(plase wait a few seconds; junit is ~400 KB)"
 
             try:
                 os.mkdir(libclient_location)
-            except OSError, IOError:
+            except (OSError, IOError):
                 pass # Could be already created
 
             junit_content = urllib2.urlopen(JUNIT_URL).read()

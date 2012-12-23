@@ -151,7 +151,11 @@ class WebLabDeustoClient(object):
         use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address, experiment_use['request_info'])
         for sent_file in experiment_use['sent_files']:
             response = Command(sent_file['response']['commandstring']) if 'commandstring' in sent_file['response'] and sent_file['response'] is not None else NullCommand
-            unserialized_sent_file = LoadedFileSent( sent_file['file_content'], sent_file['timestamp_before'], response, sent_file['timestamp_after'], sent_file['file_info'])
+            if sent_file['file_info'] == {}:
+                file_info = None
+            else:
+                file_info = sent_file['file_info']
+            unserialized_sent_file = LoadedFileSent( sent_file['file_content'], sent_file['timestamp_before'], response, sent_file['timestamp_after'], file_info)
             use.append_file(unserialized_sent_file)
 
         for command in experiment_use['commands']:

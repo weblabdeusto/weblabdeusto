@@ -15,7 +15,7 @@
 
 import os
 
-def generate_getconn(engine, user, password, host, dbname):
+def generate_getconn(engine, user, password, host, port, dbname, dirname = None):
 
     kwargs = {}
 
@@ -58,25 +58,35 @@ def generate_getconn(engine, user, password, host, dbname):
 
     if engine == 'sqlite':
         def getconn_sqlite():
-            return dbi.connect(database = get_sqlite_dbname(dbname), **kwargs)
+            return dbi.connect(database = get_sqlite_dbname(dbname, dirname), **kwargs)
         getconn = getconn_sqlite
     else:
         def getconn_else():
-            return dbi.connect(user = user, passwd = password, host = host, db = dbname, **kwargs)
+            kwargs.update(dict(user = user, passwd = password, host = host, db = dbname))
+            if port is not None:
+                kwargs['port'] = port
+            return dbi.connect(**kwargs)
         getconn = getconn_else
 
     return getconn
 
-def get_sqlite_dbname(dbname):
+def get_sqlite_dbname(dbname, dirname = None):
     if dbname == ':memory:':
         return dbname
+
+    if dirname is not None:
+        full_dir = os.path.join(dirname, 'db', '%s.db' % dbname)
+        if os.path.exists(full_dir):
+            return full_dir
+
     upper_dir = os.path.join('db', '%s.db' % dbname)
     if os.path.exists(upper_dir):
         return upper_dir
     upper_upper_dir = os.sep.join(('..', upper_dir))
     if os.path.exists(upper_upper_dir):
         return upper_upper_dir
-    raise Exception("Could not find %s. Did you run deploy.py?" % dbname)
+    print os.path.abspath(os.path.join('db', '%s.db' % dbname))
+    raise Exception("Could not find database %s. It does not exist at this moment." % dbname)
 
 def get_table_kwargs():
     return {'mysql_engine' : 'InnoDB'}

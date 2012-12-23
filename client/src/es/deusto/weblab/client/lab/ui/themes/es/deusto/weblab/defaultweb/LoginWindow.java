@@ -196,7 +196,7 @@ class LoginWindow extends BaseWindow {
 		final String translatedSupportHTML = this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>");
 		this.supportHTML.setHTML(translatedSupportHTML);
 		
-		final String translatedOpenSourceAddress = this.i18nMessages.weblabIsOpenSourceAvailable("<a href=\"http://code.google.com/p/weblabdeusto/\" target=\"_blank\">http://code.google.com/p/weblabdeusto/</a>");
+		final String translatedOpenSourceAddress = this.i18nMessages.weblabIsOpenSourceAvailable("<a href=\"https://github.com/weblabdeusto/weblabdeusto/\" target=\"_blank\">https://github.com/weblabdeusto/weblabdeusto/</a>");
 		this.openSourceAddressHTML.setHTML(translatedOpenSourceAddress);
 		
 		final String mobileURL = WebLabClient.getNewUrl(WebLabClient.MOBILE_URL_PARAM, "true");

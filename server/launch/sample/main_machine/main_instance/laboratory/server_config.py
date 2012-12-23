@@ -133,6 +133,12 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_submarine:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:unr-physics@Physics experiments':
+            {
+                 'coord_address': 'experiment_unr:main_instance@main_machine',
+                 'checkers': ()
+            },
+
         'exp1:robot-standard@Robot experiments':
             {
                  'coord_address': 'experiment_robot_standard:main_instance@main_machine',
@@ -148,6 +154,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_robot_proglist:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:robotarm@Robot experiments':
+            {
+                 'coord_address': 'experiment_robotarm:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:blink-led@LabVIEW experiments':
             {
                  'coord_address': 'experiment_blinkled:main_instance@main_machine',
@@ -158,4 +169,10 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_pic18:main_instance@main_machine',
                 'checkers': ()
             },
+        'exp1:binary@Games':
+            {
+                'coord_address' : 'experiment_binary:main_instance@main_machine',
+                'checkers': ()
+            },
+
     }

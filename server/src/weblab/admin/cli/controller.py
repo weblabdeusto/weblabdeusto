@@ -18,6 +18,7 @@ import sys
 import datetime
 import random
 import sha
+import traceback
 import weblab.configuration_doc as configuration_doc
 
 from console_ui import ConsoleUI
@@ -48,11 +49,13 @@ class Controller(object):
                 print >> sys.stderr, "Could not file configuration file", configuration_file
                 sys.exit(1)
 
+            globals()['CURRENT_PATH'] = configuration_file
             execfile(configuration_file, globals(), globals())
 
         global_vars = globals()
 
         self.db_host           = get_variable(global_vars, configuration_doc.DB_HOST)
+        self.db_port           = get_variable(global_vars, configuration_doc.DB_PORT)
         self.db_engine         = get_variable(global_vars, configuration_doc.DB_ENGINE)
         self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
         self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
@@ -82,10 +85,10 @@ class Controller(object):
 
     def init(self):
         if self.db_name is not None and self.db_user is not None and self.db_pass is not None:
-            self.db = DbGateway(self.db_engine, self.db_host, self.db_name, self.db_user, self.db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_port, self.db_name, self.db_user, self.db_pass)
         else:
             db_name, db_user, db_pass = self.ui.dialog_init(self.default_db_name, self.default_db_user, self.default_db_pass)
-            self.db = DbGateway(self.db_engine, self.db_host, db_name, db_user, db_pass)
+            self.db = DbGateway(self.db_engine, self.db_host, self.db_port, db_name, db_user, db_pass)
 
     def menu(self):
         option = None
@@ -328,16 +331,17 @@ class Controller(object):
                 try:
                     user = self.db.insert_user(user_data["login"], user_data["full_name"], user_data["email"], None, role)
                     if user is not None:
-                        self.ui.notify("User created:\n%r" % user)
+                        self.ui.notify(u"User created:\n%r" % repr(user))
                         user_auth = self.db.insert_user_auth(user, auth, None)
                         assert user_auth is not None
-                        self.ui.notify("UserAuth created:\n%r" % user_auth)
+                        self.ui.notify(u"UserAuth created:\n%r" % repr(user_auth))
                         users_created_successfully += 1
                     else:
                         self.ui.error("The User '%s' already exists." % user_data["login"])
                         self.db.session.rollback()
                 except Exception, ex:
-                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: " % (user_data["login"], ex.__repr__))
+                    self.ui.error("The User '%s' could not be created. Ignoring him/her. Reason: %s" % (user_data["login"], ex.__repr__()))
+                    traceback.print_exc()
             self.ui.notify("Created %d users out of %d." % (users_created_successfully, num_users))
             self.ui.wait()
         except GoBackError:
@@ -605,10 +609,10 @@ class Controller(object):
                     if( user.login in user_pwds ):
                         pwd = user_pwds[user.login]
                         self.ui.notify_begin("Sending email to %s..." % user.email)
-                        smtp.send(fromm, (user.email,) + bcc, subject, text % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd})
+                        smtp.send(fromm, (user.email,) + bcc, subject, (text.decode('utf-8') % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd}).encode('utf-8'))
                         self.ui.notify_end("done.")
                     else:
-                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file", user.login)
+                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file" % user.login)
             else:
                 self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()

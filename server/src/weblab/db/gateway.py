@@ -19,9 +19,10 @@ import voodoo.configuration as CfgErrors
 
 class AbstractDatabaseGateway(object):
     def __init__(self, cfg_manager):
-
+        self.cfg_manager = cfg_manager
         try:
             self.host          = cfg_manager.get_doc_value(configuration_doc.DB_HOST)
+            self.port          = cfg_manager.get_doc_value(configuration_doc.DB_PORT)
             self.database_name = cfg_manager.get_doc_value(configuration_doc.DB_DATABASE)
             self.engine_name   = cfg_manager.get_doc_value(configuration_doc.DB_ENGINE)
         except CfgErrors.KeyNotFoundError as knfe:

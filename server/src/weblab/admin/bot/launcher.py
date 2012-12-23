@@ -93,14 +93,16 @@ class BotLauncher(object):
         for i in range(self.iterations):
             self._print(" iteration %i " % i)
             bot_iteration = self._launch_iteration()
+            self._print(" [ %s exceptions ] " % len(bot_iteration.exceptions))
             iterations.append(bot_iteration)
             self._print("\n")
 
         return Data.BotTrial(iterations)
 
-    def _launch_iteration(self):
-
-        # Launching botusers...
+    def _start_processes(self):
+        if self.options['dont_start_processes']:
+            time.sleep(10)
+            return
         started_processes = []
         try:
             for launch_file in self.launch_files:
@@ -126,6 +128,24 @@ class BotLauncher(object):
                     print "[Launcher] Shutting down... %s" % started_process
                 started_process.shutdown()
             raise
+        return started_processes
+
+    def _stop_processes(self, started_processes):
+        if self.options['dont_start_processes']:
+            return 'Nothing started', 'Nothing started'
+
+        complete_out = ''
+        complete_err = ''
+        for started_process in started_processes:
+            started_process.shutdown()
+            complete_out += started_process.out
+            complete_err += started_process.err
+        return complete_out, complete_err
+
+    def _launch_iteration(self):
+        started_processes = self._start_processes()
+
+        # Launching botusers...
         if self.verbose:
             print "[Launcher] All processes launched"
         try:
@@ -146,12 +166,7 @@ class BotLauncher(object):
                 time.sleep(0.3)
             iteration_time = time.time() - begin_time
         finally:
-            complete_out = ''
-            complete_err = ''
-            for started_process in started_processes:
-                started_process.shutdown()
-                complete_out += started_process.out
-                complete_err += started_process.err
+            complete_out, complete_err = self._stop_processes(started_processes)
 
         botuser_routes = [ botuser.route for botuser in botusers ]
         routes = {}
