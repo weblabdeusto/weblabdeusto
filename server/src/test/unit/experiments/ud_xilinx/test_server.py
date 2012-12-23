@@ -172,8 +172,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
     def test_digilent_adept_with_http(self, Popen):
         popen = Popen.return_value
         popen.wait.return_value = 0
-        popen.stdout.read.return_value = ''
-        popen.stderr.read.return_value = ''
+        popen.communicate.return_value = ('','')
 
         self.cfg_manager._set_value('xilinx_device_to_program', 'DigilentAdept')
         self.cfg_manager._set_value('xilinx_device_to_send_commands', 'HttpDevice')

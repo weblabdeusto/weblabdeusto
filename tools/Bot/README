@@ -1,6 +1,10 @@
 Modify the configuration.py script and run:
 
- $ export PYTHONPATH=.
  $ weblab-bot 
 
-To run the bot.
+To run the bot. So as to create configurations to test, you can run things like:
+
+$ weblab-admin create node1 --base-url /federated_load_balance_3nodes_2x4core_80dev_node1 --cores 4 --dummy-copies 80 --db-engine mysql --db-name weblab_load_balance_3nodes_2x4core_80dev_1 --coordination-engine redis --admin-user student1 --dummy-experiment-name ud-dummy --start-port=10100
+$ weblab-admin create node2 --base-url /federated_load_balance_3nodes_2x4core_80dev_node2 --cores 4 --dummy-copies 80 --db-engine mysql --db-name weblab_load_balance_3nodes_2x4core_80dev_2 --coordination-engine redis --admin-user student1 --dummy-experiment-name ud-dummy --start-port=10200
+$ weblab-admin create node3 --base-url /federated_load_balance_3nodes_2x4core_80dev_node3 --cores 4 --dummy-copies 80 --db-engine mysql --db-name weblab_load_balance_3nodes_2x4core_80dev_3 --coordination-engine redis --admin-user student1 --dummy-experiment-name ud-dummy --start-port=10300
+

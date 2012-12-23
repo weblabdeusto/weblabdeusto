@@ -15,7 +15,8 @@
 #     sudo apt-get install build-essential python-dev
 # 
 
-SQLAlchemy<0.8
+# We use 0.7.100 to avoid the 0.8.0betas (which are < 0.8)
+SQLAlchemy<0.7.100
 
 
 # 

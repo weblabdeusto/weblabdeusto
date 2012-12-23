@@ -21,7 +21,7 @@ from voodoo.log import logged
 import json
 import time
 
-DEBUG = False
+DEBUG = True
 
 
 class RobotMovement(Experiment.Experiment):

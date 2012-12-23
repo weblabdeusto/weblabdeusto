@@ -12,6 +12,7 @@
 	<server>proxy</server>
 	<server>laboratory</server>
 	<server>experiment_pld</server>
+	<server>experiment_binary</server>
 	<server>experiment_demo_pld</server>
 	<server>experiment_fpga</server>
 	<server>experiment_demo_fpga</server>
@@ -29,7 +30,9 @@
 	<server>experiment_robot_standard</server>
 	<server>experiment_robot_movement</server>
 	<server>experiment_robot_proglist</server>
+	<server>experiment_robotarm</server>
 	<server>experiment_blinkled</server>
 	<server>experiment_pic18</server>
 	<server>experiment_submarine</server>
+	<server>experiment_unr</server>
 </servers>

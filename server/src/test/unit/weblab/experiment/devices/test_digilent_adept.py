@@ -32,8 +32,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
     def test_program_device(self, Popen):
         popen = Popen.return_value
         popen.wait.return_value = 0
-        popen.stdout.read.return_value = ''
-        popen.stderr.read.return_value = ''
+        popen.communicate.return_value = ('','')
 
         self.device.program_device("file.svf")
 
@@ -41,6 +40,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
     def test_program_device_error_in_stdout(self, Popen):
         popen = Popen.return_value
         popen.wait.return_value = 0
+        popen.communicate.return_value = ('ERROR: bla bla bla','')
         popen.stdout.read.return_value = 'ERROR: bla bla bla'
         popen.stderr.read.return_value = ''
 
@@ -54,6 +54,7 @@ class DigilentAdeptTestCase(unittest.TestCase):
     def test_program_device_error_in_exit(self, Popen):
         popen = Popen.return_value
         popen.wait.return_value = -1
+        popen.communicate.return_value = ('','')
         popen.stdout.read.return_value = ''
         popen.stderr.read.return_value = ''
 

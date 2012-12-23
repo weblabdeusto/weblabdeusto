@@ -8,7 +8,7 @@
         
 		<g:VerticalPanel ui:field="verticalPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 		
-			<g:Label ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER">
+			<g:Label styleName="wl-message" ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER">
 			Select the program to send:
 			</g:Label>
 		

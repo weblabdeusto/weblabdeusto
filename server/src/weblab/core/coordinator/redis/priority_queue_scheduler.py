@@ -47,6 +47,7 @@ from weblab.core.coordinator.redis.constants import (
 
     LAB_COORD,
     CLIENT_INITIAL_DATA,
+    REQUEST_INFO,
     EXPERIMENT_TYPE,
     EXPERIMENT_INSTANCE,
     START_TIME,
@@ -491,6 +492,8 @@ class PriorityQueueScheduler(Scheduler):
                 initialization_in_accounting               = pqueue_reservation_data[INITIALIZATION_IN_ACCOUNTING]
 
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
+                username                  = json.loads(reservation_data[REQUEST_INFO]).get('username')
+
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
 
                 selected_experiment_instance = None
@@ -528,6 +531,8 @@ class PriorityQueueScheduler(Scheduler):
                         'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                         'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
+                        'request.username'                                 : username,
+                        'request.full_name'                                : username,
                         # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)

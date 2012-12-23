@@ -148,4 +148,9 @@ final class BoardBaseController implements IBoardBaseController {
 			}
 		}, callback);
 	}
+
+	@Override
+	public void stopPolling() {
+		this.controller.stopPolling();
+	}
 }

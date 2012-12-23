@@ -26,6 +26,22 @@ class Experiment(object):
         super(Experiment, self).__init__(*args, **kwargs)
 
     def do_start_experiment(self, client_initial_data, server_initial_data):
+        """ do_start_experiment(client_initial_data, server_initial_data) -> initial_configuration
+
+        This method indicates that a student has been assigned to use this
+        laboratory. client_initial_data will provide the data (typically a
+        JSON-serialized string) that the experiment client submitted (if any),
+        and server_initial_data is a JSON-serialized string with the data passed
+        by the core server. This includes the time slot available for the
+        current user, the priority, etc.
+
+        This method must return a JSON-serialized string which can be an empty
+        object ("{}"), but it can state that it is a batch experiment (and
+        therefore the scheduler will mark it as free once the start method has
+        finished), and it can provide information that the client will receive
+        (such as "the URL for the camera in this copy of the laboratory is this
+        one").
+        """
         # Default implementation: empty
         return "{}"
 
