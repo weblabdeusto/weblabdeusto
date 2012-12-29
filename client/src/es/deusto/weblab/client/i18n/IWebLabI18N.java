@@ -1,8 +1,8 @@
-package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n;
+package es.deusto.weblab.client.i18n;
 
 import com.google.gwt.i18n.client.Messages;
 
-public interface IWebLabDeustoThemeMessages extends Messages {
+public interface IWebLabI18N extends Messages {
 	
 	public String [] LANGUAGES = {
 			"english",
@@ -63,4 +63,27 @@ public interface IWebLabDeustoThemeMessages extends Messages {
 	public String directLink();
 	public String clickHere();
 	public String back();
+
+
+	public String moreLanguages();
+	public String fieldCantBeEmpty();
+
+	public String notAllowedToAccessAdminPanel();
+	public String accesses();
+	public String search();
+	
+	public String passwordsDoNotMatch();
+	public String users();
+	public String clearFilter();
+	public String chooseAValue();
+	public String group();
+	public String to();
+	public String from();
+	public String filter();
+	public String experiment();
+
+	public String visirExperiment();
+	public String flashTimeout(String errorMessage);
+	public String circuitsAvailable();
+	public String footerMessage();
 }

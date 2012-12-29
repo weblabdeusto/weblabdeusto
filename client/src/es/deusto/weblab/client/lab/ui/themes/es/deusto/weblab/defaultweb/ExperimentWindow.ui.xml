@@ -3,7 +3,7 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field="res" type='es.deusto.weblab.client.ui.Resources' />
-    <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
     
 	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container"  horizontalAlignment="CENTER">
 

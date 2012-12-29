@@ -38,7 +38,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.WebLabClient;
-import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
@@ -90,9 +90,9 @@ public class LoginWindow extends BaseWindow {
 			}
 		};
 		
-		for(int i = 0; i < IWebLabDeustoThemeMessages.LANGUAGES.length; ++i){
-			final String curLanguage = IWebLabDeustoThemeMessages.LANGUAGES[i];
-			final String curLanguageCode = IWebLabDeustoThemeMessages.LANGUAGE_CODES[i];
+		for(int i = 0; i < IWebLabI18N.LANGUAGES.length; ++i){
+			final String curLanguage = IWebLabI18N.LANGUAGES[i];
+			final String curLanguageCode = IWebLabI18N.LANGUAGE_CODES[i];
 			final Anchor languageLink = new Anchor(curLanguage);
 			languageLink.addClickHandler(
 					new LanguageButtonClickHandler(curLanguageCode)
