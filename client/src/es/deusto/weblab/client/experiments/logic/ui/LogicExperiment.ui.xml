@@ -34,6 +34,7 @@
        
        		<g:HorizontalPanel ui:field='circuitAndWebcamPanel' horizontalAlignment='ALIGN_CENTER'>
        		
+       			<g:Image ui:field="light" visible="false" />
        			<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
        		
        			<g:Label ui:field="referenceToShowBoxesLabel"></g:Label>
@@ -53,7 +54,7 @@
 		
 		<g:HTMLPanel>
 		  <div align='center'>
-			<g:Button ui:field="sendSolutionButton" enabled='false' visible='false' text="{i18n.sendingSolution}" />
+			<g:Button ui:field="sendSolutionButton" enabled='false' visible='false' text="{i18n.sendSolution}" />
 		  </div>
 		</g:HTMLPanel>
 	

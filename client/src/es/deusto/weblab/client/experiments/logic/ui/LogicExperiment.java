@@ -79,6 +79,9 @@ public class LogicExperiment extends ExperimentBase {
 	private static final String LOGIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.logic.webcam.refresh.millis";
 	private static final int DEFAULT_LOGIC_WEBCAM_REFRESH_TIME = 400;
 	
+	private static final String LOGIC_USE_WEBCAM_PROPERTY = "logic.use.webcam";
+	private static final boolean DEFAULT_LOGIC_USE_WEBCAM = false;
+	
 	public static class Style   {
 		public static final String TIME_REMAINING          = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
@@ -115,6 +118,9 @@ public class LogicExperiment extends ExperimentBase {
 	@UiField(provided=true)
 	WlWebcam webcam;
 	
+	@UiField
+	Image light;
+	
 	@UiField WlWaitingLabel messages;
 	@UiField EasyGrid circuitGrid;
 	
@@ -137,6 +143,7 @@ public class LogicExperiment extends ExperimentBase {
 	@UiField Label referenceToShowBoxesLabel;
 	
 	// DTOs
+	private final boolean useWebcam;
 	private Command lastCommand;
 	private Circuit circuit;
 	private boolean solving = true;
@@ -159,6 +166,7 @@ public class LogicExperiment extends ExperimentBase {
 	
 	public LogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
+		this.useWebcam = this.configurationRetriever.getBoolProperty(LOGIC_USE_WEBCAM_PROPERTY, DEFAULT_LOGIC_USE_WEBCAM);
 		
 		this.fillMaps();
 		
@@ -242,8 +250,13 @@ public class LogicExperiment extends ExperimentBase {
 		
 		this.textIntroPanel.setVisible(false);
 		
-		this.webcam.setUrl(webcamUrl);
-		this.webcam.setVisible(true);
+		if(this.useWebcam) {
+			this.webcam.setUrl(webcamUrl);
+			this.webcam.setVisible(true);
+		} else {
+			this.light.setVisible(true);
+			turnOffLight();
+		}
 		
 	    this.points = 0;
 	    this.widget.setVisible(true);
@@ -304,12 +317,19 @@ public class LogicExperiment extends ExperimentBase {
 		});
 		
 		// Webcam
-    	this.webcam.start();
-		this.circuitAndWebcamPanel.add(this.webcam.getWidget());
-
+		final Widget webcamWidget;
+		if(this.useWebcam) {
+			this.webcam.start();
+			webcamWidget = this.webcam.getWidget();
+		} else {
+			webcamWidget = this.light;
+		}
+		
+		this.circuitAndWebcamPanel.add(webcamWidget);
 		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.circuitGrid, HasHorizontalAlignment.ALIGN_RIGHT);
-		this.circuitAndWebcamPanel.setCellVerticalAlignment(this.webcam.getWidget(), HasVerticalAlignment.ALIGN_MIDDLE);
-		this.circuitAndWebcamPanel.setCellHorizontalAlignment(this.webcam.getWidget(), HasHorizontalAlignment.ALIGN_LEFT);
+		
+		this.circuitAndWebcamPanel.setCellVerticalAlignment(webcamWidget, HasVerticalAlignment.ALIGN_MIDDLE);
+		this.circuitAndWebcamPanel.setCellHorizontalAlignment(webcamWidget, HasHorizontalAlignment.ALIGN_LEFT);
 		
 		// Messages
 		this.messages.setText("Receiving the circuit");
@@ -319,6 +339,14 @@ public class LogicExperiment extends ExperimentBase {
 	
     	this.sendSolutionButton.setVisible(true);
 	}	
+	
+	void turnOffLight() {
+		this.light.setUrl(GWT.getModuleBaseURL() + "/img/bulb_off.png");
+	}
+	
+	void turnOnLight() {
+		this.light.setUrl(GWT.getModuleBaseURL() + "/img/bulb_on.png");
+	}
 	
 	@Override
 	public boolean expectsPostEnd(){
@@ -433,6 +461,7 @@ public class LogicExperiment extends ExperimentBase {
 				this.sendSolutionButton.setEnabled(false);
 			} else if (responseCommand.getCommandString().startsWith("OK")) {
 				this.points++;
+				turnOnLight();
 				this.messages.setText(i18n.wellDone1point());
 								
 				AudioManager.getInstance().playBest("snd/applause");
@@ -443,6 +472,7 @@ public class LogicExperiment extends ExperimentBase {
 					public void run() {
 						LogicExperiment.this
 								.sendCommand(new GetCircuitCommand());
+						turnOffLight();
 					}
 					
 				};

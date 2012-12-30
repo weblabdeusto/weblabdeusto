@@ -53,7 +53,7 @@ public interface IWebLabI18N extends Messages {
 	public String dontHaveAnAccountFacebook();
 	public String administrationPanel();
 	public String weblabIsOpenSourceAvailable(String url);
-	public SafeHtml useMobileVersionClicking(String url);
+	public String useMobileVersionClicking(String url);
 	public SafeHtml weblabDeustoIsARemote_long();
 	public String experimentInteractionFinishedGoBack();
 	public String information();
@@ -142,7 +142,7 @@ public interface IWebLabI18N extends Messages {
 	public String wellDone1point();
 	public String wrongOneGameOver(int points);
 	public String chooseCorrectGate();
-	public SafeHtml checkTheRankingHere(String where);
+	public String checkTheRankingHere(String where);
 	public String sendSolution();
 	public String thisLaboratoryIsManagedByJavaAppletILAB();
 
