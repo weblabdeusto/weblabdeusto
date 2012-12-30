@@ -13,7 +13,7 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
-import com.google.gwt.core.shared.GWT;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
