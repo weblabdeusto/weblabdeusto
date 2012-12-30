@@ -339,12 +339,12 @@ public class SubmarineExperiment extends ExperimentBase {
 								}
 							};
 							t.schedule(5000);
-							setMessage("Fish fed!");
+							setMessage(i18n.fishFed());
 						} else if (responseCommand.getCommandString().startsWith("notfed:")) {
 							final String time = responseCommand.getCommandString().substring("notfed:".length());
-							setMessage("Fish already fed recently. Try again in " + time + " hours");
+							setMessage(i18n.fishAlreadyFed(time));
 						} else {
-							setMessage("Fish not fed: " + responseCommand.getCommandString());
+							setMessage(i18n.fishNotFed(responseCommand.getCommandString()));
 						}
 					}
 				});
@@ -434,7 +434,7 @@ public class SubmarineExperiment extends ExperimentBase {
 	    this.webcam2.start();
 
 		this.inputWidgetsPanel.setVisible(true);
-		this.messages.setText("You can now control the aquarium");
+		this.messages.setText(i18n.youCanNowControlTheAquarium());
 		this.messages.stop();
 	}
 

@@ -16,14 +16,12 @@ package es.deusto.weblab.client.experiments.visir;
 
 import java.util.List;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
@@ -40,8 +38,6 @@ public class VisirExperiment extends FlashExperiment {
 	
 	private static VisirExperiment instance;
 	
-	private static IWebLabI18N i18n = GWT.create(IWebLabI18N.class);
-
 	/**
 	 * Constructs a Board for the Visir client. It does not actually generate the
 	 * full HTML code until the experiment is started (and hence Start called), as
@@ -67,7 +63,7 @@ public class VisirExperiment extends FlashExperiment {
 	
 	@Override
 	protected String getDefaultFooterMessage() {
-		return i18n.footerMessage();
+		return i18n.footerMessage().asString();
 	}
 	
 	@Override

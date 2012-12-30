@@ -147,12 +147,12 @@ public class LogicExperiment extends ExperimentBase {
 
 	    @Override
 		public void onSuccess(ResponseCommand responseCommand) {
-		LogicExperiment.this.processCommandSent(responseCommand);		    
+	    	LogicExperiment.this.processCommandSent(responseCommand);		    
 	    }
 
 	    @Override
 		public void onFailure(CommException e) {
-		LogicExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
+	    	LogicExperiment.this.messages.setText("Error: " + e.getMessage() + ". Please, notify the WebLab-Deusto administrators at weblab@deusto.es about this error.");
 	    }
 	    
 	};
@@ -328,10 +328,10 @@ public class LogicExperiment extends ExperimentBase {
 	@Override
 	public void postEnd(String initialData, String endData){
 		if(endData == null){
-			this.messages.setText("Finished. Waiting for your punctuation...");
+			this.messages.setText(i18n.finishedWaitingPunctuation() + "...");
 		}else{
-			this.messages.setText("Finished. Your punctuation: " + endData);
-			this.widget.add(new HTML("Check the ranking <a href=\"" + WebLabClient.baseLocation + "/weblab/admin/winners.py\">here</a>"));
+			this.messages.setText(i18n.finishedYourPunctuation(endData));
+			this.widget.add(new HTML(i18n.checkTheRankingHere(WebLabClient.baseLocation + "/weblab/admin/winners.py")));
 		}
 	}
 	
@@ -342,7 +342,7 @@ public class LogicExperiment extends ExperimentBase {
 	public void onSendSolutionClicked(ClickEvent event) {
 		LogicExperiment.this.messages.setVisible(true);
 		LogicExperiment.this.sendCommand(new SolveCircuitCommand(LogicExperiment.this.circuit));
-		LogicExperiment.this.messages.setText("Sending solution");
+		LogicExperiment.this.messages.setText(i18n.sendingSolution());
 		LogicExperiment.this.messages.start();
 	}
 	
@@ -429,13 +429,11 @@ public class LogicExperiment extends ExperimentBase {
 				
 				AudioManager.getInstance().playBest("snd/wrong");
 				
-				this.messages.setText("Wrong one! Game over. Total points: "
-						+ this.points);
+				this.messages.setText(i18n.wrongOneGameOver(this.points));
 				this.sendSolutionButton.setEnabled(false);
 			} else if (responseCommand.getCommandString().startsWith("OK")) {
 				this.points++;
-				this.messages
-						.setText("Well done! 1 point. Let's see the next one!");
+				this.messages.setText(i18n.wellDone1point());
 								
 				AudioManager.getInstance().playBest("snd/applause");
 				

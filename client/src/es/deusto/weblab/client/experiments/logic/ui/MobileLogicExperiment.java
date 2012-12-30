@@ -172,10 +172,10 @@ public class MobileLogicExperiment extends ExperimentBase {
 
 	@Override
 	public void initialize(){
-		this.removableWidgetsPanel.add(new Label("Welcome to the WebLab-Deusto Logic Game!"));
-		this.removableWidgetsPanel.add(new Label("Replace the unknown gate with the correct one so the LED turns on."));
-		this.removableWidgetsPanel.add(new Label("Solve as many circuits as possible to get more points and become the champion!"));
-		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='" + WebLabClient.baseLocation + "/weblab/admin/winners.py'>the winners page</a>"));
+		this.removableWidgetsPanel.add(new Label(i18n.welcomeToWebLabDeustoLogic()));
+		this.removableWidgetsPanel.add(new Label(i18n.replaceTheUnknownGate()));
+		this.removableWidgetsPanel.add(new Label(i18n.solveAsManyCircuitsAsPossible()));
+		this.removableWidgetsPanel.add(new HTML(i18n.youCanCheckYourScoreAt()));
 		
 		this.widget.add(this.removableWidgetsPanel);
 	}
@@ -284,7 +284,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.removableWidgetsPanel.add(this.messages.getWidget());
 		
 		// Send Solution button
-		this.sendSolutionButton = new Button("Send Solution");
+		this.sendSolutionButton = new Button(i18n.sendSolution());
 		this.sendSolutionButton.setEnabled(false);
 		this.sendSolutionButton.addClickHandler(new ClickHandler(){
 
@@ -375,11 +375,11 @@ public class MobileLogicExperiment extends ExperimentBase {
 	    	    
 	    	    if(responseCommand.getCommandString().startsWith("FAIL")){
 	    		this.solving = false;
-	    		this.messages.setText("Wrong one! Game over. Total points: " + this.points);
+	    		this.messages.setText(i18n.wrongOneGameOver(this.points));
 	    		this.sendSolutionButton.setEnabled(false);
 	    	    }else if(responseCommand.getCommandString().startsWith("OK")){
 	    		this.points++;
-	    		this.messages.setText("Well done! 1 point. Let's see the next one!");
+	    		this.messages.setText(i18n.wellDone1point());
 	    		final Timer sleepTimer = new Timer(){
 
 			    @Override

@@ -15,7 +15,9 @@
 package es.deusto.weblab.client.experiments.unr_physics.ui;
 
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
@@ -36,7 +38,10 @@ public class UnrExperiment extends UIExperimentBase {
 	@Override
 	public void postEnd(String initialData, String endData){
 		this.boardController.stopPolling();
-		putWidget(new Label("Redirecting to..." + initialData));
+		VerticalPanel vpanel = new VerticalPanel();
+		vpanel.add(new Label(i18n.redirectingTo() + "..."));
+		vpanel.add(new Anchor(i18n.remoteSystem(), initialData));
+		putWidget(vpanel);
 		Window.Location.replace(initialData);
 	}
 	

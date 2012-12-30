@@ -1,6 +1,7 @@
 package es.deusto.weblab.client.i18n;
 
 import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface IWebLabI18N extends Messages {
 	
@@ -43,7 +44,7 @@ public interface IWebLabI18N extends Messages {
 	public String reserveThisExperiment();
 	public String selectedExperiment();
 	public String ifYouHaveTechnicalProblems(String adminMail);
-	public String demoLoginDetails(String demoUsername, String demoPassword);
+	public SafeHtml demoLoginDetails(String demoUsername, String demoPassword);
 	public String support();
 	public String demo();
 	public String mobile();
@@ -52,8 +53,8 @@ public interface IWebLabI18N extends Messages {
 	public String dontHaveAnAccountFacebook();
 	public String administrationPanel();
 	public String weblabIsOpenSourceAvailable(String url);
-	public String useMobileVersionClicking(String url);
-	public String weblabDeustoIsARemote_long();
+	public SafeHtml useMobileVersionClicking(String url);
+	public SafeHtml weblabDeustoIsARemote_long();
 	public String experimentInteractionFinishedGoBack();
 	public String information();
 	public String someExperimentsAreAvailableForDemo();
@@ -82,8 +83,73 @@ public interface IWebLabI18N extends Messages {
 	public String filter();
 	public String experiment();
 
+	// VISIR
 	public String visirExperiment();
 	public String flashTimeout(String errorMessage);
 	public String circuitsAvailable();
-	public String footerMessage();
+	public SafeHtml footerMessage();
+	
+	// XILINX
+	public String selectProgramToSend();
+	public String upload();
+	public String thisDemoDemonstratesMultiresourceXilinx();
+	public String thisDemoDoesNotAllowUpload();
+	public String fileSent();
+	public String deviceReady();
+	public String deviceProgrammingFailed();
+	public String sendingFile();
+	public String finishingProgramming();
+	
+	// VM
+	public String yourVirtualMachineIsNotYetReady(String seconds);
+	public String finishing();
+	public String doneVMisReady();
+	public String loadingPleaseWait(int seconds);
+	public String yourVirtualMachineIsNowReady();
+	public String vmAddress();
+	public String loadJavaVNCApplet();
+
+	// UNR
+	public String redirectingTo();
+	public String remoteSystem();
+	
+	// Submarine
+	public String submarineIsOnlyAvailableFewTimes();
+	public String activateSubmarineControlPanel();
+	public String submarineIsProbablyOutOfBattery();
+	public String yesActivateSubmarineControlPanel();
+	public String fishFed();
+	public String fishAlreadyFed(String hours);
+	public String fishNotFed(String reason);
+	public String youCanNowControlTheAquarium();
+	
+	// Robot
+	public String theProgramIsBeingExecutedInTheBot();
+	public String thereWasAnError(String message);
+	public String failed(String message);
+	public String selectWhatProgramShouldBeSent();
+	public String youCanControlTheBot();
+	public String programmingInteractiveDemo();
+
+	// Logic
+	public String welcomeToWebLabDeustoLogic();
+	public String replaceTheUnknownGate();
+	public String solveAsManyCircuitsAsPossible();
+	public String youCanCheckYourScoreAt();
+	public String finishedWaitingPunctuation();
+	public String finishedYourPunctuation(String results);
+	public String sendingSolution();
+	public String wellDone1point();
+	public String wrongOneGameOver(int points);
+	public String chooseCorrectGate();
+	public SafeHtml checkTheRankingHere(String where);
+	public String sendSolution();
+	public String thisLaboratoryIsManagedByJavaAppletILAB();
+
+	// Binary
+	public String pureBCD();
+	public String otherBCDs();
+	public String selectACode();
+	public String selectOtherCode();
+	public String loading(String what);
 }
