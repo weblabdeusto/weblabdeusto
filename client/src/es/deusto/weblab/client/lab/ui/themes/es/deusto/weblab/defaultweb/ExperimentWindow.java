@@ -90,7 +90,6 @@ class ExperimentWindow extends BaseWindow {
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
-	@UiField WlAHref directLink;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -219,7 +218,6 @@ class ExperimentWindow extends BaseWindow {
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
-		this.directLink.setHref(Window.Location.getHref());
 		this.updateInfolinkField();
 
 		// Important note: this MUST be done here or FileUpload will cause problems
