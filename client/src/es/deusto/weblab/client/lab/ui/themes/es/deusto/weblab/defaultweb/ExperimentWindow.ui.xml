@@ -84,14 +84,6 @@
 		                    </g:customCell>
 		                </g:row>
 		                <g:row>
-		                    <g:customCell>
-		    					<g:Label text="{i18n.directLink}:"></g:Label>
-		                    </g:customCell>
-		                    <g:customCell>
-		                        <w:WlAHref ui:field="directLink" target="_blank" styleName="web-experiment-detail"><g:Label text="{i18n.clickHere}"></g:Label></w:WlAHref>
-		                    </g:customCell>
-		                </g:row>
-		                <g:row>
 		                	<g:customCell>
 		                		<g:Label ui:field="informationLinkLabel" text="{i18n.information}:"></g:Label>
 		                	</g:customCell>
