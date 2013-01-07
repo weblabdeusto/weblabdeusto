@@ -118,7 +118,7 @@ class IndependentSchedulerAggregator(Scheduler):
                     used_schedulers.append(resource_type_name)
 
             if assigned_resource_type_name is not None:
-                removed = self.assign_single_scheduler(reservation_id, assigned_resource_type_name, True)
+                removed = self.assign_single_scheduler(reservation_id, assigned_resource_type_name, False) # It is already locked
                 if removed is not None:
                     for removed_resource_name in removed:
                         all_reservation_status.pop(removed_resource_name, None)
@@ -210,6 +210,7 @@ class IndependentSchedulerAggregator(Scheduler):
     def assign_single_scheduler(self, reservation_id, assigned_resource_type_name, locking):
         removed = set()
 
+        # TODO: does this make sense? locking is not used anywhere
         if locking:
             self.reservations_manager.lock_reservation(reservation_id)
         try:
