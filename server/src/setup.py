@@ -126,9 +126,17 @@ for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): 
             del dirnames[i]
-
-    if len(filenames) > 0:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+    
+    # In the war directory, don't take into account whatever we have now, but whatever has been
+    # compiled and will be copied. Otherwise, there will be problems when a compilation has been
+    # made.
+    if dirpath.startswith(os.path.join('weblabdeusto_data','war')):
+        newdir = dirpath.replace(os.path.join('weblabdeusto_data','war'), os.path.join('..','..','client','war'))
+        filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
+        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
+    else:
+        if len(filenames) > 0:
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 ##########################################################
 #
