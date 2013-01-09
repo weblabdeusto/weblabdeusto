@@ -79,6 +79,7 @@ padding:15px;
                 <b>Route:</b> %(route)s</br/>
                 <b>In the name of:</b> %(external_user)s<br/>
                 <b>Longest command:</b> %(longest_command)s</br>
+                <b>Locale:</b> %(locale)s</br>
                 <h2>Commands</h2>
                 (<a href="#files">files below</a>)
                 <table>
@@ -113,6 +114,7 @@ padding:15px;
                         'user_agent'      : cgi.escape(properties.get('user_agent', "Don't know")).replace('%','%%'),
                         'external_user'   : cgi.escape(properties.get('external_user', "Himself")).replace('%','%%'),
                         'route'           : cgi.escape(properties.get('route', "Don't know")).replace('%','%%'),
+                        'locale'          : cgi.escape(properties.get('locale', "Don't know")).replace('%','%%'),
                         'reservation_id'  : cgi.escape(reservation_id   or 'not stored').replace('%','%%'),
                         'login'           : cgi.escape(login            or 'not stored').replace('%','%%'),
                         'full_name'       : cgi.escape(full_name        or 'not stored').replace('%','%%'),
