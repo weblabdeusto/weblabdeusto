@@ -4,6 +4,11 @@ a img{
 
 input {
 	 font-family: sans-serif;
+     border-radius: 4px;
+     padding-bottom: 4px;
+     padding-left: 5px;
+     padding-right: 5px;
+     padding-top: 4px;
 }
 
  
