@@ -492,7 +492,9 @@ class PriorityQueueScheduler(Scheduler):
                 initialization_in_accounting               = pqueue_reservation_data[INITIALIZATION_IN_ACCOUNTING]
 
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
-                username                  = json.loads(reservation_data[REQUEST_INFO]).get('username')
+                request_info              = json.loads(reservation_data[REQUEST_INFO])
+                username                  = request_info.get('username')
+                locale                    = request_info.get('locale')
 
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
 
@@ -533,6 +535,7 @@ class PriorityQueueScheduler(Scheduler):
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
                         'request.username'                                 : username,
                         'request.full_name'                                : username,
+                        'request.locale'                                   : locale,
                         # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)

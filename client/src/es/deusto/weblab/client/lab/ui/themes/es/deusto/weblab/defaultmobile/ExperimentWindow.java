@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
@@ -156,7 +157,9 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentArea.clear();
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+		String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+        if(WebLabClient.getLocale() != null)
+            remoteUrl += "&locale=" + WebLabClient.getLocale();
         this.callback.disableFinishOnClose();
         Window.Location.assign(remoteUrl);
 	}

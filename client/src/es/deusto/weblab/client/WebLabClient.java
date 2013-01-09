@@ -82,6 +82,10 @@ public abstract class WebLabClient implements EntryPoint {
 	private boolean localeConfigured(){
 	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
 	}
+
+    public static String getLocale() {
+	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM);
+    }
 	
 	/**
 	 * Check whether we must display the mobile or the standard version. If the "mobile" GET var is 
