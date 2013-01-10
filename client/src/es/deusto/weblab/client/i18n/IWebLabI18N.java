@@ -6,28 +6,30 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 public interface IWebLabI18N extends Messages {
 	
 	public String [] LANGUAGES = {
+            "Čeština",
 			"English",
-			"Castellano",
+			"Español",
 			"Euskara",
             "Deutsch",
             "Français",
             "Magyar",
+            "Nederlands",
             "Română",
             "Slovenčina",
-            "Čeština",
 	};
 	
 	// Must use the same order
 	public String [] LANGUAGE_CODES = {
+            "cs",
 			"en",
 			"es",
 			"eu",
             "de",
             "fr",
             "hu",
+            "nl",
             "ro",
             "sk",
-            "cs",
 	};
 	
 	public String experimentPicture();
