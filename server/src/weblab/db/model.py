@@ -112,7 +112,8 @@ class DbUser(Base):
     avatar    = Column(String(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
-    role = relation("DbRole", backref=backref("users", order_by=id))
+    role      = relation("DbRole", backref=backref("users", order_by=id))
+    groups    = relation("DbGroup", secondary=t_user_is_member_of)
 
     def __init__(self, login, full_name, email, avatar=None, role=None):
         super(DbUser,self).__init__()
@@ -281,7 +282,7 @@ class DbGroup(Base):
     parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
 
     children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
-    users    = relation("DbUser", secondary=t_user_is_member_of, backref="groups")
+    users    = relation("DbUser", secondary=t_user_is_member_of)
     ees      = relation("DbExternalEntity", secondary=t_ee_is_member_of, backref="groups")
 
     def __init__(self, name, parent=None):
@@ -366,7 +367,7 @@ class DbExperiment(Base):
         )
 
     def __unicode__(self):
-        return u'%s@%s' % (self.name, self.category.name)
+        return u'%s@%s' % (self.name, self.category.name if self.category is not None else '')
 
     def to_business(self):
         return Experiment(
