@@ -193,6 +193,40 @@ class ExperimentPanel(ModelView):
         self.category_filter_number  = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
 
+class PermissionTypePanel(ModelView):
+
+    column_list = ('name', 'description')
+    can_edit   = False
+    can_create = False
+    can_delete = False
+    inline_models = (model.DbPermissionTypeParameter,)
+
+    def __init__(self, session, **kwargs):
+        default_args = { "category" : u"Permissions", "name" : u"types" }
+        default_args.update(**kwargs)
+
+        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **default_args)
+
+class UserPermissionPanel(ModelView):
+
+    inline_models = (model.DbUserPermissionParameter,)
+
+    def __init__(self, session, **kwargs):
+        default_args = { "category" : u"Permissions", "name" : u"user permissions" }
+        default_args.update(**kwargs)
+
+        super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **default_args)
+
+class GroupPermissionPanel(ModelView):
+
+    inline_models = (model.DbGroupPermissionParameter,)
+
+    def __init__(self, session, **kwargs):
+        default_args = { "category" : u"Permissions", "name" : u"group permissions" }
+        default_args.update(**kwargs)
+
+        super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **default_args)
+
 
 engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
 
@@ -209,6 +243,9 @@ admin.add_view(GroupsPanel(db_session))
 admin.add_view(UserUsedExperimentPanel(db_session))
 admin.add_view(ExperimentCategoryPanel(db_session))
 admin.add_view(ExperimentPanel(db_session))
+admin.add_view(PermissionTypePanel(db_session))
+admin.add_view(UserPermissionPanel(db_session))
+admin.add_view(GroupPermissionPanel(db_session))
 
 
 
