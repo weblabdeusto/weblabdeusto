@@ -53,6 +53,9 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             self.experiments_map = experiments_map
         if uuid is None:
             self.uuids = []
+        elif isinstance(uuid, basestring):
+            human = baseurl
+            self.uuids = [ (uuid, human) ]
         else:
             self.uuids = [uuid]
 
