@@ -15,6 +15,7 @@
 
 import voodoo.log as log
 from voodoo.log import logged
+from weblab.core.user_processor import SERVER_UUIDS
 from weblab.core.coordinator.exc import NoSchedulerFoundError, ExpiredSessionError
 from weblab.core.coordinator.scheduler import Scheduler
 from voodoo.override import Override
@@ -95,12 +96,30 @@ class IndependentSchedulerAggregator(Scheduler):
         used_schedulers = []
         assigned_resource_type_name = None
 
+        server_uuids = {}
+        for resource_type_name in self.sorted_schedulers:
+            scheduler = self.schedulers[resource_type_name]
+            server_uuids[resource_type_name] = scheduler.get_uuids()
+
+        original_server_uuids = list(request_info.get(SERVER_UUIDS, []))
+
         self.reservations_manager.lock_reservation(reservation_id)
         try:
             for resource_type_name in self.sorted_schedulers:
                 # TODO: catch possible exceptions and "continue"
 
                 scheduler = self.schedulers[resource_type_name]
+
+                other_server_uuids = []
+                for cur_resource_type_name in self.sorted_schedulers:
+                    if cur_resource_type_name != resource_type_name:
+                        other_server_uuids.extend(server_uuids[cur_resource_type_name])
+
+                current_server_uuids = original_server_uuids[:]
+                for server_uuid, server_uuid_human in other_server_uuids:
+                    current_server_uuids.append((server_uuid, server_uuid_human))
+                
+                request_info[SERVER_UUIDS] = current_server_uuids
 
                 self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
 
@@ -126,6 +145,15 @@ class IndependentSchedulerAggregator(Scheduler):
             return self.select_best_reservation_status(all_reservation_status.values())
         finally:
             self.reservations_manager.unlock_reservation(reservation_id)
+
+    @Override(Scheduler)
+    def get_uuids(self):
+        uuids = []
+
+        for scheduler in self.schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        return uuids
 
     @logged('info', max_size = 1000)
     @Override(Scheduler)

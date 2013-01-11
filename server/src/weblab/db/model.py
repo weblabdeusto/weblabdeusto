@@ -112,7 +112,8 @@ class DbUser(Base):
     avatar    = Column(String(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
-    role = relation("DbRole", backref=backref("users", order_by=id))
+    role      = relation("DbRole", backref=backref("users", order_by=id))
+    groups    = relation("DbGroup", secondary=t_user_is_member_of)
 
     def __init__(self, login, full_name, email, avatar=None, role=None):
         super(DbUser,self).__init__()
@@ -281,7 +282,7 @@ class DbGroup(Base):
     parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
 
     children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
-    users    = relation("DbUser", secondary=t_user_is_member_of, backref="groups")
+    users    = relation("DbUser", secondary=t_user_is_member_of)
     ees      = relation("DbExternalEntity", secondary=t_ee_is_member_of, backref="groups")
 
     def __init__(self, name, parent=None):
@@ -366,7 +367,7 @@ class DbExperiment(Base):
         )
 
     def __unicode__(self):
-        return u'%s@%s' % (self.name, self.category.name)
+        return u'%s@%s' % (self.name, self.category.name if self.category is not None else '')
 
     def to_business(self):
         return Experiment(
@@ -795,6 +796,9 @@ class DbPermissionType(Base):
             self.ee_applicable
         )
 
+    def __unicode__(self):
+        return self.name
+
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.name == parameter_name ][0]
 
@@ -829,6 +833,9 @@ class DbPermissionTypeParameter(Base):
         self.datatype = datatype
         self.description = description
 
+    def __unicode__(self):
+        return u'%s (%s)' % (self.name, self.description)
+
     def __repr__(self):
         return "DbPermissionTypeParameter(id = %r, permission_type = %r, name = %r, datatype = %r, description = %r)" % (
             self.id,
@@ -847,6 +854,9 @@ class DbUserApplicablePermissionType(Base):
 
     def __init__(self):
         super(DbUserApplicablePermissionType, self).__init__()
+
+    def __unicode__(self):
+        return u'true (%r)' % self.id
 
     def __repr__(self):
         return "DbUserApplicablePermissionType(id = %r)" % (
@@ -949,6 +959,9 @@ class DbRoleApplicablePermissionType(Base):
     def __init__(self):
         super(DbRoleApplicablePermissionType, self).__init__()
 
+    def __unicode__(self):
+        return u'true (%r)' % self.id
+
     def __repr__(self):
         return "DbRoleApplicablePermissionType(id = %r)" % (
             self.id
@@ -1049,6 +1062,9 @@ class DbGroupApplicablePermissionType(Base):
 
     def __init__(self):
         super(DbGroupApplicablePermissionType, self).__init__()
+
+    def __unicode__(self):
+        return u'true (%r)' % self.id
 
     def __repr__(self):
         return "DbGroupApplicablePermissionType(id = %r)" % (
@@ -1151,6 +1167,9 @@ class DbExternalEntityApplicablePermissionType(Base):
 
     def __init__(self):
         super(DbExternalEntityApplicablePermissionType, self).__init__()
+
+    def __unicode__(self):
+        return u'true (%r)' % self.id
 
     def __repr__(self):
         return "DbExternalEntityApplicablePermissionType(id = %r)" % (

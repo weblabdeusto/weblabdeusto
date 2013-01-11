@@ -164,6 +164,9 @@ class Scheduler(object):
     def finish_reservation(self, reservation_id):
         pass
 
+    def get_uuids(self):
+        return []
+
     # Not abstract since most schedulers will not have it.
     def assign_single_scheduler(self, reservation_id, assigned_resource_type_name, locking):
         return []
