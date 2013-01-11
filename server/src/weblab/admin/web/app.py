@@ -13,6 +13,18 @@ if __name__ == '__main__':
 
 import weblab.db.model as model
 
+# 
+# TODO:
+# 
+#  - remove everything related to ExternalEntity
+# 
+#  - Add an 'federated' role
+# 
+#  - simplify the schema of permissions, and add support
+#    for permissions of the federated role, as well as
+#    builtin permissions (such as admin or forward)
+# 
+
 class FilterAnyEqual(filters.FilterEqual):
     def __init__(self, column, name, column_any, **kwargs):
         self.column_any = column_any
@@ -60,8 +72,13 @@ def get_filter_number(view, name):
                     and isinstance(f.operation.im_self, filters.FilterEqual) 
         ][0]
 
+class AdministratorModelView(ModelView):
 
-class UsersPanel(ModelView):
+    def is_accessible(self):
+        return AdministrationApplication.INSTANCE.is_admin()
+
+
+class UsersPanel(AdministratorModelView):
 
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs')
     column_searchable_list = ('full_name', 'login')
@@ -90,7 +107,7 @@ class UsersPanel(ModelView):
         self.role_filter_number  = get_filter_number(self, u'Role.name')
         UsersPanel.INSTANCE = self
 
-class GroupsPanel(ModelView):
+class GroupsPanel(AdministratorModelView):
 
     column_list = ('name','parent', 'users')
 
@@ -115,7 +132,7 @@ class GroupsPanel(ModelView):
         GroupsPanel.INSTANCE = self
 
 
-class UserUsedExperimentPanel(ModelView):
+class UserUsedExperimentPanel(AdministratorModelView):
 
     column_auto_select_related = True
     column_select_related_list = ('user',)
@@ -145,7 +162,7 @@ class UserUsedExperimentPanel(ModelView):
 
         UserUsedExperimentPanel.INSTANCE = self
 
-class ExperimentCategoryPanel(ModelView):
+class ExperimentCategoryPanel(AdministratorModelView):
    
     column_list    = ('name', 'experiments')
     column_filters = ( 'name', ) 
@@ -167,7 +184,7 @@ class ExperimentCategoryPanel(ModelView):
 
         ExperimentCategoryPanel.INSTANCE = self
 
-class ExperimentPanel(ModelView):
+class ExperimentPanel(AdministratorModelView):
     
     column_list = ('category', 'name', 'start_date', 'end_date', 'uses')
 
@@ -193,7 +210,7 @@ class ExperimentPanel(ModelView):
         self.category_filter_number  = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
 
-class PermissionTypePanel(ModelView):
+class PermissionTypePanel(AdministratorModelView):
 
     column_list = ('name', 'description')
     can_edit   = False
@@ -207,7 +224,7 @@ class PermissionTypePanel(ModelView):
 
         super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **default_args)
 
-class UserPermissionPanel(ModelView):
+class UserPermissionPanel(AdministratorModelView):
 
     inline_models = (model.DbUserPermissionParameter,)
 
@@ -217,7 +234,7 @@ class UserPermissionPanel(ModelView):
 
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **default_args)
 
-class GroupPermissionPanel(ModelView):
+class GroupPermissionPanel(AdministratorModelView):
 
     inline_models = (model.DbGroupPermissionParameter,)
 
@@ -232,23 +249,39 @@ engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_un
 
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
-SECRET_KEY = 'development_key'
+class AdministrationApplication(object):
 
-app = Flask(__name__)
+    INSTANCE = None
 
+    def __init__(self, cfg_manager, bypass_authz = False):
 
-admin = Admin(app)
-admin.add_view(UsersPanel(db_session))
-admin.add_view(GroupsPanel(db_session))
-admin.add_view(UserUsedExperimentPanel(db_session))
-admin.add_view(ExperimentCategoryPanel(db_session))
-admin.add_view(ExperimentPanel(db_session))
-admin.add_view(PermissionTypePanel(db_session))
-admin.add_view(UserPermissionPanel(db_session))
-admin.add_view(GroupPermissionPanel(db_session))
+        self.app = Flask(__name__)
+        self.admin = Admin(self.app)
+        self.admin.add_view(UsersPanel(db_session))
+        self.admin.add_view(GroupsPanel(db_session))
+        self.admin.add_view(UserUsedExperimentPanel(db_session))
+        self.admin.add_view(ExperimentCategoryPanel(db_session))
+        self.admin.add_view(ExperimentPanel(db_session))
+        self.admin.add_view(PermissionTypePanel(db_session))
+        self.admin.add_view(UserPermissionPanel(db_session))
+        self.admin.add_view(GroupPermissionPanel(db_session))
 
+        self.bypass_authz = bypass_authz
 
+        AdministrationApplication.INSTANCE = self
+
+    def is_admin(self):
+        if self.bypass_authz:
+            return True
+        
+        # TODO: contact the UPS ask for the session, etc.
+        return False
+            
 
 if __name__ == '__main__':
-    app.config.from_object(__name__)
-    app.run(debug=True, host = '0.0.0.0')
+    SECRET_KEY = 'development_key'
+    admin_app = AdministrationApplication(None, bypass_authz = True)
+
+    admin_app.app.config.from_object(__name__)
+    admin_app.app.run(debug=True, host = '0.0.0.0')
+
