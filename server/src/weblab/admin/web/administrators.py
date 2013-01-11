@@ -256,7 +256,7 @@ class AdministrationApplication(object):
     def __init__(self, cfg_manager, bypass_authz = False):
 
         self.app = Flask(__name__)
-        self.admin = Admin(self.app)
+        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin')
         self.admin.add_view(UsersPanel(db_session))
         self.admin.add_view(GroupsPanel(db_session))
         self.admin.add_view(UserUsedExperimentPanel(db_session))
