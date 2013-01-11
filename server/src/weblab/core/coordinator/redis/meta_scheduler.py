@@ -127,6 +127,18 @@ class IndependentSchedulerAggregator(Scheduler):
         finally:
             self.reservations_manager.unlock_reservation(reservation_id)
 
+    @Override(Scheduler)
+    def get_uuids(self):
+        uuids = []
+
+        for scheduler in self.local_schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        for scheduler in self.remote_schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        return uuids
+
     @logged('info', max_size = 1000)
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):

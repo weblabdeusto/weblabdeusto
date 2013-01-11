@@ -74,6 +74,18 @@ class IndependentSchedulerAggregator(Scheduler):
     def stop(self):
         pass
 
+    @Override(Scheduler)
+    def get_uuids(self):
+        uuids = []
+
+        for scheduler in self.local_schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        for scheduler in self.remote_schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        return uuids
+
     @logged()
     @Override(Scheduler)
     def is_remote(self):
