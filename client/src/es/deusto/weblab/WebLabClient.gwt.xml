@@ -19,6 +19,7 @@
 	<extend-property name="locale" values="nl"/>
 	<extend-property name="locale" values="cs"/>
 	<extend-property name="locale" values="hu"/>
+	<extend-property name="locale" values="pt"/>
 	<extend-property name="locale" values="ro"/>
 	<extend-property name="locale" values="sk"/>
 	

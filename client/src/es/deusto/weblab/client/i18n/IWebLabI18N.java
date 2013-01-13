@@ -14,6 +14,7 @@ public interface IWebLabI18N extends Messages {
             "Français",
             "Magyar",
             "Nederlands",
+            "Português",
             "Română",
             "Slovenčina",
 	};
@@ -28,6 +29,7 @@ public interface IWebLabI18N extends Messages {
             "fr",
             "hu",
             "nl",
+            "pt",
             "ro",
             "sk",
 	};
