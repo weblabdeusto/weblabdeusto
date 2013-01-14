@@ -35,4 +35,5 @@
 	<server>experiment_pic18</server>
 	<server>experiment_submarine</server>
 	<server>experiment_unr</server>
+	<server>experiment_controlapp</server>
 </servers>

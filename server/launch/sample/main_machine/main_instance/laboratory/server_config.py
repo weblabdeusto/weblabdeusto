@@ -174,5 +174,10 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_binary:main_instance@main_machine',
                 'checkers': ()
             },
+        'exp1:control-app@Control experiments':
+            {
+                'coord_address' : 'experiment_controlapp:main_instance@main_machine',
+                'checkers': ()
+            },
 
     }

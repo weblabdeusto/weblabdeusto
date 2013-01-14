@@ -424,6 +424,12 @@
                                     "lab_server_id"                   : "microelectronics",
                                     "service_broker"                  : "http://www.weblab.deusto.es/weblab/web/ilab/"
                                 }
+                            ],
+                     "control-app" : [
+                                {
+                                    "experiment.name"                 : "control-app",
+                                    "experiment.category"             : "Control experiments"
+                                }
                             ]
 		}
 }

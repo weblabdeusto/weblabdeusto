@@ -360,6 +360,9 @@ def populate_weblab_tests(engine, tests):
     cat_visir = Model.DbExperimentCategory("Visir experiments")
     session.add(cat_visir)
 
+    cat_control = Model.DbExperimentCategory("Control experiments")
+    session.add(cat_control)
+
     # Experiments
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
@@ -400,6 +403,10 @@ def populate_weblab_tests(engine, tests):
 
     unr_physics = Model.DbExperiment("unr-physics", cat_physics, start_date, end_date)
     session.add(unr_physics)
+
+    controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date)
+    session.add(controlapp)
+
 
     pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
     session.add(pld)
@@ -755,6 +762,23 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_unr_physics_allowed_p2)
     up_any_unr_physics_allowed_p3 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p3, "200")
     session.add(up_any_unr_physics_allowed_p3)    
+
+
+    up_any_controlapp_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-controlapp",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_controlapp_allowed)
+    up_any_controlapp_allowed_p1 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p1, "control-app")
+    session.add(up_any_controlapp_allowed_p1)
+    up_any_controlapp_allowed_p2 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p2, "Control experiments")
+    session.add(up_any_controlapp_allowed_p2)
+    up_any_controlapp_allowed_p3 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_controlapp_allowed_p3)    
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,

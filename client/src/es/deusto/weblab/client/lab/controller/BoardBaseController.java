@@ -31,6 +31,11 @@ final class BoardBaseController implements IBoardBaseController {
 	}
 	
 	@Override
+	public void disableFinishOnClose() {
+		this.controller.disableFinishOnClose();
+	}
+	
+	@Override
 	public boolean isFacebook(){
 		return this.controller.isFacebook();
 	}

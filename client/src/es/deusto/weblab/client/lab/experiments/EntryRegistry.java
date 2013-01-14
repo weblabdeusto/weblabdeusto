@@ -21,6 +21,7 @@ import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
+import es.deusto.weblab.client.experiments.controlapp.ControlAppCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
@@ -73,6 +74,7 @@ class EntryRegistry {
 		new SubmarineCreatorFactory(),
 		new ILabBatchCreatorFactory(),
 		new UnrCreatorFactory(),
+		new ControlAppCreatorFactory(),
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

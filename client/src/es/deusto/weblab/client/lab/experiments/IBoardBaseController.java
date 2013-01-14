@@ -128,4 +128,10 @@ public interface IBoardBaseController{
 	 * Indicate that polling is not required in this type of experiment.
 	 */
 	public void stopPolling();
+	
+	/**
+	 * Avoid that closing the web page finishes the reservation. Useful when redirecting to 
+	 * an external server.
+	 */
+	public void disableFinishOnClose();
 }

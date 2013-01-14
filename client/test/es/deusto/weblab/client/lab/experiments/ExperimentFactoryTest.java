@@ -128,6 +128,10 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void stopPolling() {
 			}
+
+			@Override
+			public void disableFinishOnClose() {
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -209,6 +213,10 @@ public class ExperimentFactoryTest extends GWTTestCase {
 
 			@Override
 			public void stopPolling() {
+			}
+
+			@Override
+			public void disableFinishOnClose() {
 			}
 		});
 		
