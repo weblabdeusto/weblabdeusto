@@ -14,9 +14,11 @@
 #
 
 import json
+import base64
 import uuid
 import urllib
 import urllib2
+import datetime
 import threading
 
 import weblab.experiment.experiment as Experiment
@@ -76,13 +78,16 @@ class ControlAppExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
         server_data = json.loads(serialized_server_initial_data)
-        time_slot = server_data['priority.queue.slot.length']
+        time_slot = float(server_data['priority.queue.slot.length'])
 
-        self.timer = threading.Timer(float(time_slot), function = self._reset_password)
+        now = datetime.datetime.utcnow() + datetime.timedelta(seconds=time_slot)
+        str_time = now.strftime("%Y%m%d%H%M%S")
+
+        self.timer = threading.Timer(time_slot, function = self._reset_password)
         self.timer.start()
 
         password = self._reset_password()
-        url = {'url' : self.router_web % dict(login=self.user_login, password=password, tstamp=time_slot) }
+        url = {'url' : self.router_web % dict(login=self.user_login, password=password, tstamp=str_time) }
         return json.dumps({ "initial_configuration" : json.dumps(url), 'batch' : False })
 
     @Override(Experiment.Experiment)
