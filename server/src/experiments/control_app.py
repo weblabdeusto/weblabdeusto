@@ -55,7 +55,8 @@ class ControlAppExperiment(Experiment.Experiment):
                 )
         opener = urllib2.build_opener(auth)
 
-        password = uuid.uuid4()
+        random_uuid = uuid.uuid4()
+        password = base64.encodestring(random_uuid.bytes)[:8]
 
         content = dict(
             edLogin=self.user_login,
