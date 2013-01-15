@@ -18,7 +18,6 @@ import base64
 import uuid
 import urllib
 import urllib2
-import datetime
 import threading
 
 import weblab.experiment.experiment as Experiment
@@ -27,7 +26,7 @@ import weblab.core.coordinator.coordinator as Coordinator
 from voodoo.override import Override
 
 ROUTER_URL = 'http://147.175.79.44/rcgi.bin/EditUserForm'
-ROUTER_WEB = 'http://147.175.79.44/usr/controlapp/ControlApp.html?user=%(login)s&pass=%(password)s&validto=%(tstamp)s'
+ROUTER_WEB = 'http://147.175.79.44/usr/controlapp/ControlApp.html?user=%(login)s&pass=%(password)s&remaining=TIME_REMAINING'
 ROUTER_REALM = 'eWON IAM 2'
 
 class ControlAppExperiment(Experiment.Experiment):
@@ -80,14 +79,11 @@ class ControlAppExperiment(Experiment.Experiment):
         server_data = json.loads(serialized_server_initial_data)
         time_slot = float(server_data['priority.queue.slot.length'])
 
-        now = datetime.datetime.utcnow() + datetime.timedelta(seconds=time_slot)
-        str_time = now.strftime("%Y%m%d%H%M%S")
-
         self.timer = threading.Timer(time_slot, function = self._reset_password)
         self.timer.start()
 
         password = self._reset_password()
-        url = {'url' : self.router_web % dict(login=self.user_login, password=password, tstamp=str_time) }
+        url = {'url' : self.router_web % dict(login=self.user_login, password=password) }
         return json.dumps({ "initial_configuration" : json.dumps(url), 'batch' : False })
 
     @Override(Experiment.Experiment)

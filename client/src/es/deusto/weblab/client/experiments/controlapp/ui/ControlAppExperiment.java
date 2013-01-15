@@ -35,9 +35,6 @@ public class ControlAppExperiment extends UIExperimentBase {
 	public static final String EXTERNAL_WIDTH  = "external.width";
 	public static final String EXTERNAL_HEIGHT = "external.height";
 	
-	public static final String DEFAULT_EXTERNAL_WIDTH  = "800";
-	public static final String DEFAULT_EXTERNAL_HEIGHT = "1000";
-	
 	public static enum LinkPresentation {
 		popup, iframe, redirection
 	}
@@ -58,17 +55,20 @@ public class ControlAppExperiment extends UIExperimentBase {
 	}
 
 	@Override
-	public void start(int time, String initialConfiguration){
+	public void start(final int time, String initialConfiguration){
 		final JSONObject value = JSONParser.parseStrict(initialConfiguration).isObject();
-		final String url = value.get("url").isString().stringValue();
-		System.out.println("Control app URL=" + url);
+		final String baseURL = value.get("url").isString().stringValue();
+		System.out.println("Control app URL=" + baseURL);
 		
-		final String width  = this.configurationRetriever.getProperty(EXTERNAL_WIDTH,  DEFAULT_EXTERNAL_WIDTH);
-		final String height = this.configurationRetriever.getProperty(EXTERNAL_HEIGHT, DEFAULT_EXTERNAL_HEIGHT);
+		final String width  = this.configurationRetriever.getProperty(EXTERNAL_WIDTH,  "" + Window.getClientWidth());
+		final String height = this.configurationRetriever.getProperty(EXTERNAL_HEIGHT, "" + Window.getClientHeight());
+		
+		final long startTime = System.currentTimeMillis();
 		
 		switch(getLinkPresentation()) {
 			case iframe:
-				final HTML html = new HTML("<iframe src='" + url + "' width='" + width + "' height='" + height + "px' frameborder='0'/>");
+				final String iframeUrl = baseURL.replace("TIME_REMAINING", "" + time);
+				final HTML html = new HTML("<iframe src='" + iframeUrl + "' width='" + width + "' height='" + height + "px' frameborder='0'/>");
 				putWidget(html);
 				break;
 			case popup:
@@ -78,17 +78,23 @@ public class ControlAppExperiment extends UIExperimentBase {
 					
 					@Override
 					public void onClick(ClickEvent event) {
-						Window.open(url, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=" + width + ",height=" + height + ",top=0");
+						final long now = System.currentTimeMillis();
+						final long elapsed = now - startTime;
+						final long nowTime = 1000 * time - elapsed;
+						final String popupUrl = baseURL.replace("TIME_REMAINING", "" + (nowTime / 1000));
+						
+						Window.open(popupUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=" + width + ",height=" + height + ",top=0");
 					}
 				});
 				vp.add(popupButton);
 				putWidget(vp);
 				break;
 			case redirection:
+				String redirectionUrl = baseURL.replace("TIME_REMAINING", "" + time);
 				this.boardController.disableFinishOnClose();
-				final Anchor anch = new Anchor(i18n.remoteSystem(), url);
+				final Anchor anch = new Anchor(i18n.remoteSystem(), redirectionUrl);
 				putWidget(anch);
-				Location.replace(url);
+				Location.replace(redirectionUrl);
 				break;
 		}
 	}
