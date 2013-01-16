@@ -363,6 +363,9 @@ def populate_weblab_tests(engine, tests):
     cat_control = Model.DbExperimentCategory("Control experiments")
     session.add(cat_control)
 
+    cat_farm = Model.DbExperimentCategory("Farm experiments")
+    session.add(cat_farm)
+    
     # Experiments
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
@@ -407,6 +410,8 @@ def populate_weblab_tests(engine, tests):
     controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date)
     session.add(controlapp)
 
+    incubator = Model.DbExperiment("incubator", cat_farm, start_date, end_date)
+    session.add(incubator)
 
     pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
     session.add(pld)
@@ -779,6 +784,22 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_controlapp_allowed_p2)
     up_any_controlapp_allowed_p3 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p3, "200")
     session.add(up_any_controlapp_allowed_p3)    
+
+    up_any_incubator_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-incubator",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_incubator_allowed)
+    up_any_incubator_allowed_p1 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p1, "incubator")
+    session.add(up_any_incubator_allowed_p1)
+    up_any_incubator_allowed_p2 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p2, "Farm experiments")
+    session.add(up_any_incubator_allowed_p2)
+    up_any_incubator_allowed_p3 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_incubator_allowed_p3)    
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,

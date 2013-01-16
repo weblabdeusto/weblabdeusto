@@ -430,6 +430,12 @@
                                     "experiment.name"                 : "control-app",
                                     "experiment.category"             : "Control experiments"
                                 }
+                            ],
+                     "incubator" : [
+                                {
+                                	"experiment.name"                 : "incubator",
+                                	"experiment.category"             : "Farm experiments"
+                                }
                             ]
 		}
 }
