@@ -149,7 +149,7 @@ class StatusManager(threading.Thread):
         if self._verbose:
             print "%s: Performing request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), location)
         if self._fake:
-            print "Request faked"
+            print "Request to %s faked" % location
             return None
 
         try:
@@ -216,7 +216,7 @@ class StatusManager(threading.Thread):
         for light in self._all_lights:
             webcam_dir = os.path.join(day_dir, light)
             current_data = []
-            data[webcam_dir] = current_data
+            data[light] = current_data
             if os.path.exists(webcam_dir) and os.path.isdir(webcam_dir):
                 for f in os.listdir(webcam_dir):
                     if os.path.isfile(f) and self._file_regex.match(f):
@@ -247,7 +247,16 @@ class StatusManager(threading.Thread):
                 next_hour = 60 * 59 - now.minute + next_minute
             time.sleep(next_hour)
             self._take_historic()
- 
+
+
+################################################################################
+# 
+#   
+#   
+#                         Incubator Experiment
+# 
+# 
+# 
 
 class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
     """
@@ -295,6 +304,7 @@ class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
         config = {
             'status' : json.loads(status_str),
         }
+        config.update(self.initial_configuration)
 
         return json.dumps({ "initial_configuration" : json.dumps(config), "batch" : False })
 
@@ -335,7 +345,7 @@ class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if obj is None:
                 return "error:Malformed get_historic command"
             year, month, day = obj.groups()
-            return self._status_manager.retrieve_historic(year, month, day)
+            return json.dumps(self._status_manager.retrieve_historic(year, month, day))
 
         return 'Command not found'
 

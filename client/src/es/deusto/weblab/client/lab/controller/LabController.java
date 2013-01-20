@@ -75,7 +75,7 @@ public class LabController implements ILabController {
 	public static final int DEFAULT_WAITING_MAX_POLLING_TIME = 10 * 1000;
 	public static final int DEFAULT_WAITING_INSTANCES_MIN_POLLING_TIME = 1000;
 	public static final int DEFAULT_WAITING_INSTANCES_MAX_POLLING_TIME = 10 * 1000;
-	public static final int DEFAULT_WAITING_CONFIRMATION_POLLING_TIME = 1200;
+	public static final int DEFAULT_WAITING_CONFIRMATION_POLLING_TIME = 500;
 
 	// These two constants are specially useful while debugging the application
 	public static final boolean REPORT_BIG_ERROR_ON_STATE_FAILURE = true;
