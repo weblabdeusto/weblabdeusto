@@ -38,6 +38,7 @@ import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
 import es.deusto.weblab.client.comm.exceptions.CommException;
+import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.NullSessionID;
@@ -75,7 +76,7 @@ public class LabController implements ILabController {
 	public static final int DEFAULT_WAITING_MAX_POLLING_TIME = 10 * 1000;
 	public static final int DEFAULT_WAITING_INSTANCES_MIN_POLLING_TIME = 1000;
 	public static final int DEFAULT_WAITING_INSTANCES_MAX_POLLING_TIME = 10 * 1000;
-	public static final int DEFAULT_WAITING_CONFIRMATION_POLLING_TIME = 500;
+	public static final int DEFAULT_WAITING_CONFIRMATION_POLLING_TIME = 400;
 
 	// These two constants are specially useful while debugging the application
 	public static final boolean REPORT_BIG_ERROR_ON_STATE_FAILURE = true;
@@ -633,7 +634,9 @@ public class LabController implements ILabController {
 					public void onFailure(CommException e) {
 						if(e instanceof NoCurrentReservationException){
 							LabController.this.finishReservation();
-						}else{
+						} else if (e instanceof SessionNotFoundException) {
+							LabController.this.finishReservationAndLogout();
+						} else {
 							LabController.this.sessionVariables.hideExperiment();
 							LabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
 							LabController.this.cleanExperiment();
