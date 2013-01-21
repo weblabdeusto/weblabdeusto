@@ -51,6 +51,12 @@ input {
 	margin: 10px;
 }
 
+.wl-pressable 
+{
+	cursor: hand; 
+	cursor: pointer;
+}
+
 .wl-message
 {
 	margin: 10px;
