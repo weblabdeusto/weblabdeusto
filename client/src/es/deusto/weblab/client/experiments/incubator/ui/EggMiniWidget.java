@@ -40,6 +40,7 @@ public class EggMiniWidget extends Composite implements IWlDisposableWidget {
 	@UiField WlWebcam webcam;
 	@UiField WlSwitch lightSwitch;
 	
+	private DialogBox dialogPanel;
 	private final IncubatorExperiment experiment;
 	private final MainIncubatorPanel parentPanel;
 	int pos;
@@ -83,17 +84,27 @@ public class EggMiniWidget extends Composite implements IWlDisposableWidget {
 	
 	@UiHandler("more")
 	public void onMoreClicked(@SuppressWarnings("unused") ClickEvent event) {
-		final DialogBox panel = new DialogBox(false, true);
-		panel.setWidget(new EggHistoryWidget(this.experiment, this.pos));
-		panel.setPopupPosition(this.parentPanel.getAbsoluteLeft(), this.parentPanel.getAbsoluteTop());
+		this.dialogPanel = new DialogBox(false, true);
+		this.dialogPanel.setWidget(new EggHistoryWidget(this.experiment, this.pos, new Runnable() {
+			@Override
+			public void run() {
+				if(EggMiniWidget.this.dialogPanel != null) {
+					EggMiniWidget.this.dialogPanel.hide();
+					EggMiniWidget.this.dialogPanel = null;
+				}
+			}
+		}));
+		this.dialogPanel.setPopupPosition(this.parentPanel.getAbsoluteLeft(), this.parentPanel.getAbsoluteTop());
 		// TODO
 		// panel.setWidth(this.parentPanel.getOffsetWidth() + "px");
 		// panel.setHeight(this.parentPanel.getOffsetHeight() + "px");
-		panel.show();
+		this.dialogPanel.show();
 	}
 
 	@Override
 	public void dispose() {
+		if(this.dialogPanel != null)
+			this.dialogPanel.hide();
 		this.webcam.stop();
 	}	
 }

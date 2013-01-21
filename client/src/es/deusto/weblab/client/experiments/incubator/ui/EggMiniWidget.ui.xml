@@ -2,8 +2,14 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	
+	<ui:with field="res" type="es.deusto.weblab.client.ui.Resources" />
+	
 	<ui:style>
-		
+		.newlink{
+		 	cursor: hand; 
+			cursor: pointer; 
+		}
 	</ui:style>
 	
 	<g:DecoratorPanel>
@@ -13,11 +19,10 @@
 			
 			<w:WlWebcam ui:field="webcam"/>
 			
-			<g:HorizontalPanel>
-				<w:WlSwitch ui:field="lightSwitch"/>			
+			<g:HorizontalPanel spacing="10">
+				<w:WlSwitch ui:field="lightSwitch"/>
+				<g:Image ui:field="more" resource='{res.calendar}' height="38" styleName="{style.newlink}"/>
 			</g:HorizontalPanel>
-			
-			<g:Button text="more" ui:field="more" />
 		</g:VerticalPanel>
 	</g:DecoratorPanel>
 </ui:UiBinder> 

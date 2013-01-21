@@ -8,7 +8,10 @@
 			font-weight: bold;
 		}
 	</ui:style>
-	<g:VerticalPanel horizontalAlignment="CENTER" width="100%">
+	<g:VerticalPanel horizontalAlignment="CENTER" width="100%" spacing="5">
+		<g:cell horizontalAlignment="RIGHT">
+			<g:Button ui:field="closeButton" text="X" />
+		</g:cell>
 		<d:DatePicker ui:field="picker"/>
 		<g:ScrollPanel ui:field="historicPicturesScroll" visible="false">
 			<g:Grid ui:field="historicPictures" />

@@ -137,7 +137,7 @@ public class IncubatorExperiment extends UIExperimentBase {
 		}
 	};
 
-	public void getHistoricData(String year, String month, String day, IResponseCommandCallback callback) {
-		this.boardController.sendCommand("get_historic:" + year + "/" + month + "/" + day, callback);
+	public void getHistoricData(String formattedDate, IResponseCommandCallback callback) {
+		this.boardController.sendCommand("get_historic:" + formattedDate, callback);
 	}
 }

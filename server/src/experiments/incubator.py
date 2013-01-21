@@ -93,7 +93,7 @@ class StatusManager(threading.Thread):
         for light in self._all_lights:
             self._status[light] = 'off'
 
-        self._file_regex = re.compile('\d\d_\d\d')
+        self._file_regex = re.compile('\d\d*_\d\d*')
     
         # Temperature: initialize with something which does not make sense
         self._status['temp'] = -100.0
@@ -219,7 +219,8 @@ class StatusManager(threading.Thread):
             data[light] = current_data
             if os.path.exists(webcam_dir) and os.path.isdir(webcam_dir):
                 for f in os.listdir(webcam_dir):
-                    if os.path.isfile(f) and self._file_regex.match(f):
+                    full_path = os.path.join(webcam_dir, f)
+                    if os.path.isfile(full_path) and self._file_regex.match(f):
                         current_data.append(f)
         
         return data
