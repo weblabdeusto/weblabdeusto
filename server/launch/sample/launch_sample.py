@@ -36,7 +36,7 @@ def inner(signals = False):
             )
     else:
         waiters = (
-                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish.\n"),
+                Launcher.RawInputWait("Control+C to finish.\n"),
             )
 
     launcher = Launcher.Launcher(

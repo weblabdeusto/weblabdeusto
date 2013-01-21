@@ -416,8 +416,7 @@ public class LabController implements ILabController {
 		this.communications.reserveExperiment(this.currentSession, experimentId, initialData, reservationStatusCallback);
 	}
 
-	private ReservationStatusCallback createReservationStatusCallback(
-			ExperimentID experimentId) {
+	private ReservationStatusCallback createReservationStatusCallback(ExperimentID experimentId) {
 		// We delegate the reservation on the ReservationHandler class 
 		final ReservationStatusCallback reservationStatusCallback = new ReservationStatusCallback();
 		
