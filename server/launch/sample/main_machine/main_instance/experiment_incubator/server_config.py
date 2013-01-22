@@ -2,9 +2,14 @@
 #-*-*- encoding: utf-8 -*-*-
 
 fake_controller = True
+# fake_controller = False
+verbose_controller = True
 
 number_of_lights   = 3
-controller_address = '127.0.0.1'
+if fake_controller:
+    controller_address = '127.0.0.1'
+else:
+    controller_address = '192.168.0.110:8000'
 
 historic_directory = 'incubator_historic'
 

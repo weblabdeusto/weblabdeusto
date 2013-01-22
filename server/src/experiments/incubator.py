@@ -168,14 +168,15 @@ class StatusManager(threading.Thread):
         Encapsulate the communication with the raspberry. Make fakes possible.
         """
 
+        url = 'http://%s%s' % (self._address, location)
+
         if self._verbose:
-            print "%s: Performing request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), location)
+            print "%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url)
         if self._fake:
             print "Request to %s faked" % location
             return None
 
         try:
-            url = 'http://%s%s' % (self._address, location)
             self._opener.open(url, data = '').read()
         except Exception as e:
             traceback.print_exc()
@@ -188,15 +189,16 @@ class StatusManager(threading.Thread):
         Encapsulate the communication with the raspberry. Make fakes possible.
         """
 
+        url = 'http://%s%s' % (self._address, location)
+
         if self._verbose:
-            print "%s: Performing request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), location)
+            print "%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url)
         if self._fake:
             print "Request to %s faked" % location
             return 'OK:%s' % str(random.random() - 100)
 
         try:
-            url = 'http://%s%s' % (self._address, location)
-            response = self._opener.open(url, data = '').read()
+            response = self._opener.open(url).read()
             return 'OK:%s' % response
         except Exception as e:
             traceback.print_exc()
@@ -351,7 +353,10 @@ class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
         }
         config.update(self.initial_configuration)
 
-        return json.dumps({ "initial_configuration" : json.dumps(config), "batch" : False })
+        config_sent = json.dumps({ "initial_configuration" : json.dumps(config), "batch" : False })
+        if self._verbose:
+            print "Returning configuration:",config_sent
+        return config_sent
 
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
