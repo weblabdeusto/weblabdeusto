@@ -44,7 +44,7 @@ public class IncubatorExperiment extends UIExperimentBase {
 		
 		final Status initialStatus = new Status(jsonStatus);
 		
-		this.incubatorPanel = new MainIncubatorPanel(this, initialStatus, obj);
+		this.incubatorPanel = new MainIncubatorPanel(this, initialStatus, obj, time);
 		putWidget(this.incubatorPanel);
 		
 		for(IWlDisposableWidget disposableWidget : this.incubatorPanel.getDisposableWidgets())
@@ -60,12 +60,16 @@ public class IncubatorExperiment extends UIExperimentBase {
 		this.incubatorPanel = null;
 	}
 	
-	void turnLight(int pos, boolean value) {
-		this.boardController.sendCommand("turn:" + (pos + 1) + ":" + (value?"on":"off"), this.commandCallback);
+	void turnLight(String pos, boolean value) {
+		final String command = "turn:" + pos + ":" + (value?"on":"off");
+		System.out.println(command);
+		this.boardController.sendCommand(command, this.commandCallback);
 	}
 
 	void turnAllLights(boolean value) {
-		this.boardController.sendCommand("turn:all:" + (value?"on":"off"), this.commandCallback);
+		final String command = "turn:all:" + (value?"on":"off");
+		System.out.println(command);
+		this.boardController.sendCommand(command, this.commandCallback);
 	}
 	
 	void updateStatus(Status status) {

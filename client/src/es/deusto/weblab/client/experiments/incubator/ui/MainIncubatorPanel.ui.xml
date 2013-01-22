@@ -1,6 +1,7 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
 	<ui:style>
 		.messages {
 			color: red;
@@ -17,6 +18,7 @@
 			<g:Label text="-200º" ui:field="temperature"/>
 			<g:Button ui:field="turnOffAllButton" text="Turn off all" />
 			<g:Button ui:field="turnOnAllButton" text="Turn on all"/>
+			<w:WlTimer ui:field="timer" />
 		</g:HorizontalPanel>
 		
 		<!-- 

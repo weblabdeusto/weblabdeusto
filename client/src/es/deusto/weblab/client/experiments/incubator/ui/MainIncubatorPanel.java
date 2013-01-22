@@ -16,6 +16,7 @@ package es.deusto.weblab.client.experiments.incubator.ui;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Vector;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -29,6 +30,9 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
+
 public class MainIncubatorPanel extends Composite {
 
 	private static MainIncubatorPanelUiBinder uiBinder = GWT.create(MainIncubatorPanelUiBinder.class);
@@ -40,6 +44,7 @@ public class MainIncubatorPanel extends Composite {
 	@UiField Label temperature;
 	@UiField Grid grid;
 	@UiField Label messages;
+	@UiField WlTimer timer;
 	
 	private IncubatorExperiment experiment;
 	
@@ -49,19 +54,21 @@ public class MainIncubatorPanel extends Composite {
 		initWidget(uiBinder.createAndBindUi(this));
 	}
 	
-	public MainIncubatorPanel(IncubatorExperiment experiment, Status status, JSONObject configuration) {
+	public MainIncubatorPanel(IncubatorExperiment experiment, Status status, JSONObject configuration, int time) {
 		this.experiment = experiment;
 		initWidget(uiBinder.createAndBindUi(this));
+		
+		this.timer.updateTime(time);
 		
 		this.grid.resize(status.getSize() / 3, 3);
 		
 		for(int i = 0; i < status.getSize(); ++i) {
-			final EggMiniWidget wid = new EggMiniWidget(experiment, this, i, configuration);
+			final EggMiniWidget wid = new EggMiniWidget(experiment, this, "" + (i + 1), configuration);
 			this.eggWidgets.put(Integer.valueOf(i), wid);
 			this.grid.setWidget(i / 3, i % 3, wid);
 		}
 		
-		this.temperature.setText(status.getTemperature() + "º");
+		showTemperature(status);
 	}
 	
 	@SuppressWarnings("unused")
@@ -84,15 +91,29 @@ public class MainIncubatorPanel extends Composite {
 
 	void update(Status status) {
 		for(int i = 0; i < status.getSize(); ++i) {
-			final boolean lightOn = status.isLightOn(i);
+			final boolean lightOn = status.isLightOn("" + (i + 1));
 			final EggMiniWidget eggWidget = this.eggWidgets.get(Integer.valueOf(i));
 			eggWidget.setLight(lightOn);
 		}
-		
-		this.temperature.setText(status.getTemperature() + "º");
+
+		showTemperature(status);
 	}
 
-	Collection<EggMiniWidget> getDisposableWidgets() {
-		return this.eggWidgets.values();
+	private void showTemperature(Status status) {
+		final double celsius = status.getTemperature();
+		final double fahrenheit = celsius * 1.8 + 32;
+		final String temperatureString = toSmallString(celsius) + "ºC / " + toSmallString(fahrenheit) + "ºF";
+		this.temperature.setText(temperatureString);
+	}
+	
+	private String toSmallString(double d) {
+		int floor        = (int)Math.floor(d);
+		int firstDecimal = ((int)Math.floor(Math.abs(10 * d))) % 10;
+		return floor + "." + firstDecimal;
+	}
+
+	Collection<IWlDisposableWidget> getDisposableWidgets() {
+		final Vector<IWlDisposableWidget> disposableWidgets = new Vector<IWlDisposableWidget>(this.eggWidgets.values());
+		return disposableWidgets;
 	}
 }

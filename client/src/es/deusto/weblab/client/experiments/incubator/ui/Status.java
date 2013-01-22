@@ -14,34 +14,37 @@
 
 package es.deusto.weblab.client.experiments.incubator.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 
 public class Status {
 	
 	private final double temperature;
 	private final int size;
-	private final int lightsOn; // Mask based
+	private final Map<String, Boolean> lights = new HashMap<String, Boolean>();
 	
 	public Status(JSONObject status) {
 		this.temperature = status.get("temp").isNumber().doubleValue();
 		
-		int mask = 0;
 		int counter = 0;
 		for(String key : status.keySet()) {
-			if(key.length() == 1 && Character.isDigit(key.charAt(0))) { // We'll never have more than 9 cameras
+			final JSONString value = status.get(key).isString();
+			if(value == null)
+				continue;
+			
+			this.lights.put(key, value.stringValue().equals("on"));
+			if(key.length() == 1 && Character.isDigit(key.charAt(0)))
 				counter++;
-				final int pos = Integer.parseInt(key) - 1;
-				if(status.get(key).isString().equals("on")) 
-					mask |= 1 << pos;
-			}
 		}
 		
 		this.size = counter;
-		this.lightsOn = mask;
 	}
 	
-	public boolean isLightOn(int pos) {
-		return (this.lightsOn & (1 << pos)) == 0;
+	public boolean isLightOn(String pos) {
+		return this.lights.get(pos).booleanValue();
 	}
 	
 	public int getSize() {

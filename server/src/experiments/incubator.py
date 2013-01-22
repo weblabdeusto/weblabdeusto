@@ -17,6 +17,7 @@ import os
 import re
 import json
 import time
+import random
 import urllib2
 import datetime
 import threading
@@ -32,6 +33,7 @@ WEBCAMS_INFO             = 'webcams_info'
 CONTROLLER_ADDRESS       = 'controller_address'
 HISTORIC_DIRECTORY       = 'historic_directory'
 LIGHT_BOOTSTRAPPING_TIME = 'light_bootstrapping_time' # How long does the light need to turn on
+PUBLIC_PATH              = 'incubator_path'
 
 # Debugging variables
 FAKE_CONTROLLER    = 'fake_controller'
@@ -63,14 +65,15 @@ class StatusManager(threading.Thread):
         self.setName("IncubatorStatusManager")
 
         # Retrieve configuration
-        self._address      = cfg_manager.get_value(CONTROLLER_ADDRESS)
-        self._light_time   = cfg_manager.get_value(LIGHT_BOOTSTRAPPING_TIME, 3)
-        self._dir          = cfg_manager.get_value(HISTORIC_DIRECTORY, None)
+        self._address        = cfg_manager.get_value(CONTROLLER_ADDRESS)
+        self._light_time     = cfg_manager.get_value(LIGHT_BOOTSTRAPPING_TIME, 3)
+        self._dir            = cfg_manager.get_value(HISTORIC_DIRECTORY, None)
+        self._public_path    = cfg_manager.get_value(PUBLIC_PATH, 'http://localhost/incubator_historic/')
 
         self._fake           = cfg_manager.get_value(FAKE_CONTROLLER, False)
         self._verbose        = cfg_manager.get_value(VERBOSE_CONTROLLER, False)
         self._fake_next_hour = cfg_manager.get_value(FAKE_NEXT_HOUR, False)
-
+    
         self._webcams_urls = webcams_urls
         self._lights       = len(webcams_urls)
 
@@ -111,6 +114,9 @@ class StatusManager(threading.Thread):
         self.turn_light('all','off')
 
     def get_status_str(self):
+
+        self.update_temperature()
+
         with self._status_lock:
             return json.dumps(self._status)
 
@@ -122,7 +128,9 @@ class StatusManager(threading.Thread):
         """
         if new_status not in ('on','off'):
             return "Wrong status!"
-            
+        
+        self.update_temperature()
+
         # Lock the operation, so two threads can not change the status
         with self._operations_lock:
             
@@ -130,18 +138,32 @@ class StatusManager(threading.Thread):
             with self._status_lock:
                 if number == 'all':
                     for light in self._all_lights:
-                        self._status[number] = new_status
+                        self._status[light] = new_status
                 elif number in self._all_lights:
                     self._status[number] = new_status
                 else:
                     return 'Wrong number! (use "all" or 1-%s' % self._lights
             
             if number == 'all':
-                return self._perform_request('/EGGS%s' % new_status.upper())
+                return self._perform_post_request('/EGGS%s' % new_status.upper())
             else:
-                return self._perform_request('/EGG/%s/value/%s' % (number, new_status))
+                return self._perform_post_request('/EGG/%s/value/%s' % (number, new_status))
 
-    def _perform_request(self, location):
+    def update_temperature(self):
+        temperature_str = self._perform_get_request('/TEMP')
+        try:
+            if temperature_str.startswith('OK:'):
+                temperature = float(temperature_str[len('OK:'):])
+            else:
+                temperature = -500
+        except:
+            traceback.print_exc()
+            temperature = -1000
+
+        with self._status_lock:
+            self._status['temp'] = temperature
+
+    def _perform_post_request(self, location):
         """
         Encapsulate the communication with the raspberry. Make fakes possible.
         """
@@ -154,14 +176,32 @@ class StatusManager(threading.Thread):
 
         try:
             url = 'http://%s%s' % (self._address, location)
-            response = self._opener.open(url, data = '').read()
-            if response != 'ok':
-                return 'Invalid response. Expected "ok", got: %s' % response
+            self._opener.open(url, data = '').read()
         except Exception as e:
             traceback.print_exc()
             return 'Error: %s' % e
         else:
             return None
+
+    def _perform_get_request(self, location):
+        """
+        Encapsulate the communication with the raspberry. Make fakes possible.
+        """
+
+        if self._verbose:
+            print "%s: Performing request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), location)
+        if self._fake:
+            print "Request to %s faked" % location
+            return 'OK:%s' % str(random.random() - 100)
+
+        try:
+            url = 'http://%s%s' % (self._address, location)
+            response = self._opener.open(url, data = '').read()
+            return 'OK:%s' % response
+        except Exception as e:
+            traceback.print_exc()
+            return 'Error: %s' % e
+
 
     def _store_picture(self):
 
@@ -221,7 +261,10 @@ class StatusManager(threading.Thread):
                 for f in os.listdir(webcam_dir):
                     full_path = os.path.join(webcam_dir, f)
                     if os.path.isfile(full_path) and self._file_regex.match(f):
-                        current_data.append(f)
+                        hours, minutes = f.split('_')
+                        formatted = '%s:%s' % (hours.zfill(2), minutes.zfill(2))
+                        public_path = '%s/%s/%s/%s/%s/%s' % (self._public_path, year, month, day, light, f)
+                        current_data.append( (formatted, public_path) )
         
         return data
 
@@ -268,6 +311,7 @@ class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(IncubatorExperiment,self).__init__(*args, **kwargs)
         webcams_info    = cfg_manager.get_value(WEBCAMS_INFO, [])
+        self._verbose   = cfg_manager.get_value(VERBOSE_CONTROLLER, False)
 
         self.initial_configuration = {}
         webcams_urls = []
@@ -335,6 +379,8 @@ class IncubatorExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
             if message is not None:
                 return "error:%s" % message
+            elif self._verbose:
+                print "Turning light %s %s succeeded. New status: %s" % (number, new_state, self._status_manager.get_status_str())
 
             return self._status_manager.get_status_str()
     

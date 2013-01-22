@@ -433,6 +433,7 @@
                             ],
                      "incubator" : [
                                 {
+	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
                                 	"experiment.name"                 : "incubator",
                                 	"experiment.category"             : "Farm experiments"
                                 }

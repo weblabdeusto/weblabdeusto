@@ -9,12 +9,13 @@ controller_address = '127.0.0.1'
 historic_directory = 'incubator_historic'
 
 cams = [
-    'http://www.weblab.deusto.es/webcam/proxied.py/robot1',
+    'http://www.weblab.deusto.es/webcam/proxied.py/egg1',
     'http://www.weblab.deusto.es/webcam/proxied.py/pld1',
     'http://www.weblab.deusto.es/webcam/proxied.py/fishtank1'
 ]
 
-if fake_controller:
+fake_images = fake_controller and False
+if fake_images:
     cams = [
         'http://127.0.0.1:8888/weblabclientlab//img/udeusto-logo.jpg',
         'http://127.0.0.1:8888/weblabclientlab//img/udeusto-logo.jpg',
@@ -23,7 +24,10 @@ if fake_controller:
 
 webcams_info = [ 
     { # '1'
-        'webcam_url' : cams[0],
+        'webcam_url'   : cams[0],
+        'mjpeg_url'    : 'http://www.weblab.deusto.es/webcam/egg1/video.mjpeg',
+        'mjpeg_width'  : 320,
+        'mjpeg_height' : 240,
     },
     { # '2'
         'webcam_url' : cams[1],

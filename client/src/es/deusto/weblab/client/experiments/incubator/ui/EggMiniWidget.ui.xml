@@ -10,6 +10,9 @@
 		 	cursor: hand; 
 			cursor: pointer; 
 		}
+		.webcam {
+			padding: 5px;	
+		}
 	</ui:style>
 	
 	<g:DecoratorPanel>
@@ -17,9 +20,9 @@
 		
 			<g:Label ui:field="titleLabel"/>
 			
-			<w:WlWebcam ui:field="webcam"/>
+			<w:WlWebcam ui:field="webcam" styleName="{style.webcam}" />
 			
-			<g:HorizontalPanel spacing="10">
+			<g:HorizontalPanel spacing="30">
 				<w:WlSwitch ui:field="lightSwitch"/>
 				<g:Image ui:field="more" resource='{res.calendar}' height="38" styleName="{style.newlink}"/>
 			</g:HorizontalPanel>

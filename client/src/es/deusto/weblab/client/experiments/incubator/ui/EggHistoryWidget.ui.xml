@@ -13,7 +13,7 @@
 			<g:Button ui:field="closeButton" text="X" />
 		</g:cell>
 		<d:DatePicker ui:field="picker"/>
-		<g:ScrollPanel ui:field="historicPicturesScroll" visible="false">
+		<g:ScrollPanel ui:field="historicPicturesScroll" visible="false" height="300px">
 			<g:Grid ui:field="historicPictures" />
 		</g:ScrollPanel>
 		<g:Button ui:field="showButton" text="Show"/>
