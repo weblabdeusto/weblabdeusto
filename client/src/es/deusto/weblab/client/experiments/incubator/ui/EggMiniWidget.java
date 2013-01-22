@@ -95,9 +95,7 @@ public class EggMiniWidget extends Composite implements IWlDisposableWidget {
 		final int absoluteLeft = this.parentPanel.getAbsoluteLeft() + this.parentPanel.getOffsetWidth() / 4;
 		final int absoluteTop  =  this.parentPanel.getAbsoluteTop() / 2;
 		this.dialogPanel.setPopupPosition(absoluteLeft, absoluteTop);
-		// TODO
 		this.dialogPanel.setSize((this.parentPanel.getOffsetWidth() / 2) + "px", "100%");
-		// panel.setHeight(this.parentPanel.getOffsetHeight() + "px");
 		this.dialogPanel.show();
 		this.dialogPanel.center();
 	}
