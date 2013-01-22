@@ -15,8 +15,8 @@ historic_directory = 'incubator_historic'
 
 cams = [
     'http://www.weblab.deusto.es/webcam/proxied.py/egg1',
-    'http://www.weblab.deusto.es/webcam/proxied.py/pld1',
-    'http://www.weblab.deusto.es/webcam/proxied.py/fishtank1'
+    'http://www.weblab.deusto.es/webcam/proxied.py/egg2',
+    'http://www.weblab.deusto.es/webcam/proxied.py/egg3'
 ]
 
 fake_images = fake_controller and False
@@ -36,9 +36,15 @@ webcams_info = [
     },
     { # '2'
         'webcam_url' : cams[1],
+        'mjpeg_url'    : 'http://www.weblab.deusto.es/webcam/egg2/video.mjpeg',
+        'mjpeg_width'  : 320,
+        'mjpeg_height' : 240, 
     },
     { # '3'
         'webcam_url' : cams[2],
+        'mjpeg_url'    : 'http://www.weblab.deusto.es/webcam/egg3/video.mjpeg',
+        'mjpeg_width'  : 320,
+        'mjpeg_height' : 240,
     }, 
 ]
 
