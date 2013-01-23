@@ -161,7 +161,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -207,7 +207,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -253,7 +253,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -274,7 +274,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -295,7 +295,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -310,7 +310,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments

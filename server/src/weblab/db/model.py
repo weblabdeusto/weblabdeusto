@@ -588,36 +588,18 @@ class DbPermissionType(Base):
     id                  = Column(Integer, primary_key = True)
     name                = Column(String(255), nullable = False)
     description         = Column(Text, nullable = False)
-    user_applicable_id  = Column(Integer, ForeignKey("UserApplicablePermissionType.id"))
-    role_applicable_id  = Column(Integer, ForeignKey("RoleApplicablePermissionType.id"))
-    group_applicable_id = Column(Integer, ForeignKey("GroupApplicablePermissionType.id"))
 
-    # I think there's a mistake here: this creates 1-N relationships, while they should be 1-1.
-    # A quick search made me think that we're not using backref properly in this case, but now
-    # it's not time to change this, so it'll be in a future upgrading version 0:-) (Jaime I, Oct 6th 2010)
-    user_applicable  = relation("DbUserApplicablePermissionType", backref=backref("permission_type", order_by=id))
-    role_applicable  = relation("DbRoleApplicablePermissionType", backref=backref("permission_type", order_by=id))
-    group_applicable = relation("DbGroupApplicablePermissionType", backref=backref("permission_type", order_by=id))
 
-    def __init__(self, name, description, user_applicable=False, role_applicable=False, group_applicable=False):
+    def __init__(self, name, description):
         super(DbPermissionType, self).__init__()
         self.name = name
         self.description = description
-        if user_applicable:
-            link_relation(self, DbUserApplicablePermissionType(), "user_applicable")
-        if role_applicable:
-            link_relation(self, DbRoleApplicablePermissionType(), "role_applicable")
-        if group_applicable:
-            link_relation(self, DbGroupApplicablePermissionType(), "group_applicable")
 
     def __repr__(self):
-        return "DbPermissionType(id = %r, name = %r, description = %r, user_applicable = %r, role_applicable = %r, group_applicable = %r)" % (
+        return "DbPermissionType(id = %r, name = %r, description = %r)" % (
             self.id,
             self.name,
             self.description,
-            self.user_applicable,
-            self.role_applicable,
-            self.group_applicable,
         )
 
     def __unicode__(self):
@@ -630,9 +612,7 @@ class DbPermissionType(Base):
         ptype = PermissionType(
             self.name,
             self.description,
-            self.user_applicable,
-            self.role_applicable,
-            self.group_applicable)
+        )
         return ptype
 
 
@@ -668,66 +648,47 @@ class DbPermissionTypeParameter(Base):
             self.description
         )
 
-
-class DbUserApplicablePermissionType(Base):
-    __tablename__  = 'UserApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbUserApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbUserApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
-
 class DbUserPermission(Base):
     __tablename__  = 'UserPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
     id                            = Column(Integer, primary_key = True)
     user_id                       = Column(Integer, ForeignKey("User.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("UserApplicablePermissionType.id"), nullable = False)
+    permission_type_id            = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
     permanent_id                  = Column(String(255), nullable = False)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
-    user                       = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbUserApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    user            = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type = relation("DbPermissionType", backref=backref("user_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, user, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, user, permission_type, permanent_id, date, comments=None):
         super(DbUserPermission, self).__init__()
         link_relation(self, user, "user")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        link_relation(self, permission_type, "permission_type") 
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbUserPermission(id = %r, user = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbUserPermission(id = %r, user = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.user,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
@@ -773,64 +734,47 @@ class DbUserPermissionParameter(Base):
                     self.value
                 )
 
-class DbRoleApplicablePermissionType(Base):
-    __tablename__  = 'RoleApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbRoleApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbRoleApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
 class DbRolePermission(Base):
     __tablename__  = 'RolePermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("RoleApplicablePermissionType.id"), nullable = False)
+    permission_type_id            = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
     permanent_id                  = Column(String(255), nullable = False)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
-    role                       = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbRoleApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    role            = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type = relation("DbPermissionType", backref=backref("role_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, role, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, role, permission_type, permanent_id, date, comments=None):
         super(DbRolePermission, self).__init__()
         link_relation(self, role, "role")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        link_relation(self, permission_type, "permission_type")
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbRolePermission(id = %r, role = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbRolePermission(id = %r, role = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.role,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
@@ -877,65 +821,47 @@ class DbRolePermissionParameter(Base):
                 )
 
 
-class DbGroupApplicablePermissionType(Base):
-    __tablename__  = 'GroupApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbGroupApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbGroupApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
-
 class DbGroupPermission(Base):
     __tablename__  = 'GroupPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                            = Column(Integer, primary_key = True)
-    group_id                      = Column(Integer, ForeignKey("Group.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("GroupApplicablePermissionType.id"), nullable = False)
-    permanent_id                  = Column(String(255), nullable = False)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
+    id                 = Column(Integer, primary_key = True)
+    group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
+    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permanent_id       = Column(String(255), nullable = False)
+    date               = Column(DateTime, nullable = False)
+    comments           = Column(Text)
 
-    group                      = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbGroupApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    group           = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type = relation("DbPermissionType", backref=backref("group_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, group, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, group, permission_type, permanent_id, date, comments=None):
         super(DbGroupPermission, self).__init__()
         link_relation(self, group, "group")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        link_relation(self, permission_type, "permission_type")
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbGroupPermission(id = %r, group = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbGroupPermission(id = %r, group = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.group,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())

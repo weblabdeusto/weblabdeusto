@@ -46,15 +46,7 @@ class AddingAccessForwardToPermissionsPatch(Patch):
 
     def apply(self, session):
         
-        user_applicable_permission  = Model.DbUserApplicablePermissionType()
-        group_applicable_permission = Model.DbGroupApplicablePermissionType()
-        role_applicable_permission  = Model.DbRoleApplicablePermissionType()
-
-        session.add(user_applicable_permission)
-        session.add(group_applicable_permission)
-        session.add(role_applicable_permission)
-
-        permission_type = Model.DbPermissionType('access_forward',"Users with this permission will be allowed to forward reservations to other external users.", user_applicable_permission, role_applicable_permission, group_applicable_permission, ee_applicable_permission)
+        permission_type = Model.DbPermissionType('access_forward',"Users with this permission will be allowed to forward reservations to other external users.")
         session.add(permission_type)
 
 
@@ -83,12 +75,10 @@ class AddingAccessForwardToFederatedPatch(Patch):
         federated = session.query(Model.DbRole).filter_by(name='federated').one()
 
         access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
-        role_applicable_permission  = Model.DbRoleApplicablePermissionType()
-        access_forward.role_applicable = role_applicable_permission
 
         federated_access_forward = Model.DbRolePermission(
             federated,
-            access_forward.role_applicable,
+            access_forward,
             "federated_role::access_forward",
             datetime.datetime.utcnow(),
             "Access to forward external accesses to all users with role 'federated'"
@@ -109,12 +99,9 @@ class AddingAdminPanelToAdministratorsPatch(Patch):
         admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
         admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
 
-        role_applicable_permission  = Model.DbRoleApplicablePermissionType()
-        admin_panel_access.role_applicable = role_applicable_permission
-
         administrator_admin_panel_access = Model.DbRolePermission(
             administrator,
-            admin_panel_access.role_applicable,
+            admin_panel_access,
             "administrator_role::admin_panel_access",
             datetime.datetime.utcnow(),
             "Access to the admin panel for administrator role with full_privileges"
@@ -191,6 +178,59 @@ class RemoveTable(Patch):
     def apply(self, cursor):
         cursor.execute("DROP TABLE %s" % self.table_name)
 
+
+class RemoveApplicablePermissionType(RemoveTable):
+
+    ABSTRACT = True
+
+    def apply(self, cursor):
+        # 
+        # First, create a direct reference from UserPermission to PermissionType
+        # 
+        cursor.execute("ALTER TABLE %sPermission ADD COLUMN permission_type_id Integer" % self.level)
+
+        # Populate that column with the proper indexes.
+        cursor.execute("SELECT %(level)sPermission.id, PermissionType.id FROM %(level)sPermission, PermissionType WHERE %(level)sPermission.applicable_permission_type_id = PermissionType.%(level_low)s_applicable_id" % {'level' : self.level, 'level_low' : self.level.lower() })
+        for level_permission_id, permission_type_id in cursor.fetchall():
+            cursor.execute("UPDATE " + self.level + "Permission SET permission_type_id = %s WHERE id = %s", (permission_type_id, level_permission_id))
+
+        # Then, drop the old applicable_permission_type_id column from UserPermission
+        cursor.execute("ALTER TABLE %(level)sPermission DROP FOREIGN KEY %(level)sPermission_ibfk_2" % {'level' : self.level})
+        cursor.execute("ALTER TABLE %(level)sPermission DROP COLUMN applicable_permission_type_id" % {'level' : self.level})
+
+        # Then, make that column not nullable and make it a foreign key
+        cursor.execute("ALTER TABLE %sPermission MODIFY COLUMN permission_type_id Integer NOT NULL" % self.level)
+        cursor.execute("ALTER TABLE %sPermission ADD CONSTRAINT %sPermission_ibfk_2 FOREIGN KEY (`permission_type_id`) REFERENCES `PermissionType` (`id`)" % (self.level, self.level))
+
+        # Then, drop the references from PermissionType to UserApplicablePermissionType 
+        cursor.execute("ALTER TABLE PermissionType DROP FOREIGN KEY %s" % self.key)
+        cursor.execute("ALTER TABLE PermissionType DROP COLUMN %s_applicable_id" % self.level.lower())
+
+        # And finally, drop the table
+        cursor.execute("DROP TABLE %s" % self.table_name)
+
+class RemoveUserApplicablePermissionType(RemoveApplicablePermissionType):
+    
+    ABSTRACT = False
+    level = 'User'
+    key = 'PermissionType_ibfk_1'
+    table_name = 'UserApplicablePermissionType'
+
+class RemoveRoleApplicablePermissionType(RemoveApplicablePermissionType):
+    
+    ABSTRACT = False
+    level = 'Role'
+    key = 'PermissionType_ibfk_2'
+    table_name = 'RoleApplicablePermissionType'
+
+class RemoveGroupApplicablePermissionType(RemoveApplicablePermissionType):
+    
+    ABSTRACT = False
+    level = 'Group'
+    key = 'PermissionType_ibfk_3'
+    table_name = 'GroupApplicablePermissionType'
+
+
 class RemoveTable_ExternalEntityIsMemberOf(RemoveTable):
     ABSTRACT = False
     table_name = 'ExternalEntityIsMemberOf'
@@ -225,7 +265,13 @@ class RemoveTable_ExternalEntityApplicablePermissionType(RemoveTable):
 
 
 if __name__ == '__main__':
-    applier = PatchApplier("weblab", "weblab", ["WebLabTests", "WebLabTests2", "WebLabTests3"], [
+    dbs = ["WebLabTests", "WebLabTests2", "WebLabTests3"]
+    # dbs = ["WebLabTests"]
+    applier = PatchApplier("weblab", "weblab", dbs, [
+                                RemoveUserApplicablePermissionType,
+                                RemoveRoleApplicablePermissionType,
+                                RemoveGroupApplicablePermissionType,
+
                                 AddingPriorityToPermissionParameterPatch, 
                                 AddingInitializationInAccountingToPermissionParameterPatch,
                                 AddingAccessForwardToPermissionsPatch,
@@ -236,6 +282,7 @@ if __name__ == '__main__':
                                 AddingFinishReasonToUserUsedExperiment,
                                 AddingMaxErrorInMillisToUserUsedExperiment,
                                 AddingPermissionIdToUserUsedExperiment,
+
                                 RemoveExternalEntityFromPermissionType,
                                 RemoveTable_ExternalEntityIsMemberOf,
                                 RemoveTable_ExternalEntityPermissionParameter,

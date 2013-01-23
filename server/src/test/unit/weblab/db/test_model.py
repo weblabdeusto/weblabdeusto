@@ -62,9 +62,6 @@ class ModelTestCase(unittest.TestCase):
         permission_type = Model.DbPermissionType(
                 'experiment_allowed',
                 'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
-                user_applicable = True,
-                group_applicable = True,
-                role_applicable = True
         )
         permission_type_p1 = Model.DbPermissionTypeParameter(permission_type, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
         permission_type_p2 = Model.DbPermissionTypeParameter(permission_type, 'experiment_category_id', 'string', 'the unique name of the category of experiment')
@@ -80,7 +77,7 @@ class ModelTestCase(unittest.TestCase):
 
         user_permission = Model.DbUserPermission(
             user,
-            permission_type.group_applicable,
+            permission_type,
             "student2::weblab-pld",
             datetime.datetime.utcnow(),
             "Permission for student2 to use WebLab-PLD"
@@ -91,7 +88,7 @@ class ModelTestCase(unittest.TestCase):
 
         group_permission = Model.DbGroupPermission(
             group,
-            permission_type.group_applicable,
+            permission_type,
             "5A::weblab-dummy",
             datetime.datetime.utcnow(),
             "Permission for group 5A to use WebLab-Dummy"
@@ -102,7 +99,7 @@ class ModelTestCase(unittest.TestCase):
 
         role_permission = Model.DbRolePermission(
             role,
-            permission_type.role_applicable,
+            permission_type,
             "administrator::weblab-dummy",
             datetime.datetime.utcnow(),
             "Permission for administrator to use WebLab-Dummy"

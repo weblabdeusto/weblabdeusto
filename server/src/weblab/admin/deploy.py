@@ -59,9 +59,6 @@ def insert_required_initial_data(engine):
     experiment_allowed = Model.DbPermissionType(
             'experiment_allowed',
             'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
-            user_applicable = True,
-            group_applicable = True,
-            role_applicable = True,
     )
     session.add(experiment_allowed)
     experiment_allowed_p1 = Model.DbPermissionTypeParameter(experiment_allowed, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
@@ -80,9 +77,6 @@ def insert_required_initial_data(engine):
     admin_panel_access = Model.DbPermissionType(
             'admin_panel_access',
             'Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel.',
-            user_applicable = True,
-            group_applicable = True,
-            role_applicable = True,
     )
     session.add(admin_panel_access)
     admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
@@ -91,9 +85,6 @@ def insert_required_initial_data(engine):
     access_forward = Model.DbPermissionType(
             'access_forward',
             'Users with this permission will be allowed to forward reservations to other external users.',
-            user_applicable = True,
-            group_applicable = True,
-            role_applicable = True,
     )
     session.add(access_forward)
 
@@ -101,7 +92,7 @@ def insert_required_initial_data(engine):
 
     federated_access_forward = Model.DbRolePermission(
         federated,
-        access_forward.role_applicable,
+        access_forward,
         "federated_role::access_forward",
         datetime.datetime.utcnow(),
         "Access to forward external accesses to all users with role 'federated'"
@@ -112,7 +103,7 @@ def insert_required_initial_data(engine):
 
     administrator_admin_panel_access = Model.DbRolePermission(
         administrator,
-        admin_panel_access.role_applicable,
+        admin_panel_access,
         "administrator_role::admin_panel_access",
         datetime.datetime.utcnow(),
         "Access to the admin panel for administrator role with full_privileges"
@@ -473,7 +464,7 @@ def populate_weblab_tests(engine, tests):
     # Permissions
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
         groupCourse0809,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2008/09::weblab-fpga",
         datetime.datetime.utcnow(),
         "Permission for group Course 2008/09 to use WebLab-FPGA"
@@ -488,7 +479,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_federated_dummy1_allowed = Model.DbGroupPermission(
         group_federated,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Federated users::dummy1",
         datetime.datetime.utcnow(),
         "Permission for group Federated users to use dummy1"
@@ -503,7 +494,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_federated_dummy2_allowed = Model.DbGroupPermission(
         group_federated,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Federated users::dummy2",
         datetime.datetime.utcnow(),
         "Permission for group Federated users to use dummy2"
@@ -519,7 +510,7 @@ def populate_weblab_tests(engine, tests):
     if tests != '2':
         gp_federated_dummy3_allowed = Model.DbGroupPermission(
             group_federated,
-            experiment_allowed.group_applicable,
+            experiment_allowed,
             "Federated users::dummy3",
             datetime.datetime.utcnow(),
             "Permission for group Federated users to use dummy3"
@@ -534,7 +525,7 @@ def populate_weblab_tests(engine, tests):
     else:
         gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
             group_federated,
-            experiment_allowed.group_applicable,
+            experiment_allowed,
             "Federated users::dummy3_with_other_name",
             datetime.datetime.utcnow(),
             "Permission for group Federated users to use dummy3_with_other_name"
@@ -549,7 +540,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_federated_dummy4_allowed = Model.DbGroupPermission(
         group_federated,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Federated users::dummy4",
         datetime.datetime.utcnow(),
         "Permission for group Federated users to use dummy4"
@@ -565,7 +556,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_course0809_flashdummy_allowed = Model.DbGroupPermission(
         groupCourse0809,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2008/09::weblab-flashdummy",
         datetime.datetime.utcnow(),
         "Permission for group Course 2008/09 to use WebLab-FlashDummy"
@@ -580,7 +571,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_course0809_javadummy_allowed = Model.DbGroupPermission(
         groupCourse0809,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2008/09::weblab-javadummy",
         datetime.datetime.utcnow(),
         "Permission for group Course 2008/09 to use WebLab-JavaDummy"
@@ -595,7 +586,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_course0809_logic_allowed = Model.DbGroupPermission(
         groupCourse0809,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2008/09::weblab-logic",
         datetime.datetime.utcnow(),
         "Permission for group Course 2008/09 to use WebLab-Logic"
@@ -610,7 +601,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_course0809_dummy_allowed = Model.DbGroupPermission(
         groupCourse0809,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2008/09::weblab-dummy",
         datetime.datetime.utcnow(),
         "Permission for group Course 2008/09 to use WebLab-Dummy"
@@ -625,7 +616,7 @@ def populate_weblab_tests(engine, tests):
 
     gp_course0910_fpga_allowed = Model.DbGroupPermission(
         groupCourse0910,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "Course 2009/10::weblab-fpga",
         datetime.datetime.utcnow(),
         "Permission for group Course 2009/10 to use WebLab-FPGA"
@@ -640,7 +631,7 @@ def populate_weblab_tests(engine, tests):
 
     up_student2_pld_allowed = Model.DbUserPermission(
         student2,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "student2::weblab-pld",
         datetime.datetime.utcnow(),
         "Permission for student2 to use WebLab-PLD"
@@ -655,7 +646,7 @@ def populate_weblab_tests(engine, tests):
 
     up_student6_pld_allowed = Model.DbUserPermission(
         student6,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "student6::weblab-pld",
         datetime.datetime.utcnow(),
         "Permission for student6 to use WebLab-PLD"
@@ -671,7 +662,7 @@ def populate_weblab_tests(engine, tests):
     
     up_any_fpga_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "student6::weblab-fpga",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-FPGA"
@@ -687,7 +678,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_visirtest_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-visirtest",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-VisirTest"
@@ -703,7 +694,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_visir_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-visir",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-VisirTest"
@@ -719,7 +710,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_logic_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-logic",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Logic"
@@ -735,7 +726,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_binary_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-binary",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Logic"
@@ -751,7 +742,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_unr_physics_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-unr_physics",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Logic"
@@ -768,7 +759,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_controlapp_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-controlapp",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Logic"
@@ -784,7 +775,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_incubator_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-incubator",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Logic"
@@ -800,7 +791,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::dummy",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-Dummy"
@@ -818,7 +809,7 @@ def populate_weblab_tests(engine, tests):
     
     up_any_pic18_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::pic18",
         datetime.datetime.utcnow(),
         "Permission for any to use ud-pic18"
@@ -835,7 +826,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_vm_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-vm",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-vm"
@@ -853,7 +844,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_vm_win_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-vm-win",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-vm-win"
@@ -870,7 +861,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_submarine_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-submarine",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-robot-standard"
@@ -887,7 +878,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_rob_robotarm_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-robotarm",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-robotarm"
@@ -904,7 +895,7 @@ def populate_weblab_tests(engine, tests):
           
     up_any_rob_std_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-robot-standard",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-robot-standard"
@@ -921,7 +912,7 @@ def populate_weblab_tests(engine, tests):
           
     up_any_rob_mov_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-robot-movement",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-robot-movement"
@@ -937,7 +928,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_ext_rob_mov_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-external-robot-movement",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-external-robot-movement"
@@ -953,7 +944,7 @@ def populate_weblab_tests(engine, tests):
 
     up_studentILAB_microelectronics_allowed = Model.DbUserPermission(
         studentILAB,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "studentILAB::weblab-microelectronics",
         datetime.datetime.utcnow(),
         "Permission for studentILAB to use WebLab-microelectronics"
@@ -970,7 +961,7 @@ def populate_weblab_tests(engine, tests):
       
     up_any_blink_led_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-blink-led",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-blink-led"
@@ -986,7 +977,7 @@ def populate_weblab_tests(engine, tests):
                
     up_any_rob_proglist_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-robot-proglist",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-robot-proglist"
@@ -1005,7 +996,7 @@ def populate_weblab_tests(engine, tests):
                 
     up_any_dummy_batch_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-dummy-batch",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-dummy-batch"
@@ -1023,7 +1014,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_pld_demo_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-pld-demo",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-pld-demo"
@@ -1040,7 +1031,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_fpga_demo_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-fpga-demo",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-fpga-demo"
@@ -1056,7 +1047,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_xilinx_demo_allowed = Model.DbUserPermission(
         any,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "any::weblab-xilinx-demo",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-xilinx-demo"
@@ -1072,7 +1063,7 @@ def populate_weblab_tests(engine, tests):
 
     up_student2_gpib_allowed = Model.DbUserPermission(
         student2,
-        experiment_allowed.group_applicable,
+        experiment_allowed,
         "student2::weblab-gpib",
         datetime.datetime.utcnow(),
         "Permission for student2 to use WebLab-GPIB"
@@ -1087,7 +1078,7 @@ def populate_weblab_tests(engine, tests):
                 
     up_student1_admin_panel_access = Model.DbUserPermission(
         student1,
-        admin_panel_access.user_applicable,
+        admin_panel_access,
         "student1::admin_panel_access",
         datetime.datetime.utcnow(),
         "Access to the admin panel for student1 with full_privileges"
@@ -1098,7 +1089,7 @@ def populate_weblab_tests(engine, tests):
 
     up_any_access_forward = Model.DbUserPermission(
         any,
-        access_forward.user_applicable,
+        access_forward,
         "any::access_forward",
         datetime.datetime.utcnow(),
         "Access to forward external accesses"
@@ -1242,7 +1233,7 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
 
     group_permission = Model.DbGroupPermission(
-        group, experiment_allowed.group_applicable,
+        group, experiment_allowed,
         "%s users::%s@%s" % (group_name, experiment_name, category_name),
         datetime.datetime.utcnow(),
         "Permission for group %s users to use %s@%s" % (group_name, experiment_name, category_name))
@@ -1268,7 +1259,7 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
     group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     'Administrators:admin-panel', datetime.datetime.now(), ''
                                 )
     session.add(group_permission)

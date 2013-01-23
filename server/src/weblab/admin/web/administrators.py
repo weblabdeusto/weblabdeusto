@@ -222,7 +222,17 @@ class PermissionTypePanel(AdministratorModelView):
 
         super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **default_args)
 
+def display_parameters(context, permission, p):
+    parameters = u''
+    for parameter in permission.parameters:
+        parameters += u'%s = %s, ' % (parameter.permission_type_parameter.name, parameter.value)
+    permission_str = u'%s(%s)' % (permission.permission_type.name, parameters[:-2])
+    return permission_str
+
 class UserPermissionPanel(AdministratorModelView):
+
+    column_list = ('user', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters )
 
     inline_models = (model.DbUserPermissionParameter,)
 
@@ -234,6 +244,8 @@ class UserPermissionPanel(AdministratorModelView):
 
 class GroupPermissionPanel(AdministratorModelView):
 
+    column_list = ('group', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters )
     inline_models = (model.DbGroupPermissionParameter,)
 
     def __init__(self, session, **kwargs):
