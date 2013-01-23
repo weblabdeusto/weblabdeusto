@@ -439,8 +439,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # student4 uses a different experiment, after both student2 and any
         #
         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
-
-        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)

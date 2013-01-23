@@ -31,24 +31,6 @@ class User(object):
                 self.role
             )
 
-class ExternalEntity(object):
-
-    def __init__(self, name, country, description, email, id=None):
-        super(ExternalEntity,self).__init__()
-        self.id = id
-        self.name = name
-        self.country = country
-        self.description = description
-        self.email = email
-
-    def __repr__(self):
-        return "ExternalEntity(id = %i, name = '%s', country = '%s', description = '%s', email = '%s')" % (
-                self.name,
-                self.country,
-                self.description,
-                self.email
-            )
-
 class Group(object):
 
     def __init__(self, name, id=None):

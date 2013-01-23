@@ -48,12 +48,10 @@ class AddingAccessForwardToPermissionsPatch(Patch):
         user_applicable_permission  = Model.DbUserApplicablePermissionType()
         group_applicable_permission = Model.DbGroupApplicablePermissionType()
         role_applicable_permission  = Model.DbRoleApplicablePermissionType()
-        ee_applicable_permission    = Model.DbExternalEntityApplicablePermissionType()
 
         session.add(user_applicable_permission)
         session.add(group_applicable_permission)
         session.add(role_applicable_permission)
-        session.add(ee_applicable_permission)
 
         permission_type = Model.DbPermissionType('access_forward',"Users with this permission will be allowed to forward reservations to other external users.", user_applicable_permission, role_applicable_permission, group_applicable_permission, ee_applicable_permission)
         session.add(permission_type)
@@ -68,9 +66,54 @@ class AddingReservationIdToUserUsedExperiment(Patch):
     def apply(self, cursor):
         cursor.execute("ALTER TABLE %s ADD COLUMN reservation_id CHAR(50)" % self.table_name)
 
-class AddingReservationIdToEntityUsedExperiment(AddingReservationIdToUserUsedExperiment):
-    
+class RemoveExternalEntityFromPermissionType(Patch):
+
+    table_name = 'PermissionType'
+
+    def check(self, cursor):
+        return cursor.execute("DESC %s ee_applicable_id" % self.table_name) == 1
+
+    def apply(self, cursor):
+        cursor.execute("ALTER TABLE %s DROP FOREIGN KEY PermissionType_ibfk_4" % self.table_name)
+        cursor.execute("ALTER TABLE %s DROP COLUMN ee_applicable_id" % self.table_name)
+
+
+class RemoveTable(Patch):
+
+    def check(self, cursor):
+        try:
+            return cursor.execute("DESC %s" % self.table_name) != 0
+        except Exception as e:
+            if 'exist' in str(e):
+                return False
+            raise
+
+    def apply(self, cursor):
+        cursor.execute("DROP TABLE %s" % self.table_name)
+
+class RemoveTable_ExternalEntityIsMemberOf(RemoveTable):
+    table_name = 'ExternalEntityIsMemberOf'
+
+class RemoveTable_ExternalEntityPermissionParameter(RemoveTable):
+    table_name = 'ExternalEntityPermissionParameter'
+
+class RemoveTable_ExternalEntityPermission(RemoveTable):
+    table_name = 'ExternalEntityPermission'
+
+class RemoveTable_ExternalEntityCommand(RemoveTable):
+    table_name = 'ExternalEntityCommand'
+
+class RemoveTable_ExternalEntityFile(RemoveTable):
+    table_name = 'ExternalEntityFile'
+
+class RemoveTable_ExternalEntityUsedExperiment(RemoveTable):
     table_name = 'ExternalEntityUsedExperiment'
+
+class RemoveTable_ExternalEntity(RemoveTable):
+    table_name = 'ExternalEntity'
+
+class RemoveTable_ExternalEntityApplicablePermissionType(RemoveTable):
+    table_name = 'ExternalEntityApplicablePermissionType'
 
 
 if __name__ == '__main__':
@@ -78,8 +121,16 @@ if __name__ == '__main__':
                                 AddingPriorityToPermissionParameterPatch, 
                                 AddingInitializationInAccountingToPermissionParameterPatch,
                                 AddingAccessForwardToPermissionsPatch,
-                                AddingReservationIdToUserUsedExperiment, 
-                                AddingReservationIdToEntityUsedExperiment
+                                AddingReservationIdToUserUsedExperiment,
+                                RemoveExternalEntityFromPermissionType,
+                                RemoveTable_ExternalEntityIsMemberOf,
+                                RemoveTable_ExternalEntityPermissionParameter,
+                                RemoveTable_ExternalEntityPermission,
+                                RemoveTable_ExternalEntityCommand,
+                                RemoveTable_ExternalEntityFile,
+                                RemoveTable_ExternalEntityUsedExperiment,
+                                RemoveTable_ExternalEntity,
+                                RemoveTable_ExternalEntityApplicablePermissionType,
                             ])
-    applier.execute()
+    applier.execute(force=True)
 

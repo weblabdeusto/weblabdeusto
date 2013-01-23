@@ -16,8 +16,6 @@ import weblab.db.model as model
 # 
 # TODO:
 # 
-#  - remove everything related to ExternalEntity
-# 
 #  - Add an 'federated' role
 # 
 #  - simplify the schema of permissions, and add support

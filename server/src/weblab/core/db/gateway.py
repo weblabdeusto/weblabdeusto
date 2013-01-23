@@ -727,9 +727,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             uu = session.query(model.DbUserUsedExperiment).all()
             for i in uu:
                 session.delete(i)
-            eu = session.query(model.DbExternalEntityUsedExperiment).all()
-            for i in eu:
-                session.delete(i)
             session.commit()
         finally:
             session.close()
@@ -757,20 +754,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
-        """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
-        session = self.Session()
-        try:
-            ee = session.query(model.DbExternalEntity).filter_by(name=ee_name).one()
-            category = session.query(model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
-            experiment = session.query(model.DbExperiment). \
-                                    filter_by(name=experiment_name). \
-                                    filter_by(category=category).one()
-            exp_use = model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
-            session.add(exp_use)
-            session.commit()
-        finally:
-            session.close()
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

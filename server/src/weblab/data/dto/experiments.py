@@ -57,7 +57,7 @@ class ExperimentUse(object):
         self.start_date = start_date
         self.end_date   = end_date
         self.experiment = experiment
-        self.agent      = agent # User or ExternalEntity
+        self.agent      = agent # user
         self.origin     = origin
         self.id         = id
 

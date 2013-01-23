@@ -59,7 +59,6 @@ def insert_required_initial_data(engine):
             'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
             user_applicable = True,
             group_applicable = True,
-            ee_applicable = True
     )
     session.add(experiment_allowed)
     experiment_allowed_p1 = Model.DbPermissionTypeParameter(experiment_allowed, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
@@ -79,7 +78,6 @@ def insert_required_initial_data(engine):
             'Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel.',
             user_applicable = True,
             group_applicable = True,
-            ee_applicable = True
     )
     session.add(admin_panel_access)
     admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
@@ -90,7 +88,6 @@ def insert_required_initial_data(engine):
             'Users with this permission will be allowed to forward reservations to other external users.',
             user_applicable = True,
             group_applicable = True,
-            ee_applicable = True
     )
     session.add(access_forward)
     session.commit()
@@ -223,10 +220,6 @@ def populate_weblab_tests(engine, tests):
 
     provider_university2 = Model.DbUser("provider2", "Provider University 2", "weblab@deusto.es", None, student)
     session.add(provider_university2)
-
-    # External Entities
-    ee1 = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
-    session.add(ee1)
 
     # Authentication
     session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))

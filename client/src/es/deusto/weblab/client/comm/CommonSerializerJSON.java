@@ -31,7 +31,6 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.PermissionParameter;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
@@ -181,16 +180,6 @@ public class CommonSerializerJSON implements ICommonSerializer {
 		return new User(login, fullName, email, role);
 	}
 
-	protected ExternalEntity parseExternalEntity(JSONObject jsonExternalEntity) throws SerializationException {
-		final int id = this.json2int(jsonExternalEntity.get("id"));
-		final String name = this.json2string(jsonExternalEntity.get("name"));
-		final String country = this.json2string(jsonExternalEntity.get("country"));
-		final String description = this.json2string(jsonExternalEntity.get("description"));
-		final String email = this.json2string(jsonExternalEntity.get("email"));
-		
-		return new ExternalEntity(id, name, country, description, email);
-	}
-	
 	protected JSONString parseResultString(String response) 
 		throws SerializationException, WebLabServerException {
 			final JSONValue result = this.parseResult(response);
