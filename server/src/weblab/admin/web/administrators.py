@@ -75,6 +75,48 @@ class AdministratorModelView(ModelView):
     def is_accessible(self):
         return AdministrationApplication.INSTANCE.is_admin()
 
+SAME_DATA = object()
+
+def show_link(klass, filter_name, field, name, view = 'View'):
+
+    instance      = klass.INSTANCE
+    url           = instance.url
+
+    link = u'<a href="%s?' % url
+
+    if isinstance(filter_name, basestring):
+        filter_numbers = [ getattr(instance, u'%s_filter_number' % filter_name) ]
+    else:
+        filter_numbers = [ getattr(instance, u'%s_filter_number' % fname) for fname in filter_name]
+
+    if isinstance(name, basestring):
+        names = [name]
+    else:
+        names = name
+
+    for pos, (filter_number, name) in enumerate(zip(filter_numbers, names)):
+        if '.' not in name:
+            data = getattr(field, name)
+        else:
+            variables = name.split('.')
+            current = field
+            data = None
+            for variable in variables:
+                current = getattr(current, variable)
+                if current is None:
+                    data = ''
+                    break
+            if data is None:
+                data = current
+        link += u'flt%s_%s=%s&' % (pos + 1, filter_number, data)
+
+    if view == SAME_DATA:
+        view = data
+
+    link = link[:-1] + u'">%s</a>' % view
+
+    return Markup(link)
+    
 
 class UsersPanel(AdministratorModelView):
 
@@ -89,9 +131,9 @@ class UsersPanel(AdministratorModelView):
     inline_models = (model.DbUserAuth,)
 
     column_formatters = dict(
-                            role   = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url,              UsersPanel.INSTANCE.role_filter_number, u.role.name, u.role.name)),
-                            groups = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (GroupsPanel.INSTANCE.url,             GroupsPanel.INSTANCE.user_filter_number, u.login, 'View')),
-                            logs   = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.user_filter_number, u.login, 'View'))
+                            role   = lambda c, u, p: show_link(UsersPanel,              'role', u, 'role.name', SAME_DATA),
+                            groups = lambda c, u, p: show_link(GroupsPanel,             'user', u, 'login'),
+                            logs   = lambda c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
                         )
 
     INSTANCE = None
@@ -115,7 +157,7 @@ class GroupsPanel(AdministratorModelView):
                     )
 
     column_formatters = dict(
-                            users = lambda c, g, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url,  UsersPanel.INSTANCE.group_filter_number, g.name, 'View')),
+                            users = lambda c, g, p: show_link(UsersPanel, 'group', g, 'name'),
                         )
 
     INSTANCE = None
@@ -141,8 +183,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address') 
 
     column_formatters = dict(
-                    user = lambda c, uue, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url, UsersPanel.INSTANCE.login_filter_number, uue.user.login if uue.user is not None else '', uue.user.login if uue.user is not None else '')),
-                    experiment = lambda c, uue, p: Markup(u'<a href="%s?flt1_%s=%s&flt2_%s=%s">%s</a>' % (ExperimentPanel.INSTANCE.url, ExperimentPanel.INSTANCE.name_filter_number, uue.experiment.name if uue.experiment is not None else '', ExperimentPanel.INSTANCE.category_filter_number, uue.experiment.category.name if uue.experiment is not None and uue.experiment.category is not None else '', uue.experiment )),
+                    user = lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
+                    experiment = lambda c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue, ('experiment.name', 'experiment.category.name'), uue.experiment ),
                 )
 
     action_disallowed_list = ['create','edit','delete']
@@ -166,7 +208,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     column_filters = ( 'name', ) 
 
     column_formatters = dict(
-                    experiments = lambda co, c, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (ExperimentPanel.INSTANCE.url, ExperimentPanel.INSTANCE.category_filter_number, c.name, 'View'))
+                    experiments = lambda co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
                 )
 
     INSTANCE = None
@@ -190,9 +232,8 @@ class ExperimentPanel(AdministratorModelView):
     column_filters = ('name','category')
 
     column_formatters = dict(
-                        category = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (ExperimentCategoryPanel.INSTANCE.url, ExperimentCategoryPanel.INSTANCE.category_filter_number, e.category.name if e.category is not None else '', e.category.name if e.category is not None else '')),
-#                        uses     = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s&flt2_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.experiment_filter_number, e.name, UserUsedExperimentPanel.INSTANCE.experiment_category_filter_number, e.category.name if e.category is not None else '', 'View')),
-                        uses     = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.experiment_filter_number, e.name, 'View')),
+                        category = lambda c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
+                        uses     = lambda c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
                 )
 
     INSTANCE = None
@@ -232,12 +273,13 @@ def display_parameters(context, permission, p):
 class UserPermissionPanel(AdministratorModelView):
 
     column_list = ('user', 'permission', 'permanent_id', 'date', 'comments')
-    column_formatters = dict( permission = display_parameters )
+    column_formatters = dict( permission = display_parameters,
+    user = lambda c, u, p: unicode(u.user) )
 
     inline_models = (model.DbUserPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"user permissions" }
+        default_args = { "category" : u"Permissions", "name" : u"User permissions" }
         default_args.update(**kwargs)
 
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **default_args)
@@ -249,10 +291,22 @@ class GroupPermissionPanel(AdministratorModelView):
     inline_models = (model.DbGroupPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"group permissions" }
+        default_args = { "category" : u"Permissions", "name" : u"Group permissions" }
         default_args.update(**kwargs)
 
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **default_args)
+
+class RolePermissionPanel(AdministratorModelView):
+
+    column_list = ('role', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters )
+    inline_models = (model.DbRolePermissionParameter,)
+
+    def __init__(self, session, **kwargs):
+        default_args = { "category" : u"Permissions", "name" : u"Role permissions" }
+        default_args.update(**kwargs)
+
+        super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **default_args)
 
 
 engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
@@ -275,6 +329,7 @@ class AdministrationApplication(object):
         self.admin.add_view(PermissionTypePanel(db_session))
         self.admin.add_view(UserPermissionPanel(db_session))
         self.admin.add_view(GroupPermissionPanel(db_session))
+        self.admin.add_view(RolePermissionPanel(db_session))
 
         self.bypass_authz = bypass_authz
 
