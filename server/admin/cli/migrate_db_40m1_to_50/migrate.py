@@ -134,6 +134,36 @@ class AddingReservationIdToUserUsedExperiment(Patch):
     def apply(self, cursor):
         cursor.execute("ALTER TABLE %s ADD COLUMN reservation_id CHAR(50)" % self.table_name)
 
+class AddingFinishReasonToUserUsedExperiment(Patch):
+
+    table_name = 'UserUsedExperiment'
+
+    def check(self, cursor):
+        return cursor.execute("DESC %s finish_reason" % self.table_name) == 0
+
+    def apply(self, cursor):
+        cursor.execute("ALTER TABLE %s ADD COLUMN finish_reason Integer" % self.table_name)
+
+class AddingMaxErrorInMillisToUserUsedExperiment(Patch):
+
+    table_name = 'UserUsedExperiment'
+
+    def check(self, cursor):
+        return cursor.execute("DESC %s max_error_in_millis" % self.table_name) == 0
+
+    def apply(self, cursor):
+        cursor.execute("ALTER TABLE %s ADD COLUMN max_error_in_millis Integer" % self.table_name)
+
+class AddingPermissionIdToUserUsedExperiment(Patch):
+
+    table_name = 'UserUsedExperiment'
+
+    def check(self, cursor):
+        return cursor.execute("DESC %s permission_permanent_id" % self.table_name) == 0
+
+    def apply(self, cursor):
+        cursor.execute("ALTER TABLE %s ADD COLUMN permission_permanent_id Integer" % self.table_name)
+
 class RemoveExternalEntityFromPermissionType(Patch):
 
     table_name = 'PermissionType'
@@ -195,7 +225,7 @@ class RemoveTable_ExternalEntityApplicablePermissionType(RemoveTable):
 
 
 if __name__ == '__main__':
-    applier = PatchApplier("weblab", "weblab", "WebLabTests", [
+    applier = PatchApplier("weblab", "weblab", ["WebLabTests", "WebLabTests2", "WebLabTests3"], [
                                 AddingPriorityToPermissionParameterPatch, 
                                 AddingInitializationInAccountingToPermissionParameterPatch,
                                 AddingAccessForwardToPermissionsPatch,
@@ -203,6 +233,9 @@ if __name__ == '__main__':
                                 AddingFederationRole,
                                 AddingAdminPanelToAdministratorsPatch,
                                 AddingAccessForwardToFederatedPatch,
+                                AddingFinishReasonToUserUsedExperiment,
+                                AddingMaxErrorInMillisToUserUsedExperiment,
+                                AddingPermissionIdToUserUsedExperiment,
                                 RemoveExternalEntityFromPermissionType,
                                 RemoveTable_ExternalEntityIsMemberOf,
                                 RemoveTable_ExternalEntityPermissionParameter,

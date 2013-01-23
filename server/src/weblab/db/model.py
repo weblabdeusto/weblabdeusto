@@ -348,21 +348,25 @@ class DbUserUsedExperiment(Base):
     __tablename__  = 'UserUsedExperiment'
     __table_args__ = (TABLE_KWARGS)
 
-    id               = Column(Integer, primary_key = True)
-    user_id          = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    start_date       = Column(DateTime, nullable = False)
-    start_date_micro = Column(Integer, nullable = False)
-    end_date         = Column(DateTime)
-    end_date_micro   = Column(Integer)
-    origin           = Column(String(255), nullable = False)
-    coord_address    = Column(String(255), nullable = False)
-    reservation_id   = Column(String(50), index = True)
+    id                      = Column(Integer, primary_key = True)
+    user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
+    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    start_date              = Column(DateTime, nullable = False)
+    start_date_micro        = Column(Integer, nullable = False)
+    end_date                = Column(DateTime)
+    end_date_micro          = Column(Integer)
+    # TODO: use these new two fields
+    max_error_in_millis     = Column(Integer, nullable = True)
+    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler
+    permission_permanent_id = Column(String(255), nullable = True)
+    origin                  = Column(String(255), nullable = False)
+    coord_address           = Column(String(255), nullable = False)
+    reservation_id          = Column(String(50), index = True)
 
     user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
     experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
 
-    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date):
+    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None):
         super(DbUserUsedExperiment, self).__init__()
         link_relation(self, user, "user")
         link_relation(self, experiment, "experiment")
@@ -371,6 +375,9 @@ class DbUserUsedExperiment(Base):
         self.origin = origin
         self.coord_address = coord_address
         self.reservation_id = reservation_id
+        self.max_error_in_millis = max_error_in_millis
+        self.finish_reason       = finish_reason
+        self.permission_permanent_id = permission_permanent_id
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
