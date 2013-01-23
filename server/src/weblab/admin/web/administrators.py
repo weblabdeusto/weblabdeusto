@@ -75,6 +75,20 @@ class AdministratorModelView(ModelView):
     def is_accessible(self):
         return AdministrationApplication.INSTANCE.is_admin()
 
+    # 
+    # TODO XXX FIXME: This may be a bug. However, whenever this is commented,
+    # Flask-Admin does this:
+    #
+    #       # Auto join
+    #       for j in self._auto_joins:
+    #                   query = query.options(subqueryload(j))
+    # 
+    # And some (weird) results in UserUsedExperiment are not shown, while other yes
+    # 
+
+    def scaffold_auto_joins(self):
+        return []
+
 SAME_DATA = object()
 
 def show_link(klass, filter_name, field, name, view = 'View'):

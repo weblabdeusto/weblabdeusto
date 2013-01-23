@@ -638,15 +638,15 @@ class DbUserPermission(Base):
     __tablename__  = 'UserPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                            = Column(Integer, primary_key = True)
-    user_id                       = Column(Integer, ForeignKey("User.id"), nullable = False)
-    permission_type_id            = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
-    permanent_id                  = Column(String(255), nullable = False)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
+    id                 = Column(Integer, primary_key = True)
+    user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
+    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permanent_id       = Column(String(255), nullable = False)
+    date               = Column(DateTime, nullable = False)
+    comments           = Column(Text)
 
-    user            = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    permission_type = relation("DbPermissionType", backref=backref("user_permissions", order_by=id, cascade='all,delete'))
+    user               = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type    = relation("DbPermissionType", backref=backref("user_permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, user, permission_type, permanent_id, date, comments=None):
         super(DbUserPermission, self).__init__()
