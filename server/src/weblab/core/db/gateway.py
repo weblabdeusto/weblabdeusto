@@ -665,11 +665,26 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         except NoResultFound:
             raise DbErrors.DbProvidedExperimentNotFoundError("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
 
+    def _gather_groups_permissions(self, session, group, permission_type_name, permissions, remaining_list):
+        if group.id in remaining_list:
+            return
+
+        remaining_list.append(group.id)
+        self._add_or_replace_permissions(permissions, self._get_permissions(session, group, permission_type_name))
+        
+        if group.parent is not None:
+            self._gather_groups_permissions(session, group.parent, permission_type_name, permissions, remaining_list)
+        
+        
+
     def _gather_permissions(self, session, user, permission_type_name):
         permissions = []
         self._add_or_replace_permissions(permissions, self._get_permissions(session, user.role, permission_type_name))
+
+        remaining_list = []
         for group in user.groups:
-            self._add_or_replace_permissions(permissions, self._get_permissions(session, group, permission_type_name))
+            self._gather_groups_permissions(session, group, permission_type_name, permissions, remaining_list)
+
         self._add_or_replace_permissions(permissions, self._get_permissions(session, user, permission_type_name))
         return permissions
 
