@@ -21,37 +21,6 @@ import weblab.db.model as Model
 
 class ModelTestCase(unittest.TestCase):
 
-    def test_link_relation(self):
-
-        class EntityA(object):
-            def __init__(self):
-                self.b = None
-                self.b_id = None
-                self.b_fk = None
-
-        class EntityB(object):
-            def __init__(self, id=None):
-                self.id = id
-
-        # Linking b to a.b not having b being persisted
-        a = EntityA()
-        b = EntityB()
-        Model.link_relation(a, b, "b")
-        self.assertEquals(a.b, b)
-
-        # Linking b to a.b having b being persisted (specific fkfield)
-        a = EntityA()
-        b = EntityB(3)
-        Model.link_relation(a, b, "b", "bfk")
-        self.assertEquals(getattr(a, "bfk"), b.id)
-
-        # Linking b to a.b having b being persisted (default fkfield)
-        a = EntityA()
-        b = EntityB(3)
-        Model.link_relation(a, b, "b")
-        self.assertEquals(a.b_id, b.id)
-
-
     def test_model(self):
 
         #

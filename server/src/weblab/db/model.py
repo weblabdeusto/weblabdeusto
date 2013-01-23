@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo@ordunya.com>
 #
 
 import datetime
@@ -40,21 +41,6 @@ from weblab.data.dto.experiments import ExperimentUse
 Base = declarative_base()
 
 TABLE_KWARGS = get_table_kwargs()
-
-def link_relation(entity, object_to_link, relation_attr, fk_field=None):
-    """
-    Links a ForeignKey field with an object.
-    If the object has already been inserted, only the ForeignKey field is linked.
-    If the object has not already been inserted, the relation is linked so as to force the insert.
-    Convention: if no fk_field is provided, its name will be suposed to be exactly as the relation_attr followed by '_id'.
-    """
-    if ( object_to_link is not None ) and ( object_to_link.id is not None ):
-        if fk_field is not None:
-            setattr(entity, fk_field, object_to_link.id)
-        else:
-            setattr(entity, relation_attr+"_id", object_to_link.id)
-    else:
-        setattr(entity, relation_attr, object_to_link)
 
 
 ##############################################################################
@@ -115,7 +101,7 @@ class DbUser(Base):
         self.full_name = full_name
         self.email = email
         self.avatar = avatar
-        link_relation(self, role, "role")
+        self.role = role
 
     def __repr__(self):
         user_repr = "DbUser(id = %r, login = %r, full_name = %r, email = %r, avatar = %r, role = %r)" % (
@@ -172,7 +158,7 @@ class DbAuth(Base):
 
     def __init__(self, auth_type, name, priority, configuration=None):
         super(DbAuth, self).__init__()
-        link_relation(self, auth_type, "auth_type")
+        self.auth_type = auth_type
         self.name = name
         self.priority = priority
         self.configuration = configuration
@@ -210,8 +196,8 @@ class DbUserAuth(Base):
 
     def __init__(self, user, auth, configuration=None):
         super(DbUserAuth, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, auth, "auth")
+        self.user = user
+        self.auth = auth
         self.configuration = configuration
 
     def __repr__(self):
@@ -245,8 +231,8 @@ class DbGroup(Base):
 
     def __init__(self, name, parent=None):
         super(DbGroup, self).__init__()
-        self.name = name
-        link_relation(self, parent, "parent")
+        self.name   = name
+        self.parent = parent
 
     def __repr__(self):
         if self.parent is None:
@@ -311,7 +297,7 @@ class DbExperiment(Base):
     def __init__(self, name, category, start_date, end_date):
         super(DbExperiment, self).__init__()
         self.name = name
-        link_relation(self, category, "category")
+        self.category = category
         self.start_date = start_date
         self.end_date = end_date
 
@@ -368,8 +354,8 @@ class DbUserUsedExperiment(Base):
 
     def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None):
         super(DbUserUsedExperiment, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, experiment, "experiment")
+        self.user = user
+        self.experiment = experiment
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
         self.set_end_date(end_date)
         self.origin = origin
@@ -494,7 +480,7 @@ class DbUserFile(Base):
 
     def __init__(self, experiment_use, file_sent, file_hash, timestamp_before, file_info=None, response=None, timestamp_after=None):
         super(DbUserFile, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
+        self.experiment_use = experiment_use
         self.file_sent = file_sent
         self.file_hash = file_hash
         self.file_info = file_info
@@ -547,7 +533,7 @@ class DbUserCommand(Base):
 
     def __init__(self, experiment_use, command, timestamp_before, response=None, timestamp_after=None):
         super(DbUserCommand, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
+        self.experiment_use = experiment_use
         self.command = command
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
@@ -631,7 +617,7 @@ class DbPermissionTypeParameter(Base):
 
     def __init__(self, permission_type, name, datatype, description):
         super(DbPermissionTypeParameter, self).__init__()
-        link_relation(self, permission_type, "permission_type")
+        self.permission_type = permission_type
         self.name = name
         self.datatype = datatype
         self.description = description
@@ -664,8 +650,8 @@ class DbUserPermission(Base):
 
     def __init__(self, user, permission_type, permanent_id, date, comments=None):
         super(DbUserPermission, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, permission_type, "permission_type") 
+        self.user = user
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
@@ -709,8 +695,8 @@ class DbUserPermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbUserPermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
@@ -750,8 +736,8 @@ class DbRolePermission(Base):
 
     def __init__(self, role, permission_type, permanent_id, date, comments=None):
         super(DbRolePermission, self).__init__()
-        link_relation(self, role, "role")
-        link_relation(self, permission_type, "permission_type")
+        self.role = role
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
@@ -795,8 +781,8 @@ class DbRolePermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbRolePermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
@@ -837,8 +823,8 @@ class DbGroupPermission(Base):
 
     def __init__(self, group, permission_type, permanent_id, date, comments=None):
         super(DbGroupPermission, self).__init__()
-        link_relation(self, group, "group")
-        link_relation(self, permission_type, "permission_type")
+        self.group = group
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
@@ -882,8 +868,8 @@ class DbGroupPermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbGroupPermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
