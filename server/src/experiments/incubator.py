@@ -15,6 +15,7 @@
 
 import os
 import re
+import sys
 import json
 import time
 import random
@@ -33,7 +34,7 @@ WEBCAMS_INFO             = 'webcams_info'
 CONTROLLER_ADDRESS       = 'controller_address'
 HISTORIC_DIRECTORY       = 'historic_directory'
 LIGHT_BOOTSTRAPPING_TIME = 'light_bootstrapping_time' # How long does the light need to turn on
-PUBLIC_PATH              = 'incubator_path'
+PUBLIC_PATH              = 'public_path'
 
 # Debugging variables
 FAKE_CONTROLLER    = 'fake_controller'
@@ -113,6 +114,13 @@ class StatusManager(threading.Thread):
         # Start with all the lights off
         self.turn_light('all','off')
 
+        self.dbg('StatusManager initialized')
+
+    def dbg(self, msg):
+        if self._verbose:
+            print "[incubator] %s" % msg
+            sys.stdout.flush()
+
     def get_status_str(self):
 
         self.update_temperature()
@@ -170,8 +178,7 @@ class StatusManager(threading.Thread):
 
         url = 'http://%s%s' % (self._address, location)
 
-        if self._verbose:
-            print "%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url)
+        self.dbg("%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url))
         if self._fake:
             print "Request to %s faked" % location
             return None
@@ -191,8 +198,7 @@ class StatusManager(threading.Thread):
 
         url = 'http://%s%s' % (self._address, location)
 
-        if self._verbose:
-            print "%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url)
+        self.dbg("%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url))
         if self._fake:
             print "Request to %s faked" % location
             return 'OK:%s' % str(random.random() - 100)
@@ -267,6 +273,7 @@ class StatusManager(threading.Thread):
                         formatted = '%s:%s' % (hours.zfill(2), minutes.zfill(2))
                         public_path = '%s/%s/%s/%s/%s/%s' % (self._public_path, year, month, day, light, f)
                         current_data.append( (formatted, public_path) )
+            current_data.sort(lambda (x1, x2), (y1, y2) : cmp(x1,y1))
         
         return data
 
@@ -274,6 +281,7 @@ class StatusManager(threading.Thread):
         self.turn_light('all', 'on')
         time.sleep(self._light_time)
 
+        self.dbg("Storing picture")
         self._store_picture()
 
         self.turn_light('all', 'off')
@@ -281,18 +289,26 @@ class StatusManager(threading.Thread):
     def run(self):
         if self._dir is None:
             # If the directory is None, don't take historic data
+            self.dbg("%s is None" % HISTORIC_DIRECTORY)
             return
 
+        self.dbg("Historic thread started")
         while True:
-            now = datetime.datetime.now()
-            # Sleep until next hour (61: make sure it's passed)
-            next_minute = 61 - now.second
-            if self._fake_next_hour:
-                next_hour = next_minute
-            else:
-                next_hour = 60 * 59 - now.minute + next_minute
-            time.sleep(next_hour)
-            self._take_historic()
+            try:
+                now = datetime.datetime.now()
+                # Sleep until next hour (61: make sure it's passed)
+                next_minute = 61 - now.second
+                if self._fake_next_hour:
+                    next_hour = next_minute
+                else:
+                    next_hour = 60 * (59 - now.minute) + next_minute
+                self.dbg("Sleeping %s seconds" % next_hour)
+                time.sleep(next_hour)
+                self.dbg("Awake! taking historic data")
+                self._take_historic()
+            except Exception as e:
+                self.dbg("There was an error: %s" % e)
+                traceback.print_exc()
 
 
 ################################################################################
