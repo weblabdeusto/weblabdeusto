@@ -29,6 +29,9 @@ def insert_required_initial_data(engine):
     session = session()
 
     # Roles
+    federated = Model.DbRole("federated")
+    session.add(federated)
+
     administrator = Model.DbRole("administrator")
     session.add(administrator)
 
@@ -51,7 +54,6 @@ def insert_required_initial_data(engine):
 
     weblab_db = Model.DbAuth(db, "WebLab DB", 1)
     session.add(weblab_db)
-
     session.commit()
 
     experiment_allowed = Model.DbPermissionType(
@@ -59,6 +61,7 @@ def insert_required_initial_data(engine):
             'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
             user_applicable = True,
             group_applicable = True,
+            role_applicable = True,
     )
     session.add(experiment_allowed)
     experiment_allowed_p1 = Model.DbPermissionTypeParameter(experiment_allowed, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
@@ -71,13 +74,15 @@ def insert_required_initial_data(engine):
     session.add(experiment_allowed_p4)
     experiment_allowed_p5 = Model.DbPermissionTypeParameter(experiment_allowed, 'initialization_in_accounting', 'bool', 'time_allowed, should count with the initialization time or not?')
     session.add(experiment_allowed_p5)
-    session.commit()    
     
+    session.commit()
+
     admin_panel_access = Model.DbPermissionType(
             'admin_panel_access',
             'Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel.',
             user_applicable = True,
             group_applicable = True,
+            role_applicable = True,
     )
     session.add(admin_panel_access)
     admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
@@ -88,8 +93,34 @@ def insert_required_initial_data(engine):
             'Users with this permission will be allowed to forward reservations to other external users.',
             user_applicable = True,
             group_applicable = True,
+            role_applicable = True,
     )
     session.add(access_forward)
+
+    session.commit()
+
+    federated_access_forward = Model.DbRolePermission(
+        federated,
+        access_forward.role_applicable,
+        "federated_role::access_forward",
+        datetime.datetime.utcnow(),
+        "Access to forward external accesses to all users with role 'federated'"
+    )
+    session.add(federated_access_forward)
+
+    session.commit()
+
+    administrator_admin_panel_access = Model.DbRolePermission(
+        administrator,
+        admin_panel_access.role_applicable,
+        "administrator_role::admin_panel_access",
+        datetime.datetime.utcnow(),
+        "Access to the admin panel for administrator role with full_privileges"
+    )
+    session.add(administrator_admin_panel_access)
+    administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, admin_panel_access_p1, True)
+    session.add(administrator_admin_panel_access_p1)
+
     session.commit()
 
 
@@ -138,6 +169,7 @@ def populate_weblab_tests(engine, tests):
     administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
     professor     = session.query(Model.DbRole).filter_by(name='professor').one()
     student       = session.query(Model.DbRole).filter_by(name='student').one()
+    federated     = session.query(Model.DbRole).filter_by(name='federated').one()
 
     # Users
     admin1 = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, administrator)
@@ -200,25 +232,25 @@ def populate_weblab_tests(engine, tests):
     studentLDAPwithoutUserAuth = Model.DbUser("studentLDAPwithoutUserAuth", "Name of student LDAPwithoutUserAuth", "weblab@deusto.es", None, student)
     session.add(studentLDAPwithoutUserAuth)
 
-    fed_student1 = Model.DbUser("fedstudent1", "Name of federated student 1", "weblab@deusto.es", None, student)
+    fed_student1 = Model.DbUser("fedstudent1", "Name of federated student 1", "weblab@deusto.es", None, federated)
     session.add(fed_student1)
 
-    fed_student2 = Model.DbUser("fedstudent2", "Name of federated student 2", "weblab@deusto.es", None, student)
+    fed_student2 = Model.DbUser("fedstudent2", "Name of federated student 2", "weblab@deusto.es", None, federated)
     session.add(fed_student2)
 
-    fed_student3 = Model.DbUser("fedstudent3", "Name of federated student 3", "weblab@deusto.es", None, student)
+    fed_student3 = Model.DbUser("fedstudent3", "Name of federated student 3", "weblab@deusto.es", None, federated)
     session.add(fed_student3)
 
-    fed_student4 = Model.DbUser("fedstudent4", "Name of federated student 4", "weblab@deusto.es", None, student)
+    fed_student4 = Model.DbUser("fedstudent4", "Name of federated student 4", "weblab@deusto.es", None, federated)
     session.add(fed_student4)
 
-    consumer_university1 = Model.DbUser("consumer1", "Consumer University 1", "weblab@deusto.es", None, student)
+    consumer_university1 = Model.DbUser("consumer1", "Consumer University 1", "weblab@deusto.es", None, federated)
     session.add(consumer_university1)
 
-    provider_university1 = Model.DbUser("provider1", "Provider University 1", "weblab@deusto.es", None, student)
+    provider_university1 = Model.DbUser("provider1", "Provider University 1", "weblab@deusto.es", None, federated)
     session.add(provider_university1)
 
-    provider_university2 = Model.DbUser("provider2", "Provider University 2", "weblab@deusto.es", None, student)
+    provider_university2 = Model.DbUser("provider2", "Provider University 2", "weblab@deusto.es", None, federated)
     session.add(provider_university2)
 
     # Authentication
@@ -260,34 +292,6 @@ def populate_weblab_tests(engine, tests):
     group_federated.users.append(provider_university1)
     group_federated.users.append(provider_university2)
     session.add(group_federated)
-
-    up_consumer1_access_forward = Model.DbUserPermission(
-        consumer_university1,
-        access_forward.user_applicable,
-        "consumer_university1::access_forward",
-        datetime.datetime.utcnow(),
-        "Access to forward external accesses to consumer_university1"
-    )
-    session.add(up_consumer1_access_forward)
-
-    up_provider1_access_forward = Model.DbUserPermission(
-        provider_university1,
-        access_forward.user_applicable,
-        "provider_university1::access_forward",
-        datetime.datetime.utcnow(),
-        "Access to forward external accesses to provider_university1"
-    )
-    session.add(up_provider1_access_forward)
-
-    up_provider2_access_forward = Model.DbUserPermission(
-        provider_university2,
-        access_forward.user_applicable,
-        "provider_university2::access_forward",
-        datetime.datetime.utcnow(),
-        "Access to forward external accesses to provider_university2"
-    )
-    session.add(up_provider2_access_forward)
-
 
     groupCourse0809 = Model.DbGroup("Course 2008/09")
     groupCourse0809.users.append(student1)

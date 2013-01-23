@@ -18,6 +18,7 @@ import weblab.db.model as Model
 # in case the patch had not been applied.
 # 
 class Patch(object):
+    ABSTRACT = False
     SQL_FORMAT   = 'SQL'
     SQLALCHEMY_FORMAT = 'sqlalchemy'
 
@@ -89,7 +90,7 @@ class PatchApplier(object):
 
     def execute(self, force = False):
         for klass in Patch.__subclasses__():
-            if not klass in self.order:
+            if not klass.ABSTRACT and not klass in self.order:
                 print "WARNING: Class %s not found in provided order: " % klass.__name__,
                 if force:
                     print "[skipped]"

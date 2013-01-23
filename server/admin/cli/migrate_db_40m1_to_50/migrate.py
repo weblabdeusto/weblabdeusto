@@ -1,3 +1,4 @@
+import datetime
 from migrationlib import Patch, PatchApplier
 
 import weblab.db.model as Model
@@ -56,6 +57,73 @@ class AddingAccessForwardToPermissionsPatch(Patch):
         permission_type = Model.DbPermissionType('access_forward',"Users with this permission will be allowed to forward reservations to other external users.", user_applicable_permission, role_applicable_permission, group_applicable_permission, ee_applicable_permission)
         session.add(permission_type)
 
+
+class AddingFederationRole(Patch):
+
+    CHECK_FORMAT = Patch.SQLALCHEMY_FORMAT
+    APPLY_FORMAT = Patch.SQLALCHEMY_FORMAT
+
+    def check(self, session):
+        return session.query(Model.DbRole).filter_by(name = 'federated').first() is None
+
+    def apply(self, session):
+        federated = Model.DbRole("federated")
+        session.add(federated)
+
+
+class AddingAccessForwardToFederatedPatch(Patch):
+
+    CHECK_FORMAT = Patch.SQLALCHEMY_FORMAT
+    APPLY_FORMAT = Patch.SQLALCHEMY_FORMAT
+
+    def check(self, session):
+        return session.query(Model.DbRolePermission).filter_by(permanent_id = 'federated_role::access_forward').first() is None
+
+    def apply(self, session):
+        federated = session.query(Model.DbRole).filter_by(name='federated').one()
+
+        access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
+        role_applicable_permission  = Model.DbRoleApplicablePermissionType()
+        access_forward.role_applicable = role_applicable_permission
+
+        federated_access_forward = Model.DbRolePermission(
+            federated,
+            access_forward.role_applicable,
+            "federated_role::access_forward",
+            datetime.datetime.utcnow(),
+            "Access to forward external accesses to all users with role 'federated'"
+        )
+        session.add(federated_access_forward)
+
+class AddingAdminPanelToAdministratorsPatch(Patch):
+
+    CHECK_FORMAT = Patch.SQLALCHEMY_FORMAT
+    APPLY_FORMAT = Patch.SQLALCHEMY_FORMAT
+
+    def check(self, session):
+        return session.query(Model.DbRolePermission).filter_by(permanent_id = 'administrator_role::admin_panel_access').first() is None
+
+    def apply(self, session):
+        administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
+
+        admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
+        admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
+
+        role_applicable_permission  = Model.DbRoleApplicablePermissionType()
+        admin_panel_access.role_applicable = role_applicable_permission
+
+        administrator_admin_panel_access = Model.DbRolePermission(
+            administrator,
+            admin_panel_access.role_applicable,
+            "administrator_role::admin_panel_access",
+            datetime.datetime.utcnow(),
+            "Access to the admin panel for administrator role with full_privileges"
+        )
+        session.add(administrator_admin_panel_access)
+        administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, admin_panel_access_p1, True)
+        session.add(administrator_admin_panel_access_p1)
+
+
 class AddingReservationIdToUserUsedExperiment(Patch):
 
     table_name = 'UserUsedExperiment'
@@ -80,6 +148,8 @@ class RemoveExternalEntityFromPermissionType(Patch):
 
 class RemoveTable(Patch):
 
+    ABSTRACT = True
+
     def check(self, cursor):
         try:
             return cursor.execute("DESC %s" % self.table_name) != 0
@@ -92,27 +162,35 @@ class RemoveTable(Patch):
         cursor.execute("DROP TABLE %s" % self.table_name)
 
 class RemoveTable_ExternalEntityIsMemberOf(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityIsMemberOf'
 
 class RemoveTable_ExternalEntityPermissionParameter(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityPermissionParameter'
 
 class RemoveTable_ExternalEntityPermission(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityPermission'
 
 class RemoveTable_ExternalEntityCommand(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityCommand'
 
 class RemoveTable_ExternalEntityFile(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityFile'
 
 class RemoveTable_ExternalEntityUsedExperiment(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityUsedExperiment'
 
 class RemoveTable_ExternalEntity(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntity'
 
 class RemoveTable_ExternalEntityApplicablePermissionType(RemoveTable):
+    ABSTRACT = False
     table_name = 'ExternalEntityApplicablePermissionType'
 
 
@@ -122,6 +200,9 @@ if __name__ == '__main__':
                                 AddingInitializationInAccountingToPermissionParameterPatch,
                                 AddingAccessForwardToPermissionsPatch,
                                 AddingReservationIdToUserUsedExperiment,
+                                AddingFederationRole,
+                                AddingAdminPanelToAdministratorsPatch,
+                                AddingAccessForwardToFederatedPatch,
                                 RemoveExternalEntityFromPermissionType,
                                 RemoveTable_ExternalEntityIsMemberOf,
                                 RemoveTable_ExternalEntityPermissionParameter,
@@ -132,5 +213,5 @@ if __name__ == '__main__':
                                 RemoveTable_ExternalEntity,
                                 RemoveTable_ExternalEntityApplicablePermissionType,
                             ])
-    applier.execute(force=True)
+    applier.execute()
 

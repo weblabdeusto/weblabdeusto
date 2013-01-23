@@ -683,11 +683,12 @@ class UserProcessingServerTestCase(unittest.TestCase):
         roles = self.ups.get_roles(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(3, len(roles) )
+        self.assertEquals(4, len(roles) )
         role_names = list( role.name for role in roles )
         self.assertTrue( 'student' in role_names )
         self.assertTrue( 'professor' in role_names )
         self.assertTrue( 'administrator' in role_names )
+        self.assertTrue( 'federated' in role_names )
 
     def test_get_roles_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
