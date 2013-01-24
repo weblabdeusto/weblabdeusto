@@ -152,6 +152,7 @@ class UserProcessor(object):
         reservation_info['user_agent']     = context.get_user_agent()
         reservation_info['referer']        = context.get_referer()
         reservation_info['mobile']         = context.is_mobile()
+        reservation_info['locale']         = context.get_locale()
         reservation_info['facebook']       = context.is_facebook()
         reservation_info['route']          = self._server_route or 'no-route-found'
         reservation_info['from_ip']        = client_address.client_address

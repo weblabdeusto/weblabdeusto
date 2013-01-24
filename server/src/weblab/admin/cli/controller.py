@@ -49,6 +49,7 @@ class Controller(object):
                 print >> sys.stderr, "Could not file configuration file", configuration_file
                 sys.exit(1)
 
+            globals()['CURRENT_PATH'] = configuration_file
             execfile(configuration_file, globals(), globals())
 
         global_vars = globals()
@@ -608,10 +609,10 @@ class Controller(object):
                     if( user.login in user_pwds ):
                         pwd = user_pwds[user.login]
                         self.ui.notify_begin("Sending email to %s..." % user.email)
-                        smtp.send(fromm, (user.email,) + bcc, subject, text % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd})
+                        smtp.send(fromm, (user.email,) + bcc, subject, (text.decode('utf-8') % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd}).encode('utf-8'))
                         self.ui.notify_end("done.")
                     else:
-                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file", user.login)
+                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file" % user.login)
             else:
                 self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()

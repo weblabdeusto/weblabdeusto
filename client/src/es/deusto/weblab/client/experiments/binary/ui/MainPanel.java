@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
@@ -46,6 +47,7 @@ class MainPanel extends Composite {
 	// GWT UiBinder stuff
 	interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
 	private static MainPanelUiBinder uiBinder = GWT.create(MainPanelUiBinder.class);
+	private static IWebLabI18N i18n = GWT.create(IWebLabI18N.class);
 	
 	// Mapped fields
 	@UiField WlWebcam camera;
@@ -77,7 +79,7 @@ class MainPanel extends Composite {
 	}
 	
 	void loadButtons() {
-		this.messages.setText("Select a code:");
+		this.messages.setText(i18n.selectACode());
 		this.contentPanel.clear();
 		
 		for (int i = 0; i < this.labels.length; ++i) {
@@ -168,7 +170,7 @@ class MainPanel extends Composite {
 	}
 	
 	private void disableButtons(String label) {
-		this.messages.setText("Loading " + label + "...");
+		this.messages.setText(i18n.loading(label) + "...");
 		for(Button b : this.buttons)
 			b.setEnabled(false);
 	}

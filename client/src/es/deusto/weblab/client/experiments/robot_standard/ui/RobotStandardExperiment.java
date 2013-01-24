@@ -89,7 +89,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 		public void onFailure(CommException e) {
 			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
 			RobotStandardExperiment.this.messages.stop();
-			setMessage("Failed: " + e.getMessage());
+			setMessage(i18n.failed(e.getMessage()));
 		}
 		
 		@Override
@@ -97,9 +97,9 @@ public class RobotStandardExperiment extends ExperimentBase {
 			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
 			RobotStandardExperiment.this.messages.stop();
 			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
-				setMessage("The program is being executed in the bot");
+				setMessage(i18n.theProgramIsBeingExecutedInTheBot());
 			}else{
-				setMessage("There was an error: <" + responseCommand.getCommandString() + ">");
+				setMessage(i18n.thereWasAnError(responseCommand.getCommandString()));
 			}
 		}
 	};
@@ -182,7 +182,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 			this.uploadButton.setVisible(false);
 		    this.uploadStructure.getFormPanel().setVisible(false);
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
-		    this.setMessage("Sending program");
+		    this.setMessage(i18n.sendingFile());
 		    this.messages.start();
 		    this.sendGetConfigurationCommand();
 		} else {

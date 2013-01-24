@@ -457,6 +457,9 @@ class PriorityQueueScheduler(Scheduler):
                     concrete_current_reservation.set_timestamp_before(self.time_provider.get_time())
 
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
+                    request_info = json.loads(first_waiting_reservation.reservation.request_info)
+                    username     = request_info.get('username')
+                    locale       = request_info.get('locale')
 
                     reservation_id = first_waiting_reservation.reservation_id
                     if reservation_id is None:
@@ -512,6 +515,9 @@ class PriorityQueueScheduler(Scheduler):
                                 'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                                 'request.experiment_id.experiment_name'            : experiment_instance_id.exp_name,
                                 'request.experiment_id.category_name'              : experiment_instance_id.cat_name,
+                                'request.username'                                 : username,
+                                'request.full_name'                                : username,
+                                'request.locale'                                   : locale,
                             }
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".

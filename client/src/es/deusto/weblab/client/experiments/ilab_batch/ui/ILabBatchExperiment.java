@@ -50,14 +50,16 @@ public class ILabBatchExperiment extends ExperimentBase {
 			final String labServerId   = this.configurationRetriever.getProperty("lab_server_id");
 			final String serviceBroker = WebLabClient.baseLocation + this.configurationRetriever.getProperty("service_broker", "/weblab/web/ilab/");
 			
-			createJavaScriptCode(this.html.getElement(), archive, code, 1, 1, serviceBroker, labServerId);
+			final String message = i18n.thisLaboratoryIsManagedByJavaAppletILAB();
+			
+			createJavaScriptCode(this.html.getElement(), archive, code, 1, 1, serviceBroker, labServerId, message);
 		}catch(ConfigurationException ce){
 			this.html.setHTML("Error in configuration: " + ce.getMessage());
 		}
 	}	
 	
-    private static native void createJavaScriptCode(Element element, String archive, String code, int width, int height, String serviceBroker, String labServerId) /*-{
-		element.innerHTML = "<div width=\"100%\"><center>This laboratory is managed by a Java applet that will pop up.</center></div><br/>" +
+    private static native void createJavaScriptCode(Element element, String archive, String code, int width, int height, String serviceBroker, String labServerId, String message) /*-{
+		element.innerHTML = "<div width=\"100%\"><center>" + message + "</center></div><br/>" +
 	    	"<applet archive='" + archive + "' " + 
 	    		"code='" + code + "' " + 
 	    		"width='" + width + "' " +  

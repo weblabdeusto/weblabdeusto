@@ -23,6 +23,7 @@ recommended to use virtualenv first to create a user-level environment.
 import os
 import shutil
 from setuptools import setup
+from setuptools.command.build_py import build_py as _build_py
 
 # TODO: in the weblab-admin script, choose between the absolute directory
 # to the source code and sys.prefix
@@ -42,34 +43,46 @@ def fullsplit(path, result=None):
         return result
     return fullsplit(head, [tail] + result)
 
-##########################################################
-# 
-# 
-#       S O A P     S T U B S  ( O P T I O N A L )
-# 
-# 
+def _build_requirements():
+    ##########################################################
+    # 
+    # 
+    #       S O A P     S T U B S  ( O P T I O N A L )
+    # 
+    # 
 
-import weblab.comm.util as comm_util
-comm_util.deploy_stubs()
+    import weblab.comm.util as comm_util
+    comm_util.deploy_stubs()
 
-##########################################################
-#
-# 
-#       C L I E N T 
-# 
-# 
+    ##########################################################
+    #
+    # 
+    #       C L I E N T 
+    # 
+    # 
 
-CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
-WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
-from weblab.admin.client_deploy import compile_client
-compile_client(WAR_LOCATION, CLIENT_LOCATION)
+    CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
+    WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
+    from weblab.admin.client_deploy import compile_client
+    compile_client(WAR_LOCATION, CLIENT_LOCATION)
 
-# In any case, the client was compiled in the past or just now. Let's copy it here.
-print "Copying...",
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
-shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
-shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
-print "[done]"
+    # In any case, the client was compiled in the past or just now. Let's copy it here.
+    print "Copying...",
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war'), True)
+    shutil.copytree(WAR_LOCATION, os.path.join('weblabdeusto_data', 'war'))
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
+    print "[done]"
+
+class WebLabBuild(_build_py):
+    def run(self):
+        if not self.dry_run:
+            _build_requirements()
+            lib_war = os.path.join(self.build_lib, 'weblabdeusto_data', 'war')
+            if os.path.exists(lib_war):
+                shutil.rmtree(lib_war)
+            shutil.copytree(os.path.join('weblabdeusto_data', 'war'), lib_war)
+        _build_py.run(self)
+
 
 ##########################################################
 #
@@ -113,9 +126,17 @@ for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): 
             del dirnames[i]
-
-    if len(filenames) > 0:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+    
+    # In the war directory, don't take into account whatever we have now, but whatever has been
+    # compiled and will be copied. Otherwise, there will be problems when a compilation has been
+    # made.
+    if dirpath.startswith(os.path.join('weblabdeusto_data','war')):
+        newdir = dirpath.replace(os.path.join('weblabdeusto_data','war'), os.path.join('..','..','client','war'))
+        filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
+        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
+    else:
+        if len(filenames) > 0:
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 ##########################################################
 #
@@ -166,6 +187,7 @@ setup(name='weblabdeusto',
       version='5.0',
       description="WebLab-Deusto Remote Laboratory Management System",
       classifiers=classifiers,
+      cmdclass = { 'build_py' : WebLabBuild },
       author='WebLab-Deusto Team',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',

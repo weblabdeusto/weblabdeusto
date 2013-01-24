@@ -3,6 +3,8 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
 	
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
+	
 	<ui:style>
     	.bold-label { font-weight: bold; }
   	</ui:style>
@@ -18,6 +20,6 @@
 		
 		<g:Label text="exercise" ui:field="exerciseLabel" styleName="{style.bold-label}"/>
 			
-		<g:Button text="Select other code" ui:field="otherCodeButton"/>
+		<g:Button text="{i18n.selectOtherCode}" ui:field="otherCodeButton"/>
 	</g:VerticalPanel>
 </ui:UiBinder> 

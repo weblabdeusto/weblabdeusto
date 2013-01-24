@@ -124,6 +124,14 @@ public class ExperimentFactoryTest extends GWTTestCase {
 					IResponseCommandCallback callback) {
 							
 			}
+
+			@Override
+			public void stopPolling() {
+			}
+
+			@Override
+			public void disableFinishOnClose() {
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -201,6 +209,14 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			public void sendAsyncCommand(String command,
 					IResponseCommandCallback callback) {
 							
+			}
+
+			@Override
+			public void stopPolling() {
+			}
+
+			@Override
+			public void disableFinishOnClose() {
 			}
 		});
 		

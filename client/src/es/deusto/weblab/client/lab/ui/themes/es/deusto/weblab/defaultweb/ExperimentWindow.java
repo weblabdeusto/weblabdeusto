@@ -16,7 +16,6 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -24,8 +23,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -33,6 +31,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -75,7 +74,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label contentTitleLabel;
 	@UiField Label contentTitleLabelSelected;
 	@UiField Anchor contentTitleLabelInfo;
-	@UiField Grid detailsGrid;
+	@UiField DecoratorPanel detailsGrid;
 	@UiField Label experimentNameLabel;
 	@UiField Label experimentCategoryLabel;
 	@UiField Label timeAllowedLabel;
@@ -92,7 +91,6 @@ class ExperimentWindow extends BaseWindow {
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
-	@UiField WlAHref directLink;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -221,7 +219,6 @@ class ExperimentWindow extends BaseWindow {
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
-		this.directLink.setHref(Window.Location.getHref());
 		this.updateInfolinkField();
 
 		// Important note: this MUST be done here or FileUpload will cause problems
@@ -247,26 +244,12 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentAreaPanel.clear();
-		final VerticalPanel vp = new VerticalPanel();
-		vp.setWidth("100%");
-		vp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
-		final Button button = new Button(this.i18nMessages.clickHereToOpenExperiment());
-		button.addClickHandler(new ClickHandler(){
-			@Override
-			public void onClick(ClickEvent event) {
-				ExperimentWindow.this.callback.disableFinishOnClose();
-				Window.Location.assign(remoteUrl);
-				/*
-				Window.open( remoteUrl, "_blank", "resizable=yes,scrollbars=yes,dependent=yes,width=1000,height=800,top=0");
-				vp.remove(button);
-				vp.add(new Label(ExperimentWindow.this.i18nMessages.experimentOpenInOtherWindow()));
-				*/
-			}
-		});
-		vp.add(button);
-		
-		this.experimentAreaPanel.add(vp);
+		String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+        if(WebLabClient.getLocale() != null)
+            remoteUrl += "&locale=" + WebLabClient.getLocale();
+
+        this.callback.disableFinishOnClose();
+		Window.Location.assign(remoteUrl);
 	}
 
 	

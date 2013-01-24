@@ -327,6 +327,9 @@ def populate_weblab_tests(engine, tests):
     cat_games = Model.DbExperimentCategory("Games")
     session.add(cat_games)
 
+    cat_physics = Model.DbExperimentCategory("Physics experiments")
+    session.add(cat_physics)
+
     cat_pld = Model.DbExperimentCategory("PLD experiments")
     session.add(cat_pld)
 
@@ -357,6 +360,12 @@ def populate_weblab_tests(engine, tests):
     cat_visir = Model.DbExperimentCategory("Visir experiments")
     session.add(cat_visir)
 
+    cat_control = Model.DbExperimentCategory("Control experiments")
+    session.add(cat_control)
+
+    cat_farm = Model.DbExperimentCategory("Farm experiments")
+    session.add(cat_farm)
+    
     # Experiments
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
@@ -394,6 +403,15 @@ def populate_weblab_tests(engine, tests):
 
     binary = Model.DbExperiment("binary", cat_games, start_date, end_date)
     session.add(binary)
+
+    unr_physics = Model.DbExperiment("unr-physics", cat_physics, start_date, end_date)
+    session.add(unr_physics)
+
+    controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date)
+    session.add(controlapp)
+
+    incubator = Model.DbExperiment("incubator", cat_farm, start_date, end_date)
+    session.add(incubator)
 
     pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
     session.add(pld)
@@ -464,9 +482,9 @@ def populate_weblab_tests(engine, tests):
         "Permission for group Course 2008/09 to use WebLab-FPGA"
     )
     session.add(gp_course0809_fpga_allowed)
-    gp_course0809_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p1, "ud-fpga")
+    gp_course0809_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p1, fpga.name)
     session.add(gp_course0809_fpga_allowed_p1)
-    gp_course0809_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
+    gp_course0809_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(gp_course0809_fpga_allowed_p2)
     gp_course0809_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p3, "300")
     session.add(gp_course0809_fpga_allowed_p3)
@@ -616,9 +634,9 @@ def populate_weblab_tests(engine, tests):
         "Permission for group Course 2009/10 to use WebLab-FPGA"
     )
     session.add(gp_course0910_fpga_allowed)
-    gp_course0910_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p1, "ud-fpga")
+    gp_course0910_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p1, fpga.name)
     session.add(gp_course0910_fpga_allowed_p1)
-    gp_course0910_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
+    gp_course0910_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(gp_course0910_fpga_allowed_p2)
     gp_course0910_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p3, "300")
     session.add(gp_course0910_fpga_allowed_p3)
@@ -662,9 +680,9 @@ def populate_weblab_tests(engine, tests):
         "Permission for any to use WebLab-FPGA"
     )
     session.add(up_any_fpga_allowed)
-    up_any_fpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p1, "ud-fpga")
+    up_any_fpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p1, fpga.name)
     session.add(up_any_fpga_allowed_p1)
-    up_any_fpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p2, "FPGA experiments")
+    up_any_fpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(up_any_fpga_allowed_p2)
     up_any_fpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p3, "1400")
     session.add(up_any_fpga_allowed_p3)   
@@ -733,6 +751,55 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_binary_allowed_p2)
     up_any_binary_allowed_p3 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p3, "200")
     session.add(up_any_binary_allowed_p3)    
+
+    up_any_unr_physics_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-unr_physics",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_unr_physics_allowed)
+    up_any_unr_physics_allowed_p1 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p1, "unr-physics")
+    session.add(up_any_unr_physics_allowed_p1)
+    up_any_unr_physics_allowed_p2 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p2, "Physics experiments")
+    session.add(up_any_unr_physics_allowed_p2)
+    up_any_unr_physics_allowed_p3 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_unr_physics_allowed_p3)    
+
+
+    up_any_controlapp_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-controlapp",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_controlapp_allowed)
+    up_any_controlapp_allowed_p1 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p1, "control-app")
+    session.add(up_any_controlapp_allowed_p1)
+    up_any_controlapp_allowed_p2 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p2, "Control experiments")
+    session.add(up_any_controlapp_allowed_p2)
+    up_any_controlapp_allowed_p3 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_controlapp_allowed_p3)    
+
+    up_any_incubator_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed.group_applicable,
+        "any::weblab-incubator",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-Logic"
+    )
+
+    session.add(up_any_incubator_allowed)
+    up_any_incubator_allowed_p1 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p1, "incubator")
+    session.add(up_any_incubator_allowed_p1)
+    up_any_incubator_allowed_p2 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p2, "Farm experiments")
+    session.add(up_any_incubator_allowed_p2)
+    up_any_incubator_allowed_p3 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_incubator_allowed_p3)    
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,
@@ -985,7 +1052,7 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_fpga_demo_allowed)
     up_any_fpga_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p1, "ud-demo-fpga")
     session.add(up_any_fpga_demo_allowed_p1)
-    up_any_fpga_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p2, "FPGA experiments")
+    up_any_fpga_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(up_any_fpga_demo_allowed_p2)
     up_any_fpga_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p3, "200")
     session.add(up_any_fpga_demo_allowed_p3)    

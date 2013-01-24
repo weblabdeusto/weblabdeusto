@@ -30,7 +30,7 @@ def index(req):
     for user_login, full_name, points, end_date, use_id in elements:
         final_elements[use_id] = (user_login, full_name, int(points[len('OK: '):]), end_date)
 
-    final_values = final_elements.values()
+    final_values = [ value for value in final_elements.values() if value[2] is not None and value[3] is not None ]
     final_values.sort(lambda x, y: -1 * cmp(x[2], y[2]) or cmp(x[3], y[3]))
 
     for user_login, full_name, points, end_date in final_values:

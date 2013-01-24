@@ -163,7 +163,7 @@ public class VMExperiment extends ExperimentBase {
 						
 						if(codeStr.equals("0")) {
 							// Not ready
-							VMExperiment.this.setMessage("Your Virtual Machine is not yet ready. Please, wait. It often takes around " + argStr + " seconds.");
+							VMExperiment.this.setMessage(i18n.yourVirtualMachineIsNotYetReady(argStr));
 							VMExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 							
 							if(!VMExperiment.this.progressBar.isRunning() && !VMExperiment.this.progressBarRun) {
@@ -183,7 +183,7 @@ public class VMExperiment extends ExperimentBase {
 											VMExperiment.this.progressBar.setVisible(false);
 										}else{
 											VMExperiment.this.progressBar.keepWaiting();
-											VMExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing..."));
+											VMExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater(i18n.finishing() + "..."));
 										}
 									}});
 								
@@ -195,14 +195,14 @@ public class VMExperiment extends ExperimentBase {
 										final long elapsed = VMExperiment.this.progressBar.getElapsedTime();
 										
 										if(elapsed > 1000 * (estimatedSeconds + 1)) {
-											return "Finishing...";
+											return i18n.finishing() + "...";
 										} 
 										
 										if(progress == 1) {
-											return "Done. VM is ready";
+											return i18n.doneVMisReady();
 										}
 										
-										return "Loading, please wait (" + (int)(progress*100) + "%)";
+										return i18n.loadingPleaseWait((int)(progress*100));
 									}} );
 								
 								VMExperiment.this.progressBar.start();
@@ -212,7 +212,7 @@ public class VMExperiment extends ExperimentBase {
 						} else if(codeStr.equals("1")) {
 							VMExperiment.this.vmReady = true;
 							// Ready
-							VMExperiment.this.setMessage("Your Virtual Machine is now ready!");
+							VMExperiment.this.setMessage(i18n.yourVirtualMachineIsNowReady());
 							if(VMExperiment.this.protocol.equals("vnc"))
 								loadVNCApplet();
 							
@@ -255,7 +255,7 @@ public class VMExperiment extends ExperimentBase {
 	
 	private void loadVNCApplet(){
 		this.applets.clear();
-		final Anchor anchor = new Anchor("Load Java applet VNC Client");
+		final Anchor anchor = new Anchor(i18n.loadJavaVNCApplet());
 		this.applets.add(anchor);
 		
 		final String archive = GWT.getModuleBaseURL() + "vnc/tightvncviewer.jar";
@@ -371,8 +371,7 @@ public class VMExperiment extends ExperimentBase {
 			}
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				final String msg = "VM address:";
-				VMExperiment.this.setMessage(msg);
+				VMExperiment.this.setMessage(i18n.vmAddress());
 				VMExperiment.this.url.setText(responseCommand.getCommandString());
 				VMExperiment.this.protocol = responseCommand.getCommandString().split(":")[0].toLowerCase();
 				VMExperiment.this.fullURLPassword = responseCommand.getCommandString();

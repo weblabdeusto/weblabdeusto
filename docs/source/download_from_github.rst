@@ -13,6 +13,6 @@ UNIX systems (Linux, Mac OS X)
 
 (To be written, but basically install git, do the following::
 
-  git clone https://github.com/porduna/weblabdeusto.git
+  git clone https://github.com/weblabdeusto/weblabdeusto.git
 
 And enjoy)

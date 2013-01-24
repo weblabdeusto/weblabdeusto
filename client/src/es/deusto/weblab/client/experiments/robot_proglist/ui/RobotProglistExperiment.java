@@ -155,7 +155,7 @@ public class RobotProglistExperiment extends ExperimentBase {
 				RobotProglistExperiment.this.messages.stop();
 				RobotProglistExperiment.this.buttons.clear();
 				String response = responseCommand.getCommandString();
-				setMessage("Select what program should be sent to the device");
+				setMessage(i18n.selectWhatProgramShouldBeSent());
 				for(final String s : response.split(",")){
 					if(s.trim().equals(""))
 						continue;
@@ -174,7 +174,7 @@ public class RobotProglistExperiment extends ExperimentBase {
 								
 								@Override
 								public void onFailure(CommException e) {
-									setMessage("Program failed: " + e.getMessage());
+									setMessage(i18n.failed(e.getMessage()));
 									RobotProglistExperiment.this.messages.stop();
 								}
 								
@@ -182,7 +182,7 @@ public class RobotProglistExperiment extends ExperimentBase {
 								public void onSuccess(ResponseCommand responseCommand) {
 									RobotProglistExperiment.this.messages.stop();
 									if(responseCommand.getCommandString().startsWith("File sen")){
-										RobotProglistExperiment.this.setMessage("Program sent!");
+										RobotProglistExperiment.this.setMessage(i18n.fileSent());
 									}
 								}
 							});

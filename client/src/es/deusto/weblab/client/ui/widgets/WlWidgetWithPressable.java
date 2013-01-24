@@ -13,9 +13,6 @@
 */ 
 package es.deusto.weblab.client.ui.widgets;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -40,6 +37,7 @@ public abstract class WlWidgetWithPressable extends VerticalPanel implements IWl
 		this.setWidth("100%");
 		this.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);		
 		this.visiblePanel.add(this.title);
+		this.setStyleName("wl-pressable");
 		
 		this.add(this.visiblePanel);
 	}

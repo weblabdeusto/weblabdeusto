@@ -21,6 +21,7 @@ import weblab.comm.web_server as WebFacadeServer
 
 RESERVATION_ID   = 'reservation_id'
 BACK_URL         = 'back_url'
+LOCALE           = 'locale'
 FORMAT_PARAMETER = 'format'
 
 REDIRECT_CODE = """<html><head>
@@ -36,6 +37,7 @@ REDIRECT_CODE = """<html><head>
     <form action="." method="POST" id="reservation_form">
         <input type="text" name="reservation_id" value="%(reservation_id)s" />
         <input type="text" name="back_url" value="%(back_url)s" />
+        <input type="text" name="locale" value="%(locale)s" />
         <input type="submit" value="Submit"/>
     </form>
     <p>Reason:%(reason)s</p>
@@ -50,6 +52,7 @@ LABEL_CODE = """<html><head>
         var cur_hash = location.hash.substring(1);
         var reservation_id = 'Reservation id not found in history object';
         var back_url       = '';
+        var locale         = '';
         var variables = cur_hash.split('&');
         for(var i in variables){
             var cur_variable = variables[i];
@@ -57,9 +60,12 @@ LABEL_CODE = """<html><head>
                 reservation_id = cur_variable.substring('reservation_id='.length);
             if(cur_variable.indexOf('back_url=') == 0)
                 back_url       = cur_variable.substring('back_url='.length);
+            if(cur_variable.indexOf('back_url=') == 0)
+                locale         = cur_variable.substring('locale='.length);
         }
         document.getElementById('reservation_id_text').value = reservation_id;
         document.getElementById('back_url_text').value = back_url;
+        document.getElementById('locale_text').value = locale;
         document.getElementById('reservation_form').submit();
     }
 </script>
@@ -69,6 +75,7 @@ LABEL_CODE = """<html><head>
     <form action="." method="POST" id="reservation_form">
         <input id="reservation_id_text" type="text" name="reservation_id" value="" />
         <input id="back_url_text" type="text" name="back_url" value="" />
+        <input id="locale_text" type="text" name="locale" value="" />
         <input type="submit" value="Submit"/><br/>
     </form>
     <input type="submit" value="Back" onclick="window.history.back()"/>
@@ -112,11 +119,13 @@ class ClientMethod(WebFacadeServer.Method):
         # If it is passed as a GET argument, send it as POST
         reservation_id = self.get_GET_argument(RESERVATION_ID)
         back_url       = self.get_GET_argument(BACK_URL)
+        locale         = self.get_GET_argument(LOCALE)
         if reservation_id is not None:
             return REDIRECT_CODE % {
                 'reason'         : 'GET performed',
                 'reservation_id' : urllib.unquote(reservation_id),
                 'back_url'       : back_url,
+                'locale'         : locale,
             }
 
         # If it is passed as History (i.e. it was not passed by GET neither POST),
@@ -126,6 +135,7 @@ class ClientMethod(WebFacadeServer.Method):
             return LABEL_CODE
 
         back_url = self.get_POST_argument(BACK_URL)
+        locale   = self.get_POST_argument(LOCALE)
 
         reservation_id = urllib.unquote(reservation_id)
 
@@ -142,6 +152,7 @@ class ClientMethod(WebFacadeServer.Method):
                     'reason'         : 'reservation_id %s does not end in server_route %s' % (reservation_id, self.req.server_route),
                     'reservation_id' : reservation_id,
                     'back_url'       : back_url,
+                    'locale'         : locale,
                 }
 
         if reservation_id.find(';') >= 0:
@@ -160,7 +171,8 @@ class ClientMethod(WebFacadeServer.Method):
         except SessionNotFoundError:
             return ERROR_CODE % reservation_id
 
-        client_address = "../../client/index.html#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment&back_url=%(back_url)s" % {
+        client_address = "../../client/index.html%(localization)s#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment&back_url=%(back_url)s" % {
+            'localization'   : ('?locale=%s' % locale) if locale else '',
             'reservation_id' : reservation_id,
             'exp_name'       : experiment_id.exp_name,
             'exp_cat'        : experiment_id.cat_name,

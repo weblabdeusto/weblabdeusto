@@ -31,6 +31,11 @@ final class BoardBaseController implements IBoardBaseController {
 	}
 	
 	@Override
+	public void disableFinishOnClose() {
+		this.controller.disableFinishOnClose();
+	}
+	
+	@Override
 	public boolean isFacebook(){
 		return this.controller.isFacebook();
 	}
@@ -147,5 +152,10 @@ final class BoardBaseController implements IBoardBaseController {
 				return command;
 			}
 		}, callback);
+	}
+
+	@Override
+	public void stopPolling() {
+		this.controller.stopPolling();
 	}
 }

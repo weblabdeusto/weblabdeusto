@@ -39,18 +39,18 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.ui.widgets.WlTimedButton;
-import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class XilinxExperiment extends ExperimentBase{
 
@@ -147,9 +147,9 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		if(isDemo()){
 			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText(i18n.thisDemoDemonstratesMultiresourceXilinx());
 			}else{
-				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText(i18n.thisDemoDoesNotAllowUpload());
 			}
 		}
 	}
@@ -455,7 +455,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	XilinxExperiment.this.messages.setText("File sent.");
+	    	XilinxExperiment.this.messages.setText(i18n.fileSent());
 	    }
 
 	    @Override
@@ -495,7 +495,7 @@ public class XilinxExperiment extends ExperimentBase{
 			this.progressBar.finish(300);
 
 		this.enableInteractiveWidgets();
-		this.messages.setText("Device ready");
+		this.messages.setText(i18n.deviceReady());
 		this.messages.stop();
 	}
 	
@@ -514,7 +514,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    	// invisible once it is full.
 			this.progressBar.finish(300);
     	
-		this.messages.setText("Device programming failed");
+		this.messages.setText(i18n.deviceProgrammingFailed());
 		this.messages.stop();	
 	}
 	
@@ -543,7 +543,7 @@ public class XilinxExperiment extends ExperimentBase{
 		this.webcam.start();
 		
 	
-		this.messages.setText("Sending file");
+		this.messages.setText(i18n.sendingFile());
 		this.messages.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
@@ -590,7 +590,7 @@ public class XilinxExperiment extends ExperimentBase{
 				}else{
 					// This order is important, since setTextUpdater would call onFinished again
 					XilinxExperiment.this.progressBar.keepWaiting();
-					XilinxExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
+					XilinxExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater(i18n.finishingProgramming() + "..."));
 				}
 			}});
 		

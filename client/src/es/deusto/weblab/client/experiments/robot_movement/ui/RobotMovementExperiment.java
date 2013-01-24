@@ -246,20 +246,25 @@ public class RobotMovementExperiment extends ExperimentBase {
 			@Override
 			public void onFailure(CommException e) {
 				e.printStackTrace();
-				RobotMovementExperiment.this.messages.setText("Failed: " + e.getMessage());
+				RobotMovementExperiment.this.messages.setText(i18n.failed(e.getMessage()));
 				RobotMovementExperiment.this.messages.stop();
 			}
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
-				RobotMovementExperiment.this.messages.setText("You can now control the bot");
-				RobotMovementExperiment.this.messages.stop();
-				RobotMovementExperiment.this.nativeEventHandler.activate();
+				if(responseCommand.getCommandString().startsWith("File send")) {
+					RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
+					RobotMovementExperiment.this.messages.setText(i18n.youCanControlTheBot());
+					RobotMovementExperiment.this.messages.stop();
+					RobotMovementExperiment.this.nativeEventHandler.activate();
+				} else {
+					RobotMovementExperiment.this.messages.setText("Failed. This could mean that the microcontroller is old. You can contact the administrator, but first try again just in case. Reason: " + responseCommand.getCommandString());
+					RobotMovementExperiment.this.messages.stop();
+				}
 			}
 	    });
 	    
-	    this.setMessage("Programming interactive demo");
+	    this.setMessage(i18n.programmingInteractiveDemo());
 	    this.messages.start();
 	}
 

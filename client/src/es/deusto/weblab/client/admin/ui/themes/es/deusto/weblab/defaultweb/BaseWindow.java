@@ -17,17 +17,17 @@ package es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.admin.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 
 abstract class BaseWindow extends Widget {
 	
 	protected final IConfigurationManager configurationManager;
-	protected final IWebLabDeustoThemeMessages i18nMessages;
+	protected final IWebLabI18N i18nMessages;
 	
 	protected BaseWindow(IConfigurationManager configurationManager){
 	    	this.configurationManager = configurationManager;
-	    	this.i18nMessages = (IWebLabDeustoThemeMessages)GWT.create(IWebLabDeustoThemeMessages.class);
+	    	this.i18nMessages = (IWebLabI18N)GWT.create(IWebLabI18N.class);
 	}
 
 	abstract Widget getWidget();

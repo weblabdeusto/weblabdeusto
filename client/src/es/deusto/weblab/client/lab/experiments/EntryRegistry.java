@@ -21,12 +21,14 @@ import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
+import es.deusto.weblab.client.experiments.controlapp.ControlAppCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib1.Gpib1CreatorFactory;
 import es.deusto.weblab.client.experiments.gpib2.Gpib2CreatorFactory;
 import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
+import es.deusto.weblab.client.experiments.incubator.IncubatorCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
@@ -35,6 +37,7 @@ import es.deusto.weblab.client.experiments.robot_proglist.RobotProglistCreatorFa
 import es.deusto.weblab.client.experiments.robot_standard.RobotStandardCreatorFactory;
 import es.deusto.weblab.client.experiments.robotarm.RobotArmCreatorFactory;
 import es.deusto.weblab.client.experiments.submarine.SubmarineCreatorFactory;
+import es.deusto.weblab.client.experiments.unr_physics.UnrCreatorFactory;
 import es.deusto.weblab.client.experiments.visir.VisirCreatorFactory;
 import es.deusto.weblab.client.experiments.vm.VMCreatorFactory;
 import es.deusto.weblab.client.experiments.xilinx.XilinxCreatorFactory;
@@ -70,7 +73,10 @@ class EntryRegistry {
 		new RobotProglistCreatorFactory(),
 		new RobotArmCreatorFactory(),
 		new SubmarineCreatorFactory(),
-		new ILabBatchCreatorFactory()
+		new ILabBatchCreatorFactory(),
+		new UnrCreatorFactory(),
+		new ControlAppCreatorFactory(),
+		new IncubatorCreatorFactory(),
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();
