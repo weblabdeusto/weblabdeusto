@@ -83,6 +83,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
+        self._compiling_result = ""
         
         self._ucf_file = None
 
@@ -163,9 +164,11 @@ class UdXilinxExperiment(Experiment.Experiment):
         success = c.compile()
         if(not success):
             self._current_state = STATE_COMPILER_ERROR
+            self._compiling_result = c.errors()
         else:
             bitfile = c.retrieve_bitfile()
             if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            c._compiling_result = "Compiling done."
             self._program_file_t(bitfile)
         
 
@@ -259,6 +262,11 @@ class UdXilinxExperiment(Experiment.Experiment):
                     print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE="+ self._current_state
                 return reply
+            
+            elif command == 'COMPILING_RESULT':
+                if(DEBUG):
+                    print "[DBG]: COMPILING_RESULT: " + self._compiling_result
+                return self._compiling_result
 
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
