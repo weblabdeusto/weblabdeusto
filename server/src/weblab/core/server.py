@@ -44,7 +44,6 @@ import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
-import weblab.core.comm.admin_server as AdminFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
@@ -55,6 +54,14 @@ import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
+
+USE_NEW_ADMIN_PAGE = False
+if USE_NEW_ADMIN_PAGE:
+    from weblab.admin.web.administrators import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
+    AdminRemoteFacadeServer = AdminRemoteFacadeServer_new
+else:
+    from weblab.core.comm.admin_server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_old
+    AdminRemoteFacadeServer = AdminRemoteFacadeServer_old
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -127,7 +134,7 @@ class UserProcessingServer(object):
 
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
-                        AdminFacadeServer.AdminRemoteFacadeServer,
+                        AdminRemoteFacadeServer,
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 

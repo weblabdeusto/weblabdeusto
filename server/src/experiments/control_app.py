@@ -21,7 +21,6 @@ import urllib2
 import threading
 
 import weblab.experiment.experiment as Experiment
-import weblab.core.coordinator.coordinator as Coordinator
 
 from voodoo.override import Override
 

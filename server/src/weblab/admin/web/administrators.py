@@ -1,22 +1,29 @@
-from flask import Flask, Markup
+import os
+import traceback
+import SocketServer
+from flask import Flask, Markup, request, redirect, abort
 from flask.ext.admin import Admin
 import flask_admin.contrib.sqlamodel.filters as filters
 from flask.ext.admin.contrib.sqlamodel import tools
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+import wsgiref.simple_server
 
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, '.')
 
+from voodoo.sessions.session_id import SessionId
+from weblab.core.exc import SessionNotFoundError
+
 import weblab.db.model as model
+from weblab.db.gateway import AbstractDatabaseGateway
+import weblab.comm.server as abstract_server
 
 # 
 # TODO:
-# 
-#  - remove everything related to ExternalEntity
 # 
 #  - Add an 'federated' role
 # 
@@ -77,6 +84,62 @@ class AdministratorModelView(ModelView):
     def is_accessible(self):
         return AdministrationApplication.INSTANCE.is_admin()
 
+    # 
+    # TODO XXX FIXME: This may be a bug. However, whenever this is commented,
+    # Flask-Admin does this:
+    #
+    #       # Auto join
+    #       for j in self._auto_joins:
+    #                   query = query.options(subqueryload(j))
+    # 
+    # And some (weird) results in UserUsedExperiment are not shown, while other yes
+    # 
+
+    def scaffold_auto_joins(self):
+        return []
+
+SAME_DATA = object()
+
+def show_link(klass, filter_name, field, name, view = 'View'):
+
+    instance      = klass.INSTANCE
+    url           = instance.url
+
+    link = u'<a href="%s?' % url
+
+    if isinstance(filter_name, basestring):
+        filter_numbers = [ getattr(instance, u'%s_filter_number' % filter_name) ]
+    else:
+        filter_numbers = [ getattr(instance, u'%s_filter_number' % fname) for fname in filter_name]
+
+    if isinstance(name, basestring):
+        names = [name]
+    else:
+        names = name
+
+    for pos, (filter_number, name) in enumerate(zip(filter_numbers, names)):
+        if '.' not in name:
+            data = getattr(field, name)
+        else:
+            variables = name.split('.')
+            current = field
+            data = None
+            for variable in variables:
+                current = getattr(current, variable)
+                if current is None:
+                    data = ''
+                    break
+            if data is None:
+                data = current
+        link += u'flt%s_%s=%s&' % (pos + 1, filter_number, data)
+
+    if view == SAME_DATA:
+        view = data
+
+    link = link[:-1] + u'">%s</a>' % view
+
+    return Markup(link)
+    
 
 class UsersPanel(AdministratorModelView):
 
@@ -91,17 +154,15 @@ class UsersPanel(AdministratorModelView):
     inline_models = (model.DbUserAuth,)
 
     column_formatters = dict(
-                            role   = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url,              UsersPanel.INSTANCE.role_filter_number, u.role.name, u.role.name)),
-                            groups = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (GroupsPanel.INSTANCE.url,             GroupsPanel.INSTANCE.user_filter_number, u.login, 'View')),
-                            logs   = lambda c, u, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.user_filter_number, u.login, 'View'))
+                            role   = lambda c, u, p: show_link(UsersPanel,              'role', u, 'role.name', SAME_DATA),
+                            groups = lambda c, u, p: show_link(GroupsPanel,             'user', u, 'login'),
+                            logs   = lambda c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
                         )
 
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"General", "name":u"Users" }
-        default_args.update(**kwargs)
-        super(UsersPanel, self).__init__(model.DbUser, session, **default_args)
+        super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
         self.login_filter_number = get_filter_number(self, u'User.login')
         self.group_filter_number = get_filter_number(self, u'Group.name')
         self.role_filter_number  = get_filter_number(self, u'Role.name')
@@ -117,15 +178,13 @@ class GroupsPanel(AdministratorModelView):
                     )
 
     column_formatters = dict(
-                            users = lambda c, g, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url,  UsersPanel.INSTANCE.group_filter_number, g.name, 'View')),
+                            users = lambda c, g, p: show_link(UsersPanel, 'group', g, 'name'),
                         )
 
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"General", "name":u"Groups" }
-        default_args.update(**kwargs)
-        super(GroupsPanel, self).__init__(model.DbGroup, session, **default_args)
+        super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
         self.user_filter_number  = get_filter_number(self, u'User.login')
 
@@ -143,8 +202,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address') 
 
     column_formatters = dict(
-                    user = lambda c, uue, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UsersPanel.INSTANCE.url, UsersPanel.INSTANCE.login_filter_number, uue.user.login if uue.user is not None else '', uue.user.login if uue.user is not None else '')),
-                    experiment = lambda c, uue, p: Markup(u'<a href="%s?flt1_%s=%s&flt2_%s=%s">%s</a>' % (ExperimentPanel.INSTANCE.url, ExperimentPanel.INSTANCE.name_filter_number, uue.experiment.name if uue.experiment is not None else '', ExperimentPanel.INSTANCE.category_filter_number, uue.experiment.category.name if uue.experiment is not None and uue.experiment.category is not None else '', uue.experiment )),
+                    user = lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
+                    experiment = lambda c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue, ('experiment.name', 'experiment.category.name'), uue.experiment ),
                 )
 
     action_disallowed_list = ['create','edit','delete']
@@ -152,9 +211,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"Logs", "name":u"User logs" }
-        default_args.update(**kwargs)
-        super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **default_args)
+        super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.user_filter_number  = get_filter_number(self, u'User.login')
         self.experiment_filter_number  = get_filter_number(self, u'Experiment.name')
@@ -168,17 +225,13 @@ class ExperimentCategoryPanel(AdministratorModelView):
     column_filters = ( 'name', ) 
 
     column_formatters = dict(
-                    experiments = lambda co, c, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (ExperimentPanel.INSTANCE.url, ExperimentPanel.INSTANCE.category_filter_number, c.name, 'View'))
+                    experiments = lambda co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
                 )
 
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-
-        default_args = { "category" : u"Experiments", "name" : u"Categories" }
-        default_args.update(**kwargs)
-
-        super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **default_args)
+        super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
         
         self.category_filter_number  = get_filter_number(self, u'Category.name')
 
@@ -192,19 +245,14 @@ class ExperimentPanel(AdministratorModelView):
     column_filters = ('name','category')
 
     column_formatters = dict(
-                        category = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (ExperimentCategoryPanel.INSTANCE.url, ExperimentCategoryPanel.INSTANCE.category_filter_number, e.category.name if e.category is not None else '', e.category.name if e.category is not None else '')),
-#                        uses     = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s&flt2_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.experiment_filter_number, e.name, UserUsedExperimentPanel.INSTANCE.experiment_category_filter_number, e.category.name if e.category is not None else '', 'View')),
-                        uses     = lambda c, e, p: Markup(u'<a href="%s?flt1_%s=%s">%s</a>' % (UserUsedExperimentPanel.INSTANCE.url, UserUsedExperimentPanel.INSTANCE.experiment_filter_number, e.name, 'View')),
+                        category = lambda c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
+                        uses     = lambda c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
                 )
 
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-
-        default_args = { "category" : u"Experiments", "name" : u"Experiments" }
-        default_args.update(**kwargs)
-
-        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **default_args)
+        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
         
         self.name_filter_number  = get_filter_number(self, u'Experiment.name')
         self.category_filter_number  = get_filter_number(self, u'Category.name')
@@ -219,52 +267,73 @@ class PermissionTypePanel(AdministratorModelView):
     inline_models = (model.DbPermissionTypeParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"types" }
-        default_args.update(**kwargs)
+        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **kwargs)
 
-        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **default_args)
+def display_parameters(context, permission, p):
+    parameters = u''
+    for parameter in permission.parameters:
+        parameters += u'%s = %s, ' % (parameter.permission_type_parameter.name, parameter.value)
+    permission_str = u'%s(%s)' % (permission.permission_type.name, parameters[:-2])
+    return permission_str
 
 class UserPermissionPanel(AdministratorModelView):
+
+    column_list = ('user', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters,
+    user = lambda c, u, p: unicode(u.user) )
 
     inline_models = (model.DbUserPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"user permissions" }
-        default_args.update(**kwargs)
-
-        super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **default_args)
+        super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
 
 class GroupPermissionPanel(AdministratorModelView):
 
+    column_list = ('group', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters )
     inline_models = (model.DbGroupPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"group permissions" }
-        default_args.update(**kwargs)
+        super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
 
-        super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **default_args)
+class RolePermissionPanel(AdministratorModelView):
+
+    column_list = ('role', 'permission', 'permanent_id', 'date', 'comments')
+    column_formatters = dict( permission = display_parameters )
+    inline_models = (model.DbRolePermissionParameter,)
+
+    def __init__(self, session, **kwargs):
+        super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
 
 
-engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
-
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-
-class AdministrationApplication(object):
+class AdministrationApplication(AbstractDatabaseGateway):
 
     INSTANCE = None
 
-    def __init__(self, cfg_manager, bypass_authz = False):
+    def __init__(self, cfg_manager, ups, bypass_authz = False):
+
+        super(AdministrationApplication, self).__init__(cfg_manager)
+
+        self.ups = ups
+
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 
         self.app = Flask(__name__)
-        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin')
-        self.admin.add_view(UsersPanel(db_session))
-        self.admin.add_view(GroupsPanel(db_session))
-        self.admin.add_view(UserUsedExperimentPanel(db_session))
-        self.admin.add_view(ExperimentCategoryPanel(db_session))
-        self.admin.add_view(ExperimentPanel(db_session))
-        self.admin.add_view(PermissionTypePanel(db_session))
-        self.admin.add_view(UserPermissionPanel(db_session))
-        self.admin.add_view(GroupPermissionPanel(db_session))
+        self.app.config['SECRET_KEY'] = os.urandom(32)
+        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration/')
+
+        self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
+        self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
+
+        self.admin.add_view(UserUsedExperimentPanel(db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
+
+        self.admin.add_view(ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
+        self.admin.add_view(ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
+
+        self.admin.add_view(PermissionTypePanel(db_session,  category = 'Permissions', name = 'Types', endpoint = 'permissions/types'))
+        self.admin.add_view(UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',  endpoint = 'permissions/user'))
+        self.admin.add_view(GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group', endpoint = 'permissions/group'))
+        self.admin.add_view(RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles', endpoint = 'permissions/role'))
 
         self.bypass_authz = bypass_authz
 
@@ -273,15 +342,114 @@ class AdministrationApplication(object):
     def is_admin(self):
         if self.bypass_authz:
             return True
-        
-        # TODO: contact the UPS ask for the session, etc.
-        return False
-            
+
+        try:
+            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+            try:
+                permissions = self.ups.get_user_permissions(session_id)
+            except SessionNotFoundError:
+                # Gotcha
+                return False
+
+            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
+            if len(admin_permissions) == 0:
+                return False
+
+            if admin_permissions[0].parameters[0].value:
+                return True
+
+            return False
+        except:
+            traceback.print_exc()
+            return False
+
+# 
+# TODO: All this code below depends on the old and deprecated communication system of 
+# WebLab-Deusto, which should be refactored to be less complex.
+# 
+
+class WsgiHttpServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
+    daemon_threads      = True
+    request_queue_size  = 50 #TODO: parameter!
+    allow_reuse_address = True
+
+    def __init__(self, server_address, handler_class, application):
+        wsgiref.simple_server.WSGIServer.__init__(self, server_address, handler_class)
+        self.set_app(application)
+
+    def get_request(self):
+        sock, addr = wsgiref.simple_server.WSGIServer.get_request(self)
+        sock.settimeout(None)
+        return sock, addr
+
+class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer):
+    
+    protocol_name = "wsgi"
+
+    WSGI_HANDLER = wsgiref.simple_server.WSGIRequestHandler
+
+    def _retrieve_configuration(self):
+        values = self.parse_configuration(
+                self._rfs.FACADE_WSGI_PORT,
+                **{
+                    self._rfs.FACADE_WSGI_LISTEN: self._rfs.DEFAULT_FACADE_WSGI_LISTEN
+                }
+           )
+        listen = getattr(values, self._rfs.FACADE_WSGI_LISTEN)
+        port   = getattr(values, self._rfs.FACADE_WSGI_PORT)
+        return listen, port
+
+    def initialize(self):
+        listen, port = self._retrieve_configuration()
+        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+        timeout = self.get_timeout()
+
+        class NewWsgiHttpHandler(self.WSGI_HANDLER):
+            server_route   = the_server_route
+            location       = the_location
+
+        self._server = WsgiHttpServer((listen, port), NewWsgiHttpHandler, self._rfm)
+        self._server.socket.settimeout(timeout)
+
+import weblab.core.comm.admin_server as admin_server
+from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+
+class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
+    SERVERS = (RemoteFacadeServerWSGI,)
+
+    FACADE_WSGI_PORT             = admin_server.ADMIN_FACADE_JSON_PORT
+    FACADE_WSGI_LISTEN           = admin_server.ADMIN_FACADE_JSON_LISTEN
+    DEFAULT_FACADE_WSGI_LISTEN   = admin_server.DEFAULT_ADMIN_FACADE_JSON_LISTEN
+
+    FACADE_SERVER_ROUTE                          = USER_PROCESSING_FACADE_SERVER_ROUTE
+    DEFAULT_SERVER_ROUTE                         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+
+    def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
+        self.application = AdministrationApplication(configuration_manager, server)
+        return self.application.app
 
 if __name__ == '__main__':
-    SECRET_KEY = 'development_key'
-    admin_app = AdministrationApplication(None, bypass_authz = True)
+    from voodoo.configuration import ConfigurationManager
+    cfg_manager = ConfigurationManager()
+    cfg_manager.append_path('test/unit/configuration.py')
 
-    admin_app.app.config.from_object(__name__)
-    admin_app.app.run(debug=True, host = '0.0.0.0')
+
+    DEBUG = True
+    if DEBUG:
+        admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
+
+        @admin_app.app.route('/')
+        def index():
+            return redirect('/weblab/administration')
+
+        admin_app.app.run(debug=True, host = '0.0.0.0')
+    else:
+        server = AdminServer(None, cfg_manager)
+        server.start()
 

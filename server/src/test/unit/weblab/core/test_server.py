@@ -439,8 +439,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # student4 uses a different experiment, after both student2 and any
         #
         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
-
-        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -685,11 +683,12 @@ class UserProcessingServerTestCase(unittest.TestCase):
         roles = self.ups.get_roles(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(3, len(roles) )
+        self.assertEquals(4, len(roles) )
         role_names = list( role.name for role in roles )
         self.assertTrue( 'student' in role_names )
         self.assertTrue( 'professor' in role_names )
         self.assertTrue( 'administrator' in role_names )
+        self.assertTrue( 'federated' in role_names )
 
     def test_get_roles_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")

@@ -18,6 +18,7 @@ import weblab.db.model as Model
 # in case the patch had not been applied.
 # 
 class Patch(object):
+    ABSTRACT = False
     SQL_FORMAT   = 'SQL'
     SQLALCHEMY_FORMAT = 'sqlalchemy'
 
@@ -81,15 +82,18 @@ class Patch(object):
 
 
 class PatchApplier(object):
-    def __init__(self, user, password, db, order):
+    def __init__(self, user, password, dbs, order):
         self.user     = user
         self.password = password
-        self.db       = db
+        if isinstance(dbs, basestring):
+            self.dbs = [dbs]
+        else:
+            self.dbs      = dbs
         self.order    = order
 
     def execute(self, force = False):
         for klass in Patch.__subclasses__():
-            if not klass in self.order:
+            if not klass.ABSTRACT and not klass in self.order:
                 print "WARNING: Class %s not found in provided order: " % klass.__name__,
                 if force:
                     print "[skipped]"
@@ -97,17 +101,19 @@ class PatchApplier(object):
                     print "[aborted]"
                     raise Exception("Class %s not found in provided order. Call execute(force=True) if this is correct" % klass.__name__)
 
-        # Always recreate all the tables
-        connection_url = "mysql://%(USER)s:%(PASS)s@%(HOST)s/%(NAME)s" % {
-                                "USER": self.user,
-                                "PASS": self.password,
-                                "HOST": "localhost",
-                                "NAME": self.db }
+        for db in self.dbs:
+            print "Applying patches to %s" % db
+            # Always recreate all the tables
+            connection_url = "mysql://%(USER)s:%(PASS)s@%(HOST)s/%(NAME)s" % {
+                                    "USER": self.user,
+                                    "PASS": self.password,
+                                    "HOST": "localhost",
+                                    "NAME": db }
 
-        engine = create_engine(connection_url, convert_unicode=True, echo=False)
-        Model.Base.metadata.create_all(engine)
+            engine = create_engine(connection_url, convert_unicode=True, echo=False)
+            Model.Base.metadata.create_all(engine)
 
-        for klass in self.order:
-            fix = klass(self.user, self.password, self.db)
-            fix.execute()
+            for klass in self.order:
+                fix = klass(self.user, self.password, db)
+                fix.execute()
 

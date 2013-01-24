@@ -25,7 +25,6 @@ import threading
 import traceback
 
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
-import weblab.core.coordinator.coordinator as Coordinator
 
 from voodoo.override import Override
 

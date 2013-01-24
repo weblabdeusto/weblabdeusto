@@ -573,7 +573,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         experiment_id = 1
 
         self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '9', time.time())
 
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)
@@ -586,7 +585,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         experiment_id = None
 
         self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '6', time.time())
 
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)

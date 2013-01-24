@@ -17,15 +17,10 @@
 import re
 import hashlib
 
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-import weblab.configuration_doc as configuration_doc
 import weblab.db.model as Model
 
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 import voodoo.log as log
 
@@ -36,39 +31,8 @@ import weblab.db.gateway as dbGateway
 
 class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
-    engine = None
-
     def __init__(self, cfg_manager):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
-
-        user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
-        password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
-        host     = self.host
-        port     = self.port
-        dbname   = self.database_name
-        engine   = self.engine_name
-
-        if AuthDatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
-            getconn = generate_getconn(engine, user, password, host, port, dbname)
-
-            if engine == 'sqlite':
-                connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.NullPool(getconn)
-            else:
-                if port is None:
-                    port_str = ''
-                else:
-                    port_str = ':%s' % port
-
-                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s%(PORT)s/%(DATABASE)s" % \
-                                { "ENGINE":   engine, 'PORT'  : port_str,
-                                  "USER":     user, "PASSWORD": password,
-                                  "HOST":     host, "DATABASE": dbname }
-
-                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
-            AuthDatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
-
-        self.Session = sessionmaker(bind=self.engine)
 
     ###########################################################################
     ##################   check_external_credentials   #########################

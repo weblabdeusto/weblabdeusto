@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo@ordunya.com>
 #
 
 import datetime
@@ -34,28 +35,12 @@ from weblab.data.command import Command, NullCommand
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.data.dto.users import Group
-from weblab.data.dto.users import ExternalEntity
 from weblab.data.dto.experiments import ExperimentUse
 
 
 Base = declarative_base()
 
 TABLE_KWARGS = get_table_kwargs()
-
-def link_relation(entity, object_to_link, relation_attr, fk_field=None):
-    """
-    Links a ForeignKey field with an object.
-    If the object has already been inserted, only the ForeignKey field is linked.
-    If the object has not already been inserted, the relation is linked so as to force the insert.
-    Convention: if no fk_field is provided, its name will be suposed to be exactly as the relation_attr followed by '_id'.
-    """
-    if ( object_to_link is not None ) and ( object_to_link.id is not None ):
-        if fk_field is not None:
-            setattr(entity, fk_field, object_to_link.id)
-        else:
-            setattr(entity, relation_attr+"_id", object_to_link.id)
-    else:
-        setattr(entity, relation_attr, object_to_link)
 
 
 ##############################################################################
@@ -64,11 +49,6 @@ def link_relation(entity, object_to_link, relation_attr, fk_field=None):
 
 t_user_is_member_of = Table('UserIsMemberOf', Base.metadata,
     Column('user_id', Integer, ForeignKey('User.id'), primary_key=True),
-    Column('group_id', Integer, ForeignKey('Group.id'), primary_key=True)
-    )
-
-t_ee_is_member_of = Table('ExternalEntityIsMemberOf', Base.metadata,
-    Column('ee_id', Integer, ForeignKey('ExternalEntity.id'), primary_key=True),
     Column('group_id', Integer, ForeignKey('Group.id'), primary_key=True)
     )
 
@@ -121,7 +101,7 @@ class DbUser(Base):
         self.full_name = full_name
         self.email = email
         self.avatar = avatar
-        link_relation(self, role, "role")
+        self.role = role
 
     def __repr__(self):
         user_repr = "DbUser(id = %r, login = %r, full_name = %r, email = %r, avatar = %r, role = %r)" % (
@@ -178,7 +158,7 @@ class DbAuth(Base):
 
     def __init__(self, auth_type, name, priority, configuration=None):
         super(DbAuth, self).__init__()
-        link_relation(self, auth_type, "auth_type")
+        self.auth_type = auth_type
         self.name = name
         self.priority = priority
         self.configuration = configuration
@@ -216,8 +196,8 @@ class DbUserAuth(Base):
 
     def __init__(self, user, auth, configuration=None):
         super(DbUserAuth, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, auth, "auth")
+        self.user = user
+        self.auth = auth
         self.configuration = configuration
 
     def __repr__(self):
@@ -238,41 +218,6 @@ class DbUserAuth(Base):
         return UserAuth.UserAuth.create_user_auth(self.auth.auth_type.name, self.auth.configuration) #TODO: Add DbUserAuth's configuration too
 
 
-class DbExternalEntity(Base):
-    __tablename__  = 'ExternalEntity'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
-
-    id          = Column(Integer, primary_key = True)
-    name        = Column(String(255), nullable = False)
-    country     = Column(String(20), nullable = False)
-    description = Column(Text, nullable = False)
-    email       = Column(String(255), nullable = False)
-    password    = Column(String(255), nullable = False)
-
-    def __init__(self, name, country, description, email, password):
-        super(DbExternalEntity, self).__init__()
-        self.name = name
-        self.country = country
-        self.description = description
-        self.email = email
-        self.password = password # calculate hash?
-
-    def __repr__(self):
-        return "DbExternalEntity(id = %r, name = %r, country = %r, description = %r, email = %r)" % (
-            self.id,
-            self.name,
-            self.country,
-            self.description,
-            self.email
-        )
-
-    def to_business(self):
-        return ExternalEntity(self.id, self.name, self.country, self.description, self.email)
-
-    def to_dto(self):
-        return self.to_business() # Temporal
-
-
 class DbGroup(Base):
     __tablename__  = 'Group'
     __table_args__ = (UniqueConstraint('parent_id', 'name'), TABLE_KWARGS)
@@ -283,12 +228,11 @@ class DbGroup(Base):
 
     children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
     users    = relation("DbUser", secondary=t_user_is_member_of)
-    ees      = relation("DbExternalEntity", secondary=t_ee_is_member_of, backref="groups")
 
     def __init__(self, name, parent=None):
         super(DbGroup, self).__init__()
-        self.name = name
-        link_relation(self, parent, "parent")
+        self.name   = name
+        self.parent = parent
 
     def __repr__(self):
         if self.parent is None:
@@ -353,7 +297,7 @@ class DbExperiment(Base):
     def __init__(self, name, category, start_date, end_date):
         super(DbExperiment, self).__init__()
         self.name = name
-        link_relation(self, category, "category")
+        self.category = category
         self.start_date = start_date
         self.end_date = end_date
 
@@ -390,29 +334,36 @@ class DbUserUsedExperiment(Base):
     __tablename__  = 'UserUsedExperiment'
     __table_args__ = (TABLE_KWARGS)
 
-    id               = Column(Integer, primary_key = True)
-    user_id          = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    start_date       = Column(DateTime, nullable = False)
-    start_date_micro = Column(Integer, nullable = False)
-    end_date         = Column(DateTime)
-    end_date_micro   = Column(Integer)
-    origin           = Column(String(255), nullable = False)
-    coord_address    = Column(String(255), nullable = False)
-    reservation_id   = Column(String(50), index = True)
+    id                      = Column(Integer, primary_key = True)
+    user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
+    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    start_date              = Column(DateTime, nullable = False)
+    start_date_micro        = Column(Integer, nullable = False)
+    end_date                = Column(DateTime)
+    end_date_micro          = Column(Integer)
+    # TODO: use these new two fields
+    max_error_in_millis     = Column(Integer, nullable = True)
+    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler
+    permission_permanent_id = Column(String(255), nullable = True)
+    origin                  = Column(String(255), nullable = False)
+    coord_address           = Column(String(255), nullable = False)
+    reservation_id          = Column(String(50), index = True)
 
     user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
     experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
 
-    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date):
+    def __init__(self, user, experiment, start_date, origin, coord_address, reservation_id, end_date, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None):
         super(DbUserUsedExperiment, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, experiment, "experiment")
+        self.user = user
+        self.experiment = experiment
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
         self.set_end_date(end_date)
         self.origin = origin
         self.coord_address = coord_address
         self.reservation_id = reservation_id
+        self.max_error_in_millis = max_error_in_millis
+        self.finish_reason       = finish_reason
+        self.permission_permanent_id = permission_permanent_id
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
@@ -529,7 +480,7 @@ class DbUserFile(Base):
 
     def __init__(self, experiment_use, file_sent, file_hash, timestamp_before, file_info=None, response=None, timestamp_after=None):
         super(DbUserFile, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
+        self.experiment_use = experiment_use
         self.file_sent = file_sent
         self.file_hash = file_hash
         self.file_info = file_info
@@ -582,7 +533,7 @@ class DbUserCommand(Base):
 
     def __init__(self, experiment_use, command, timestamp_before, response=None, timestamp_after=None):
         super(DbUserCommand, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
+        self.experiment_use = experiment_use
         self.command = command
         self.response = response
         self.timestamp_before, self.timestamp_before_micro = _timestamp_to_splitted_utc_datetime(timestamp_before)
@@ -612,142 +563,6 @@ class DbUserCommand(Base):
             )
 
 
-class DbExternalEntityUsedExperiment(Base):
-    __tablename__  = 'ExternalEntityUsedExperiment'
-    __table_args__ = (TABLE_KWARGS)
-
-    id               = Column(Integer, primary_key = True)
-    ee_id            = Column(Integer, ForeignKey("ExternalEntity.id"), nullable = False)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False)
-    start_date       = Column(DateTime, nullable = False)
-    start_date_micro = Column(Integer, nullable = False)
-    end_date         = Column(DateTime)
-    end_date_micro   = Column(Integer)
-    origin           = Column(String(255), nullable = False)
-    coord_address    = Column(String(255), nullable = False)
-    reservation_id   = Column(String(50))
-
-    ee         = relation("DbExternalEntity", backref=backref("experiment_uses", order_by=id))
-    experiment = relation("DbExperiment", backref=backref("ee_uses", order_by=id))
-
-    def __init__(self, ee, experiment, start_date, origin, coord_address, reservation_id, end_date):
-        super(DbExternalEntityUsedExperiment, self).__init__()
-        link_relation(self, ee, "ee")
-        link_relation(self, experiment, "experiment")
-        self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
-        self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
-        self.reservation_id = reservation_id
-        self.origin = origin
-        self.coord_address = coord_address
-
-    def __repr__(self):
-        return "DbExternalEntityUsedExperiment(id = %r, ee = %r, experiment = %r, start_date = %r, start_date_micro = %r, end_date = %r, end_date_micro = %r, origin = %r, coord_address = %r, reservation_id = %r)" % (
-            self.id,
-            self.ee,
-            self.experiment,
-            self.start_date,
-            self.start_date_micro,
-            self.end_date,
-            self.end_date_micro,
-            self.origin,
-            self.coord_address,
-            self.reservation_id
-        )
-
-    def to_dto(self):
-        use = ExperimentUse(
-            _splitted_utc_datetime_to_timestamp(self.start_date, self.start_date_micro),
-            _splitted_utc_datetime_to_timestamp(self.end_date, self.end_date_micro),
-            self.experiment.to_dto(),
-            self.ee.to_dto(),
-            self.origin,
-            self.id
-        )
-        return use
-
-
-class DbExternalEntityFile(Base):
-    __tablename__  = 'ExternalEntityFile'
-    __table_args__ = (TABLE_KWARGS)
-
-    id                     = Column(Integer, primary_key = True)
-    experiment_use_id      = Column(Integer, ForeignKey("ExternalEntityUsedExperiment.id"), nullable = False)
-    file_sent              = Column(String(255), nullable = False)
-    file_hash              = Column(String(255), nullable = False)
-    file_info              = Column(Text)
-    response               = Column(Text)
-    timestamp_before       = Column(DateTime, nullable = False)
-    timestamp_before_micro = Column(Integer, nullable = False)
-    timestamp_after        = Column(DateTime)
-    timestamp_after_micro  = Column(Integer)
-
-    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
-
-    def __init__(self, experiment_use, file_sent, file_hash, timestamp_before, timestamp_before_micro, file_info=None, response=None, timestamp_after=None, timestamp_after_micro=None):
-        super(DbExternalEntityFile, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
-        self.file_sent = file_sent
-        self.file_hash = file_hash
-        self.file_info = file_info
-        self.response = response
-        self.timestamp_before = timestamp_before
-        self.timestamp_before_micro = timestamp_before_micro
-        self.timestamp_after = timestamp_after
-        self.timestamp_after_micro = timestamp_after_micro
-
-    def __repr__(self):
-        return "DbExternalEntityFile(id = %r, experiment_use = %r, file_sent = %r, file_hash = %r, file_info = %r, response = %r, timestamp_before = %r, timestamp_before_micro = %r, timestamp_after = %r, timestamp_after_micro = %r)" % (
-            self.id,
-            self.experiment_use,
-            self.file_sent,
-            self.file_hash,
-            self.file_info,
-            self.response,
-            self.timestamp_before,
-            self.timestamp_before_micro,
-            self.timestamp_after,
-            self.timestamp_after_micro
-        )
-
-
-class DbExternalEntityCommand(Base):
-    __tablename__  = 'ExternalEntityCommand'
-    __table_args__ = (TABLE_KWARGS)
-
-    id                     = Column(Integer, primary_key = True)
-    experiment_use_id      = Column(Integer, ForeignKey("ExternalEntityUsedExperiment.id"), nullable = False)
-    command                = Column(Text, nullable = False)
-    response               = Column(Text)
-    timestamp_before       = Column(DateTime, nullable = False)
-    timestamp_before_micro = Column(Integer, nullable = False)
-    timestamp_after        = Column(DateTime)
-    timestamp_after_micro  = Column(Integer)
-
-    experiment_use = relation("DbExternalEntityUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
-
-    def __init__(self, experiment_use, command, timestamp_before, timestamp_before_micro, response=None, timestamp_after=None, timestamp_after_micro=None):
-        super(DbExternalEntityCommand, self).__init__()
-        link_relation(self, experiment_use, "experiment_use")
-        self.command = command
-        self.response = response
-        self.timestamp_before = timestamp_before
-        self.timestamp_before_micro = timestamp_before_micro
-        self.timestamp_after = timestamp_after
-        self.timestamp_after_micro = timestamp_after_micro
-
-    def __repr__(self):
-        return "DbExternalEntityCommand(id = %r, experiment_use = %r, command = %r, response = %r, timestamp_before = %r, timestamp_before_micro = %r, timestamp_after = %r, timestamp_after_micro = %r)" % (
-            self.id,
-            self.experiment_use,
-            self.command,
-            self.response,
-            self.timestamp_before,
-            self.timestamp_before_micro,
-            self.timestamp_after,
-            self.timestamp_after_micro
-        )
-
-
 ##############################################################################
 # USER PERMISSIONS
 #
@@ -759,41 +574,18 @@ class DbPermissionType(Base):
     id                  = Column(Integer, primary_key = True)
     name                = Column(String(255), nullable = False)
     description         = Column(Text, nullable = False)
-    user_applicable_id  = Column(Integer, ForeignKey("UserApplicablePermissionType.id"))
-    role_applicable_id  = Column(Integer, ForeignKey("RoleApplicablePermissionType.id"))
-    group_applicable_id = Column(Integer, ForeignKey("GroupApplicablePermissionType.id"))
-    ee_applicable_id    = Column(Integer, ForeignKey("ExternalEntityApplicablePermissionType.id"))
 
-    # I think there's a mistake here: this creates 1-N relationships, while they should be 1-1.
-    # A quick search made me think that we're not using backref properly in this case, but now
-    # it's not time to change this, so it'll be in a future upgrading version 0:-) (Jaime I, Oct 6th 2010)
-    user_applicable  = relation("DbUserApplicablePermissionType", backref=backref("permission_type", order_by=id))
-    role_applicable  = relation("DbRoleApplicablePermissionType", backref=backref("permission_type", order_by=id))
-    group_applicable = relation("DbGroupApplicablePermissionType", backref=backref("permission_type", order_by=id))
-    ee_applicable    = relation("DbExternalEntityApplicablePermissionType", backref=backref("permission_type", order_by=id))
 
-    def __init__(self, name, description, user_applicable=False, role_applicable=False, group_applicable=False, ee_applicable=False):
+    def __init__(self, name, description):
         super(DbPermissionType, self).__init__()
         self.name = name
         self.description = description
-        if user_applicable:
-            link_relation(self, DbUserApplicablePermissionType(), "user_applicable")
-        if role_applicable:
-            link_relation(self, DbRoleApplicablePermissionType(), "role_applicable")
-        if group_applicable:
-            link_relation(self, DbGroupApplicablePermissionType(), "group_applicable")
-        if ee_applicable:
-            link_relation(self, DbExternalEntityApplicablePermissionType(), "ee_applicable")
 
     def __repr__(self):
-        return "DbPermissionType(id = %r, name = %r, description = %r, user_applicable = %r, role_applicable = %r, group_applicable = %r, ee_applicable = %r)" % (
+        return "DbPermissionType(id = %r, name = %r, description = %r)" % (
             self.id,
             self.name,
             self.description,
-            self.user_applicable,
-            self.role_applicable,
-            self.group_applicable,
-            self.ee_applicable
         )
 
     def __unicode__(self):
@@ -806,10 +598,7 @@ class DbPermissionType(Base):
         ptype = PermissionType(
             self.name,
             self.description,
-            self.user_applicable,
-            self.role_applicable,
-            self.group_applicable,
-            self.ee_applicable)
+        )
         return ptype
 
 
@@ -828,7 +617,7 @@ class DbPermissionTypeParameter(Base):
 
     def __init__(self, permission_type, name, datatype, description):
         super(DbPermissionTypeParameter, self).__init__()
-        link_relation(self, permission_type, "permission_type")
+        self.permission_type = permission_type
         self.name = name
         self.datatype = datatype
         self.description = description
@@ -845,66 +634,47 @@ class DbPermissionTypeParameter(Base):
             self.description
         )
 
-
-class DbUserApplicablePermissionType(Base):
-    __tablename__  = 'UserApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbUserApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbUserApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
-
 class DbUserPermission(Base):
     __tablename__  = 'UserPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                            = Column(Integer, primary_key = True)
-    user_id                       = Column(Integer, ForeignKey("User.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("UserApplicablePermissionType.id"), nullable = False)
-    permanent_id                  = Column(String(255), nullable = False)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
+    id                 = Column(Integer, primary_key = True)
+    user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
+    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permanent_id       = Column(String(255), nullable = False)
+    date               = Column(DateTime, nullable = False)
+    comments           = Column(Text)
 
-    user                       = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbUserApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    user               = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type    = relation("DbPermissionType", backref=backref("user_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, user, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, user, permission_type, permanent_id, date, comments=None):
         super(DbUserPermission, self).__init__()
-        link_relation(self, user, "user")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        self.user = user
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbUserPermission(id = %r, user = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbUserPermission(id = %r, user = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.user,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
@@ -925,8 +695,8 @@ class DbUserPermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbUserPermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
@@ -950,64 +720,47 @@ class DbUserPermissionParameter(Base):
                     self.value
                 )
 
-class DbRoleApplicablePermissionType(Base):
-    __tablename__  = 'RoleApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbRoleApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbRoleApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
 class DbRolePermission(Base):
     __tablename__  = 'RolePermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("RoleApplicablePermissionType.id"), nullable = False)
+    permission_type_id            = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
     permanent_id                  = Column(String(255), nullable = False)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
-    role                       = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbRoleApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    role            = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type = relation("DbPermissionType", backref=backref("role_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, role, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, role, permission_type, permanent_id, date, comments=None):
         super(DbRolePermission, self).__init__()
-        link_relation(self, role, "role")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        self.role = role
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbRolePermission(id = %r, role = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbRolePermission(id = %r, role = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.role,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
@@ -1028,8 +781,8 @@ class DbRolePermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbRolePermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
@@ -1054,65 +807,47 @@ class DbRolePermissionParameter(Base):
                 )
 
 
-class DbGroupApplicablePermissionType(Base):
-    __tablename__  = 'GroupApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbGroupApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbGroupApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
-
 class DbGroupPermission(Base):
     __tablename__  = 'GroupPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                            = Column(Integer, primary_key = True)
-    group_id                      = Column(Integer, ForeignKey("Group.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("GroupApplicablePermissionType.id"), nullable = False)
-    permanent_id                  = Column(String(255), nullable = False)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
+    id                 = Column(Integer, primary_key = True)
+    group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
+    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permanent_id       = Column(String(255), nullable = False)
+    date               = Column(DateTime, nullable = False)
+    comments           = Column(Text)
 
-    group                      = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbGroupApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    group           = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    permission_type = relation("DbPermissionType", backref=backref("group_permissions", order_by=id, cascade='all,delete'))
 
-    def __init__(self, group, applicable_permission_type, permanent_id, date, comments=None):
+    def __init__(self, group, permission_type, permanent_id, date, comments=None):
         super(DbGroupPermission, self).__init__()
-        link_relation(self, group, "group")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
+        self.group = group
+        self.permission_type = permission_type
         self.permanent_id = permanent_id
         self.date = date
         self.comments = comments
 
     def __repr__(self):
-        return "DbGroupPermission(id = %r, group = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
+        return "DbGroupPermission(id = %r, group = %r, permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
             self.id,
             self.group,
-            self.applicable_permission_type,
+            self.permission_type,
             self.permanent_id,
             self.date,
             self.comments
         )
 
     def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
+        return self.permission_type
 
     def get_parameter(self, parameter_name):
         return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
 
     def to_dto(self):
         permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
+            self.permission_type.name
         )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
@@ -1133,8 +868,8 @@ class DbGroupPermissionParameter(Base):
 
     def __init__(self, permission, permission_type_parameter, value=None):
         super(DbGroupPermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
+        self.permission = permission
+        self.permission_type_parameter = permission_type_parameter
         self.value = value
 
     def __repr__(self):
@@ -1157,111 +892,6 @@ class DbGroupPermissionParameter(Base):
                     self.permission_type_parameter.datatype,
                     self.value
                 )
-
-
-class DbExternalEntityApplicablePermissionType(Base):
-    __tablename__  = 'ExternalEntityApplicablePermissionType'
-    __table_args__ = (TABLE_KWARGS)
-
-    id = Column(Integer, primary_key = True)
-
-    def __init__(self):
-        super(DbExternalEntityApplicablePermissionType, self).__init__()
-
-    def __unicode__(self):
-        return u'true (%r)' % self.id
-
-    def __repr__(self):
-        return "DbExternalEntityApplicablePermissionType(id = %r)" % (
-            self.id
-        )
-
-class DbExternalEntityPermission(Base):
-    __tablename__  = 'ExternalEntityPermission'
-    __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
-
-    id                            = Column(Integer, primary_key = True)
-    ee_id                         = Column(Integer, ForeignKey("ExternalEntity.id"), nullable = False)
-    applicable_permission_type_id = Column(Integer, ForeignKey("ExternalEntityApplicablePermissionType.id"), nullable = False)
-    permanent_id                  = Column(String(255), nullable = False)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
-
-    ee                         = relation("DbExternalEntity", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    applicable_permission_type = relation("DbExternalEntityApplicablePermissionType", backref=backref("permissions", order_by=id, cascade='all,delete'))
-
-    def __init__(self, ee, applicable_permission_type, permanent_id, date, comments=None):
-        super(DbExternalEntityPermission, self).__init__()
-        link_relation(self, ee, "ee")
-        link_relation(self, applicable_permission_type, "applicable_permission_type")
-        self.permanent_id = permanent_id
-        self.date = date
-        self.comments = comments
-
-    def __repr__(self):
-        return "DbExternalEntityPermission(id = %r, ee = %r, applicable_permission_type = %r, permanent_id = %r, date = %r, comments = %r)" % (
-            self.id,
-            self.ee,
-            self.applicable_permission_type,
-            self.permanent_id,
-            self.date,
-            self.comments
-        )
-
-    def get_permission_type(self):
-        return self.applicable_permission_type.permission_type[0]
-
-    def get_parameter(self, parameter_name):
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
-
-    def to_dto(self):
-        permission = Permission(
-            self.applicable_permission_type.permission_type[0].name
-        )
-        for param in self.parameters:
-            permission.add_parameter(param.to_dto())
-        return permission
-
-
-class DbExternalEntityPermissionParameter(Base):
-    __tablename__  = 'ExternalEntityPermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter_id'), TABLE_KWARGS)
-
-    id                           = Column(Integer, primary_key = True)
-    permission_id                = Column(Integer, ForeignKey("ExternalEntityPermission.id"), nullable = False)
-    permission_type_parameter_id = Column(Integer, ForeignKey("PermissionTypeParameter.id"), nullable = False)
-    value                        = Column(Text)
-
-    permission                = relation("DbExternalEntityPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
-    permission_type_parameter = relation("DbPermissionTypeParameter", backref=backref("ee_values", order_by=id, cascade='all,delete'))
-
-    def __init__(self, permission, permission_type_parameter, value=None):
-        super(DbExternalEntityPermissionParameter, self).__init__()
-        link_relation(self, permission, "permission")
-        link_relation(self, permission_type_parameter, "permission_type_parameter")
-        self.value = value
-
-    def __repr__(self):
-        return "DbExternalEntityPermissionParameter(id = %r, permission = %r, permission_type_parameter = %r, value = %r)" % (
-            self.id,
-            self.permission,
-            self.permission_type_parameter,
-            self.value
-        )
-
-    def get_name(self):
-        return self.permission_type_parameter.name
-
-    def get_datatype(self):
-        return self.permission_type_parameter.datatype
-
-    def to_dto(self):
-        return PermissionParameter(
-                    self.permission_type_parameter.name,
-                    self.permission_type_parameter.datatype,
-                    self.value
-                )
-
 
 def _splitted_utc_datetime_to_timestamp(dt, ms):
     if dt is not None:
