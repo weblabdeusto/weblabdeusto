@@ -3,10 +3,9 @@ import traceback
 import SocketServer
 
 from flask import Flask, Markup, request, redirect, abort
-from flask.ext.admin import Admin
 
+from flask.ext.admin import expose, AdminIndexView, Admin, BaseView
 import flask_admin.contrib.sqlamodel.filters as filters
-from flask.ext.admin import expose, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import tools
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
@@ -25,16 +24,6 @@ from weblab.core.exc import SessionNotFoundError
 import weblab.db.model as model
 from weblab.db.gateway import AbstractDatabaseGateway
 import weblab.comm.server as abstract_server
-
-# 
-# TODO:
-# 
-#  - Add an 'federated' role
-# 
-#  - simplify the schema of permissions, and add support
-#    for permissions of the federated role, as well as
-#    builtin permissions (such as admin or forward)
-# 
 
 class FilterAnyEqual(filters.FilterEqual):
     def __init__(self, column, name, column_any, **kwargs):
@@ -316,21 +305,11 @@ class RolePermissionPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
 
-class AdminPanel(AdminIndexView):
+class HomeView(AdminIndexView):
 
-    def is_accessible(self):
-        return False
-
-    @expose('/')
+    @expose()
     def index(self):
-        return '<html><body>Hey ho</body></html>'
-
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
-
-        return super(AdminPanel, self)._handle_view(name, **kwargs)
-
+        return self.render("admin-index.html")
 
 
 class AdministrationApplication(AbstractDatabaseGateway):
@@ -347,7 +326,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration')
+        url = '/weblab/administration'
+        self.admin = Admin(index_view = HomeView(url = url),name = 'WebLab-Deusto Admin', url = url)
 
         self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
@@ -361,6 +341,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',  endpoint = 'permissions/user'))
         self.admin.add_view(GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group', endpoint = 'permissions/group'))
         self.admin.add_view(RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles', endpoint = 'permissions/role'))
+
+        self.admin.init_app(self.app)
 
         self.bypass_authz = bypass_authz
 
