@@ -1,4 +1,4 @@
-from flask import Flask, Markup
+from flask import Flask, Markup, request
 from flask.ext.admin import Admin
 import flask_admin.contrib.sqlamodel.filters as filters
 from flask.ext.admin.contrib.sqlamodel import tools
@@ -323,15 +323,13 @@ class RolePermissionPanel(AdministratorModelView):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **default_args)
 
 
-engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
-
-db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-
 class AdministrationApplication(object):
 
     INSTANCE = None
 
     def __init__(self, cfg_manager, bypass_authz = False):
+        engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
         self.app = Flask(__name__)
         self.admin = Admin(self.app, name = 'WebLab-Deusto Admin')
