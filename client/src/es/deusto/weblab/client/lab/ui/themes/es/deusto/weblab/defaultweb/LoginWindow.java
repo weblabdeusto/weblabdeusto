@@ -76,7 +76,6 @@ class LoginWindow extends BaseWindow {
 	@UiField HTML openSourceAddressHTML;
 	@UiField HTML mobileHTML;
 	@UiField DecoratorPanel createAccountPanel;
-	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
 	@UiField VerticalPanel guestPanel;
@@ -92,9 +91,6 @@ class LoginWindow extends BaseWindow {
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
 	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
-	
-	private static final String ADMIN_PANEL_VISIBLE_PROPERTY = "admin.panel.visible";
-	private static final boolean DEFAULT_ADMIN_PANEL_VISIBLE = true;
 	
 	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
 	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = true;
@@ -183,11 +179,7 @@ class LoginWindow extends BaseWindow {
 		final boolean createAccountVisible = this.configurationManager.getBoolProperty(CREATE_ACCOUNT_VISIBLE_PROPERTY, DEFAULT_CREATE_ACCOUNT_VISIBLE);
 		if(!createAccountVisible)
 			this.createAccountPanel.setVisible(false);
-		
-		final boolean adminPanelVisible = this.configurationManager.getBoolProperty(ADMIN_PANEL_VISIBLE_PROPERTY, DEFAULT_ADMIN_PANEL_VISIBLE);
-		if(!adminPanelVisible)
-			this.adminPanel.setVisible(false);
-		
+				
 		final String adminEmail = this.configurationManager.getProperty(
 				LoginWindow.ADMIN_EMAIL_PROPERTY,
 				LoginWindow.DEFAULT_ADMIN_EMAIL

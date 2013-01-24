@@ -154,11 +154,6 @@
 							</g:VerticalPanel>
 						</g:DecoratorPanel>
 						
-						<g:DecoratorPanel width="100%" ui:field="adminPanel">
-							<g:HorizontalPanel styleName="web-login-foot-message" spacing="20">
-								<g:Anchor text="{i18n.administrationPanel}" href="index-admin.html"></g:Anchor>
-							</g:HorizontalPanel>
-						</g:DecoratorPanel>
 			    	</g:VerticalPanel>
 			    </g:cell>
 		    </g:HorizontalPanel>
