@@ -1,4 +1,4 @@
-from flask import Flask, Markup, request
+from flask import Flask, Markup, request, redirect
 from flask.ext.admin import Admin
 import flask_admin.contrib.sqlamodel.filters as filters
 from flask.ext.admin.contrib.sqlamodel import tools
@@ -7,11 +7,14 @@ from flask.ext.admin.contrib.sqlamodel import ModelView
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+import wsgiref.simple_server
+
 if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, '.')
 
 import weblab.db.model as model
+from weblab.db.gateway import AbstractDatabaseGateway
 
 # 
 # TODO:
@@ -153,9 +156,7 @@ class UsersPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"General", "name":u"Users" }
-        default_args.update(**kwargs)
-        super(UsersPanel, self).__init__(model.DbUser, session, **default_args)
+        super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
         self.login_filter_number = get_filter_number(self, u'User.login')
         self.group_filter_number = get_filter_number(self, u'Group.name')
         self.role_filter_number  = get_filter_number(self, u'Role.name')
@@ -177,9 +178,7 @@ class GroupsPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"General", "name":u"Groups" }
-        default_args.update(**kwargs)
-        super(GroupsPanel, self).__init__(model.DbGroup, session, **default_args)
+        super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
         self.user_filter_number  = get_filter_number(self, u'User.login')
 
@@ -206,9 +205,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-        default_args = { "category":u"Logs", "name":u"User logs" }
-        default_args.update(**kwargs)
-        super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **default_args)
+        super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.user_filter_number  = get_filter_number(self, u'User.login')
         self.experiment_filter_number  = get_filter_number(self, u'Experiment.name')
@@ -228,11 +225,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-
-        default_args = { "category" : u"Experiments", "name" : u"Categories" }
-        default_args.update(**kwargs)
-
-        super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **default_args)
+        super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
         
         self.category_filter_number  = get_filter_number(self, u'Category.name')
 
@@ -253,11 +246,7 @@ class ExperimentPanel(AdministratorModelView):
     INSTANCE = None
 
     def __init__(self, session, **kwargs):
-
-        default_args = { "category" : u"Experiments", "name" : u"Experiments" }
-        default_args.update(**kwargs)
-
-        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **default_args)
+        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
         
         self.name_filter_number  = get_filter_number(self, u'Experiment.name')
         self.category_filter_number  = get_filter_number(self, u'Category.name')
@@ -272,10 +261,7 @@ class PermissionTypePanel(AdministratorModelView):
     inline_models = (model.DbPermissionTypeParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"types" }
-        default_args.update(**kwargs)
-
-        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **default_args)
+        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **kwargs)
 
 def display_parameters(context, permission, p):
     parameters = u''
@@ -293,10 +279,7 @@ class UserPermissionPanel(AdministratorModelView):
     inline_models = (model.DbUserPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"User permissions" }
-        default_args.update(**kwargs)
-
-        super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **default_args)
+        super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
 
 class GroupPermissionPanel(AdministratorModelView):
 
@@ -305,10 +288,7 @@ class GroupPermissionPanel(AdministratorModelView):
     inline_models = (model.DbGroupPermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"Group permissions" }
-        default_args.update(**kwargs)
-
-        super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **default_args)
+        super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
 
 class RolePermissionPanel(AdministratorModelView):
 
@@ -317,31 +297,37 @@ class RolePermissionPanel(AdministratorModelView):
     inline_models = (model.DbRolePermissionParameter,)
 
     def __init__(self, session, **kwargs):
-        default_args = { "category" : u"Permissions", "name" : u"Role permissions" }
-        default_args.update(**kwargs)
-
-        super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **default_args)
+        super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
 
 
-class AdministrationApplication(object):
+class AdministrationApplication(AbstractDatabaseGateway):
 
     INSTANCE = None
 
-    def __init__(self, cfg_manager, bypass_authz = False):
-        engine = create_engine('mysql://weblab:weblab@localhost/WebLabTests', convert_unicode=True, pool_recycle=3600, echo = False)
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+    def __init__(self, cfg_manager, ups, bypass_authz = False):
+
+        super(AdministrationApplication, self).__init__(cfg_manager)
+
+        self.ups = ups
+
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 
         self.app = Flask(__name__)
-        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin')
-        self.admin.add_view(UsersPanel(db_session))
-        self.admin.add_view(GroupsPanel(db_session))
-        self.admin.add_view(UserUsedExperimentPanel(db_session))
-        self.admin.add_view(ExperimentCategoryPanel(db_session))
-        self.admin.add_view(ExperimentPanel(db_session))
-        self.admin.add_view(PermissionTypePanel(db_session))
-        self.admin.add_view(UserPermissionPanel(db_session))
-        self.admin.add_view(GroupPermissionPanel(db_session))
-        self.admin.add_view(RolePermissionPanel(db_session))
+        self.app.config['SECRET_KEY'] = os.urandom(32)
+        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration')
+
+        self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
+        self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
+
+        self.admin.add_view(UserUsedExperimentPanel(db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
+
+        self.admin.add_view(ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
+        self.admin.add_view(ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
+
+        self.admin.add_view(PermissionTypePanel(db_session,  category = 'Permissions', name = 'Types', endpoint = 'permissions/types'))
+        self.admin.add_view(UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',  endpoint = 'permissions/user'))
+        self.admin.add_view(GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group', endpoint = 'permissions/group'))
+        self.admin.add_view(RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles', endpoint = 'permissions/role'))
 
         self.bypass_authz = bypass_authz
 
@@ -350,15 +336,33 @@ class AdministrationApplication(object):
     def is_admin(self):
         if self.bypass_authz:
             return True
-        
+
+        session_id = request.cookies.get('weblabsessionid')
+        permissions = self.ups.get_user_permissions(session_id)
+        print permissions
+
         # TODO: contact the UPS ask for the session, etc.
-        return False
-            
+        return True
+
+class AdminServer(wsgiref.simple_server.WSGIServer):
+    pass    
 
 if __name__ == '__main__':
-    SECRET_KEY = 'development_key'
-    admin_app = AdministrationApplication(None, bypass_authz = True)
+    from voodoo.configuration import ConfigurationManager
+    cfg_manager = ConfigurationManager()
+    cfg_manager.append_path('test/unit/configuration.py')
 
-    admin_app.app.config.from_object(__name__)
-    admin_app.app.run(debug=True, host = '0.0.0.0')
+
+    DEBUG = True
+    if DEBUG:
+        admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
+
+        @admin_app.app.route('/')
+        def index():
+            return redirect('/weblab/administration')
+
+        admin_app.app.run(debug=True, host = '0.0.0.0')
+    else:
+        server = AdminServer(None, cfg_manager)
+        server.start()
 
