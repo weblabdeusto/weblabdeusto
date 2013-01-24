@@ -1,10 +1,12 @@
-from flask import Flask, Markup, request, redirect
+import os
+import traceback
+import SocketServer
+from flask import Flask, Markup, request, redirect, abort
 from flask.ext.admin import Admin
 import flask_admin.contrib.sqlamodel.filters as filters
 from flask.ext.admin.contrib.sqlamodel import tools
 from flask.ext.admin.contrib.sqlamodel import ModelView
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 import wsgiref.simple_server
@@ -13,8 +15,12 @@ if __name__ == '__main__':
     import sys, os
     sys.path.insert(0, '.')
 
+from voodoo.sessions.session_id import SessionId
+from weblab.core.exc import SessionNotFoundError
+
 import weblab.db.model as model
 from weblab.db.gateway import AbstractDatabaseGateway
+import weblab.comm.server as abstract_server
 
 # 
 # TODO:
@@ -314,7 +320,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration')
+        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration/')
 
         self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
@@ -337,15 +343,96 @@ class AdministrationApplication(AbstractDatabaseGateway):
         if self.bypass_authz:
             return True
 
-        session_id = request.cookies.get('weblabsessionid')
-        permissions = self.ups.get_user_permissions(session_id)
-        print permissions
+        try:
+            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+            try:
+                permissions = self.ups.get_user_permissions(session_id)
+            except SessionNotFoundError:
+                # Gotcha
+                return False
 
-        # TODO: contact the UPS ask for the session, etc.
-        return True
+            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
+            if len(admin_permissions) == 0:
+                return False
 
-class AdminServer(wsgiref.simple_server.WSGIServer):
-    pass    
+            if admin_permissions[0].parameters[0].value:
+                return True
+
+            return False
+        except:
+            traceback.print_exc()
+            return False
+
+# 
+# TODO: All this code below depends on the old and deprecated communication system of 
+# WebLab-Deusto, which should be refactored to be less complex.
+# 
+
+class WsgiHttpServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
+    daemon_threads      = True
+    request_queue_size  = 50 #TODO: parameter!
+    allow_reuse_address = True
+
+    def __init__(self, server_address, handler_class, application):
+        wsgiref.simple_server.WSGIServer.__init__(self, server_address, handler_class)
+        self.set_app(application)
+
+    def get_request(self):
+        sock, addr = wsgiref.simple_server.WSGIServer.get_request(self)
+        sock.settimeout(None)
+        return sock, addr
+
+class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer):
+    
+    protocol_name = "wsgi"
+
+    WSGI_HANDLER = wsgiref.simple_server.WSGIRequestHandler
+
+    def _retrieve_configuration(self):
+        values = self.parse_configuration(
+                self._rfs.FACADE_WSGI_PORT,
+                **{
+                    self._rfs.FACADE_WSGI_LISTEN: self._rfs.DEFAULT_FACADE_WSGI_LISTEN
+                }
+           )
+        listen = getattr(values, self._rfs.FACADE_WSGI_LISTEN)
+        port   = getattr(values, self._rfs.FACADE_WSGI_PORT)
+        return listen, port
+
+    def initialize(self):
+        listen, port = self._retrieve_configuration()
+        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
+        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
+            without_protocol = '//'.join(core_server_url.split('//')[1:])
+            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+        else:
+            the_location = '/'
+        timeout = self.get_timeout()
+
+        class NewWsgiHttpHandler(self.WSGI_HANDLER):
+            server_route   = the_server_route
+            location       = the_location
+
+        self._server = WsgiHttpServer((listen, port), NewWsgiHttpHandler, self._rfm)
+        self._server.socket.settimeout(timeout)
+
+import weblab.core.comm.admin_server as admin_server
+from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+
+class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
+    SERVERS = (RemoteFacadeServerWSGI,)
+
+    FACADE_WSGI_PORT             = admin_server.ADMIN_FACADE_JSON_PORT
+    FACADE_WSGI_LISTEN           = admin_server.ADMIN_FACADE_JSON_LISTEN
+    DEFAULT_FACADE_WSGI_LISTEN   = admin_server.DEFAULT_ADMIN_FACADE_JSON_LISTEN
+
+    FACADE_SERVER_ROUTE                          = USER_PROCESSING_FACADE_SERVER_ROUTE
+    DEFAULT_SERVER_ROUTE                         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+
+    def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
+        self.application = AdministrationApplication(configuration_manager, server)
+        return self.application.app
 
 if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
