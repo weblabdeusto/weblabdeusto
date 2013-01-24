@@ -120,6 +120,18 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @typecheck(basestring)
+    @logged()
+    def is_admin(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'admin_panel_access')
+            return len(permissions) > 0
+        finally:
+            session.close()
+
+
     @typecheck(basestring, ExperimentUsage)
     @logged()
     def store_experiment_usage(self, user_login, experiment_usage):

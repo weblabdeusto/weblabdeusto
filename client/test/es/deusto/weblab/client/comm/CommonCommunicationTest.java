@@ -278,7 +278,7 @@ public class CommonCommunicationTest extends GWTTestCase {
 		
 		final String SERIALIZED_MESSAGE = "serialized get reservation status request";
 		final String ERROR_MESSAGE = "whatever the error message";
-		final User user = new User("porduna", "Pablo Orduña", "porduna@tecnologico.deusto.es", new Role("student"));
+		final User user = new User("porduna", "Pablo Orduña", "porduna@tecnologico.deusto.es", new Role("student"), "");
 		
 		weblabSerializer.appendReturn(
 					FakeCommonSerializer.PARSE_GET_USER_INFORMATION_RESPONSE, 

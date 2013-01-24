@@ -86,6 +86,8 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField WlAHref administrationLink;
+	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref bottomInstitutionLink;
 	@UiField WlAHref institutionLink;
@@ -157,9 +159,15 @@ class ExperimentWindow extends BaseWindow {
 	    this.navigationPanel.setVisible(visibleHeader);
 	    this.hostedByPanel.setVisible(!visibleHeader);
 	    
-	    if(this.user != null)
+	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		
+	    	if(this.user.getAdminUrl() != null && !this.user.getAdminUrl().equals("")) {
+	    		this.administrationLink.setVisible(true);
+	    		this.administrationLink.setHref(this.user.getAdminUrl());
+	    		this.separatorLabelAdministration.setVisible(true);
+	    	}
+	    }
+	    
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
 	    	this.separatorLabel.setVisible(false);

@@ -1,18 +1,22 @@
 import os
 import traceback
 import SocketServer
+
 from flask import Flask, Markup, request, redirect, abort
 from flask.ext.admin import Admin
+
 import flask_admin.contrib.sqlamodel.filters as filters
+from flask.ext.admin import expose, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import tools
 from flask.ext.admin.contrib.sqlamodel import ModelView
+
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 import wsgiref.simple_server
 
 if __name__ == '__main__':
-    import sys, os
+    import sys
     sys.path.insert(0, '.')
 
 from voodoo.sessions.session_id import SessionId
@@ -83,6 +87,13 @@ class AdministratorModelView(ModelView):
 
     def is_accessible(self):
         return AdministrationApplication.INSTANCE.is_admin()
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+
+        return super(AdministratorModelView, self)._handle_view(name, **kwargs)
+
 
     # 
     # TODO XXX FIXME: This may be a bug. However, whenever this is commented,
@@ -305,6 +316,22 @@ class RolePermissionPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
 
+class AdminPanel(AdminIndexView):
+
+    def is_accessible(self):
+        return False
+
+    @expose('/')
+    def index(self):
+        return '<html><body>Hey ho</body></html>'
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+
+        return super(AdminPanel, self)._handle_view(name, **kwargs)
+
+
 
 class AdministrationApplication(AbstractDatabaseGateway):
 
@@ -320,7 +347,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration/')
+        self.admin = Admin(self.app, name = 'WebLab-Deusto Admin', url = '/weblab/administration')
 
         self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
@@ -363,6 +390,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
             traceback.print_exc()
             return False
 
+#####################################################################################
 # 
 # TODO: All this code below depends on the old and deprecated communication system of 
 # WebLab-Deusto, which should be refactored to be less complex.
@@ -434,6 +462,11 @@ class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
         self.application = AdministrationApplication(configuration_manager, server)
         return self.application.app
 
+#############################################
+# 
+# The code below is only used for testing
+# 
+
 if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     cfg_manager = ConfigurationManager()
@@ -441,15 +474,11 @@ if __name__ == '__main__':
 
 
     DEBUG = True
-    if DEBUG:
-        admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
+    admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
 
-        @admin_app.app.route('/')
-        def index():
-            return redirect('/weblab/administration')
+    @admin_app.app.route('/')
+    def index():
+        return redirect('/weblab/administration')
 
-        admin_app.app.run(debug=True, host = '0.0.0.0')
-    else:
-        server = AdminServer(None, cfg_manager)
-        server.start()
+    admin_app.app.run(debug=True, host = '0.0.0.0')
 

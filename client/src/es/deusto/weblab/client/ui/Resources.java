@@ -42,4 +42,7 @@ public interface Resources extends ClientBundle {
 	
 	@Source("res/calendar.png")
 	ImageResource calendar();
+
+	@Source("res/administration.png")
+	ImageResource administration();
 }

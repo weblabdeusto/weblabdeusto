@@ -135,6 +135,10 @@ class UserProcessor(object):
         db_session_id               = self._session['db_session_id']
         return self._db_manager.is_access_forward(db_session_id)
 
+    def is_admin(self):
+        db_session_id               = self._session['db_session_id']
+        return self._db_manager.is_admin(db_session_id)
+
     #
     # Experiments
     #

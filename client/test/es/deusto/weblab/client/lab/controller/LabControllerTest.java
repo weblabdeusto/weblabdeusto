@@ -91,7 +91,7 @@ public class LabControllerTest  extends GWTTestCase{
 	}
 	
 	public void testLoginSucceeded() throws Exception{
-		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "");
 
 		final LabController controller = this.createController();
 		
@@ -343,7 +343,7 @@ public class LabControllerTest  extends GWTTestCase{
 		Methods m;
 		List<Methods> v;
 		
-		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "");
 		
 		// Data creation
 		final SessionID sessionID = new SessionID("something");

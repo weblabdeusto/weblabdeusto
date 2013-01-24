@@ -25,10 +25,16 @@
 							<g:Label ui:field="userLabel"></g:Label>
 					
 						 	<g:Label ui:field="separatorLabel" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-						 	
+
 						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
 						 	
 						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+						 	
+						 	<w:WlAHref visible="false" ui:field="administrationLink" target="_blank">
+								<g:Image resource='{res.administration}' />
+							</w:WlAHref>
+						 	
+						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
 					
 						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			

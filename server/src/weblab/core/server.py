@@ -356,7 +356,16 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
-        return user_processor.get_user_information()
+        user_information = user_processor.get_user_information()
+        if user_processor.is_admin():
+            if USE_NEW_ADMIN_PAGE:
+                # TODO: use an index or whatever
+                user_information.admin_url = "/weblab/administration/general/users/"
+            else:
+                user_information.admin_url = "/weblab/client/index-admin.html"
+        else:
+            user_information.admin_url = ""
+        return user_information
 
     @logged(log.level.Info)
     @update_session_id

@@ -79,6 +79,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField WlAHref administrationLink;
+	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref institutionLink;
 
@@ -101,6 +103,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    loadExperimentsAllowedConfigurations(experimentsAllowed);
 	    
 	    this.loadWidgets();
+
+	    
 	    
 	    if(RESIZE_HANDLER != null)
 	    	RESIZE_HANDLER.removeHandler();
@@ -171,9 +175,14 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
 
-	    if(this.user != null)
+	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-
+	    	if(this.user.getAdminUrl() != null && !this.user.getAdminUrl().equals("")) {
+	    		this.administrationLink.setVisible(true);
+	    		this.administrationLink.setHref(this.user.getAdminUrl());
+	    		this.separatorLabelAdministration.setVisible(true);
+	    	}
+	    }
 	    loadExperimentsTable();
 		
 	    if(this.callback.startedLoggedIn()){
