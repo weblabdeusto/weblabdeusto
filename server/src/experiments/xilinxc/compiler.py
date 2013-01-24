@@ -35,6 +35,7 @@ class Compiler(object):
         self.toolspath = toolspath
         if self.toolspath != "":
             self.toolspath += os.sep
+        self.errorlines = []
             
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
@@ -94,6 +95,18 @@ class Compiler(object):
             print so, se
         
         if len(se) > 0 or "ERROR:" in so:
+            
+            if(len(se) > 0):
+                self.errorlines.append(se + "\n")
+            
+            try:
+                errors_start = so.index("ERROR:HDLParsers")
+                errors_end = so.index("-->")
+                errors_str = so[errors_start:errors_end]
+                self.errorlines.append(errors_str)
+            except:
+                pass
+            
             return False
         
         return True
@@ -111,6 +124,14 @@ class Compiler(object):
 
         if len(se) == 0 and "NGDBUILD done." in so:
             return True
+        
+        try:
+            errors_start = so.index("ERROR:")
+            errors_end = so.index("Done...")
+            errors_str = so[errors_start:errors_end]
+            self.errorlines.append(errors_str)
+        except:
+            pass
         
         return False
     
@@ -192,6 +213,17 @@ class Compiler(object):
     def compile(self):
         return self.synthesize() and self.implement() and self.generate()
     
+    def errors(self):
+        """
+        Returns a log of the errors that have occurred. Only certain types of errors
+        are logged here. Note that the log is never cleared automatically.
+        @see reset_errors
+        """
+        return ''.join(self.errorlines)
+    
+    def reset_errors(self):
+        self.errorlines = []
+    
 
 if __name__ == "__main__":
 
@@ -200,9 +232,19 @@ if __name__ == "__main__":
     c.DEBUG = True
     Compiler.DEBUG = True
     
-    print c.synthesize()
-    print c.implement()
-    print c.generate()
-#    print c.retrieve_bitfile()
+    synt =  c.synthesize()
+    if synt == False:
+        print "REPORTING: "
+        print c.errors()
+        print "END OF REPORTING"
+    
+    else:
+        imp = c.implement()
+        if imp == False:
+            print "REPORTING: "
+            print c.errors()
+            print "END OF REPORTING"
+        print c.generate()
+        #    print c.retrieve_bitfile()
     
     print "Good bye"
