@@ -5,6 +5,9 @@ import random
 import traceback
 import SocketServer
 
+import logging
+from logging.handlers import RotatingFileHandler
+
 from wtforms.fields import PasswordField
 from wtforms.validators import Email
 
@@ -25,7 +28,9 @@ if __name__ == '__main__':
     import sys
     sys.path.insert(0, '.')
 
+import voodoo.log as log
 from voodoo.sessions.session_id import SessionId
+
 from weblab.core.exc import SessionNotFoundError
 import weblab.configuration_doc as configuration_doc
 
@@ -458,6 +463,15 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
+
+        if os.path.exists('logs'):
+            f = os.path.join('logs','admin_app.log')
+        else:
+            f = 'admin_app.log'
+        file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
+        file_handler.setLevel(logging.WARNING)
+        self.app.logger.addHandler(file_handler)
+
         url = '/weblab/administration'
         self.admin = Admin(index_view = HomeView(db_session, url = url),name = 'WebLab-Deusto Admin', url = url)
 
@@ -555,6 +569,14 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
         class NewWsgiHttpHandler(self.WSGI_HANDLER):
             server_route   = the_server_route
             location       = the_location
+
+            def log_message(self, format, *args):
+                #args: ('POST /weblab/json/ HTTP/1.1', '200', '-')
+                log.log(
+                    NewWsgiHttpHandler,
+                    log.level.Info,
+                    "Request: %s" %  (format % args)
+                )
 
         self._server = WsgiHttpServer((listen, port), NewWsgiHttpHandler, self._rfm)
         self._server.socket.settimeout(timeout)
