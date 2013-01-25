@@ -127,8 +127,9 @@ SAME_DATA = object()
 
 def show_link(klass, filter_name, field, name, view = 'View'):
 
+    script_name = AdministrationApplication.INSTANCE.app.config['APPLICATION_ROOT'] or ''
     instance      = klass.INSTANCE
-    url           = instance.url
+    url           = script_name + instance.url
 
     link = u'<a href="%s?' % url
 
