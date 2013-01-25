@@ -1,13 +1,19 @@
 import os
+import sha
+import random
 import traceback
 import SocketServer
 
+from wtforms.fields import PasswordField
+from wtforms.validators import Email
+
 from flask import Flask, Markup, request, redirect, abort
 
-from flask.ext.admin import expose, AdminIndexView, Admin, BaseView
 import flask_admin.contrib.sqlamodel.filters as filters
-from flask.ext.admin.contrib.sqlamodel import tools
-from flask.ext.admin.contrib.sqlamodel import ModelView
+
+from flask.ext.admin import expose, AdminIndexView, Admin, BaseView
+from flask.ext.admin.contrib.sqlamodel import ModelView, tools
+from flask.ext.admin.model.form import InlineFormAdmin
 
 
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -71,6 +77,18 @@ def get_filter_number(view, name):
                 if unicode(f.column).endswith(name) 
                     and isinstance(f.operation.im_self, filters.FilterEqual) 
         ][0]
+
+class AdministratorView(BaseView):
+
+    def is_accessible(self):
+        return AdministrationApplication.INSTANCE.is_admin()
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+
+        return super(AdministratorView, self)._handle_view(name, **kwargs)
+
 
 class AdministratorModelView(ModelView):
 
@@ -139,7 +157,11 @@ def show_link(klass, filter_name, field, name, view = 'View'):
     link = link[:-1] + u'">%s</a>' % view
 
     return Markup(link)
-    
+   
+class UserAuthForm(InlineFormAdmin):
+    def postprocess_form(self, form_class):
+        form_class.configuration = PasswordField('configuration', description = 'Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
+        return form_class
 
 class UsersPanel(AdministratorModelView):
 
@@ -149,9 +171,15 @@ class UsersPanel(AdministratorModelView):
                     ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
 
 
-    column_descriptions = dict( full_name='First and Last name' )
+    form_excluded_columns = 'avatar',
+    form_args = dict(email = dict(validators = [Email()]) )
 
-    inline_models = (model.DbUserAuth,)
+    column_descriptions = dict( login     = 'Username (all letters, dots and numbers)', 
+                                full_name ='First and Last name',
+                                email     = 'Valid e-mail address',
+                                avatar    = 'Not implemented yet, it should be a public URL for a user picture.' )
+
+    inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
                             role   = lambda c, u, p: show_link(UsersPanel,              'role', u, 'role.name', SAME_DATA),
@@ -168,8 +196,37 @@ class UsersPanel(AdministratorModelView):
         self.role_filter_number  = get_filter_number(self, u'Role.name')
         UsersPanel.INSTANCE = self
 
+    def on_model_change(self, form, user_model):
+        auths = {}
+        for auth_instance in user_model.auths:
+            if auth_instance.auth in auths:
+                raise Exception("You can not have two equal auth types (of type %s)" % auth_instance.auth.name)
+            else:
+                auths[auth_instance.auth] = auth_instance
+                if auth_instance.auth.auth_type.name.lower() == 'db':
+                    password = auth_instance.configuration
+                    if len(password) < 6:
+                        raise Exception("Password too short")
+                    auth_instance.configuration = self._password2sha(password)
+                elif auth_instance.auth.auth_type.name.lower() == 'facebook':
+                    try:
+                        int(auth_instance.configuration)
+                    except:
+                        raise Exception("Use a numeric ID for Facebook")
+                # Other validations would be here
+
+
+    def _password2sha(self, password):
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+        password = password if password is not None else ''
+        return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
+
 class GroupsPanel(AdministratorModelView):
 
+    column_searchable_list = ('name',)
     column_list = ('name','parent', 'users')
 
     column_filters = ( ('name',) 
@@ -190,6 +247,29 @@ class GroupsPanel(AdministratorModelView):
 
         GroupsPanel.INSTANCE = self
 
+class DetailsView(AdministratorView):
+
+    INSTANCE = None
+
+    def __init__(self, db_session, **kwargs):
+        super(DetailsView, self).__init__(**kwargs)
+        self._db_session = db_session
+
+        DetailsView.INSTANCE = self
+
+    @expose()
+    def index(self):
+        # TODO: render
+        return "This page shows the details of each entry. Go to Logs, User and click on Details to see a detail."
+
+    @expose('/<int:id>')
+    def detail(self, id):
+        uue = self._db_session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
+        if uue is None:
+            return abort(404)
+
+        # TODO: render
+        return "Gotcha: %s" % uue.start_date
 
 class UserUsedExperimentPanel(AdministratorModelView):
 
@@ -199,11 +279,14 @@ class UserUsedExperimentPanel(AdministratorModelView):
     can_edit   = False
     can_create = False
 
-    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address') 
+    # column_searchable_list = ('user', 'experiment', 'origin')
+    column_list    = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address','details')
+    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
     column_formatters = dict(
-                    user = lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
+                    user       = lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
                     experiment = lambda c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue, ('experiment.name', 'experiment.category.name'), uue.experiment ),
+                    details    = lambda c, uue, p: Markup('<a href="%s/%s">Details</a>' % (DetailsView.INSTANCE.url, uue.id)),
                 )
 
     action_disallowed_list = ['create','edit','delete']
@@ -221,6 +304,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
 class ExperimentCategoryPanel(AdministratorModelView):
    
+    column_searchable_list = ('name',)
     column_list    = ('name', 'experiments')
     column_filters = ( 'name', ) 
 
@@ -239,6 +323,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
 
 class ExperimentPanel(AdministratorModelView):
     
+    # column_searchable_list = ('name','category')
     column_list = ('category', 'name', 'start_date', 'end_date', 'uses')
 
     
@@ -278,6 +363,9 @@ def display_parameters(context, permission, p):
 
 class UserPermissionPanel(AdministratorModelView):
 
+    column_searchable_list = ('permanent_id', 'comments')
+    # column_searchable_list = ('user','permission', 'permanent_id', 'comments')
+    # column_filters = ( 'user', 'permission', 'permanent_id', 'date', 'comments' )
     column_list = ('user', 'permission', 'permanent_id', 'date', 'comments')
     column_formatters = dict( permission = display_parameters,
     user = lambda c, u, p: unicode(u.user) )
@@ -289,6 +377,8 @@ class UserPermissionPanel(AdministratorModelView):
 
 class GroupPermissionPanel(AdministratorModelView):
 
+    # column_searchable_list = ('group','permission', 'permanent_id', 'comments')
+    # column_filters = ( 'group', 'permission', 'permanent_id', 'date', 'comments' )
     column_list = ('group', 'permission', 'permanent_id', 'date', 'comments')
     column_formatters = dict( permission = display_parameters )
     inline_models = (model.DbGroupPermissionParameter,)
@@ -298,6 +388,8 @@ class GroupPermissionPanel(AdministratorModelView):
 
 class RolePermissionPanel(AdministratorModelView):
 
+    # column_searchable_list = ('role','permission', 'permanent_id', 'comments')
+    # column_filters = ( 'role', 'permission', 'permanent_id', 'date', 'comments' )
     column_list = ('role', 'permission', 'permanent_id', 'date', 'comments')
     column_formatters = dict( permission = display_parameters )
     inline_models = (model.DbRolePermissionParameter,)
@@ -333,6 +425,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
 
         self.admin.add_view(UserUsedExperimentPanel(db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
+        self.admin.add_view(DetailsView(db_session,             category = 'Logs', name = 'Details', endpoint = 'logs/details'))
 
         self.admin.add_view(ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
         self.admin.add_view(ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
@@ -437,8 +530,8 @@ class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     FACADE_WSGI_LISTEN           = admin_server.ADMIN_FACADE_JSON_LISTEN
     DEFAULT_FACADE_WSGI_LISTEN   = admin_server.DEFAULT_ADMIN_FACADE_JSON_LISTEN
 
-    FACADE_SERVER_ROUTE                          = USER_PROCESSING_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE                         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+    FACADE_SERVER_ROUTE          = USER_PROCESSING_FACADE_SERVER_ROUTE
+    DEFAULT_SERVER_ROUTE         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
     def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
         self.application = AdministrationApplication(configuration_manager, server)
