@@ -147,6 +147,8 @@ class UserProcessingServer(object):
         self._cfg_manager    = cfg_manager
         self._locator        = locator
 
+        self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
+
         if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
             generated = uuid.uuid1()
             msg = "Property %(property)s or %(property_human)s not configured. Please establish: %(property)s = '%(uuid)s' and %(property_human)s = 'server at university X'. Otherwise, when federating the experiment it could enter in an endless loop." % {
@@ -359,10 +361,9 @@ class UserProcessingServer(object):
         user_information = user_processor.get_user_information()
         if user_processor.is_admin():
             if USE_NEW_ADMIN_PAGE:
-                # TODO: use an index or whatever
-                user_information.admin_url = "/weblab/administration/general/users/"
+                user_information.admin_url = self.core_server_url + "administration/"
             else:
-                user_information.admin_url = "/weblab/client/index-admin.html"
+                user_information.admin_url = self.core_server_url + "client/index-admin.html"
         else:
             user_information.admin_url = ""
         return user_information
