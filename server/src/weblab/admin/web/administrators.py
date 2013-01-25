@@ -171,7 +171,7 @@ class UserAuthForm(InlineFormAdmin):
 
 class UsersPanel(AdministratorModelView):
 
-    column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs')
+    column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
     column_searchable_list = ('full_name', 'login')
     column_filters = ( 'full_name', 'login','role', 'email'
                     ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
@@ -188,9 +188,10 @@ class UsersPanel(AdministratorModelView):
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-                            role   = lambda c, u, p: show_link(UsersPanel,              'role', u, 'role.name', SAME_DATA),
-                            groups = lambda c, u, p: show_link(GroupsPanel,             'user', u, 'login'),
-                            logs   = lambda c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
+                            role        = lambda c, u, p: show_link(UsersPanel,              'role', u, 'role.name', SAME_DATA),
+                            groups      = lambda c, u, p: show_link(GroupsPanel,             'user', u, 'login'),
+                            logs        = lambda c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
+                            permissions = lambda c, u, p: show_link(UserPermissionPanel,     'user', u, 'login'),
                         )
 
     INSTANCE = None
@@ -233,7 +234,7 @@ class UsersPanel(AdministratorModelView):
 class GroupsPanel(AdministratorModelView):
 
     column_searchable_list = ('name',)
-    column_list = ('name','parent', 'users')
+    column_list = ('name','parent', 'users','permissions')
 
     column_filters = ( ('name',) 
                         + generate_filter_any(model.DbUser.login.property.columns[0], 'User login', model.DbGroup.users)
@@ -241,7 +242,8 @@ class GroupsPanel(AdministratorModelView):
                     )
 
     column_formatters = dict(
-                            users = lambda c, g, p: show_link(UsersPanel, 'group', g, 'name'),
+                            users       = lambda c, g, p: show_link(UsersPanel,           'group', g, 'name'),
+                            permissions = lambda c, g, p: show_link(GroupPermissionPanel, 'group', g, 'name'),
                         )
 
     INSTANCE = None
@@ -261,7 +263,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
     can_edit   = False
     can_create = False
 
-    # column_searchable_list = ('user', 'experiment', 'origin')
+    column_searchable_list = ('origin',)
+    column_sortable_list = ('id', ('user', model.DbUser.login), ('experiment',  model.DbExperiment.id), 'start_date', 'end_date', 'origin', 'coord_address')
     column_list    = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address','details')
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
@@ -284,6 +287,13 @@ class UserUsedExperimentPanel(AdministratorModelView):
         # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
 
         UserUsedExperimentPanel.INSTANCE = self
+
+    def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
+        # So as to sort descending, force sorting by 'id' and reverse the sort_desc
+        if sort_column is None:
+            sort_column = 'id'
+            sort_desc   = not sort_desc
+        return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
 
     @expose('/details/<int:id>')
     def detail(self, id):
@@ -363,7 +373,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
 
 class ExperimentPanel(AdministratorModelView):
     
-    # column_searchable_list = ('name','category')
+    column_searchable_list = ('name',)
     column_list = ('category', 'name', 'start_date', 'end_date', 'uses')
 
     
@@ -401,41 +411,101 @@ def display_parameters(context, permission, p):
     permission_str = u'%s(%s)' % (permission.permission_type.name, parameters[:-2])
     return permission_str
 
-class UserPermissionPanel(AdministratorModelView):
 
+class GenericPermissionPanel(AdministratorModelView):
+    
+    """ Abstract class for UserPermissionPanel, GroupPermissionPanel and RolePermissionPanel """
+
+    can_create = False
+
+    column_descriptions = dict(permanent_id = 'A unique permanent identifier for a particular permission',)
     column_searchable_list = ('permanent_id', 'comments')
-    # column_searchable_list = ('user','permission', 'permanent_id', 'comments')
-    # column_filters = ( 'user', 'permission', 'permanent_id', 'date', 'comments' )
-    column_list = ('user', 'permission', 'permanent_id', 'date', 'comments')
-    column_formatters = dict( permission = display_parameters,
-    user = lambda c, u, p: unicode(u.user) )
+    column_formatters = dict( permission = display_parameters )
+    column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
+    column_sortable_list = ( ('permission', model.DbPermissionType.id), 'permanent_id', 'date', 'comments')
+    column_list = ('permission', 'permanent_id', 'date', 'comments')
+
+    def __init__(self, model, session, **kwargs):
+        super(GenericPermissionPanel, self).__init__(model, session, **kwargs)
+
+    def on_model_change(self, form, permission):
+        req_arguments = {
+            'experiment_allowed' : ('experiment_permanent_id','experiment_category_id','time_allowed'),
+            'admin_panel_access' : ('full_privileges',),
+            'access_forward'     : (),
+        }
+        opt_arguments = {
+            'experiment_allowed' : ('priority','initialization_in_accounting'),
+            'admin_panel_access' : (),
+            'access_forward'     : (),
+        }
+        required_arguments = set(req_arguments[permission.permission_type.name])
+        optional_arguments = set(opt_arguments[permission.permission_type.name])
+        obtained_arguments = set([ parameter.permission_type_parameter.name for parameter in permission.parameters ])
+
+        missing_arguments  = required_arguments.difference(obtained_arguments)
+        exceeded_arguments = obtained_arguments.difference(required_arguments.union(optional_arguments))
+
+        message = ""
+        if missing_arguments:
+            message = "Missing arguments: %s" % ', '.join(missing_arguments)
+            if exceeded_arguments:
+                message += "; "
+        if exceeded_arguments:
+            message += "Exceeded arguments: %s" % ', '.join(exceeded_arguments)
+        if message:
+            raise Exception(message)
+            
+        
+
+class UserPermissionPanel(GenericPermissionPanel):
+
+    column_filters       = GenericPermissionPanel.column_filters       + ('user',)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user',model.DbUser.login),)
+    column_list          = ('user', )  + GenericPermissionPanel.column_list
 
     inline_models = (model.DbUserPermissionParameter,)
 
+    INSTANCE = None
+
     def __init__(self, session, **kwargs):
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
+        self.user_filter_number = get_filter_number(self, u'User.login')
+        UserPermissionPanel.INSTANCE = self
 
-class GroupPermissionPanel(AdministratorModelView):
+class GroupPermissionPanel(GenericPermissionPanel):
 
-    # column_searchable_list = ('group','permission', 'permanent_id', 'comments')
-    # column_filters = ( 'group', 'permission', 'permanent_id', 'date', 'comments' )
-    column_list = ('group', 'permission', 'permanent_id', 'date', 'comments')
-    column_formatters = dict( permission = display_parameters )
+    column_filters       = GenericPermissionPanel.column_filters       + ('group',)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group',model.DbGroup.name),)
+    column_list          = ('group', )  + GenericPermissionPanel.column_list
+
     inline_models = (model.DbGroupPermissionParameter,)
+
+    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
 
-class RolePermissionPanel(AdministratorModelView):
+        self.group_filter_number = get_filter_number(self, u'Group.name')
+        
+        GroupPermissionPanel.INSTANCE = self
 
-    # column_searchable_list = ('role','permission', 'permanent_id', 'comments')
-    # column_filters = ( 'role', 'permission', 'permanent_id', 'date', 'comments' )
-    column_list = ('role', 'permission', 'permanent_id', 'date', 'comments')
-    column_formatters = dict( permission = display_parameters )
+class RolePermissionPanel(GenericPermissionPanel):
+
+    column_filters       = GenericPermissionPanel.column_filters       + ('role',)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role',model.DbRole.name),)
+    column_list          = ('role', )  + GenericPermissionPanel.column_list
+
     inline_models = (model.DbRolePermissionParameter,)
+
+    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
+        
+        self.role_filter_number = get_filter_number(self, u'Role.name')
+
+        RolePermissionPanel.INSTANCE = self
 
 class HomeView(AdminIndexView):
 
