@@ -1,0 +1,2 @@
+recursive-include weblab/admin/web/templates *
+recursive-include weblab/admin/web/static *

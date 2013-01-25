@@ -22,8 +22,9 @@ recommended to use virtualenv first to create a user-level environment.
 
 import os
 import shutil
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py as _build_py
+
 
 # TODO: in the weblab-admin script, choose between the absolute directory
 # to the source code and sys.prefix
@@ -94,7 +95,6 @@ class WebLabBuild(_build_py):
 if not os.path.exists('weblabdeusto_data'):
     os.mkdir('weblabdeusto_data')
 
-packages     = []
 data_files   = []
 
 for weblab_dir in ['voodoo','weblab','experiments','webserver']:
@@ -103,9 +103,6 @@ for weblab_dir in ['voodoo','weblab','experiments','webserver']:
         for i, dirname in enumerate(dirnames):
             if dirname.startswith('.'): 
                 del dirnames[i]
-
-        if '__init__.py' in filenames:
-            packages.append('.'.join(fullsplit(dirpath)))
 
         non_python_files = [ filename for filename in filenames if not filename.endswith(('.py','.pyc','.pyo')) ]
         if non_python_files:
@@ -121,6 +118,9 @@ for weblab_dir in ['voodoo','weblab','experiments','webserver']:
                 shutil.copy2(os.path.join(dirpath, f), os.path.join(new_path, f))
 
 
+packages = find_packages(exclude=['test.*','test'])
+
+
 for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     # Ignore dirnames that start with '.'   
     for i, dirname in enumerate(dirnames):
@@ -132,8 +132,9 @@ for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     # made.
     if dirpath.startswith(os.path.join('weblabdeusto_data','war')):
         newdir = dirpath.replace(os.path.join('weblabdeusto_data','war'), os.path.join('..','..','client','war'))
-        filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
+        if os.path.exists(newdir):
+            filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
     else:
         if len(filenames) > 0:
             data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
@@ -192,6 +193,7 @@ setup(name='weblabdeusto',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',
       packages=packages,
+      include_package_data=True,
       data_files=data_files,
       license=cp_license,
       scripts=scripts,
