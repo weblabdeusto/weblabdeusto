@@ -1,5 +1,6 @@
 import os
 import sha
+import time
 import random
 import traceback
 import SocketServer
@@ -7,7 +8,7 @@ import SocketServer
 from wtforms.fields import PasswordField
 from wtforms.validators import Email
 
-from flask import Flask, Markup, request, redirect, abort
+from flask import Flask, Markup, request, redirect, abort, url_for, flash
 
 import flask_admin.contrib.sqlamodel.filters as filters
 
@@ -26,6 +27,7 @@ if __name__ == '__main__':
 
 from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
+import weblab.configuration_doc as configuration_doc
 
 import weblab.db.model as model
 from weblab.db.gateway import AbstractDatabaseGateway
@@ -112,7 +114,6 @@ class AdministratorModelView(ModelView):
     # 
     # And some (weird) results in UserUsedExperiment are not shown, while other yes
     # 
-
     def scaffold_auto_joins(self):
         return []
 
@@ -247,30 +248,6 @@ class GroupsPanel(AdministratorModelView):
 
         GroupsPanel.INSTANCE = self
 
-class DetailsView(AdministratorView):
-
-    INSTANCE = None
-
-    def __init__(self, db_session, **kwargs):
-        super(DetailsView, self).__init__(**kwargs)
-        self._db_session = db_session
-
-        DetailsView.INSTANCE = self
-
-    @expose()
-    def index(self):
-        # TODO: render
-        return "This page shows the details of each entry. Go to Logs, User and click on Details to see a detail."
-
-    @expose('/<int:id>')
-    def detail(self, id):
-        uue = self._db_session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
-        if uue is None:
-            return abort(404)
-
-        # TODO: render
-        return "Gotcha: %s" % uue.start_date
-
 class UserUsedExperimentPanel(AdministratorModelView):
 
     column_auto_select_related = True
@@ -286,21 +263,79 @@ class UserUsedExperimentPanel(AdministratorModelView):
     column_formatters = dict(
                     user       = lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
                     experiment = lambda c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue, ('experiment.name', 'experiment.category.name'), uue.experiment ),
-                    details    = lambda c, uue, p: Markup('<a href="%s/%s">Details</a>' % (DetailsView.INSTANCE.url, uue.id)),
+                    details    = lambda c, uue, p: Markup('<a href="%s">Details</a>' % (url_for('.detail', id=uue.id))),
                 )
 
     action_disallowed_list = ['create','edit','delete']
 
     INSTANCE = None
 
-    def __init__(self, session, **kwargs):
+    def __init__(self, files_directory, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
+        self.files_directory     = files_directory
         self.user_filter_number  = get_filter_number(self, u'User.login')
         self.experiment_filter_number  = get_filter_number(self, u'Experiment.name')
         # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
 
         UserUsedExperimentPanel.INSTANCE = self
+
+    @expose('/details/<int:id>')
+    def detail(self, id):
+        uue = self.session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
+        if uue is None:
+            return abort(404)
+
+        properties = {}
+        for prop in uue.properties:
+            properties[prop.property_name.name] = prop.value
+
+        return self.render("details.html", uue = uue, properties = properties)
+
+    @expose('/interactions/<int:id>')
+    def interactions(self, id):
+        uue = self.session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
+
+        if uue is None:
+            return abort(404)
+
+        interactions = []
+
+        for command in uue.commands:
+            timestamp = time.mktime(command.timestamp_before.timetuple()) + 1e-6 * command.timestamp_before_micro
+            interactions.append((timestamp, True, command))
+
+        for f in uue.files:
+            print f.file_sent
+            timestamp = time.mktime(f.timestamp_before.timetuple()) + 1e-6 * f.timestamp_before_micro
+            interactions.append((timestamp, False, f))
+
+        interactions.sort(lambda (x1, x2, x3), (y1, y2, y3) : cmp(x1, y1))
+
+        return self.render("interactions.html", uue = uue, interactions = interactions, unicode = unicode)
+
+    @expose('/files/<int:id>')
+    def files(self, id):
+        uf = self.session.query(model.DbUserFile).filter_by(id = id).first()
+        if uf is None:
+            return abort(404)
+
+        if 'not stored' in uf.file_sent:
+            flash("File not stored")
+            return self.render("error.html", message = "The file has not been stored. Check the %s configuration value." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS)
+        
+        file_path = os.path.join(self.files_directory, uf.file_sent)
+        if os.path.exists(file_path):
+            content = open(file_path).read()
+            return Response(content, headers = {'Content-Type' : 'application/octstream', 'Content-Disposition' : 'attachment; filename=file_%s.bin' % id})
+        else:
+            if os.path.exists(self.files_directory):
+                flash("Wrong configuration or file deleted")
+                return self.render("error.html", message = "The file was stored, but now it is not reachable. Check the %s property." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+            else:
+                flash("Wrong configuration")
+                return self.render("error.html", message = "The file was stored, but now it is not reachable. The %s directory does not exist." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+
 
 class ExperimentCategoryPanel(AdministratorModelView):
    
@@ -399,10 +434,13 @@ class RolePermissionPanel(AdministratorModelView):
 
 class HomeView(AdminIndexView):
 
+    def __init__(self, db_session, **kwargs):
+        self._db_session = db_session
+        super(HomeView, self).__init__(**kwargs)
+
     @expose()
     def index(self):
         return self.render("admin-index.html")
-
 
 class AdministrationApplication(AbstractDatabaseGateway):
 
@@ -416,16 +454,17 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
 
+        files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
         url = '/weblab/administration'
-        self.admin = Admin(index_view = HomeView(url = url),name = 'WebLab-Deusto Admin', url = url)
+        self.admin = Admin(index_view = HomeView(db_session, url = url),name = 'WebLab-Deusto Admin', url = url)
 
         self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
 
-        self.admin.add_view(UserUsedExperimentPanel(db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
-        self.admin.add_view(DetailsView(db_session,             category = 'Logs', name = 'Details', endpoint = 'logs/details'))
+        self.admin.add_view(UserUsedExperimentPanel(files_directory, db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
 
         self.admin.add_view(ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
         self.admin.add_view(ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))

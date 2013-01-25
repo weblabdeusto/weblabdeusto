@@ -55,7 +55,7 @@ import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
 
-USE_NEW_ADMIN_PAGE = False
+USE_NEW_ADMIN_PAGE = True
 if USE_NEW_ADMIN_PAGE:
     from weblab.admin.web.administrators import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
     AdminRemoteFacadeServer = AdminRemoteFacadeServer_new
