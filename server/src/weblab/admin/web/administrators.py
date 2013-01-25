@@ -2,6 +2,7 @@ import os
 import sha
 import time
 import random
+import urlparse
 import traceback
 import SocketServer
 
@@ -599,20 +600,43 @@ class WsgiHttpServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServ
     request_queue_size  = 50 #TODO: parameter!
     allow_reuse_address = True
 
-    def __init__(self, server_address, handler_class, application):
+    def __init__(self, script_name, server_address, handler_class, application):
+        self.script_name = script_name
         wsgiref.simple_server.WSGIServer.__init__(self, server_address, handler_class)
         self.set_app(application)
+
+    def setup_environ(self):
+        wsgiref.simple_server.WSGIServer.setup_environ(self)
+        self.base_environ['SCRIPT_NAME'] = self.script_name
+        print self.base_environ
 
     def get_request(self):
         sock, addr = wsgiref.simple_server.WSGIServer.get_request(self)
         sock.settimeout(None)
         return sock, addr
 
+class WrappedWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
+
+    def get_environ(self):
+        env = wsgiref.simple_server.WSGIRequestHandler.get_environ(self)
+        script_name = self.server.script_name
+        if script_name and env['PATH_INFO'].startswith(script_name):
+            env['PATH_INFO'] = env['PATH_INFO'].split(script_name,1)[1]
+        return env
+
+    def log_message(self, format, *args):
+        #args: ('POST /weblab/json/ HTTP/1.1', '200', '-')
+        log.log(
+            WrappedWSGIRequestHandler,
+            log.level.Info,
+            "Request: %s" %  (format % args)
+        )
+
 class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer):
     
     protocol_name = "wsgi"
 
-    WSGI_HANDLER = wsgiref.simple_server.WSGIRequestHandler
+    WSGI_HANDLER = WrappedWSGIRequestHandler
 
     def _retrieve_configuration(self):
         values = self.parse_configuration(
@@ -640,15 +664,8 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
             server_route   = the_server_route
             location       = the_location
 
-            def log_message(self, format, *args):
-                #args: ('POST /weblab/json/ HTTP/1.1', '200', '-')
-                log.log(
-                    NewWsgiHttpHandler,
-                    log.level.Info,
-                    "Request: %s" %  (format % args)
-                )
-
-        self._server = WsgiHttpServer((listen, port), NewWsgiHttpHandler, self._rfm)
+        script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0]
+        self._server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, self._rfm)
         self._server.socket.settimeout(timeout)
 
 import weblab.core.comm.admin_server as admin_server
