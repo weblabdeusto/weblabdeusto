@@ -61,7 +61,7 @@ SAME_DATA = object()
 
 def show_link(klass, filter_name, field, name, view = 'View'):
 
-    script_name = get_app_instance().app.config['APPLICATION_ROOT'] or ''
+    script_name = get_app_instance().script_name
     instance      = klass.INSTANCE
     url           = script_name + instance.url
 

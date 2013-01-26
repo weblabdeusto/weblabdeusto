@@ -33,11 +33,11 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
-        script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0]
+        self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
 
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.app.config['APPLICATION_ROOT'] = script_name
+        self.app.config['APPLICATION_ROOT'] = self.script_name
 
         if os.path.exists('logs'):
             f = os.path.join('logs','admin_app.log')
@@ -70,6 +70,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles', endpoint = 'permissions/role'))
 
         self.admin.init_app(self.app)
+
+        self.full_admin_url = self.script_name + admin_url
 
         ################################################
         # 
@@ -120,6 +122,14 @@ class AdministrationApplication(AbstractDatabaseGateway):
         except:
             traceback.print_exc()
             return False
+
+    def get_permissions(self):
+        try:
+            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+            return self.ups.get_user_permissions(session_id)
+        except:
+            traceback.print_exc()
+            return None
 
     def get_user_information(self):
         if self.bypass_authz:
