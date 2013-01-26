@@ -46,7 +46,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         file_handler.setLevel(logging.WARNING)
         self.app.logger.addHandler(file_handler)
 
-        url = '/weblab/administration'
+        url = '/weblab/administration/admin'
         self.admin = Admin(index_view = admin_views.HomeView(db_session, url = url),name = 'WebLab-Deusto Admin', url = url)
 
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))

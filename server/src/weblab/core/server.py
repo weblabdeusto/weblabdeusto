@@ -361,7 +361,7 @@ class UserProcessingServer(object):
         user_information = user_processor.get_user_information()
         if user_processor.is_admin():
             if USE_NEW_ADMIN_PAGE:
-                user_information.admin_url = self.core_server_url + "administration/"
+                user_information.admin_url = self.core_server_url + "administration/admin/"
             else:
                 user_information.admin_url = self.core_server_url + "client/index-admin.html"
         else:
