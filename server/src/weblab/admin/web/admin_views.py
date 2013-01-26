@@ -233,7 +233,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
     @expose('/details/<int:id>')
     def detail(self, id):
-        uue = self.session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
+        uue = self.get_query().filter_by(id = id).first()
         if uue is None:
             return abort(404)
 
@@ -245,7 +245,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
     @expose('/interactions/<int:id>')
     def interactions(self, id):
-        uue = self.session.query(model.DbUserUsedExperiment).filter_by(id = id).first()
+        uue = self.get_query().filter_by(id = id).first()
 
         if uue is None:
             return abort(404)
@@ -264,9 +264,12 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
         return self.render("interactions.html", uue = uue, interactions = interactions, unicode = unicode)
 
+    def get_file(self, id):
+        return self.session.query(model.DbUserFile).filter_by(id = id).first()
+
     @expose('/files/<int:id>')
     def files(self, id):
-        uf = self.session.query(model.DbUserFile).filter_by(id = id).first()
+        uf = self.get_file(id)
         if uf is None:
             return abort(404)
 

@@ -17,6 +17,7 @@ import weblab.configuration_doc as configuration_doc
 from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web.admin_views as admin_views
+import weblab.admin.web.profile_views as profile_views
 
 class AdministrationApplication(AbstractDatabaseGateway):
 
@@ -46,8 +47,14 @@ class AdministrationApplication(AbstractDatabaseGateway):
         file_handler.setLevel(logging.WARNING)
         self.app.logger.addHandler(file_handler)
 
-        url = '/weblab/administration/admin'
-        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = url),name = 'WebLab-Deusto Admin', url = url)
+        ################################################
+        # 
+        #  Administration panel for administrators
+        # 
+        # 
+
+        admin_url = '/weblab/administration/admin'
+        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = 'WebLab-Deusto Admin', url = admin_url, endpoint = admin_url)
 
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(admin_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
@@ -64,8 +71,30 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.admin.init_app(self.app)
 
-        self.bypass_authz = bypass_authz
+        ################################################
+        # 
+        #  Profile panel
+        # 
 
+        profile_url = '/weblab/administration/profile'
+        self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url)
+
+        self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = 'My accesses', endpoint = 'accesses'))
+
+        self.profile.init_app(self.app)
+
+        ################################################
+        # 
+        #  Instructors panel
+        # 
+    
+        # TODO
+
+        ################################################
+        # 
+        #  Other
+        # 
+        self.bypass_authz = bypass_authz
         AdministrationApplication.INSTANCE = self
 
     def is_admin(self):
@@ -91,4 +120,14 @@ class AdministrationApplication(AbstractDatabaseGateway):
         except:
             traceback.print_exc()
             return False
+
+    def get_user_information(self):
+        if self.bypass_authz:
+            return None # TODO
+
+        session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+        try:
+            return self.ups.get_user_information(session_id)
+        except SessionNotFoundError:
+            return None
 
