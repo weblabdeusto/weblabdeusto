@@ -2,94 +2,28 @@ import os
 import sha
 import time
 import random
-import urlparse
-import traceback
-import SocketServer
-
-import logging
-from logging.handlers import RotatingFileHandler
 
 from wtforms.fields import PasswordField
 from wtforms.validators import Email
 
-from flask import Flask, Markup, request, redirect, abort, url_for, flash, Response
+from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-import flask_admin.contrib.sqlamodel.filters as filters
-
-from flask.ext.admin import expose, AdminIndexView, Admin, BaseView
-from flask.ext.admin.contrib.sqlamodel import ModelView, tools
+from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.model.form import InlineFormAdmin
 
-
-from sqlalchemy.orm import scoped_session, sessionmaker
-
-import wsgiref.simple_server
-
-if __name__ == '__main__':
-    import sys
-    sys.path.insert(0, '.')
-
-import voodoo.log as log
-from voodoo.sessions.session_id import SessionId
-
-from weblab.core.exc import SessionNotFoundError
 import weblab.configuration_doc as configuration_doc
-
 import weblab.db.model as model
-from weblab.db.gateway import AbstractDatabaseGateway
-import weblab.comm.server as abstract_server
+from weblab.admin.web.filters import get_filter_number, generate_filter_any
 
-class FilterAnyEqual(filters.FilterEqual):
-    def __init__(self, column, name, column_any, **kwargs):
-        self.column_any = column_any
-        super(FilterAnyEqual, self).__init__(column, name, **kwargs)
-
-    def apply(self, query, value):
-        return query.filter(self.column_any.any(self.column == value))
-
-class FilterAnyNotEqual(filters.FilterNotEqual):
-    def __init__(self, column, name, column_any, **kwargs):
-        self.column_any = column_any
-        super(FilterAnyNotEqual, self).__init__(column, name, **kwargs)
-
-    def apply(self, query, value):
-        return query.filter(self.column_any.any(self.column != value))
-
-class FilterAnyLike(filters.FilterLike):
-    def __init__(self, column, name, column_any, **kwargs):
-        self.column_any = column_any
-        super(FilterAnyLike, self).__init__(column, name, **kwargs)
-
-    def apply(self, query, value):
-        stmt = tools.parse_like_term(value)
-        return query.filter(self.column_any.any(self.column.ilike(stmt)))
-
-class FilterAnyNotLike(filters.FilterNotLike):
-    def __init__(self, column, name, column_any, **kwargs):
-        self.column_any = column_any
-        super(FilterAnyNotLike, self).__init__(column, name, **kwargs)
-
-    def apply(self, query, value):
-        stmt = tools.parse_like_term(value)
-        return query.filter(self.column_any.any(~self.column.ilike(stmt)))
-
-def generate_filter_any(column, name, column_any, iter_type = tuple):
-    return iter_type( 
-                    (FilterAnyEqual(column, name, column_any), FilterAnyNotEqual(column, name, column_any), 
-                     FilterAnyLike(column, name, column_any), FilterAnyNotLike(column, name, column_any)) )
-
-
-def get_filter_number(view, name):
-    return [ n  
-                for (n, f) in enumerate(view._filters) 
-                if unicode(f.column).endswith(name) 
-                    and isinstance(f.operation.im_self, filters.FilterEqual) 
-        ][0]
+def get_app_instance():
+    import weblab.admin.web.app as admin_app
+    return admin_app.AdministrationApplication.INSTANCE
 
 class AdministratorView(BaseView):
 
     def is_accessible(self):
-        return AdministrationApplication.INSTANCE.is_admin()
+        return get_app_instance().is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -101,7 +35,7 @@ class AdministratorView(BaseView):
 class AdministratorModelView(ModelView):
 
     def is_accessible(self):
-        return AdministrationApplication.INSTANCE.is_admin()
+        return get_app_instance().is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -127,7 +61,7 @@ SAME_DATA = object()
 
 def show_link(klass, filter_name, field, name, view = 'View'):
 
-    script_name = AdministrationApplication.INSTANCE.app.config['APPLICATION_ROOT'] or ''
+    script_name = get_app_instance().app.config['APPLICATION_ROOT'] or ''
     instance      = klass.INSTANCE
     url           = script_name + instance.url
 
@@ -266,7 +200,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
     can_create = False
 
     column_searchable_list = ('origin',)
-    column_sortable_list = ('id', ('user', model.DbUser.login), ('experiment',  model.DbExperiment.id), 'start_date', 'end_date', 'origin', 'coord_address')
+    column_sortable_list = ('UserUsedExperiment.id', ('user', model.DbUser.login), ('experiment',  model.DbExperiment.id), 'start_date', 'end_date', 'origin', 'coord_address')
     column_list    = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address','details')
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
@@ -323,7 +257,6 @@ class UserUsedExperimentPanel(AdministratorModelView):
             interactions.append((timestamp, True, command))
 
         for f in uue.files:
-            print f.file_sent
             timestamp = time.mktime(f.timestamp_before.timetuple()) + 1e-6 * f.timestamp_before_micro
             interactions.append((timestamp, False, f))
 
@@ -519,193 +452,13 @@ class HomeView(AdminIndexView):
     def index(self):
         return self.render("admin-index.html")
 
-class AdministrationApplication(AbstractDatabaseGateway):
+    def is_accessible(self):
+        return get_app_instance().INSTANCE.is_admin()
 
-    INSTANCE = None
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
-    def __init__(self, cfg_manager, ups, bypass_authz = False):
+        return super(HomeView, self)._handle_view(name, **kwargs)
 
-        super(AdministrationApplication, self).__init__(cfg_manager)
-
-        self.ups = ups
-
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
-
-        files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
-        core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
-        script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0]
-
-        self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.app.config['APPLICATION_ROOT'] = script_name
-
-        if os.path.exists('logs'):
-            f = os.path.join('logs','admin_app.log')
-        else:
-            f = 'admin_app.log'
-        file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
-        file_handler.setLevel(logging.WARNING)
-        self.app.logger.addHandler(file_handler)
-
-        url = '/weblab/administration'
-        self.admin = Admin(index_view = HomeView(db_session, url = url),name = 'WebLab-Deusto Admin', url = url)
-
-        self.admin.add_view(UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
-        self.admin.add_view(GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
-
-        self.admin.add_view(UserUsedExperimentPanel(files_directory, db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
-
-        self.admin.add_view(ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
-        self.admin.add_view(ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
-
-        self.admin.add_view(PermissionTypePanel(db_session,  category = 'Permissions', name = 'Types', endpoint = 'permissions/types'))
-        self.admin.add_view(UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',  endpoint = 'permissions/user'))
-        self.admin.add_view(GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group', endpoint = 'permissions/group'))
-        self.admin.add_view(RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles', endpoint = 'permissions/role'))
-
-        self.admin.init_app(self.app)
-
-        self.bypass_authz = bypass_authz
-
-        AdministrationApplication.INSTANCE = self
-
-    def is_admin(self):
-        if self.bypass_authz:
-            return True
-
-        try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
-            try:
-                permissions = self.ups.get_user_permissions(session_id)
-            except SessionNotFoundError:
-                # Gotcha
-                return False
-
-            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
-            if len(admin_permissions) == 0:
-                return False
-
-            if admin_permissions[0].parameters[0].value:
-                return True
-
-            return False
-        except:
-            traceback.print_exc()
-            return False
-
-#####################################################################################
-# 
-# TODO: All this code below depends on the old and deprecated communication system of 
-# WebLab-Deusto, which should be refactored to be less complex.
-# 
-
-class WsgiHttpServer(SocketServer.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
-    daemon_threads      = True
-    request_queue_size  = 50 #TODO: parameter!
-    allow_reuse_address = True
-
-    def __init__(self, script_name, server_address, handler_class, application):
-        self.script_name = script_name
-        wsgiref.simple_server.WSGIServer.__init__(self, server_address, handler_class)
-        self.set_app(application)
-
-    def setup_environ(self):
-        wsgiref.simple_server.WSGIServer.setup_environ(self)
-        self.base_environ['SCRIPT_NAME'] = self.script_name
-        print self.base_environ
-
-    def get_request(self):
-        sock, addr = wsgiref.simple_server.WSGIServer.get_request(self)
-        sock.settimeout(None)
-        return sock, addr
-
-class WrappedWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
-
-    def get_environ(self):
-        env = wsgiref.simple_server.WSGIRequestHandler.get_environ(self)
-        script_name = self.server.script_name
-        if script_name and env['PATH_INFO'].startswith(script_name):
-            env['PATH_INFO'] = env['PATH_INFO'].split(script_name,1)[1]
-        return env
-
-    def log_message(self, format, *args):
-        #args: ('POST /weblab/json/ HTTP/1.1', '200', '-')
-        log.log(
-            WrappedWSGIRequestHandler,
-            log.level.Info,
-            "Request: %s" %  (format % args)
-        )
-
-class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer):
-    
-    protocol_name = "wsgi"
-
-    WSGI_HANDLER = WrappedWSGIRequestHandler
-
-    def _retrieve_configuration(self):
-        values = self.parse_configuration(
-                self._rfs.FACADE_WSGI_PORT,
-                **{
-                    self._rfs.FACADE_WSGI_LISTEN: self._rfs.DEFAULT_FACADE_WSGI_LISTEN
-                }
-           )
-        listen = getattr(values, self._rfs.FACADE_WSGI_LISTEN)
-        port   = getattr(values, self._rfs.FACADE_WSGI_PORT)
-        return listen, port
-
-    def initialize(self):
-        listen, port = self._retrieve_configuration()
-        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
-        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
-            without_protocol = '//'.join(core_server_url.split('//')[1:])
-            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
-        else:
-            the_location = '/'
-        timeout = self.get_timeout()
-
-        class NewWsgiHttpHandler(self.WSGI_HANDLER):
-            server_route   = the_server_route
-            location       = the_location
-
-        script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0]
-        self._server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, self._rfm)
-        self._server.socket.settimeout(timeout)
-
-import weblab.core.comm.admin_server as admin_server
-from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
-
-class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
-    SERVERS = (RemoteFacadeServerWSGI,)
-
-    FACADE_WSGI_PORT             = admin_server.ADMIN_FACADE_JSON_PORT
-    FACADE_WSGI_LISTEN           = admin_server.ADMIN_FACADE_JSON_LISTEN
-    DEFAULT_FACADE_WSGI_LISTEN   = admin_server.DEFAULT_ADMIN_FACADE_JSON_LISTEN
-
-    FACADE_SERVER_ROUTE          = USER_PROCESSING_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
-
-    def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
-        self.application = AdministrationApplication(configuration_manager, server)
-        return self.application.app
-
-#############################################
-# 
-# The code below is only used for testing
-# 
-
-if __name__ == '__main__':
-    from voodoo.configuration import ConfigurationManager
-    cfg_manager = ConfigurationManager()
-    cfg_manager.append_path('test/unit/configuration.py')
-
-
-    DEBUG = True
-    admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
-
-    @admin_app.app.route('/')
-    def index():
-        return redirect('/weblab/administration')
-
-    admin_app.app.run(debug=True, host = '0.0.0.0')
 

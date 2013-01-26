@@ -57,7 +57,7 @@ import voodoo.resources_manager as ResourceManager
 
 USE_NEW_ADMIN_PAGE = True
 if USE_NEW_ADMIN_PAGE:
-    from weblab.admin.web.administrators import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
+    from weblab.admin.web.server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
     AdminRemoteFacadeServer = AdminRemoteFacadeServer_new
 else:
     from weblab.core.comm.admin_server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_old
