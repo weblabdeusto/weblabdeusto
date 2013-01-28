@@ -2,6 +2,7 @@ import os
 import sha
 import time
 import random
+import threading
 
 from wtforms.fields import PasswordField
 from wtforms.validators import Email
@@ -137,26 +138,58 @@ class UsersPanel(AdministratorModelView):
         self.login_filter_number = get_filter_number(self, u'User.login')
         self.group_filter_number = get_filter_number(self, u'Group.name')
         self.role_filter_number  = get_filter_number(self, u'Role.name')
+
+        self.local_data = threading.local()
+
         UsersPanel.INSTANCE = self
 
+    def edit_form(self, obj = None):
+        form = super(UsersPanel, self).edit_form(obj)
+        self.local_data.authentications = {}
+        if obj is not None:
+            for auth_instance in obj.auths:
+                self.local_data.authentications[auth_instance.id] = (auth_instance.auth.name, auth_instance.configuration)
+        return form
+
     def on_model_change(self, form, user_model):
-        auths = {}
+        auths = set()
         for auth_instance in user_model.auths:
             if auth_instance.auth in auths:
                 raise Exception("You can not have two equal auth types (of type %s)" % auth_instance.auth.name)
             else:
-                auths[auth_instance.auth] = auth_instance
-                if auth_instance.auth.auth_type.name.lower() == 'db':
-                    password = auth_instance.configuration
-                    if len(password) < 6:
-                        raise Exception("Password too short")
-                    auth_instance.configuration = self._password2sha(password)
-                elif auth_instance.auth.auth_type.name.lower() == 'facebook':
-                    try:
-                        int(auth_instance.configuration)
-                    except:
-                        raise Exception("Use a numeric ID for Facebook")
-                # Other validations would be here
+                auths.add(auth_instance.auth)
+               
+                if hasattr(self.local_data, 'authentications'):
+
+                    old_auth_type, old_auth_conf = self.local_data.authentications.get(auth_instance.id, (None, None))
+                    if old_auth_type == auth_instance.auth.name and old_auth_conf == auth_instance.configuration:
+                        # Same as before: ignore
+                        print "Ignoring: same name"
+                        continue
+
+                    if not auth_instance.configuration:
+                        # User didn't do anything here. Restoring configuration.
+                        auth_instance.configuration = old_auth_conf or ''
+                        print "Restoring config"
+                        continue
+
+                self._on_auth_changed(auth_instance)
+                    
+
+    def _on_auth_changed(self, auth_instance):
+        print "New auth!", auth_instance
+        if auth_instance.auth.auth_type.name.lower() == 'db':
+            password = auth_instance.configuration
+            if len(password) < 6:
+                raise Exception("Password too short")
+            auth_instance.configuration = self._password2sha(password)
+            print "Stored:", auth_instance.configuration
+        elif auth_instance.auth.auth_type.name.lower() == 'facebook':
+            try:
+                int(auth_instance.configuration)
+            except:
+                raise Exception("Use a numeric ID for Facebook")
+        # Other validations would be here
 
 
     def _password2sha(self, password):
