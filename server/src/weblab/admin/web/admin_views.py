@@ -4,7 +4,8 @@ import time
 import random
 import threading
 
-from wtforms.fields import PasswordField
+from wtforms.fields import PasswordField, TextField
+from wtforms.fields.core import UnboundField
 from wtforms.validators import Email
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
@@ -367,9 +368,16 @@ class ExperimentPanel(AdministratorModelView):
 def display_parameters(context, permission, p):
     parameters = u''
     for parameter in permission.parameters:
-        parameters += u'%s = %s, ' % (parameter.permission_type_parameter.name, parameter.value)
-    permission_str = u'%s(%s)' % (permission.permission_type.name, parameters[:-2])
+        parameters += u'%s = %s, ' % (parameter.permission_type_parameter, parameter.value)
+    permission_str = u'%s(%s)' % (permission.permission_type, parameters[:-2])
     return permission_str
+
+class DisabledTextField(TextField):
+    def __call__(self, *args, **kwargs):
+        new_kwargs = kwargs.copy()
+        new_kwargs['readonly'] = 'true'
+        return super(DisabledTextField, self).__call__(*args, **new_kwargs)
+
 
 
 class GenericPermissionPanel(AdministratorModelView):
@@ -384,11 +392,13 @@ class GenericPermissionPanel(AdministratorModelView):
     column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
     column_sortable_list = ( 'permission', 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
+    form_overrides       = dict( permanent_id = DisabledTextField, permission_type = DisabledTextField )
 
     def __init__(self, model, session, **kwargs):
         super(GenericPermissionPanel, self).__init__(model, session, **kwargs)
 
     def on_model_change(self, form, permission):
+        # TODO: use weblab.permissions directly
         req_arguments = {
             'experiment_allowed' : ('experiment_permanent_id','experiment_category_id','time_allowed'),
             'admin_panel_access' : ('full_privileges',),
@@ -399,9 +409,9 @@ class GenericPermissionPanel(AdministratorModelView):
             'admin_panel_access' : (),
             'access_forward'     : (),
         }
-        required_arguments = set(req_arguments[permission.permission_type.name])
-        optional_arguments = set(opt_arguments[permission.permission_type.name])
-        obtained_arguments = set([ parameter.permission_type_parameter.name for parameter in permission.parameters ])
+        required_arguments = set(req_arguments[permission.permission_type])
+        optional_arguments = set(opt_arguments[permission.permission_type])
+        obtained_arguments = set([ parameter.permission_type_parameter for parameter in permission.parameters ])
 
         missing_arguments  = required_arguments.difference(obtained_arguments)
         exceeded_arguments = obtained_arguments.difference(required_arguments.union(optional_arguments))
@@ -415,8 +425,32 @@ class GenericPermissionPanel(AdministratorModelView):
             message += "Exceeded arguments: %s" % ', '.join(exceeded_arguments)
         if message:
             raise Exception(message)
+
+        if permission.permission_type == 'experiment_allowed':
+            exp_name     = [ parameter for parameter in permission.parameters if parameter.permission_type_parameter == 'experiment_permanent_id' ][0].value
+            cat_name     = [ parameter for parameter in permission.parameters if parameter.permission_type_parameter == 'experiment_category_id'  ][0].value
+            time_allowed = [ parameter for parameter in permission.parameters if parameter.permission_type_parameter == 'time_allowed'            ][0].value
             
-        
+            found = False
+            for exp in self.session.query(model.DbExperiment).filter_by(name = exp_name).all():
+                if exp.category.name == cat_name:
+                    found = True
+                    break
+            if not found:
+                raise Exception(u"Experiment not found: %s@%s" % (exp_name, cat_name))
+            
+            try:
+                int(time_allowed)
+            except:
+                raise Exception("Time allowed must be a number (in seconds)")
+
+
+
+class PermissionEditForm(InlineFormAdmin):
+
+    def postprocess_form(self, form_class):
+        form_class.permission_type_parameter = UnboundField(DisabledTextField)
+        return form_class
 
 class UserPermissionPanel(GenericPermissionPanel):
 
@@ -424,7 +458,7 @@ class UserPermissionPanel(GenericPermissionPanel):
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user',model.DbUser.login),)
     column_list          = ('user', )  + GenericPermissionPanel.column_list
 
-    inline_models = (model.DbUserPermissionParameter,)
+    inline_models = (PermissionEditForm(model.DbUserPermissionParameter),)
 
     INSTANCE = None
 
@@ -439,7 +473,7 @@ class GroupPermissionPanel(GenericPermissionPanel):
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group',model.DbGroup.name),)
     column_list          = ('group', )  + GenericPermissionPanel.column_list
 
-    inline_models = (model.DbGroupPermissionParameter,)
+    inline_models = (PermissionEditForm(model.DbGroupPermissionParameter),)
 
     INSTANCE = None
 
@@ -456,7 +490,7 @@ class RolePermissionPanel(GenericPermissionPanel):
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role',model.DbRole.name),)
     column_list          = ('role', )  + GenericPermissionPanel.column_list
 
-    inline_models = (model.DbRolePermissionParameter,)
+    inline_models = (PermissionEditForm(model.DbRolePermissionParameter),)
 
     INSTANCE = None
 
@@ -466,6 +500,35 @@ class RolePermissionPanel(GenericPermissionPanel):
         self.role_filter_number = get_filter_number(self, u'Role.name')
 
         RolePermissionPanel.INSTANCE = self
+
+class PermissionsAddingView(AdministratorView):
+
+    def __init__(self, session, **kwargs):
+        self.session = session
+        super(PermissionsAddingView, self).__init__(**kwargs)
+
+    @expose()
+    def index(self):
+        return self.render("admin-permissions.html")
+
+    @expose('/users/')
+    def users(self):
+        # TODO: split in pages
+        users = self.session.query(model.DbUser).all()
+        return ":-)"
+
+    @expose('/groups/')
+    def groups(self):
+        # TODO: split in pages
+        groups = self.session.query(model.DbGroup).all()
+        return ":-)"
+
+    @expose('/roles/')
+    def roles(self):
+        # TODO: split in pages
+        roles = self.session.query(model.DbRole).all()
+        return ":-)"
+
 
 class HomeView(AdminIndexView):
 
