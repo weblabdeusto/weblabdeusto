@@ -23,6 +23,7 @@ import hashlib
 from sqlalchemy.orm import sessionmaker
 
 import weblab.db.model as Model
+import weblab.permissions as permissions
 
 def insert_required_initial_data(engine):
     session = sessionmaker(bind=engine)    
@@ -56,43 +57,9 @@ def insert_required_initial_data(engine):
     session.add(weblab_db)
     session.commit()
 
-    experiment_allowed = Model.DbPermissionType(
-            'experiment_allowed',
-            'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
-    )
-    session.add(experiment_allowed)
-    experiment_allowed_p1 = Model.DbPermissionTypeParameter(experiment_allowed, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
-    session.add(experiment_allowed_p1)
-    experiment_allowed_p2 = Model.DbPermissionTypeParameter(experiment_allowed, 'experiment_category_id', 'string', 'the unique name of the category of experiment')
-    session.add(experiment_allowed_p2)
-    experiment_allowed_p3 = Model.DbPermissionTypeParameter(experiment_allowed, 'time_allowed', 'float', 'Time allowed (in seconds)')
-    session.add(experiment_allowed_p3)
-    experiment_allowed_p4 = Model.DbPermissionTypeParameter(experiment_allowed, 'priority', 'int', 'Priority (the lower value the higher priority)')
-    session.add(experiment_allowed_p4)
-    experiment_allowed_p5 = Model.DbPermissionTypeParameter(experiment_allowed, 'initialization_in_accounting', 'bool', 'time_allowed, should count with the initialization time or not?')
-    session.add(experiment_allowed_p5)
-    
-    session.commit()
-
-    admin_panel_access = Model.DbPermissionType(
-            'admin_panel_access',
-            'Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel.',
-    )
-    session.add(admin_panel_access)
-    admin_panel_access_p1 = Model.DbPermissionTypeParameter(admin_panel_access, 'full_privileges', 'bool', 'full privileges (True) or not (False)')
-    session.add(admin_panel_access_p1)
-
-    access_forward = Model.DbPermissionType(
-            'access_forward',
-            'Users with this permission will be allowed to forward reservations to other external users.',
-    )
-    session.add(access_forward)
-
-    session.commit()
-
     federated_access_forward = Model.DbRolePermission(
         federated,
-        access_forward,
+        permissions.ACCESS_FORWARD,
         "federated_role::access_forward",
         datetime.datetime.utcnow(),
         "Access to forward external accesses to all users with role 'federated'"
@@ -103,13 +70,13 @@ def insert_required_initial_data(engine):
 
     administrator_admin_panel_access = Model.DbRolePermission(
         administrator,
-        admin_panel_access,
+        permissions.ADMIN_PANEL_ACCESS,
         "administrator_role::admin_panel_access",
         datetime.datetime.utcnow(),
         "Access to the admin panel for administrator role with full_privileges"
     )
     session.add(administrator_admin_panel_access)
-    administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, admin_panel_access_p1, True)
+    administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(administrator_admin_panel_access_p1)
 
     session.commit()
@@ -129,15 +96,15 @@ def populate_weblab_tests(engine, tests):
     facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
     openid = session.query(Model.DbAuthType).filter_by(name="OPENID").one()
 
-    experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
-    experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
-    experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
-    experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+    experiment_allowed = permissions.EXPERIMENT_ALLOWED
+    experiment_allowed_p1 = permissions.EXPERIMENT_PERMANENT_ID
+    experiment_allowed_p2 = permissions.EXPERIMENT_CATEGORY_ID
+    experiment_allowed_p3 = permissions.TIME_ALLOWED
 
-    admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
-    admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
+    admin_panel_access = permissions.ADMIN_PANEL_ACCESS
+    admin_panel_access_p1 = permissions.FULL_PRIVILEGES
 
-    access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
+    access_forward = permissions.ACCESS_FORWARD
 
     # Auths
     weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
@@ -1226,11 +1193,11 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
 
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
     
-    experiment_allowed = session.query(Model.DbPermissionType).filter_by(name="experiment_allowed").one()
+    experiment_allowed = permissions.EXPERIMENT_ALLOWED
 
-    experiment_allowed_p1 = [ p for p in experiment_allowed.parameters if p.name == "experiment_permanent_id" ][0]
-    experiment_allowed_p2 = [ p for p in experiment_allowed.parameters if p.name == "experiment_category_id" ][0]
-    experiment_allowed_p3 = [ p for p in experiment_allowed.parameters if p.name == "time_allowed" ][0]
+    experiment_allowed_p1 = permissions.EXPERIMENT_PERMANENT_ID
+    experiment_allowed_p2 = permissions.EXPERIMENT_CATEGORY_ID
+    experiment_allowed_p3 = permissions.TIME_ALLOWED
 
     group_permission = Model.DbGroupPermission(
         group, experiment_allowed,
@@ -1255,7 +1222,7 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
 def grant_admin_panel_on_group(sessionmaker, group_name):
     session = sessionmaker()
 
-    permission_type = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
+    permission_type = permissions.ADMIN_PANEL_ACCESS
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
     group_permission = Model.DbGroupPermission(
                                     group,
@@ -1265,7 +1232,7 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     session.add(group_permission)
     group_permission_p1 = Model.DbGroupPermissionParameter(
                                     group_permission,
-                                    permission_type.get_parameter("full_privileges"),
+                                    permissions.FULL_PRIVILEGES,
                                     True
                                 )
     session.add(group_permission_p1)

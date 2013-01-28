@@ -37,6 +37,7 @@ from weblab.data.dto.users import Role
 from weblab.data.dto.users import Group
 from weblab.data.dto.experiments import ExperimentUse
 
+import weblab.permissions as permissions
 
 Base = declarative_base()
 
@@ -567,86 +568,18 @@ class DbUserCommand(Base):
 # USER PERMISSIONS
 #
 
-class DbPermissionType(Base):
-    __tablename__  = 'PermissionType'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
-
-    id                  = Column(Integer, primary_key = True)
-    name                = Column(String(255), nullable = False)
-    description         = Column(Text, nullable = False)
-
-
-    def __init__(self, name, description):
-        super(DbPermissionType, self).__init__()
-        self.name = name
-        self.description = description
-
-    def __repr__(self):
-        return "DbPermissionType(id = %r, name = %r, description = %r)" % (
-            self.id,
-            self.name,
-            self.description,
-        )
-
-    def __unicode__(self):
-        return self.name
-
-    def get_parameter(self, parameter_name):
-        return [ param for param in self.parameters if param.name == parameter_name ][0]
-
-    def to_dto(self):
-        ptype = PermissionType(
-            self.name,
-            self.description,
-        )
-        return ptype
-
-
-
-class DbPermissionTypeParameter(Base):
-    __tablename__  = 'PermissionTypeParameter'
-    __table_args__ = (UniqueConstraint('permission_type_id', 'name'), TABLE_KWARGS)
-
-    id                 = Column(Integer, primary_key = True)
-    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
-    name               = Column(String(255), nullable = False)
-    datatype           = Column(String(255), nullable = False)
-    description        = Column(String(255), nullable = False)
-
-    permission_type = relation("DbPermissionType", backref=backref("parameters", order_by=id, cascade='all,delete'))
-
-    def __init__(self, permission_type, name, datatype, description):
-        super(DbPermissionTypeParameter, self).__init__()
-        self.permission_type = permission_type
-        self.name = name
-        self.datatype = datatype
-        self.description = description
-
-    def __unicode__(self):
-        return u'%s (%s)' % (self.name, self.description)
-
-    def __repr__(self):
-        return "DbPermissionTypeParameter(id = %r, permission_type = %r, name = %r, datatype = %r, description = %r)" % (
-            self.id,
-            self.permission_type,
-            self.name,
-            self.datatype,
-            self.description
-        )
-
 class DbUserPermission(Base):
     __tablename__  = 'UserPermission'
     __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
     id                 = Column(Integer, primary_key = True)
     user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
-    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permission_type    = Column(String(255), nullable = False, index = True)
     permanent_id       = Column(String(255), nullable = False)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
     user               = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    permission_type    = relation("DbPermissionType", backref=backref("user_permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, user = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbUserPermission, self).__init__()
@@ -670,12 +603,10 @@ class DbUserPermission(Base):
         return self.permission_type
 
     def get_parameter(self, parameter_name):
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter == parameter_name ][0]
 
     def to_dto(self):
-        permission = Permission(
-            self.permission_type.name
-        )
+        permission = Permission( self.permission_type )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
         return permission
@@ -683,15 +614,14 @@ class DbUserPermission(Base):
 
 class DbUserPermissionParameter(Base):
     __tablename__  = 'UserPermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter_id'), TABLE_KWARGS)
+    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("UserPermission.id"), nullable = False)
-    permission_type_parameter_id = Column(Integer, ForeignKey("PermissionTypeParameter.id"), nullable = False)
+    permission_type_parameter    = Column(String(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbUserPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
-    permission_type_parameter = relation("DbPermissionTypeParameter", backref=backref("user_values", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbUserPermissionParameter, self).__init__()
@@ -708,17 +638,15 @@ class DbUserPermissionParameter(Base):
         )
 
     def get_name(self):
-        return self.permission_type_parameter.name
+        return self.permission_type_parameter
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype
+        permission_type = self.permission.permission_type
+        parameter = permissions.permission_types[permission_type].get_parameter(self.permission_type_parameter)
+        return parameter.datatype
 
     def to_dto(self):
-        return PermissionParameter(
-                    self.permission_type_parameter.name,
-                    self.permission_type_parameter.datatype,
-                    self.value
-                )
+        return PermissionParameter( self.get_name(), self.get_datatype(), self.value )
 
 class DbRolePermission(Base):
     __tablename__  = 'RolePermission'
@@ -726,13 +654,12 @@ class DbRolePermission(Base):
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    permission_type_id            = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permission_type    = Column(String(255), nullable = False, index = True)
     permanent_id                  = Column(String(255), nullable = False)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
     role            = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    permission_type = relation("DbPermissionType", backref=backref("role_permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, role = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbRolePermission, self).__init__()
@@ -756,12 +683,11 @@ class DbRolePermission(Base):
         return self.permission_type
 
     def get_parameter(self, parameter_name):
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter == parameter_name ][0]
 
     def to_dto(self):
-        permission = Permission(
-            self.permission_type.name
-        )
+        permission = Permission( self.permission_type )
+
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
         return permission
@@ -769,15 +695,14 @@ class DbRolePermission(Base):
 
 class DbRolePermissionParameter(Base):
     __tablename__  = 'RolePermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter_id'), TABLE_KWARGS)
+    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("RolePermission.id"), nullable = False)
-    permission_type_parameter_id = Column(Integer, ForeignKey("PermissionTypeParameter.id"), nullable = False)
+    permission_type_parameter    = Column(String(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbRolePermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
-    permission_type_parameter = relation("DbPermissionTypeParameter", backref=backref("role_values", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbRolePermissionParameter, self).__init__()
@@ -794,17 +719,15 @@ class DbRolePermissionParameter(Base):
         )
 
     def get_name(self):
-        return self.permission_type_parameter.name
+        return self.permission_type_parameter
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype
+        permission_type = self.permission.permission_type
+        parameter = permissions.permission_types[permission_type].get_parameter(self.permission_type_parameter)
+        return parameter.datatype
 
     def to_dto(self):
-        return PermissionParameter(
-                    self.permission_type_parameter.name,
-                    self.permission_type_parameter.datatype,
-                    self.value
-                )
+        return PermissionParameter( self.get_name(), self.get_datatype(), self.value )
 
 
 class DbGroupPermission(Base):
@@ -813,13 +736,12 @@ class DbGroupPermission(Base):
 
     id                 = Column(Integer, primary_key = True)
     group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
-    permission_type_id = Column(Integer, ForeignKey("PermissionType.id"), nullable = False)
+    permission_type    = Column(String(255), nullable = False, index = True)
     permanent_id       = Column(String(255), nullable = False)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
     group           = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
-    permission_type = relation("DbPermissionType", backref=backref("group_permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, group = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbGroupPermission, self).__init__()
@@ -843,12 +765,10 @@ class DbGroupPermission(Base):
         return self.permission_type
 
     def get_parameter(self, parameter_name):
-        return [ param for param in self.parameters if param.permission_type_parameter.name == parameter_name ][0]
+        return [ param for param in self.parameters if param.permission_type_parameter == parameter_name ][0]
 
     def to_dto(self):
-        permission = Permission(
-            self.permission_type.name
-        )
+        permission = Permission( self.permission_type )
         for param in self.parameters:
             permission.add_parameter(param.to_dto())
         return permission
@@ -856,15 +776,14 @@ class DbGroupPermission(Base):
 
 class DbGroupPermissionParameter(Base):
     __tablename__  = 'GroupPermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter_id'), TABLE_KWARGS)
+    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("GroupPermission.id"), nullable = False)
-    permission_type_parameter_id = Column(Integer, ForeignKey("PermissionTypeParameter.id"), nullable = False)
+    permission_type_parameter    = Column(String(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbGroupPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
-    permission_type_parameter = relation("DbPermissionTypeParameter", backref=backref("group_values", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbGroupPermissionParameter, self).__init__()
@@ -881,17 +800,15 @@ class DbGroupPermissionParameter(Base):
         )
 
     def get_name(self):
-        return self.permission_type_parameter.name
+        return self.permission_type_parameter
 
     def get_datatype(self):
-        return self.permission_type_parameter.datatype
+        permission_type = self.permission.permission_type
+        parameter = permissions.permission_types[permission_type].get_parameter(self.permission_type_parameter)
+        return parameter.datatype
 
     def to_dto(self):
-        return PermissionParameter(
-                    self.permission_type_parameter.name,
-                    self.permission_type_parameter.datatype,
-                    self.value
-                )
+        return PermissionParameter( self.get_name(), self.get_datatype(), self.value )
 
 def _splitted_utc_datetime_to_timestamp(dt, ms):
     if dt is not None:

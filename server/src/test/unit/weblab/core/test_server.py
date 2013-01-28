@@ -752,24 +752,32 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         self.assertEquals(7, len(permissions))
 
-        self.assertEquals('experiment_allowed', permissions[0].name)
-        self.assertEquals(3, len(permissions[0].parameters))
+        permissions = list(permissions)
+        permissions.sort(lambda x, y: cmp(x.name, y.name))
 
-        # We only check the first permission's parameters, all of them would be death...
-        self.assertEquals('experiment_permanent_id', permissions[0].parameters[0].name)
-        self.assertEquals('string',                  permissions[0].parameters[0].datatype)
-        self.assertEquals('ud-fpga',                 permissions[0].parameters[0].value)
+        self.assertEquals('admin_panel_access', permissions[0].name)
+        self.assertEquals(1, len(permissions[0].parameters))
 
-        self.assertEquals('experiment_category_id',  permissions[0].parameters[1].name)
-        self.assertEquals('string',                  permissions[0].parameters[1].datatype)
-        self.assertEquals('FPGA experiments',        permissions[0].parameters[1].value)
+        self.assertEquals('full_privileges', permissions[0].parameters[0].name)
+        self.assertEquals('bool',            permissions[0].parameters[0].datatype)
+        self.assertEquals('1',               permissions[0].parameters[0].value)
 
-        self.assertEquals('time_allowed',            permissions[0].parameters[2].name)
-        self.assertEquals('float',                   permissions[0].parameters[2].datatype)
-        self.assertEquals('300',                     permissions[0].parameters[2].value)
 
         self.assertEquals('experiment_allowed', permissions[1].name)
         self.assertEquals(3, len(permissions[1].parameters))
+
+        # We only check the first permission's parameters, all of them would be death...
+        self.assertEquals('experiment_permanent_id', permissions[1].parameters[0].name)
+        self.assertEquals('string',                  permissions[1].parameters[0].datatype)
+        self.assertEquals('ud-fpga',                 permissions[1].parameters[0].value)
+
+        self.assertEquals('experiment_category_id',  permissions[1].parameters[1].name)
+        self.assertEquals('string',                  permissions[1].parameters[1].datatype)
+        self.assertEquals('FPGA experiments',        permissions[1].parameters[1].value)
+
+        self.assertEquals('time_allowed',            permissions[1].parameters[2].name)
+        self.assertEquals('float',                   permissions[1].parameters[2].datatype)
+        self.assertEquals('300',                     permissions[1].parameters[2].value)
 
         self.assertEquals('experiment_allowed', permissions[2].name)
         self.assertEquals(3, len(permissions[2].parameters))
@@ -783,13 +791,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('experiment_allowed', permissions[5].name)
         self.assertEquals(3, len(permissions[5].parameters))
 
-        self.assertEquals('admin_panel_access', permissions[6].name)
-        self.assertEquals(1, len(permissions[6].parameters))
-
-        # Ok, the last one too... it's short!
-        self.assertEquals('full_privileges', permissions[6].parameters[0].name)
-        self.assertEquals('bool',            permissions[6].parameters[0].datatype)
-        self.assertEquals('1',               permissions[6].parameters[0].value)
+        self.assertEquals('experiment_allowed', permissions[6].name)
+        self.assertEquals(3, len(permissions[6].parameters))
 
 
 class FakeLocator(object):

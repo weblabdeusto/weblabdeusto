@@ -32,6 +32,7 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbErrors
+import weblab.permissions as permissions
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
@@ -596,33 +597,15 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    @admin_panel_operation
-    @logged()
-    def get_permission_types(self, user_login):
-        """
-        get_permission_types(user_login)
-
-        Retrieves every permission type from the database
-        """
-        session = self.Session()
-        try:
-            ptypes = session.query(model.DbPermissionType).all()
-            dto_ptypes = [ ptype.to_dto() for ptype in ptypes ]
-            return tuple(dto_ptypes)
-        finally:
-            session.close()
-
-
     @logged()
     def get_user_permissions(self, user_login):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permission_types = session.query(model.DbPermissionType).all()
-            permissions = []
-            for pt in permission_types:
-                permissions.extend(self._gather_permissions(session, user, pt.name))
-            dto_permissions = [ permission.to_dto() for permission in permissions ]
+            user_permissions = []
+            for pt in permissions.permission_types:
+                user_permissions.extend(self._gather_permissions(session, user, pt))
+            dto_permissions = [ permission.to_dto() for permission in user_permissions ]
             return tuple(dto_permissions)
         finally:
             session.close()
@@ -668,7 +651,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         permissions.extend(permissions_to_add)
 
     def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
-        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type().name == permission_type_name ]
+        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type() == permission_type_name ]
 
     def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
@@ -676,7 +659,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         except IndexError:
             if default_value == DEFAULT_VALUE:
                 raise DbErrors.DbIllegalStatusError(
-                    permission.get_permission_type().name + " permission without " + parameter_name
+                    permission.get_permission_type() + " permission without " + parameter_name
                 )
             else:
                 return default_value
@@ -690,7 +673,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected float as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
-                    permission.get_permission_type().name,
+                    permission.get_permission_type(),
                     value
                 )
             )
@@ -703,7 +686,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected int as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
-                    permission.get_permission_type().name,
+                    permission.get_permission_type(),
                     value
                 )
             )

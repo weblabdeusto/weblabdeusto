@@ -18,6 +18,7 @@ import datetime
 
 import weblab.db.model as Model
 
+import weblab.permissions as permissions
 
 class ModelTestCase(unittest.TestCase):
 
@@ -28,13 +29,10 @@ class ModelTestCase(unittest.TestCase):
         #
         auth_type = Model.DbAuthType("DB")
 
-        permission_type = Model.DbPermissionType(
-                'experiment_allowed',
-                'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
-        )
-        permission_type_p1 = Model.DbPermissionTypeParameter(permission_type, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
-        permission_type_p2 = Model.DbPermissionTypeParameter(permission_type, 'experiment_category_id', 'string', 'the unique name of the category of experiment')
-        permission_type_p3 = Model.DbPermissionTypeParameter(permission_type, 'time_allowed', 'float', 'Time allowed (in seconds)')
+        permission_type = permissions.EXPERIMENT_ALLOWED
+        permission_type_p1 = permissions.EXPERIMENT_PERMANENT_ID 
+        permission_type_p2 = permissions.EXPERIMENT_CATEGORY_ID 
+        permission_type_p3 = permissions.TIME_ALLOWED 
 
         auth = Model.DbAuth(auth_type, "WebLab DB", 1)
 
@@ -91,13 +89,6 @@ class ModelTestCase(unittest.TestCase):
         auth.configuration = "param1=value1;param2=value2"
         self.assertEquals("value1", auth.get_config_value("param1"))
         self.assertEquals("value2", auth.get_config_value("param2"))
-
-        #
-        # Method DbPermissionType.get_parameter()
-        #
-        self.assertEquals(permission_type_p1, permission_type.get_parameter("experiment_permanent_id"))
-        self.assertEquals(permission_type_p2, permission_type.get_parameter("experiment_category_id"))
-        self.assertEquals(permission_type_p3, permission_type.get_parameter("time_allowed"))
 
         #
         # Method Db(User|Group|Role)Permission.get_permission_type()

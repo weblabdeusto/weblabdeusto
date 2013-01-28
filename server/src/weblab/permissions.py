@@ -10,6 +10,11 @@ class PermissionType(object):
         self.description = description
         self.parameters  = parameters
 
+    def get_parameter(self, name):
+        for parameter in self.parameters:
+            if parameter.name == name:
+                return parameter
+
 class PermissionTypeParameter(object):
     def __init__(self, name, datatype, description):
         self.name        = name
@@ -86,5 +91,4 @@ ACCESS_FORWARD_DESC = "Users with this permission will be allowed to forward res
 access_forward = PermissionType(ACCESS_FORWARD, ACCESS_FORWARD_DESC, [] )
 
 permission_types[access_forward.name] = access_forward
-
 

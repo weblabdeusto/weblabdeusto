@@ -364,17 +364,6 @@ class ExperimentPanel(AdministratorModelView):
         self.category_filter_number  = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
 
-class PermissionTypePanel(AdministratorModelView):
-
-    column_list = ('name', 'description')
-    can_edit   = False
-    can_create = False
-    can_delete = False
-    inline_models = (model.DbPermissionTypeParameter,)
-
-    def __init__(self, session, **kwargs):
-        super(PermissionTypePanel, self).__init__(model.DbPermissionType, session, **kwargs)
-
 def display_parameters(context, permission, p):
     parameters = u''
     for parameter in permission.parameters:
@@ -393,7 +382,7 @@ class GenericPermissionPanel(AdministratorModelView):
     column_searchable_list = ('permanent_id', 'comments')
     column_formatters = dict( permission = display_parameters )
     column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
-    column_sortable_list = ( ('permission', model.DbPermissionType.id), 'permanent_id', 'date', 'comments')
+    column_sortable_list = ( 'permission', 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
 
     def __init__(self, model, session, **kwargs):

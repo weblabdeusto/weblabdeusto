@@ -48,7 +48,17 @@ class Patch(object):
                         check_arg = cursor
                     else:
                         check_arg = session
-                    if self.check(check_arg):
+                    
+                    try:
+                        applicable = self.check(check_arg)
+                    except:
+                        print "[ERROR CHECKING]"
+                        print
+                        traceback.print_exc()
+                        print
+                        applicable = False
+
+                    if applicable:
                         print "[NOT APPLIED]"
                         print "Applying %s..." % type(self).__name__,
                         try:
