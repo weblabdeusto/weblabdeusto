@@ -258,7 +258,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
         self.experiment_filter_number  = get_filter_number(self, u'Experiment.name')
         # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
 
-        UserUsedExperimentPanel.INSTANCE = self
+        if type(self) == UserUsedExperimentPanel:
+            UserUsedExperimentPanel.INSTANCE = self
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
