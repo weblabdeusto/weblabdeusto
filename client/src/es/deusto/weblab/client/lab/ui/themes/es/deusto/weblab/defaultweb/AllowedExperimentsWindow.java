@@ -192,8 +192,6 @@ class AllowedExperimentsWindow extends BaseWindow {
 		
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
-	    	this.separatorLabel.setVisible(false);
-	    	this.separatorLabel2.setVisible(false);
 	    	this.separatorLabel3.setVisible(false);
 	    }
 	}

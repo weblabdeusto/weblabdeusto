@@ -29,19 +29,19 @@
 						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
 						 	
 						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+
+						 	<w:WlAHref visible="false" ui:field="administrationLink">
+								<g:Image resource='{res.administration}' />
+							</w:WlAHref>
+						 	
+						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
 					
 						 	<w:WlAHref ui:field="profileLink">
 								<g:Image resource='{res.profile}' />
 							</w:WlAHref>
 						 	
 							<g:Label ui:field="separatorLabel3" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-					
-						 	<w:WlAHref visible="false" ui:field="administrationLink">
-								<g:Image resource='{res.administration}' />
-							</w:WlAHref>
 						 	
-						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
-
 						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			
 						</g:HorizontalPanel>
