@@ -45,4 +45,7 @@ public interface Resources extends ClientBundle {
 
 	@Source("res/administration.png")
 	ImageResource administration();
+	
+	@Source("res/profile.png")
+	ImageResource profile();
 }

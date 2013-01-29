@@ -86,6 +86,8 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField Label separatorLabel3;
+	@UiField WlAHref profileLink;
 	@UiField WlAHref administrationLink;
 	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
@@ -166,12 +168,14 @@ class ExperimentWindow extends BaseWindow {
 	    		this.administrationLink.setHref(this.user.getAdminUrl());
 	    		this.separatorLabelAdministration.setVisible(true);
 	    	}
+	    	this.profileLink.setHref(WebLabClient.PROFILE_URL);
 	    }
 	    
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
 	    	this.separatorLabel.setVisible(false);
 	    	this.separatorLabel2.setVisible(false);
+	    	this.separatorLabel3.setVisible(false);
 	    }
 	}
 	
