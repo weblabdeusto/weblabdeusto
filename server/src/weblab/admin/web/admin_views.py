@@ -8,6 +8,8 @@ import threading
 from wtforms.fields.core import UnboundField
 from wtforms.validators import Email
 
+from sqlalchemy.sql.expression import desc
+
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
 from flask.ext.wtf import Form, TextField, Required, PasswordField, SelectField, NumberRange
@@ -254,7 +256,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.files_directory     = files_directory
-        self.user_filter_number  = get_filter_number(self, u'User.login')
+        if type(self) == UserUsedExperimentPanel:
+            self.user_filter_number  = get_filter_number(self, u'User.login')
         self.experiment_filter_number  = get_filter_number(self, u'Experiment.name')
         # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
 
@@ -659,7 +662,7 @@ class PermissionsAddingView(AdministratorView):
     def users(self, permission_type):
         self._check_permission_type(permission_type)
 
-        users = [ (user.login, u'%s - %s' % (user.login, user.full_name)) for user in self.session.query(model.DbUser).all() ]
+        users = [ (user.login, u'%s - %s' % (user.login, user.full_name)) for user in self.session.query(model.DbUser).order_by(desc('id')).all() ]
 
         recipient_resolver = lambda login: self.session.query(model.DbUser).filter_by(login = login).one()
     
@@ -671,7 +674,7 @@ class PermissionsAddingView(AdministratorView):
     def groups(self, permission_type):
         self._check_permission_type(permission_type)
 
-        groups = [ (g.name, g.name) for g in self.session.query(model.DbGroup).all() ]
+        groups = [ (g.name, g.name) for g in self.session.query(model.DbGroup).order_by(desc('id')).all() ]
 
         recipient_resolver = lambda group_name: self.session.query(model.DbGroup).filter_by(name = group_name).one()
 
@@ -684,7 +687,7 @@ class PermissionsAddingView(AdministratorView):
     def roles(self, permission_type):
         self._check_permission_type(permission_type)
 
-        roles = [ (r.name, r.name) for r in self.session.query(model.DbRole).all() ]
+        roles = [ (r.name, r.name) for r in self.session.query(model.DbRole).order_by(desc('id')).all() ]
         
         recipient_resolver = lambda role_name: self.session.query(model.DbRole).filter_by(name = role_name).one()
 

@@ -1,3 +1,4 @@
+from flask import redirect, request
 from flask.ext.admin import expose, AdminIndexView, BaseView
 
 import weblab.db.model as model
@@ -9,7 +10,8 @@ def get_app_instance():
     return admin_app.AdministrationApplication.INSTANCE
 
 class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
-    column_list    = ( 'experiment', 'start_date', 'end_date', 'origin', 'coord_address','details' )
+    column_list    = ( 'experiment', 'start_date', 'end_date', 'origin', 'details' )
+    column_filters = ( 'start_date', 'end_date', 'experiment', 'origin')
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None
@@ -47,7 +49,8 @@ class ProfileHomeView(AdminIndexView):
 
     @expose()
     def index(self):
-        return self.render("profile-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url)
+        user_information = get_app_instance().get_user_information()
+        return self.render("profile-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information)
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None

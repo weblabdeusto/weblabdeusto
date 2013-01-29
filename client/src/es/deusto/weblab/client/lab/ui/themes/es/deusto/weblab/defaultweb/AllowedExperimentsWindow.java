@@ -178,6 +178,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 	    	if(this.user.getAdminUrl() != null && !this.user.getAdminUrl().equals("")) {
+                this.administrationLink.setTarget("_top");
 	    		this.administrationLink.setVisible(true);
 	    		this.administrationLink.setHref(this.user.getAdminUrl());
 	    		this.separatorLabelAdministration.setVisible(true);

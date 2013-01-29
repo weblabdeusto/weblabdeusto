@@ -7,8 +7,8 @@ from logging.handlers import RotatingFileHandler
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask import Flask, request
-from flask.ext.admin import Admin
+from flask import Flask, request, redirect
+from flask.ext.admin import Admin, BaseView, expose
 
 from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
@@ -18,6 +18,11 @@ from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
+
+class BackView(BaseView):
+    @expose()
+    def index(self):
+        return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
 class AdministrationApplication(AbstractDatabaseGateway):
 
@@ -69,6 +74,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group',  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles',  endpoint = 'permissions/role'))
 
+        self.admin.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/admin'))
+
         self.admin.init_app(self.app)
 
         self.full_admin_url = self.script_name + admin_url
@@ -82,6 +89,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url)
 
         self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = 'My accesses', endpoint = 'accesses'))
+
+        self.profile.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/profile'))
 
         self.profile.init_app(self.app)
 
