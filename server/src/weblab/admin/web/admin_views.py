@@ -205,6 +205,7 @@ class UsersPanel(AdministratorModelView):
 
 
     def _password2sha(self, password):
+        # TODO: Avoid replicating
         randomstuff = ""
         for _ in range(4):
             c = chr(ord('a') + random.randint(0,25))

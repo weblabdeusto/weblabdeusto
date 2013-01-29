@@ -1,11 +1,16 @@
-from flask import redirect, request
+import sha
+import random
+
+from flask import redirect, request, flash
 from flask.ext.admin import expose, AdminIndexView, BaseView
 
 import weblab.db.model as model
 import weblab.admin.web.admin_views as admin_views
 
-from flask.ext.wtf import TextField, Form
+from flask.ext.wtf import TextField, Form, PasswordField, NumberRange
 from weblab.admin.web.fields import DisabledTextField
+
+import weblab.permissions as permissions
 
 
 def get_app_instance():
@@ -16,6 +21,8 @@ class ProfileEditForm(Form):
     full_name   = DisabledTextField(u"Full name:")
     login       = DisabledTextField(u"Login:")
     email       = TextField(u"E-mail:")
+    facebook    = TextField(u"Facebook id:", description="Facebook identifier (number).", validators = [NumberRange(min=1000) ])
+    password    = PasswordField(u"Password:", description="Password.")
 
 class ProfileEditView(BaseView):
 
@@ -24,20 +31,85 @@ class ProfileEditView(BaseView):
 
         self._session = db_session
 
-    @expose()
+    @expose(methods=['GET','POST'])
     def index(self):
         login = get_app_instance().get_user_information().login
         user = self._session.query(model.DbUser).filter_by(login = login).one()
+        
+        facebook_id = ''
 
-        form = ProfileEditForm()
+        user_auths = {}
+        change_password = True
+        password_auth = None
+        facebook_auth = None
 
-        form.full_name.data = user.full_name
-        form.login.data     = user.login
-        form.email.data     = user.email
+        for user_auth in user.auths:
+            if user_auth.auth.auth_type.name.lower() == 'facebook':
+                facebook_id = user_auth.configuration
+                facebook_auth = user_auth
+            if 'ldap' in user_auth.auth.auth_type.name.lower():
+                change_password = False
+            if user_auth.auth.auth_type.name.lower() == 'db':
+                password_auth = user_auth
 
-        # TODO: check permissions, save data
 
-        return self.render("profile-edit.html", form=form)
+        if len(request.form):
+            form = ProfileEditForm(request.form)
+        else:
+            form = ProfileEditForm()
+            form.full_name.data = user.full_name
+            form.login.data     = user.login
+            form.email.data     = user.email
+            form.facebook.data  = facebook_id
+
+        user_permissions = get_app_instance().get_permissions()
+        
+        change_profile = True
+        for permission in user_permissions:
+            if permission.name == permissions.CANT_CHANGE_PROFILE:
+                change_password = False
+                change_profile  = False
+
+        if change_profile and form.validate_on_submit():
+
+            errors = []
+
+            if change_password and password_auth is not None and form.password.data:
+                if len(form.password.data) < 6:
+                    errors.append("Error: too short password")
+                else:
+                    password_auth.configuration = self._password2sha(form.password.data)
+
+            user.email = form.email.data
+            
+            if form.facebook.data:
+                if facebook_auth is None:
+                    auth = self._session.query(model.DbAuth).filter_by(name = 'FACEBOOK').one()
+                    new_auth = model.DbUserAuth(user, auth, form.facebook.data)
+                    self._session.add(new_auth)
+                else:
+                    facebook_auth.configuration = form.facebook.data
+            else:
+                if facebook_auth is not None:
+                    self._session.delete(facebook_auth)
+
+            self._session.commit()
+
+            if errors:
+                for error in errors:
+                    flash(error)
+            else:
+                flash("Saved")
+
+        return self.render("profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
+
+    def _password2sha(self, password):
+        randomstuff = ""
+        for _ in range(4):
+            c = chr(ord('a') + random.randint(0,25))
+            randomstuff += c
+        password = password if password is not None else ''
+        return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None

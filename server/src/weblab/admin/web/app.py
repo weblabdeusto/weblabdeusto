@@ -91,7 +91,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         profile_url = '/weblab/administration/profile'
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url)
 
-        self.profile.add_view(profile_views.ProfileEditView(db_session, name = 'Edit'))
+        self.profile.add_view(profile_views.ProfileEditView(db_session, name = 'Edit', endpoint = 'edit'))
 
         self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = 'My accesses', endpoint = 'accesses'))
 
@@ -140,7 +140,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
     def get_permissions(self):
         if self.bypass_authz:
             session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
-            return self.ups.get_user_information(session_id.id)
+            return self.ups.get_user_permissions(session_id.id)
 
         try:
             session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
