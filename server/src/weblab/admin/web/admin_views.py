@@ -2,13 +2,15 @@ import os
 import sha
 import time
 import random
+import datetime
 import threading
 
-from wtforms.fields import PasswordField, TextField
 from wtforms.fields.core import UnboundField
 from wtforms.validators import Email
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
+
+from flask.ext.wtf import Form, TextField, Required, PasswordField, SelectField, NumberRange
 
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
@@ -16,6 +18,7 @@ from flask.ext.admin.model.form import InlineFormAdmin
 
 import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
+import weblab.permissions as permissions
 from weblab.admin.web.filters import get_filter_number, generate_filter_any
 
 def get_app_instance():
@@ -61,11 +64,14 @@ class AdministratorModelView(ModelView):
 
 SAME_DATA = object()
 
-def show_link(klass, filter_name, field, name, view = 'View'):
+def get_full_url(url):
+    script_name   = get_app_instance().script_name
+    return script_name + url
+    
 
-    script_name = get_app_instance().script_name
+def show_link(klass, filter_name, field, name, view = 'View'):
     instance      = klass.INSTANCE
-    url           = script_name + instance.url
+    url           = get_full_url(instance.url)
 
     link = u'<a href="%s?' % url
 
@@ -165,26 +171,22 @@ class UsersPanel(AdministratorModelView):
                     old_auth_type, old_auth_conf = self.local_data.authentications.get(auth_instance.id, (None, None))
                     if old_auth_type == auth_instance.auth.name and old_auth_conf == auth_instance.configuration:
                         # Same as before: ignore
-                        print "Ignoring: same name"
                         continue
 
                     if not auth_instance.configuration:
                         # User didn't do anything here. Restoring configuration.
                         auth_instance.configuration = old_auth_conf or ''
-                        print "Restoring config"
                         continue
 
                 self._on_auth_changed(auth_instance)
                     
 
     def _on_auth_changed(self, auth_instance):
-        print "New auth!", auth_instance
         if auth_instance.auth.auth_type.name.lower() == 'db':
             password = auth_instance.configuration
             if len(password) < 6:
                 raise Exception("Password too short")
             auth_instance.configuration = self._password2sha(password)
-            print "Stored:", auth_instance.configuration
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
@@ -501,33 +503,193 @@ class RolePermissionPanel(GenericPermissionPanel):
 
         RolePermissionPanel.INSTANCE = self
 
+class PermissionsForm(Form):
+    permission_types = SelectField(u"Permission type:", choices=[ (permission_type, permission_type) for permission_type in permissions.permission_types ], default = permissions.EXPERIMENT_ALLOWED)
+    recipients       = SelectField(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')], default = 'group')
+
+
 class PermissionsAddingView(AdministratorView):
+
+    PERMISSION_FORMS = {}
 
     def __init__(self, session, **kwargs):
         self.session = session
         super(PermissionsAddingView, self).__init__(**kwargs)
 
-    @expose()
+    @expose(methods=['POST','GET'])
     def index(self):
-        return self.render("admin-permissions.html")
+        form = PermissionsForm()
+        if form.validate_on_submit():
+            if form.recipients.data == 'user': 
+                return redirect(url_for('.users', permission_type = form.permission_types.data))
+            elif form.recipients.data == 'role': 
+                return redirect(url_for('.roles', permission_type = form.permission_types.data))
+            elif form.recipients.data == 'group': 
+                return redirect(url_for('.groups', permission_type = form.permission_types.data))
 
-    @expose('/users/')
-    def users(self):
-        # TODO: split in pages
-        users = self.session.query(model.DbUser).all()
-        return ":-)"
+        return self.render("admin-permissions.html", form=form)
 
-    @expose('/groups/')
-    def groups(self):
-        # TODO: split in pages
-        groups = self.session.query(model.DbGroup).all()
-        return ":-)"
+    def _get_permission_form(self, permission_type, recipient_type, recipient_resolver, DbPermissionClass, DbPermissionParameterClass):
+        key = u'%s__%s' % (permission_type, recipient_type)
+        if key in self.PERMISSION_FORMS:
+            return self.PERMISSION_FORMS[key]()
+    
+        # Otherwise, generate it
+        current_permission_type = permissions.permission_types[permission_type]
 
-    @expose('/roles/')
-    def roles(self):
-        # TODO: split in pages
-        roles = self.session.query(model.DbRole).all()
-        return ":-)"
+        session = self.session
+
+        class ParentPermissionForm(Form):
+
+            comments   = TextField("Comments")
+            recipients = SelectField(recipient_type, description="Recipients of the permission")
+
+            def add_permission(self):
+                recipient = recipient_resolver(self.recipients.data)
+                db_permission = DbPermissionClass( recipient, permission_type, permanent_id = u'%s::%s' % (permission_type, recipient), date = datetime.datetime.today(), comments = self.comments.data )
+                session.add(db_permission)
+
+                return db_permission
+
+            def add_parameters(self, db_permission):
+                for parameter in current_permission_type.parameters:
+                    data = getattr(self, parameter.name).data
+                    db_parameter = DbPermissionParameterClass( db_permission, parameter.name, data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+            def self_register(self):
+                db_permission = self.add_permission()
+                self.add_parameters(db_permission)
+                session.commit()
+
+        ###################################################################################
+        # 
+        # If a permission requires a special treatment, this is where it should be placed
+        # 
+        if permission_type == permissions.EXPERIMENT_ALLOWED:
+            
+            class ParticularPermissionForm(ParentPermissionForm):
+                parameter_list = ['experiment', 'time_allowed', 'priority', 'initialization_in_accounting']
+
+                experiment = SelectField(u'Experiment', description = "Experiment")
+
+                time_allowed = TextField(u'Time assigned',                  description = "Measured in seconds",  validators = [Required(), NumberRange(min=1)], default=100)
+                priority     = TextField(u'Priority',                       description = "Priority of the user", validators = [Required(), NumberRange(min=0)], default=5)
+                initialization_in_accounting = SelectField(u'Initialization', description = "Take initialization into account",  choices = [('yes','yes'),('no','no')], default='yes')
+
+
+                def __init__(self, *args, **kwargs):
+                    super(ParticularPermissionForm, self).__init__(*args, **kwargs)
+                    choices = []
+                    for exp in session.query(model.DbExperiment).all():
+                        exp_id = u'%s@%s' % (exp.name, exp.category.name)
+                        choices.append((exp_id, exp_id))
+                    self.experiment.choices = choices
+
+                def add_parameters(self, db_permission):
+
+                    db_parameter = DbPermissionParameterClass( db_permission, permissions.TIME_ALLOWED, self.time_allowed.data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+                    db_parameter = DbPermissionParameterClass( db_permission, permissions.PRIORITY, self.priority.data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+                    db_parameter = DbPermissionParameterClass( db_permission, permissions.INITIALIZATION_IN_ACCOUNTING, self.initialization_in_accounting.data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+                    exp_name, cat_name = self.experiment.data.split('@')
+
+                    db_parameter = DbPermissionParameterClass( db_permission, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+                    db_parameter = DbPermissionParameterClass( db_permission, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
+
+
+        ###################################################################################
+        # 
+        #  Otherwise, it is automatically generated
+        # 
+        else: # Auto-generate it by default
+            parameters_code =  """    parameter_list = %s\n""" % repr([ parameter.name for parameter in current_permission_type.parameters ])
+            for parameter in current_permission_type.parameters:
+                parameters_code += """    %s = TextField(u"%s", description="%s", validators = [Required()])\n""" % (
+                                            parameter.name,
+                                            parameter.name.replace('_',' ').capitalize(),
+                                            parameter.description )
+
+            form_code = """class ParticularPermissionForm(ParentPermissionForm):\n""" + parameters_code
+            
+            context = {}
+            context.update(globals())
+            context.update(locals())
+
+            exec form_code in context, context
+
+            ParticularPermissionForm = context['ParticularPermissionForm']
+
+        self.PERMISSION_FORMS[key] = ParticularPermissionForm
+        return ParticularPermissionForm()
+
+    def _check_permission_type(self, permission_type):
+        current_permission_type = permissions.permission_types.get(permission_type, None)
+        if current_permission_type is None:
+            raise abort(400) # TODO:  show an error
+       
+    def _show_form(self, permission_type, recipient_type, recipients, recipient_resolver, DbPermissionClass, DbPermissionParameterClass, back_url):
+        current_permission_type = permissions.permission_types[permission_type]
+        form = self._get_permission_form(permission_type, recipient_type, recipient_resolver, DbPermissionClass, DbPermissionParameterClass)
+        form.recipients.choices = recipients
+
+        if form.validate_on_submit():
+            form.self_register()
+            return redirect(back_url)
+
+
+        return self.render("admin-permission-create.html", form = form, fields = form.parameter_list, description = current_permission_type.description, permission_type = permission_type)
+
+    @expose('/users/<permission_type>/', methods = ['GET', 'POST'])
+    def users(self, permission_type):
+        self._check_permission_type(permission_type)
+
+        users = [ (user.login, u'%s - %s' % (user.login, user.full_name)) for user in self.session.query(model.DbUser).all() ]
+
+        recipient_resolver = lambda login: self.session.query(model.DbUser).filter_by(login = login).one()
+    
+        return self._show_form(permission_type, 'Users', users, recipient_resolver, 
+                                model.DbUserPermission, model.DbUserPermissionParameter, 
+                                get_full_url(UserPermissionPanel.INSTANCE.url))
+
+    @expose('/groups/<permission_type>/', methods = ['GET','POST'])
+    def groups(self, permission_type):
+        self._check_permission_type(permission_type)
+
+        groups = [ (g.name, g.name) for g in self.session.query(model.DbGroup).all() ]
+
+        recipient_resolver = lambda group_name: self.session.query(model.DbGroup).filter_by(name = group_name).one()
+
+        return self._show_form(permission_type, 'Groups', groups, recipient_resolver, 
+                                model.DbGroupPermission, model.DbGroupPermissionParameter,
+                                get_full_url(GroupPermissionPanel.INSTANCE.url))
+
+
+    @expose('/roles/<permission_type>/', methods = ['GET','POST'])
+    def roles(self, permission_type):
+        self._check_permission_type(permission_type)
+
+        roles = [ (r.name, r.name) for r in self.session.query(model.DbRole).all() ]
+        
+        recipient_resolver = lambda role_name: self.session.query(model.DbRole).filter_by(name = role_name).one()
+
+        return self._show_form(permission_type, 'Roles', roles, recipient_resolver, 
+                                model.DbRolePermission, model.DbRolePermissionParameter,
+                                get_full_url(RolePermissionPanel.INSTANCE.url))
 
 
 class HomeView(AdminIndexView):

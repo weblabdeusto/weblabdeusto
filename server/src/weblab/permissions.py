@@ -30,7 +30,7 @@ PERMISSION_TYPES = permission_types
 #                Experiment allowed
 # 
 EXPERIMENT_ALLOWED = 'experiment_allowed'
-EXPERIMENT_ALLOWED_DESC = "This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter"
+EXPERIMENT_ALLOWED_DESC = "Users with this permission will be able to use a particular laboratory during an amount of time. The amount of time will contain or not the initialization time."
 
 EXPERIMENT_PERMANENT_ID            = 'experiment_permanent_id'
 EXPERIMENT_PERMANENT_ID_DTYPE      = 'string'

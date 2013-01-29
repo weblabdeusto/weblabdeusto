@@ -1,0 +1,33 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+
+
+<div class="row">
+    <div class="span7 offset2">
+        <h1>Grant permissions</h1>
+
+        
+        <br/>
+        <p><code>{{ permission_type }}</code>: {{ description }}</p>
+        <br/>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+
+            <fieldset>
+                {% for field in fields %}
+                    {{ render_field(form|attr(field)) }}
+                {% endfor %}
+
+                {{ render_field(form.recipients) }}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Continue</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
