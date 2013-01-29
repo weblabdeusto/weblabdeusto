@@ -38,7 +38,11 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String BASE_LOCATION = "base.location";
 	public static final String DEFAULT_BASE_LOCATION = "";
 
+	
     public static String baseLocation;
+    
+	public static String PROFILE_URL;
+	
     public static boolean IS_MOBILE = false;
 
 	public static final int MAX_FACEBOOK_WIDTH = 735;
@@ -207,6 +211,7 @@ public abstract class WebLabClient implements EntryPoint {
 			@Override
 			public void onLoaded() {
                 WebLabClient.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                WebLabClient.PROFILE_URL  = WebLabClient.baseLocation + "/weblab/administration/profile/";
                 
                 if(WebLabClient.this.languageDecisionPending) {
         			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();

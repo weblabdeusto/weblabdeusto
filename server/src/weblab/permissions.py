@@ -25,6 +25,9 @@ class PermissionTypeParameter(object):
 permission_types = {}
 PERMISSION_TYPES = permission_types
 
+def _register(permission_type):
+    permission_types[permission_type.name] = permission_type
+
 #############################################################
 # 
 #                Experiment allowed
@@ -59,7 +62,7 @@ experiment_allowed = PermissionType(EXPERIMENT_ALLOWED, EXPERIMENT_ALLOWED_DESC,
                                       PermissionTypeParameter(PRIORITY,                     PRIORITY_DTYPE,                     PRIORITY_DESC                     ),
                                       PermissionTypeParameter(INITIALIZATION_IN_ACCOUNTING, INITIALIZATION_IN_ACCOUNTING_DTYPE, INITIALIZATION_IN_ACCOUNTING_DESC ) ])
 
-permission_types[experiment_allowed.name] = experiment_allowed
+_register(experiment_allowed)
 
 #############################################################
 # 
@@ -77,7 +80,7 @@ FULL_PRIVILEGES_DESC  = 'full privileges (True) or not (False)'
 admin_panel_access = PermissionType(ADMIN_PANEL_ACCESS, ADMIN_PANEL_ACCESS_DESC, 
                                     [ PermissionTypeParameter(FULL_PRIVILEGES,      FULL_PRIVILEGES_DTYPE,      FULL_PRIVILEGES_DESC ) ])
 
-permission_types[admin_panel_access.name] = admin_panel_access
+_register(admin_panel_access)
 
 #############################################################
 # 
@@ -90,5 +93,17 @@ ACCESS_FORWARD_DESC = "Users with this permission will be allowed to forward res
 
 access_forward = PermissionType(ACCESS_FORWARD, ACCESS_FORWARD_DESC, [] )
 
-permission_types[access_forward.name] = access_forward
+_register(access_forward)
+
+###############################################################
+# 
+#             Profile editing disabled
+# 
+
+CANT_CHANGE_PROFILE      = 'profile_editing_disabled'
+CANT_CHANGE_PROFILE_DESC = "Disable profile editing. Useful for demo accounts, for instance"
+
+cant_change_profile = PermissionType(CANT_CHANGE_PROFILE, CANT_CHANGE_PROFILE_DESC, [])
+
+_register(cant_change_profile)
 

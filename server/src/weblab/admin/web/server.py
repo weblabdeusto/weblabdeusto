@@ -118,12 +118,14 @@ class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
 
 if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
+    from weblab.core.server import UserProcessingServer
     cfg_manager = ConfigurationManager()
     cfg_manager.append_path('test/unit/configuration.py')
 
+    ups = UserProcessingServer(None, None, cfg_manager, dont_start = True)
 
     DEBUG = True
-    admin_app = AdministrationApplication(cfg_manager, None, bypass_authz = True)
+    admin_app = AdministrationApplication(cfg_manager, ups, bypass_authz = True)
 
     @admin_app.app.route('/')
     def index():

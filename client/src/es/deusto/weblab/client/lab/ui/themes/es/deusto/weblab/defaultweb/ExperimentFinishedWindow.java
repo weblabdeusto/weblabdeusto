@@ -45,6 +45,7 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField Label separatorLabel3;
 	@UiField WlAHref administrationLink;
 	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
@@ -83,6 +84,7 @@ public class ExperimentFinishedWindow extends BaseWindow {
     	this.logoutLink.setVisible(false);
     	this.separatorLabel.setVisible(false);
     	this.separatorLabel2.setVisible(false);
+    	this.separatorLabel3.setVisible(false);
 	}
 	
 	@UiHandler("backButton")
