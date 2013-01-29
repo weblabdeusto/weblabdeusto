@@ -23,43 +23,15 @@ If you want to see examples of running laboratories, try the demo version at:
 Documentation
 =============
 
-We are starting to document the new release here:
+We are documenting the new release here:
 
    https://weblabdeusto.readthedocs.org/en/latest/
-
-The full documentation of WebLab-Deusto prior to WebLab-Deusto 5 is available in:
-
-   http://code.google.com/p/weblabdeusto/
-
-Please take into account that this older documentation can not be applied to the
-current development version of WebLab-Deusto, and certain things are different.
-We are working on a new version of the documentation. In the meanwhile, please
-refer to the `Google Group
-<https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto>`_ to ask any
-question.
 
 Installation
 ============
 
 The full instructions to install the development version are `here
-<http://code.google.com/p/weblabdeusto/wiki/4_5_Developers>`_. However,
-the quick version is:
-
-#. Install `Python 2.7 <http://www.python.org/download/>`_ and the `Java Development Kit 6 <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_.
-#. Install `setuptools <http://pypi.python.org/pypi/setuptools>`_, `pip <http://www.pip-installer.org/en/latest/installing.html#using-the-installer>`_ and `virtualenv <http://www.virtualenv.org/en/latest/index.html#installation>`_.
-
-Create a virtualenv and then install it::
-
-  $ python setup.py install
-
-From this point, you can run::
-
-  $ weblab-admin create my-instance
-
-To create a WebLab-Deusto instance. You can then manage that instance with the weblab-admin script.
-
-An example of a more complex instance creation (which uses MySQL for every database and which configures a Virtual Machine experiment):
-  $ weblab-admin create MyInstance --session-db-engine mysql --coordination-db-engine mysql --db-engine mysql --force --vm --vbox-base-snapshot TestSnapshot --vm-storage-dir C:\Users\whoever\.VirtualBox\Machines --vbox-vm-name UbuntuDef --vm-url vnc://whatever.com:5900 --vm-estimated-load-time 30
+<https://weblabdeusto.readthedocs.org/en/latest/installation.html>`_. 
 
 Contact
 =======

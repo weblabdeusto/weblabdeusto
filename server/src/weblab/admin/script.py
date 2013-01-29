@@ -2013,6 +2013,17 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     apache_conf = (
         "\n"
+        """<LocationMatch (.*)nocache\.js$>\n"""
+        """   Header Set Cache-Control "max-age=0, no-store"\n"""
+        """</LocationMatch>\n"""
+        """\n"""
+        """<LocationMatch (.*)configuration\.js$>\n"""
+        """   Header Set Cache-Control "max-age=0, no-store"\n"""
+        """</LocationMatch>\n"""
+        """<Files *.cache.*>\n"""
+        """   Header Set Cache-Control "max-age=2592000"\n"""
+        """</Files>\n"""
+        """\n"""
         """# Apache redirects the regular paths to the particular directories \n"""
         """RedirectMatch ^%(root)s$ %(root)s/weblab/client\n"""
         """RedirectMatch ^%(root)s/$ %(root)s/weblab/client\n"""
@@ -2211,6 +2222,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         #   root@plunder:~# a2enmod proxy
         #   root@plunder:~# a2enmod proxy_balancer_module
         #   root@plunder:~# a2enmod proxy_http_module
+        #   root@plunder:~# a2enmod headers
         #   root@plunder:~# /etc/init.d/apache2 force-reload
         #  
         # However, in Microsoft Windows or other distributions, this 
@@ -2218,6 +2230,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         # can uncomment the following lines in Microsoft Windows if
         # using XAMPP as installer, or if you are under Mac OS X:
         # 
+        <IfModule !mod_headers.c>
+            LoadModule headers_module modules/mod_headers.so
+        </IfModule>
         <IfModule !mod_proxy.c>
             LoadModule proxy_module modules/mod_proxy.so
         </IfModule>
@@ -2294,7 +2309,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     if http_server_port is None:
         apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
-        if os.path.exists("/etc/apache2/httpd.conf"):
+        if os.path.exists("/etc/apache2/conf.d"):
+            apache_httpd_path = 'a new file that you must create called /etc/apache/conf.d/weblab'
+        elif os.path.exists("/etc/apache2/httpd.conf"):
             apache_httpd_path = '/etc/apache2/httpd.conf'
         elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
             apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
@@ -2306,10 +2323,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
         else:
             print >> stdout, ""
-            print >> stdout, "And enable the modules proxy proxy_balancer proxy_http."
+            print >> stdout, "And enable the modules proxy proxy_balancer proxy_http headers."
             print >> stdout, "For instance, in Ubuntu you can run: "
             print >> stdout, ""
-            print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http"
+            print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http headers"
         print >> stdout, ""
         print >> stdout, "Then restart apache. If you don't have apache don't worry, delete %s and " % directory
         print >> stdout, "run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT

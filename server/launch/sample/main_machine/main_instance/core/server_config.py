@@ -63,9 +63,12 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
             "exp1|robotarm|Robot experiments"        : "robotarm@robotarm",
             "exp1|submarine|Submarine experiments"   : "submarine@submarine",
+            "exp1|unr-physics|Physics experiments"   : "unr@unr",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18",
             "exp1|binary|Games"                      : "binary@binary",
+            "exp1|control-app|Control experiments"   : "control@control",
+            "exp1|incubator|Farm experiments"        : "incubator@incubator",
         }
 }
 
@@ -109,7 +112,10 @@ core_scheduling_systems = {
         "submarine"   : ("PRIORITY_QUEUE", {}),
         "labview"     : ("PRIORITY_QUEUE", {}),
         "pic18"       : ("PRIORITY_QUEUE", {}),
-        "binary"       : ("PRIORITY_QUEUE", {})
+        "binary"      : ("PRIORITY_QUEUE", {}),
+        "unr"         : ("PRIORITY_QUEUE", {}),
+        "control"     : ("PRIORITY_QUEUE", {}),
+        "incubator"   : ("PRIORITY_QUEUE", {}),
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'

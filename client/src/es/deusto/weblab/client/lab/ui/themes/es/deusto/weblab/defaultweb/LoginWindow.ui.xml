@@ -3,7 +3,7 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
     <ui:with field='res' type='es.deusto.weblab.client.ui.Resources'/>
-	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
 	
     <ui:style>
     	.bold-text { font-weight: bold;  }
@@ -111,7 +111,7 @@
 												<g:Label ui:field="usernameLabel" text="{i18n.username}:"></g:Label>
 											</g:customCell>
 											<g:customCell>
-												<g:TextBox ui:field="usernameTextbox"></g:TextBox>
+												<g:TextBox ui:field="usernameTextbox" styleName="textbox"></g:TextBox>
 											</g:customCell>
 										</g:row>
 										
@@ -120,7 +120,7 @@
 												<g:Label ui:field="passwordLabel" text="{i18n.password}:"></g:Label>
 											</g:customCell>
 											<g:customCell>
-												<g:PasswordTextBox ui:field="passwordTextbox"></g:PasswordTextBox>
+												<g:PasswordTextBox ui:field="passwordTextbox" styleName="textbox"></g:PasswordTextBox>
 											</g:customCell>
 							    		</g:row>
 							    	</g:Grid>			    	
@@ -154,11 +154,6 @@
 							</g:VerticalPanel>
 						</g:DecoratorPanel>
 						
-						<g:DecoratorPanel width="100%" ui:field="adminPanel">
-							<g:HorizontalPanel styleName="web-login-foot-message" spacing="20">
-								<g:Anchor text="{i18n.administrationPanel}" href="index-admin.html"></g:Anchor>
-							</g:HorizontalPanel>
-						</g:DecoratorPanel>
 			    	</g:VerticalPanel>
 			    </g:cell>
 		    </g:HorizontalPanel>

@@ -66,4 +66,7 @@ lxml<2.4
 # of the time measurements. Not activated since sometimes it 
 # fails and the rest of packages are not installed.
 # 
+# It will require several libs:
+#     sudo apt-get install libfreetype6-dev libpng12-dev
+# 
 # matplotlib<1.2

@@ -159,7 +159,7 @@ public class Pic18Experiment extends ExperimentBase{
 		this.disableInteractiveWidgets();
 		
 		if(isDemo()){
-			this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+			this.selectProgram.setText(i18n.thisDemoDoesNotAllowUpload());
 		}
 	}
 	
@@ -469,7 +469,7 @@ public class Pic18Experiment extends ExperimentBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	Pic18Experiment.this.messages.setText("File sent. Programming device");
+	    	Pic18Experiment.this.messages.setText(i18n.fileSent());
 	    }
 
 	    @Override
@@ -529,7 +529,7 @@ public class Pic18Experiment extends ExperimentBase{
 	    	// invisible once it is full.
 			this.progressBar.finish(300);
     	
-		this.messages.setText("Device programming failed");
+		this.messages.setText(i18n.deviceProgrammingFailed());
 		this.messages.stop();	
 	}
 	
@@ -539,7 +539,7 @@ public class Pic18Experiment extends ExperimentBase{
 		this.webcam.start();
 		
 	
-		this.messages.setText("Sending file");
+		this.messages.setText(i18n.sendingFile());
 		this.messages.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());

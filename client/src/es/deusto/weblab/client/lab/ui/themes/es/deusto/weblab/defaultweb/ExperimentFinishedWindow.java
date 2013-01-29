@@ -45,6 +45,8 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField WlAHref administrationLink;
+	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref bottomInstitutionLink;
 	@UiField WlAHref institutionLink;

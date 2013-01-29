@@ -58,12 +58,6 @@ class DbGateway(object):
         except NoResultFound:
             return None
 
-    def get_permission_type(self, permission_type_name):
-        try:
-            return self.session.query(Model.DbPermissionType).filter_by(name=permission_type_name).one()
-        except NoResultFound:
-            return None
-
     def get_groups(self):
         try:
             return self.session.query(Model.DbGroup).order_by('id').all()
@@ -161,7 +155,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -207,7 +201,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -253,7 +247,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -274,7 +268,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -295,7 +289,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -310,7 +304,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments

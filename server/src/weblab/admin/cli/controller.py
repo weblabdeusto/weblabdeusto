@@ -20,6 +20,7 @@ import random
 import sha
 import traceback
 import weblab.configuration_doc as configuration_doc
+import weblab.permissions as permissions
 
 from console_ui import ConsoleUI
 from exc import GoBackError
@@ -49,6 +50,7 @@ class Controller(object):
                 print >> sys.stderr, "Could not file configuration file", configuration_file
                 sys.exit(1)
 
+            globals()['CURRENT_PATH'] = configuration_file
             execfile(configuration_file, globals(), globals())
 
         global_vars = globals()
@@ -394,7 +396,6 @@ class Controller(object):
         group_names = [ (group.id, group.name) for group in groups ]
         experiments = self.db.get_experiments()
         experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
-        permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             group_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
@@ -403,7 +404,7 @@ class Controller(object):
             group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id)
             group_permission = self.db.grant_on_experiment_to_group(
                     group,
-                    permission_type,
+                    permissions.EXPERIMENT_ALLOWED,
                     group_permission_permanent_id,
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, experiment_unique_id),
@@ -427,7 +428,6 @@ class Controller(object):
         user_names = [ (user.id, user.login) for user in users ]
         experiments = self.db.get_experiments()
         experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
-        permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             user_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
@@ -436,7 +436,7 @@ class Controller(object):
             user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id)
             user_permission = self.db.grant_on_experiment_to_user(
                     user,
-                    permission_type,
+                    permissions.EXPERIMENT_ALLOWED,
                     user_permission_permanent_id,
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, experiment_unique_id),
@@ -458,12 +458,11 @@ class Controller(object):
     def grant_on_admin_panel_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
-        permission_type = self.db.get_permission_type("admin_panel_access")
         try:
             group_id = self.ui.dialog_grant_on_admin_panel_to_group(group_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             group_permission_permanent_id = "%s::admin_panel_access" % group.name
-            group_permission = self.db.grant_on_admin_panel_to_group( group, permission_type,
+            group_permission = self.db.grant_on_admin_panel_to_group( group, permissions.ADMIN_PANEL_ACCESS,
                     group_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
             if group_permission is not None:
@@ -479,12 +478,11 @@ class Controller(object):
     def grant_on_admin_panel_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
-        permission_type = self.db.get_permission_type("admin_panel_access")
         try:
             user_id = self.ui.dialog_grant_on_admin_panel_to_user(user_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             user_permission_permanent_id = "%s::admin_panel_access" % user.login
-            user_permission = self.db.grant_on_admin_panel_to_user( user, permission_type,
+            user_permission = self.db.grant_on_admin_panel_to_user( user, permissions.ADMIN_PANEL_ACCESS,
                     user_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
             if user_permission is not None:
@@ -500,12 +498,11 @@ class Controller(object):
     def grant_on_access_forward_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
-        permission_type = self.db.get_permission_type("access_forward")
         try:
             group_id = self.ui.dialog_grant_on_access_forward_to_group(group_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             group_permission_permanent_id = "%s::access_forward" % group.name
-            group_permission = self.db.grant_on_access_forward_to_group( group, permission_type,
+            group_permission = self.db.grant_on_access_forward_to_group( group, permissions.ACCESS_FORWARD,
                     group_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
             if group_permission is not None:
@@ -521,12 +518,11 @@ class Controller(object):
     def grant_on_access_forward_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
-        permission_type = self.db.get_permission_type("access_forward")
         try:
             user_id = self.ui.dialog_grant_on_access_forward_to_user(user_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             user_permission_permanent_id = "%s::access_forward" % user.login
-            user_permission = self.db.grant_on_access_forward_to_user( user, permission_type,
+            user_permission = self.db.grant_on_access_forward_to_user( user, permissions.ACCESS_FORWARD,
                     user_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
             if user_permission is not None:
@@ -608,10 +604,10 @@ class Controller(object):
                     if( user.login in user_pwds ):
                         pwd = user_pwds[user.login]
                         self.ui.notify_begin("Sending email to %s..." % user.email)
-                        smtp.send(fromm, (user.email,) + bcc, subject, text % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd})
+                        smtp.send(fromm, (user.email,) + bcc, subject, (text.decode('utf-8') % {'FULL_NAME': user.full_name, 'LOGIN': user.login, 'PASSWORD': pwd}).encode('utf-8'))
                         self.ui.notify_end("done.")
                     else:
-                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file", user.login)
+                        self.ui.notify("[Warning]: Did not notify %s. The password is not available in the specified users file" % user.login)
             else:
                 self.ui.error("The selected Group has no Users to notify, or the users file specified is empty.")
             self.ui.wait()

@@ -68,7 +68,7 @@ public class AdminControllerTest  extends GWTTestCase {
 	}
 	
 	public void testLoginSucceeded() throws Exception{
-		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"));
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "");
 		final Permission [] permissions = new Permission[1];
 		final PermissionParameter[] parameters = new PermissionParameter[1];
 		parameters[0] = new PermissionParameter("full_privileges", "bool", "1");

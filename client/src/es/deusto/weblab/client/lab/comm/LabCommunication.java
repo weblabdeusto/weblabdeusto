@@ -245,6 +245,8 @@ public class LabCommunication extends CommonCommunication implements ILabCommuni
 		}
 		final Map<String, String> headers = new HashMap<String, String>();
 		headers.put("weblabdeusto-client", WebLabClient.IS_MOBILE?"weblabdeusto-web-mobile":"weblabdeusto-web-desktop");
+        if(WebLabClient.getLocale() != null)
+    		headers.put("weblabdeusto-locale", WebLabClient.getLocale());
 		this.performRequest(
 				requestSerialized, 
 				callback, 

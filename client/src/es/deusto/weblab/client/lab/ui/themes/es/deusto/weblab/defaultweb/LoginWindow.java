@@ -43,7 +43,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.WebLabClientLab;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.ui.widgets.WlAHref;
 import es.deusto.weblab.client.ui.widgets.WlUtil;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
@@ -76,7 +76,6 @@ class LoginWindow extends BaseWindow {
 	@UiField HTML openSourceAddressHTML;
 	@UiField HTML mobileHTML;
 	@UiField DecoratorPanel createAccountPanel;
-	@UiField DecoratorPanel adminPanel;
 	@UiField Image hostEntityLogo;
 	@UiField HTML introText;
 	@UiField VerticalPanel guestPanel;
@@ -92,9 +91,6 @@ class LoginWindow extends BaseWindow {
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
 	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
-	
-	private static final String ADMIN_PANEL_VISIBLE_PROPERTY = "admin.panel.visible";
-	private static final boolean DEFAULT_ADMIN_PANEL_VISIBLE = true;
 	
 	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
 	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = true;
@@ -142,9 +138,9 @@ class LoginWindow extends BaseWindow {
 		
 		this.langsPanel.add(new HTML(getVersionName() + " | "));
 		
-		for(int i = 0; i < IWebLabDeustoThemeMessages.LANGUAGES.length; ++i){
-			final String curLanguage = IWebLabDeustoThemeMessages.LANGUAGES[i];
-			final String curLanguageCode = IWebLabDeustoThemeMessages.LANGUAGE_CODES[i];
+		for(int i = 0; i < IWebLabI18N.LANGUAGES.length; ++i){
+			final String curLanguage = IWebLabI18N.LANGUAGES[i];
+			final String curLanguageCode = IWebLabI18N.LANGUAGE_CODES[i];
 			final Anchor languageLink = new Anchor(curLanguage);
 			languageLink.addClickHandler(
 					new LanguageButtonClickHandler(curLanguageCode)
@@ -183,11 +179,7 @@ class LoginWindow extends BaseWindow {
 		final boolean createAccountVisible = this.configurationManager.getBoolProperty(CREATE_ACCOUNT_VISIBLE_PROPERTY, DEFAULT_CREATE_ACCOUNT_VISIBLE);
 		if(!createAccountVisible)
 			this.createAccountPanel.setVisible(false);
-		
-		final boolean adminPanelVisible = this.configurationManager.getBoolProperty(ADMIN_PANEL_VISIBLE_PROPERTY, DEFAULT_ADMIN_PANEL_VISIBLE);
-		if(!adminPanelVisible)
-			this.adminPanel.setVisible(false);
-		
+				
 		final String adminEmail = this.configurationManager.getProperty(
 				LoginWindow.ADMIN_EMAIL_PROPERTY,
 				LoginWindow.DEFAULT_ADMIN_EMAIL
@@ -196,7 +188,7 @@ class LoginWindow extends BaseWindow {
 		final String translatedSupportHTML = this.i18nMessages.ifYouHaveTechnicalProblems("<a href=\"mailto:" + WlUtil.escape(adminEmail) + "\" target=\"_blank\">" + WlUtil.escapeNotQuote(adminEmail) + "</a>");
 		this.supportHTML.setHTML(translatedSupportHTML);
 		
-		final String translatedOpenSourceAddress = this.i18nMessages.weblabIsOpenSourceAvailable("<a href=\"https://github.com/porduna/weblabdeusto/\" target=\"_blank\">https://github.com/porduna/weblabdeusto/</a>");
+		final String translatedOpenSourceAddress = this.i18nMessages.weblabIsOpenSourceAvailable("<a href=\"https://github.com/weblabdeusto/weblabdeusto/\" target=\"_blank\">https://github.com/weblabdeusto/weblabdeusto/</a>");
 		this.openSourceAddressHTML.setHTML(translatedOpenSourceAddress);
 		
 		final String mobileURL = WebLabClient.getNewUrl(WebLabClient.MOBILE_URL_PARAM, "true");

@@ -1,5 +1,10 @@
+.. _summary:
+
+Summary
+=======
+
 `WebLab-Deusto <http://www.weblab.deusto.es>`_ is a remote laboratory management
-framework developed in the `University of Deusto <http://www.deusto.es>`_. A
+system developed in the `University of Deusto <http://www.deusto.es>`_. A
 remote laboratory is a software and hardware solution that enables students to
 access equipment which is physically located in a university, secondary school
 or research centre.  There are many types of remote laboratories (for physics,

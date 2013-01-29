@@ -2,6 +2,7 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N"></ui:with>
     
     <g:VerticalPanel ui:field='widget' width='100%' horizontalAlignment='ALIGN_CENTER'>
         
@@ -12,10 +13,10 @@
         	<g:VerticalPanel ui:field="textIntroPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width="100%">
         	<g:HTMLPanel>
 			 <div align="center">
-				<g:Label height='40'>Welcome to the WebLab-Deusto Logic Game!</g:Label>
-				<g:Label height='40'>Replace the unknown gate with the correct one so the LED turns on.</g:Label>
-				<g:Label height='40'>Solve as many circuits as possible to get more points and become the champion!</g:Label>
-			 	<g:HTML height='40'>You can check your score at <a href='/weblab/admin/winners.py'>the winners page</a></g:HTML>
+				<g:Label height='40' text="{i18n.welcomeToWebLabDeustoLogic}"/>
+				<g:Label height='40' text="{i18n.replaceTheUnknownGate}" />
+				<g:Label height='40' text="{i18n.solveAsManyCircuitsAsPossible}" />
+			 	<g:HTML height='40' HTML="{i18n.youCanCheckYourScoreAt}" />
 			 </div>
 			</g:HTMLPanel>
 			</g:VerticalPanel>
@@ -33,6 +34,7 @@
        
        		<g:HorizontalPanel ui:field='circuitAndWebcamPanel' horizontalAlignment='ALIGN_CENTER'>
        		
+       			<g:Image ui:field="light" visible="false" />
        			<w:WlWebcam ui:field="webcam" visible="false"></w:WlWebcam>
        		
        			<g:Label ui:field="referenceToShowBoxesLabel"></g:Label>
@@ -52,9 +54,7 @@
 		
 		<g:HTMLPanel>
 		  <div align='center'>
-			<g:Button ui:field="sendSolutionButton" enabled='false' visible='false'>
-			Send Solution
-			</g:Button>
+			<g:Button ui:field="sendSolutionButton" enabled='false' visible='false' text="{i18n.sendSolution}" />
 		  </div>
 		</g:HTMLPanel>
 	

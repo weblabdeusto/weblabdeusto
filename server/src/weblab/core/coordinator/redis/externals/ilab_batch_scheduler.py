@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import random
 import json
 
@@ -68,9 +69,9 @@ class ILabBatchScheduler(Scheduler):
         elif client_initial_data['operation'] == 'submit':
             # TODO!!!
             remote_experiment_id  = random.randint(1000000, 200000000)
-            client = self.redis_maker()
+            redis_client = self.redis_maker()
             ilab_batch = ILAB_BATCH % self.lab_server_url
-            client.hset(ilab_batch, reservation_id, json.dumps({
+            redis_client.hset(ilab_batch, reservation_id, json.dumps({
                 'remote_experiment_id' : remote_experiment_id,
             }))
 
@@ -89,13 +90,14 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def get_reservation_status(self, reservation_id):
-        client = self.redis_maker()
+        redis_client = self.redis_maker()
         ilab_batch = ILAB_BATCH % self.lab_server_url
-        reservation = client.hget(ilab_batch, reservation_id)
-        if reservation is None:
+        reservation_str = redis_client.hget(ilab_batch, reservation_id)
+        if reservation_str is None:
             # TODO
             raise Exception("reservation not stored in local database")
 
+        reservation = json.loads(reservation_str)
         remote_experiment_id = reservation['remote_experiment_id']
 
         #     public class StorageStatus
@@ -123,6 +125,7 @@ class ILabBatchScheduler(Scheduler):
              })
              return WSS.PostReservationStatus(reservation_id, True, response, '')
         else:
+            print >> sys.stderr, "Unknown iLab batch code: %s" % code
             return WSS.PostReservationStatus(reservation_id, True, "ERROR: WebLab-Deusto can't handle status code %s at this point" % code, '')
 
 
@@ -146,12 +149,13 @@ class ILabBatchScheduler(Scheduler):
     @logged()
     @Override(Scheduler)
     def finish_reservation(self, reservation_id):
-        client = self.redis_maker()
+        redis_client = self.redis_maker()
         ilab_batch = ILAB_BATCH % self.lab_server_url
-        reservation = client.hget(ilab_batch, reservation_id)
-        if reservation is not None:
+        reservation_str = redis_client.hget(ilab_batch, reservation_id)
+        if reservation_str is not None:
+            reservation = json.loads(reservation_str)
             remote_experiment_id = reservation['remote_experiment_id']
-            if not client.hdel(ilab_batch, reservation_id):
+            if not redis_client.hdel(ilab_batch, reservation_id):
                 return
         else:
             return
@@ -169,7 +173,7 @@ class ILabBatchScheduler(Scheduler):
     #
     @Override(Scheduler)
     def _clean(self):
-        client = self.redis_maker()
+        redis_client = self.redis_maker()
         ilab_batch = ILAB_BATCH % self.lab_server_url
-        client.delete(ilab_batch)
+        redis_client.delete(ilab_batch)
 

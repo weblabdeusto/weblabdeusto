@@ -261,12 +261,6 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         sock.settimeout(None)
         return sock, addr
 
-######################
-# SMARTGWT/JSON code #
-######################
-
-
-
 ################
 # XML-RPC code #
 ################
@@ -546,6 +540,7 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
         self._server = JsonHttpServer((listen, port), NewJsonHttpHandler)
         self._server.socket.settimeout(timeout)
 
+
 class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
     protocol_name = "xmlrpc"
 
@@ -600,18 +595,12 @@ class AbstractRemoteFacadeServer(object):
         self.stop()
 
     def _get_stopped(self):
-        self._stop_lock.acquire()
-        try:
+        with self._stop_lock:
             return self._stopped
-        finally:
-            self._stop_lock.release()
 
     def stop(self):
-        self._stop_lock.acquire()
-        try:
+        with self._stop_lock:
             self._stopped = True
-        finally:
-            self._stop_lock.release()
 
         for server in self._servers:
             server.join()

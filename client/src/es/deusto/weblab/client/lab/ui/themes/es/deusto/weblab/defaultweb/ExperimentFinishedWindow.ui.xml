@@ -3,7 +3,7 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
 	
-	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
 	<ui:with field="res" type='es.deusto.weblab.client.ui.Resources' />
 	
 	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container"  horizontalAlignment="CENTER">
@@ -30,6 +30,12 @@
 						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
 						 	
 						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+
+						 	<w:WlAHref visible="false" ui:field="administrationLink" target="_blank">
+								<g:Image resource='{res.administration}' />
+							</w:WlAHref>
+						 	
+						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
 					
 						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			

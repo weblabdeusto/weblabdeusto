@@ -38,7 +38,7 @@
 			
 			</g:HorizontalPanel>		
 			
-			<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
+			<w:WlWaitingLabel width="60%" ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
 								
 		</g:VerticalPanel>
 		

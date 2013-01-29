@@ -24,23 +24,39 @@ import voodoo.gen.loader.Launcher as Launcher
 def before_shutdown():
     print "Stopping servers..."
 
-import voodoo.rt_debugger as rt_debugger
-rt_debugger.launch_debugger()
+def inner(signals = False):
+    import voodoo.rt_debugger as rt_debugger
+    rt_debugger.launch_debugger()
 
-launcher = Launcher.Launcher(
+    if signals:
+        waiters = (
+                Launcher.SignalWait(signal.SIGTERM),
+                Launcher.SignalWait(signal.SIGINT),
+                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish.\n"),
+            )
+    else:
+        waiters = (
+                Launcher.RawInputWait("Control+C to finish.\n"),
+            )
+
+    launcher = Launcher.Launcher(
             '.',
             'main_machine',
             'main_instance',
-            (
-                Launcher.SignalWait(signal.SIGTERM),
-                Launcher.SignalWait(signal.SIGINT),
-                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish.\n")
-            ),
+            waiters,
             "logging.configuration.txt",
             before_shutdown,
             (
                  Launcher.FileNotifier("_file_notifier", "server started"),
             )
         )
-launcher.launch()
+    launcher.launch()
+
+try:
+    from werkzeug.serving import run_with_reloader
+except ImportError:
+    print "werkzeug.serving not installed (pip install werkzeug). If you're developing, you'll have to restart the application in every change manually."
+    inner(signals = True)
+else:
+    run_with_reloader(inner)
 

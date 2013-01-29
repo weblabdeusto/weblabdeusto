@@ -1,0 +1,11 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+<h1>Welcome to the profile editor!</h1>
+
+<p>Here you will the accesses you did in the past, retrieve files you submitted, and edit your personal data.</p>
+
+{% if is_admin %}
+<p>Additionally, since you're an administrator, you can go the <a href="{{ admin_url }}">the administration panel</a>.</p>
+{% endif %}
+
+{% endblock %}

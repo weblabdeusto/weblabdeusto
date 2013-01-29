@@ -34,6 +34,9 @@ class UserProcessingDatabaseManager(object):
     def is_access_forward(self, session_id):
         return self._gateway.is_access_forward( session_id.username)
 
+    def is_admin(self, session_id):
+        return self._gateway.is_admin( session_id.username)
+
     def finish_experiment_usage(self, reservation_id, end_date, last_command):
         """ Tries to finish the experiment usage (adding the end_date and appending the finish command). Returns True if it was added successfully, false otherwise """
         return self._gateway.finish_experiment_usage( reservation_id, end_date, last_command )

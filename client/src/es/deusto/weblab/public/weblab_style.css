@@ -1,0 +1,745 @@
+a img{
+	border: 0;
+}
+
+input {
+	 font-family: sans-serif;
+     border-radius: 4px;
+     padding-bottom: 4px;
+     padding-left: 5px;
+     padding-right: 5px;
+     padding-top: 4px;
+}
+
+ 
+.gwt-Button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ffffff), color-stop(1, #f0f0f0) );
+	background:-moz-linear-gradient( center top, #ffffff 5%, #f0f0f0 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f0f0f0');
+	background-color:#ffffff;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	color:#000000;
+	font-family:Arial;
+	font-size:13px;
+	font-weight:normal;
+	padding:6px 10px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #ffffff;
+}.gwt-Button:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0f0f0), color-stop(1, #ffffff) );
+	background:-moz-linear-gradient( center top, #f0f0f0 5%, #ffffff 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0f0f0', endColorstr='#ffffff');
+	background-color:#f0f0f0;
+}.gwt-Button:active {
+	position:relative;
+	top:1px;
+}
+
+.wl-time_remaining
+{
+	color : #FF0000;
+	font-weight: bold;
+	font-size: 150%;
+	display: block;
+	margin: 10px;
+}
+
+.wl-pressable 
+{
+	cursor: hand; 
+	cursor: pointer;
+}
+
+.wl-message
+{
+	margin: 10px;
+	width: 60%;
+	min-width: 300px;
+}
+
+.wl-img-button{
+	cursor: pointer;
+	cursor: hand;
+}
+
+.wl-disabled-img-button{
+	opacity: 0.4;
+	filter:  alpha(opacity=40);
+}
+
+.wl-clock_activation_panel
+{
+	display: block;
+	text-align: right;
+}
+
+.gwt-DecoratorPanel .middleCenter {
+   height: 100%;
+   width: 100%;
+   /* background: #d0e4f6; */
+   background: #e7f1fb;
+}
+
+.experiment-list-DecoratorPanel .middleCenter {
+   width: 250px;
+   background: #FFFFFF;
+   padding: 5px;
+}
+
+.web-experiment-details-DecoratorPanel .middleCenter {
+   background: #FDFDFD;
+}
+
+.experiment-list-category-panel {
+	padding: 5px;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.experiment-list-category-container {
+	float: left;
+	margin: 10px;
+}
+
+.gwt-DisclosurePanel .header, .gwt-DisclosurePanel .header a, .gwt-DisclosurePanel .header td {
+	font-size: 18px;
+	color: #5A5A5A;
+}
+
+/************************************************
+ *
+ * lab's es.deusto.weblab.defaultweb Template
+ *
+ *
+ *
+ */
+ 
+body, table td, select
+{
+	font: 14px normal "Lucida Grande", Arial;
+	text-rendering: optimizelegibility;
+}
+
+.gwt-Anchor
+{
+	text-decoration: none;
+    color: #04a;
+    cursor: pointer;
+	cursor: hand;
+}
+
+a
+{
+	text-decoration: none;
+    color: #04a;
+    cursor: pointer;
+	cursor: hand;
+}
+
+
+a:hover
+{
+    color: #005580;
+    text-decoration: underline;
+}
+
+.odd-row
+{ 
+	background-color: #f2f2ff;  
+}
+
+.even-row
+{ 
+	background-color: #d3def6;  
+}
+
+.web-error-message
+{
+	color : #FF0000;
+	text-align: center;
+	height: 25px;
+}
+
+.web-waiting-label
+{
+	text-align: center;
+	height: 25px;
+}
+
+/*
+ * Login Window
+ */
+
+.web-login-container
+{
+	margin-right: auto;
+	margin-left: auto;	
+	margin-top: 6%;
+	border-spacing: 30px;
+}
+
+.web-login-title
+{
+	font-size: 150%;
+}
+
+.web-login-small-titles
+{
+	font-weight: bold;
+}
+
+.web-login-logo
+{
+	align: left;
+	margin-right: auto;
+	margin-left: inherit;	
+}
+
+.web-login-languages
+{
+	margin-right: auto;
+	margin-left: auto;
+	border-spacing: 10px;
+}
+
+.web-login-box
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-login-form
+{
+	margin-right: auto;
+	margin-left: auto;	
+	border-spacing: 10px;
+}
+
+.web-login-form-fields
+{
+	border-spacing: 5px;
+}
+
+.web-login-form-button
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-login-foot-message
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+/* Logged Windows */
+
+.web-logged-container
+{
+	width: 80%;
+	min-width: 450px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-logged-header
+{
+	height: 75px;
+	width: 100%;
+}
+
+.web-logged-header-logo
+{
+	width: 100%;
+}
+
+.web-logged-header-profile
+{
+/*	margin-right: 0px;
+	margin-left: auto;
+	margin-top: 25px;
+	padding-right: 0px;*/
+	width: 100%;
+	height: 100%;
+	text-align: right;
+	display: block;
+	border-spacing: 8px;
+}
+
+.web-logged-navigation
+{
+	width: 100%;
+	height: 25px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.web-logged-content
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-logged-content-title
+{
+    font-size: 27px;
+    font-weight: bold;
+    color: #5A5A5A;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/*
+ * Allowed Experiments Window
+ */
+
+.web-allowedexperiments-list
+{
+	border-spacing: 15px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-allowedexperiments-table-pic-cell
+{
+	padding: 0px 5px 0px 50px;
+}
+
+.web-allowedexperiments-table-header
+{
+	font-weight: bold;
+	text-align: center;
+}
+
+.web-allowedexperiments-image
+{
+	background-color: #7590AE;
+	//border: 1px solid navy;
+	cursor:pointer;
+	cursor:hand;
+	float: right;
+	width: auto;
+	margin: 3px;
+}
+
+/*
+ * Experiment Window
+ */
+
+.web-experiment-detail
+{
+	font-weight: bold;
+}
+
+.web-experiment-details
+{
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-experiment-upload-form
+{
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
+	width: 100%;
+}
+
+.web-experiment-upload-form-fields
+{
+	border-spacing: 8px;
+	width: 100%;
+}
+
+.web-experiment-reserve-button
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-experiment-finish-button
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+/************************************************
+ *
+ * lab's es.deusto.weblab.defaultmobile Template
+ *
+ *
+ *
+ */
+
+.mobile-title-label
+{
+	font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.mobile-experiment-detail
+{
+	font-weight: bold;
+}
+
+.mobile-experiment-details
+{
+	border-spacing: 10px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+/****************************************************
+ * experiments.plugins.es.deusto.weblab.gpib Related
+ */
+ 
+.results-popup
+{
+	background-color: #7590AE;
+	border: 3px solid black;
+	padding: 20px;
+	margin: 40px;
+	width: 550px;
+}
+
+.results-title
+{
+	font-size: 16px;
+	font-weight: bold;
+	color: white;	
+}
+
+.results-label
+{
+	color: white;	
+}
+
+/*****************************************************
+ * experiments.plugins.es.deusto.weblab.logic Related
+ */
+ 
+.logic-input-value-label
+{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logic-small-input-value-label
+{
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.logic-mouse-pointer-hand
+{
+    cursor: pointer;
+    cursor: hand;
+}
+
+
+
+
+/************************************************
+ *
+ * admin's es.deusto.weblab.defaultweb Template
+ *
+ *
+ *
+ */
+
+.web-admin-error-message
+{
+	color : #FF0000;
+	text-align: center;
+	height: 25px;
+}
+
+.web-admin-waiting-label
+{
+	text-align: center;
+	height: 25px;
+}
+
+/*
+ * Login Window
+ */
+
+.web-admin-login-container
+{
+	margin-right: auto;
+	margin-left: auto;	
+	margin-top: 6%;
+	border-spacing: 30px;
+}
+
+.web-admin-login-logo
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-admin-login-languages
+{
+	margin-right: auto;
+	margin-left: auto;
+	border-spacing: 10px;
+}
+
+.web-admin-login
+{
+	padding-top: 15px;
+	padding-bottom: 10px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.web-admin-login-box
+{
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-admin-login-form
+{
+	margin-right: auto;
+	margin-left: auto;	
+	border-spacing: 10px;
+}
+
+.web-admin-login-form-fields
+{
+	border-spacing: 5px;
+}
+
+.web-admin-login-form-button
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+.web-admin-login-foot-message
+{
+	margin-right: auto;
+	margin-left: auto;	
+}
+
+/* Logged Windows */
+
+.web-admin-logged-container
+{
+	width: 1024px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-admin-logged-header
+{
+	height: 75px;
+	width: 100%;
+}
+
+.web-admin-logged-header-logo
+{
+	width: 100%;
+}
+
+.web-admin-logged-header-profile
+{
+	margin-right: 0px;
+	margin-left: auto;
+	padding-right: 0px;
+	height: 100%;
+	display: block;
+	border-spacing: 10px;
+	width: 100%;
+	float: right;
+	margin-top: 25px;
+}
+
+/* Future version
+.web-admin-logged-header-profile
+{
+	margin-right: 0px;
+	margin-left: auto;
+	padding-right: 0px;
+	height: 100%;
+	display: block;
+	border-spacing: 10px;
+	width: 100%;
+	float: right;
+	margin-top: 5px;
+}
+*/
+
+.web-admin-logged-header-profile-name
+{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+.web-admin-logged-menu-bar
+{
+	border: 1px solid #646464;
+	padding: 10px;
+	margin-top: 10px;
+}	
+
+.web-admin-logged-menu-item
+{
+	text-align: left;
+}
+
+.web-admin-logged-title
+{
+	padding-top: 15px;
+	padding-bottom: 10px;
+	text-align: center;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.web-admin-logged-content
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.web-admin-smartgwt-layout
+{
+	width: 100%;
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 15px;
+}
+
+.web-admin-logged-content-title
+{
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.web-admin-logged-accesses-search-form
+{
+	border-spacing: 10px;
+	vertical-align: bottom;
+	background-color: #eef1f6;
+}
+
+.web-admin-logged-accesses-grid
+{
+	width: 100%;
+	padding-top: 10px;
+	border-spacing: 10px;
+}
+
+.web-admin-logged-accesses-grid-header
+{
+	font-weight: bold;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.web-admin-logged-accesses-download
+{
+	margin-right: 0;
+	margin-left: auto;
+	padding-top: 15px;
+}
+
+
+.web-admin-table-row-selected
+{
+    font-weight: bold;
+	background-color: #FFFF99;
+	color:black;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.web-admin-table-row-selected:hover{
+	background-color: grey;
+}
+
+.web-admin-table-row-not-selected
+{
+    font-weight: normal;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.web-admin-table-row-not-selected:hover{
+	background-color: grey;
+}
+
+.web-admin-table-row-header
+{
+	font-weight: bold;
+	background-color: grey;
+	color: white;
+}
+
+.gwt-MenuBar-horizontal {
+	margin-top: 12px;
+	padding: 5px;
+}
+
+.gwt-MenuBar-horizontal .gwt-MenuItem {
+	font-size: 14px;
+	font-weight: normal;
+}
+
+
+
+
+/**
+ * Applied to ProgressBar.
+ */
+.gwt-ProgressBar-shell {
+  border: 3px solid #faf9f7;
+  border-right: 2px solid #4442FF;
+  border-bottom: 2px solid #4442FF;
+  border-top: 1px solid #2423FF;
+  background-color: #E0FFE0;
+  height: 15pt;
+  width: 30%;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+  background-color: #C0C0F0;
+  position:relative;
+  float: left;// Important: otherwise it is not aligned to the left
+  left: 0%;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-text {
+  padding: 0px;
+  margin: 0px;
+  color: black;
+  font-weight: bold;
+  align: left;
+}
+.gwt-ProgressBar-thin {
+  border: 2px solid #848280;
+  background-color: navy;
+  height: 7px;
+  overflow: hidden;
+}
+.gwt-ProgressBar-thin .gwt-ProgressBar-bar {
+  background-color: #67A7E3;
+}
+
+

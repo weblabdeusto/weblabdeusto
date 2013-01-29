@@ -65,6 +65,9 @@ public class MobileLogicExperiment extends ExperimentBase {
 	private static final String LOGIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.logic.webcam.refresh.millis";
 	private static final int DEFAULT_LOGIC_WEBCAM_REFRESH_TIME = 400;
 	
+	private static final String LOGIC_USE_WEBCAM_PROPERTY = "logic.use.webcam";
+	private static final boolean DEFAULT_LOGIC_USE_WEBCAM = false;
+	
 	public static class Style{
 		public static final String TIME_REMAINING          = "wl-time_remaining";
 		public static final String CLOCK_ACTIVATION_PANEL  = "wl-clock_activation_panel"; 
@@ -99,8 +102,10 @@ public class MobileLogicExperiment extends ExperimentBase {
 	private DialogBox changeUnknownGateDialogBox;
 	private Button sendSolutionButton;
 	private final Label referenceToShowBoxesLabel = new Label("");
+	private Image light;
 	
 	// DTOs
+	private final boolean useWebcam;
 	private Command lastCommand;
 	private Circuit circuit;
 	private boolean solving = true;
@@ -123,6 +128,8 @@ public class MobileLogicExperiment extends ExperimentBase {
 	
 	public MobileLogicExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
+		
+		this.useWebcam = this.configurationRetriever.getBoolProperty(LOGIC_USE_WEBCAM_PROPERTY, DEFAULT_LOGIC_USE_WEBCAM);
 		
 		this.fillMaps();
 		
@@ -172,10 +179,10 @@ public class MobileLogicExperiment extends ExperimentBase {
 
 	@Override
 	public void initialize(){
-		this.removableWidgetsPanel.add(new Label("Welcome to the WebLab-Deusto Logic Game!"));
-		this.removableWidgetsPanel.add(new Label("Replace the unknown gate with the correct one so the LED turns on."));
-		this.removableWidgetsPanel.add(new Label("Solve as many circuits as possible to get more points and become the champion!"));
-		this.removableWidgetsPanel.add(new HTML("You can check your score at <a href='" + WebLabClient.baseLocation + "/weblab/admin/winners.py'>the winners page</a>"));
+		this.removableWidgetsPanel.add(new Label(i18n.welcomeToWebLabDeustoLogic()));
+		this.removableWidgetsPanel.add(new Label(i18n.replaceTheUnknownGate()));
+		this.removableWidgetsPanel.add(new Label(i18n.solveAsManyCircuitsAsPossible()));
+		this.removableWidgetsPanel.add(new HTML(i18n.youCanCheckYourScoreAt()));
 		
 		this.widget.add(this.removableWidgetsPanel);
 	}
@@ -215,9 +222,18 @@ public class MobileLogicExperiment extends ExperimentBase {
 
 		// Webcam
     	this.webcam = new WlWebcam(this.getWebcamRefreshingTime(), webcamUrl);
-    	this.webcam.start();
-    	this.removableWidgetsPanel.add(this.webcam.getWidget());
     	
+		final Widget webcamWidget;		
+    	if(this.useWebcam){
+			webcamWidget = this.webcam.getWidget();
+    		this.webcam.start();
+    	} else {
+    		this.light = new Image();
+			webcamWidget = this.light;
+    		turnOffLight();
+    	}
+		this.removableWidgetsPanel.add(webcamWidget);
+    		
 		// Horizontal Panel
 		this.circuitPanel = new HorizontalPanel();
 		this.circuitPanel.setWidth("100%");
@@ -274,8 +290,8 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.changeUnknownGateDialogBox = new MobileChangeUnknownGateDialogBox(this);
 		
 		this.circuitPanel.setCellHorizontalAlignment(this.circuitGrid, HasHorizontalAlignment.ALIGN_RIGHT);
-		this.circuitPanel.setCellVerticalAlignment(this.webcam.getWidget(), HasVerticalAlignment.ALIGN_MIDDLE);
-		this.circuitPanel.setCellHorizontalAlignment(this.webcam.getWidget(), HasHorizontalAlignment.ALIGN_LEFT);
+		this.circuitPanel.setCellVerticalAlignment(webcamWidget, HasVerticalAlignment.ALIGN_MIDDLE);
+		this.circuitPanel.setCellHorizontalAlignment(webcamWidget, HasHorizontalAlignment.ALIGN_LEFT);
 		this.removableWidgetsPanel.add(this.circuitPanel);
 		
 		// Messages
@@ -284,7 +300,7 @@ public class MobileLogicExperiment extends ExperimentBase {
 		this.removableWidgetsPanel.add(this.messages.getWidget());
 		
 		// Send Solution button
-		this.sendSolutionButton = new Button("Send Solution");
+		this.sendSolutionButton = new Button(i18n.sendSolution());
 		this.sendSolutionButton.setEnabled(false);
 		this.sendSolutionButton.addClickHandler(new ClickHandler(){
 
@@ -358,40 +374,49 @@ public class MobileLogicExperiment extends ExperimentBase {
 	}
 	
 	private void processCommandSent(ResponseCommand responseCommand){
-	    	if ( this.lastCommand instanceof GetCircuitCommand ){
-	    	    this.messages.stop();
-	    	    this.messages.setText("");
-		    final CircuitParser circuitParser = new CircuitParser();
-		    try {
-			this.circuit = circuitParser.parseCircuit(responseCommand.getCommandString());
-		    } catch (final InvalidCircuitException e) {
-			this.messages.setText("Invalid Circuit received: " + e.getMessage());
-			return;
-		    }
-            this.sendSolutionButton.setEnabled(false);
-		    this.updateCircuitGrid();
-	    	} else if ( this.lastCommand instanceof SolveCircuitCommand ) {
-	    	    this.messages.stop();
-	    	    
-	    	    if(responseCommand.getCommandString().startsWith("FAIL")){
-	    		this.solving = false;
-	    		this.messages.setText("Wrong one! Game over. Total points: " + this.points);
-	    		this.sendSolutionButton.setEnabled(false);
-	    	    }else if(responseCommand.getCommandString().startsWith("OK")){
-	    		this.points++;
-	    		this.messages.setText("Well done! 1 point. Let's see the next one!");
-	    		final Timer sleepTimer = new Timer(){
+		if ( this.lastCommand instanceof GetCircuitCommand ){
+			this.messages.stop();
+			this.messages.setText("");
+			final CircuitParser circuitParser = new CircuitParser();
+			try {
+				this.circuit = circuitParser.parseCircuit(responseCommand.getCommandString());
+			} catch (final InvalidCircuitException e) {
+				this.messages.setText("Invalid Circuit received: " + e.getMessage());
+				return;
+			}
+			this.sendSolutionButton.setEnabled(false);
+			this.updateCircuitGrid();
+		} else if ( this.lastCommand instanceof SolveCircuitCommand ) {
+			this.messages.stop();
 
-			    @Override
-			    public void run() {
-				MobileLogicExperiment.this.sendCommand(new GetCircuitCommand());
-			    }};
-	    		sleepTimer.schedule(2000);
-	    	    }
-	    	    
+			if(responseCommand.getCommandString().startsWith("FAIL")){
+				this.solving = false;
+				this.messages.setText(i18n.wrongOneGameOver(this.points));
+				this.sendSolutionButton.setEnabled(false);
+			}else if(responseCommand.getCommandString().startsWith("OK")){
+				this.points++;
+				this.messages.setText(i18n.wellDone1point());
+				turnOnLight();
+				final Timer sleepTimer = new Timer(){
+
+					@Override
+					public void run() {
+						MobileLogicExperiment.this.sendCommand(new GetCircuitCommand());
+						turnOffLight();
+					}};
+				sleepTimer.schedule(2000);
+			}
 		}else{
 			// TODO: Unknown command!
 		}
+	}
+	
+	void turnOffLight() {
+		this.light.setUrl(GWT.getModuleBaseURL() + "/img/bulb_off.png");
+	}
+	
+	void turnOnLight() {
+		this.light.setUrl(GWT.getModuleBaseURL() + "/img/bulb_on.png");
 	}
 
 	private void updateCircuitGrid() {

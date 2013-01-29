@@ -2,7 +2,7 @@
     xmlns:g='urn:import:com.google.gwt.user.client.ui'
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
     
-    <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N"/>
     
     <g:VerticalPanel width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
         

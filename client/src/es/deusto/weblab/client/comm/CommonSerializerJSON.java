@@ -31,7 +31,6 @@ import es.deusto.weblab.client.comm.exceptions.core.UserProcessingException;
 import es.deusto.weblab.client.comm.exceptions.login.InvalidCredentialsException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.dto.SessionID;
-import es.deusto.weblab.client.dto.users.ExternalEntity;
 import es.deusto.weblab.client.dto.users.PermissionParameter;
 import es.deusto.weblab.client.dto.users.Role;
 import es.deusto.weblab.client.dto.users.User;
@@ -169,6 +168,9 @@ public class CommonSerializerJSON implements ICommonSerializer {
 		final String login    = this.json2string(jsonUser.get("login"));
 		final String email    = this.json2string(jsonUser.get("email"));
 		final String fullName = this.json2string(jsonUser.get("full_name"));
+		String adminUrl = this.json2string(jsonUser.get("admin_url"), true);
+		if(adminUrl == null)
+			adminUrl = "";
 		
 	    final JSONValue roleValue = jsonUser.get("role");
 	    if(roleValue == null)
@@ -178,19 +180,9 @@ public class CommonSerializerJSON implements ICommonSerializer {
 	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
 	    final Role role = this.parseRole(jsonRole);
 	    	    
-		return new User(login, fullName, email, role);
+		return new User(login, fullName, email, role, adminUrl);
 	}
 
-	protected ExternalEntity parseExternalEntity(JSONObject jsonExternalEntity) throws SerializationException {
-		final int id = this.json2int(jsonExternalEntity.get("id"));
-		final String name = this.json2string(jsonExternalEntity.get("name"));
-		final String country = this.json2string(jsonExternalEntity.get("country"));
-		final String description = this.json2string(jsonExternalEntity.get("description"));
-		final String email = this.json2string(jsonExternalEntity.get("email"));
-		
-		return new ExternalEntity(id, name, country, description, email);
-	}
-	
 	protected JSONString parseResultString(String response) 
 		throws SerializationException, WebLabServerException {
 			final JSONValue result = this.parseResult(response);

@@ -14,6 +14,14 @@
 	<extend-property name="locale" values="en"/>
 	<extend-property name="locale" values="es"/>
 	<extend-property name="locale" values="eu"/>
+	<extend-property name="locale" values="de"/>
+	<extend-property name="locale" values="fr"/>
+	<extend-property name="locale" values="nl"/>
+	<extend-property name="locale" values="cs"/>
+	<extend-property name="locale" values="hu"/>
+	<extend-property name="locale" values="pt"/>
+	<extend-property name="locale" values="ro"/>
+	<extend-property name="locale" values="sk"/>
 	
 	<source path="client">
 		<exclude name="admin/**java" />
@@ -39,6 +47,8 @@
 			<when-property-is name="user.agent" value="safari" />
 		</any>
 	</replace-with>
+	
+	<stylesheet src="weblab_style.css" />
 	
 	<public path="public"></public>
 </module>

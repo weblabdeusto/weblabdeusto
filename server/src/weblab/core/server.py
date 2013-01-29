@@ -44,7 +44,6 @@ import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
-import weblab.core.comm.admin_server as AdminFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
@@ -55,6 +54,14 @@ import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
+
+USE_NEW_ADMIN_PAGE = True
+if USE_NEW_ADMIN_PAGE:
+    from weblab.admin.web.server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
+    AdminRemoteFacadeServer = AdminRemoteFacadeServer_new
+else:
+    from weblab.core.comm.admin_server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_old
+    AdminRemoteFacadeServer = AdminRemoteFacadeServer_old
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -127,7 +134,7 @@ class UserProcessingServer(object):
 
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
-                        AdminFacadeServer.AdminRemoteFacadeServer,
+                        AdminRemoteFacadeServer,
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 
@@ -139,6 +146,8 @@ class UserProcessingServer(object):
         self._stopping = False
         self._cfg_manager    = cfg_manager
         self._locator        = locator
+
+        self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
 
         if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
             generated = uuid.uuid1()
@@ -349,7 +358,15 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
-        return user_processor.get_user_information()
+        user_information = user_processor.get_user_information()
+        if user_processor.is_admin():
+            if USE_NEW_ADMIN_PAGE:
+                user_information.admin_url = self.core_server_url + "administration/admin/"
+            else:
+                user_information.admin_url = self.core_server_url + "client/index-admin.html"
+        else:
+            user_information.admin_url = ""
+        return user_information
 
     @logged(log.level.Info)
     @update_session_id

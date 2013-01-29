@@ -14,6 +14,7 @@
 package es.deusto.weblab.client.lab.controller;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
+import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.reservations.ReservationStatus;
@@ -54,6 +55,10 @@ public class ReservationStatusCallback implements IReservationCallback{
 
 	@Override
 	public void onFailure(CommException e) {
+		if(e instanceof SessionNotFoundException) {
+			this.controller.logout();
+			return;
+		}
 		this.uimanager.onErrorAndFinishReservation(e.getMessage());
 		//TODO: how to tell the controller that this has finished?
 	}
