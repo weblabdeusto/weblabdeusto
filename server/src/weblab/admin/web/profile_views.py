@@ -4,10 +4,49 @@ from flask.ext.admin import expose, AdminIndexView, BaseView
 import weblab.db.model as model
 import weblab.admin.web.admin_views as admin_views
 
+from flask.ext.wtf import TextField, Form
+from weblab.admin.web.fields import DisabledTextField
+
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
     return admin_app.AdministrationApplication.INSTANCE
+
+class ProfileEditForm(Form):
+    full_name   = DisabledTextField(u"Full name:")
+    login       = DisabledTextField(u"Login:")
+    email       = TextField(u"E-mail:")
+
+class ProfileEditView(BaseView):
+
+    def __init__(self, db_session, *args, **kwargs):
+        super(ProfileEditView, self).__init__(*args, **kwargs)
+
+        self._session = db_session
+
+    @expose()
+    def index(self):
+        login = get_app_instance().get_user_information().login
+        user = self._session.query(model.DbUser).filter_by(login = login).one()
+
+        form = ProfileEditForm()
+
+        form.full_name.data = user.full_name
+        form.login.data     = user.login
+        form.email.data     = user.email
+
+        # TODO: check permissions, save data
+
+        return self.render("profile-edit.html", form=form)
+
+    def is_accessible(self):
+        return get_app_instance().get_user_information() is not None
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+
+        return super(ProfileEditView, self)._handle_view(name, **kwargs)
 
 class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
     column_list    = ( 'experiment', 'start_date', 'end_date', 'origin', 'details' )

@@ -21,7 +21,9 @@ from flask.ext.admin.model.form import InlineFormAdmin
 import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
 import weblab.permissions as permissions
+
 from weblab.admin.web.filters import get_filter_number, generate_filter_any
+from weblab.admin.web.fields import DisabledTextField
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
@@ -38,6 +40,11 @@ class AdministratorView(BaseView):
 
         return super(AdministratorView, self)._handle_view(name, **kwargs)
 
+class MyProfileView(AdministratorView):
+
+    @expose()
+    def index(self):
+        return redirect(request.url.split('/weblab/administration')[0] + '/weblab/administration/profile')
 
 class AdministratorModelView(ModelView):
 
@@ -377,14 +384,6 @@ def display_parameters(context, permission, p):
         parameters += u'%s = %s, ' % (parameter.permission_type_parameter, parameter.value)
     permission_str = u'%s(%s)' % (permission.permission_type, parameters[:-2])
     return permission_str
-
-class DisabledTextField(TextField):
-    def __call__(self, *args, **kwargs):
-        new_kwargs = kwargs.copy()
-        new_kwargs['readonly'] = 'true'
-        return super(DisabledTextField, self).__call__(*args, **new_kwargs)
-
-
 
 class GenericPermissionPanel(AdministratorModelView):
     

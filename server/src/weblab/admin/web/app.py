@@ -14,6 +14,7 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.configuration_doc as configuration_doc
+import weblab.db.session as DbSession
 from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web.admin_views as admin_views
@@ -74,6 +75,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group',  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles',  endpoint = 'permissions/role'))
 
+        self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = 'My profile',  endpoint = 'myprofile/admin'))
+
         self.admin.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/admin'))
 
         self.admin.init_app(self.app)
@@ -87,6 +90,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         profile_url = '/weblab/administration/profile'
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url)
+
+        self.profile.add_view(profile_views.ProfileEditView(db_session, name = 'Edit'))
 
         self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = 'My accesses', endpoint = 'accesses'))
 
@@ -133,6 +138,10 @@ class AdministrationApplication(AbstractDatabaseGateway):
             return False
 
     def get_permissions(self):
+        if self.bypass_authz:
+            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            return self.ups.get_user_information(session_id.id)
+
         try:
             session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
             return self.ups.get_user_permissions(session_id)
@@ -142,7 +151,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_user_information(self):
         if self.bypass_authz:
-            return None # TODO
+            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            return self.ups.get_user_information(session_id.id)
 
         session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
         try:

@@ -138,7 +138,7 @@ class UserProcessingServer(object):
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 
-    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+    def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
         log.log( UserProcessingServer, log.level.Info, "Starting Core Server...")
@@ -211,10 +211,11 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
-        for FacadeClass in self.FACADE_SERVERS:
-            facade_server = FacadeClass(self, cfg_manager)
-            self._facade_servers.append(facade_server)
-            facade_server.start()
+        if not dont_start:
+            for FacadeClass in self.FACADE_SERVERS:
+                facade_server = FacadeClass(self, cfg_manager)
+                self._facade_servers.append(facade_server)
+                facade_server.start()
 
         #
         # Start checking times
