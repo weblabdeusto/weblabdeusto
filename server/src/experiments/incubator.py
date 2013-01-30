@@ -17,12 +17,12 @@ import os
 import re
 import sys
 import json
-import time
 import random
 import urllib2
 import datetime
 import threading
 import traceback
+import time
 
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
@@ -177,7 +177,7 @@ class StatusManager(threading.Thread):
 
         url = 'http://%s%s' % (self._address, location)
 
-        self.dbg("%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url))
+        self.dbg("%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f'), url))
         if self._fake:
             print "Request to %s faked" % location
             return None
@@ -197,7 +197,7 @@ class StatusManager(threading.Thread):
 
         url = 'http://%s%s' % (self._address, location)
 
-        self.dbg("%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%s'), url))
+        self.dbg("%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f'), url))
         if self._fake:
             print "Request to %s faked" % location
             return 'OK:%s' % str(random.random() - 100)
