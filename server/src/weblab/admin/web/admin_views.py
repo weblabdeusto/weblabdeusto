@@ -409,7 +409,7 @@ class GenericPermissionPanel(AdministratorModelView):
         if sort_column is None:
             sort_column = 'date'
             sort_desc   = not sort_desc
-        return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
+        return super(GenericPermissionPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
 
 
     def on_model_change(self, form, permission):
