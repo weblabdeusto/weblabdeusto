@@ -523,6 +523,10 @@ def _build_parser():
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
 
+    # TODO
+    experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
+                                                       help = "What port should the Experiment Server use. Useful for development.")
+
     experiments.add_option("--dummy-experiment-name",  dest = Creation.DUMMY_NAME, type="string",    default="dummy",
                                                        help = "There is a testing experiment called 'dummy'. You may change this name "
                                                               "(e.g. to dummy1 or whatever) by changing this option." )
@@ -533,10 +537,6 @@ def _build_parser():
 
     experiments.add_option("--dummy-copies",           dest = Creation.DUMMY_COPIES, type="int",    default=1,
                                                        help = "You may want to test the load balance among different copies of dummy." )
-
-    # TODO
-    experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
-                                                       help = "What port should the Experiment Server use. Useful for development.")
 
     experiments.add_option("--visir", "--visir-server", dest = Creation.VISIR_SERVER, action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
@@ -780,7 +780,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         protocol = 'http://'
     server_url = protocol + options[Creation.SERVER_HOST] + base_url + '/weblab/'
 
-
+    if options[Creation.XMLRPC_EXPERIMENT] and options[Creation.DUMMY_COPIES] > 1:
+        print >> stderr, "ERROR: there must be a single XML-RPC laboratory using the weblab-admin create at this point"
+        exit_func(-1)
 
     if options[Creation.START_PORTS] < 1 or options[Creation.START_PORTS] >= 65535:
         print >> stderr, "ERROR: starting port number must be at least 1"
@@ -1350,6 +1352,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if not os.path.exists(lab_dir):
             os.mkdir(lab_dir)
 
+        port1 = current_port
+        current_port += 1
+        port2 = current_port
         open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
             """<?xml version="1.0" encoding="UTF-8"?>\n"""
             """<server\n"""
@@ -1383,8 +1388,19 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """                <parameter name="port"    value="%(port)s" />\n"""
             """            </creation>\n"""
             """        </protocol>\n"""
+            """        <protocol name="XMLRPC">\n"""
+            """            <coordinations>\n"""
+            """                <coordination>\n"""
+            """                    <parameter name="address" value="127.0.0.1:%(port2)s@NETWORK" />\n"""
+            """                </coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation>\n"""
+            """                <parameter name="address" value=""     />\n"""
+            """                <parameter name="port"    value="%(port2)s" />\n"""
+            """            </creation>\n"""
+            """        </protocol>\n"""
             """    </protocols>\n"""
-            """</server>\n""") % {'port' : current_port})
+            """</server>\n""") % {'port' : port1, 'port2' : port2})
         current_port += 1
 
         laboratory_config_py = (
@@ -1439,7 +1455,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             if not os.path.exists(experiment_dir):
                 os.mkdir(experiment_dir)
 
-            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
+            experiment_configuration = (
                 """<?xml version="1.0" encoding="UTF-8"?>\n"""
                 """<server\n"""
                 """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
@@ -1462,9 +1478,28 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """                <coordination></coordination>\n"""
                 """            </coordinations>\n"""
                 """            <creation></creation>\n"""
+                """        </protocol>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } 
+
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                experiment_configuration += (
+                """        <protocol name="XMLRPC">\n"""
+                """            <coordinations>\n"""
+                """                <coordination>\n"""
+                """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+                """                </coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation>\n"""
+                """                <parameter name="address" value="127.0.0.1"     />\n"""
+                """                <parameter name="port"    value="%(port)s" />\n"""
+                """            </creation>\n"""
                 """        </protocol>\n"""
+                ) % {'port' : options[Creation.XMLRPC_EXPERIMENT_PORT] }
+
+            experiment_configuration += (
                 """    </protocols>\n"""
-                """</server>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } )
+                """</server>\n""")
+
+            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write(experiment_configuration)
 
             open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
                 "dummy_verbose = True\n")
