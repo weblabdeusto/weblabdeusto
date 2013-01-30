@@ -51,7 +51,6 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 # 
 # TODO
 #  - --virtual-machine
-#  - xmlrpc server
 #  - Support rebuild-db
 # 
 
@@ -515,7 +514,6 @@ def _build_parser():
                                 "such as VISIR, have been deployed in many universities. Finally, for "
                                 "development purposes, the XML-RPC experiment is particularly useful.")
 
-    # TODO
     experiments.add_option("--xmlrpc-experiment",      dest = Creation.XMLRPC_EXPERIMENT, action="store_true", default=False,
                                                        help = "By default, the Experiment Server is located in the same process as the  " 
                                                               "Laboratory server. However, it is possible to force that the laboratory  "
@@ -523,7 +521,6 @@ def _build_parser():
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
 
-    # TODO
     experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
                                                        help = "What port should the Experiment Server use. Useful for development.")
 
@@ -910,16 +907,61 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
 
-    open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
+    machine_config = ("""<?xml version="1.0" encoding="UTF-8"?>""" 
     """<machines
         xmlns="http://www.weblab.deusto.es/configuration" 
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="global_configuration.xsd"
     >
 
-    <machine>core_machine</machine>"""
-    "\n\n</machines>\n")
+    <machine>core_machine</machine>""")
 
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        machine_config += """    <machine>exp_machine</machine>\n""" 
+
+    machine_config += "\n\n</machines>\n"
+
+    open(os.path.join(directory, 'configuration.xml'), 'w').write(machine_config)
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        exp_machine_dir = os.path.join(directory, 'exp_machine')
+        if not os.path.exists(exp_machine_dir):
+            os.mkdir(exp_machine_dir)
+
+        exp_machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
+        """<instances
+            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="machine_configuration.xsd"
+        >
+
+        <runner file="run-xmlrpc.py"/>
+
+        <instance>exp_instance</instance>\n
+        </instances>""")
+
+        open(os.path.join(exp_machine_dir, 'configuration.xml'), 'w').write(exp_machine_configuration_xml)
+
+        exp_instance_dir = os.path.join(exp_machine_dir, 'exp_instance')
+        if not os.path.exists(exp_instance_dir):
+            os.mkdir(exp_instance_dir)
+
+        exp_instance_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>\n"""
+		"""<servers \n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
+		""">\n"""
+		"""    <user>weblab</user>\n"""
+		"""\n"""
+		"""    <server>experiment1</server>\n"""
+		"""</servers>\n""")
+
+        open(os.path.join(exp_instance_dir, 'configuration.xml'), 'w').write(exp_instance_configuration_xml)
+
+        xmlrpc_server_dir = os.path.join(exp_instance_dir, 'experiment1')
+
+    
     machine_dir = os.path.join(directory, 'core_machine')
     if not os.path.exists(machine_dir):
         os.mkdir(machine_dir)
@@ -1332,8 +1374,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """    <server>laboratory%s</server>\n""" % n
                 )
 
-            for dummy_id in experiments_in_lab.get('dummy', []):
-                lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
+            if not options[Creation.XMLRPC_EXPERIMENT]:
+                for dummy_id in experiments_in_lab.get('dummy', []):
+                    lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
 
             if len(experiments_in_lab.get('visir', [])) > 0:
                 lab_instance_configuration_xml += """    <server>visir</server>\n"""
@@ -1412,13 +1455,21 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         )
 
         for dummy_id in experiments_in_lab.get('dummy', []):
+            lab_config_args = { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                lab_config_args['instance'] = 'exp_instance'
+                lab_config_args['machine']  = 'exp_machine'
+            else:
+                lab_config_args['instance'] = laboratory_instance_name
+                lab_config_args['machine']  = 'core_machine'
+
             laboratory_config_py += (
                 """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
-                """                'coord_address' : 'experiment%(n)s:%(instance)s@core_machine',\n"""
+                """                'coord_address' : 'experiment%(n)s:%(instance)s@%(machine)s',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
-            ) % { 'instance' : laboratory_instance_name, 
-                  'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+            ) % lab_config_args
 
         for visir_id in experiments_in_lab.get('visir', []):
             laboratory_config_py += (
@@ -1451,7 +1502,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
 
         for dummy_id in experiments_in_lab.get('dummy', []):
-            experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                experiment_dir = xmlrpc_server_dir
+            else:
+                experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
+
             if not os.path.exists(experiment_dir):
                 os.mkdir(experiment_dir)
 
@@ -1701,6 +1756,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             server_names.append('laboratory%s' % n)
     if options[Creation.XMLRPC_EXPERIMENT] or not options[Creation.INLINE_LAB_SERV]:
         server_names.append('experiment')
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        server_names.append('exp_instance')
 
     for server_name in server_names:
         logging_file = (
@@ -2002,12 +2060,59 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     debugging_config += "}\n"
 
 
-        
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        # XML-RPC runner
+        xmlrpc_launch_script = (
+            """#!/usr/bin/env python\n"""
+            """#-*-*- encoding: utf-8 -*-*-\n"""
+            """try:\n"""
+            """    import signal\n"""
+            """    \n"""
+            """    import voodoo.gen.loader.Launcher as Launcher\n"""
+            """    \n"""
+            """    def before_shutdown():\n"""
+            """        print "Stopping servers..."\n"""
+            """    \n""")
 
+        xmlrpc_launch_script += (
+        """    launcher = Launcher.MachineLauncher(\n"""
+        """                '.',\n"""
+        """                'exp_machine',\n"""
+        """                (\n"""
+        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                    Launcher.SignalWait(signal.SIGINT),\n"""
+        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """                ),\n"""
+        """                {\n""")
 
-    open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
+        xmlrpc_launch_script += """                    "exp_instance" : "logs%sconfig%slogging.configuration.exp_instance.txt",\n""" % (os.sep,os.sep)
+
+        xmlrpc_launch_script += (
+        """                },\n"""
+        """                before_shutdown,\n"""
+        """                (\n"""
+        """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """                ),\n"""
+        """                pid_file = 'weblab_xmlrpc.pid',\n""")
+        waiting_port = current_port
+        current_port += 1
+        xmlrpc_launch_script += """                waiting_port = %r,\n""" % waiting_port
+        xmlrpc_launch_script += ("""            )\n"""
+            """\n"""
+            """    launcher.launch()\n"""
+            """except:\n"""
+            """    import traceback\n"""
+            """    traceback.print_exc()\n"""
+            """    raise\n"""
+        )
+
     open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
+    open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
     os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        open(os.path.join(directory, 'run-xmlrpc.py'), 'w').write( xmlrpc_launch_script )
+        os.chmod(os.path.join(directory, 'run-xmlrpc.py'), stat.S_IRWXU)
 
     if verbose: print >> stdout, "[done]"
 
