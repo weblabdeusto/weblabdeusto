@@ -403,6 +403,15 @@ class GenericPermissionPanel(AdministratorModelView):
     def __init__(self, model, session, **kwargs):
         super(GenericPermissionPanel, self).__init__(model, session, **kwargs)
 
+
+    def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
+        # So as to sort descending, force sorting by 'id' and reverse the sort_desc
+        if sort_column is None:
+            sort_column = 'date'
+            sort_desc   = not sort_desc
+        return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
+
+
     def on_model_change(self, form, permission):
         # TODO: use weblab.permissions directly
         req_arguments = {
@@ -584,7 +593,7 @@ class PermissionsAddingView(AdministratorView):
 
                 time_allowed = TextField(u'Time assigned',                  description = "Measured in seconds",  validators = [Required(), NumberRange(min=1)], default=100)
                 priority     = TextField(u'Priority',                       description = "Priority of the user", validators = [Required(), NumberRange(min=0)], default=5)
-                initialization_in_accounting = SelectField(u'Initialization', description = "Take initialization into account",  choices = [('yes','yes'),('no','no')], default='yes')
+                initialization_in_accounting = SelectField(u'Initialization', description = "Take initialization into account",  choices = [('1','Yes'),('0','No')], default='1')
 
 
                 def __init__(self, *args, **kwargs):
