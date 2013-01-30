@@ -12,6 +12,7 @@ except:
     print "In Ubuntu, for instance, the following steps are required: "
     print "sudo apt-get install postgresql"
     print "sudo -u postgres psql postgres"
+    print "  \password postgres"
     print "sudo -u postgres createdb weblab"
     print 
 
