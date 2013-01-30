@@ -548,9 +548,13 @@ class PermissionsAddingView(AdministratorView):
             comments   = TextField("Comments")
             recipients = SelectField(recipient_type, description="Recipients of the permission")
 
+            def get_permanent_id(self):
+                recipient = recipient_resolver(self.recipients.data)
+                return u'%s::%s' % (permission_type, recipient)
+
             def add_permission(self):
                 recipient = recipient_resolver(self.recipients.data)
-                db_permission = DbPermissionClass( recipient, permission_type, permanent_id = u'%s::%s' % (permission_type, recipient), date = datetime.datetime.today(), comments = self.comments.data )
+                db_permission = DbPermissionClass( recipient, permission_type, permanent_id = self.get_permanent_id(), date = datetime.datetime.today(), comments = self.comments.data )
                 session.add(db_permission)
 
                 return db_permission
@@ -590,6 +594,11 @@ class PermissionsAddingView(AdministratorView):
                         exp_id = u'%s@%s' % (exp.name, exp.category.name)
                         choices.append((exp_id, exp_id))
                     self.experiment.choices = choices
+
+                def get_permanent_id(self):
+                    recipient = recipient_resolver(self.recipients.data)
+                    exp_name, cat_name = self.experiment.data.split('@')
+                    return u'%s::%s@%s::%s' % (permission_type, exp_name, cat_name, recipient)
 
                 def add_parameters(self, db_permission):
 
@@ -652,7 +661,11 @@ class PermissionsAddingView(AdministratorView):
         form.recipients.choices = recipients
 
         if form.validate_on_submit():
-            form.self_register()
+            try:
+                form.self_register()
+            except:
+                flash("Error saving data. May the permission be duplicated?")
+                return self.render("admin-permission-create.html", form = form, fields = form.parameter_list, description = current_permission_type.description, permission_type = permission_type)
             return redirect(back_url)
 
 
