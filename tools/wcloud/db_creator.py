@@ -52,7 +52,17 @@ if __name__ == '__main__':
                         help="Database password",
                         type=str, default=DEFAULT_DEPLOYMENT_SETTINGS[Creation.DB_PASSWD])
 
+    parser.add_argument('-d', '--delete', dest='delete',
+                        help="Delete databases instead of creating them", action='store_true',
+                        default=False)
+
     args = parser.parse_args()
+    if args.delete:
+        ensure_deletion = raw_input("You've requested to delete the databases. You will lose all the data. Are you sure? Type 'yes' to confirm or 'no' to cancel: ")
+        if ensure_deletion != 'yes':
+            print >> sys.stderr, "Operation cancelled by user"
+            sys.exit(0)
+
     if args.prompt_password:
         password = getpass.getpass("Password: ")
     else:
@@ -62,9 +72,17 @@ if __name__ == '__main__':
 
     
     for i in range(args.start, args.end):
+        if args.delete:
+            operation = 'deleting'
+        else:
+            operation = 'creating'
+
         try:
-            print("Creating database '%s%d'" % (args.prefix, i))
-            engine.execute("CREATE DATABASE %s%d" % (args.prefix, i))
+            print("%s database '%s%d'" % (operation.title(), args.prefix, i))
+            if args.delete:
+                engine.execute("DROP DATABASE %s%d" % (args.prefix, i))
+            else:
+                engine.execute("CREATE DATABASE %s%d" % (args.prefix, i))
         except:
-            print("Error creating database '%s%d'" % (args.prefix, i))
+            print("Error %s database '%s%d'" % (operation, args.prefix, i))
             traceback.print_exc()
