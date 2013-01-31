@@ -17,8 +17,8 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from flask.ext.wtf import Form, BooleanField, TextField, PasswordField,\
-    FileField, validators, file_allowed
+from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError
+
 from flask.ext.uploads import UploadSet, IMAGES
 from wcloud.models import User, Entity
 from flask import session
@@ -57,7 +57,7 @@ class LoginForm(Form):
 class RegistrationForm(Form):
     full_name = TextField('Full name', [validators.Length(min=4, max=25)])
     email = TextField('Email Address', [validators.Length(min=6, max=35),
-                                validators.Email('No es un email valido'),
+                                validators.Email(),
                                 UserExists('User already exists')])
     password = PasswordField('New Password', [
         validators.Required(),
@@ -86,4 +86,15 @@ class DeployForm(Form):
     admin_user = TextField('Admin user', [validators.Length(min=4, max=100)])
     admin_password = PasswordField('Admin password', [validators.Length(min=4, max=100)])
     admin_email = TextField('Admin email', [validators.Length(min=4, max=100),
-                                validators.Email('No es un email valido')])
+                                validators.Email()])
+    
+    def validate_characters(form, field): # XXX work around to avoid problems with UTF-8
+        for c in field.data:
+            if c.lower() not in 'abcdefghijklmnopqrstuvwxyz0123456789._-@ ':
+                raise ValidationError("Invalid characters found")
+        
+    validate_admin_name     = validate_characters
+    validate_admin_user     = validate_characters
+    validate_admin_password = validate_characters
+    validate_admin_email    = validate_characters
+

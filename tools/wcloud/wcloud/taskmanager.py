@@ -22,16 +22,15 @@ import sys
 path_aux = sys.path[0].split('/')
 path_aux = os.path.join('/', *path_aux[0:len(path_aux)-1])
 sys.path.append(path_aux)
+import shutil
 import Queue
 import threading
 import time
 import traceback
 import subprocess
 import urllib2
-import re
 import json
 import uuid
-import mmap
 from cStringIO import StringIO
 
 from flask import Flask, request
@@ -109,19 +108,26 @@ class TaskManager(threading.Thread):
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
                 user = User.query.filter_by(email=task[u'email']).first()
+                entity = user.entity
                 
                 #Create the entity
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
                 
-                settings[Creation.BASE_URL] = user.entity.base_url
-                settings[Creation.DB_NAME] = 'wcloud' + \
-                                        str(User.total_users() + 1)
+                settings[Creation.BASE_URL]   = entity.base_url
+
+                settings[Creation.DB_NAME]    = 'wcloud%s' % entity.id
+                settings[Creation.DB_USER]    = app.config['DB_USERNAME']
+                settings[Creation.DB_PASSWD]  = app.config['DB_PASSWORD']
+
                 settings[Creation.ADMIN_USER] = task['admin_user']
                 settings[Creation.ADMIN_NAME] = task['admin_name']
                 settings[Creation.ADMIN_PASSWORD] = task['admin_password']
                 settings[Creation.ADMIN_MAIL] = task['admin_email']
+
                 last_port = Entity.last_port()
-                if last_port is None: last_port = deploymentsettings.MIN_PORT
+                if last_port is None: 
+                    last_port = deploymentsettings.MIN_PORT
+
                 settings[Creation.START_PORTS] =  last_port + 1
                 settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
                 settings[Creation.ENTITY_LINK] = user.entity.link_url
@@ -191,24 +197,24 @@ class TaskManager(threading.Thread):
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
 
+                shutil.rmtree(task['directory'], ignore_errors=True)
+
 
 app = Flask(__name__)
 
-@app.route('/task/<task_id>/status/')
+@app.route('/task/<task_id>/')
 def get_task(task_id):
     task_status = task_manager.retrieve_task_status(task_id)
-    if task_status is None:
-        return "Task not found: nothing available."
-
-    return task_status
-
-@app.route('/task/<task_id>/output/')
-def get_task_output(task_id):
-    task_data = task_manager.retrieve_task_data(task_id)
-    if task_data is None:
-        return "Task not found: nothing available."
-
-    return task_data['output'].getvalue()
+    task_data   = task_manager.retrieve_task_data(task_id)
+    if task_status:
+        response = {
+            'status' : task_status,
+            'output' : task_data['output'].getvalue()
+        }
+    else:
+        response = {}
+        
+    return json.dumps(response)
 
 @app.route('/task/', methods = ['GET','POST'])
 def create_task():
@@ -223,6 +229,7 @@ def create_task():
     
     def exit_func(code):
         traceback.print_exc()
+        print "Output:",output.getvalue() 
         raise Exception("Error creating weblab: %s" % code)
     
     # Create task settings and submit to the task manager
@@ -252,5 +259,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    import settings
+    app.config.from_object(settings)
     app.run(debug = True, port = PORT)
 

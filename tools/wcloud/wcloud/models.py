@@ -71,21 +71,21 @@ class Entity(db.Model):
     __tablename__ = 'entities'
     
     id                      = Column(Integer, primary_key=True)
-    name                    = Column(Unicode(200), nullable=False, index=True) # e.g. University of Deusto
+    name                    = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. University of Deusto
     logo                    = Column(db.LargeBinary, nullable=False)           # e.g. (the logo of the entity)
-    base_url                = Column(Unicode(200), nullable=False, index=True) # e.g. /myschool.
+    base_url                = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. /myschool.
     link_url                = Column(Unicode(300), nullable=False)             # e.g. http://www.deusto.es
     google_analytics_number = Column(Unicode(30))                              # e.g. UA-1234-1234
     start_port_number       = Column(Integer) # Null until the task manager assigns them
-    end_port_number         = Column(Integer) # Null until the task manager assigns them
+    end_port_number         = Column(Integer, index=True) # Null until the task manager assigns them
     
     def __init__(self, name, base_url):
         self.name = name
         self.base_url = base_url
-    
+   
     @staticmethod
     def last_port():
-        return db.session.query(func.max(Entity.end_port_number)).first()[0]
+        return db.session.query(func.max(Entity.end_port_number)).one()[0]
     
     @staticmethod
     def url_exists(user_email, base_url):

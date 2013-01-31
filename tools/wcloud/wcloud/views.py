@@ -242,7 +242,7 @@ def configure():
         email = session['user_email']
         user = User.query.filter_by(email=email).first()
         if user is None:
-            return redirect('logout', indicate=False)
+            return redirect('logout')
         entity = user.entity
         if entity is not None:
             form.name.data = entity.name
@@ -309,36 +309,31 @@ def deploy():
 @login_required
 def result(deploy_id):
     try:
-        url = "http://127.0.0.1:1661/task/%s/output" % deploy_id
+        url = "http://127.0.0.1:1661/task/%s/" % deploy_id
         req = urllib2.Request(url)
         f = urllib2.urlopen(req)
         response = f.read()
-        f.close()
-
-        url = "http://127.0.0.1:1661/task/%s/status" % deploy_id
-        req = urllib2.Request(url)
-        f = urllib2.urlopen(req)
-        status = f.read()
         f.close()
     except Exception as e:
         flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
         return render_template('result.html', stdout='Not available')
 
+    response = json.loads(response)
+
     return render_template('result.html',
-                           status=status,
-                           stdout=response,
+                           status=response.get('status', 'Task not found'),
+                           stdout=response.get('output', 'Not available'),
                            deploy_id = deploy_id)
 
 
 @app.route('/logout')
 @login_required
-def logout(indicate=True):
+def logout():
     #Insert data in session    
     session.pop('logged_in', None)
     session.pop('session_type', None)
     session.pop('user_id', None)
     session.pop('user_email', None)
     
-    if indicate:
-        flash('Logged out', 'success')
+    flash('Logged out', 'success')
     return redirect(url_for('index'))
