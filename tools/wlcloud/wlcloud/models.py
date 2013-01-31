@@ -18,25 +18,25 @@
 #
 
 from wlcloud import db
-from sqlalchemy import func
+from sqlalchemy import func, Unicode, String, Column, Integer, Boolean
 
 class User(db.Model):
     
     __tablename__ = 'users'
     
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String, nullable=False, unique=True)
-    password = db.Column(db.String)
-    full_name = db.Column(db.String)
-    active = db.Column(db.Boolean)
+    id        = Column(Integer, primary_key=True)
+    email     = Column(Unicode(200), nullable=False, unique=True, index = True)
+    password  = Column(Unicode(200), nullable=False)
+    full_name = Column(Unicode(200), nullable=False)
+    active    = Column(Boolean, nullable = False)
     
-    token_id = db.Column(db.Integer, db.ForeignKey('tokens.id'))
-    token = db.relationship('Token', cascade="all, delete-orphan",
+    token_id = Column(Integer, db.ForeignKey('tokens.id'))
+    token    = db.relationship('Token', cascade="all, delete-orphan",
                                 single_parent=True,
                                 uselist=False, #This 
                                 backref=db.backref('user', uselist=False)) #and this are for one-to-one
 
-    entity_id = db.Column(db.Integer, db.ForeignKey('entities.id'))
+    entity_id = Column(Integer, db.ForeignKey('entities.id'))
     entity = db.relationship('Entity', single_parent=True,
                                 uselist=False, #This 
                                 backref=db.backref('user', uselist=False))
@@ -57,8 +57,8 @@ class Token(db.Model):
     
     __tablename__ = 'tokens'
     
-    id = db.Column(db.Integer, primary_key=True)
-    token = db.Column(db.String, unique=True)
+    id    = Column(Integer, primary_key=True)
+    token = Column(String(200), nullable=False, unique=True, index=True)
     
     def __init__(self, token):
         self.token = token
@@ -68,14 +68,14 @@ class Entity(db.Model):
     
     __tablename__ = 'entities'
     
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)#. e.g. University of Deusto
-    logo = db.Column(db.LargeBinary)#e.g. (the logo of the entity)
-    base_url = db.Column(db.String)#e.g. /myschool.
-    link_url = db.Column(db.String)#e.g. http://www.deusto.es
-    google_analytics_number = db.Column(db.String)#e.g. UA-1234-1234
-    start_port_number = db.Column(db.Integer)
-    end_port_number = db.Column(db.Integer)
+    id                      = Column(Integer, primary_key=True)
+    name                    = Column(Unicode(200), nullable=False, index=True) # e.g. University of Deusto
+    logo                    = Column(db.LargeBinary, nullable=False)           # e.g. (the logo of the entity)
+    base_url                = Column(Unicode(200), nullable=False, index=True) # e.g. /myschool.
+    link_url                = Column(Unicode(300), nullable=False)             # e.g. http://www.deusto.es
+    google_analytics_number = Column(Unicode(30))                              # e.g. UA-1234-1234
+    start_port_number       = Column(Integer, nullable=False)
+    end_port_number         = Column(Integer, nullable=False)
     
     def __init__(self, name, base_url):
         self.name = name
