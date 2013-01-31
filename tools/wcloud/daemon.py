@@ -17,19 +17,18 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from flask import Flask
-from flask.ext.sqlalchemy import SQLAlchemy
-import settings
+import subprocess
+import os
 
-app = Flask(__name__)
+from wcloud import deploymentsettings
 
-#Config
-app.config.from_object(settings)
-
-#Extensions
-db = SQLAlchemy(app)
-
-#Import before use because we need to create the databases and to manage without running the webapp
-import wlcloud.models
-
-import wlcloud.views
+print("Deploying weblab instances:")
+with open(os.path.join(deploymentsettings.DIR_BASE,
+    'instances.txt'), 'a+') as f:
+    
+    for line in f:
+        # Start now the new weblab instance
+        line = line.strip()
+        print("Deploying task: %s..." % line)
+        process = subprocess.Popen(['nohup','weblab-admin','start', line])
+        print("Finished deploying")

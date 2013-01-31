@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wlcloud import app
+from wcloud import app
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])

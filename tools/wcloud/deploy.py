@@ -1,6 +1,6 @@
 import sys
 import traceback
-from wlcloud import db
+from wcloud import db
 
 try:
     db.drop_all()
@@ -15,13 +15,13 @@ except:
     print >> sys.stderr, "If using MySQL:"
     print >> sys.stderr, ""
     print >> sys.stderr, "  $ mysql -uroot -p"
-    print >> sys.stderr, "  mysql> CREATE DATABASE wlcloud DEFAULT CHARACTER SET utf8;"
+    print >> sys.stderr, "  mysql> CREATE DATABASE wcloud DEFAULT CHARACTER SET utf8;"
     print >> sys.stderr, "  Query OK, 1 row affected (0.00 sec)"
     print >> sys.stderr, "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
     print >> sys.stderr, "  ERROR 1396 (HY000): Operation CREATE USER failed for 'weblab'@'localhost'"
     print >> sys.stderr, "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
     print >> sys.stderr, "  Query OK, 0 rows affected (0.01 sec)"
-    print >> sys.stderr, "  mysql> GRANT ALL PRIVILEGES ON wlcloud.* TO weblab@localhost;"
+    print >> sys.stderr, "  mysql> GRANT ALL PRIVILEGES ON wcloud.* TO weblab@localhost;"
     print >> sys.stderr, "  Query OK, 0 rows affected (0.00 sec)"
     print >> sys.stderr, ""
     print >> sys.stderr, "If using PostgreSQL:"

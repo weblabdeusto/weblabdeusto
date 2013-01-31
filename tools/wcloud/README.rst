@@ -18,9 +18,9 @@ Then, configure the settings.py script with the database credentials. Deploy the
 
 Create all the MySQL databases to have a pool of databases (1000 in this case)::
 
-  python db_creator.py -p wlcloud -e 1000 -u weblab -pw
+  python db_creator.py -p wcloud -e 1000 -u weblab -pw
 
-Now you can run wlcloud. It takes 3 steps:
+Now you can run wcloud. It takes 3 steps:
 
 * Running the web server. For debugging you may use the following command. For production, refer to the `flask documentation <http://flask.pocoo.org/docs/deploying/>`_::
 
@@ -28,7 +28,7 @@ Now you can run wlcloud. It takes 3 steps:
 
 * Running the Task Manager::
 
-  python wlcloud/taskmanager.py
+  python wcloud/taskmanager.py
 
 * Running the Apache Reloader as root::
 

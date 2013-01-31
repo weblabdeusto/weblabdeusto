@@ -32,9 +32,9 @@ from werkzeug import secure_filename
 
 from weblab.admin.script import Creation, weblab_create
 
-from wlcloud import app, db, utils, deploymentsettings
-from wlcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DeployForm
-from wlcloud.models import User, Token, Entity
+from wcloud import app, db, utils, deploymentsettings
+from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DeployForm
+from wcloud.models import User, Token, Entity
 
 SESSION_TYPE = 'labdeployer_admin'
 

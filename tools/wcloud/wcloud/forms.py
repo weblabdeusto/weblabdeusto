@@ -20,7 +20,7 @@
 from flask.ext.wtf import Form, BooleanField, TextField, PasswordField,\
     FileField, validators, file_allowed
 from flask.ext.uploads import UploadSet, IMAGES
-from wlcloud.models import User, Entity
+from wcloud.models import User, Entity
 from flask import session
 
 #Validators

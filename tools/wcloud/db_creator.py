@@ -5,7 +5,7 @@ from weblab.admin.script import Creation
 import sqlalchemy
 import traceback
 
-from wlcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
+from wcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
 
 def connect(user, passwd):
     conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
@@ -20,9 +20,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=  "Database creator creates a set of idle databases to be used by the WebLab-Deusto instances."
                                                    "They will be called {PREFIX}{START_POINT} - {PREFIX}{END_POINT}.\n\n"
                                                    "Example:\n\n"
-                                                   "   python db_creator.py -p wlcloud -e 1000 -u weblab -pw\n\n"
+                                                   "   python db_creator.py -p wcloud -e 1000 -u weblab -pw\n\n"
                                                    "Will request the database password for user 'weblab' and will create 1000 databases, from"
-                                                   "wlcloud0000 to wlcloud10000")
+                                                   "wcloud0000 to wcloud10000")
 
     parser.add_argument('-p', '--prefix', metavar="PREFIX",
                         help="database prefix",

@@ -17,36 +17,19 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-#Flask configuration
-DEBUG = True
-SECRET_KEY = 'development key'
+from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
+import settings
 
-ADMIN_MAIL = 'weblab@deusto.es'
+app = Flask(__name__)
 
-# DB configuration
+#Config
+app.config.from_object(settings)
 
+#Extensions
+db = SQLAlchemy(app)
 
-DB_NAME = 'wlcloud'
-DB_HOST = '127.0.0.1'
-# 
-# PostgreSQL
-# DB_PORT = 5432
-# DB_USERNAME = 'postgres'
-# DB_PASSWORD = 'postgres'
-# 
-# MySQL
-# 
-DB_PORT = 3306
-DB_USERNAME = 'weblab'
-DB_PASSWORD = 'weblab'
+#Import before use because we need to create the databases and to manage without running the webapp
+import wcloud.models
 
-APACHE_RELOADER_PORT = 22110
-
-# 
-# PostgreSQL
-# SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
-# 
-# MySQL
-# 
-SQLALCHEMY_DATABASE_URI = 'mysql://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
-
+import wcloud.views

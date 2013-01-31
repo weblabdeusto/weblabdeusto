@@ -17,18 +17,36 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-import subprocess
-import os
+#Flask configuration
+DEBUG = True
+SECRET_KEY = 'development key'
 
-from wlcloud import deploymentsettings
+ADMIN_MAIL = 'weblab@deusto.es'
 
-print("Deploying weblab instances:")
-with open(os.path.join(deploymentsettings.DIR_BASE,
-    'instances.txt'), 'a+') as f:
-    
-    for line in f:
-        # Start now the new weblab instance
-        line = line.strip()
-        print("Deploying task: %s..." % line)
-        process = subprocess.Popen(['nohup','weblab-admin','start', line])
-        print("Finished deploying")
+# DB configuration
+
+
+DB_NAME = 'wcloud'
+DB_HOST = '127.0.0.1'
+# 
+# PostgreSQL
+# DB_PORT = 5432
+# DB_USERNAME = 'postgres'
+# DB_PASSWORD = 'postgres'
+# 
+# MySQL
+# 
+DB_PORT = 3306
+DB_USERNAME = 'weblab'
+DB_PASSWORD = 'weblab'
+
+APACHE_RELOADER_PORT = 22110
+
+# 
+# PostgreSQL
+# SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
+# 
+# MySQL
+# 
+SQLALCHEMY_DATABASE_URI = 'mysql://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
+
