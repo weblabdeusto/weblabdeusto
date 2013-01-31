@@ -39,9 +39,6 @@ from weblab.admin.script import weblab_create, Creation
 from wcloud import deploymentsettings, db
 from wcloud.models import User, Entity
 
-
-PORT = 1661
-
 class TaskManager(threading.Thread):
     
 
@@ -253,13 +250,14 @@ def main():
     global task_manager
     task_manager = TaskManager()
     task_manager.start()
-    print("Task manager started in  127.0.0.1:%d" % PORT)
+    print("Task manager started in  127.0.0.1:%d" % app.config['TASK_MANAGER_PORT'])
 
 
 
 if __name__ == "__main__":
-    main()
     import settings
     app.config.from_object(settings)
-    app.run(debug = True, port = PORT)
+
+    main()
+    app.run(debug = True, port = settings.TASK_MANAGER_PORT)
 

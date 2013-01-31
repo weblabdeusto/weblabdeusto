@@ -41,6 +41,7 @@ DB_USERNAME = 'weblab'
 DB_PASSWORD = 'weblab'
 
 APACHE_RELOADER_PORT = 22110
+TASK_MANAGER_PORT    = 1661
 
 # 
 # PostgreSQL

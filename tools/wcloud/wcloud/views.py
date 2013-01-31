@@ -21,6 +21,7 @@ import os
 import uuid
 import json
 import hashlib
+import urlparse
 import urllib2
 import datetime
 import StringIO
@@ -281,13 +282,19 @@ def deploy():
         
         directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
         
+        parsed_url = urlparse.urlparse(request.url_root)
+        base_url = parsed_url.scheme + '://' + parsed_url.netloc
+        if parsed_url.port:
+            base_url += ':%s' % parsed_url.port
+        base_url += '/'
         
         task = {'directory'      : directory,
                 'email'          : email,
                 'admin_user'     : admin_user,
                 'admin_name'     : admin_name,
                 'admin_email'    : admin_email,
-                'admin_password' : admin_password}
+                'admin_password' : admin_password,
+                'base_url'       : base_url }
     
         task_json = json.dumps(task)
         url = "http://127.0.0.1:1661/task/"

@@ -39,6 +39,8 @@ TODO list
 ~~~~~~~~~
 
 * Script to start all the WebLab-Deusto instances at the beginning
+  - Make this script run listening to a port. This way, whenever the task manager is restarted, the port is not busy, and it can be run with different permissions.
+
 * Load the admin page in the generated WebLab-Deusto (and not www.weblab.deusto.es)
 * Disable re-deploying or changing configuration once a deployment has been established.
 * Show a link to the final working system.
