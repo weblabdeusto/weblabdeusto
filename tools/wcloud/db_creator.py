@@ -5,6 +5,7 @@ from weblab.admin.script import Creation
 import sqlalchemy
 import traceback
 
+import settings
 from wcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
 
 def connect(user, passwd):
@@ -26,8 +27,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-p', '--prefix', metavar="PREFIX",
                         help="database prefix",
-                        type=str,
-                        required=True)
+                        type=str, default="wcloud")
     
     parser.add_argument('-s', '--start', metavar="START_POINT",
                         help="Start point for databases (defaults to 0)",
@@ -71,18 +71,21 @@ if __name__ == '__main__':
     engine = connect(args.user, password)
 
     
-    for i in range(args.start, args.end):
+    for n in range(args.start, args.end):
         if args.delete:
             operation = 'deleting'
         else:
             operation = 'creating'
 
+        db_name = '%s%d' % (args.prefix, n)
         try:
-            print("%s database '%s%d'" % (operation.title(), args.prefix, i))
+            print("%s database '%s'" % (operation.title(), db_name))
             if args.delete:
-                engine.execute("DROP DATABASE %s%d" % (args.prefix, i))
+                engine.execute("DROP DATABASE %s" % db_name)
             else:
-                engine.execute("CREATE DATABASE %s%d" % (args.prefix, i))
+                engine.execute("CREATE DATABASE %s DEFAULT CHARACTER SET utf8" % db_name)
+                engine.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" % (db_name, settings.DB_USERNAME))
         except:
-            print("Error %s database '%s%d'" % (operation, args.prefix, i))
+            print("Error %s database '%s'" % (operation, db_name))
             traceback.print_exc()
+
