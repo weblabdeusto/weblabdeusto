@@ -282,15 +282,15 @@ def deploy():
         directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
         
         
-        task = {'directory': directory,
-                'email': email,
-                'admin_user': admin_user,
-                'admin_name': admin_name,
-                'admin_email': admin_email,
-                'admin_password': admin_password,}
+        task = {'directory'      : directory,
+                'email'          : email,
+                'admin_user'     : admin_user,
+                'admin_name'     : admin_name,
+                'admin_email'    : admin_email,
+                'admin_password' : admin_password}
     
         task_json = json.dumps(task)
-        url = "http://127.0.0.1:1661/task"
+        url = "http://127.0.0.1:1661/task/"
         req = urllib2.Request(url,
                             task_json,
                             {'Content-Type': 'application/json',
@@ -308,13 +308,24 @@ def deploy():
 @app.route('/deploy/result/<deploy_id>')
 @login_required
 def result(deploy_id):
-    url = "http://127.0.0.1:1661/task/%s/stdout" % deploy_id
-    req = urllib2.Request(url)
-    f = urllib2.urlopen(req)
-    response = f.read()
-    f.close()
+    try:
+        url = "http://127.0.0.1:1661/task/%s/output" % deploy_id
+        req = urllib2.Request(url)
+        f = urllib2.urlopen(req)
+        response = f.read()
+        f.close()
+
+        url = "http://127.0.0.1:1661/task/%s/status" % deploy_id
+        req = urllib2.Request(url)
+        f = urllib2.urlopen(req)
+        status = f.read()
+        f.close()
+    except Exception as e:
+        flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
+        return render_template('result.html', stdout='Not available')
 
     return render_template('result.html',
+                           status=status,
                            stdout=response,
                            deploy_id = deploy_id)
 

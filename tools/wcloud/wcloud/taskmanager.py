@@ -28,12 +28,13 @@ import time
 import traceback
 import subprocess
 import urllib2
-import BaseHTTPServer
 import re
 import json
 import uuid
 import mmap
 from cStringIO import StringIO
+
+from flask import Flask, request
 
 from weblab.admin.script import weblab_create, Creation
 from wcloud import deploymentsettings, db
@@ -41,90 +42,6 @@ from wcloud.models import User, Entity
 
 
 PORT = 1661
-
-class TaskManagerServer(BaseHTTPServer.BaseHTTPRequestHandler):
-    """ Simple server for calling the task manager process.
-    API:
-        - GET /task/{identifier} - Gets task with identifier 
-        - POST /task - creates new task and responds with the identifier
-        - GET /task/{identifier}/stdout - gets the stdout from a concrete task
-        - GET /task/{identifier}/stderror - get the stdout from a concrete task
-    """
-    
-    tasks = {}
-
-    def do_GET(self):
-        
-        self.send_response(200)
-        self.end_headers()
-        
-        try:
-            # /task/{identifier}
-            match = re.match(r"/task/([\w-]+)/?$", self.path)
-            if match is not None:
-                results = dict(TaskManagerServer.tasks[match.group(1)])
-                del results['stdout']
-                del results['stderr']
-                del results['exit_func']
-                self.wfile.write(json.dumps(results))
-                return
-                
-            # /task/{identifier}/stdout
-            match = re.match(r"/task/([\w-]+)/stdout/?$", self.path)
-            if match is not None:
-                stringio = TaskManagerServer.tasks[match.group(1)]['stdout']
-                self.wfile.write(stringio.getvalue())
-                return 
-                
-            # /task/{identifier}/stderror
-            match = re.match(r"/task/([\w-]+)/stderror/?$", self.path)
-            if match is not None:
-                stringio = TaskManagerServer.tasks[match.group(1)]['stderr']
-                self.wfile.write(stringio.getvalue())
-                return
-        except:
-            pass
-        self.send_response(400)
-        self.end_headers()
-        self.wfile.write('ERROR')        
-    
-    def do_POST(self):
-        # /task
-        match = re.match(r"/task/?$", self.path)
-        if match is not None:
-            
-            #Decode json
-            post_vars = self.rfile.read(int(self.headers['Content-Length']))
-            settings = json.loads(post_vars)
-            
-            #create needed resources
-            task_id = (str(uuid.uuid4()))
-            stdout = StringIO()
-            stderr = StringIO()
-            
-            def exit_func(code):
-                raise Exception("Error creating weblab: %s" % code)
-            
-            #create task settings and submit to the task manager
-            settings_update = {'stdout': stdout,
-                                'stderr': stderr,
-                                'exit_func': exit_func,
-                                'task_id': task_id}
-        
-            settings.update(settings_update)
-
-            #Submit task
-            task_manager.submit_task(settings)
-        
-            #send response to client with the client id
-            self.send_response(200)
-            self.end_headers()        
-            self.wfile.write(task_id)
-            return
-        
-        self.send_response(400)
-        self.end_headers()
-        self.wfile.write('ERROR')
 
 class TaskManager(threading.Thread):
     
@@ -138,12 +55,12 @@ class TaskManager(threading.Thread):
         """Task manager constructor"""
         threading.Thread.__init__(self)
         self.setDaemon(True)
-        self.queue = Queue.Queue() # Queue
-        self.shutdown = False # While not shutdown run task manager
-        self.task_output = {} # Task execution results
-        self.task_status = {} # Task status ('waiting', 'started', 'finished')
-        self.task_counter = 0 # Counter of the tasks
+        self.queue = Queue.Queue()   # Queue
+        self.shutdown = False        # While not shutdown run task manager
+        self.task_status = {}        # Task status ('waiting', 'started', 'finished'...)
+        self.task_data   = {}        # Task data ( {'stdout' : ..., 'stderr' : ... } )
         self.lock = threading.Lock()
+        self.task_ids = {}
     
     def submit_task(self, task):
         """Adds a task to the queue of jobs and initializes all the neccessary
@@ -153,13 +70,28 @@ class TaskManager(threading.Thread):
         """
         
         with self.lock:
-            self.task_counter += 1
-            self.task_status[self.task_counter] = TaskManager.STATUS_WAITING
-            self.queue.put(task)
+            task_id = (str(uuid.uuid4()))
+            while task_id in self.task_status:
+                task_id = (str(uuid.uuid4()))
+
+            # Store data
+            self.task_status[task_id] = TaskManager.STATUS_WAITING
+            self.task_data[task_id] = task
+            task['task_id'] = task_id
             
-            return self.task_counter
-        
+            self.queue.put(task)
+            return task_id
+            
     
+    def retrieve_task_status(self, task_id):
+        with self.lock:
+            return self.task_status.get(task_id)
+
+    def retrieve_task_data(self, task_id):
+        with self.lock:
+            return self.task_data.get(task_id)
+    
+   
     def shutdown(self):
         """Shuts down the task manager (stop task manager)"""
         
@@ -173,6 +105,7 @@ class TaskManager(threading.Thread):
         
         while (not self.shutdown):
             task = self.queue.get()
+            print "Processing task: ", task['task_id']
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
                 user = User.query.filter_by(email=task[u'email']).first()
@@ -200,7 +133,6 @@ class TaskManager(threading.Thread):
                 time.sleep(0.5)
                 
                 settings.update(task)
-                TaskManagerServer.tasks[task['task_id']] = settings
                 
                 # Create Apache configuration
                 with open(os.path.join(deploymentsettings.DIR_BASE,
@@ -259,16 +191,66 @@ class TaskManager(threading.Thread):
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
 
+
+app = Flask(__name__)
+
+@app.route('/task/<task_id>/status/')
+def get_task(task_id):
+    task_status = task_manager.retrieve_task_status(task_id)
+    if task_status is None:
+        return "Task not found: nothing available."
+
+    return task_status
+
+@app.route('/task/<task_id>/output/')
+def get_task_output(task_id):
+    task_data = task_manager.retrieve_task_data(task_id)
+    if task_data is None:
+        return "Task not found: nothing available."
+
+    return task_data['output'].getvalue()
+
+@app.route('/task/', methods = ['GET','POST'])
+def create_task():
+    if request.method == 'GET':
+        return 'POST expected'
+
+    settings = request.json
+
+    print "Creating new task: %s" % settings
+
+    output = StringIO()
+    
+    def exit_func(code):
+        traceback.print_exc()
+        raise Exception("Error creating weblab: %s" % code)
+    
+    # Create task settings and submit to the task manager
+    settings_update = { 'stdout'        : output,
+                        'stderr'        : output,
+                        'output'        : output,
+                        'exit_func'     : exit_func }
+
+    settings.update(settings_update)
+
+    # Submit task
+    task_id = task_manager.submit_task(settings)
+
+    # Send response to client with the client id
+    print "Task created: ",  task_id
+    return task_id
+
+task_manager = None
+
 def main():
+    global task_manager
     task_manager = TaskManager()
     task_manager.start()
     print("Task manager started in  127.0.0.1:%d" % PORT)
-    x = BaseHTTPServer.HTTPServer(('127.0.0.1', PORT), TaskManagerServer)    
-    x.serve_forever()
+
+
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == '--debug':
-        from werkzeug.serving import run_with_reloader
-        run_with_reloader(main)
-    else:
-        main()
+    main()
+    app.run(debug = True, port = PORT)
+
