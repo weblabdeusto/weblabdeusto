@@ -2273,8 +2273,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
         d = { 'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration/ route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration/,' % d
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
     proxy_paths.append(('%(root)s/weblab/administration/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
