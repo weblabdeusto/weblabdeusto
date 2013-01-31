@@ -11,17 +11,28 @@
 
 {% block body %}
     {% from "macros/_formhelpers.html" import render_field %}
-    <form method=post action="{{ url_for('register') }}">
-      <dl>
-        {{ form.hidden_tag() }}
-        {{ render_field(form.full_name) }}
-        {{ render_field(form.email) }}
-        {{ render_field(form.password) }}
-        {{ render_field(form.confirm) }}
-        {{ render_field(form.accept_tos) }}
-      </dl>
-      <p><input type=submit value=Register>
-    </form>
+    <div class="row">
+        <div class="offset2 span7">
+            <h1>Registration</h1>
+            <br/>
+
+            <form method="POST" action="{{ url_for('register') }}" class="form-horizontal">
+                {{ form.hidden_tag() }}
+                
+                <fieldset>
+                    {{ render_field(form.full_name) }}
+                    {{ render_field(form.email) }}
+                    {{ render_field(form.password) }}
+                    {{ render_field(form.confirm) }}
+
+                    <div class="form-actions">
+                        <a href="{{ url_for('index') }}" class="btn btn-alert">Back</a>
+                        <input type="submit" value="Register" class="btn btn-primary">
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 {% endblock body %}
 
 {% block footer %}

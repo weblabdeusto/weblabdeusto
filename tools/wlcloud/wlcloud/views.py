@@ -18,20 +18,22 @@
 #
 
 import os
-import hashlib
 import uuid
-import StringIO
-from functools import wraps
 import json
+import hashlib
 import urllib2
+import datetime
+import StringIO
+
+from functools import wraps
 
 from flask import render_template, request, url_for, flash, redirect, session
 from werkzeug import secure_filename
+
 from weblab.admin.script import Creation, weblab_create
 
 from wlcloud import app, db, utils, deploymentsettings
-from wlcloud.forms import RegistrationForm, LoginForm, \
-                            ConfigurationForm, DeployForm
+from wlcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DeployForm
 from wlcloud.models import User, Token, Entity
 
 SESSION_TYPE = 'labdeployer_admin'
@@ -67,12 +69,12 @@ def login():
         
         #User exists?
         if user is None:
-            flash('register first please', 'error')
+            flash('Register first please', 'error')
             return redirect(url_for('register'))
         
         #User is active
         if not user.active:
-            flash('Your account isn\'t active', 'error')
+            flash("Your account isn't active. Follow the e-mail instructions. If you didn't receive it, check the SPAM directory or contact the admin at %s." % app.config['ADMIN_MAIL'], 'error')
             return redirect(url_for('index'))
         
         #If exists and is active check the password
@@ -103,11 +105,12 @@ def login():
 def register():
     
     form = RegistrationForm(request.form)
+
     if request.method == 'POST' and form.validate():
         #Exract data from the form
         full_name = form.full_name.data
-        email = form.email.data
-        password = form.password.data
+        email     = form.email.data
+        password  = form.password.data
         
         #create user
         user = User(email, hashlib.sha1(password).hexdigest())
@@ -115,14 +118,15 @@ def register():
         user.active = False
         
         #add to database
-        token = Token(str(uuid.uuid4()))
+        token = Token(str(uuid.uuid4()), datetime.datetime.now())
         user.token = token
         db.session.add(user)
         db.session.commit()
         
         #create email
         from_email = 'weblab@deusto.es'
-        link = 'http://%s/confirm?email=%s&token=%s' % (request.host, email, token.token)
+
+        link = request.url_root + url_for('confirm', email=email, token=token.token)
         body_html = """ <html>
                             <head></head>
                             <body>
@@ -137,8 +141,14 @@ def register():
         body = """ Hello text!"""
         subject = 'thanks for registering in weblab deployer'
         
-        #send email
-        utils.send_email(body, subject, from_email, user.email, body_html)
+        # Send email
+        try:
+            utils.send_email(app, body, subject, from_email, user.email, body_html)
+        except:
+            db.session.delete(token)
+            db.session.delete(user)
+            db.session.commit()
+            raise
         
         flash("""Thanks for registering. You have an
               email with the steps to confirm your account""", 'success')
@@ -147,11 +157,19 @@ def register():
     return render_template('register.html', form=form)
 
 @app.route('/confirm')
-def confirm():
-    
-    email = request.args.get('email')
-    token = request.args.get('token')
-    
+def confirm(email = None, token = None):
+    if email is None:
+        email = request.args.get('email')
+    if token is None:
+        token = request.args.get('token')
+
+    if not email or not token:
+        if not email:
+            flash("Error: 'email' field misssing")
+        if not token:
+            flash("Error: 'token' field misssing")
+        return render_template('errors.html', message="Fields missing")
+
     user = User.query.filter_by(email=email).first()
     
     #User exists?

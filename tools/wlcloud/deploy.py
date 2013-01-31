@@ -1,3 +1,4 @@
+import sys
 import traceback
 from wlcloud import db
 
@@ -6,28 +7,30 @@ try:
     db.create_all()
 except:
     traceback.print_exc()
-    print 
-    print "Deployment failed. Do you have postgresql installed and the database created?"
-    print 
-    print "In Ubuntu, for instance, the following steps are required: "
-    print
-    print "If using MySQL:"
-    print 
-    print "  $ mysql -uroot -p"
-    print "  mysql> CREATE DATABASE wlcloud DEFAULT CHARACTER SET utf8;"
-    print "  Query OK, 1 row affected (0.00 sec)"
-    print "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
-    print "  ERROR 1396 (HY000): Operation CREATE USER failed for 'weblab'@'localhost'"
-    print "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
-    print "  Query OK, 0 rows affected (0.01 sec)"
-    print "  mysql> GRANT ALL PRIVILEGES ON wlcloud.* TO weblab@localhost;"
-    print "  Query OK, 0 rows affected (0.00 sec)"
-    print 
-    print "If using PostgreSQL:"
-    print 
-    print "  $ sudo apt-get install postgresql"
-    print "  $ sudo -u postgres psql postgres"
-    print "     \password postgres"
-    print "  $sudo -u postgres createdb weblab"
-    print 
+    print >> sys.stderr, ""
+    print >> sys.stderr, "Deployment failed. Do you have postgresql installed and the database created?"
+    print >> sys.stderr, ""
+    print >> sys.stderr, "In Ubuntu, for instance, the following steps are required: "
+    print >> sys.stderr, ""
+    print >> sys.stderr, "If using MySQL:"
+    print >> sys.stderr, ""
+    print >> sys.stderr, "  $ mysql -uroot -p"
+    print >> sys.stderr, "  mysql> CREATE DATABASE wlcloud DEFAULT CHARACTER SET utf8;"
+    print >> sys.stderr, "  Query OK, 1 row affected (0.00 sec)"
+    print >> sys.stderr, "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
+    print >> sys.stderr, "  ERROR 1396 (HY000): Operation CREATE USER failed for 'weblab'@'localhost'"
+    print >> sys.stderr, "  mysql> CREATE USER weblab@localhost IDENTIFIED BY 'weblab';"
+    print >> sys.stderr, "  Query OK, 0 rows affected (0.01 sec)"
+    print >> sys.stderr, "  mysql> GRANT ALL PRIVILEGES ON wlcloud.* TO weblab@localhost;"
+    print >> sys.stderr, "  Query OK, 0 rows affected (0.00 sec)"
+    print >> sys.stderr, ""
+    print >> sys.stderr, "If using PostgreSQL:"
+    print >> sys.stderr, ""
+    print >> sys.stderr, "  $ sudo apt-get install postgresql"
+    print >> sys.stderr, "  $ sudo -u postgres psql postgres"
+    print >> sys.stderr, "     \password postgres"
+    print >> sys.stderr, "  $sudo -u postgres createdb weblab"
+    print >> sys.stderr, ""
+else:
+    print "Deployment succeeded."
 

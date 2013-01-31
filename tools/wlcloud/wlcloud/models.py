@@ -18,7 +18,7 @@
 #
 
 from wlcloud import db
-from sqlalchemy import func, Unicode, String, Column, Integer, Boolean
+from sqlalchemy import func, Unicode, String, Column, Integer, Boolean, DateTime
 
 class User(db.Model):
     
@@ -59,9 +59,11 @@ class Token(db.Model):
     
     id    = Column(Integer, primary_key=True)
     token = Column(String(200), nullable=False, unique=True, index=True)
+    date  = Column(DateTime, nullable=False)
     
-    def __init__(self, token):
+    def __init__(self, token, date):
         self.token = token
+        self.date  = date
 
 
 class Entity(db.Model):

@@ -21,8 +21,9 @@
 DEBUG = True
 SECRET_KEY = 'development key'
 
+ADMIN_MAIL = 'weblab@deusto.es'
+
 # DB configuration
-#Connection String postgresql://DB_USERNAME:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME'
 
 
 DB_NAME = 'wlcloud'
