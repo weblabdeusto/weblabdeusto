@@ -259,9 +259,16 @@ class TaskManager(threading.Thread):
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
 
-if __name__ == "__main__":
+def main():
     task_manager = TaskManager()
     task_manager.start()
     print("Task manager started in  127.0.0.1:%d" % PORT)
     x = BaseHTTPServer.HTTPServer(('127.0.0.1', PORT), TaskManagerServer)    
     x.serve_forever()
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == '--debug':
+        from werkzeug.serving import run_with_reloader
+        run_with_reloader(main)
+    else:
+        main()

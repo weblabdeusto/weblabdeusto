@@ -88,7 +88,7 @@ def login():
             session['user_id'] = user.id
             session['user_email'] = user.email
             
-            flash('logged', 'success')
+            flash('Logged in', 'success')
             
             #Redirect
             next_url = request.args.get('next')
@@ -130,11 +130,12 @@ def register():
         body_html = """ <html>
                             <head></head>
                             <body>
-                              <p>Hi!<br>
-                                 Thank you for registering<br>
-                                 Here is the <a href="%s">link</a> for \
-                                    confirming your account.
-                              </p>
+                              <p>Welcome!<p>
+                              <p>This is the wcloud system, which creates new WebLab-Deusto instances.
+                              Your account is ready, and you can activate it <a href="%s">here</a>.</p>
+                              <p>If you didn't register, feel free to ignore this e-mail.</p>
+                              <p>Best regards,</p>
+                              <p>WebLab-Deusto team</p>
                             </body>
                           </html>""" % link
         print(body_html)
@@ -216,7 +217,6 @@ def configure():
             entity.logo = logo_data
             entity.link_url = link_url
             entity.google_analytics_number = google_analytics_number
-            entity.end_port_number = 9999 #start in 10000
             user.entity = entity
 
         # Update
@@ -241,6 +241,8 @@ def configure():
          # Get user
         email = session['user_email']
         user = User.query.filter_by(email=email).first()
+        if user is None:
+            return redirect('logout', indicate=False)
         entity = user.entity
         if entity is not None:
             form.name.data = entity.name
@@ -319,12 +321,13 @@ def result(deploy_id):
 
 @app.route('/logout')
 @login_required
-def logout():
+def logout(indicate=True):
     #Insert data in session    
     session.pop('logged_in', None)
     session.pop('session_type', None)
     session.pop('user_id', None)
     session.pop('user_email', None)
     
-    flash('logout', 'success')
+    if indicate:
+        flash('Logged out', 'success')
     return redirect(url_for('index'))

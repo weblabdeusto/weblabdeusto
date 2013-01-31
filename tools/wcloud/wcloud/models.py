@@ -76,8 +76,8 @@ class Entity(db.Model):
     base_url                = Column(Unicode(200), nullable=False, index=True) # e.g. /myschool.
     link_url                = Column(Unicode(300), nullable=False)             # e.g. http://www.deusto.es
     google_analytics_number = Column(Unicode(30))                              # e.g. UA-1234-1234
-    start_port_number       = Column(Integer, nullable=False)
-    end_port_number         = Column(Integer, nullable=False)
+    start_port_number       = Column(Integer) # Null until the task manager assigns them
+    end_port_number         = Column(Integer) # Null until the task manager assigns them
     
     def __init__(self, name, base_url):
         self.name = name

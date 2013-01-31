@@ -13,18 +13,32 @@
 {% endblock navbar %}
 
 {% block body %}
-    {% from "macros/_formhelpers.html" import render_field %}
-    <form method=post enctype=multipart/form-data action="{{ url_for('deploy') }}">
-      <dl>
-        {{ form.hidden_tag() }}
-        {{ render_field(form.admin_name) }}
-        {{ render_field(form.admin_user) }}
-        {{ render_field(form.admin_password) }}
-        {{ render_field(form.admin_email) }}
-      </dl>
-      <p><input type=submit value='Deploy now!'>
-    </form>
+
+    <div class="row">
+        <div class="offset2 span6">
     
+            <h1>Basic configuration</h1>
+            <br/>
+
+            {% from "macros/_formhelpers.html" import render_field %}
+            <form method="POST" enctype=multipart/form-data action="{{ url_for('deploy') }}" class="form-horizontal">
+              <fieldset>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.admin_name) }}
+                {{ render_field(form.admin_user) }}
+                {{ render_field(form.admin_password) }}
+                {{ render_field(form.admin_email) }}
+
+                <div class="form-actions">
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Deploy now!</button>
+                </div>
+
+              </fieldset>
+            </form>
+   
+        </div>
+    </div>
+
 {% endblock body %}
 
 {% block footer %}

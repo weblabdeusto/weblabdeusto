@@ -70,15 +70,16 @@ class RegistrationForm(Form):
 images = UploadSet("images", IMAGES)
 
 class ConfigurationForm(Form):
-    name = TextField('Institution name', [validators.Length(min=4, max=100)])
-    logo = FileField('Institution logo', validators=[
-                                        file_allowed(images, "Images only")])
+    name = TextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: University of Deusto")
+    logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^[\w-]+$'),
-                                BaseURLExists('Base url already exists')])
+                                BaseURLExists('Base url already exists')], 
+                                description = "Example: deusto")
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
-                                validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')])
-    google_analytics_number = TextField('Google analytics number')
+                                validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')],
+                                description ="Example: http://www.deusto.es/")
+    google_analytics_number = TextField('Google analytics number', description="Optional. Example: UA-12576838-6")
 
 class DeployForm(Form):
     admin_name = TextField('Admin name', [validators.Length(min=4, max=100)])
