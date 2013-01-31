@@ -5,38 +5,44 @@ from weblab.admin.script import Creation
 import sqlalchemy
 import traceback
 
-from wlcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS, MIN_PORT
+from wlcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
 
 def connect(user, passwd):
     conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
     
     engine = sqlalchemy.create_engine(conn_string)
+    engine.execute("SELECT 1")
     
     return engine
 
 if __name__ == '__main__':
     #Set arguments
-    parser = argparse.ArgumentParser(description="Database creator creates a set of idle databases to be used by the WebLab-Deusto instances.")
+    parser = argparse.ArgumentParser(description=  "Database creator creates a set of idle databases to be used by the WebLab-Deusto instances."
+                                                   "They will be called {PREFIX}{START_POINT} - {PREFIX}{END_POINT}.\n\n"
+                                                   "Example:\n\n"
+                                                   "   python db_creator.py -p wlcloud -e 1000 -u weblab -pw\n\n"
+                                                   "Will request the database password for user 'weblab' and will create 1000 databases, from"
+                                                   "wlcloud0000 to wlcloud10000")
 
     parser.add_argument('-p', '--prefix', metavar="PREFIX",
                         help="database prefix",
                         type=str,
                         required=True)
     
-    parser.add_argument('-s', '--start', metavar="START_PORT",
-                        help="Start point for databases",
+    parser.add_argument('-s', '--start', metavar="START_POINT",
+                        help="Start point for databases (defaults to 0)",
                         type=int,
                         required=False,
-                        default=MIN_PORT)
+                        default=0)
     
-    parser.add_argument('-e', '--end', metavar="END_PORT",
+    parser.add_argument('-e', '--end', metavar="END_POINT",
                         help="End point for databases",
                         type=int,
                         required=True)
 
     parser.add_argument('-u', '--db-user', dest='user', metavar="USER",
-                        help="Database user",
-                        type=str, default=DEFAULT_DEPLOYMENT_SETTINGS[Creation.DB_USER])
+                        help="Database user", default="root",
+                        type=str)
 
     parser.add_argument('-pw', '--prompt-password', dest='prompt_password',
                         help="Request password", action='store_true',

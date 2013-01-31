@@ -2,6 +2,8 @@ Summary
 ~~~~~~~
 
 This system automatically deploys WebLab-Deusto instances, already federated in WebLab-Deusto.
+This way, secondary schools or universities may create and administrate their own WebLab-Deusto,
+create new users, assign them permissions on certain laboratories, etc.
 
 Deployment
 ~~~~~~~~~~
@@ -10,13 +12,13 @@ Install the requirements::
 
   pip install -r requirements.txt
 
-First, configure the settings.py script with the database credentials. Then, deploy the database::
+Then, configure the settings.py script with the database credentials. Deploy the database::
   
   python deploy.py
 
-Create all the MySQL databases (script missing)::
+Create all the MySQL databases to have a pool of databases::
 
-  python db_creator.py
+  python db_creator.py -p wlcloud -e 1000 -u weblab -pw
 
 Now you can run wlcloud. It takes 3 steps:
 
