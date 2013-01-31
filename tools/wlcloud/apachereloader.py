@@ -17,29 +17,34 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-
+import os
 import sys
 import subprocess
+import traceback
 import BaseHTTPServer
 
-PORT = 22110
+from settings import APACHE_RELOADER_PORT
 
 class RequestHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     
-    def do_GET (self):
-        
+    def do_GET (self):        
         try:
-            subprocess.Popen(['/etc/init.d/apache2', 'reload'],
-                    stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            # subprocess.Popen(['/etc/init.d/apache2', 'reload'], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            os.system("/etc/init.d/apache2 reload")
             self.send_response(200)
             self.end_headers()
             self.wfile.write('Apache reloaded')
         except:
+            traceback.print_exc()
             self.send_response(500)
             self.end_headers()
             self.wfile.write('Error: Apache not reloaded')
         return
 
 if __name__ == "__main__":
-    httpd = BaseHTTPServer.HTTPServer(('127.0.0.1', PORT), RequestHandler)
+    if os.getuid() != 0:
+        print >> sys.stderr, "This script reloads apache automatically. It needs to be run as root."
+        sys.exit(-1)
+    httpd = BaseHTTPServer.HTTPServer(('127.0.0.1', APACHE_RELOADER_PORT), RequestHandler)
+    print "Listening on port %s for HTTP requests (any request will reload apache)..." % APACHE_RELOADER_PORT
     httpd.serve_forever()
