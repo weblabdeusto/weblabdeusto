@@ -38,9 +38,17 @@ Now you can run wcloud. It takes 3 steps:
 TODO list
 ~~~~~~~~~
 
-* Front page does not show a link to /configure
+* Script to start all the WebLab-Deusto instances at the beginning
+* Reload status page automatically
+* Load the admin page in the generated WebLab-Deusto (and not www.weblab.deusto.es)
+* Disable re-deploying or changing configuration once a deployment has been established.
+* Show a link to the final working system.
+* Don't show the status
+* Find out why unicode with utf-8 is failing
+
+* Have a Home in the "configure"
+
 * Front page should show more documentation
-* About, Contact, etc. does not work
+* About, Contact, etc. does not show anything
 * setup.py
-* General script that is installed with setup.py which runs the taskmanager, the apachereloader and the MySQL creation
 
