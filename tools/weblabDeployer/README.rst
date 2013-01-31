@@ -8,7 +8,7 @@ First, configure the settings.py script with the database credentials. Then, dep
 .. TODO XXX 
 Create all the MySQL databases (script missing)
 
-Now you can run weblabDeployer. It takes 3 steps:
+Now you can run wlcloud. It takes 3 steps:
 
 * Running the web server::
 
@@ -18,7 +18,7 @@ Now you can run weblabDeployer. It takes 3 steps:
 
 * Running the Task Manager::
 
-  python weblabDeployer/taskmanager.py
+  python wlcloud/taskmanager.py
 
 * Running the Apache Reloader as root::
 

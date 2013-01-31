@@ -5,7 +5,7 @@ from weblab.admin.script import Creation
 import sqlalchemy
 import traceback
 
-from weblabDeployer.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS, MIN_PORT
+from wlcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS, MIN_PORT
 
 def connect(user, passwd):
     conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)

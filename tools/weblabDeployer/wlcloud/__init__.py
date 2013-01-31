@@ -37,6 +37,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conn_string
 db = SQLAlchemy(app)
 
 #Import before use because we need to create the databases and to manage without running the webapp
-import weblabDeployer.models
+import wlcloud.models
 
-import weblabDeployer.views
+import wlcloud.views

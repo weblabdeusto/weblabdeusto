@@ -1,5 +1,5 @@
 import traceback
-from weblabDeployer import db
+from wlcloud import db
 
 try:
     db.drop_all()

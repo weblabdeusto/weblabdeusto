@@ -20,7 +20,7 @@
 import subprocess
 import os
 
-from weblabDeployer import deploymentsettings
+from wlcloud import deploymentsettings
 
 print("Deploying weblab instances:")
 with open(os.path.join(deploymentsettings.DIR_BASE,

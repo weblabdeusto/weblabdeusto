@@ -36,8 +36,8 @@ import mmap
 from cStringIO import StringIO
 
 from weblab.admin.script import weblab_create, Creation
-from weblabDeployer import deploymentsettings, db
-from weblabDeployer.models import User, Entity
+from wlcloud import deploymentsettings, db
+from wlcloud.models import User, Entity
 
 
 PORT = 1661
@@ -181,7 +181,7 @@ class TaskManager(threading.Thread):
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
                 
                 settings[Creation.BASE_URL] = user.entity.base_url
-                settings[Creation.DB_NAME] = 'weblabDeployer' + \
+                settings[Creation.DB_NAME] = 'wlcloud' + \
                                         str(User.total_users() + 1)
                 settings[Creation.ADMIN_USER] = task['admin_user']
                 settings[Creation.ADMIN_NAME] = task['admin_name']

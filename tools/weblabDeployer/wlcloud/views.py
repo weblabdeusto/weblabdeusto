@@ -29,10 +29,10 @@ from flask import render_template, request, url_for, flash, redirect, session
 from werkzeug import secure_filename
 from weblab.admin.script import Creation, weblab_create
 
-from weblabDeployer import app, db, utils, deploymentsettings
-from weblabDeployer.forms import RegistrationForm, LoginForm, \
+from wlcloud import app, db, utils, deploymentsettings
+from wlcloud.forms import RegistrationForm, LoginForm, \
                             ConfigurationForm, DeployForm
-from weblabDeployer.models import User, Token, Entity
+from wlcloud.models import User, Token, Entity
 
 SESSION_TYPE = 'labdeployer_admin'
 

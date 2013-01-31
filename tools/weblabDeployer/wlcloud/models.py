@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from weblabDeployer import db
+from wlcloud import db
 from sqlalchemy import func
 
 class User(db.Model):
