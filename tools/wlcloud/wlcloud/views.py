@@ -234,6 +234,9 @@ def configure():
      
         flash('Configuration saved.', 'success')
         
+        if request.form.get('action','') == 'savedeploy':
+            return redirect('deploy')
+
     else:
          # Get user
         email = session['user_email']
