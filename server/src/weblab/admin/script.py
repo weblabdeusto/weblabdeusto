@@ -173,6 +173,7 @@ class Creation(object):
     ADMIN_NAME        = 'admin_name'
     ADMIN_PASSWORD    = 'admin_password'
     ADMIN_MAIL        = 'admin_mail'
+    LOGO_PATH         = 'logo_path'
 
     # XMLRPC experiment
     XMLRPC_EXPERIMENT      = 'xmlrpc_experiment'
@@ -473,6 +474,9 @@ def _build_parser():
 
     parser.add_option("--entity-link",            dest = Creation.ENTITY_LINK,       type="string",  default="http://www.yourentity.edu",
                                                   help = "Link of the host entity (e.g. http://www.deusto.es ).")
+
+    parser.add_option("--logo-path",              dest = Creation.LOGO_PATH,       metavar="IMG_FILE_PATH", type="string",  default=None,
+                                                  help = "Path of the entity logo.")
 
     parser.add_option("--server-host",            dest = Creation.SERVER_HOST,     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
@@ -784,6 +788,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options[Creation.START_PORTS] < 1 or options[Creation.START_PORTS] >= 65535:
         print >> stderr, "ERROR: starting port number must be at least 1"
         exit_func(-1)
+
+    if options[Creation.LOGO_PATH] is not None:
+        original_logo_path = options[Creation.LOGO_PATH]
+        if not os.path.exists(original_logo_path):
+            print >> stderr, "ERROR: logo path does not exist"
+            exit_func(-1)
+    else:
+        original_logo_path = data_filename(os.path.join('weblab','admin','generic-logo.jpg'))
+
 
     if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
         print >> stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
@@ -2330,10 +2343,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if base_url in ('','/'):
         apache_root    = ''
-        apache_img_dir = '/sample' 
     else:
         apache_root    = base_url
-        apache_img_dir = base_url
+    
+    apache_img_dir = '/client/images'
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
@@ -2421,22 +2434,32 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     configuration_js['sound.enabled']                  = False
     configuration_js['admin.email']                    = 'weblab@deusto.es'
     configuration_js['experiments.default_picture']    = '/img/experiments/default.jpg'
-    # TODO: Add a sample image
+
+    extension = original_logo_path.split('.')[-1]
+    if not len(extension) in (3,4):
+        extension = 'jpg'
+
+    configuration_js['host.entity.image.login']        = '/img/client/images/logo.%s' % extension
+    configuration_js['host.entity.image']              = '/img/client/images/logo.%s' % extension
+    configuration_js['host.entity.image.mobile']       = '/img/client/images/logo-mobile.%s' % extension
+
     if base_url != '' and base_url != '/':
         configuration_js['base.location']                  = base_url
-        configuration_js['host.entity.image.login']        = '/img%s%s.png'        % (base_url, base_url) 
-        configuration_js['host.entity.image']              = '/img%s%s.png'        % (base_url, base_url)
-        configuration_js['host.entity.image.mobile']       = '/img%s%s-mobile.png' % (base_url, base_url)
     else:
         configuration_js['base.location']                  = ''
-        configuration_js['host.entity.image.login']        = '/img/sample/sample.png'
-        configuration_js['host.entity.image']              = '/img/sample/sample.png'
-        configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
-
     
 
-    creation_results[CreationResult.IMG_FILE]        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/img',1)[1])
-    creation_results[CreationResult.IMG_MOBILE_FILE] = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/img',1)[1])
+    logo_path        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/images',1)[1])
+    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/images',1)[1])
+
+    creation_results[CreationResult.IMG_FILE]        = logo_path
+    creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
+
+    # TODO: try to convert to manage sizes
+    logo_contents = open(original_logo_path, 'rb').read()
+    logo_mobile_contents = logo_contents
+    open(logo_path, 'wb').write(logo_contents)
+    open(logo_mobile_path, 'wb').write(logo_mobile_contents)
 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False
@@ -2490,7 +2513,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     print >> stdout, "You should also configure the images directory with two images called:"
     print >> stdout, ""
-    print >> stdout, "     %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
+    print >> stdout, "     %s and %s" % (logo_path, logo_mobile_path)
     print >> stdout, ""
     print >> stdout, "You can also add users, permissions, etc. from the admin CLI by typing:"
     print >> stdout, ""
