@@ -203,6 +203,10 @@ def configure():
         # Exract data from the form
         logo = request.files['logo']
         logo_data = logo.stream.read()
+        logo_ext = (logo.name or '').split('.')[-1]
+        if len(logo_ext) not in (3,4):
+            # That's not an extension
+            logo_ext  = 'jpeg'
         name = form.name.data
         base_url = form.base_url.data
         link_url = form.link_url.data
@@ -216,6 +220,7 @@ def configure():
         if user.entity is None:
             entity = Entity(name, base_url)
             entity.logo = logo_data
+            entity.logo_ext = logo_ext
             entity.link_url = link_url
             entity.google_analytics_number = google_analytics_number
             user.entity = entity

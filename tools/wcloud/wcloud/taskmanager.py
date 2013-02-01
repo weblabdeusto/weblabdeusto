@@ -31,6 +31,7 @@ import subprocess
 import urllib2
 import json
 import uuid
+import tempfile
 from cStringIO import StringIO
 
 from flask import Flask, request
@@ -106,20 +107,27 @@ class TaskManager(threading.Thread):
             try:
                 user = User.query.filter_by(email=task[u'email']).first()
                 entity = user.entity
-                
+
+                # Dump the logo
+                tmp_logo = tempfile.NamedTemporaryFile(delete=True)
+                tmp_logo.write(user.entity.logo)
+                tmp_logo.flush()
+               
                 #Create the entity
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
                 
-                settings[Creation.BASE_URL]   = entity.base_url
+                settings[Creation.BASE_URL]       = entity.base_url
 
-                settings[Creation.DB_NAME]    = 'wcloud%s' % entity.id
-                settings[Creation.DB_USER]    = app.config['DB_USERNAME']
-                settings[Creation.DB_PASSWD]  = app.config['DB_PASSWORD']
+                settings[Creation.LOGO_PATH]      = tmp_logo.name
 
-                settings[Creation.ADMIN_USER] = task['admin_user']
-                settings[Creation.ADMIN_NAME] = task['admin_name']
+                settings[Creation.DB_NAME]        = 'wcloud%s' % entity.id
+                settings[Creation.DB_USER]        = app.config['DB_USERNAME']
+                settings[Creation.DB_PASSWD]      = app.config['DB_PASSWORD']
+
+                settings[Creation.ADMIN_USER]     = task['admin_user']
+                settings[Creation.ADMIN_NAME]     = task['admin_name']
                 settings[Creation.ADMIN_PASSWORD] = task['admin_password']
-                settings[Creation.ADMIN_MAIL] = task['admin_email']
+                settings[Creation.ADMIN_MAIL]     = task['admin_email']
 
                 last_port = Entity.last_port()
                 if last_port is None: 
@@ -175,16 +183,18 @@ class TaskManager(threading.Thread):
                 
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
             
-                #Copy image
+                # Copy image
                 img_dir = os.path.dirname(results['img_file'])
                 os.makedirs(img_dir)
+                print results['img_file']
                 f = open(results['img_file'], 'w+')
                 f.write(user.entity.logo)
-                f.close
+                f.close()
                 
-                #Save in database data like last port
+                # Save in database data like last port
                 user.entity.start_port_number = results['start_port']
                 user.entity.end_port_number = results['end_port']
+                
                 # Save
                 db.session.add(user)
                 db.session.commit()
