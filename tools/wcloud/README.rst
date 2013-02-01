@@ -41,15 +41,16 @@ TODO list
 * Script to start all the WebLab-Deusto instances at the beginning
   - Make this script run listening to a port. This way, whenever the task manager is restarted, the port is not busy, and it can be run with different permissions.
 
-* Load the admin page in the generated WebLab-Deusto (and not www.weblab.deusto.es)
+* Force a base URL (e.g. /w/)
 * Disable re-deploying or changing configuration once a deployment has been established.
-* Show a link to the final working system.
+* Make the system transactional (in the except: remove the apache config, etc.)
 * Don't show the status
-* Find out why unicode with utf-8 is failing
+* Require authentication in /deploy/
 
 * Have a Home in the "configure"
 
 * Front page should show more documentation
 * About, Contact, etc. does not show anything
 * setup.py
+* Find out why unicode with utf-8 is failing
 

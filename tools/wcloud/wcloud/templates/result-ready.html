@@ -1,11 +1,5 @@
 {% extends "base.html" %}
 
-{% block headers_meta %}
-{% if loop %}
-    <meta http-equiv="refresh" content="1">
-{% endif %}
-{% endblock %}
-
 {% block navbar %}
 <ul class="nav">
     <li><a href="{{ url_for('index') }}">Home</a></li>
@@ -18,11 +12,10 @@
 {% endblock navbar %}
 
 {% block body %}
-   <strong>Status:</strong> {{ status }}
+   <strong>Congratulations! Your system is ready. Go to <a href="{{ url }}">{{ url }}</a> and enjoy it!</strong>
    <pre>
     {{stdout}}
    </pre>
-    <a href="{{ url_for('result', deploy_id = deploy_id) }}"><input type="button" class="btn btn-success" value="Reload log" /></a>
 {% endblock body %}
 
 {% block footer %}

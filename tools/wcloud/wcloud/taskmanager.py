@@ -19,6 +19,7 @@
 
 import os
 import sys
+import signal
 path_aux = sys.path[0].split('/')
 path_aux = os.path.join('/', *path_aux[0:len(path_aux)-1])
 sys.path.append(path_aux)
@@ -51,9 +52,8 @@ class TaskManager(threading.Thread):
     def __init__(self):
         """Task manager constructor"""
         threading.Thread.__init__(self)
-        self.setDaemon(True)
         self.queue = Queue.Queue()   # Queue
-        self.shutdown = False        # While not shutdown run task manager
+        self._shutdown = False        # While not shutdown run task manager
         self.task_status = {}        # Task status ('waiting', 'started', 'finished'...)
         self.task_data   = {}        # Task data ( {'stdout' : ..., 'stderr' : ... } )
         self.lock = threading.Lock()
@@ -92,31 +92,49 @@ class TaskManager(threading.Thread):
     def shutdown(self):
         """Shuts down the task manager (stop task manager)"""
         
-        self.shutdown = True
+        self._shutdown = True
     
     def run(self):
         """Loop of the task manager. pops a job in each iteration and executes
         the task until no tasks remain in the queue. The task manager will
-        remain executing and awaiting for a task/job until shutdown is true
+        remain executing and awaiting for a task/job until _shutdown is true.
+        This avoids concurrency problems: no more than one task will be executed
+        at the same time.
         """
         
-        while (not self.shutdown):
-            task = self.queue.get()
+        while not self._shutdown:
+            try:
+                task = self.queue.get(timeout=0.1)
+            except Queue.Empty:
+                continue
+
             print "Processing task: ", task['task_id']
+            output = task['output']
+            output.write('Starting process...')
             self.task_status[task['task_id']] = TaskManager.STATUS_STARTED
             try:
+
+                ######################################
+                # 
+                # 1. Prepare the system
+                # 
+                output.write('[done]\nPreparing requirements...')
                 user = User.query.filter_by(email=task[u'email']).first()
                 entity = user.entity
 
-                # Dump the logo
-                tmp_logo = tempfile.NamedTemporaryFile(delete=True)
+                #
+                # Write the logo to disc
+                # 
+                tmp_logo = tempfile.NamedTemporaryFile()
                 tmp_logo.write(user.entity.logo)
                 tmp_logo.flush()
                
-                #Create the entity
-                settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS
+                # 
+                # Prepare the parameters
+                # 
+                settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS.copy()
                 
-                settings[Creation.BASE_URL]       = entity.base_url
+                settings[Creation.BASE_URL]       = 'w/' + entity.base_url
 
                 settings[Creation.LOGO_PATH]      = tmp_logo.name
 
@@ -136,6 +154,12 @@ class TaskManager(threading.Thread):
                 settings[Creation.START_PORTS] =  last_port + 1
                 settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
                 settings[Creation.ENTITY_LINK] = user.entity.link_url
+
+                #########################################################
+                # 
+                # 2. Create the full WebLab-Deusto environment
+                # 
+                output.write("[Done]\nCreating deployment directory...")
                 results = weblab_create(task['directory'] ,
                                         settings,
                                         task['stdout'],
@@ -144,6 +168,12 @@ class TaskManager(threading.Thread):
                 time.sleep(0.5)
                 
                 settings.update(task)
+
+                ##########################################################
+                # 
+                # 3. Configure the web server
+                # 
+                output.write("[Done]\nConfiguring web server...")
                 
                 # Create Apache configuration
                 with open(os.path.join(deploymentsettings.DIR_BASE,
@@ -155,6 +185,12 @@ class TaskManager(threading.Thread):
                 print(urllib2.urlopen(deploymentsettings.APACHE_RELOAD_SERVICE)\
                       .read())
                 
+                ##########################################################
+                # 
+                # 4. Register the new WebLab-Deusto instance
+                #
+                output.write("[Done]\nRegistering instance...")
+
                 # Add instance to weblab instance runner daemon
                 with open(os.path.join(deploymentsettings.DIR_BASE,
                                       'instances.txt'), 'a+') as f:
@@ -169,6 +205,15 @@ class TaskManager(threading.Thread):
                         
                     if not found: f.write('%s\n' % task['directory']) 
                 
+                
+                ##########################################################
+                # 
+                # 5. Starting the instance
+                #
+                # TODO: rely on yet-another-service
+                # 
+                output.write("[Done]\nStarting the instance...")
+
                 # Start now the new weblab instance
                 process = subprocess.Popen(['nohup','weblab-admin','start',
                             task['directory']],
@@ -178,19 +223,20 @@ class TaskManager(threading.Thread):
                                                'stderr.txt'), 'w'),
                     stdin = subprocess.PIPE)
                 
-                time.sleep(30)
-                if process.poll() is not None: raise Exception
+                # 
+                # Wait for the system to be started
+                TIME_TO_WAIT = 15
+                for n in xrange(TIME_TO_WAIT):
+                    output.write(">> Waiting %s\n" % (TIME_TO_WAIT - n))
+                    time.sleep(1)
+
+                if process.poll() is not None: 
+                    raise Exception("Error %s seconds after the system was not running" % TIME_TO_WAIT)
                 
+                output.write("[Done]\n\nCongratulations, your system is ready!")
+                task['url'] = task['url_root'] + entity.base_url
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
             
-                # Copy image
-                img_dir = os.path.dirname(results['img_file'])
-                os.makedirs(img_dir)
-                print results['img_file']
-                f = open(results['img_file'], 'w+')
-                f.write(user.entity.logo)
-                f.close()
-                
                 # Save in database data like last port
                 user.entity.start_port_number = results['start_port']
                 user.entity.end_port_number = results['end_port']
@@ -204,10 +250,52 @@ class TaskManager(threading.Thread):
                 print(traceback.format_exc())
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
 
+                # Revert changes:
+                # 
+                # 1. Delete the directory 
                 shutil.rmtree(task['directory'], ignore_errors=True)
+
+                # 
+                # 2. Remove from apache and reload
+                # TODO
+               
+                # 
+                # 3. Remove from the instances to be loaded
+                # TODO
 
 
 app = Flask(__name__)
+
+@app.route('/task/', methods = ['GET','POST'])
+def create_task():
+    if request.method == 'GET':
+        return 'POST expected'
+
+    task = request.json
+
+    print "Creating new task: %s" % task
+
+    output = StringIO()
+    command_output = StringIO()
+    
+    def exit_func(code):
+        traceback.print_exc()
+        print "Output:",output.getvalue() 
+        raise Exception("Error creating weblab: %s" % code)
+    
+    # Create task settings and submit to the task manager
+    task.update({ 'stdout'        : command_output,
+                        'stderr'        : command_output,
+                        'output'        : output,
+                        'exit_func'     : exit_func,
+                        'url'           : 'not available yet'})
+
+    # Submit task
+    task_id = task_manager.submit_task(task)
+
+    # Send response to client with the client id
+    print "Task created: ",  task_id
+    return task_id
 
 @app.route('/task/<task_id>/')
 def get_task(task_id):
@@ -216,43 +304,15 @@ def get_task(task_id):
     if task_status:
         response = {
             'status' : task_status,
-            'output' : task_data['output'].getvalue()
+            'output' : task_data['output'].getvalue(),
+            'url'    : task_data['url'],
         }
     else:
         response = {}
         
     return json.dumps(response)
 
-@app.route('/task/', methods = ['GET','POST'])
-def create_task():
-    if request.method == 'GET':
-        return 'POST expected'
 
-    settings = request.json
-
-    print "Creating new task: %s" % settings
-
-    output = StringIO()
-    
-    def exit_func(code):
-        traceback.print_exc()
-        print "Output:",output.getvalue() 
-        raise Exception("Error creating weblab: %s" % code)
-    
-    # Create task settings and submit to the task manager
-    settings_update = { 'stdout'        : output,
-                        'stderr'        : output,
-                        'output'        : output,
-                        'exit_func'     : exit_func }
-
-    settings.update(settings_update)
-
-    # Submit task
-    task_id = task_manager.submit_task(settings)
-
-    # Send response to client with the client id
-    print "Task created: ",  task_id
-    return task_id
 
 task_manager = None
 
@@ -260,6 +320,8 @@ def main():
     global task_manager
     task_manager = TaskManager()
     task_manager.start()
+    def handler(*args, **kwargs):
+        task_manager.shutdown()
     print("Task manager started in  127.0.0.1:%d" % app.config['TASK_MANAGER_PORT'])
 
 
@@ -268,6 +330,14 @@ if __name__ == "__main__":
     import settings
     app.config.from_object(settings)
 
+
     main()
-    app.run(debug = True, port = settings.TASK_MANAGER_PORT)
+    try:
+        app.run(debug = True, port = settings.TASK_MANAGER_PORT)
+    except:
+        task_manager.shutdown()
+        raise
+    else:
+        print "Flask finished"
+        task_manager.shutdown()
 

@@ -36,6 +36,7 @@ from weblab.admin.script import Creation, weblab_create
 from wcloud import app, db, utils, deploymentsettings
 from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DeployForm
 from wcloud.models import User, Token, Entity
+from wcloud.taskmanager import TaskManager
 
 SESSION_TYPE = 'labdeployer_admin'
 
@@ -291,7 +292,9 @@ def deploy():
         base_url = parsed_url.scheme + '://' + parsed_url.netloc
         if parsed_url.port:
             base_url += ':%s' % parsed_url.port
-        base_url += '/'
+        # TODO
+        # base_url += '/w/'
+        base_url += '/w/'
         
         task = {'directory'      : directory,
                 'email'          : email,
@@ -299,7 +302,7 @@ def deploy():
                 'admin_name'     : admin_name,
                 'admin_email'    : admin_email,
                 'admin_password' : admin_password,
-                'base_url'       : base_url }
+                'url_root'       : base_url }
     
         task_json = json.dumps(task)
         url = "http://127.0.0.1:1661/task/"
@@ -330,12 +333,40 @@ def result(deploy_id):
         flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
         return render_template('result.html', stdout='Not available')
 
+    loop = True
     response = json.loads(response)
+    if response.get('status') == TaskManager.STATUS_FINISHED:
+        return redirect(url_for('result_ready', deploy_id=deploy_id))
+    elif response.get('status') == TaskManager.STATUS_ERROR:
+        loop = False
+        flash("Deployment failed. Contact the administrator")
 
     return render_template('result.html',
                            status=response.get('status', 'Task not found'),
                            stdout=response.get('output', 'Not available'),
-                           deploy_id = deploy_id)
+                           deploy_id = deploy_id, loop = loop)
+
+@app.route('/deploy/ready/<deploy_id>')
+@login_required
+def result_ready(deploy_id):
+    try:
+        url = "http://127.0.0.1:1661/task/%s/" % deploy_id
+        req = urllib2.Request(url)
+        f = urllib2.urlopen(req)
+        response = f.read()
+        f.close()
+    except Exception as e:
+        flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
+        return render_template('result.html', stdout='Not available')
+
+    response = json.loads(response)
+    if response.get('status') != TaskManager.STATUS_FINISHED:
+        return redirect(url_for('result', deploy_id=deploy_id))
+
+    return render_template('result-ready.html',
+                           status=response.get('status', 'Task not found'),
+                           stdout=response.get('output', 'Not available'),
+                           deploy_id = deploy_id, url = response.get('url', ''))
 
 
 @app.route('/logout')
