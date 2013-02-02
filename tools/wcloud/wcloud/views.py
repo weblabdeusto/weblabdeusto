@@ -280,21 +280,14 @@ def deploy():
             flash('Configure before usinng the deployment app', 'error')
             return redirect(url_for('configure'))
         
-        # Step 1, create the deployments dir if necessary
-        if not os.path.exists(deploymentsettings.DIR_BASE):
-            os.mkdir(deploymentsettings.DIR_BASE)
+        # Deploy
         
-        # Step 2, deploy
+        directory = os.path.join(app.config['DIR_BASE'], entity.base_url)
         
-        directory = os.path.join(deploymentsettings.DIR_BASE, entity.base_url)
-        
-        parsed_url = urlparse.urlparse(request.url_root)
-        base_url = parsed_url.scheme + '://' + parsed_url.netloc
-        if parsed_url.port:
-            base_url += ':%s' % parsed_url.port
+        base_url = app.config['PUBLIC_URL']
         # TODO
         # base_url += '/w/'
-        base_url += '/w/'
+        base_url += '/'
         
         task = {'directory'      : directory,
                 'email'          : email,
@@ -305,7 +298,8 @@ def deploy():
                 'url_root'       : base_url }
     
         task_json = json.dumps(task)
-        url = "http://127.0.0.1:1661/task/"
+
+        url = "http://127.0.0.1:%s/task/" % app.config['TASK_MANAGER_PORT']
         req = urllib2.Request(url,
                             task_json,
                             {'Content-Type': 'application/json',
@@ -324,7 +318,7 @@ def deploy():
 @login_required
 def result(deploy_id):
     try:
-        url = "http://127.0.0.1:1661/task/%s/" % deploy_id
+        url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
         req = urllib2.Request(url)
         f = urllib2.urlopen(req)
         response = f.read()
@@ -350,7 +344,7 @@ def result(deploy_id):
 @login_required
 def result_ready(deploy_id):
     try:
-        url = "http://127.0.0.1:1661/task/%s/" % deploy_id
+        url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
         req = urllib2.Request(url)
         f = urllib2.urlopen(req)
         response = f.read()

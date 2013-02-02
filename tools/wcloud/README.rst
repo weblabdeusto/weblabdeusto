@@ -20,7 +20,7 @@ Create all the MySQL databases to have a pool of databases (1000 in this case)::
 
   python db_creator.py -p wcloud -e 1000 -u weblab -pw
 
-Now you can run wcloud. It takes 3 steps:
+Now you can run wcloud. It takes 4 steps:
 
 * Running the web server. For debugging you may use the following command. For production, refer to the `flask documentation <http://flask.pocoo.org/docs/deploying/>`_::
 
@@ -34,18 +34,20 @@ Now you can run wcloud. It takes 3 steps:
 
   sudo python apache_reloader.py
 
+* Running the WebLab-Deusto starter process::
+
+  python wcloud/weblab_starter.py
 
 TODO list
 ~~~~~~~~~
 
-* Script to start all the WebLab-Deusto instances at the beginning
-  - Make this script run listening to a port. This way, whenever the task manager is restarted, the port is not busy, and it can be run with different permissions.
-
-* Force a base URL (e.g. /w/)
+* Force a base URL (e.g. /w/). Started, but some errors were found.
 * Disable re-deploying or changing configuration once a deployment has been established.
 * Make the system transactional (in the except: remove the apache config, etc.)
 * Don't show the status
 * Require authentication in /deploy/
+* Automatically register a user in WebLab-Deusto.
+
 
 * Have a Home in the "configure"
 

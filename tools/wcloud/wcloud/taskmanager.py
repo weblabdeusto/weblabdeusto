@@ -17,6 +17,16 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
+"""
+TaskManager: monothread system that deploys WebLab-Deusto instances.
+
+This system is monothread (and therefore, it can not be deployed as
+a regular WSGI system with multiple processes) and listens in local.
+Whenever a local client requests it, it will create a new WebLab-Deusto
+configuration, providing a RESTful API for retrieving the current status
+of the deployment.
+"""
+
 import os
 import sys
 import signal
@@ -134,7 +144,8 @@ class TaskManager(threading.Thread):
                 # 
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS.copy()
                 
-                settings[Creation.BASE_URL]       = 'w/' + entity.base_url
+                # TODO: w/
+                settings[Creation.BASE_URL]       = entity.base_url
 
                 settings[Creation.LOGO_PATH]      = tmp_logo.name
 
@@ -176,68 +187,61 @@ class TaskManager(threading.Thread):
                 output.write("[Done]\nConfiguring web server...")
                 
                 # Create Apache configuration
-                with open(os.path.join(deploymentsettings.DIR_BASE,
+                with open(os.path.join(app.config['DIR_BASE'],
                             deploymentsettings.APACHE_CONF_NAME), 'a') as f:
                     conf_dir = results['apache_file']
                     f.write('Include "%s"\n' % conf_dir) 
                 
                 # Reload apache
-                print(urllib2.urlopen(deploymentsettings.APACHE_RELOAD_SERVICE)\
-                      .read())
+                
+                print(urllib2.urlopen('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
                 
                 ##########################################################
                 # 
-                # 4. Register the new WebLab-Deusto instance
+                # 4. Register and start the new WebLab-Deusto instance
                 #
-                output.write("[Done]\nRegistering instance...")
+                output.write("[Done]\nRegistering and starting instance...")
+                
+                global response
+                response = None
+                is_error = False
+                def register():
+                    global response
+                    import urllib2
+                    import traceback
+                    try:
+                        url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
+                        req = urllib2.Request(url, json.dumps({'name' : entity.base_url}), {'Content-Type': 'application/json'})
+                        response = urllib2.urlopen(req).read()
+                    except:
+                        is_error = True
+                        response = "There was an error registering or starting the service. Contact the administrator"
+                        traceback.print_exc()
 
-                # Add instance to weblab instance runner daemon
-                with open(os.path.join(deploymentsettings.DIR_BASE,
-                                      'instances.txt'), 'a+') as f:
-                    
-                    #If the line already exists then don't add
-                    
-                    found = False
-                    for line in f:
-                        if task['directory'] in line:
-                            found = True
-                            break
-                        
-                    if not found: f.write('%s\n' % task['directory']) 
-                
-                
-                ##########################################################
-                # 
-                # 5. Starting the instance
-                #
-                # TODO: rely on yet-another-service
-                # 
-                output.write("[Done]\nStarting the instance...")
-
-                # Start now the new weblab instance
-                process = subprocess.Popen(['nohup','weblab-admin','start',
-                            task['directory']],
-                    stdout = open(os.path.join(task['directory'], \
-                                               'stdout.txt'), 'w'),
-                    stderr = open(os.path.join(task['directory'], \
-                                               'stderr.txt'), 'w'),
-                    stdin = subprocess.PIPE)
-                
-                # 
-                # Wait for the system to be started
-                TIME_TO_WAIT = 15
-                for n in xrange(TIME_TO_WAIT):
-                    output.write(">> Waiting %s\n" % (TIME_TO_WAIT - n))
+                print "Executing 'register' in other thread...",
+                t = threading.Thread(target=register)
+                t.start()
+                while t.isAlive() and response is None:
                     time.sleep(1)
+                    output.write(".")
+                print "Ended. is_error=%s; response=%s" % (is_error, response)
 
-                if process.poll() is not None: 
-                    raise Exception("Error %s seconds after the system was not running" % TIME_TO_WAIT)
+                if is_error:
+                    raise Exception(response)
+
+                ##########################################################
+                # 
+                # 5. Service deployed. Configure the response
+                #
                 
                 output.write("[Done]\n\nCongratulations, your system is ready!")
                 task['url'] = task['url_root'] + entity.base_url
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
-            
+                
+                # 
                 # Save in database data like last port
+                # Note: this is thread-safe since the task manager is 
+                # monothread
                 user.entity.start_port_number = results['start_port']
                 user.entity.end_port_number = results['end_port']
                 
@@ -323,7 +327,6 @@ def main():
     def handler(*args, **kwargs):
         task_manager.shutdown()
     print("Task manager started in  127.0.0.1:%d" % app.config['TASK_MANAGER_PORT'])
-
 
 
 if __name__ == "__main__":

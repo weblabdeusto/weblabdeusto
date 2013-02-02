@@ -17,6 +17,8 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
+import os
+
 #Flask configuration
 DEBUG = True
 SECRET_KEY = 'development key'
@@ -40,8 +42,14 @@ DB_PORT = 3306
 DB_USERNAME = 'weblab'
 DB_PASSWORD = 'weblab'
 
-APACHE_RELOADER_PORT = 22110
+# 
+# Services configuration
+WEBLAB_STARTER_PORT  = 1663
+APACHE_RELOADER_PORT = 1662
 TASK_MANAGER_PORT    = 1661
+
+PUBLIC_URL = 'http://localhost'
+DIR_BASE = os.path.expanduser(os.path.join('~', '.weblab')) # home path
 
 # 
 # PostgreSQL
