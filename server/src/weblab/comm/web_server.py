@@ -346,7 +346,6 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
-            print core_server_url,"se queda en",the_location
         else:
             the_location = '/weblab/'
 
