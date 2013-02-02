@@ -278,7 +278,7 @@ class WebHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if self.location is not None:
                 location = self.location
             else:
-                location = '/'
+                location = '/weblab/'
             if not avoid_weblab_cookies:
                 self.send_header("Set-Cookie", "%s; path=%s" % (self.weblab_cookie, location))
                 self.send_header("Set-Cookie", "loginweblabsessionid=%s; path=%s; Expires=%s" % (self.login_weblab_cookie, location, strdate(hours=1)))
@@ -346,8 +346,9 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
         if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
+            print core_server_url,"se queda en",the_location
         else:
-            the_location = '/'
+            the_location = '/weblab/'
 
         self._server = WebHttpServer((listen, port), self.METHODS, the_server_route, self._configuration_manager, server, the_location)
         self._server.socket.settimeout(timeout)
