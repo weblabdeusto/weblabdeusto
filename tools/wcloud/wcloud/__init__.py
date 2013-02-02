@@ -24,6 +24,7 @@ import settings
 app = Flask(__name__)
 
 #Config
+app.config['SESSION_COOKIE_NAME'] = 'session-wcloud'
 app.config.from_object(settings)
 
 #Extensions

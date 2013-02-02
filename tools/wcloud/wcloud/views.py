@@ -45,7 +45,6 @@ def login_required(f):
     def decorated(*args, **kwargs):
         logged_in = session.get('logged_in', False)
         session_type = session.get('session_type', '')
-        print(session_type)
         if not logged_in or session_type != SESSION_TYPE:
            return redirect(url_for('login', next = request.url))
         return f(*args, **kwargs)

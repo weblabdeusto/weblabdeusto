@@ -19,9 +19,7 @@
 
 {% block body %}
    <strong>Status:</strong> {{ status }}
-   <pre>
-    {{stdout}}
-   </pre>
+   <pre>{{stdout}}</pre>
     <a href="{{ url_for('result', deploy_id = deploy_id) }}"><input type="button" class="btn btn-success" value="Reload log" /></a>
 {% endblock body %}
 

@@ -45,9 +45,9 @@ TODO list
 * Disable re-deploying or changing configuration once a deployment has been established.
 * Make the system transactional (in the except: remove the apache config, etc.)
 * Don't show the status
-* Require authentication in /deploy/
 * Automatically register a user in WebLab-Deusto.
-
+* Establish default permissions
+* Remove the Launcher of raw_input
 
 * Have a Home in the "configure"
 
