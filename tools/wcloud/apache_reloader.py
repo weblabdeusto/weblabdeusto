@@ -22,8 +22,7 @@ import sys
 import subprocess
 import traceback
 import BaseHTTPServer
-
-from settings import APACHE_RELOADER_PORT
+APACHE_RELOADER_PORT = 1662
 
 class RequestHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     

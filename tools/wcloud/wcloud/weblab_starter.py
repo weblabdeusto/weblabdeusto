@@ -11,8 +11,9 @@ import wcloud.deploymentsettings as deploymentsettings
 
 app = Flask(__name__)
 
-import settings
-app.config.from_object(settings)
+import wcloud.default_settings as default_settings
+app.config.from_object(default_settings)
+app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 FILENAME = os.path.join(app.config['DIR_BASE'], 'instances.txt')
 
@@ -88,4 +89,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    app.run(debug = False, port = settings.WEBLAB_STARTER_PORT, host = '127.0.0.1')
+    app.run(debug = False, port = app.config['WEBLAB_STARTER_PORT'], host = '127.0.0.1')

@@ -329,13 +329,14 @@ def main():
 
 
 if __name__ == "__main__":
-    import settings
-    app.config.from_object(settings)
+    import wcloud.default_settings as default_settings
+    app.config.from_object(default_settings)
+    app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 
     main()
     try:
-        app.run(debug = True, port = settings.TASK_MANAGER_PORT)
+        app.run(debug = True, port = app.config['TASK_MANAGER_PORT'])
     except:
         task_manager.shutdown()
         raise

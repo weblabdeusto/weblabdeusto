@@ -19,13 +19,14 @@
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
-import settings
+import wcloud.default_settings as default_settings
 
 app = Flask(__name__)
 
 #Config
 app.config['SESSION_COOKIE_NAME'] = 'session-wcloud'
-app.config.from_object(settings)
+app.config.from_object(default_settings)
+app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 #Extensions
 db = SQLAlchemy(app)

@@ -5,7 +5,7 @@ from weblab.admin.script import Creation
 import sqlalchemy
 import traceback
 
-import settings
+from weblab.default_settings import DB_USERNAME
 from wcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
 
 def connect(user, passwd):
@@ -84,7 +84,7 @@ if __name__ == '__main__':
                 engine.execute("DROP DATABASE %s" % db_name)
             else:
                 engine.execute("CREATE DATABASE %s DEFAULT CHARACTER SET utf8" % db_name)
-                engine.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" % (db_name, settings.DB_USERNAME))
+                engine.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" % (db_name, DB_USERNAME))
         except:
             print("Error %s database '%s'" % (operation, db_name))
             traceback.print_exc()
