@@ -1,16 +1,6 @@
+{% set current_link = "configure" %}
 {% extends "base.html" %}
 
-
-{% block navbar %}
-<ul class="nav">
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li class="active"><a href="{{ url_for('configure') }}">Configure</a></li>
-    <li><a href="{{ url_for('deploy') }}">Deploy</a></li>
-</ul>
-<ul class="nav pull-right" >
-    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
-</ul>
-{% endblock navbar %}
 
 {% block body %}
     {% from "macros/_formhelpers.html" import render_field %}
@@ -43,9 +33,5 @@
             </form>
          </div>
     </div>
-   
-    
 {% endblock body %}
 
-{% block footer %}
-{% endblock footer %}

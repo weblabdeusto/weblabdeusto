@@ -1,13 +1,5 @@
+{% set current_link = "home" %}
 {% extends "base.html" %}
-
-
-{% block navbar %}
-<ul class="nav">
-    <li class="active"><a href="#">Home</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#contact">Contact</a></li>
-</ul>
-{% endblock navbar %}
 
 {% block body %}
     {% from "macros/_formhelpers.html" import render_field %}
@@ -35,5 +27,3 @@
     </div>
 {% endblock body %}
 
-{% block footer %}
-{% endblock footer %}

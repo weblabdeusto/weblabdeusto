@@ -1,16 +1,5 @@
+{% set current_link = "deploy" %}
 {% extends "base.html" %}
-
-
-{% block navbar %}
-<ul class="nav">
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('configure') }}">Configure</a></li>
-    <li class="active"><a href="{{ url_for('deploy') }}">Deploy</a></li>
-</ul>
-<ul class="nav pull-right" >
-    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
-</ul>
-{% endblock navbar %}
 
 {% block body %}
 
@@ -30,6 +19,10 @@
                 {{ render_field(form.admin_password) }}
                 {{ render_field(form.admin_email) }}
 
+                <div class="alert">
+                    Note: once you deploy it, you may change the administrator data, but you changing the basic configuration (url, name of institution, logo) requires contacting the administrators.
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" name="action" value="save" class="btn btn-primary">Deploy now!</button>
                 </div>
@@ -38,7 +31,7 @@
             </form>
             {% else %}
             
-            <p class="alert">You have already deployed the system. You can not redeploy it again. You can access it <a href="{{ url }}">here</a></p>
+            <p class="alert">You have already deployed the system, so you can not redeploy it again. You can access it <a href="{{ url }}">here</a>. If you need to change anything, contact the administrator.</p>
 
             {% endif %}
    
@@ -47,5 +40,3 @@
 
 {% endblock body %}
 
-{% block footer %}
-{% endblock footer %}

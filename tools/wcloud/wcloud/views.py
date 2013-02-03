@@ -40,6 +40,14 @@ from wcloud.taskmanager import TaskManager
 
 SESSION_TYPE = 'labdeployer_admin'
 
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -54,7 +62,7 @@ def login_required(f):
 @app.route('/')
 def index():
     if session.get('logged_in', False):
-        return redirect(url_for('configure'))
+        return redirect(url_for('home'))
     
     return render_template('index.html')
 
@@ -193,8 +201,15 @@ def confirm(email = None, token = None):
     flash('Account confirmed. Please login', 'success')
     return redirect(url_for('login'))
 
+@app.route('/dashboard/home')
+@login_required
+def home():
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    return render_template('home.html', user = user)
 
-@app.route('/configure', methods=['GET', 'POST'])
+
+@app.route('/dashboard/configure', methods=['GET', 'POST'])
 @login_required
 def configure():
     email = session['user_email']
@@ -267,7 +282,7 @@ def configure():
     return render_template('configuration.html', form=form)
 
 
-@app.route('/deploy', methods=['GET', 'POST'])
+@app.route('/dashboard/deploy', methods=['GET', 'POST'])
 @login_required
 def deploy():
     form = DeployForm(request.form)
@@ -328,7 +343,7 @@ def deploy():
     
     return render_template('deploy.html', form=form, enabled=enabled, url = base_url + entity.base_url)
 
-@app.route('/deploy/result/<deploy_id>')
+@app.route('/dashboard/deploy/result/<deploy_id>')
 @login_required
 def result(deploy_id):
     try:
@@ -354,7 +369,7 @@ def result(deploy_id):
                            stdout=response.get('output', 'Not available'),
                            deploy_id = deploy_id, loop = loop)
 
-@app.route('/deploy/ready/<deploy_id>')
+@app.route('/dashboard/deploy/ready/<deploy_id>')
 @login_required
 def result_ready(deploy_id):
     try:

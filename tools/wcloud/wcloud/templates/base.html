@@ -40,6 +40,23 @@
           <a class="brand" href="{{ url_for('index') }}">Weblab deployer</a>
           <div class="nav-collapse">
             {% block navbar %}
+<ul class="nav">
+    {% if session.get('logged_in', False) %}
+    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('home')      }}">Home</a></li>
+    <li {% if current_link == 'configure' %}class="active"{%endif%}><a href="{{ url_for('configure') }}">Configure</a></li>
+    <li {% if current_link == 'deploy'    %}class="active"{%endif%}><a href="{{ url_for('deploy')    }}">Deploy</a></li>
+    {% else %}
+    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('index')     }}">Home</a></li>
+    {% endif %}
+    <li {% if current_link == 'about'     %}class="active"{%endif%}><a href="{{ url_for('about')     }}">About</a></li>
+    <li {% if current_link == 'contact'   %}class="active"{%endif%}><a href="{{ url_for('contact')   }}">Contact</a></li>
+</ul>
+{% if session.get('logged_in', False) %}
+<ul class="nav pull-right" >
+    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
+</ul>
+{% endif %}
+
             {% endblock navbar %}
           </div><!--/.nav-collapse -->
         </div>
@@ -69,14 +86,11 @@
 
       <footer>
          {% block footer %}
+         <p style="text-align: center; font-style: italic; font-size: 10px">wCloud, the <a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> cloud hosting service.</p>
          {% endblock footer %}
       </footer>
 
     </div> <!-- /container -->
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
 
     <script src="../assets/js/jquery.js"></script>
     <script src="../assets/js/bootstrap-transition.js"></script>

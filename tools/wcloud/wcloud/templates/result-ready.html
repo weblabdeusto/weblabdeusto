@@ -1,20 +1,8 @@
+{% set current_link = "deploy" %}
 {% extends "base.html" %}
-
-{% block navbar %}
-<ul class="nav">
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('configure') }}">Configure</a></li>
-    <li class="active"><a href="{{ url_for('deploy') }}">Deploy</a></li>
-</ul>
-<ul class="nav pull-right" >
-    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
-</ul>
-{% endblock navbar %}
 
 {% block body %}
    <strong>Congratulations! Your system is ready. Go to <a href="{{ url }}">{{ url }}</a> and enjoy it!</strong>
    <pre>{{stdout}}</pre>
 {% endblock body %}
 
-{% block footer %}
-{% endblock footer %}

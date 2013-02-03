@@ -1,13 +1,5 @@
+{% set current_link = "home" %}
 {% extends "base.html" %}
-
-
-{% block navbar %}
-<ul class="nav">
-    <li class="active"><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('configure') }}">Configure</a></li>
-    <li><a href="{{ url_for('deploy') }}">Deploy</a></li> 
-</ul>
-{% endblock navbar %}
 
 {% block body %}
      <div class="hero-unit">
@@ -24,6 +16,3 @@
       </div>
     
 {% endblock body %}
-
-{% block footer %}
-{% endblock footer %}

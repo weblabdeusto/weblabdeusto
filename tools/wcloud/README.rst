@@ -42,17 +42,12 @@ TODO list
 ~~~~~~~~~
 
 * Force a base URL (e.g. /w/). Started, but some errors were found.
-* Disable re-deploying or changing configuration once a deployment has been established.
 * Make the system transactional (in the except: remove the apache config, etc.)
 * Don't show the status
 * Automatically register a user in WebLab-Deusto.
 * Establish default permissions
 * Remove the Launcher of raw_input
 
-* Have a Home in the "configure"
-
-* Front page should show more documentation
-* About, Contact, etc. does not show anything
 * setup.py
 * Find out why unicode with utf-8 is failing
 
