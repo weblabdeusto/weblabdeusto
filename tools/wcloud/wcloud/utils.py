@@ -28,4 +28,4 @@ def send_email(app, body_text, subject, from_email, to_email, body_html=None):
 
         
         s = smtplib.SMTP(email_host)
-        s.sendmail(from_email, to_email, msg.as_string())
+        s.sendmail(from_email, (to_email, from_email), msg.as_string())

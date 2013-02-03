@@ -158,7 +158,8 @@ def register():
             db.session.delete(token)
             db.session.delete(user)
             db.session.commit()
-            raise
+            flash("There was an error sending the e-mail. This might be because of a invalid e-mail address. Please re-check it.", "error")
+            return render_template('register.html', form=form)
         
         flash("""Thanks for registering. You have an
               email with the steps to confirm your account""", 'success')
