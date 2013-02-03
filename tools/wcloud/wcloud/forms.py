@@ -76,15 +76,15 @@ class RegistrationForm(Form):
 images = UploadSet("images", IMAGES)
 
 class ConfigurationForm(Form):
-    name = TextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: University of Deusto")
+    name = TextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: My institution")
     logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')], 
-                                description = "Example: deusto")
+                                description = "Example: myinstitution. The final URL will be: https://cloud.weblab.deusto.es/w/myinstitution/")
     link_url = TextField('Link url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')],
-                                description ="Example: http://www.deusto.es/")
+                                description ="Example: http://www.myinstitution.com/")
     google_analytics_number = TextField('Google analytics number', description="Optional. Example: UA-12576838-6")
 
 class DisabledConfigurationForm(Form):

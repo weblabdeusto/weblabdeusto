@@ -43,7 +43,9 @@ TODO list
 
 * Force a base URL (e.g. /w/). Started, but some errors were found.
 * Make the system transactional (in the except: remove the apache config, etc.)
-* Don't show the status
+* Use Recaptcha: http://packages.python.org/Flask-WTF/#recaptcha
+
+
 * Automatically register a user in WebLab-Deusto.
 * Establish default permissions
 * Remove the Launcher of raw_input

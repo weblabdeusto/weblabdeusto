@@ -18,6 +18,13 @@
                 {% if form|attr('logo') %}
                 {{ render_field(form.logo) }}
                 {% endif %}
+                {% if logo_available %}
+                    <div class="control-group">
+                        <div class="controls">
+                            <img src="{{ url_for('logo') }}" width="225"/>
+                        </div>
+                    </div>
+                {% endif %}
                 {{ render_field(form.base_url) }}
                 {{ render_field(form.link_url) }}
                 {{ render_field(form.google_analytics_number) }}

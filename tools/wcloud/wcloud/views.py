@@ -28,7 +28,7 @@ import StringIO
 
 from functools import wraps
 
-from flask import render_template, request, url_for, flash, redirect, session
+from flask import render_template, request, url_for, flash, redirect, session, abort, Response
 from werkzeug import secure_filename
 
 from weblab.admin.script import Creation, weblab_create
@@ -207,6 +207,8 @@ def confirm(email = None, token = None):
 def home():
     email = session['user_email']
     user = User.query.filter_by(email=email).first()
+    if user is None:
+        return redirect(url_for('logout'))
     return render_template('home.html', user = user)
 
 
@@ -216,17 +218,26 @@ def configure():
     email = session['user_email']
     user = User.query.filter_by(email=email).first()
 
-    if user is not None and user.entity is not None and user.entity.deployed:
+    if user is None:
+        flash("User not found")
+        return redirect(url_for('logout'))
+
+    if user.entity is not None and user.entity.deployed:
         enabled = False
         form = DisabledConfigurationForm(request.form)
     else:
         enabled = True
         form = ConfigurationForm(request.form)
 
+    if user.entity is not None and user.entity.logo is not None:
+        logo_available = True
+    else:
+        logo_available = False
+
     if request.method == 'POST' and form.validate():
         if not enabled:
             flash("You can not change the entity once deployed.")
-            return render_template('configuration.html', form=form)
+            return render_template('configuration.html', form=form, enabled=enabled,logo_available=logo_available)
 
         # Exract data from the form
         logo = request.files['logo']
@@ -240,6 +251,8 @@ def configure():
         link_url = form.link_url.data
         google_analytics_number = form.google_analytics_number.data
                
+        logo_available = True
+
         # Create entity
         if user.entity is None:
             entity = Entity(name, base_url)
@@ -248,10 +261,12 @@ def configure():
             entity.link_url = link_url
             entity.google_analytics_number = google_analytics_number
             user.entity = entity
-
+        
         # Update
         else:
-            if logo_data is not None : user.entity.logo = logo_data
+            if logo_data is not None and logo_data != '': 
+                user.entity.logo = logo_data
+                user.entity.logo_ext = logo_ext
             if name is not None : user.entity.name = name
             if base_url is not None : user.entity.base_url = base_url
             if link_url is not None : user.entity.link_url = link_url
@@ -265,23 +280,32 @@ def configure():
         flash('Configuration saved.', 'success')
         
         if request.form.get('action','') == 'savedeploy':
-            return redirect('deploy')
+            return redirect(url_for('deploy'))
 
     else:
          # Get user
         email = session['user_email']
         user = User.query.filter_by(email=email).first()
         if user is None:
-            return redirect('logout')
+            return redirect(url_for('logout'))
         entity = user.entity
         if entity is not None:
             form.name.data = entity.name
             form.base_url.data = entity.base_url
             form.link_url.data = entity.link_url
             form.google_analytics_number.data = entity.google_analytics_number
-            
-    return render_template('configuration.html', form=form)
+    return render_template('configuration.html', form=form, enabled=enabled, logo_available=logo_available)
 
+
+@app.route('/dashboard/logo')
+@login_required
+def logo():
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    entity = user.entity
+    if entity is None or entity.logo is None:
+        return abort(404)
+    return Response(entity.logo, headers = {'Content-Type' : 'image/%s' % entity.logo_ext})
 
 @app.route('/dashboard/deploy', methods=['GET', 'POST'])
 @login_required
