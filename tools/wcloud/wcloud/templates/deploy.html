@@ -19,7 +19,8 @@
     
             <h1>Basic configuration</h1>
             <br/>
-
+            
+            {% if enabled %}
             {% from "macros/_formhelpers.html" import render_field %}
             <form method="POST" enctype=multipart/form-data action="{{ url_for('deploy') }}" class="form-horizontal">
               <fieldset>
@@ -35,6 +36,11 @@
 
               </fieldset>
             </form>
+            {% else %}
+            
+            <p class="alert">You have already deployed the system. You can not redeploy it again. You can access it <a href="{{ url }}">here</a></p>
+
+            {% endif %}
    
         </div>
     </div>

@@ -79,10 +79,12 @@ class Entity(db.Model):
     google_analytics_number = Column(Unicode(30))                              # e.g. UA-1234-1234
     start_port_number       = Column(Integer) # Null until the task manager assigns them
     end_port_number         = Column(Integer, index=True) # Null until the task manager assigns them
+    deployed                = Column(Boolean, nullable = False)
     
     def __init__(self, name, base_url):
         self.name = name
         self.base_url = base_url
+        self.deployed = False
    
     @staticmethod
     def last_port():

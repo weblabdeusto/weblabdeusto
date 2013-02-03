@@ -25,15 +25,19 @@
               <fieldset>
                 {{ form.hidden_tag() }}
                 {{ render_field(form.name) }}
+                {% if form|attr('logo') %}
                 {{ render_field(form.logo) }}
+                {% endif %}
                 {{ render_field(form.base_url) }}
                 {{ render_field(form.link_url) }}
                 {{ render_field(form.google_analytics_number) }}
 
+                {% if enabled %}
                 <div class="form-actions">
                     <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
                     <button type="submit" name="action" value="savedeploy" class="btn btn-success">Save and deploy</button>
                 </div>
+                {% endif %}
 
               </fieldset>
             </form>

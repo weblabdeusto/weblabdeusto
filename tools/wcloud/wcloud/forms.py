@@ -23,6 +23,12 @@ from flask.ext.uploads import UploadSet, IMAGES
 from wcloud.models import User, Entity
 from flask import session
 
+class DisabledTextField(TextField):
+    def __call__(self, *args, **kwargs):
+        new_kwargs = kwargs.copy()
+        new_kwargs['readonly'] = 'true'
+        return super(DisabledTextField, self).__call__(*args, **new_kwargs)
+
 #Validators
 class UserExists(object):
     def __init__(self, message=None):
@@ -80,6 +86,19 @@ class ConfigurationForm(Form):
                                 validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')],
                                 description ="Example: http://www.deusto.es/")
     google_analytics_number = TextField('Google analytics number', description="Optional. Example: UA-12576838-6")
+
+class DisabledConfigurationForm(Form):
+    name = DisabledTextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: University of Deusto")
+    base_url = DisabledTextField('Base url', [validators.Length(min=4, max=100),
+                                validators.Regexp('^[\w-]+$'),
+                                BaseURLExists('Base url already exists')], 
+                                description = "Example: deusto")
+    link_url = DisabledTextField('Link url', [validators.Length(min=4, max=100),
+                                validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')],
+                                description ="Example: http://www.deusto.es/")
+    google_analytics_number = DisabledTextField('Google analytics number', description="Optional. Example: UA-12576838-6")
+
+
 
 class DeployForm(Form):
     admin_name = TextField('Admin name', [validators.Length(min=4, max=100)])

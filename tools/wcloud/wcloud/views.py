@@ -34,7 +34,7 @@ from werkzeug import secure_filename
 from weblab.admin.script import Creation, weblab_create
 
 from wcloud import app, db, utils, deploymentsettings
-from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DeployForm
+from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DisabledConfigurationForm, DeployForm
 from wcloud.models import User, Token, Entity
 from wcloud.taskmanager import TaskManager
 
@@ -197,9 +197,21 @@ def confirm(email = None, token = None):
 @app.route('/configure', methods=['GET', 'POST'])
 @login_required
 def configure():
-    form = ConfigurationForm(request.form)
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+
+    if user is not None and user.entity is not None and user.entity.deployed:
+        enabled = False
+        form = DisabledConfigurationForm(request.form)
+    else:
+        enabled = True
+        form = ConfigurationForm(request.form)
 
     if request.method == 'POST' and form.validate():
+        if not enabled:
+            flash("You can not change the entity once deployed.")
+            return render_template('configuration.html', form=form)
+
         # Exract data from the form
         logo = request.files['logo']
         logo_data = logo.stream.read()
@@ -211,11 +223,7 @@ def configure():
         base_url = form.base_url.data
         link_url = form.link_url.data
         google_analytics_number = form.google_analytics_number.data
-        
-        # Get user
-        email = session['user_email']
-        user = User.query.filter_by(email=email).first()
-        
+               
         # Create entity
         if user.entity is None:
             entity = Entity(name, base_url)
@@ -264,30 +272,40 @@ def configure():
 def deploy():
     form = DeployForm(request.form)
 
+    # Get user settings
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    entity = user.entity
+
+    enabled = not user.entity.deployed
+
+    base_url = app.config['PUBLIC_URL']
+    # TODO
+    # base_url += '/w/'
+    base_url += '/'
+
     if request.method == 'POST' and form.validate():
+        if not enabled:
+            flash("You have already deployed your system, so you can not redeploy it")
+            return render_template('deploy.html', form=form, enabled = enabled)
+
         admin_user = form.admin_user.data
         admin_name = form.admin_name.data
         admin_email = form.admin_email.data
         admin_password = form.admin_password.data
-    
-        # Get user settings
-        email = session['user_email']
-        user = User.query.filter_by(email=email).first()
-        entity = user.entity
-        
+            
         if entity is None:
-            flash('Configure before usinng the deployment app', 'error')
+            flash('Configure before using the deployment app', 'error')
             return redirect(url_for('configure'))
         
+        entity.deployed = True
+        db.session.add(entity)
+        db.session.commit()
+
         # Deploy
         
         directory = os.path.join(app.config['DIR_BASE'], entity.base_url)
-        
-        base_url = app.config['PUBLIC_URL']
-        # TODO
-        # base_url += '/w/'
-        base_url += '/'
-        
+               
         task = {'directory'      : directory,
                 'email'          : email,
                 'admin_user'     : admin_user,
@@ -306,12 +324,9 @@ def deploy():
         f = urllib2.urlopen(req)
         response = f.read()
         f.close()
-        print('-'*50)
-        print(response)
-        print('-'*50)
         return redirect(url_for('result', deploy_id = response))
     
-    return render_template('deploy.html', form=form)
+    return render_template('deploy.html', form=form, enabled=enabled, url = base_url + entity.base_url)
 
 @app.route('/deploy/result/<deploy_id>')
 @login_required
