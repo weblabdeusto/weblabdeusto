@@ -41,7 +41,6 @@ Now you can run wcloud. It takes 4 steps:
 TODO list
 ~~~~~~~~~
 
-* Force a base URL (e.g. /w/). Started, but some errors were found.
 * Make the system transactional (in the except: remove the apache config, etc.)
 
 * Automatically register a user in WebLab-Deusto.

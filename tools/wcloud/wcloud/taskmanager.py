@@ -144,8 +144,7 @@ class TaskManager(threading.Thread):
                 # 
                 settings =  deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS.copy()
                 
-                # TODO: w/
-                settings[Creation.BASE_URL]       = entity.base_url
+                settings[Creation.BASE_URL]       = 'w/' + entity.base_url
 
                 settings[Creation.LOGO_PATH]      = tmp_logo.name
 

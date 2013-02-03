@@ -322,9 +322,7 @@ def deploy():
     enabled = not user.entity.deployed
 
     base_url = app.config['PUBLIC_URL']
-    # TODO
-    # base_url += '/w/'
-    base_url += '/'
+    base_url += '/w/'
 
     if request.method == 'POST' and form.validate():
         if not enabled:

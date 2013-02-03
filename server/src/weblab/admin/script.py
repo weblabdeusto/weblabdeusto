@@ -2288,7 +2288,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         d = { 'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
-    proxy_paths.append(('%(root)s/weblab/administration/', proxy_path))
+    proxy_paths.append(('%(root)s/weblab/administration', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
@@ -2350,7 +2350,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
-    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash,
+    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
                 'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'), 
                 'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
