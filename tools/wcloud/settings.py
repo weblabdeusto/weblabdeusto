@@ -59,3 +59,11 @@ DIR_BASE = os.path.expanduser(os.path.join('~', '.weblab')) # home path
 # 
 SQLALCHEMY_DATABASE_URI = 'mysql://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
 
+try:
+    from secret_settings import RECAPTCHA_PUBLIC_KEY, RECAPTCHA_PRIVATE_KEY
+except ImportError:
+    RECAPTCHA_ENABLED = False
+else:
+    # While developing it's better to avoid it
+    RECAPTCHA_ENABLED = False
+

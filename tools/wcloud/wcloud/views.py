@@ -112,8 +112,10 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    
     form = RegistrationForm(request.form)
+
+    if not app.config['RECAPTCHA_ENABLED']:
+        del form.recaptcha
 
     if request.method == 'POST' and form.validate():
         #Exract data from the form

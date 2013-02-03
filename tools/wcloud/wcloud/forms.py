@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError
+from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError, RecaptchaField
 
 from flask.ext.uploads import UploadSet, IMAGES
 from wcloud.models import User, Entity
@@ -70,6 +70,7 @@ class RegistrationForm(Form):
         validators.EqualTo('confirm', message='Passwords must match')
     ])
     confirm = PasswordField('Repeat Password')
+    recaptcha = RecaptchaField()
 #    accept_tos = BooleanField('I accept the TOS', [validators.Required()])
     
 

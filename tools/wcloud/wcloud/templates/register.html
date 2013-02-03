@@ -16,6 +16,9 @@
                     {{ render_field(form.email) }}
                     {{ render_field(form.password) }}
                     {{ render_field(form.confirm) }}
+                    {% if form|attr('recaptcha') %}
+                        {{ render_field(form.recaptcha) }}
+                    {% endif %}
 
                     <div class="form-actions">
                         <a href="{{ url_for('index') }}" class="btn btn-alert">Back</a>
