@@ -40,6 +40,8 @@ from wcloud.taskmanager import TaskManager
 
 SESSION_TYPE = 'labdeployer_admin'
 
+opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
@@ -361,7 +363,7 @@ def deploy():
                             task_json,
                             {'Content-Type': 'application/json',
                              'Content-Length': len(task_json)})
-        f = urllib2.urlopen(req)
+        f = opener.open(req)
         response = f.read()
         f.close()
         return redirect(url_for('result', deploy_id = response))
@@ -374,7 +376,7 @@ def result(deploy_id):
     try:
         url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
         req = urllib2.Request(url)
-        f = urllib2.urlopen(req)
+        f = opener.open(req)
         response = f.read()
         f.close()
     except Exception as e:
@@ -400,7 +402,7 @@ def result_ready(deploy_id):
     try:
         url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
         req = urllib2.Request(url)
-        f = urllib2.urlopen(req)
+        f = opener.open(req)
         response = f.read()
         f.close()
     except Exception as e:

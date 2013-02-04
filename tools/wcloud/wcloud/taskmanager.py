@@ -192,8 +192,8 @@ class TaskManager(threading.Thread):
                     f.write('Include "%s"\n' % conf_dir) 
                 
                 # Reload apache
-                
-                print(urllib2.urlopen('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
                 
                 ##########################################################
                 # 
@@ -211,7 +211,7 @@ class TaskManager(threading.Thread):
                     try:
                         url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
                         req = urllib2.Request(url, json.dumps({'name' : entity.base_url}), {'Content-Type': 'application/json'})
-                        response = urllib2.urlopen(req).read()
+                        response = opener.open(req).read()
                     except:
                         is_error = True
                         response = "There was an error registering or starting the service. Contact the administrator"
@@ -333,10 +333,9 @@ if __name__ == "__main__":
     app.config.from_object(default_settings)
     app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
-
     main()
     try:
-        app.run(debug = True, port = app.config['TASK_MANAGER_PORT'])
+        app.run(port = app.config['TASK_MANAGER_PORT'])
     except:
         task_manager.shutdown()
         raise
