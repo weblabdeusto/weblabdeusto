@@ -145,12 +145,15 @@ def register():
                             <body>
                               <p>Welcome!<p>
                               <p>This is the wcloud system, which creates new WebLab-Deusto instances.
-                              Your account is ready, and you can activate it <a href="%s">here</a>.</p>
+                              Your account is ready, and you can activate it:</p>
+                              <ul>
+                                <li><a href="%(link)s">%(link)s</a>.</li>
+                              </ul>
                               <p>If you didn't register, feel free to ignore this e-mail.</p>
                               <p>Best regards,</p>
                               <p>WebLab-Deusto team</p>
                             </body>
-                          </html>""" % link
+                          </html>""" % dict(link=link)
         print(body_html)
         body = """Welcome to wcloud. Click %s to confirm your registration.""" % link
         subject = 'wCloud registration'
