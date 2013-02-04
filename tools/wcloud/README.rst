@@ -24,19 +24,21 @@ Now you can run wcloud. It takes 4 steps:
 
 * Running the web server. For debugging you may use the following command. For production, refer to the `flask documentation <http://flask.pocoo.org/docs/deploying/>`_::
 
-  python runserver.py # IMPORTANT: Only in debugging mode.
+  python run.py # IMPORTANT: Only in debugging mode.
 
 * Running the Task Manager::
 
   python wcloud/taskmanager.py
 
+* Running the WebLab-Deusto starter process::
+
+  python wcloud/weblab_starter.py
+
 * Running the Apache Reloader as root::
 
   sudo python apache_reloader.py
 
-* Running the WebLab-Deusto starter process::
-
-  python wcloud/weblab_starter.py
+The web server can be run with the permissions of a typical web server user (e.g. nobody or www-data), while the Task Manager and the WebLab-Deusto starter processes should be run as a regular user running WebLab-Deusto. Finally the apache reloader process must be run as root.
 
 TODO list
 ~~~~~~~~~
