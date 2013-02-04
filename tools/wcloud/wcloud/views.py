@@ -152,19 +152,20 @@ def register():
                             </body>
                           </html>""" % link
         print(body_html)
-        body = """ Hello text!"""
-        subject = 'thanks for registering in weblab deployer'
+        body = """Welcome to wcloud. Click %s to confirm your registration.""" % link
+        subject = 'wCloud registration'
         
         # Send email
         try:
             utils.send_email(app, body, subject, from_email, user.email, body_html)
+            flash("Mail sent to %s from %s with subject '%s'. Check your SPAM folder if you don't receive it." % (user.email, from_email, subject), 'success') 
         except:
             db.session.delete(token)
             db.session.delete(user)
             db.session.commit()
             flash("There was an error sending the e-mail. This might be because of a invalid e-mail address. Please re-check it.", "error")
             return render_template('register.html', form=form)
-        
+
         flash("""Thanks for registering. You have an
               email with the steps to confirm your account""", 'success')
         return redirect(url_for('login'))
@@ -180,9 +181,9 @@ def confirm(email = None, token = None):
 
     if not email or not token:
         if not email:
-            flash("Error: 'email' field misssing")
+            flash("Error: 'email' field misssing", 'error')
         if not token:
-            flash("Error: 'token' field misssing")
+            flash("Error: 'token' field misssing", 'error')
         return render_template('errors.html', message="Fields missing")
 
     user = User.query.filter_by(email=email).first()
