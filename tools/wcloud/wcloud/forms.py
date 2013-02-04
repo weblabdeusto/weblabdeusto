@@ -71,7 +71,6 @@ class RegistrationForm(Form):
     ])
     confirm = PasswordField('Repeat Password')
     recaptcha = RecaptchaField()
-#    accept_tos = BooleanField('I accept the TOS', [validators.Required()])
     
 
 images = UploadSet("images", IMAGES)
@@ -89,32 +88,36 @@ class ConfigurationForm(Form):
     google_analytics_number = TextField('Google analytics number', description="Optional. Example: UA-12576838-6")
 
 class DisabledConfigurationForm(Form):
-    name = DisabledTextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: University of Deusto")
+    name = DisabledTextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: My institution")
     base_url = DisabledTextField('Base url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')], 
-                                description = "Example: deusto")
+                                description = "Example: myinstitution")
     link_url = DisabledTextField('Link url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^http:\/\/(\w|-|\.|\/)+$')],
-                                description ="Example: http://www.deusto.es/")
+                                description ="Example: http://www.myinstitution.com/")
     google_analytics_number = DisabledTextField('Google analytics number', description="Optional. Example: UA-12576838-6")
 
 
 
 class DeployForm(Form):
-    admin_name = TextField('Admin name', [validators.Length(min=4, max=100)])
-    admin_user = TextField('Admin user', [validators.Length(min=4, max=100)])
-    admin_password = PasswordField('Admin password', [validators.Length(min=4, max=100)])
+    admin_name = TextField('Admin name', [validators.Length(min=4, max=100)], description="Example: John Doe")
+    admin_user = TextField('Admin user', [validators.Length(min=4, max=100)], description="Example: admin", default="admin")
+    admin_password = PasswordField('Admin password', [validators.Length(min=4, max=100)], description ="Password in the WebLab-Deusto instance")
     admin_email = TextField('Admin email', [validators.Length(min=4, max=100),
-                                validators.Email()])
+                                validators.Email()], description = "Administrator's e-mail. Example jdoe@myinstitution.com")
     
     def validate_characters(form, field): # XXX work around to avoid problems with UTF-8
         for c in field.data:
             if c.lower() not in 'abcdefghijklmnopqrstuvwxyz0123456789._-@ ':
                 raise ValidationError("Invalid characters found")
+ 
+    def validate_admin_user(form, field): # XXX work around to avoid problems with UTF-8
+        for c in field.data:
+            if c.lower() not in 'abcdefghijklmnopqrstuvwxyz0123456789._-':
+                raise ValidationError("Invalid characters found")
         
     validate_admin_name     = validate_characters
-    validate_admin_user     = validate_characters
     validate_admin_password = validate_characters
     validate_admin_email    = validate_characters
 

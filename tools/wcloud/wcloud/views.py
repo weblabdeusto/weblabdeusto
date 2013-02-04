@@ -139,7 +139,7 @@ def register():
         #create email
         from_email = 'weblab@deusto.es'
 
-        link = request.url_root + url_for('confirm', email=email, token=token.token)
+        link = url_for('confirm', email=email, token=token.token, _external = True)
         body_html = """ <html>
                             <head></head>
                             <body>
