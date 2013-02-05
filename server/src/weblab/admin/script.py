@@ -207,7 +207,11 @@ class Creation(object):
     HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
     VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
     
-    
+    # Federated laboratories
+    ADD_FEDERATED_LOGIC     = 'federated_logic'
+    ADD_FEDERATED_ROBOT     = 'federated_robot'
+    ADD_FEDERATED_VISIR     = 'federated_visir'
+    ADD_FEDERATED_SUBMARINE = 'federated_submarine'
     
     # Sessions
     SESSION_STORAGE    = 'session_storage'
@@ -595,6 +599,21 @@ def _build_parser():
 
     parser.add_option_group(experiments)
 
+    fed = OptionGroup(parser, "Federation options",
+                                "WebLab-Deusto at the University of Deusto federates a set of laboratories. "
+                                "You may put them by default in your WebLab-Deusto instance.")
+
+    fed.add_option("--add-fed-submarine",       dest = Creation.ADD_FEDERATED_SUBMARINE, action="store_true", default=False,
+                                                help = "Add the submarine laboratory.")
+
+    fed.add_option("--add-fed-logic",           dest = Creation.ADD_FEDERATED_LOGIC, action="store_true", default=False,
+                                                help = "Add the logic laboratory.")
+
+    fed.add_option("--add-fed-visir",           dest = Creation.ADD_FEDERATED_VISIR, action="store_true", default=False,
+                                                help = "Add the VISIR laboratory.")
+
+    parser.add_option_group(fed)
+
     sess = OptionGroup(parser, "Session options",
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
                                 "Choose one system and configure it." )
@@ -901,8 +920,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
 
+    if options[Creation.ADD_FEDERATED_SUBMARINE]:
+        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', group_name, 200)
+
     # visir@Visir experiments (optional)
-    if options[Creation.VISIR_SERVER]:
+    if options[Creation.VISIR_SERVER] or options[Creation.ADD_FEDERATED_VISIR]:
         deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 1800)
 
     # vm@VM experiments (optional)
@@ -910,7 +932,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
-    if options[Creation.LOGIC_SERVER]:
+    if options[Creation.LOGIC_SERVER] or options[Creation.ADD_FEDERATED_LOGIC]:
         deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
 
     ###########################################
@@ -1058,6 +1080,18 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n, 
                 'local_experiments' : local_experiments, 'n' : n })
 
+    other_core_coordinator_external_servers = ""
+    other_scheduling_systems = ""
+    if options[Creation.ADD_FEDERATED_LOGIC]:
+        other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
+        other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_VISIR]:
+        other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
+        other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_SUBMARINE]:
+        other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
+        other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
+        
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
@@ -1137,6 +1171,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "core_coordinator_external_servers = {\n"
                         "    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],\n"
+                        "%(other_core_coordinator_external_servers)s"
                         "}\n"
                         "\n"
                         "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
@@ -1150,53 +1185,55 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "core_scheduling_systems = {\n"
                         "%(local_scheduling)s"
                         "        'robot_external'   : weblabdeusto_federation_demo,\n"
+                        "%(other_scheduling_systems)s"
                         "    }\n"
                         "\n") % {
-        'core_universal_identifier'       : str(uuid.uuid4()),
-        'core_universal_identifier_human' : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
-        'db_engine'                       : options[Creation.DB_ENGINE],
-        'db_host'                         : options[Creation.DB_HOST],
-        'db_port'                         : options[Creation.DB_PORT],
-        'db_name'                         : options[Creation.DB_NAME],
-        'db_user'                         : options[Creation.DB_USER],
-        'db_password'                     : options[Creation.DB_PASSWD],
-        'server_hostaddress'              : options[Creation.SERVER_HOST],
-        'server_admin'                    : options[Creation.ADMIN_MAIL],
-        'server_url'                      : server_url,
-        'poll_time'                       : options[Creation.POLL_TIME],
-        'laboratory_servers'              : laboratory_servers,
-        'local_scheduling'                : local_scheduling,
+        'core_universal_identifier'               : str(uuid.uuid4()),
+        'core_universal_identifier_human'         : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
+        'db_engine'                               : options[Creation.DB_ENGINE],
+        'db_host'                                 : options[Creation.DB_HOST],
+        'db_port'                                 : options[Creation.DB_PORT],
+        'db_name'                                 : options[Creation.DB_NAME],
+        'db_user'                                 : options[Creation.DB_USER],
+        'db_password'                             : options[Creation.DB_PASSWD],
+        'server_hostaddress'                      : options[Creation.SERVER_HOST],
+        'server_admin'                            : options[Creation.ADMIN_MAIL],
+        'server_url'                              : server_url,
+        'poll_time'                               : options[Creation.POLL_TIME],
+        'laboratory_servers'                      : laboratory_servers,
+        'local_scheduling'                        : local_scheduling,
+        'other_scheduling_systems'                : other_scheduling_systems,
+        'other_core_coordinator_external_servers' : other_core_coordinator_external_servers,
+        'session_storage'                         : session_storage,
 
-        'session_storage'                 : session_storage,
+        'session_db_engine'                       : options[Creation.SESSION_DB_ENGINE],
+        'session_db_host'                         : options[Creation.SESSION_DB_HOST],
+        'session_db_port'                         : options[Creation.SESSION_DB_PORT],
+        'session_db_name'                         : options[Creation.SESSION_DB_NAME],
+        'session_db_user'                         : options[Creation.SESSION_DB_USER],
+        'session_db_passwd'                       : options[Creation.SESSION_DB_PASSWD],
 
-        'session_db_engine'               : options[Creation.SESSION_DB_ENGINE],
-        'session_db_host'                 : options[Creation.SESSION_DB_HOST],
-        'session_db_port'                 : options[Creation.SESSION_DB_PORT],
-        'session_db_name'                 : options[Creation.SESSION_DB_NAME],
-        'session_db_user'                 : options[Creation.SESSION_DB_USER],
-        'session_db_passwd'               : options[Creation.SESSION_DB_PASSWD],
+        'session_redis_host'                      : options[Creation.SESSION_REDIS_HOST],
+        'session_redis_port'                      : options[Creation.SESSION_REDIS_PORT],
+        'session_redis_db'                        : options[Creation.SESSION_REDIS_DB],
 
-        'session_redis_host'              : options[Creation.SESSION_REDIS_HOST],
-        'session_redis_port'              : options[Creation.SESSION_REDIS_PORT],
-        'session_redis_db'                : options[Creation.SESSION_REDIS_DB],
+        'core_coordinator_engine'                 : coord_engine,
 
-        'core_coordinator_engine'         : coord_engine,
+        'core_coordinator_redis_db'               : options[Creation.COORD_REDIS_DB],
+        'core_coordinator_redis_password'         : options[Creation.COORD_REDIS_PASSWD],
+        'core_coordinator_redis_port'             : options[Creation.COORD_REDIS_PORT],
 
-        'core_coordinator_redis_db'       : options[Creation.COORD_REDIS_DB],
-        'core_coordinator_redis_password' : options[Creation.COORD_REDIS_PASSWD],
-        'core_coordinator_redis_port'     : options[Creation.COORD_REDIS_PORT],
+        'core_coordinator_db_username'            : options[Creation.COORD_DB_USER],
+        'core_coordinator_db_password'            : options[Creation.COORD_DB_PASSWD],
+        'core_coordinator_db_name'                : options[Creation.COORD_DB_NAME],
+        'core_coordinator_db_engine'              : options[Creation.COORD_DB_ENGINE],
+        'core_coordinator_db_host'                : options[Creation.COORD_DB_HOST],
+        'core_coordinator_db_port'                : options[Creation.COORD_DB_PORT],
 
-        'core_coordinator_db_username'    : options[Creation.COORD_DB_USER],
-        'core_coordinator_db_password'    : options[Creation.COORD_DB_PASSWD],
-        'core_coordinator_db_name'        : options[Creation.COORD_DB_NAME],
-        'core_coordinator_db_engine'      : options[Creation.COORD_DB_ENGINE],
-        'core_coordinator_db_host'        : options[Creation.COORD_DB_HOST],
-        'core_coordinator_db_port'        : options[Creation.COORD_DB_PORT],
-
-        'coord_db'                        : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
-        'coord_redis'                     : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
-        'session_db'                      : '' if session_storage == 'sqlalchemy' else '# ',
-        'session_redis'                   : '' if session_storage == 'redis' else '# ',
+        'coord_db'                                : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
+        'coord_redis'                             : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
+        'session_db'                              : '' if session_storage == 'sqlalchemy' else '# ',
+        'session_redis'                           : '' if session_storage == 'redis' else '# ',
     }
 
 
