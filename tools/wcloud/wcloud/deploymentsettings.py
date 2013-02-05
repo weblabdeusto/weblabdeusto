@@ -17,5 +17,7 @@ DEFAULT_DEPLOYMENT_SETTINGS = {
     Creation.SERVER_HOST: 'weblab.deusto.es', # --server-host=(de settings)
     Creation.ENTITY_LINK: 'http://www.deusto.es/', # --entity-link= http://www.deusto.es/
     Creation.CORES: 3, 
-
+    Creation.ADD_FEDERATED_LOGIC : True,
+    Creation.ADD_FEDERATED_VISIR : True,
+    Creation.ADD_FEDERATED_SUBMARINE : True,
 }
