@@ -274,9 +274,18 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
+
         if sort_column is None:
             sort_column = 'start_date'
             sort_desc   = not sort_desc
+
+            # If that fails, try to avoid it using a different sort_column
+            try:
+                return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
+            except:
+                sort_column = 'UserUsedExperiment_start_date'
+                return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
+       
         return super(UserUsedExperimentPanel, self).get_list(page, sort_column, sort_desc, search, filters, *args, **kwargs)
 
     @expose('/details/<int:id>')
