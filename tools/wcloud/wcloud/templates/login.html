@@ -1,0 +1,20 @@
+{% set current_link = "home" %}
+{% extends "base.html" %}
+
+{% block body %}
+    {% from "macros/_formhelpers.html" import render_field %}
+    <h1>Log in</h1>
+    <br/>
+    <form method="POST" action="{{ url_for('login') }}" class="form-horizontal">
+      <fieldset>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.email) }}
+            {{ render_field(form.password) }}
+            
+            <div class="form-actions">
+                <input type="submit" value="Log in" class="btn btn-primary">
+            </div>
+        </fieldset>
+    </form>
+{% endblock body %}
+

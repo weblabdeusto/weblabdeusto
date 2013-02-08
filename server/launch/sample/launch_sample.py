@@ -13,19 +13,18 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
 
-import signal
-
 import sys
 sys.path.append('../../src')
 
-import weblab
-import voodoo.gen.loader.Launcher as Launcher
-
-def before_shutdown():
-    print "Stopping servers..."
-
 def inner(signals = False):
+    def before_shutdown():
+        print "Stopping servers..."
+
+    import signal
+    import weblab
+    import voodoo.gen.loader.Launcher as Launcher
     import voodoo.rt_debugger as rt_debugger
+
     rt_debugger.launch_debugger()
 
     if signals:

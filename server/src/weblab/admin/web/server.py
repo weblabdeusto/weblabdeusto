@@ -83,7 +83,7 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
         else:
-            the_location = '/'
+            the_location = '/weblab'
         timeout = self.get_timeout()
 
         class NewWsgiHttpHandler(self.WSGI_HANDLER):

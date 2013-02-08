@@ -44,6 +44,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.app = Flask(__name__)
         self.app.config['SECRET_KEY'] = os.urandom(32)
         self.app.config['APPLICATION_ROOT'] = self.script_name
+        self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
 
         if os.path.exists('logs'):
             f = os.path.join('logs','admin_app.log')

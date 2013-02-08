@@ -51,7 +51,6 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 # 
 # TODO
 #  - --virtual-machine
-#  - xmlrpc server
 #  - Support rebuild-db
 # 
 
@@ -174,6 +173,7 @@ class Creation(object):
     ADMIN_NAME        = 'admin_name'
     ADMIN_PASSWORD    = 'admin_password'
     ADMIN_MAIL        = 'admin_mail'
+    LOGO_PATH         = 'logo_path'
 
     # XMLRPC experiment
     XMLRPC_EXPERIMENT      = 'xmlrpc_experiment'
@@ -207,7 +207,11 @@ class Creation(object):
     HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
     VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
     
-    
+    # Federated laboratories
+    ADD_FEDERATED_LOGIC     = 'federated_logic'
+    ADD_FEDERATED_ROBOT     = 'federated_robot'
+    ADD_FEDERATED_VISIR     = 'federated_visir'
+    ADD_FEDERATED_SUBMARINE = 'federated_submarine'
     
     # Sessions
     SESSION_STORAGE    = 'session_storage'
@@ -475,6 +479,9 @@ def _build_parser():
     parser.add_option("--entity-link",            dest = Creation.ENTITY_LINK,       type="string",  default="http://www.yourentity.edu",
                                                   help = "Link of the host entity (e.g. http://www.deusto.es ).")
 
+    parser.add_option("--logo-path",              dest = Creation.LOGO_PATH,       metavar="IMG_FILE_PATH", type="string",  default=None,
+                                                  help = "Path of the entity logo.")
+
     parser.add_option("--server-host",            dest = Creation.SERVER_HOST,     type="string",    default="localhost",
                                                   help = "Host address of this machine. Example: weblab.domain.")
 
@@ -515,13 +522,15 @@ def _build_parser():
                                 "such as VISIR, have been deployed in many universities. Finally, for "
                                 "development purposes, the XML-RPC experiment is particularly useful.")
 
-    # TODO
     experiments.add_option("--xmlrpc-experiment",      dest = Creation.XMLRPC_EXPERIMENT, action="store_true", default=False,
                                                        help = "By default, the Experiment Server is located in the same process as the  " 
                                                               "Laboratory server. However, it is possible to force that the laboratory  "
                                                               "uses XML-RPC to contact the Experiment Server. If you want to test a "
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
                                                               "and the system will try to find the Experiment Server in other port ")
+
+    experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
+                                                       help = "What port should the Experiment Server use. Useful for development.")
 
     experiments.add_option("--dummy-experiment-name",  dest = Creation.DUMMY_NAME, type="string",    default="dummy",
                                                        help = "There is a testing experiment called 'dummy'. You may change this name "
@@ -533,10 +542,6 @@ def _build_parser():
 
     experiments.add_option("--dummy-copies",           dest = Creation.DUMMY_COPIES, type="int",    default=1,
                                                        help = "You may want to test the load balance among different copies of dummy." )
-
-    # TODO
-    experiments.add_option("--xmlrpc-experiment-port", dest = Creation.XMLRPC_EXPERIMENT_PORT, type="int",    default=None,
-                                                       help = "What port should the Experiment Server use. Useful for development.")
 
     experiments.add_option("--visir", "--visir-server", dest = Creation.VISIR_SERVER, action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
@@ -593,6 +598,21 @@ def _build_parser():
     
 
     parser.add_option_group(experiments)
+
+    fed = OptionGroup(parser, "Federation options",
+                                "WebLab-Deusto at the University of Deusto federates a set of laboratories. "
+                                "You may put them by default in your WebLab-Deusto instance.")
+
+    fed.add_option("--add-fed-submarine",       dest = Creation.ADD_FEDERATED_SUBMARINE, action="store_true", default=False,
+                                                help = "Add the submarine laboratory.")
+
+    fed.add_option("--add-fed-logic",           dest = Creation.ADD_FEDERATED_LOGIC, action="store_true", default=False,
+                                                help = "Add the logic laboratory.")
+
+    fed.add_option("--add-fed-visir",           dest = Creation.ADD_FEDERATED_VISIR, action="store_true", default=False,
+                                                help = "Add the VISIR laboratory.")
+
+    parser.add_option_group(fed)
 
     sess = OptionGroup(parser, "Session options",
                                 "WebLab-Deusto may store sessions in a database, in memory or in redis."
@@ -780,11 +800,22 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         protocol = 'http://'
     server_url = protocol + options[Creation.SERVER_HOST] + base_url + '/weblab/'
 
-
+    if options[Creation.XMLRPC_EXPERIMENT] and options[Creation.DUMMY_COPIES] > 1:
+        print >> stderr, "ERROR: there must be a single XML-RPC laboratory using the weblab-admin create at this point"
+        exit_func(-1)
 
     if options[Creation.START_PORTS] < 1 or options[Creation.START_PORTS] >= 65535:
         print >> stderr, "ERROR: starting port number must be at least 1"
         exit_func(-1)
+
+    if options[Creation.LOGO_PATH] is not None:
+        original_logo_path = options[Creation.LOGO_PATH]
+        if not os.path.exists(original_logo_path):
+            print >> stderr, "ERROR: logo path does not exist"
+            exit_func(-1)
+    else:
+        original_logo_path = data_filename(os.path.join('weblab','admin','generic-logo.jpg'))
+
 
     if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
         print >> stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
@@ -889,8 +920,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
 
+    if options[Creation.ADD_FEDERATED_SUBMARINE]:
+        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', group_name, 200)
+
     # visir@Visir experiments (optional)
-    if options[Creation.VISIR_SERVER]:
+    if options[Creation.VISIR_SERVER] or options[Creation.ADD_FEDERATED_VISIR]:
         deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 1800)
 
     # vm@VM experiments (optional)
@@ -898,7 +932,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], group_name, 200)
 
     # logic@PIC experiments (optional)
-    if options[Creation.LOGIC_SERVER]:
+    if options[Creation.LOGIC_SERVER] or options[Creation.ADD_FEDERATED_LOGIC]:
         deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
 
     ###########################################
@@ -908,16 +942,61 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
 
-    open(os.path.join(directory, 'configuration.xml'), 'w').write("""<?xml version="1.0" encoding="UTF-8"?>""" 
+    machine_config = ("""<?xml version="1.0" encoding="UTF-8"?>""" 
     """<machines
         xmlns="http://www.weblab.deusto.es/configuration" 
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="global_configuration.xsd"
     >
 
-    <machine>core_machine</machine>"""
-    "\n\n</machines>\n")
+    <machine>core_machine</machine>""")
 
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        machine_config += """    <machine>exp_machine</machine>\n""" 
+
+    machine_config += "\n\n</machines>\n"
+
+    open(os.path.join(directory, 'configuration.xml'), 'w').write(machine_config)
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        exp_machine_dir = os.path.join(directory, 'exp_machine')
+        if not os.path.exists(exp_machine_dir):
+            os.mkdir(exp_machine_dir)
+
+        exp_machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
+        """<instances
+            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="machine_configuration.xsd"
+        >
+
+        <runner file="run-xmlrpc.py"/>
+
+        <instance>exp_instance</instance>\n
+        </instances>""")
+
+        open(os.path.join(exp_machine_dir, 'configuration.xml'), 'w').write(exp_machine_configuration_xml)
+
+        exp_instance_dir = os.path.join(exp_machine_dir, 'exp_instance')
+        if not os.path.exists(exp_instance_dir):
+            os.mkdir(exp_instance_dir)
+
+        exp_instance_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>\n"""
+		"""<servers \n"""
+		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
+		""">\n"""
+		"""    <user>weblab</user>\n"""
+		"""\n"""
+		"""    <server>experiment1</server>\n"""
+		"""</servers>\n""")
+
+        open(os.path.join(exp_instance_dir, 'configuration.xml'), 'w').write(exp_instance_configuration_xml)
+
+        xmlrpc_server_dir = os.path.join(exp_instance_dir, 'experiment1')
+
+    
     machine_dir = os.path.join(directory, 'core_machine')
     if not os.path.exists(machine_dir):
         os.mkdir(machine_dir)
@@ -1001,6 +1080,18 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n, 
                 'local_experiments' : local_experiments, 'n' : n })
 
+    other_core_coordinator_external_servers = ""
+    other_scheduling_systems = ""
+    if options[Creation.ADD_FEDERATED_LOGIC]:
+        other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
+        other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_VISIR]:
+        other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
+        other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_SUBMARINE]:
+        other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
+        other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
+        
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
@@ -1080,6 +1171,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "core_coordinator_external_servers = {\n"
                         "    'external-robot-movement@Robot experiments'   : [ 'robot_external' ],\n"
+                        "%(other_core_coordinator_external_servers)s"
                         "}\n"
                         "\n"
                         "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
@@ -1093,53 +1185,55 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "core_scheduling_systems = {\n"
                         "%(local_scheduling)s"
                         "        'robot_external'   : weblabdeusto_federation_demo,\n"
+                        "%(other_scheduling_systems)s"
                         "    }\n"
                         "\n") % {
-        'core_universal_identifier'       : str(uuid.uuid4()),
-        'core_universal_identifier_human' : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
-        'db_engine'                       : options[Creation.DB_ENGINE],
-        'db_host'                         : options[Creation.DB_HOST],
-        'db_port'                         : options[Creation.DB_PORT],
-        'db_name'                         : options[Creation.DB_NAME],
-        'db_user'                         : options[Creation.DB_USER],
-        'db_password'                     : options[Creation.DB_PASSWD],
-        'server_hostaddress'              : options[Creation.SERVER_HOST],
-        'server_admin'                    : options[Creation.ADMIN_MAIL],
-        'server_url'                      : server_url,
-        'poll_time'                       : options[Creation.POLL_TIME],
-        'laboratory_servers'              : laboratory_servers,
-        'local_scheduling'                : local_scheduling,
+        'core_universal_identifier'               : str(uuid.uuid4()),
+        'core_universal_identifier_human'         : options[Creation.SYSTEM_IDENTIFIER] or 'Generic system; not identified',
+        'db_engine'                               : options[Creation.DB_ENGINE],
+        'db_host'                                 : options[Creation.DB_HOST],
+        'db_port'                                 : options[Creation.DB_PORT],
+        'db_name'                                 : options[Creation.DB_NAME],
+        'db_user'                                 : options[Creation.DB_USER],
+        'db_password'                             : options[Creation.DB_PASSWD],
+        'server_hostaddress'                      : options[Creation.SERVER_HOST],
+        'server_admin'                            : options[Creation.ADMIN_MAIL],
+        'server_url'                              : server_url,
+        'poll_time'                               : options[Creation.POLL_TIME],
+        'laboratory_servers'                      : laboratory_servers,
+        'local_scheduling'                        : local_scheduling,
+        'other_scheduling_systems'                : other_scheduling_systems,
+        'other_core_coordinator_external_servers' : other_core_coordinator_external_servers,
+        'session_storage'                         : session_storage,
 
-        'session_storage'                 : session_storage,
+        'session_db_engine'                       : options[Creation.SESSION_DB_ENGINE],
+        'session_db_host'                         : options[Creation.SESSION_DB_HOST],
+        'session_db_port'                         : options[Creation.SESSION_DB_PORT],
+        'session_db_name'                         : options[Creation.SESSION_DB_NAME],
+        'session_db_user'                         : options[Creation.SESSION_DB_USER],
+        'session_db_passwd'                       : options[Creation.SESSION_DB_PASSWD],
 
-        'session_db_engine'               : options[Creation.SESSION_DB_ENGINE],
-        'session_db_host'                 : options[Creation.SESSION_DB_HOST],
-        'session_db_port'                 : options[Creation.SESSION_DB_PORT],
-        'session_db_name'                 : options[Creation.SESSION_DB_NAME],
-        'session_db_user'                 : options[Creation.SESSION_DB_USER],
-        'session_db_passwd'               : options[Creation.SESSION_DB_PASSWD],
+        'session_redis_host'                      : options[Creation.SESSION_REDIS_HOST],
+        'session_redis_port'                      : options[Creation.SESSION_REDIS_PORT],
+        'session_redis_db'                        : options[Creation.SESSION_REDIS_DB],
 
-        'session_redis_host'              : options[Creation.SESSION_REDIS_HOST],
-        'session_redis_port'              : options[Creation.SESSION_REDIS_PORT],
-        'session_redis_db'                : options[Creation.SESSION_REDIS_DB],
+        'core_coordinator_engine'                 : coord_engine,
 
-        'core_coordinator_engine'         : coord_engine,
+        'core_coordinator_redis_db'               : options[Creation.COORD_REDIS_DB],
+        'core_coordinator_redis_password'         : options[Creation.COORD_REDIS_PASSWD],
+        'core_coordinator_redis_port'             : options[Creation.COORD_REDIS_PORT],
 
-        'core_coordinator_redis_db'       : options[Creation.COORD_REDIS_DB],
-        'core_coordinator_redis_password' : options[Creation.COORD_REDIS_PASSWD],
-        'core_coordinator_redis_port'     : options[Creation.COORD_REDIS_PORT],
+        'core_coordinator_db_username'            : options[Creation.COORD_DB_USER],
+        'core_coordinator_db_password'            : options[Creation.COORD_DB_PASSWD],
+        'core_coordinator_db_name'                : options[Creation.COORD_DB_NAME],
+        'core_coordinator_db_engine'              : options[Creation.COORD_DB_ENGINE],
+        'core_coordinator_db_host'                : options[Creation.COORD_DB_HOST],
+        'core_coordinator_db_port'                : options[Creation.COORD_DB_PORT],
 
-        'core_coordinator_db_username'    : options[Creation.COORD_DB_USER],
-        'core_coordinator_db_password'    : options[Creation.COORD_DB_PASSWD],
-        'core_coordinator_db_name'        : options[Creation.COORD_DB_NAME],
-        'core_coordinator_db_engine'      : options[Creation.COORD_DB_ENGINE],
-        'core_coordinator_db_host'        : options[Creation.COORD_DB_HOST],
-        'core_coordinator_db_port'        : options[Creation.COORD_DB_PORT],
-
-        'coord_db'                        : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
-        'coord_redis'                     : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
-        'session_db'                      : '' if session_storage == 'sqlalchemy' else '# ',
-        'session_redis'                   : '' if session_storage == 'redis' else '# ',
+        'coord_db'                                : '' if options[Creation.COORD_ENGINE] == 'sql' else '# ',
+        'coord_redis'                             : '' if options[Creation.COORD_ENGINE] == 'redis' else '# ',
+        'session_db'                              : '' if session_storage == 'sqlalchemy' else '# ',
+        'session_redis'                           : '' if session_storage == 'redis' else '# ',
     }
 
 
@@ -1330,8 +1424,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """    <server>laboratory%s</server>\n""" % n
                 )
 
-            for dummy_id in experiments_in_lab.get('dummy', []):
-                lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
+            if not options[Creation.XMLRPC_EXPERIMENT]:
+                for dummy_id in experiments_in_lab.get('dummy', []):
+                    lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
 
             if len(experiments_in_lab.get('visir', [])) > 0:
                 lab_instance_configuration_xml += """    <server>visir</server>\n"""
@@ -1350,6 +1445,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if not os.path.exists(lab_dir):
             os.mkdir(lab_dir)
 
+        port1 = current_port
+        current_port += 1
+        port2 = current_port
         open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
             """<?xml version="1.0" encoding="UTF-8"?>\n"""
             """<server\n"""
@@ -1383,8 +1481,19 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """                <parameter name="port"    value="%(port)s" />\n"""
             """            </creation>\n"""
             """        </protocol>\n"""
+            """        <protocol name="XMLRPC">\n"""
+            """            <coordinations>\n"""
+            """                <coordination>\n"""
+            """                    <parameter name="address" value="127.0.0.1:%(port2)s@NETWORK" />\n"""
+            """                </coordination>\n"""
+            """            </coordinations>\n"""
+            """            <creation>\n"""
+            """                <parameter name="address" value=""     />\n"""
+            """                <parameter name="port"    value="%(port2)s" />\n"""
+            """            </creation>\n"""
+            """        </protocol>\n"""
             """    </protocols>\n"""
-            """</server>\n""") % {'port' : current_port})
+            """</server>\n""") % {'port' : port1, 'port2' : port2})
         current_port += 1
 
         laboratory_config_py = (
@@ -1396,13 +1505,21 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         )
 
         for dummy_id in experiments_in_lab.get('dummy', []):
+            lab_config_args = { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                lab_config_args['instance'] = 'exp_instance'
+                lab_config_args['machine']  = 'exp_machine'
+            else:
+                lab_config_args['instance'] = laboratory_instance_name
+                lab_config_args['machine']  = 'core_machine'
+
             laboratory_config_py += (
                 """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
-                """                'coord_address' : 'experiment%(n)s:%(instance)s@core_machine',\n"""
+                """                'coord_address' : 'experiment%(n)s:%(instance)s@%(machine)s',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
-            ) % { 'instance' : laboratory_instance_name, 
-                  'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+            ) % lab_config_args
 
         for visir_id in experiments_in_lab.get('visir', []):
             laboratory_config_py += (
@@ -1435,11 +1552,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
 
         for dummy_id in experiments_in_lab.get('dummy', []):
-            experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                experiment_dir = xmlrpc_server_dir
+            else:
+                experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
+
             if not os.path.exists(experiment_dir):
                 os.mkdir(experiment_dir)
 
-            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write((
+            experiment_configuration = (
                 """<?xml version="1.0" encoding="UTF-8"?>\n"""
                 """<server\n"""
                 """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
@@ -1462,9 +1583,28 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """                <coordination></coordination>\n"""
                 """            </coordinations>\n"""
                 """            <creation></creation>\n"""
+                """        </protocol>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } 
+
+            if options[Creation.XMLRPC_EXPERIMENT]:
+                experiment_configuration += (
+                """        <protocol name="XMLRPC">\n"""
+                """            <coordinations>\n"""
+                """                <coordination>\n"""
+                """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+                """                </coordination>\n"""
+                """            </coordinations>\n"""
+                """            <creation>\n"""
+                """                <parameter name="address" value="127.0.0.1"     />\n"""
+                """                <parameter name="port"    value="%(port)s" />\n"""
+                """            </creation>\n"""
                 """        </protocol>\n"""
+                ) % {'port' : options[Creation.XMLRPC_EXPERIMENT_PORT] }
+
+            experiment_configuration += (
                 """    </protocols>\n"""
-                """</server>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } )
+                """</server>\n""")
+
+            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write(experiment_configuration)
 
             open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
                 "dummy_verbose = True\n")
@@ -1666,6 +1806,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             server_names.append('laboratory%s' % n)
     if options[Creation.XMLRPC_EXPERIMENT] or not options[Creation.INLINE_LAB_SERV]:
         server_names.append('experiment')
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        server_names.append('exp_instance')
 
     for server_name in server_names:
         logging_file = (
@@ -1967,12 +2110,59 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     debugging_config += "}\n"
 
 
-        
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        # XML-RPC runner
+        xmlrpc_launch_script = (
+            """#!/usr/bin/env python\n"""
+            """#-*-*- encoding: utf-8 -*-*-\n"""
+            """try:\n"""
+            """    import signal\n"""
+            """    \n"""
+            """    import voodoo.gen.loader.Launcher as Launcher\n"""
+            """    \n"""
+            """    def before_shutdown():\n"""
+            """        print "Stopping servers..."\n"""
+            """    \n""")
 
+        xmlrpc_launch_script += (
+        """    launcher = Launcher.MachineLauncher(\n"""
+        """                '.',\n"""
+        """                'exp_machine',\n"""
+        """                (\n"""
+        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
+        """                    Launcher.SignalWait(signal.SIGINT),\n"""
+        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
+        """                ),\n"""
+        """                {\n""")
 
-    open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
+        xmlrpc_launch_script += """                    "exp_instance" : "logs%sconfig%slogging.configuration.exp_instance.txt",\n""" % (os.sep,os.sep)
+
+        xmlrpc_launch_script += (
+        """                },\n"""
+        """                before_shutdown,\n"""
+        """                (\n"""
+        """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
+        """                ),\n"""
+        """                pid_file = 'weblab_xmlrpc.pid',\n""")
+        waiting_port = current_port
+        current_port += 1
+        xmlrpc_launch_script += """                waiting_port = %r,\n""" % waiting_port
+        xmlrpc_launch_script += ("""            )\n"""
+            """\n"""
+            """    launcher.launch()\n"""
+            """except:\n"""
+            """    import traceback\n"""
+            """    traceback.print_exc()\n"""
+            """    raise\n"""
+        )
+
     open(os.path.join(directory, 'debugging.py'), 'w').write( debugging_config )
+    open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
     os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
+
+    if options[Creation.XMLRPC_EXPERIMENT]:
+        open(os.path.join(directory, 'run-xmlrpc.py'), 'w').write( xmlrpc_launch_script )
+        os.chmod(os.path.join(directory, 'run-xmlrpc.py'), stat.S_IRWXU)
 
     if verbose: print >> stdout, "[done]"
 
@@ -2133,9 +2323,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
         d = { 'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration/ route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration/,' % d
-    proxy_paths.append(('%(root)s/weblab/administration/', proxy_path))
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
+    proxy_paths.append(('%(root)s/weblab/administration', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
@@ -2190,14 +2380,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if base_url in ('','/'):
         apache_root    = ''
-        apache_img_dir = '/sample' 
     else:
         apache_root    = base_url
-        apache_img_dir = base_url
+    
+    apache_img_dir = '/client/images'
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
-    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash,
+    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
                 'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'), 
                 'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
@@ -2281,22 +2471,32 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     configuration_js['sound.enabled']                  = False
     configuration_js['admin.email']                    = 'weblab@deusto.es'
     configuration_js['experiments.default_picture']    = '/img/experiments/default.jpg'
-    # TODO: Add a sample image
+
+    extension = original_logo_path.split('.')[-1]
+    if not len(extension) in (3,4):
+        extension = 'jpg'
+
+    configuration_js['host.entity.image.login']        = '/img/client/images/logo.%s' % extension
+    configuration_js['host.entity.image']              = '/img/client/images/logo.%s' % extension
+    configuration_js['host.entity.image.mobile']       = '/img/client/images/logo-mobile.%s' % extension
+
     if base_url != '' and base_url != '/':
         configuration_js['base.location']                  = base_url
-        configuration_js['host.entity.image.login']        = '/img%s%s.png'        % (base_url, base_url) 
-        configuration_js['host.entity.image']              = '/img%s%s.png'        % (base_url, base_url)
-        configuration_js['host.entity.image.mobile']       = '/img%s%s-mobile.png' % (base_url, base_url)
     else:
         configuration_js['base.location']                  = ''
-        configuration_js['host.entity.image.login']        = '/img/sample/sample.png'
-        configuration_js['host.entity.image']              = '/img/sample/sample.png'
-        configuration_js['host.entity.image.mobile']       = '/img/sample/sample-mobile.png'
-
     
 
-    creation_results[CreationResult.IMG_FILE]        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/img',1)[1])
-    creation_results[CreationResult.IMG_MOBILE_FILE] = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/img',1)[1])
+    logo_path        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/images',1)[1])
+    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/images',1)[1])
+
+    creation_results[CreationResult.IMG_FILE]        = logo_path
+    creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
+
+    # TODO: try to convert to manage sizes
+    logo_contents = open(original_logo_path, 'rb').read()
+    logo_mobile_contents = logo_contents
+    open(logo_path, 'wb').write(logo_contents)
+    open(logo_mobile_path, 'wb').write(logo_mobile_contents)
 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False
@@ -2350,7 +2550,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     print >> stdout, "You should also configure the images directory with two images called:"
     print >> stdout, ""
-    print >> stdout, "     %s.png and %s-mobile.png " % (base_url or 'sample', base_url or 'sample')
+    print >> stdout, "     %s and %s" % (logo_path, logo_mobile_path)
     print >> stdout, ""
     print >> stdout, "You can also add users, permissions, etc. from the admin CLI by typing:"
     print >> stdout, ""

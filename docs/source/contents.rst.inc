@@ -1,6 +1,6 @@
 .. note::
 
-    At this moment, we are migrating and extending the documentation from the
+    At this moment, we're migrating and extending the documentation from the
     `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_.
     If there was anything missing here, you may want to look there, but take into account
     that whatever you find in the old documentation site might be old and deprecated. In

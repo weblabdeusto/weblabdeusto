@@ -33,11 +33,11 @@ FACADE_TIMEOUT                    = 'facade_timeout'
 SERVER_HOSTADDRESS                = 'server_hostaddress'
 
 _sorted_variables.extend([
-    (DEBUG_MODE,                       _Argument(GENERAL, bool,  False,      "If True, errors and exceptions are shown instead of generic feedback (like !WebLabInternalServerError)")),
-    (SERVER_ADMIN,                     _Argument(GENERAL, str,   None,       "!WebLab-Deusto administrator's email address for notifications. See Admin Notifier settings below.")),
-    (SERVER_HOSTADDRESS,               _Argument(GENERAL, str,   '',         "Host address of this WebLab-Deusto deployment")),
-    (PROPAGATE_STACK_TRACES_TO_CLIENT, _Argument(GENERAL, bool,  False,      "If True, stacktraces are propagated to the client (useful for debugging).")),
-    (FACADE_TIMEOUT,                   _Argument(GENERAL, float, 0.5,        "Seconds that the facade will wait accepting a connection before checking again for shutdown requests.")),
+    (DEBUG_MODE,                       _Argument(GENERAL, bool,         False,      "If True, errors and exceptions are shown instead of generic feedback (like !WebLabInternalServerError)")),
+    (SERVER_ADMIN,                     _Argument(GENERAL, basestring,   None,       "!WebLab-Deusto administrator's email address for notifications. See Admin Notifier settings below.")),
+    (SERVER_HOSTADDRESS,               _Argument(GENERAL, basestring,   '',         "Host address of this WebLab-Deusto deployment")),
+    (PROPAGATE_STACK_TRACES_TO_CLIENT, _Argument(GENERAL, bool,         False,      "If True, stacktraces are propagated to the client (useful for debugging).")),
+    (FACADE_TIMEOUT,                   _Argument(GENERAL, float,        0.5,        "Seconds that the facade will wait accepting a connection before checking again for shutdown requests.")),
 ])
 
 # 
@@ -55,11 +55,11 @@ MAIL_NOTIFICATION_SUBJECT = 'mail_notification_subject'
 
 _sorted_variables.extend([
     (MAIL_NOTIFICATION_ENABLED, _Argument(ADMIN_NOTIFIER, bool, NO_DEFAULT, "Enables or Disables mail notifications")),
-    (MAIL_SERVER_HOST,          _Argument(ADMIN_NOTIFIER, str,  NO_DEFAULT, "Host to use for sending mail")),
-    (MAIL_SERVER_HELO,          _Argument(ADMIN_NOTIFIER, str,  NO_DEFAULT, "Address to be used on the mail's HELO")),
-    (MAIL_SERVER_USE_TLS,       _Argument(ADMIN_NOTIFIER, str,  'no',       "Use TLS or not. Values: 'yes' or 'no'")),
-    (MAIL_NOTIFICATION_SENDER,  _Argument(ADMIN_NOTIFIER, str,  NO_DEFAULT, "Address of the mail's sender")), 
-    (MAIL_NOTIFICATION_SUBJECT, _Argument(ADMIN_NOTIFIER, str,  "[WebLab] CRITICAL ERROR!", "(Optional) Subject of the notification mail")),
+    (MAIL_SERVER_HOST,          _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Host to use for sending mail")),
+    (MAIL_SERVER_HELO,          _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Address to be used on the mail's HELO")),
+    (MAIL_SERVER_USE_TLS,       _Argument(ADMIN_NOTIFIER, basestring,  'no',       "Use TLS or not. Values: 'yes' or 'no'")),
+    (MAIL_NOTIFICATION_SENDER,  _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Address of the mail's sender")), 
+    (MAIL_NOTIFICATION_SUBJECT, _Argument(ADMIN_NOTIFIER, basestring,  "[WebLab] CRITICAL ERROR!", "(Optional) Subject of the notification mail")),
 ])
 
 # 
@@ -77,12 +77,12 @@ WEBLAB_DB_PASSWORD              = 'weblab_db_password'
 WEBLAB_DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
 
 _sorted_variables.extend([
-    (DB_HOST,                         _Argument(DATABASE, str,  'localhost', "Location of the database server")),
+    (DB_HOST,                         _Argument(DATABASE, basestring,  'localhost', "Location of the database server")),
     (DB_PORT,                         _Argument(DATABASE, int,  None,        "Port where the database is listening, if any")),
-    (DB_DATABASE,                     _Argument(DATABASE, str,  'WebLab',    "Name of the main database")),
-    (DB_ENGINE,                       _Argument(DATABASE, str,  'mysql',     "Engine used. Example: mysql, sqlite")),
-    (WEBLAB_DB_USERNAME,              _Argument(DATABASE, str,  "weblab",    "WebLab database username")),
-    (WEBLAB_DB_PASSWORD,              _Argument(DATABASE, str,  NO_DEFAULT,  "WebLab database user password")),
+    (DB_DATABASE,                     _Argument(DATABASE, basestring,  'WebLab',    "Name of the main database")),
+    (DB_ENGINE,                       _Argument(DATABASE, basestring,  'mysql',     "Engine used. Example: mysql, sqlite")),
+    (WEBLAB_DB_USERNAME,              _Argument(DATABASE, basestring,  "weblab",    "WebLab database username")),
+    (WEBLAB_DB_PASSWORD,              _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
     (WEBLAB_DB_FORCE_ENGINE_CREATION, _Argument(DATABASE, bool, False,       "Force the creation of an engine each time")),
 ])
 
@@ -114,19 +114,19 @@ SESSION_LOCK_SQLALCHEMY_USERNAME             = 'session_lock_sqlalchemy_username
 SESSION_LOCK_SQLALCHEMY_PASSWORD             = 'session_lock_sqlalchemy_password'
 
 _sorted_variables.extend([
-    (SESSION_SQLALCHEMY_ENGINE,                    _Argument(SESSIONS, str,  'mysql',           "Database engine used for sessions the database. Example: mysql")),
-    (SESSION_SQLALCHEMY_HOST,                      _Argument(SESSIONS, str,  'localhost',       "Location of the sessions database server")),
+    (SESSION_SQLALCHEMY_ENGINE,                    _Argument(SESSIONS, basestring,  'mysql',           "Database engine used for sessions the database. Example: mysql")),
+    (SESSION_SQLALCHEMY_HOST,                      _Argument(SESSIONS, basestring,  'localhost',       "Location of the sessions database server")),
     (SESSION_SQLALCHEMY_PORT,                      _Argument(SESSIONS, int,  None,              "Location of the sessions database server")),
-    (SESSION_SQLALCHEMY_DB_NAME,                   _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the sessions database")),
-    (SESSION_SQLALCHEMY_USERNAME,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the sessions database" )),
-    (SESSION_SQLALCHEMY_PASSWORD,                  _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the sessions database")),
+    (SESSION_SQLALCHEMY_DB_NAME,                   _Argument(SESSIONS, basestring,  'WebLabSessions',  "Database name of the sessions database")),
+    (SESSION_SQLALCHEMY_USERNAME,                  _Argument(SESSIONS, basestring,  NO_DEFAULT,        "Username for connecting to the sessions database" )),
+    (SESSION_SQLALCHEMY_PASSWORD,                  _Argument(SESSIONS, basestring,  NO_DEFAULT,        "Password for connecting to the sessions database")),
 
-    (SESSION_LOCK_SQLALCHEMY_ENGINE,               _Argument(SESSIONS, str,  'mysql',           "Database engine used for locking the database. Example: mysql")),
-    (SESSION_LOCK_SQLALCHEMY_HOST,                 _Argument(SESSIONS, str,  'localhost',       "Location of the locking database server")),
+    (SESSION_LOCK_SQLALCHEMY_ENGINE,               _Argument(SESSIONS, basestring,  'mysql',           "Database engine used for locking the database. Example: mysql")),
+    (SESSION_LOCK_SQLALCHEMY_HOST,                 _Argument(SESSIONS, basestring,  'localhost',       "Location of the locking database server")),
     (SESSION_LOCK_SQLALCHEMY_PORT,                 _Argument(SESSIONS, int,  None,              "Location of the locking database server")),
-    (SESSION_LOCK_SQLALCHEMY_DB_NAME,              _Argument(SESSIONS, str,  'WebLabSessions',  "Database name of the locking database")),
-    (SESSION_LOCK_SQLALCHEMY_USERNAME,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Username for connecting to the locking database" )),
-    (SESSION_LOCK_SQLALCHEMY_PASSWORD,             _Argument(SESSIONS, str,  NO_DEFAULT,        "Password for connecting to the locking database")),
+    (SESSION_LOCK_SQLALCHEMY_DB_NAME,              _Argument(SESSIONS, basestring,  'WebLabSessions',  "Database name of the locking database")),
+    (SESSION_LOCK_SQLALCHEMY_USERNAME,             _Argument(SESSIONS, basestring,  NO_DEFAULT,        "Username for connecting to the locking database" )),
+    (SESSION_LOCK_SQLALCHEMY_PASSWORD,             _Argument(SESSIONS, basestring,  NO_DEFAULT,        "Password for connecting to the locking database")),
 
     (SESSION_MANAGER_DEFAULT_TIMEOUT,              _Argument(SESSIONS, int,  3600 * 2,          "Maximum time that a session will be stored in a Session Manager. In seconds.")),
     (SESSION_MEMORY_GATEWAY_SERIALIZE,             _Argument(SESSIONS, bool, False,             "Sessions can be stored in a database or in memory. If they are stored in memory, they can be serialized in memory or not, to check the behaviour")),
@@ -156,11 +156,11 @@ CORE_STORE_STUDENTS_PROGRAMS        = 'core_store_students_programs'
 CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
 
 _sorted_variables.extend([
-    (WEBLAB_CORE_SERVER_SESSION_TYPE,    _Argument(CORE, str, 'Memory', """What type of session manager the Core Server will use: Memory or MySQL.""")),
-    (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, str, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "!UserProcessing_A_B" and "!UserProcessing_C_D" would be enough.""")),
-    (CORE_SERVER_URL,                    _Argument(CORE, str, NO_DEFAULT, "The base URL for this server. For instance, http://www.weblab.deusto.es/weblab/ ")),
+    (WEBLAB_CORE_SERVER_SESSION_TYPE,    _Argument(CORE, basestring, 'Memory', """What type of session manager the Core Server will use: Memory or MySQL.""")),
+    (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, basestring, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "!UserProcessing_A_B" and "!UserProcessing_C_D" would be enough.""")),
+    (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://www.weblab.deusto.es/weblab/ ")),
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
-    (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, str, None, "If files are stored, in which local directory should be stored.")),
+    (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
 ])
 
 # 
@@ -181,15 +181,15 @@ CORE_FACADE_XMLRPC_BIND             = 'core_facade_xmlrpc_bind'
 CORE_FACADE_XMLRPC_PORT             = 'core_facade_xmlrpc_port'
 
 _sorted_variables.extend([
-    (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, str, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (CORE_FACADE_SOAP_BIND,               _Argument(CORE_FACADE, str, '',                        """Binding address for the SOAP facade at Core Server""")),
+    (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
+    (CORE_FACADE_SOAP_BIND,               _Argument(CORE_FACADE, basestring, '',                        """Binding address for the SOAP facade at Core Server""")),
     (CORE_FACADE_SOAP_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Port number for the SOAP facade at Core Server""")),
-    (CORE_FACADE_SOAP_SERVICE_NAME,       _Argument(CORE_FACADE, str, '/weblab/soap/',           """Service name for the SOAP facade at Core Server""")),
-    (CORE_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(CORE_FACADE, str, 'www.weblab.deusto.es',    """Public server host, used for generating the WSDL file.""")),
+    (CORE_FACADE_SOAP_SERVICE_NAME,       _Argument(CORE_FACADE, basestring, '/weblab/soap/',           """Service name for the SOAP facade at Core Server""")),
+    (CORE_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(CORE_FACADE, basestring, 'www.weblab.deusto.es',    """Public server host, used for generating the WSDL file.""")),
     (CORE_FACADE_SOAP_PUBLIC_SERVER_PORT, _Argument(CORE_FACADE, int, 80,                        """Public server port, used for generating the WSDL file.""")),
-    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, str, '',                        """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, basestring, '',                        """Binding address for the JSON facade at Core Server""")),
     (CORE_FACADE_JSON_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the JSON facade at Core Server""")),
-    (CORE_FACADE_XMLRPC_BIND,             _Argument(CORE_FACADE, str, '',                        """Binding address for the XML-RPC facade at Core Server""")),
+    (CORE_FACADE_XMLRPC_BIND,             _Argument(CORE_FACADE, basestring, '',                        """Binding address for the XML-RPC facade at Core Server""")),
     (CORE_FACADE_XMLRPC_PORT,             _Argument(CORE_FACADE, int, NO_DEFAULT,                """Port number for the XML-RPC facade at Core Server""")),
 ])
 
@@ -209,12 +209,12 @@ COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
 COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
-    (COORDINATOR_DB_HOST,            _Argument(COORDINATOR, str, "localhost", """Host of the database server.""")), 
+    (COORDINATOR_DB_HOST,            _Argument(COORDINATOR, basestring, "localhost", """Host of the database server.""")), 
     (COORDINATOR_DB_PORT,            _Argument(COORDINATOR, int, None,        """Port of the database server.""")), 
-    (COORDINATOR_DB_NAME,            _Argument(COORDINATOR, str, "WebLabCoordination", """Name of the coordination database.""")), 
-    (COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, str, NO_DEFAULT, """Username to access the coordination database.""")), 
-    (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, str, NO_DEFAULT, """Password to access the coordination database.""")), 
-    (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, str, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
+    (COORDINATOR_DB_NAME,            _Argument(COORDINATOR, basestring, "WebLabCoordination", """Name of the coordination database.""")), 
+    (COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Username to access the coordination database.""")), 
+    (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Password to access the coordination database.""")), 
+    (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, basestring, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
     (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments", for the "laboratory1" in the instance "main_instance" at the machine "main_machine", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
     (COORDINATOR_CLEAN,              _Argument(COORDINATOR, bool, True, """Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.""")), 
 ])
@@ -247,14 +247,14 @@ LOGIN_FACADE_XMLRPC_PORT             = 'login_facade_xmlrpc_port'
 
 _sorted_variables.extend([
     (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
-    (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the SOAP facade at Login Server""")), 
-    (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, str, "/weblab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
-    (LOGIN_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(LOGIN_FACADE, str, "www.weblab.deusto.es", """Public server host, used for generating the WSDL file.""")), 
+    (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, basestring, "/weblab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
+    (LOGIN_FACADE_SOAP_PUBLIC_SERVER_HOST, _Argument(LOGIN_FACADE, basestring, "www.weblab.deusto.es", """Public server host, used for generating the WSDL file.""")), 
     (LOGIN_FACADE_SOAP_PUBLIC_SERVER_PORT, _Argument(LOGIN_FACADE, int, 80, """Public server port, used for generating the WSDL file.""")), 
-    (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, str, "", """Binding address for the JSON facade at Login Server""")), 
+    (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the JSON facade at Login Server""")), 
     (LOGIN_FACADE_JSON_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the JSON facade at Login Server""")), 
-    (LOGIN_FACADE_XMLRPC_BIND,             _Argument(LOGIN_FACADE, str, "", """Binding address for the XML-RPC facade at Login Server""")), 
+    (LOGIN_FACADE_XMLRPC_BIND,             _Argument(LOGIN_FACADE, basestring, "", """Binding address for the XML-RPC facade at Login Server""")), 
     (LOGIN_FACADE_XMLRPC_PORT,             _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the XML-RPC facade at Login Server""")), 
 ])
 
@@ -274,8 +274,8 @@ LABORATORY_ASSIGNED_EXPERIMENTS      = 'laboratory_assigned_experiments'
 LABORATORY_EXCLUDE_CHECKING          = 'laboratory_exclude_checking'
 
 _sorted_variables.extend([
-    (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, str, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
-    (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, str, "LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
+    (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, basestring, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
+    (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, basestring, "LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
     (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server.""")), 
     (LABORATORY_EXCLUDE_CHECKING,     _Argument(LABORATORY, list, [], """List of ids of experiments upon which checks will not be run""")), 
 ])
@@ -294,7 +294,7 @@ PROXY_STORE_STUDENTS_PROGRAMS_PATH = 'proxy_store_students_programs_path'
 
 _sorted_variables.extend([
     (PROXY_EXPERIMENT_POLL_TIME,         _Argument(PROXY, int, 30, """Maximum amount of time that the server will wait for polls from a user using an experiment, in seconds, before considering that the user is not connected anymore.""")), 
-    (PROXY_STORE_STUDENTS_PROGRAMS_PATH, _Argument(PROXY, str, NO_DEFAULT, """Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program).""")), 
+    (PROXY_STORE_STUDENTS_PROGRAMS_PATH, _Argument(PROXY, basestring, NO_DEFAULT, """Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program).""")), 
 ])
 
 

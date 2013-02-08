@@ -1,0 +1,8 @@
+Flask<0.10
+Flask-sqlalchemy<1
+Flask-WTF<0.9
+Flask-Uploads<0.2
+
+SQLAlchemy<0.7.100
+
+mysql-python<1.3

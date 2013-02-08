@@ -228,7 +228,7 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if self.location is not None:
                 location = self.location
             else:
-                location = '/'
+                location = '/weblab/'
             self.send_header("Set-Cookie", "weblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(days=100)))
             self.send_header("Set-Cookie", "loginweblabsessionid=%s.%s; path=%s; Expires=%s" % (session_id, route, location, strdate(hours=1)))
 
@@ -292,7 +292,7 @@ class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
             if self.location is not None:
                 location = self.location
             else:
-                location = '/'
+                location = '/weblab/'
             self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
             self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
         SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.end_headers(self)
@@ -324,7 +324,7 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
         else:
-            the_location = '/'
+            the_location = '/weblab/'
 
         class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
             server_route = the_server_route
@@ -363,7 +363,7 @@ if ZSI_AVAILABLE:
                 if self.location is not None:
                     location = self.location
                 else:
-                    location = '/'
+                    location = '/weblab/'
                 self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
                 self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
             ServiceContainer.SOAPRequestHandler.end_headers(self)
@@ -479,7 +479,7 @@ class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
         else:
-            the_location = '/'
+            the_location = '/weblab/'
 
         class NewWebLabRequestHandlerClass(WebLabRequestHandlerClass):
             server_route = the_server_route
@@ -531,7 +531,7 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
             the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
         else:
-            the_location = '/'
+            the_location = '/weblab/'
         timeout = self.get_timeout()
         class NewJsonHttpHandler(self.JSON_HANDLER):
             facade_manager = self._rfm
