@@ -8,7 +8,6 @@ from multiprocessing import Pool
 
 sys.path.append(os.sep.join(('..','..','server','src')))
 
-import libraries
 from visir_tester import Tester
 
 # EXECUTIONS = 15
@@ -29,12 +28,13 @@ def f(n):
     result = tester.run()
     return result
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':    
     n = PROCESSES
     pool = Pool(n)
     results = pool.map(f, range(n))
     failed = 0
-    time_results = []
+    time_results = [0]
     for result in results:
         if result.failed:
             failed += 1

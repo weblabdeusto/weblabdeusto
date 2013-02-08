@@ -3,12 +3,14 @@ import json
 import visir_commands
 import traceback
 
+
 from voodoo.representable import Representable
 
 from weblab.core.reservations import Reservation
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId
+
 
 class AssertionResult(object):
 
@@ -59,9 +61,9 @@ class Tester(object):
             print "Confirmed reservation, starting..."
 
             reservation_id = reservation.reservation_id
+            initial_config = reservation.initial_configuration
 
-            response = weblab.send_command(reservation_id, Command("GIVE_ME_SETUP_DATA"))
-            cookie   = json.loads(response.commandstring)['cookie']
+            cookie   = json.loads(initial_config)['cookie']
 
             login_response = weblab.send_command(reservation_id, Command(visir_commands.visir_login_request % cookie))
 
@@ -122,4 +124,13 @@ class Tester(object):
         else:
             print "Finished without exception"
             return TesterResult(any(map(lambda assertion : assertion.failed, assertions)), assertions, None, times)
+    
+        
+if __name__ == '__main__':
+    URL = "http://www.weblab.deusto.es/weblab/"
+    USERNAME = "demo"
+    PASSWORD = "demo"
+    EXECUTIONS = 2
+    tester = Tester(URL, USERNAME, PASSWORD, EXECUTIONS)
+    result = tester.run()
 
