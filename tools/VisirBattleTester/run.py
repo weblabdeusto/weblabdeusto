@@ -16,8 +16,8 @@ URL = "http://www.weblab.deusto.es/weblab/"
 USERNAME = "tester"
 PASSWORD = "t3st3r6"
 
-EXECUTIONS =  2
-PROCESSES  =  10
+EXECUTIONS =  5
+PROCESSES  =  20
 # URL = "http://localhost/weblab/"
 # USERNAME = "any"
 # PASSWORD = "password"
@@ -29,12 +29,13 @@ def f(n):
     return result
 
 
-if __name__ == '__main__':    
+if __name__ == '__main__':   
+     
     n = PROCESSES
     pool = Pool(n)
     results = pool.map(f, range(n))
     failed = 0
-    time_results = [0]
+    time_results = []
     for result in results:
         if result.failed:
             failed += 1
