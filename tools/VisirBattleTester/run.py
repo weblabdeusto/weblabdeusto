@@ -16,14 +16,14 @@ URL = "http://www.weblab.deusto.es/weblab/"
 USERNAME = "tester"
 PASSWORD = "t3st3r6"
 
-EXECUTIONS =  5
+EXECUTIONS =  20
 PROCESSES  =  20
 # URL = "http://localhost/weblab/"
 # USERNAME = "any"
 # PASSWORD = "password"
 
 def f(n):
-    time.sleep(0.01 * n)
+    time.sleep(0.01 * 100 * n)
     tester = Tester(URL, USERNAME, PASSWORD, EXECUTIONS)
     result = tester.run()
     return result
