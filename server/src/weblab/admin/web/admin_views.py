@@ -4,6 +4,7 @@ import sha
 import time
 import random
 import datetime
+import traceback
 import threading
 
 from wtforms.fields.core import UnboundField
@@ -345,13 +346,34 @@ class UsersAddingView(AdministratorView):
 
         ldap_uri = auth_ldap.get_config_value("ldap_uri")
         ldap_base = auth_ldap.get_config_value("base")
-        ldap = LdapGatewayClass(ldap_uri, form.ldap_domain, ldap_base, form.ldap_user, form.ldap_password)
+        ldap = LdapGatewayClass(ldap_uri, form.ldap_domain.data, ldap_base, form.ldap_user.data, form.ldap_password.data)
 
         users = []
 
         rows = self._parse_text(text, ('login',))
-        
-        for user in ldap.get_users(rows):
+        try:
+            users = ldap.get_users(rows)
+        except:
+            traceback.print_exc()
+            flash("Error retrieving users from the LDAP server. Contact your administrator.")
+            raise FormException()
+        if len(users) != len(rows):
+            retrieved_logins = [ user['login'] for user in users ]
+            missing_logins = []
+            for login in rows:
+                if login not in retrieved_logins:
+                    missing_logins.append(login)
+            print missing_logins
+            all_missing_logins = ', '.join(missing_logins)
+            print all_missing_logins
+            flash("Error: could not find the following users: %s" % all_missing_logins)
+            raise FormException()
+            
+        if len(users) == 0:
+            flash("No user processed")
+            raise FormException()
+
+        for user in users:
             user = model.DbUser(login=user['login'], full_name=user['full_name'], email=user['email'], role=role)
             self.session.add(user)
             user_auth = model.DbUserAuth(user = user, auth = auth, configuration = None)
@@ -414,7 +436,7 @@ class UsersAddingView(AdministratorView):
         example     = "user1\nuser2\nuser3"
         if form.validate_on_submit():
             try:
-                users = self._process_ldap(form.users.data)
+                users = self._process_ldap(form.users.data, form)
             except FormException:
                 pass
             else:
