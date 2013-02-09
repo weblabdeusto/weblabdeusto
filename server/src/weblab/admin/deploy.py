@@ -57,6 +57,10 @@ def insert_required_initial_data(engine):
     session.add(weblab_db)
     session.commit()
 
+    weblab_openid = Model.DbAuth(openid, "OPENID", 6)
+    session.add(weblab_openid)
+    session.commit()
+
     federated_access_forward = Model.DbRolePermission(
         federated,
         permissions.ACCESS_FORWARD,
