@@ -57,7 +57,7 @@ def insert_required_initial_data(engine):
     session.add(weblab_db)
     session.commit()
 
-    weblab_openid = Model.DbAuth(openid, "OPENID", 6)
+    weblab_openid = Model.DbAuth(openid, "OPENID", 7)
     session.add(weblab_openid)
     session.commit()
 
