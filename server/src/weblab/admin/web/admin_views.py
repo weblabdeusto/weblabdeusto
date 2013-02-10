@@ -14,10 +14,11 @@ from sqlalchemy.sql.expression import desc
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-from flask.ext.wtf import Form, TextField, TextAreaField, Required, PasswordField, SelectField, NumberRange
+from flask.ext.wtf import Form, TextField, TextAreaField, Required, PasswordField, NumberRange, SelectField
 
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
+from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
 
 import weblab.configuration_doc as configuration_doc
@@ -232,7 +233,7 @@ class UsersBatchForm(Form):
     
     users          = TextAreaField(u"Users:", description="Add the user list using the detailed format")
     new_group      = TextField(u"New group:")
-    existing_group = SelectField(u"Existing group:")
+    existing_group = Select2Field(u"Existing group:")
 
 class LdapUsersBatchForm(UsersBatchForm):
     
@@ -788,8 +789,8 @@ class RolePermissionPanel(GenericPermissionPanel):
         RolePermissionPanel.INSTANCE = self
 
 class PermissionsForm(Form):
-    permission_types = SelectField(u"Permission type:", choices=[ (permission_type, permission_type) for permission_type in permissions.permission_types ], default = permissions.EXPERIMENT_ALLOWED)
-    recipients       = SelectField(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')], default = 'group')
+    permission_types = Select2Field(u"Permission type:", choices=[ (permission_type, permission_type) for permission_type in permissions.permission_types ], default = permissions.EXPERIMENT_ALLOWED)
+    recipients       = Select2Field(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')], default = 'group')
 
 
 class PermissionsAddingView(AdministratorView):
@@ -826,7 +827,7 @@ class PermissionsAddingView(AdministratorView):
         class ParentPermissionForm(Form):
 
             comments   = TextField("Comments")
-            recipients = SelectField(recipient_type, description="Recipients of the permission")
+            recipients = Select2Field(recipient_type, description="Recipients of the permission")
 
             def get_permanent_id(self):
                 recipient = recipient_resolver(self.recipients.data)
@@ -860,7 +861,7 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['experiment', 'time_allowed', 'priority', 'initialization_in_accounting']
 
-                experiment = SelectField(u'Experiment', description = "Experiment")
+                experiment = Select2Field(u'Experiment', description = "Experiment")
 
                 time_allowed = TextField(u'Time assigned',                  description = "Measured in seconds",  validators = [Required(), NumberRange(min=1)], default=100)
                 priority     = TextField(u'Priority',                       description = "Priority of the user", validators = [Required(), NumberRange(min=0)], default=5)
