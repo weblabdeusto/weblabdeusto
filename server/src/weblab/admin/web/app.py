@@ -106,7 +106,18 @@ class AdministrationApplication(AbstractDatabaseGateway):
         #  Instructors panel
         # 
     
-        # TODO
+        # TODO. There should be able a new M2M relation between instructors and groups.
+        # 
+        # Instructor should be able to:
+        # 
+        # a) Create new groups (of which they are in charge)
+        # b) Make other instructors in charge of these groups
+        # c) Add students (and only students) to the system; forcing a group
+        # d) Edit users (only students; of those groups that the administrator is in charge of)
+        # e) Assign permissions on these courses
+        # f) Manage the permissions on these courses
+        # g) See the logs of their own students
+        # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
 
         ################################################
         # 
