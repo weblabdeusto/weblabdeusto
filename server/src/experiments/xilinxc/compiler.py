@@ -19,6 +19,14 @@ import os
 import base64
 
 
+UCF_INTERNAL_CLOCK = "fpga_clock_internal.ucf"
+UCF_WEBLAB_CLOCK = "fpga_clock_weblab.ucf"
+UCF_BUTTON_CLOCK = "fpga_clock_but3.ucf"
+UCF_SWITCH_CLOCK = "fpga_clock_swi9.ucf"
+
+DEFAULT_UCF = UCF_INTERNAL_CLOCK
+
+
 class Compiler(object):
     
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
@@ -36,8 +44,27 @@ class Compiler(object):
         if self.toolspath != "":
             self.toolspath += os.sep
             
+        # By default, we will use this UCF.
+        self.ucf = DEFAULT_UCF
+            
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
+            
+            
+    def choose_clock(self, vhdl):
+        """
+        Tries to find a special markup within the VHDL code to decide which UCF to use.
+        @param vhdl The VHDL code.
+        """
+        if "@@@CLOCK:WEBLAB@@@" in vhdl:
+            self.ucf = UCF_WEBLAB_CLOCK
+        elif "@@@CLOCK:INTERNAL@@@" in vhdl:
+            self.ucf = UCF_INTERNAL_CLOCK
+        elif "@@@CLOCK:BUTTON@@@" in vhdl:
+            self.ucf = UCF_BUTTON_CLOCK
+        elif "@@@CLOCK:SWITCH@@@" in vhdl:
+            self.ucf = UCF_SWITCH_CLOCK
+        
             
 
     def feed_vhdl(self, vhdl, debugging = False):
@@ -57,7 +84,7 @@ class Compiler(object):
             
     def restore_ucf(self):
         """
-        Restores the local ucf file contents with the default UCF
+        DEPRECATED. Restores the local ucf file contents with the default UCF
         contents.
         """
         original_ucfpath = self.filespath + os.sep + "FPGA_2012_2013_def_original.ucf"
@@ -69,7 +96,7 @@ class Compiler(object):
             
     def feed_ucf(self, ucf, debugging = False):
         """
-        Replaces the local ucf file contents with the provided ucf.
+        DEPRECATED. Replaces the local ucf file contents with the provided ucf.
         Warning: It will replace the file contents.
         @param ucf String containing the new UCF code.
         """
@@ -99,7 +126,7 @@ class Compiler(object):
         return True
     
     def ngdbuild(self):
-        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
+        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", self.ucf, 
                                     "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)

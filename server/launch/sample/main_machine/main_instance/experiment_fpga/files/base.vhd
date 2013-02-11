@@ -23,6 +23,7 @@ entity base is
 		);
 end base;
 
+
 architecture behavioral of base is
 begin
 	S0<=((A and not(B)) or (not(A) and B));
