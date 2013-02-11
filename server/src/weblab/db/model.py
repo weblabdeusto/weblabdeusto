@@ -344,7 +344,7 @@ class DbUserUsedExperiment(Base):
     end_date_micro          = Column(Integer)
     # TODO: use these new two fields
     max_error_in_millis     = Column(Integer, nullable = True)
-    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler
+    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
     permission_permanent_id = Column(String(255), nullable = True)
     origin                  = Column(String(255), nullable = False)
     coord_address           = Column(String(255), nullable = False)

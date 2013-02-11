@@ -275,8 +275,8 @@ class UserProcessingServer(object):
             try:
                 expired_session = self._reservations_session_manager.get_session_locking(expired_reservation)
                 try:
-                    reservation = self._load_reservation(expired_session)
-                    reservation.finish()
+                    reservation_processor = self._load_reservation(expired_session)
+                    reservation_processor.finish()
                 finally:
                     self._reservations_session_manager.modify_session_unlocking(expired_reservation, expired_session)
             except Exception as e:
