@@ -351,33 +351,36 @@ class UsersAddingView(AdministratorView):
 
         users = []
 
-        rows = self._parse_text(text, ('login',))
+        rows = [ user[0] for user in self._parse_text(text, ('login',)) ]
         try:
-            users = ldap.get_users(rows)
+            users_data = ldap.get_users(rows)
         except:
             traceback.print_exc()
             flash("Error retrieving users from the LDAP server. Contact your administrator.")
             raise FormException()
-        if len(users) != len(rows):
-            retrieved_logins = [ user['login'] for user in users ]
+
+        if len(users_data) != len(rows):
+            retrieved_logins = [ user['login'] for user in users_data ]
             missing_logins = []
             for login in rows:
                 if login not in retrieved_logins:
                     missing_logins.append(login)
-            print missing_logins
             all_missing_logins = ', '.join(missing_logins)
-            print all_missing_logins
             flash("Error: could not find the following users: %s" % all_missing_logins)
             raise FormException()
             
-        if len(users) == 0:
+        if len(users_data) == 0:
             flash("No user processed")
             raise FormException()
 
-        for user in users:
-            user = model.DbUser(login=user['login'], full_name=user['full_name'], email=user['email'], role=role)
+        for user_data in users_data:
+            ENCODING = 'utf-8'
+            login     = user_data['login'].decode(ENCODING)
+            full_name = user_data['full_name'].decode(ENCODING)
+            email     = user_data['email'].decode(ENCODING)
+            user = model.DbUser(login=login, full_name=full_name, email=email, role=role)
             self.session.add(user)
-            user_auth = model.DbUserAuth(user = user, auth = auth, configuration = None)
+            user_auth = model.DbUserAuth(user = user, auth = auth_ldap, configuration = None)
             self.session.add(user_auth)
             users.append(user)
 
