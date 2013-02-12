@@ -24,6 +24,7 @@ UCF_WEBLAB_CLOCK = "fpga_clock_weblab.ucf"
 UCF_BUTTON_CLOCK = "fpga_clock_but3.ucf"
 UCF_SWITCH_CLOCK = "fpga_clock_swi9.ucf"
 
+ENABLE_LOG_FILE = False
 LOG_FILE = "compiler.log"
 
 DEFAULT_UCF = UCF_INTERNAL_CLOCK
@@ -49,8 +50,11 @@ class Compiler(object):
         # By default, we will use this UCF.
         self.ucf = DEFAULT_UCF
         
-        # Load the logfile we will use to track the compiling process.
-        self.logfile = open(self.filespath + os.sep + LOG_FILE, "w+")
+        if(ENABLE_LOG_FILE):
+            # Load the logfile we will use to track the compiling process.
+            self.logfile = open(self.filespath + os.sep + LOG_FILE, "w")
+        else:
+            self.logfile = None
             
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
@@ -60,7 +64,8 @@ class Compiler(object):
         """
         Deallocates resources used by the Compiler class.
         """
-        self.logfile.close()
+        if(ENABLE_LOG_FILE):
+            self.logfile.close()
             
             
     def choose_clock(self, vhdl):
@@ -102,8 +107,9 @@ class Compiler(object):
         
         so, se = process.communicate()
         
-        self.logfile.write(so + "\n");
-        self.logfile.write(se + "\n");
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n")
+            self.logfile.write(se + "\n")
         
         if(self.DEBUG):
             print so, se
@@ -138,8 +144,9 @@ class Compiler(object):
         
         so, se = process.communicate()
         
-        self.logfile.write(so + "\n");
-        self.logfile.write(se + "\n");
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n");
+            self.logfile.write(se + "\n");
         
         if(self.DEBUG):
             print so, se
@@ -157,8 +164,9 @@ class Compiler(object):
         
         so, se = process.communicate()
         
-        self.logfile.write(so + "\n");
-        self.logfile.write(se + "\n");
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n");
+            self.logfile.write(se + "\n");
         
         if(self.DEBUG):
             print so, se
@@ -201,11 +209,13 @@ class Compiler(object):
         
         r = process.wait()
         
-        outr = process.stdout.read()
-        oute = process.stderr.read()
+        if ENABLE_LOG_FILE or self.DEBUG:
+            outr = process.stdout.read()
+            oute = process.stderr.read()
         
-        self.logfile.write(outr + "\n");
-        self.logfile.write(oute + "\n");
+        if ENABLE_LOG_FILE:
+            self.logfile.write(outr + "\n");
+            self.logfile.write(oute + "\n");
         
         if(self.DEBUG):
             print outr
