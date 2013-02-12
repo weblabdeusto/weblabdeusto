@@ -300,6 +300,27 @@
 	                        	   "experiment.info.description" : "description"
 	                           },
 	                           {
+	                        	   "experiment.name"      : "Fisica-1-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-2-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-3-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
 	                        	   "experiment.name"      : "visirtest",
 	                        	   "experiment.category"  : "Dummy experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
