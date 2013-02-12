@@ -302,7 +302,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if self.circuits_dir is not None:
                 for fname in glob.glob("%s*cir" % self.circuits_dir):
                     name = os.path.basename(fname)[:-4]
-                    all_circuits[name] = open(fname, "rb").read()
+                    all_circuits[name] = urllib.quote(open(fname, "rb").read(), '')
         except:
             traceback.print_exc()
         return all_circuits

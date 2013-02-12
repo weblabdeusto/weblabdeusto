@@ -36,6 +36,9 @@ Date: (pending)
   - weblab-admin is the script than now manages and creates weblab-deusto 
     instances.
 
+  - A new web administrator is available, which covers all the administration 
+    functionalities.
+
   - Drop MySQL, Apache as mandatory requirements. If you pass --http-server-port
     8000 to the weblab-admin creation script, it will deploy a small server
     useful for testing. MySQL is not mandatory since sqlite can also be used.

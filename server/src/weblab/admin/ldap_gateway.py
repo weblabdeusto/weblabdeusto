@@ -49,6 +49,7 @@ class LdapGateway(object):
         self.connection.unbind()
 
     def get_users(self, user_logins):
+        users = []
         self._bind()
         for user_login in user_logins:
             result_set = self.connection.search_s(
@@ -61,7 +62,8 @@ class LdapGateway(object):
                 print >> sys.stderr, "User '%s' not found" % user_login
             elif len(result_set) > 1:
                 print >> sys.stderr, "Invalid state: too many users found for username %s" % user_login
-                yield self._parse_result_set(result_set, user_login)
+                users.append(self._parse_result_set(result_set, user_login))
             else:
-                yield self._parse_result_set(result_set, user_login)
+                users.append(self._parse_result_set(result_set, user_login))
         self._unbind()
+        return users

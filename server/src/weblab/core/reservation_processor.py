@@ -109,6 +109,9 @@ class ReservationProcessor(object):
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)
+            
+            if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_REMOTE:
+                self.process_reserved_remote_status(status)
 
             return Reservation.Reservation.translate_reservation( status )
 
@@ -122,6 +125,8 @@ class ReservationProcessor(object):
         # from the status manager to know when it started
         self._renew_expiration_time( self.time_module.time() + status.time )
 
+    def process_reserved_remote_status(self, status):
+        self._reservation_session['federated'] = True
 
     def finish(self):
 
@@ -172,6 +177,9 @@ class ReservationProcessor(object):
 
         return 'session_polling' in self._reservation_session
 
+    def is_federated(self):
+        return self._reservation_session.get('federated', False)
+
     def _renew_expiration_time(self, expiration_time):
         if self.is_polling():
             self._reservation_session['session_polling'] = (
@@ -195,10 +203,14 @@ class ReservationProcessor(object):
     def is_expired(self):
 
         """Did this reservation's user stay out for a long time without polling?"""
+    
+        # If it has been assigned in a foreign server, then, it is never expired
+        if self.is_federated():
+            return False
 
         # If it is not polling, it was expired in the past
         if not self.is_polling():
-           return True
+            return True
 
         #
         # But if it polling and it hasn't polled in some time

@@ -275,8 +275,8 @@ class UserProcessingServer(object):
             try:
                 expired_session = self._reservations_session_manager.get_session_locking(expired_reservation)
                 try:
-                    reservation = self._load_reservation(expired_session)
-                    reservation.finish()
+                    reservation_processor = self._load_reservation(expired_session)
+                    reservation_processor.finish()
                 finally:
                     self._reservations_session_manager.modify_session_unlocking(expired_reservation, expired_session)
             except Exception as e:
@@ -410,12 +410,16 @@ class UserProcessingServer(object):
                         'experiment_id'      : experiment_id,
                         'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
                         'reservation_id'     : reservation_session_id,
+                        'federated'          : False,
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
 
         if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
             reservation_processor.process_reserved_status(status)
+
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_REMOTE:
+            reservation_processor.process_reserved_remote_status(status)
 
         self._reservations_session_manager.modify_session(session_id, initial_session)
         return Reservation.Reservation.translate_reservation( status )
