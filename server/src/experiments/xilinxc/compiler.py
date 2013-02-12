@@ -50,7 +50,7 @@ class Compiler(object):
         self.ucf = DEFAULT_UCF
         
         # Load the logfile we will use to track the compiling process.
-        self.logfile = open(self.filespath + os.sep + LOG_FILE)
+        self.logfile = open(self.filespath + os.sep + LOG_FILE, "w+")
             
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
