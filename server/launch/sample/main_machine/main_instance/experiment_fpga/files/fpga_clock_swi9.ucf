@@ -5,10 +5,10 @@
 
 NET "clk" LOC = "C15"; //El reloj es lo que normalmente sería el switch 9
 
-NET "en3"  LOC = "E13"  ;
-NET "en2"  LOC = "F14"  ;
-NET "en1"  LOC = "G14"  ;
-NET "en0"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
+NET "ena3"  LOC = "E13"  ;
+NET "ena2"  LOC = "F14"  ;
+NET "ena1"  LOC = "G14"  ;
+NET "ena0"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
 
 NET "seg6"  LOC = "E14"  ; //segmento a NIVEL BAJO
 NET "seg5"  LOC = "G13"  ; //segmento b NIVEL BAJO
