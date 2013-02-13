@@ -24,7 +24,7 @@ UCF_WEBLAB_CLOCK = "fpga_clock_weblab.ucf"
 UCF_BUTTON_CLOCK = "fpga_clock_but3.ucf"
 UCF_SWITCH_CLOCK = "fpga_clock_swi9.ucf"
 
-ENABLE_LOG_FILE = False
+ENABLE_LOG_FILE = True
 LOG_FILE = "compiler.log"
 
 DEFAULT_UCF = UCF_INTERNAL_CLOCK
@@ -127,6 +127,10 @@ class Compiler(object):
 
         so, se = process.communicate()
         
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n")
+            self.logfile.write(se + "\n")
+        
         if(self.DEBUG): 
             print so, se
 
@@ -226,7 +230,7 @@ class Compiler(object):
         
         return False
     
-    def compileit(self):
+    def compile(self):
         return self.synthesize() and self.implement() and self.generate()
     
 
