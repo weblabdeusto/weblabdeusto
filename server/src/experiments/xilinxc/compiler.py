@@ -230,7 +230,15 @@ class Compiler(object):
         
         return False
     
-    def compile(self):
+    def compile(self): #@ReservedAssignment
+        # Read VHDL code to compile
+        f = open(self.filespath + os.sep + "base.vhd", "r")
+        vhdl = f.read()
+        f.close()
+        
+        # Choose the right clock
+        self.choose_clock(vhdl)
+        
         return self.synthesize() and self.implement() and self.generate()
     
 
