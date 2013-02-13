@@ -4,6 +4,7 @@
 #NET "clk"  LOC = "T9"  ; //Reloj interno de 4 MHz (o 1 MHz, no lo recuerdo)
 
 NET "clk" LOC = "C15"; //El reloj es lo que normalmente sería el switch 9
+NET "clk" CLOCK_DEDICATED_ROUTE = FALSE; // Necesario para que acepte el switch como reloj
 
 NET "ena3"  LOC = "E13"  ;
 NET "ena2"  LOC = "F14"  ;
