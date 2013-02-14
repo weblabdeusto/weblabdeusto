@@ -595,7 +595,7 @@ public class XilinxExperiment extends ExperimentBase{
 				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
 				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
-					currentAction = "Compiling VHDL";
+					currentAction = "Synthesizing VHDL";
 				else
 					currentAction = "Processing";
 				
