@@ -28,7 +28,7 @@ from exc import GoBackError
 from db import DbGateway
 from smtp import SmtpGateway
 try:
-    from ldap_gateway import LdapGateway
+    from weblab.admin.ldap_gateway import LdapGateway
     LdapGatewayClass = LdapGateway
 except ImportError:
     LdapGatewayClass = None

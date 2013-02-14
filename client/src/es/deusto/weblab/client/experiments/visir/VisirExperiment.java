@@ -225,7 +225,7 @@ public class VisirExperiment extends FlashExperiment {
 		if(this.cookie != "")
 			flashvars += "&cookie="+this.cookie;
 		if(this.savedata != "")
-			flashvars += "&savedata="+URL.encode(this.savedata);
+			flashvars += "&savedata="+this.savedata;
 		
 		// Data is received encoded, and used to generate the website straightaway.
 		//final String flashvars = "cookie="+this.cookie+"&savedata="+this.savedata;

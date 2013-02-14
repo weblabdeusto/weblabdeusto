@@ -25,7 +25,7 @@ class ExperimentsTestCase(unittest.TestCase):
         self.category   = ExperimentCategory("Dummy experiments")
         self.experiment = Experiment("ud-dummy", self.category, datetime.datetime.now(), datetime.datetime.now(), 5L)
         self.use        = ExperimentUse(datetime.datetime.now(), datetime.datetime.now(), self.experiment, 'student1', '127.0.0.1', 5L)
-        self.allowed    = ExperimentAllowed(self.experiment, 150, 5, True)
+        self.allowed    = ExperimentAllowed(self.experiment, 150, 5, True, 'exp::user')
 
     def _check_repr(self, obj):
         self.assertEquals(repr(obj), repr(eval(repr(obj))))

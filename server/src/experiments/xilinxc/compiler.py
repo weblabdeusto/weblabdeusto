@@ -19,6 +19,17 @@ import os
 import base64
 
 
+UCF_INTERNAL_CLOCK = "fpga_clock_internal.ucf"
+UCF_WEBLAB_CLOCK = "fpga_clock_weblab.ucf"
+UCF_BUTTON_CLOCK = "fpga_clock_but3.ucf"
+UCF_SWITCH_CLOCK = "fpga_clock_swi9.ucf"
+
+ENABLE_LOG_FILE = True
+LOG_FILE = "compiler.log"
+
+DEFAULT_UCF = UCF_INTERNAL_CLOCK
+
+
 class Compiler(object):
     
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
@@ -37,8 +48,41 @@ class Compiler(object):
             self.toolspath += os.sep
         self.errorlines = []
             
+        # By default, we will use this UCF.
+        self.ucf = DEFAULT_UCF
+        
+        if(ENABLE_LOG_FILE):
+            # Load the logfile we will use to track the compiling process.
+            self.logfile = open(self.filespath + os.sep + LOG_FILE, "w")
+        else:
+            self.logfile = None
+            
         if(self.DEBUG):
             print "[Xilinxc Compiler]: Running from " + os.getcwd()
+            
+            
+    def close(self):
+        """
+        Deallocates resources used by the Compiler class.
+        """
+        if(ENABLE_LOG_FILE):
+            self.logfile.close()
+            
+            
+    def choose_clock(self, vhdl):
+        """
+        Tries to find a special markup within the VHDL code to decide which UCF to use.
+        @param vhdl The VHDL code.
+        """
+        if "@@@CLOCK:WEBLAB@@@" in vhdl:
+            self.ucf = UCF_WEBLAB_CLOCK
+        elif "@@@CLOCK:INTERNAL@@@" in vhdl:
+            self.ucf = UCF_INTERNAL_CLOCK
+        elif "@@@CLOCK:BUTTON@@@" in vhdl:
+            self.ucf = UCF_BUTTON_CLOCK
+        elif "@@@CLOCK:SWITCH@@@" in vhdl:
+            self.ucf = UCF_SWITCH_CLOCK
+        
             
 
     def feed_vhdl(self, vhdl, debugging = False):
@@ -55,33 +99,6 @@ class Compiler(object):
             f = file(vhdlpath, "w")
             f.write(vhdl)
             f.close()
-            
-    def restore_ucf(self):
-        """
-        Restores the local ucf file contents with the default UCF
-        contents.
-        """
-        original_ucfpath = self.filespath + os.sep + "FPGA_2012_2013_def_original.ucf"
-        fi = file(original_ucfpath, "r")
-        original_ucf = fi.read()
-        fi.close()
-        
-        self.feed_ucf(original_ucf)
-            
-    def feed_ucf(self, ucf, debugging = False):
-        """
-        Replaces the local ucf file contents with the provided ucf.
-        Warning: It will replace the file contents.
-        @param ucf String containing the new UCF code.
-        """
-        ucfpath = self.filespath + os.sep + "FPGA_2012_2013_def.ucf"
-        if(debugging):
-            print "[DBG]: Feed_ucf pretending to replace %s with " % (ucfpath)
-            print ucf
-        else:
-            f = file(ucfpath, "w")
-            f.write(ucf)
-            f.close()
     
     def synthesize(self):
         process = subprocess.Popen([self.toolspath + "xst", "-intstyle", "ise", "-ifn", "base.xst", 
@@ -90,6 +107,10 @@ class Compiler(object):
                                    cwd = self.filespath)
         
         so, se = process.communicate()
+        
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n")
+            self.logfile.write(se + "\n")
         
         if(self.DEBUG):
             print so, se
@@ -112,12 +133,16 @@ class Compiler(object):
         return True
     
     def ngdbuild(self):
-        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", "FPGA_2012_2013_def.ucf", 
+        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", self.ucf, 
                                     "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
 
         so, se = process.communicate()
+        
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n")
+            self.logfile.write(se + "\n")
         
         if(self.DEBUG): 
             print so, se
@@ -135,7 +160,7 @@ class Compiler(object):
         
         return False
     
-    def map(self):
+    def mapping(self):
         process = subprocess.Popen([self.toolspath + "map", "-intstyle", "ise", "-p", "xc3s1000-ft256-4", 
                                     "-cm", "area", "-ir", "off", "-pr", "off", "-c", "100", 
                                     "-o", "base_map.ncd", "base.ngd", "base.pcf"],
@@ -143,6 +168,10 @@ class Compiler(object):
                                    cwd = self.filespath)
         
         so, se = process.communicate()
+        
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n");
+            self.logfile.write(se + "\n");
         
         if(self.DEBUG):
             print so, se
@@ -160,6 +189,10 @@ class Compiler(object):
         
         so, se = process.communicate()
         
+        if ENABLE_LOG_FILE:
+            self.logfile.write(so + "\n");
+            self.logfile.write(se + "\n");
+        
         if(self.DEBUG):
             print so, se
         
@@ -171,7 +204,7 @@ class Compiler(object):
     def implement(self):
         result = self.ngdbuild()
         if(result):
-            result = self.map()
+            result = self.mapping()
             if(result):
                 result = self.par()
                 return result
@@ -201,16 +234,32 @@ class Compiler(object):
         
         r = process.wait()
         
+        if ENABLE_LOG_FILE or self.DEBUG:
+            outr = process.stdout.read()
+            oute = process.stderr.read()
+        
+        if ENABLE_LOG_FILE:
+            self.logfile.write(outr + "\n");
+            self.logfile.write(oute + "\n");
+        
         if(self.DEBUG):
-            print process.stdout.read()
-            print process.stderr.read()
+            print outr
+            print oute
         
         if(r == 0):
             return True
         
         return False
     
-    def compile(self):
+    def compile(self): #@ReservedAssignment
+        # Read VHDL code to compile
+        f = open(self.filespath + os.sep + "base.vhd", "r")
+        vhdl = f.read()
+        f.close()
+        
+        # Choose the right clock
+        self.choose_clock(vhdl)
+        
         return self.synthesize() and self.implement() and self.generate()
     
     def errors(self):
