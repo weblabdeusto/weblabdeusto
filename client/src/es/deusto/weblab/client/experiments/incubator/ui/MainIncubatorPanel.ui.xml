@@ -14,7 +14,7 @@
 		<!--
 		This horizontal panel provides the general / global operations. 
 		 -->
-		<g:HorizontalPanel spacing="10" verticalAlignment="MIDDLE">
+		<g:HorizontalPanel ui:field="upperPanel" spacing="10" verticalAlignment="MIDDLE">
 			<g:Label text="-200º" ui:field="temperature"/>
 			<g:Button ui:field="turnOffAllButton" text="Turn off all" />
 			<g:Button ui:field="turnOnAllButton" text="Turn on all"/>

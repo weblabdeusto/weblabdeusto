@@ -95,6 +95,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
+	@UiField HorizontalPanel poweredByPanel;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -143,6 +144,8 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
+		final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
+		
 		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
 		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
 		
@@ -159,7 +162,14 @@ class ExperimentWindow extends BaseWindow {
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
-	    this.hostedByPanel.setVisible(!visibleHeader);
+	    
+	    final boolean hostedByVisible = !visibleHeader && !widgetMode;
+	    this.hostedByPanel.setVisible(hostedByVisible);
+	    
+	    this.contentTitleLabel.setVisible(!widgetMode);
+	    this.contentTitleLabelSelected.setVisible(!widgetMode);
+	    
+	    this.poweredByPanel.setVisible(!widgetMode);
 	    
 	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
@@ -218,9 +228,10 @@ class ExperimentWindow extends BaseWindow {
 	
 	public void loadExperimentReservationPanels(boolean reserved) {	    
 		if(reserved){
+			final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
 			this.reserveButton.setVisible(false);
 			this.waitingLabel.start();
-			this.contentTitleLabelSelected.setVisible(true);
+			this.contentTitleLabelSelected.setVisible(!widgetMode);
 			this.contentTitleLabel.setVisible(false);
 		}else{
 			this.contentTitleLabelSelected.setVisible(false);
@@ -237,7 +248,9 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	public void loadUsingExperimentPanels() {
-		this.contentTitleLabelInfo.setVisible(this.infolink != null);
+		final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
+		
+		this.contentTitleLabelInfo.setVisible(this.infolink != null && !widgetMode);
 		if(this.infolink != null)
 			this.contentTitleLabelInfo.setHref(this.infolink);
 

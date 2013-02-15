@@ -27,9 +27,11 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
@@ -45,6 +47,7 @@ public class MainIncubatorPanel extends Composite {
 	@UiField Grid grid;
 	@UiField Label messages;
 	@UiField WlTimer timer;
+	@UiField HorizontalPanel upperPanel;
 	
 	private IncubatorExperiment experiment;
 	
@@ -55,20 +58,40 @@ public class MainIncubatorPanel extends Composite {
 	}
 	
 	public MainIncubatorPanel(IncubatorExperiment experiment, Status status, JSONObject configuration, int time) {
+		
+		final String widget = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+		final boolean widgetMode = !widget.isEmpty() && widget.startsWith("egg");
+		
 		this.experiment = experiment;
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		this.timer.updateTime(time);
 		
-		this.grid.resize(status.getSize() / 3, 3);
+		if (widgetMode) {
+			
+			this.upperPanel.setVisible(false);
+			
+			int i = 0;
+			try{
+				i = Integer.parseInt(widget.substring("egg".length())) - 1;
+			} catch(Exception e) { }
 		
-		for(int i = 0; i < status.getSize(); ++i) {
 			final EggMiniWidget wid = new EggMiniWidget(experiment, this, "" + (i + 1), configuration);
 			this.eggWidgets.put(Integer.valueOf(i), wid);
 			this.grid.setWidget(i / 3, i % 3, wid);
-		}
+			
+		} else {
 		
-		showTemperature(status);
+			this.grid.resize(status.getSize() / 3, 3);
+			
+			for(int i = 0; i < status.getSize(); ++i) {
+				final EggMiniWidget wid = new EggMiniWidget(experiment, this, "" + (i + 1), configuration);
+				this.eggWidgets.put(Integer.valueOf(i), wid);
+				this.grid.setWidget(i / 3, i % 3, wid);
+			}
+			
+			showTemperature(status);
+		}
 	}
 	
 	@SuppressWarnings("unused")

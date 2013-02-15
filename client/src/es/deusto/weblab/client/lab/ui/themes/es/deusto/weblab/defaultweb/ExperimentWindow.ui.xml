@@ -140,7 +140,7 @@
 				</w:WlAHref>
 				
 			</g:HorizontalPanel>
-			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
+			<g:HorizontalPanel ui:field="poweredByPanel" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				
 				<g:Label text="{i18n.poweredBy}" />
 				<w:WlAHref href="http://www.weblab.deusto.es/" target="_blank">
