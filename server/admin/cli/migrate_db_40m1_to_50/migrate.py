@@ -2,6 +2,7 @@ import datetime
 from migrationlib import Patch, PatchApplier
 
 import weblab.db.model as Model
+import weblab.permissions as permissions
 
 class AddingPriorityToPermissionParameterPatch(Patch):
 
@@ -78,11 +79,9 @@ class AddingAccessForwardToFederatedPatch(Patch):
         # TODO: pass this to SQL
         federated = session.query(Model.DbRole).filter_by(name='federated').one()
 
-        access_forward = session.query(Model.DbPermissionType).filter_by(name="access_forward").one()
-
         federated_access_forward = Model.DbRolePermission(
             federated,
-            access_forward,
+            permissions.ACCESS_FORWARD,
             "federated_role::access_forward",
             datetime.datetime.utcnow(),
             "Access to forward external accesses to all users with role 'federated'"
@@ -100,18 +99,15 @@ class AddingAdminPanelToAdministratorsPatch(Patch):
         # TODO: pass this to SQL
         administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
 
-        admin_panel_access = session.query(Model.DbPermissionType).filter_by(name="admin_panel_access").one()
-        admin_panel_access_p1 = [ p for p in admin_panel_access.parameters if p.name == "full_privileges" ][0]
-
         administrator_admin_panel_access = Model.DbRolePermission(
             administrator,
-            admin_panel_access,
+            permissions.ADMIN_PANEL_ACCESS,
             "administrator_role::admin_panel_access",
             datetime.datetime.utcnow(),
             "Access to the admin panel for administrator role with full_privileges"
         )
         session.add(administrator_admin_panel_access)
-        administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, admin_panel_access_p1, True)
+        administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
         session.add(administrator_admin_panel_access_p1)
 
 
@@ -355,7 +351,7 @@ class RemoveTable_PermissionType(RemoveTable):
     table_name = 'PermissionType'
 
 if __name__ == '__main__':
-    dbs = ["WebLabTests", "WebLabTests2", "WebLabTests3"]
+    dbs = ["BaratzeWebLab"]
     # dbs = ["WebLabTests"]
     applier = PatchApplier("weblab", "weblab", dbs, [
                                 RemoveUserApplicablePermissionType,
