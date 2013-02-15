@@ -144,8 +144,6 @@ class ExperimentWindow extends BaseWindow {
 	public void loadWidgets(){		
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
-		final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
-		
 		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
 		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
 		
@@ -162,14 +160,17 @@ class ExperimentWindow extends BaseWindow {
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
+	    this.hostedByPanel.setVisible(!visibleHeader);
 	    
-	    final boolean hostedByVisible = !visibleHeader && !widgetMode;
-	    this.hostedByPanel.setVisible(hostedByVisible);
+		final String widgetMode = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+
+	    if(!widgetMode.isEmpty()) {
+	    	this.poweredByPanel.setVisible(false);	
+		    this.contentTitleLabel.setVisible(false);
+		    this.contentTitleLabelSelected.setVisible(false);
+		    this.hostedByPanel.setVisible(false);
+	    }
 	    
-	    this.contentTitleLabel.setVisible(!widgetMode);
-	    this.contentTitleLabelSelected.setVisible(!widgetMode);
-	    
-	    this.poweredByPanel.setVisible(!widgetMode);
 	    
 	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
@@ -228,10 +229,12 @@ class ExperimentWindow extends BaseWindow {
 	
 	public void loadExperimentReservationPanels(boolean reserved) {	    
 		if(reserved){
-			final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
 			this.reserveButton.setVisible(false);
 			this.waitingLabel.start();
-			this.contentTitleLabelSelected.setVisible(!widgetMode);
+			
+			final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
+			if(widgetMode)
+				this.contentTitleLabelSelected.setVisible(false);
 			this.contentTitleLabel.setVisible(false);
 		}else{
 			this.contentTitleLabelSelected.setVisible(false);

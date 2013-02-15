@@ -54,6 +54,7 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
 	@UiField Button backButton;
+	@UiField HorizontalPanel poweredByPanel;
 	
 	interface ExperimentFinishedWindowUiBinder extends UiBinder<Widget, ExperimentFinishedWindow> {
 	}
@@ -80,6 +81,12 @@ public class ExperimentFinishedWindow extends BaseWindow {
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.hostedByPanel.setVisible(!visibleHeader);
+
+	    final String widgetName = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+	    if(!widgetName.isEmpty()) {
+	    	this.hostedByPanel.setVisible(false);
+	    	this.poweredByPanel.setVisible(false);
+	    }
 	    
     	this.logoutLink.setVisible(false);
     	this.separatorLabel.setVisible(false);
