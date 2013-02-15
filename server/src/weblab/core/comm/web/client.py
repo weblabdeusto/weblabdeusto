@@ -127,7 +127,7 @@ class ClientMethod(WebFacadeServer.Method):
         reservation_id = self.get_GET_argument(RESERVATION_ID)
         back_url       = self.get_GET_argument(BACK_URL)
         locale         = self.get_GET_argument(LOCALE)
-        widget         = self.get_GET_argument(WIDGET)
+        widget         = self.get_GET_argument(WIDGET) or ''
         if reservation_id is not None:
             return REDIRECT_CODE % {
                 'reason'         : 'GET performed',
@@ -144,7 +144,7 @@ class ClientMethod(WebFacadeServer.Method):
             return LABEL_CODE
 
         back_url = self.get_POST_argument(BACK_URL)
-        widget   = self.get_POST_argument(WIDGET)
+        widget   = self.get_POST_argument(WIDGET) or ''
 
         reservation_id = urllib.unquote(reservation_id)
 

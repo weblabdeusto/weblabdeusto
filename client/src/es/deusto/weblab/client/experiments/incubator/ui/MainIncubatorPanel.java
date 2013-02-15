@@ -70,6 +70,7 @@ public class MainIncubatorPanel extends Composite {
 		if (widgetMode) {
 			
 			this.upperPanel.setVisible(false);
+			this.grid.resize(1, 1);
 			
 			int i = 0;
 			try{
