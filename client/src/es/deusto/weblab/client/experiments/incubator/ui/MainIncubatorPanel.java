@@ -79,7 +79,7 @@ public class MainIncubatorPanel extends Composite {
 		
 			final EggMiniWidget wid = new EggMiniWidget(experiment, this, "" + (i + 1), configuration);
 			this.eggWidgets.put(Integer.valueOf(i), wid);
-			this.grid.setWidget(i / 3, i % 3, wid);
+			this.grid.setWidget(0, 0, wid);
 			
 		} else {
 		
