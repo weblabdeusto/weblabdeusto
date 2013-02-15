@@ -23,6 +23,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -90,7 +91,8 @@ class ExperimentWindow extends BaseWindow {
 	@UiField WlAHref profileLink;
 	@UiField WlAHref administrationLink;
 	@UiField Label separatorLabelAdministration;
-	@UiField HorizontalPanel headerPanel;
+	@UiField CellPanel headerPanel;
+	@UiField CellPanel footerPanel;
 	@UiField WlAHref bottomInstitutionLink;
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
@@ -169,6 +171,8 @@ class ExperimentWindow extends BaseWindow {
 		    this.contentTitleLabel.setVisible(false);
 		    this.contentTitleLabelSelected.setVisible(false);
 		    this.hostedByPanel.setVisible(false);
+		    this.headerPanel.setVisible(false);
+		    this.footerPanel.setVisible(false);
 	    }
 	    
 	    
