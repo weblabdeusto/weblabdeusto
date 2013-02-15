@@ -351,7 +351,7 @@ class RemoveTable_PermissionType(RemoveTable):
     table_name = 'PermissionType'
 
 if __name__ == '__main__':
-    dbs = ["BaratzeWebLab"]
+    dbs = ["WebLabTests", "WebLabTests2", "WebLabTests3"]
     # dbs = ["WebLabTests"]
     applier = PatchApplier("weblab", "weblab", dbs, [
                                 RemoveUserApplicablePermissionType,
