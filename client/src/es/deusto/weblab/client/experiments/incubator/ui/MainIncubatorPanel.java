@@ -25,9 +25,9 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -47,7 +47,7 @@ public class MainIncubatorPanel extends Composite {
 	@UiField Grid grid;
 	@UiField Label messages;
 	@UiField WlTimer timer;
-	@UiField HorizontalPanel upperPanel;
+	@UiField CellPanel upperPanel;
 	
 	private IncubatorExperiment experiment;
 	
