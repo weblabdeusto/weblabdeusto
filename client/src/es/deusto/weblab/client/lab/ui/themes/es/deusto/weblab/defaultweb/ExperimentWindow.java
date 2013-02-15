@@ -69,7 +69,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
-	@UiField AbsolutePanel navigationPanel;
+	@UiField HorizontalPanel navigationPanel;
 	@UiField Anchor backLink;
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
