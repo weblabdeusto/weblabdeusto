@@ -90,345 +90,110 @@ Ok, so everything is working for the *admin* user. What about creating a class
 of 20 students who can access only the dummy, and other class who can access the
 federated laboratories?
 
-In order to manage users, we have to use the *weblab-admin.py admin* tool. Usually,
-you can do it while the server is running. However, in this small deployment, we
-are using `sqlite <http://www.sqlite.org/>`_, a small and fast database engine
-that does not support concurrent access. Therefore, while using sqlite, we will
-need first to stop the application so as to manage users::
+In this section, the process will be described using the web administration panel. 
+If you are using an embedded system or a remote system where you can't access it 
+using the web application, :ref:`refer to the equivalent section using CLI tools 
+<first_steps_cli>`.
 
-   localhost - - [03/Nov/2012 14:48:59] "GET /weblab/client/index.html HTTP/1.1"
-   200 -
-   localhost - - [03/Nov/2012 14:49:00] "POST /weblab/json/ HTTP/1.1" 200
-   (enter)
-   Stopping servers...
-   $ 
+Using the *admin* user, you'll see the settings button in the top-right corner. 
+Click on it:
 
-And then, we can run the *weblab-admin.py admin* tool safely::
 
-   $ weblab-admin.py admin example
-   ----------------------------------
-   - WebLab-Deusto Database Manager -
-   ----------------------------------
-   
-   Main Menu
-   
-    1. Add Group
-    2. Add Experiment Category
-    3. Add Experiment
-    4. Add Users to Group using a file
-    5. Add User to Group
-    6. Add User with DB AuthType
-    7. Add Users with LDAP AuthType
-    8. Add Users with OpenID AuthType
-    9. Add Users (batch) with DB AuthType
-    10. Grant on Experiment to Group
-    11. Grant on Experiment to User
-    12. Grant on Admin Panel to Group
-    13. Grant on Admin Panel to User
-    14. Grant on Access Forward to Group
-    15. Grant on Access Forward to User
-    16. List Users
-    17. Notify users
-    18. Notify users (With passwords)
-   
-   0. Exit
-   
-   Option: 
+.. image:: /_static/weblab_admin.jpg
+   :width: 650 px
+   :align: center
 
-This menu depends on the particular version we're running. Upgrading the system
-may add more options, and therefore the numbers that will be presented in this
-tutorial might easily be not updated. Therefore, take a look at what are the
-options in the menu rather than what are the numbers pressed.
 
-In WebLab-Deusto, permissions are granted to users or groups. A particular user
-may not be part of any group and still get certain permissions. This especially
-applies to special users who represent other organizations (such as *University
-of Deusto*). However, when managing students, the common scheme is to create a
-group for each class and grant permissions on that group. Let's start with a
-simple group of *Electronics-2012_2013*. First, for the sake of clarity, let's
-create a 2012-2013 group, for all the groups of this course::
+Once in the administration panel, several operations are available. The number of 
+operations is increasing from month to month, so upgrading the system is highly
+advisable. 
 
-  Option: 1
-  
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-     type '[back]' to go back
+The first thing to do is adding a new user. So as to do this, click on "General" 
+and then on "Users". There you can see the list of users registered in the system. 
+Then, click on "Create" and fill the following fields:
 
-  Add Group
 
-  Name: 2012-2013
+.. image:: /_static/weblab_admin_add_user.jpg
+   :width: 650 px
+   :align: center
 
-   1. Administrators
-  Parent Group [default: <null>]: 
-  
-  Group created:
-  DbGroup(id = 2, name = '2012-2013', parent = '<None>')
-  
-  Press any key to continue...
- 
-Then, let's create a child group of this group::
 
-  Option: 1 
+The role "student" is the common one. If you select "administrator", that user 
+will be able to use the administration panel (and therefore, add or delete other
+users, experiments, etc.).
 
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Add Group
-  
-  Name: Electronics-2012_2013
-  
-   1. Administrators
-   2. 2012-2013
-  Parent Group [default: <null>]: 2
-  
-  Group created:
-  DbGroup(id = 3, name = 'Electronics-2012_2013', parent = '<2012-2013>')
-  
-  Press any key to continue...
+Once we have added a user, let's create a new group called "Physics". Click on "General" 
+and then on "Groups". Inside this group, you can click on "Create" and fill the 
+following fields:
 
-Finally, let's create a sample user, called John Doe, using a database (DB)::
 
-  Option: 6
+.. image:: /_static/weblab_admin_add_group.jpg
+   :width: 650 px
+   :align: center
 
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Add User with DB AuthType
-  
-  Login: jdoe
-  Full name: John Doe
-  Email: jdoe@example.com
-  Avatar [default: <null>]: 
-  
-   1. administrator
-   2. professor
-   3. student
-  Role [default: <null>]: 3
-  
-   1. WebLab DB
-  Auth: 1
-  Password [default: <null>]: 
-  Password (verify) [default: <null>]: 
-  
-  User created:
-  DbUser(id = 2, login = 'jdoe', full_name = 'John Doe', email = 'jdoe@example.com', avatar = 'None', role = DbRole(id = 3, name = 'student'))
-  
-  UserAuth created:
-  DbUserAuth(id = 2, user = DbUser(id = 2, login = 'jdoe', full_name = 'John Doe', email = 'jdoe@example.com', avatar = 'None', role = DbRole(id = 3, name = 'student')), auth = DbAuth(id = 1, auth_type = DbAuthType(id = 1, name = 'DB'), name = 'WebLab DB', priority = 1, configuration = 'None'), configuration = '************************************************')
-  
-  Press any key to continue...
 
-From this moment, if we exit the administrator, and we start the WebLab-Deusto
-instance, we will be able to log in with that user and password. However, it
-will not be able to use any laboratory, since no permission has been granted.
-Let's add him to the *Electronics-2012_2013* group first::
+The "Users" field contains all the users in the system. So you can add them directly 
+here, or in the "Groups" field when editing a user.
 
-  Option: 5
+The next step is to grant permission on a laboratory to this user (or this group). To
+do this, click on "Permissions", and then on "Create". Here you can select what 
+permission to grant ("experiment_allowed" in this case) and to who (a group, a user, or
+a role).
 
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Add Users to Group
-  
-  
-   1. admin
-   2. jdoe
-  User: 2
-  
-   1. Administrators
-   2. 2012-2013
-   3. Electronics-2012_2013
-  Group: 3
-  
-  The following Users have been added to the Group:
-  DbGroup(id = 3, name = 'Electronics-2012_2013', parent = '<2012-2013>')
-  
-  DbUser(id = 2, login = 'jdoe', full_name = 'John Doe', email = 'jdoe@example.com', avatar = 'None', role = DbRole(id = 3, name = 'student'))
-  
-  Total added Users: 1
-  
-  Press any key to continue...
 
-And let's grant permissions on this group to access the dummy laboratory::
+.. image:: /_static/weblab_admin_grant_permission1.jpg
+   :width: 650 px
+   :align: center
 
-  Option: 10
-  
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Grant on Experiment to Group
-  
-  
-   1. Administrators
-   2. 2012-2013
-   3. Electronics-2012_2013
-  Group: 3
-  
-   1. dummy@Dummy experiments
-   2. external-robot-movement@Robot experiments
-  Experiment: 1
-  Time allowed: 200
-  Priority (0-10, lower is more priority) [default: 5]: 
-  
-   1. yes
-   2. no
-  For the time allowed, you are counting with initialization?: 1
-  
-  GroupPermission created:
-  [...]
-  
-  Press any key to continue...
 
-From this moment, jdoe is a member of the group Electronics-2012_2013, which has
-permissions to use the dummy laboratory for 200 seconds (1 minute, 40 seconds),
-with a priority = 5. Therefore, if we stop the administrator now and start the
-server, we will see how that user indeed can access that laboratory for that
-time.
+And then you can select the experiment you want to let the user access, for how long (in
+seconds), what priority he may have (the lower, the faster they advance in the queue), and
+to which group you are granting this permission.
 
-We have created our first user using the interactive mode. If we wanted to add
-30 users, this can be easier. The first way is to create a text file
-(technically, a CSV file -so you can even use Microsoft Excel-), using the
-following format::
 
-  user1, User One, userone@users.com, users1password
-  user2, User Two, usertwo@users.com, users2password
-  user3, User Three, userthree@users.com, users3password
-  user4, User Four, userfour@users.com, users4password
-  user5, User Five, userfive@users.com, users5password
-  user6, User Six, usersix@users.com, users6password
-  user7, User Seven, userseven@users.com, users7password
-  user8, User Eight, usereight@users.com, users8password
-  user9, User Nine, usernine@users.com, users9password
-  user10, User Ten, userten@users.com, users10password
+.. image:: /_static/weblab_admin_grant_permission2.jpg
+   :width: 650 px
+   :align: center
 
-For adding multiple users at the same time. Place that file in the *example*
-directory. And will add them all::
 
-  Option: 9
+Once this is done, this user (and all the users in that group) can access that laboratory.
 
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Add Users (batch) with DB AuthType
-  
-  Users file [default: USERSDB]: USERS
-   ['user1', 'User One', 'userone@users.com', 'users1password']
-   ['user2', 'User Two', 'usertwo@users.com', 'users2password']
-   ['user3', 'User Three', 'userthree@users.com', 'users3password']
-   ['user4', 'User Four', 'userfour@users.com', 'users4password']
-   ['user5', 'User Five', 'userfive@users.com', 'users5password']
-   ['user6', 'User Six', 'usersix@users.com', 'users6password']
-   ['user7', 'User Seven', 'userseven@users.com', 'users7password']
-   ['user8', 'User Eight', 'usereight@users.com', 'users8password']
-   ['user9', 'User Nine', 'usernine@users.com', 'users9password']
-   ['user10', 'User Ten', 'userten@users.com', 'users10password']
-  
-   1. administrator
-   2. professor
-   3. student
-  Role [default: <null>]: 3
+Given that adding multiple users one by one might be useful, it is possible to add multiple
+users at a time. Click on "General", then on "Add multiple users".
 
-  [...] 
 
-  Press any key to continue...
+.. image:: /_static/weblab_admin_add_multiple_users1.jpg
+   :width: 650 px
+   :align: center
 
-And they will be registered in the system. This way, now you can use *user1* and
-*users1password* as credentials to log in the system. So as to add them to the
-existing group (or to other group), we will need a different text file with a
-single column of the existing user names, such as::
 
-  user1
-  user2
-  user3
-  user4
-  user5
-  user6
-  user7
-  user8
-  user9
-  user10
+Click on the "Add users" in the row of "Database". You will be able to add multiple users 
+by writing them in multiple rows separated by commas, using the pattern described. You may even
+add them to an existing group, or to a new one:
 
-You can place the file in the *example* directory, then add them to the group we
-already created by running::
 
-  Option: 4
+.. image:: /_static/weblab_admin_add_multiple_users2.jpg
+   :width: 650 px
+   :align: center
 
-  ----------------------------------
-  - WebLab-Deusto Database Manager -
-  ----------------------------------
-       type '[back]' to go back
-  
-  Add Users to Group
-  
-  Users file [default: USERS]: ../USERS2
-   user1
-   user2
-   user3
-   user4
-   user5
-   user6
-   user7
-   user8
-   user9
-   user10
-  
-   1. Administrators
-   2. 2012-2013
-   3. Electronics-2012_2013
-  Group: 3
 
-  The following Users have been added to the Group:
-  DbGroup(id = 3, name = 'Electronics-2012_2013', parent = '<2012-2013>')
-  
-  DbUser(id = 3, login = 'user1', full_name = 'User One', email = 'userone@users.com', avatar = 'None', role = DbRole(id = 3, name = 'student'))
-
-  [...]
-
-  Total added Users: 10
-  
-  Press any key to continue...
-
-From this point, all these users will be part of that group, and they will
-therefore have permissions to use the dummy laboratory.
-
-Furthermore, WebLab-Deusto supports other authentication schemes (LDAP, OpenID,
-OAuth), but they require installing more components (libraries) and they are not
-supported in this simple deployment.
-
+For instance, if you add them to the Physics groups, they will inherit the permissions granted 
+to this group.
 
 Tracking users
 ~~~~~~~~~~~~~~
 
 Now you can start again the WebLab-Deusto instance, and you can use the
-laboratory with different users. Once you have used it several times, you can
-log out and go to the Administration panel (the link is under the log in panel),
-and open it with the *admin* user. The rest of the users can not access unless
-you explicitly put them in the Administrators group or grant them permission to
-use it. Once you log in the Administration panel, you will see who has accessed
-when:
+laboratory with different users. Once you log in the Administration panel, go to "Logs" and
+you will see who has accessed when:
 
-.. image:: /_static/admin_panel_users.png
-   :width: 500 px
+
+.. image:: /_static/weblab_admin_logs.jpg
+   :width: 650 px
    :align: center
 
-Furthermore, in the figure above you can the *admin* user had already used the
-system. You can use the filters of the top bar to filter by group, laboratory or
-dates. For instance, in the figure below, only the course students are displayed:
 
-.. image:: /_static/admin_panel_group.png
-   :width: 500 px
-   :align: center
+By using the "Add filter", you may search by user, date, or similar.
 
 
 Monitoring users
