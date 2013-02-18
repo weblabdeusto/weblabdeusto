@@ -1,7 +1,7 @@
 from weblab.admin.script import Creation
 
 APACHE_CONF_NAME = 'apache.conf'
-MIN_PORT = 10000
+MIN_PORT = 14000
 
 DEFAULT_DEPLOYMENT_SETTINGS = {
     Creation.COORD_ENGINE: 'redis',
