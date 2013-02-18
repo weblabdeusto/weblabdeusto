@@ -112,45 +112,6 @@ def compile_client(war_location, client_location):
             except (OSError, IOError) as e:
                 print >> sys.stderr, "WARNING: Error trying to remove GWT doc and samples directories: %s" % e
 
-           
-        # 
-        # Check that smartgwt is downloaded. Download it otherwise.
-        # 
-        VERSION = '2.2'
-        SMARTGWT_URL = "http://smartgwt.googlecode.com/files/smartgwt-%s.zip" % VERSION
-        libclient_location = os.path.join(external_location,  'lib-client')
-        smartgwt_location  = os.path.join(libclient_location, 'smartgwt.jar')
-
-        if not os.path.exists(smartgwt_location):
-            print >> sys.stderr, ""
-            print >> sys.stderr, "WebLab-Deusto relies on a GWT library called smartgwt. In order to compile"
-            print >> sys.stderr, "the client, we need to download it. If you already downloaded it, place the"
-            print >> sys.stderr, ".jar of the %s version in: " % VERSION
-            print >> sys.stderr, ""
-            print >> sys.stderr, "     %s" % smartgwt_location
-            print >> sys.stderr, ""
-            print >> sys.stderr, "I will attempt to download it and place it there."
-            print >> sys.stderr, ""
-            print >> sys.stderr, "Downloading %s..." % SMARTGWT_URL
-            print >> sys.stderr, "(plase wait a few minutes; smartgwt is ~24 MB)"
-
-            try:
-                os.mkdir(libclient_location)
-            except (OSError, IOError):
-                pass # Could be already created
-
-            # TODO: this places in memory the whole file (~24 MB). urllib.urlretrieve?
-            smartgwt_content = urllib2.urlopen(SMARTGWT_URL).read()
-            smartgwt_fileobj = StringIO.StringIO(smartgwt_content)
-            del smartgwt_content
-            print >> sys.stderr, "Downloaded. Extracting..."
-            zf = zipfile.ZipFile(smartgwt_fileobj)
-            jar_in_zip_name = 'smartgwt-%s/smartgwt.jar' % VERSION
-            zf.extract(jar_in_zip_name, libclient_location)
-            del zf
-            shutil.move(os.path.join(libclient_location, jar_in_zip_name.replace('/', os.sep)), smartgwt_location)
-            print "Extracted to %s." % smartgwt_location
-
         VERSION = "3.8.2"
         JUNIT_URL = "http://downloads.sourceforge.net/project/junit/junit/3.8.2/junit3.8.2.zip"
         junit_location = os.path.join(libclient_location, 'junit.jar')

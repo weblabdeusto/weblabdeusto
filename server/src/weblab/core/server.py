@@ -56,13 +56,7 @@ import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
 
-USE_NEW_ADMIN_PAGE = True
-if USE_NEW_ADMIN_PAGE:
-    from weblab.admin.web.server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_new
-    AdminRemoteFacadeServer = AdminRemoteFacadeServer_new
-else:
-    from weblab.core.comm.admin_server import AdminRemoteFacadeServer as AdminRemoteFacadeServer_old
-    AdminRemoteFacadeServer = AdminRemoteFacadeServer_old
+from weblab.admin.web.server import AdminRemoteFacadeServer
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -362,10 +356,7 @@ class UserProcessingServer(object):
     def get_user_information(self, user_processor, session):
         user_information = user_processor.get_user_information()
         if user_processor.is_admin():
-            if USE_NEW_ADMIN_PAGE:
-                admin_url = self.core_server_url + "administration/admin/"
-            else:
-                admin_url = self.core_server_url + "client/index-admin.html"
+            admin_url = self.core_server_url + "administration/admin/"
 
             try:
                 user_information.admin_url = urlparse.urlparse(admin_url).path
