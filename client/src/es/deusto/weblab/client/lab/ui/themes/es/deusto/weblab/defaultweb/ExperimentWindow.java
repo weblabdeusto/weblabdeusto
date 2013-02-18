@@ -20,7 +20,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CellPanel;
@@ -167,12 +166,18 @@ class ExperimentWindow extends BaseWindow {
 		final String widgetMode = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
 
 	    if(!widgetMode.isEmpty()) {
-	    	this.poweredByPanel.setVisible(false);	
+	    	this.poweredByPanel.setVisible(false);
 		    this.contentTitleLabel.setVisible(false);
 		    this.contentTitleLabelSelected.setVisible(false);
 		    this.hostedByPanel.setVisible(false);
 		    this.headerPanel.setVisible(false);
 		    this.footerPanel.setVisible(false);
+		    this.institutionLink.setVisible(false);
+		    this.logoutLink.setVisible(false);
+	    } else {
+	    	this.poweredByPanel.setVisible(true);
+	    	this.institutionLink.setVisible(true);
+	    	this.logoutLink.setVisible(true);
 	    }
 	    
 	    

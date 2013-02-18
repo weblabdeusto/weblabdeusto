@@ -433,6 +433,11 @@ public class SubmarineExperiment extends ExperimentBase {
 	    final boolean widgetMode = !osWidget.isEmpty() && (osWidget.startsWith("cam") || osWidget.startsWith("button"));
 	    
 	    if (widgetMode) {
+		    this.webcam1.setVisible(false);
+		    this.webcam2.setVisible(false);
+			this.inputWidgetsPanel.setVisible(false);
+			this.messages.setText("");
+			this.messages.stop();
 	    	
 	    	if (osWidget.equals("cam1")) {
 			    this.webcam1.setVisible(true);
@@ -443,8 +448,6 @@ public class SubmarineExperiment extends ExperimentBase {
 	    	} else if(osWidget.startsWith("button")) {
 				this.inputWidgetsPanel.setVisible(true);
 				this.activateSubmarinePanel.setVisible(false);
-				this.messages.setText("");
-				this.messages.stop();
 	    	}
 	    	
 	    } else {
