@@ -24,7 +24,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -76,6 +75,7 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
+	private final int DEFAULT_EXPECTED_SYNTHESIZING_TIME = 120000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
 	private static final String STATE_SYNTHESIZING_ERROR = "synthesizing_error";
@@ -125,6 +125,9 @@ public class XilinxExperiment extends ExperimentBase{
 	private Timer readyTimer;
 	private boolean deviceReady;
 	private int expectedProgrammingTime = this.DEFAULT_EXPECTED_PROGRAMMING_TIME;
+	private int expectedSynthesizingTime = this.DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+	
+	private boolean synthesizingMode = false;
 
 	private final Vector<Widget> interactiveWidgets;
 	
@@ -285,6 +288,13 @@ public class XilinxExperiment extends ExperimentBase{
 			
 			this.uploadStructure.getFormPanel().setVisible(false);
 			this.uploadStructure.setFileInfo(extension.toLowerCase());
+			
+			// TODO: Probably it would be more elegant if the server itself would decide whether we are synthesizing
+			// and programming or just programming. However, at least for now, this will do fine. The mode is currently
+			// used only to decide how to estimate progress bar length.
+			if(extension.toLowerCase().equals("vhd"))
+				this.synthesizingMode = true;
+			
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 			this.loadStartControls();
 		} else {
@@ -300,7 +310,7 @@ public class XilinxExperiment extends ExperimentBase{
 	 * @param time Time available for the experiment
 	 * @param initialConfiguration JSON-encoded server-provided configuration parameters. 
 	 * This feature is part of the API version 2. Parameters expected by this experiment
-	 * are "webcam" and "expected_programming_time".
+	 * are "webcam", "expected_programming_time", "expected_synthesizing_time".
 	 */
 	@Override
 	public void start(int time, String initialConfiguration){
@@ -324,6 +334,15 @@ public class XilinxExperiment extends ExperimentBase{
 		} catch(Exception e) {	
 			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+    		return;
+		}
+		
+		try {
+			double expectedSynthesizingTime = parsedInitialConfiguration.isObject().get("expected_synthesizing_time").isNumber().doubleValue();
+			XilinxExperiment.this.expectedSynthesizingTime = (int)(expectedSynthesizingTime * 1000);
+		} catch(Exception e) {	
+			this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
+    		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter.", null);
     		return;
 		}
 	
@@ -618,7 +637,12 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		this.progressBar.setWaitPoint(0.98);
 		this.progressBar.setVisible(true);
-		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
+		if(this.synthesizingMode)
+			this.progressBar.setEstimatedTime(this.expectedSynthesizingTime + this.expectedProgrammingTime);
+		else
+			this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
 		this.progressBar.start();
 	}
 	
