@@ -112,6 +112,8 @@ def compile_client(war_location, client_location):
             except (OSError, IOError) as e:
                 print >> sys.stderr, "WARNING: Error trying to remove GWT doc and samples directories: %s" % e
 
+        libclient_location = os.path.join(external_location,  'lib-client')
+
         VERSION = "3.8.2"
         JUNIT_URL = "http://downloads.sourceforge.net/project/junit/junit/3.8.2/junit3.8.2.zip"
         junit_location = os.path.join(libclient_location, 'junit.jar')
