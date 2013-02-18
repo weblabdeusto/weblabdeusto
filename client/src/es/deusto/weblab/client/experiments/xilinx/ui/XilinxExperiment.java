@@ -78,10 +78,10 @@ public class XilinxExperiment extends ExperimentBase{
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
-	private static final String STATE_COMPILER_ERROR = "compiler_error";
+	private static final String STATE_SYNTHESIZING_ERROR = "synthesizing_error";
 	private static final String STATE_AWAITING_CODE = "awaiting_code";
 	private static final String STATE_NOT_READY = "not_ready";
-	private static final String STATE_COMPILING = "compiling";
+	private static final String STATE_SYNTHESIZING = "synthesizing";
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
@@ -421,7 +421,7 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_READY)) {
 							// Ready
 							XilinxExperiment.this.onDeviceReady();
-						} else if(state.equals(STATE_COMPILING)) {
+						} else if(state.equals(STATE_SYNTHESIZING)) {
 							// Check in a few seconds whether the state changed.
 							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_PROGRAMMING)) {
@@ -430,9 +430,9 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_FAILED)) {
 							// Something failed in the programming.
 							XilinxExperiment.this.onDeviceProgrammingFailed();
-						} else if(state.equals(STATE_COMPILER_ERROR)) {
+						} else if(state.equals(STATE_SYNTHESIZING_ERROR)) {
 							// Compiling failed. 
-							XilinxExperiment.this.onDeviceCompilerError();
+							XilinxExperiment.this.onDeviceSynthesizingError();
 						} else if(state.equals(STATE_AWAITING_CODE)) {
 							// Awaiting for VHDL code.
 							// TODO: Implement this. THIS IS NOT YET SUPPORTED.
@@ -522,7 +522,7 @@ public class XilinxExperiment extends ExperimentBase{
 	/**
 	 * Called when the STATE query tells us that the compiling process failed.
 	 */
-	private void onDeviceCompilerError() {
+	private void onDeviceSynthesizingError() {
 		this.deviceReady = false;
 		
 		if(XilinxExperiment.this.progressBar.isWaiting()){
@@ -537,22 +537,22 @@ public class XilinxExperiment extends ExperimentBase{
 		final Command compilingResultCommand = new Command() {
 			@Override
 			public String getCommandString() {
-				return "COMPILING_RESULT";
+				return "SYNTHESIZING_RESULT";
 			}};
 		
-		this.messages.setText("Compiling failed");
+		this.messages.setText("Synthesizing failed");
 		this.messages.stop();
 			
 		// Find out why compiling failed through the COMPILING_RESULT command.
 		XilinxExperiment.this.boardController.sendCommand(compilingResultCommand, new IResponseCommandCallback() {
 			@Override
 			public void onFailure(CommException e) {
-				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the COMPILING_RESULT");
+				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the SYNTHESIZING_RESULT");
 			}
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				XilinxExperiment.this.messages.setText("Compiling failed: \n" + responseCommand);
+				XilinxExperiment.this.messages.setText("Synthesizing failed: \n" + responseCommand);
 			}
 		});
 		
@@ -594,7 +594,7 @@ public class XilinxExperiment extends ExperimentBase{
 				final String currentAction;
 				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
-				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
+				else if( XilinxExperiment.this.currentState.equals(STATE_SYNTHESIZING) )
 					currentAction = "Synthesizing VHDL";
 				else
 					currentAction = "Processing";

@@ -43,8 +43,8 @@ from voodoo.threaded import threaded
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
 STATE_AWAITING_CODE = "awaiting_code"
-STATE_COMPILING = "compiling"
-STATE_COMPILER_ERROR = "compiler_error"
+STATE_SYNTHESIZING = "synthesizing"
+STATE_SYNTHESIZING_ERROR = "synthesizing_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
@@ -86,7 +86,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
-        self._compiling_result = ""
+        self._synthesizing_result = ""
         
         self._ucf_file = None
         
@@ -134,7 +134,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             try:
                 if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
-                return "STATE=" + STATE_COMPILING
+                return "STATE=" + STATE_SYNTHESIZING
             except Exception as ex:
                 if DEBUG: print "EXCEPTION: " + ex
                 raise ex
@@ -159,7 +159,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         Running in its own thread, this method will compile the provided
         VHDL code and then program the board if the result is successful.
         """
-        self._current_state = STATE_COMPILING
+        self._current_state = STATE_SYNTHESIZING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path)
         #c.DEBUG = True
         content = base64.b64decode(file_content)
@@ -167,7 +167,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         if DEBUG: print "[DBG]: VHDL fed. Now compiling."
         success = c.compileit()
         if(not success):
-            self._current_state = STATE_COMPILER_ERROR
+            self._current_state = STATE_SYNTHESIZING_ERROR
             self._compiling_result = c.errors()
         else:
             # If we are using adaptive timing, modify it according to this last input.
@@ -280,9 +280,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                 reply = "STATE="+ self._current_state
                 return reply
             
-            elif command == 'COMPILING_RESULT':
+            elif command == 'SYNTHESIZING_RESULT':
                 if(DEBUG):
-                    print "[DBG]: COMPILING_RESULT: " + self._compiling_result
+                    print "[DBG]: SYNTHESIZING_RESULT: " + self._compiling_result
                 return self._compiling_result
 
             # Otherwise we assume that the command is intended for the actual device handler
