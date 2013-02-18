@@ -79,6 +79,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
+        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
+        self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', False)
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
@@ -248,7 +250,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s }""" % (self.webcam_url, self._programmer_time, self._synthesizer_time), "batch" : False })
 
     @logged("info")
     @Override(Experiment.Experiment)
