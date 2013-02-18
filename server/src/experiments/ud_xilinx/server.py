@@ -86,6 +86,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._compiling_result = ""
         
         self._ucf_file = None
+        
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -161,7 +162,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         content = base64.b64decode(file_content)
         c.feed_vhdl(content)
         if DEBUG: print "[DBG]: VHDL fed. Now compiling."
-        success = c.compile()
+        success = c.compileit()
         if(not success):
             self._current_state = STATE_COMPILER_ERROR
             self._compiling_result = c.errors()
