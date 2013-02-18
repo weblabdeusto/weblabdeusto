@@ -34,6 +34,7 @@ from experiments.xilinxc.compiler import Compiler
 
 import json
 import base64
+import time
 
 from voodoo.threaded import threaded
 
@@ -169,9 +170,15 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._current_state = STATE_COMPILER_ERROR
             self._compiling_result = c.errors()
         else:
+            # If we are using adaptive timing, modify it according to this last input.
+            # TODO: Consider limiting the allowed range of variation, in order to dampen potential anomalies.
+            elapsed = c.get_time_elapsed()
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
+            
             bitfile = c.retrieve_bitfile()
             if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
-            c._compiling_result = "Compiling done."
+            c._compiling_result = "Synthesizing done."
             self._program_file_t(bitfile)
         
 
@@ -183,9 +190,16 @@ class UdXilinxExperiment(Experiment.Experiment):
         while updating the state of the experiment appropriately.
         """
         try:
+            start_time = time.time() # To track the time it takes
             self._current_state = STATE_PROGRAMMING
             self._program_file(file_content)
             self._current_state = STATE_READY
+            elapsed = time.time() - start_time # Calculate the time the programming process took
+            
+            # If we are in adaptive mode, change the programming time appropriately.
+            # TODO: Consider limiting the variation range to dampen anomalies.
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
         except Exception as e:
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
