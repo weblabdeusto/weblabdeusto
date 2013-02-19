@@ -8,7 +8,6 @@ from multiprocessing import Pool
 
 sys.path.append(os.sep.join(('..','..','server','src')))
 
-import libraries
 from visir_tester import Tester
 
 # EXECUTIONS = 15
@@ -17,19 +16,21 @@ URL = "http://www.weblab.deusto.es/weblab/"
 USERNAME = "tester"
 PASSWORD = "t3st3r6"
 
-EXECUTIONS =  2
-PROCESSES  =  10
+EXECUTIONS =  20
+PROCESSES  =  20
 # URL = "http://localhost/weblab/"
 # USERNAME = "any"
 # PASSWORD = "password"
 
 def f(n):
-    time.sleep(0.01 * n)
+    time.sleep(0.01 * 100 * n)
     tester = Tester(URL, USERNAME, PASSWORD, EXECUTIONS)
     result = tester.run()
     return result
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':   
+     
     n = PROCESSES
     pool = Pool(n)
     results = pool.map(f, range(n))

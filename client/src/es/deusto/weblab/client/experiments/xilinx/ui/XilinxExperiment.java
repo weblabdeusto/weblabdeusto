@@ -533,8 +533,30 @@ public class XilinxExperiment extends ExperimentBase{
 			// invisible once it is full.
 			this.progressBar.finish(300);
 		
+		
+		final Command compilingResultCommand = new Command() {
+			@Override
+			public String getCommandString() {
+				return "COMPILING_RESULT";
+			}};
+		
 		this.messages.setText("Compiling failed");
 		this.messages.stop();
+			
+		// Find out why compiling failed through the COMPILING_RESULT command.
+		XilinxExperiment.this.boardController.sendCommand(compilingResultCommand, new IResponseCommandCallback() {
+			@Override
+			public void onFailure(CommException e) {
+				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the COMPILING_RESULT");
+			}
+
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				XilinxExperiment.this.messages.setText("Compiling failed: \n" + responseCommand);
+			}
+		});
+		
+
 	}
 	
 	private void loadWidgets() {
@@ -573,7 +595,7 @@ public class XilinxExperiment extends ExperimentBase{
 				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
 				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
-					currentAction = "Compiling VHDL";
+					currentAction = "Synthesizing VHDL";
 				else
 					currentAction = "Processing";
 				

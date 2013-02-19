@@ -14,14 +14,15 @@ entity base is
 		Clk : in std_logic;
 	
 		Leds : inout std_logic_vector (7 downto 0);
-		Enable_seg_out : inout std_logic_vector (3 downto 0);
-		Seven_seg : inout std_logic_vector (6 downto 0);
-		Punto: inout std_logic;
+		EnableSegOut : inout std_logic_vector (3 downto 0);
+		SevenSeg : inout std_logic_vector (6 downto 0);
+		Dot: inout std_logic;
 	
 		Buttons: in std_logic_vector (3 downto 0);
 		Switches: in std_logic_vector (9 downto 0)
 		);
 end base;
+
 
 architecture behavioral of base is
 begin

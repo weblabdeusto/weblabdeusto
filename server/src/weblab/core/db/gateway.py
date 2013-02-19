@@ -88,7 +88,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
 
                 experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one()
-                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if experiment_unique_id in grouped_experiments:

@@ -136,8 +136,8 @@ class AliveUsersCollection(object):
         # after the "poll" method the UPS modified the (updated)
         # session without unlocking.
         reservation_session = self._session_manager.get_session(reservation_session_id)
-        user_processor = ReservationProcessor( self._cfg_manager, reservation_session_id, reservation_session, self._coordinator, self._locator, self._commands_store)
-        return user_processor.is_expired()
+        reservation_processor = ReservationProcessor( self._cfg_manager, reservation_session_id, reservation_session, self._coordinator, self._locator, self._commands_store)
+        return reservation_processor.is_expired()
 
 
     def _find_expired_session_ids(self, reservation_session_ids):

@@ -29,7 +29,7 @@ import weblab.login.db.dao.user as UserAuth
 
 from weblab.data.dto.experiments import Experiment
 from weblab.data.dto.experiments import ExperimentCategory
-from weblab.data.dto.permissions import Permission, PermissionParameter, PermissionType
+from weblab.data.dto.permissions import Permission, PermissionParameter
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.command import Command, NullCommand
 from weblab.data.dto.users import User
@@ -344,7 +344,7 @@ class DbUserUsedExperiment(Base):
     end_date_micro          = Column(Integer)
     # TODO: use these new two fields
     max_error_in_millis     = Column(Integer, nullable = True)
-    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler
+    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
     permission_permanent_id = Column(String(255), nullable = True)
     origin                  = Column(String(255), nullable = False)
     coord_address           = Column(String(255), nullable = False)

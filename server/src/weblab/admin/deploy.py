@@ -57,6 +57,10 @@ def insert_required_initial_data(engine):
     session.add(weblab_db)
     session.commit()
 
+    weblab_openid = Model.DbAuth(openid, "OPENID", 7)
+    session.add(weblab_openid)
+    session.commit()
+
     federated_access_forward = Model.DbRolePermission(
         federated,
         permissions.ACCESS_FORWARD,
@@ -94,7 +98,6 @@ def populate_weblab_tests(engine, tests):
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
     iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
     facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
-    openid = session.query(Model.DbAuthType).filter_by(name="OPENID").one()
 
     experiment_allowed = permissions.EXPERIMENT_ALLOWED
     experiment_allowed_p1 = permissions.EXPERIMENT_PERMANENT_ID
@@ -120,9 +123,6 @@ def populate_weblab_tests(engine, tests):
 
     auth_facebook = Model.DbAuth(facebook, "Facebook", 5)
     session.add(auth_facebook)
-
-    auth_openid = Model.DbAuth(openid, "OpenID", 6)
-    session.add(auth_openid)
 
     administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
     professor     = session.query(Model.DbRole).filter_by(name='professor').one()

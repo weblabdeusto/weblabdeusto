@@ -69,12 +69,13 @@ class ExperimentAllowed(object):
 
     __metaclass__ = Representable
 
-    def __init__(self, experiment, time_allowed, priority, initialization_in_accounting):
+    def __init__(self, experiment, time_allowed, priority, initialization_in_accounting, permanent_id):
 
         super(ExperimentAllowed,self).__init__()
         self.experiment                   = experiment
         self.time_allowed                 = time_allowed
         self.priority                     = priority
         self.initialization_in_accounting = initialization_in_accounting
+        self.permanent_id                 = permanent_id
 
 

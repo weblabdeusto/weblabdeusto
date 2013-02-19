@@ -1,21 +1,24 @@
 import os
+import re
 import sha
 import time
 import random
 import datetime
+import traceback
 import threading
 
 from wtforms.fields.core import UnboundField
-from wtforms.validators import Email
+from wtforms.validators import Email, Regexp
 
 from sqlalchemy.sql.expression import desc
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-from flask.ext.wtf import Form, TextField, Required, PasswordField, SelectField, NumberRange
+from flask.ext.wtf import Form, TextField, TextAreaField, Required, PasswordField, NumberRange, SelectField
 
 from flask.ext.admin.contrib.sqlamodel import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
+from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
 
 import weblab.configuration_doc as configuration_doc
@@ -24,6 +27,13 @@ import weblab.permissions as permissions
 
 from weblab.admin.web.filters import get_filter_number, generate_filter_any
 from weblab.admin.web.fields import DisabledTextField
+
+try:
+    from weblab.admin.ldap_gateway import LdapGateway
+    LdapGatewayClass = LdapGateway
+except ImportError:
+    LdapGatewayClass = None
+
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
@@ -122,6 +132,19 @@ class UserAuthForm(InlineFormAdmin):
         form_class.configuration = PasswordField('configuration', description = 'Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
         return form_class
 
+LOGIN_REGEX = '^[A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-]*$'
+
+def _password2sha(password):
+    # TODO: Avoid replicating
+    randomstuff = ""
+    for _ in range(4):
+        c = chr(ord('a') + random.randint(0,25))
+        randomstuff += c
+    password = password if password is not None else ''
+    return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
+
+
+
 class UsersPanel(AdministratorModelView):
 
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
@@ -131,10 +154,10 @@ class UsersPanel(AdministratorModelView):
 
 
     form_excluded_columns = 'avatar',
-    form_args = dict(email = dict(validators = [Email()]) )
+    form_args = dict(email = dict(validators = [Email()]), login = dict(validators = [Regexp(LOGIN_REGEX)]))
 
     column_descriptions = dict( login     = 'Username (all letters, dots and numbers)', 
-                                full_name ='First and Last name',
+                                full_name = 'First and Last name',
                                 email     = 'Valid e-mail address',
                                 avatar    = 'Not implemented yet, it should be a public URL for a user picture.' )
 
@@ -195,7 +218,7 @@ class UsersPanel(AdministratorModelView):
             password = auth_instance.configuration
             if len(password) < 6:
                 raise Exception("Password too short")
-            auth_instance.configuration = self._password2sha(password)
+            auth_instance.configuration = _password2sha(password)
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
@@ -204,14 +227,257 @@ class UsersPanel(AdministratorModelView):
         # Other validations would be here
 
 
-    def _password2sha(self, password):
-        # TODO: Avoid replicating
-        randomstuff = ""
-        for _ in range(4):
-            c = chr(ord('a') + random.randint(0,25))
-            randomstuff += c
-        password = password if password is not None else ''
-        return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
+class UsersBatchForm(Form):
+    
+    """This form enables adding multiple users in a single action."""
+    
+    users          = TextAreaField(u"Users:", description="Add the user list using the detailed format")
+    new_group      = TextField(u"New group:")
+    existing_group = Select2Field(u"Existing group:")
+
+class LdapUsersBatchForm(UsersBatchForm):
+    
+    ldap_user      = TextField(u"Your LDAP username:")
+    ldap_password  = PasswordField(u"Your LDAP password:")
+    ldap_domain    = TextField(u"Your domain:")
+    ldap_system    = SelectField(u"LDAP gateway:")
+
+class FormException(Exception):
+    """ Used to know that there was an error parsing the form """
+   
+class UsersAddingView(AdministratorView):
+    
+    def __init__(self, session, **kwargs):
+        self.session = session
+        super(UsersAddingView, self).__init__(**kwargs)
+    
+    @expose()
+    def index(self):
+        # TODO: enable / disable OpenID and LDAP depending on if it is available
+        return self.render("admin-add-students-select.html")
+    
+    def _get_form(self, klass = UsersBatchForm):
+        form = klass()
+        groups = [ (g.name, g.name) for g in self.session.query(model.DbGroup).order_by(desc('id')).all() ]
+        form.existing_group.choices = groups
+        return form
+  
+    def _parse_text(self, text, columns):
+        rows = []
+        errors = False
+        for n, line in enumerate(text.splitlines()):
+            if line.strip():
+                cur_columns = [ col.strip() for col in line.split(',') ]
+                if len(cur_columns) != len(columns):
+                    flash(u"Line %s (%s) does not have %s columns (%s found)" % (n, line, len(columns), len(cur_columns)))
+                    errors = True
+                    continue
+                
+                cur_error = False
+                for column, fmt in zip(cur_columns, columns):
+                    if fmt == 'login':
+                        regex = re.compile(LOGIN_REGEX)
+                        if not regex.match(column):
+                            flash(u"Login %s contains invalid characters" % column)
+                            cur_error = True
+                        existing_user = self.session.query(model.DbUser).filter_by(login = column).first()
+                        if existing_user is not None:
+                            flash(u"User %s already exists" % column)
+                            cur_error = True
+                    elif fmt == 'mail':
+                        # Not exhaustive
+                        regex = re.compile('^.*@.*\..*')
+                        if not regex.match(column):
+                            flash("Invalid e-mail address: %s" % column)
+                            cur_error = True
+                if cur_error:
+                    errors = True
+                else:
+                    rows.append(cur_columns)
+
+        if not errors and len(rows) == 0:
+            flash("No user provided")
+            raise FormException()
+
+        if errors:
+            flash("No user added due to errors detailed", 'error')
+            raise FormException()
+        return rows
+
+    def _process_db(self, text):
+        role = self.session.query(model.DbRole).filter_by(name = 'student').one()
+        auth_type = self.session.query(model.DbAuthType).filter_by(name = 'DB').one()
+        auth = auth_type.auths[0]
+
+        users = []
+        rows = self._parse_text(text, ('login', 'full_name', 'mail', 'password'))
+        for login, full_name, mail, password in rows:
+            user = model.DbUser(login=login, full_name=full_name, email=mail, role=role)
+            self.session.add(user)
+            user_auth = model.DbUserAuth(user = user, auth = auth, configuration = _password2sha(password))
+            self.session.add(user_auth)
+            users.append(user)
+
+        return users
+
+
+    def _process_openid(self, text):
+        role = self.session.query(model.DbRole).filter_by(name = 'student').one()
+        auth_type = self.session.query(model.DbAuthType).filter_by(name = 'OPENID').one()
+        auth = auth_type.auths[0]
+
+        users = []
+        rows = self._parse_text(text, ('login', 'full_name', 'mail', 'open_id'))
+        for login, full_name, mail, open_id in rows:
+            user = model.DbUser(login=login, full_name=full_name, email=mail, role=role)
+            self.session.add(user)
+            user_auth = model.DbUserAuth(user = user, auth = auth, configuration = open_id)
+            self.session.add(user_auth)
+            users.append(user)
+
+        return users
+
+    def _process_ldap(self, text, form):
+        if LdapGatewayClass is None:
+            flash("Error: ldap libraries not installed")
+            return []
+
+        role = self.session.query(model.DbRole).filter_by(name = 'student').one()
+        auth_ldap = self.session.query(model.DbAuth).filter_by(name = form.ldap_system.data).one()
+
+        ldap_uri = auth_ldap.get_config_value("ldap_uri")
+        ldap_base = auth_ldap.get_config_value("base")
+        ldap = LdapGatewayClass(ldap_uri, form.ldap_domain.data, ldap_base, form.ldap_user.data, form.ldap_password.data)
+
+        users = []
+
+        rows = [ user[0] for user in self._parse_text(text, ('login',)) ]
+        try:
+            users_data = ldap.get_users(rows)
+        except:
+            traceback.print_exc()
+            flash("Error retrieving users from the LDAP server. Contact your administrator.")
+            raise FormException()
+
+        if len(users_data) != len(rows):
+            retrieved_logins = [ user['login'] for user in users_data ]
+            missing_logins = []
+            for login in rows:
+                if login not in retrieved_logins:
+                    missing_logins.append(login)
+            all_missing_logins = ', '.join(missing_logins)
+            flash("Error: could not find the following users: %s" % all_missing_logins)
+            raise FormException()
+            
+        if len(users_data) == 0:
+            flash("No user processed")
+            raise FormException()
+
+        for user_data in users_data:
+            ENCODING = 'utf-8'
+            login     = user_data['login'].decode(ENCODING)
+            full_name = user_data['full_name'].decode(ENCODING)
+            email     = user_data['email'].decode(ENCODING)
+            user = model.DbUser(login=login, full_name=full_name, email=email, role=role)
+            self.session.add(user)
+            user_auth = model.DbUserAuth(user = user, auth = auth_ldap, configuration = None)
+            self.session.add(user_auth)
+            users.append(user)
+
+        return users
+
+    def _process_groups(self, form, users):
+        group_option = request.form.get('group', 'none')
+        if group_option == 'new':
+            group = model.DbGroup(name=form.new_group.data)
+            self.session.add(group)
+        elif group_option == 'existing':
+            group = self.session.query(model.DbGroup).filter_by(name=form.existing_group.data).one()
+
+        if group_option in ('new','existing'):
+            group_name = group.name
+            for user in users:
+                group.users.append(user)
+        else:
+            group_name = ""
+
+        return group_name
+            
+
+    @expose('/db/', methods=['GET', 'POST'])
+    def add_db(self):
+        form = self._get_form()
+        description = "In this case, you need to provide the user's login, full_name, e-mail address, and password, in this order and separated by commas."
+        example     = ("j.doe, John Doe, john@institution.edu, appl3_1980\n" + 
+                        "j.smith, Jack Smith, jack@institution.edu, h4m_1980\n")
+        if form.validate_on_submit():
+            try:
+                users = self._process_db(form.users.data)
+            except FormException:
+                pass
+            else:
+                group_name = self._process_groups(form, users)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Errors occurred while adding users")
+                else:
+                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+        elif not form.users.data:
+            form.users.data = example
+        return self.render("admin-add-students.html", form = form, description = description, example = example)
+    
+    @expose('/ldap/', methods=['GET','POST'])
+    def add_ldap(self):
+        form = self._get_form(LdapUsersBatchForm)
+
+        ldap_auth_type = self.session.query(model.DbAuthType).filter_by(name = 'LDAP').first()
+        if ldap_auth_type is None:  
+            return "LDAP not registered as an Auth Type"
+
+        form.ldap_system.choices = [ (auth.name, auth.name) for auth in ldap_auth_type.auths ]
+        description = "In this case, you only need to provide the username of the users, separated by spaces or new lines. WebLab-Deusto will retrieve the rest of the information from the LDAP system."
+        example     = "user1\nuser2\nuser3"
+        if form.validate_on_submit():
+            try:
+                users = self._process_ldap(form.users.data, form)
+            except FormException:
+                pass
+            else:
+                group_name = self._process_groups(form, users)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Errors occurred while adding users")
+                else:
+                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+        elif not form.users.data:
+            form.users.data = example
+        return self.render("admin-add-students.html", form = form, description = description, example = example)
+    
+    @expose('/openid/', methods=['GET','POST'])
+    def add_openid(self):
+        form = self._get_form()
+        description = "In this case, you only need to provide the username of the user, the full name, e-mail address and OpenID, in this order and separated by commas."
+        example     = ( "j.doe,   John Doe,   john@institution.edu, institution.edu/users/john\n" +
+                        "j.smith, Jack Smith, jack@institution.edu, institution.edu/users/jack\n" )
+        if form.validate_on_submit():
+            try:
+                users = self._process_openid(form.users.data)
+            except FormException:
+                pass
+            else:
+                group_name = self._process_groups(form, users)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Errors occurred while adding users")
+                else:
+                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+        elif not form.users.data:
+            form.users.data = example
+        return self.render("admin-add-students.html", form = form, description = description, example = example)
+
 
 class GroupsPanel(AdministratorModelView):
 
@@ -526,8 +792,8 @@ class RolePermissionPanel(GenericPermissionPanel):
         RolePermissionPanel.INSTANCE = self
 
 class PermissionsForm(Form):
-    permission_types = SelectField(u"Permission type:", choices=[ (permission_type, permission_type) for permission_type in permissions.permission_types ], default = permissions.EXPERIMENT_ALLOWED)
-    recipients       = SelectField(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')], default = 'group')
+    permission_types = Select2Field(u"Permission type:", choices=[ (permission_type, permission_type) for permission_type in permissions.permission_types ], default = permissions.EXPERIMENT_ALLOWED)
+    recipients       = Select2Field(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')], default = 'group')
 
 
 class PermissionsAddingView(AdministratorView):
@@ -564,7 +830,7 @@ class PermissionsAddingView(AdministratorView):
         class ParentPermissionForm(Form):
 
             comments   = TextField("Comments")
-            recipients = SelectField(recipient_type, description="Recipients of the permission")
+            recipients = Select2Field(recipient_type, description="Recipients of the permission")
 
             def get_permanent_id(self):
                 recipient = recipient_resolver(self.recipients.data)
@@ -598,7 +864,7 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['experiment', 'time_allowed', 'priority', 'initialization_in_accounting']
 
-                experiment = SelectField(u'Experiment', description = "Experiment")
+                experiment = Select2Field(u'Experiment', description = "Experiment")
 
                 time_allowed = TextField(u'Time assigned',                  description = "Measured in seconds",  validators = [Required(), NumberRange(min=1)], default=100)
                 priority     = TextField(u'Priority',                       description = "Priority of the user", validators = [Required(), NumberRange(min=0)], default=5)

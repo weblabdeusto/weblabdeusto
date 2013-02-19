@@ -40,6 +40,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
@@ -404,7 +405,7 @@ public class SubmarineExperiment extends ExperimentBase {
 	    final JSONObject config = parseWebcamConfig(initialConfiguration);
 	    if(config == null)
 	    	return;
-	    
+
 	    if(!config.containsKey("light")) {
 	    	Window.alert("\"light\" key not found in the initial configuration: " + initialConfiguration);
 	    	return;
@@ -428,14 +429,37 @@ public class SubmarineExperiment extends ExperimentBase {
 	    	this.thermometer.setVisible(true);
 	    }
 	    
-	    this.webcam1.setVisible(true);
-	    this.webcam1.start();
-	    this.webcam2.setVisible(true);
-	    this.webcam2.start();
-
-		this.inputWidgetsPanel.setVisible(true);
-		this.messages.setText(i18n.youCanNowControlTheAquarium());
-		this.messages.stop();
+	    final String osWidget = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+	    final boolean widgetMode = !osWidget.isEmpty() && (osWidget.startsWith("cam") || osWidget.startsWith("button"));
+	    
+	    if (widgetMode) {
+		    this.webcam1.setVisible(false);
+		    this.webcam2.setVisible(false);
+			this.inputWidgetsPanel.setVisible(false);
+			this.messages.setText("");
+			this.messages.stop();
+	    	
+	    	if (osWidget.equals("cam1")) {
+			    this.webcam1.setVisible(true);
+			    this.webcam1.start();
+	    	} else if(osWidget.equals("cam2")) {
+			    this.webcam2.setVisible(true);
+			    this.webcam2.start();
+	    	} else if(osWidget.startsWith("button")) {
+				this.inputWidgetsPanel.setVisible(true);
+				this.activateSubmarinePanel.setVisible(false);
+	    	}
+	    	
+	    } else {
+		    this.webcam1.setVisible(true);
+		    this.webcam1.start();
+		    this.webcam2.setVisible(true);
+		    this.webcam2.start();
+	
+			this.inputWidgetsPanel.setVisible(true);
+			this.messages.setText(i18n.youCanNowControlTheAquarium());
+			this.messages.stop();
+	    }
 	}
 
 	@SuppressWarnings("unused")
