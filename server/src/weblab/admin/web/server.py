@@ -94,15 +94,18 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
         self._server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, self._rfm)
         self._server.socket.settimeout(timeout)
 
-import weblab.core.comm.admin_server as admin_server
+ADMIN_FACADE_JSON_LISTEN                    = 'admin_facade_json_bind'
+DEFAULT_ADMIN_FACADE_JSON_LISTEN            = ''
+ADMIN_FACADE_JSON_PORT                      = 'admin_facade_json_port'
+
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
 class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     SERVERS = (RemoteFacadeServerWSGI,)
 
-    FACADE_WSGI_PORT             = admin_server.ADMIN_FACADE_JSON_PORT
-    FACADE_WSGI_LISTEN           = admin_server.ADMIN_FACADE_JSON_LISTEN
-    DEFAULT_FACADE_WSGI_LISTEN   = admin_server.DEFAULT_ADMIN_FACADE_JSON_LISTEN
+    FACADE_WSGI_PORT             = ADMIN_FACADE_JSON_PORT
+    FACADE_WSGI_LISTEN           = ADMIN_FACADE_JSON_LISTEN
+    DEFAULT_FACADE_WSGI_LISTEN   = DEFAULT_ADMIN_FACADE_JSON_LISTEN
 
     FACADE_SERVER_ROUTE          = USER_PROCESSING_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
