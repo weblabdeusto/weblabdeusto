@@ -216,7 +216,98 @@ Autómatas
 Introducción
 ^^^^^^^^^^^^
 
-El segundo tipo de circuito con el que Boole-Deusto puede trabajar son los autómatas. 
+El segundo tipo de circuito con el que Boole-Deusto puede trabajar son los autómatas. Esta característica, que ya existía en el boole-deusto original, ha sido extendida añadiendo capacidad de integración inmediata con Weblab-Deusto y en concreto sus experimentos FPGA. Tras esta extensión, es ahora posible diseñar y definir un autómata gráficamente, e inmediatamente observarlo en funcionamiento (e interactuar con él) en un FPGA físico real en Weblab-Deusto.
 
-Esta sección del manual, y el propio Boole-Deusto en lo relacionado a estos aspectos, se encuentran actualmente en desarrollo. 
+
+Aspectos básicos con Weblab-Deusto
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Nombres de las entradas y salidas
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+En su versión actual, para promover la simplicidad, esta parte de Boole-Deusto no requiere (ni permite) elegir las correspondencias entre las salidas y entradas de los estados, y las salidas
+y entradas de Weblab-Deusto. En vez de eso, se ha de saber que la correspondencia entre entradas y salidas siempre es la misma:
+
+Las entradas son siempre los interruptores. De este modo, si tenemos por ejemplo un estado S0 que "recibe" dos entradas,
+estas dos entradas se corresponderán con los últimos dos interruptores (los de más a la derecha). 
+
+Las salidas son siempre los LEDs. De este modo, si tenemos un estado S0 que tiene dos salidas, estas dos salidas se corresponderán con los últimos dos LEDs (los de más a la derecha).
+Si la salida del estado es por ejemplo "01", el LED de más a la derecha estará encendido, y el LED inmediatamente a su izquierda apagado.
+
+Botón de reset
+,,,,,,,,,,,,,,
+
+Existe un botón que devuelve al autómata a su estado inicial. Este botón es siempre el último botón de Weblab (el de más a la derecha). 
+
+
+Controles de Weblab
+^^^^^^^^^^^^^^^^^^^
+
+Los controles añadidos a Boole-Deusto en la integración con Weblab-Deusto son principalmente de dos tipos:
+
+Exportación a código Weblab-VHDL
+................................
+
+.. image:: /_static/userguide_boole_weblab/nuevo_sist_combinacional_weblabm.png
+	:width: 300 px
+	:align: center
+	
+Mediante el uso de estas opciones, es posible generar código VHDL que sea inmediatamente compatible con el experimento FPGA de Weblab-Deusto.
+Para conseguir esta compatibilidad, el código generado utilizará nombres de entradas y salidas compatibles con las de Weblab-Deusto (definidas en un UCF).
+
+Podemos observar que existen varias opciones para generar el código. Cada una de esas opciones corresponde a un tipo de reloj diferente, que utilizará el
+autómata. Los relojes disponibles son los siguientes:
+
+Reloj Interno (Internal Clock)
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+Utiliza el reloj interno de la FPGA. Su frecuencia es bastante alta, lo que lo hace poco adecuado para aquellos casos en los que el comportamiento del autómata 
+requiera de alguna clase de sincronización de las entradas y salidas con el reloj.
+
+Reloj Weblab (Weblab Clock)
+,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+Algo más lento que el reloj interno. Está provisto por el propio Weblab-FPGA, y su frecuencia puede ser controlada de forma limitada, mediante un *slider* en el propio experimento.
+
+Reloj Interruptor (Switch Clock)
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+El último interruptor (el de más a la izquierda) actúa como reloj. Esto lo hace muy adecuado para aquellos casos en los que se desee probar el autómata teniendo un absoluto control sobre el reloj. Esto podría incluir, por ejemplo, aquellos casos en los que es necesario sincronizar las entradas con él.
+
+Reloj Botón (Button Clock)
+,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+Similar al anterior, en este caso el botón de más a la izquierda actúa como reloj. De nuevo, muy adecuado para aquellos casos en los que se desee probar el autómata teniendo un absoluto control sobre el reloj.
+
+.. Warning::
+	Debido a limitaciones presentes ya en el Boole-Deusto original, se recomienda comprobar el autómata antes de intentar generar el código. Ciertos errores, como el no asignar salidas a un estado, pueden
+	hacer que el programa deje de responder.
+
+.. Warning::
+	Si se utiliza la generación de código VHDL estándar de Boole-Deusto (la que no hace mención sobre relojes, ni sobre Weblab), el VHDL generado NO será compatible con Weblab-Deusto. Al menos, sin aplicar manualmente grandes modificaciones.
+	  
+.. Note::
+	**Nota de implementación**
+	En la práctica, el reloj a utilizar no lo determina el VHDL en sí, sino el archivo de restriccines (UCF) que se utilice. Boole-Deusto añade una directiva como comentario al VHDL, como por ejemplo ```%%%CLOCK:SWITCH%%%```.
+	Esta directiva, en absoluto original de Xilinx, es detectada por el propio Weblab-Deusto, que sintetizará el VHDL provisto utilizando un UCF u otro. Cuando se utiliza Weblab-Deusto FPGA también es posible usar dichas directivas en código VHDL escrito manualmente.
+
+		  
+Apertura de Weblab
+....................................
+
+.. image:: /_static/userguide_boole_weblab/nuevo_sist_combinacional_openweblabfpgam.png
+	:width: 300 px
+	:align: center
+
+El botón "Open Weblab" abrirá una ventana del navegador que esté configurado por defecto, y generalmente tras dar
+al usuario la posibilidad de autenticarse, accederá directamente al experimento FPGA, lo que permitirá al usuario subir inmediatamente el código
+VHDL que genere y probarlo de forma rápida y sencilla.
+
+.. Note:: 
+	En este momento, el experimento Weblab-FPGA, que es el utilizado para probar el código VHDL, requiere un usuario registrado
+	en Weblab que tenga ciertos privilegios. Sin dichos privilegios no será posible probar el código. En caso de que se necesiten 
+	obtener tales privilegios, se recomienda ponerse en contacto con el equipo de Weblab-Deusto, o con quien corresponda.
+
+.. Note::
+	Esta sección del manual, y el propio Boole-Deusto en lo relacionado a estos aspectos, se encuentran actualmente en desarrollo. 
 
