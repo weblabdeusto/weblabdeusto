@@ -212,6 +212,9 @@ el Boole-Deusto original.
 Autómatas
 -------------------------
 
+.. image:: /_static/userguide_boole_weblab/automata_weblab.png
+	:width: 300 px
+	:align: center
 
 Introducción
 ^^^^^^^^^^^^
@@ -243,14 +246,14 @@ Existe un botón que devuelve al autómata a su estado inicial. Este botón es s
 Controles de Weblab
 ^^^^^^^^^^^^^^^^^^^
 
+.. image:: /_static/userguide_boole_weblab/automata_menu_marked.png
+	:width: 400 px
+	:align: center
+
 Los controles añadidos a Boole-Deusto en la integración con Weblab-Deusto son principalmente de dos tipos:
 
 Exportación a código Weblab-VHDL
 ................................
-
-.. image:: /_static/userguide_boole_weblab/nuevo_sist_combinacional_weblabm.png
-	:width: 300 px
-	:align: center
 	
 Mediante el uso de estas opciones, es posible generar código VHDL que sea inmediatamente compatible con el experimento FPGA de Weblab-Deusto.
 Para conseguir esta compatibilidad, el código generado utilizará nombres de entradas y salidas compatibles con las de Weblab-Deusto (definidas en un UCF).
