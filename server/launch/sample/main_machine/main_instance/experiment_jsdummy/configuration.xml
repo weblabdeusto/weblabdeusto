@@ -12,7 +12,7 @@
 
 	<implementation>experiments.dummy.DummyExperiment</implementation>
 
-	<restriction>javadummy@Dummy experiments</restriction>
+	<restriction>jsdummy@Dummy experiments</restriction>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->
