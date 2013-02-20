@@ -44,6 +44,11 @@ xilinx_http_device_app_FPGA       = ""
 
 xilinx_programmer_time = 60  # seconds
 
+xilinx_synthesizer_time = 120 # This is the time, in seconds, that we estimate it will take to synthesize VHDL. It is only
+                              # applied when raw VHDL is sent, rather than an already synthesized BIT file.
+                              
+xilinx_adaptive_time = True   # When set to true, the fixed times above will be modified dynamically and automatically.
+
 fpga_webcam_url          = '''https://www.weblab.deusto.es/webcam/fpga0/image.jpg'''
 
 # Path to the UCF, VHD, and project files, which is also the path where the .BIT files will be
