@@ -34,6 +34,7 @@ from experiments.xilinxc.compiler import Compiler
 
 import json
 import base64
+import time
 
 from voodoo.threaded import threaded
 
@@ -42,8 +43,8 @@ from voodoo.threaded import threaded
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
 STATE_AWAITING_CODE = "awaiting_code"
-STATE_COMPILING = "compiling"
-STATE_COMPILER_ERROR = "compiler_error"
+STATE_SYNTHESIZING = "synthesizing"
+STATE_SYNTHESIZING_ERROR = "synthesizing_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
@@ -79,13 +80,16 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
+        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
+        self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', True)
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
-        self._compiling_result = ""
+        self._synthesizing_result = ""
         
         self._ucf_file = None
+        
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
@@ -130,7 +134,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             try:
                 if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
-                return "STATE=" + STATE_COMPILING
+                return "STATE=" + STATE_SYNTHESIZING
             except Exception as ex:
                 if DEBUG: print "EXCEPTION: " + ex
                 raise ex
@@ -155,20 +159,26 @@ class UdXilinxExperiment(Experiment.Experiment):
         Running in its own thread, this method will compile the provided
         VHDL code and then program the board if the result is successful.
         """
-        self._current_state = STATE_COMPILING
+        self._current_state = STATE_SYNTHESIZING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path)
         #c.DEBUG = True
         content = base64.b64decode(file_content)
         c.feed_vhdl(content)
         if DEBUG: print "[DBG]: VHDL fed. Now compiling."
-        success = c.compile()
+        success = c.compileit()
         if(not success):
-            self._current_state = STATE_COMPILER_ERROR
+            self._current_state = STATE_SYNTHESIZING_ERROR
             self._compiling_result = c.errors()
         else:
+            # If we are using adaptive timing, modify it according to this last input.
+            # TODO: Consider limiting the allowed range of variation, in order to dampen potential anomalies.
+            elapsed = c.get_time_elapsed()
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
+            
             bitfile = c.retrieve_bitfile()
             if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
-            c._compiling_result = "Compiling done."
+            c._compiling_result = "Synthesizing done."
             self._program_file_t(bitfile)
         
 
@@ -180,9 +190,16 @@ class UdXilinxExperiment(Experiment.Experiment):
         while updating the state of the experiment appropriately.
         """
         try:
+            start_time = time.time() # To track the time it takes
             self._current_state = STATE_PROGRAMMING
             self._program_file(file_content)
             self._current_state = STATE_READY
+            elapsed = time.time() - start_time # Calculate the time the programming process took
+            
+            # If we are in adaptive mode, change the programming time appropriately.
+            # TODO: Consider limiting the variation range to dampen anomalies.
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
         except Exception as e:
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
@@ -247,7 +264,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s }""" % (self.webcam_url, self._programmer_time, self._synthesizer_time), "batch" : False })
 
     @logged("info")
     @Override(Experiment.Experiment)
@@ -263,9 +280,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                 reply = "STATE="+ self._current_state
                 return reply
             
-            elif command == 'COMPILING_RESULT':
+            elif command == 'SYNTHESIZING_RESULT':
                 if(DEBUG):
-                    print "[DBG]: COMPILING_RESULT: " + self._compiling_result
+                    print "[DBG]: SYNTHESIZING_RESULT: " + self._compiling_result
                 return self._compiling_result
 
             # Otherwise we assume that the command is intended for the actual device handler

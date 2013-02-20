@@ -17,6 +17,7 @@
 import subprocess
 import os
 import base64
+import time
 
 
 UCF_INTERNAL_CLOCK = "fpga_clock_internal.ucf"
@@ -47,6 +48,10 @@ class Compiler(object):
         if self.toolspath != "":
             self.toolspath += os.sep
         self.errorlines = []
+        
+        # The following will be used to measure compileit's time.
+        self._synt_start = None
+        self._synt_elapsed = None
             
         # By default, we will use this UCF.
         self.ucf = DEFAULT_UCF
@@ -251,7 +256,10 @@ class Compiler(object):
         
         return False
     
-    def compile(self): #@ReservedAssignment
+    def compileit(self): 
+        # Track the time
+        self._synt_start = time.time()
+        
         # Read VHDL code to compile
         f = open(self.filespath + os.sep + "base.vhd", "r")
         vhdl = f.read()
@@ -260,7 +268,20 @@ class Compiler(object):
         # Choose the right clock
         self.choose_clock(vhdl)
         
-        return self.synthesize() and self.implement() and self.generate()
+        result = self.synthesize() and self.implement() and self.generate()
+    
+        # Track time elapsed
+        self._synt_elapsed = time.time() - self._synt_start
+    
+        return result
+    
+    def get_time_elapsed(self):
+        """
+        Returns the amount of seconds that the full "compiling" process took.
+        That is, the time the "compileit" call took, even if it failed.
+        @see compileit
+        """
+        return self._synt_elapsed
     
     def errors(self):
         """

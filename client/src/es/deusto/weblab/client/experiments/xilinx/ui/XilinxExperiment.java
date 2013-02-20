@@ -76,12 +76,13 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
+	private final int DEFAULT_EXPECTED_SYNTHESIZING_TIME = 120000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
-	private static final String STATE_COMPILER_ERROR = "compiler_error";
+	private static final String STATE_SYNTHESIZING_ERROR = "synthesizing_error";
 	private static final String STATE_AWAITING_CODE = "awaiting_code";
 	private static final String STATE_NOT_READY = "not_ready";
-	private static final String STATE_COMPILING = "compiling";
+	private static final String STATE_SYNTHESIZING = "synthesizing";
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
@@ -125,6 +126,9 @@ public class XilinxExperiment extends ExperimentBase{
 	private Timer readyTimer;
 	private boolean deviceReady;
 	private int expectedProgrammingTime = this.DEFAULT_EXPECTED_PROGRAMMING_TIME;
+	private int expectedSynthesizingTime = this.DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+	
+	private boolean synthesizingMode = false;
 
 	private final Vector<Widget> interactiveWidgets;
 	
@@ -285,6 +289,13 @@ public class XilinxExperiment extends ExperimentBase{
 			
 			this.uploadStructure.getFormPanel().setVisible(false);
 			this.uploadStructure.setFileInfo(extension.toLowerCase());
+			
+			// TODO: Probably it would be more elegant if the server itself would decide whether we are synthesizing
+			// and programming or just programming. However, at least for now, this will do fine. The mode is currently
+			// used only to decide how to estimate progress bar length.
+			if(extension.toLowerCase().equals("vhd"))
+				this.synthesizingMode = true;
+			
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 			this.loadStartControls();
 		} else {
@@ -300,7 +311,7 @@ public class XilinxExperiment extends ExperimentBase{
 	 * @param time Time available for the experiment
 	 * @param initialConfiguration JSON-encoded server-provided configuration parameters. 
 	 * This feature is part of the API version 2. Parameters expected by this experiment
-	 * are "webcam" and "expected_programming_time".
+	 * are "webcam", "expected_programming_time", "expected_synthesizing_time".
 	 */
 	@Override
 	public void start(int time, String initialConfiguration){
@@ -324,6 +335,15 @@ public class XilinxExperiment extends ExperimentBase{
 		} catch(Exception e) {	
 			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
+    		return;
+		}
+		
+		try {
+			double expectedSynthesizingTime = parsedInitialConfiguration.isObject().get("expected_synthesizing_time").isNumber().doubleValue();
+			XilinxExperiment.this.expectedSynthesizingTime = (int)(expectedSynthesizingTime * 1000);
+		} catch(Exception e) {	
+			this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
+    		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter.", null);
     		return;
 		}
 	
@@ -421,7 +441,7 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_READY)) {
 							// Ready
 							XilinxExperiment.this.onDeviceReady();
-						} else if(state.equals(STATE_COMPILING)) {
+						} else if(state.equals(STATE_SYNTHESIZING)) {
 							// Check in a few seconds whether the state changed.
 							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_PROGRAMMING)) {
@@ -430,9 +450,9 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_FAILED)) {
 							// Something failed in the programming.
 							XilinxExperiment.this.onDeviceProgrammingFailed();
-						} else if(state.equals(STATE_COMPILER_ERROR)) {
+						} else if(state.equals(STATE_SYNTHESIZING_ERROR)) {
 							// Compiling failed. 
-							XilinxExperiment.this.onDeviceCompilerError();
+							XilinxExperiment.this.onDeviceSynthesizingError();
 						} else if(state.equals(STATE_AWAITING_CODE)) {
 							// Awaiting for VHDL code.
 							// TODO: Implement this. THIS IS NOT YET SUPPORTED.
@@ -522,7 +542,7 @@ public class XilinxExperiment extends ExperimentBase{
 	/**
 	 * Called when the STATE query tells us that the compiling process failed.
 	 */
-	private void onDeviceCompilerError() {
+	private void onDeviceSynthesizingError() {
 		this.deviceReady = false;
 		
 		if(XilinxExperiment.this.progressBar.isWaiting()){
@@ -537,22 +557,22 @@ public class XilinxExperiment extends ExperimentBase{
 		final Command compilingResultCommand = new Command() {
 			@Override
 			public String getCommandString() {
-				return "COMPILING_RESULT";
+				return "SYNTHESIZING_RESULT";
 			}};
 		
-		this.messages.setText("Compiling failed");
+		this.messages.setText("Synthesizing failed");
 		this.messages.stop();
 			
 		// Find out why compiling failed through the COMPILING_RESULT command.
 		XilinxExperiment.this.boardController.sendCommand(compilingResultCommand, new IResponseCommandCallback() {
 			@Override
 			public void onFailure(CommException e) {
-				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the COMPILING_RESULT");
+				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the SYNTHESIZING_RESULT");
 			}
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				XilinxExperiment.this.messages.setText("Compiling failed: \n" + responseCommand);
+				XilinxExperiment.this.messages.setText("Synthesizing failed: \n" + responseCommand);
 			}
 		});
 		
@@ -594,7 +614,7 @@ public class XilinxExperiment extends ExperimentBase{
 				final String currentAction;
 				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
-				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
+				else if( XilinxExperiment.this.currentState.equals(STATE_SYNTHESIZING) )
 					currentAction = "Synthesizing VHDL";
 				else
 					currentAction = "Processing";
@@ -618,7 +638,12 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		this.progressBar.setWaitPoint(0.98);
 		this.progressBar.setVisible(true);
-		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
+		if(this.synthesizingMode)
+			this.progressBar.setEstimatedTime(this.expectedSynthesizingTime + this.expectedProgrammingTime);
+		else
+			this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
 		this.progressBar.start();
 	}
 	
