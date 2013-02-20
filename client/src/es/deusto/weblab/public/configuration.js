@@ -63,6 +63,13 @@
 	                          }
 	                          // Other java experiments could be added here
 	                       ],
+	                "js"	: [
+	                    	   {
+	                    		   "experiment.name"		: "jsdummy",
+	                    		   "experiment.category"	: "Dummy experiments",
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg"
+	                    	   }
+	                       ],
 	                "vm"    : [
 	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",

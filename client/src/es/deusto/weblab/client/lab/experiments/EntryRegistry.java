@@ -43,6 +43,7 @@ import es.deusto.weblab.client.experiments.vm.VMCreatorFactory;
 import es.deusto.weblab.client.experiments.xilinx.XilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.util.applets.js.JSAppCreatorFactory;
 
 /**
  * This class acts as a registry of all the available entries for the currently known experiments.
@@ -57,6 +58,7 @@ class EntryRegistry {
 		new VisirCreatorFactory(),
 		new FlashAppCreatorFactory(),
 		new JavaAppletCreatorFactory(),
+		new JSAppCreatorFactory(),
 		new XilinxCreatorFactory(),
 		new DummyCreatorFactory(),
 		new DummyBatchCreatorFactory(),

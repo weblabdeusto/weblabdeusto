@@ -57,4 +57,8 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		
 	}
 	
+	public static native void wlSendCommand()/*-{
+		alert('test');
+	}-*/;
+	
 }
