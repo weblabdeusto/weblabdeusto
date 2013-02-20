@@ -81,7 +81,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
         self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
-        self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', False)
+        self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', True)
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
