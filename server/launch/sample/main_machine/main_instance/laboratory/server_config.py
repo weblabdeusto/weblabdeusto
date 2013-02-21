@@ -68,6 +68,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_javadummy:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:jsdummy@Dummy experiments':
+            {
+                 'coord_address': 'experiment_jsdummy:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:visirtest@Dummy experiments':
             {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',

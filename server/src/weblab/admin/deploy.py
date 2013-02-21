@@ -352,6 +352,9 @@ def populate_weblab_tests(engine, tests):
 
     javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date)
     session.add(javadummy)
+    
+    jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date)
+    session.add(jsdummy)
 
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
     session.add(logic)
