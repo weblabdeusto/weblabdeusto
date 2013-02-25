@@ -35,11 +35,11 @@ class ControlAppExperiment(Experiment.Experiment):
         self.cfg_manager  = cfg_manager
         self.admin_user   = self.cfg_manager.get_value('admin_user')
         self.admin_pass   = self.cfg_manager.get_value('admin_pass')
-        self.user_login   = self.cfg_manager.get_value('user_login','sample')
         self.router_url   = self.cfg_manager.get_value('router_url', ROUTER_URL)
         self.router_web   = self.cfg_manager.get_value('router_web', ROUTER_WEB)
         self.router_realm = self.cfg_manager.get_value('router_realm', ROUTER_REALM)
         self.timer        = None
+        self._username    = 'sample'
 
     @Override(Experiment.Experiment)
     def do_get_api(self):
@@ -59,7 +59,7 @@ class ControlAppExperiment(Experiment.Experiment):
         password = base64.encodestring(random_uuid.bytes)[:8]
 
         content = dict(
-            edLogin=self.user_login,
+            edLogin=self._username,
             edPassword=password,
             edConfirmPassword=password,
             cbPageList=0,
@@ -77,12 +77,12 @@ class ControlAppExperiment(Experiment.Experiment):
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
         server_data = json.loads(serialized_server_initial_data)
         time_slot = float(server_data['priority.queue.slot.length'])
-
+        self._username = server_data['request.username']
         self.timer = threading.Timer(time_slot, function = self._reset_password)
         self.timer.start()
 
         password = self._reset_password()
-        url = {'url' : self.router_web % dict(login=self.user_login, password=password) }
+        url = {'url' : self.router_web % dict(login=self._username, password=password) }
         return json.dumps({ "initial_configuration" : json.dumps(url), 'batch' : False })
 
     @Override(Experiment.Experiment)
