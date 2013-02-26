@@ -10,9 +10,7 @@
 	<type>weblab.data.server_type::Experiment</type>
 	<methods>weblab.methods::Experiment</methods>
 
-	<implementation>experiments.submarine.Submarine</implementation>
-
-	<restriction>submarine@Submarine experiments</restriction>
+	<implementation>experiments.aquarium.Aquarium</implementation>
 
 	<protocols>
 		<protocol name="Direct">
