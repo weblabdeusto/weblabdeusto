@@ -63,6 +63,7 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
             "exp1|robotarm|Robot experiments"        : "robotarm@robotarm",
             "exp1|submarine|Submarine experiments"   : "submarine@submarine",
+            "exp1|aquarium|Aquatic experiments"      : "submarine@submarine",
             "exp1|unr-physics|Physics experiments"   : "unr@unr",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18",
