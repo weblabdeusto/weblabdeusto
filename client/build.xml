@@ -12,7 +12,7 @@
 
     <property name="gwt.style" value="OBFUSCATED"/>
 
-	<property name="lab.module.name" value="es.deusto.weblab.WebLabClientLab"/>
+	<property name="lab.module.name" value="es.deusto.weblab.WebLabClient"/>
 	
 	<!--
 	***********************************

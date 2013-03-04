@@ -476,6 +476,7 @@
                             ],
                      "control-app" : [
                                 {
+	                        	    "experiment.picture"              : "/img/experiments/bulb.png",
                                     "experiment.name"                 : "control-app",
                                     "experiment.category"             : "Control experiments"
                                 }
