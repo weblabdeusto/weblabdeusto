@@ -51,4 +51,6 @@
 	<stylesheet src="weblab_style.css" />
 	
 	<public path="public"></public>
+	
+	<entry-point class='es.deusto.weblab.client.WebLabClientLab'/>
 </module>
