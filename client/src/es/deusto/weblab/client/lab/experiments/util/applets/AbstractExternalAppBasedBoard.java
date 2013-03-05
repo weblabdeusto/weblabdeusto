@@ -141,10 +141,23 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getIntProperty(key, def);
 	}
 
+	/**
+	 * Retrieves the specified property from the configuration.js file.
+	 * @param key Name of the property
+	 * @return Property identified by the key, as a string
+	 * @throws ConfigurationKeyNotFoundException
+	 * @throws InvalidConfigurationValueException
+	 */
 	static String getProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key);
 	}
 
+	/**
+	 * Retrieves the specified property from the configuration.js file.
+	 * @param key Name of the property
+	 * @param def Default value to retrieve, if an exception occurs and nothing can really be retrieved.
+	 * @return Property identified by the key, as a string, or def value.
+	 */
 	static String getProperty(String key, String def){
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key, def);
 	}
@@ -167,7 +180,16 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		});
 	}
 	
+	
+	/**
+	 * The AbstractExternalAppBasedBoard implements several static methods whose main purpose
+	 * is to be accessed from JavaScript. In order for this to be possible, this method exports
+	 * these methods, which would otherwise be inaccessible, to JavaScript.
+	 */
 	private static native void exportStaticMethods() /*-{
+		
+		$wnd.wl_dbg_board = "Board";
+		
 		$wnd.wl_getIntProperty    = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getIntProperty(Ljava/lang/String;);
 		$wnd.wl_getIntPropertyDef = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getIntProperty(Ljava/lang/String;I);
 		$wnd.wl_getProperty       = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getProperty(Ljava/lang/String;);
@@ -175,12 +197,21 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	
 		$wnd.wl_sendCommand       = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::sendCommand(Ljava/lang/String;I);
 		$wnd.wl_onClean           = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::onClean();
+
 	}-*/;	
 
 	static void onClean(){
 		AbstractExternalAppBasedBoard.staticBoardController.clean();
 	}
 	
+	
+	/**
+	 * This method, and the following "static native" ones, are callbacks which
+	 * are invoked when an event such as a command response arrival occurs. They are native
+	 * because they will then rely the handling of that event to a JavaScript-defined callback.
+	 * @param msg
+	 * @param commandId
+	 */
 	protected static native void handleCommandResponse(String msg, int commandId) /*-{
 		$wnd.wl_inst.handleCommandResponse(msg, commandId);
 	}-*/;
