@@ -189,4 +189,10 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_incubator:main_instance@main_machine',
                 'checkers': ()
             },
+        'exp1:robot-maze@Robot experiments':
+            {
+                'coord_address' : 'experiment_robot_maze:main_instance@main_machine',
+                'checkers': ()
+            },
+
     }

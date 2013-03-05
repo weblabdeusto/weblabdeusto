@@ -38,4 +38,5 @@
 	<server>experiment_unr</server>
 	<server>experiment_controlapp</server>
 	<server>experiment_incubator</server>
+	<server>experiment_robot_maze</server>
 </servers>
