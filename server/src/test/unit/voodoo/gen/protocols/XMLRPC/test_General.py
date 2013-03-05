@@ -14,6 +14,7 @@
 #
 import unittest
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module
 
 import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
@@ -25,7 +26,7 @@ import voodoo.gen.generators as gens
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-PORT = 12047
+PORT = new_port()
 
 class GeneralXMLRPCTestCase(unittest.TestCase):
 

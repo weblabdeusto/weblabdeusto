@@ -15,6 +15,7 @@
 
 import unittest
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module
 import voodoo.gen.protocols.InternetSocket.ServerInternetSocket as ServerInternetSocket
 import voodoo.gen.protocols.InternetSocket.ClientInternetSocket as ClientInternetSocket
@@ -24,7 +25,7 @@ import voodoo.configuration as ConfigurationManager
 
 import time
 
-PORT = 12142
+PORT = new_port()
 
 class TestServer(object):
     def __init__(self):
@@ -97,7 +98,7 @@ class InternetSocketTestCase(unittest.TestCase):
     def test_server_on_off(self):
         methods = ["method0", "method1", "method2"]
         klz = ServerInternetSocket.generate(self.cfg_manager, methods)
-        internet_socket_server = klz("127.0.0.1", PORT + 1)
+        internet_socket_server = klz("127.0.0.1", new_port())
         parent = TestServer()
         internet_socket_server.register_parent(parent)
         internet_socket_server.start(False)
@@ -108,12 +109,13 @@ class InternetSocketTestCase(unittest.TestCase):
     def test_server_on_request_off(self):
         methods = ["method0", "method1", "method2"]
         klz_server = ServerInternetSocket.generate(self.cfg_manager, methods)
-        server = klz_server("127.0.0.1", PORT + 2)
+        yet_other_port = new_port()
+        server = klz_server("127.0.0.1", yet_other_port)
         parent = TestServer()
         server.register_parent(parent)
         server.start(False)
         klz_client = ClientInternetSocket.generate(methods)
-        client = klz_client("127.0.0.1", PORT + 2)
+        client = klz_client("127.0.0.1", yet_other_port)
         result = client.method0()
         self.assertEquals(result, "This is the result of method0()")
         result = client.method1("foobar")
