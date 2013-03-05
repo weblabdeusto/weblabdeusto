@@ -57,6 +57,8 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    	
 	    $wnd.wl_inst = {};
 	    $wnd.wl_inst.handleCommandResponse = function(a, b) { $doc.wlframe.onHandleCommandResponse(a, b);};
+	    $wnd.wl_inst.handleCommandError = function(a, b) { $doc.wlframe.onHandleCommandError(a, b);};
+	    
 	    $wnd.wl_iframe.height = iframeHeight;
 	    $wnd.wl_iframe.width = iframeWidth;
 	    
@@ -91,6 +93,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 				"} \n" +
 				"" +
 				"function onHandleCommandResponse(a, b) { alert(a); } \n" +
+				"function onHandleCommandError(a, b) { alert(a); } \n" +
 				"</script>";
 		// Important: this must be the first <div> element
 		var flashHtml    = "<div id=\"wl_flashobj_container\"><object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
