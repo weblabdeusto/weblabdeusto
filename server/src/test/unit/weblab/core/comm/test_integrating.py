@@ -16,6 +16,8 @@ import time
 import sys
 import unittest
 
+from test.util.ports import new as new_port
+
 try:
     import ZSI
     from weblab.core.comm.generated.weblabdeusto_client import weblabdeustoSOAP as UserProcessingWebLabDeustoSOAP
@@ -53,6 +55,10 @@ import weblab.core.exc as coreExc
 
 from test.unit.weblab.core.comm.test_user_manager import MockUPS
 
+ZSI_PORT  = new_port()
+JSON_PORT = new_port()
+XMLRPC_PORT = new_port()
+
 class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if UserProcessingFacadeServer.ZSI_AVAILABLE:
         def setUp(self):
@@ -61,14 +67,14 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
             self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, 10223)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, ZSI_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, 10224)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -366,14 +372,14 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
         self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, 10223)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, ZSI_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, 10224)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -403,7 +409,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_reserve_experiment(self):
-        port = 15126
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -445,7 +451,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_send_command(self):
-        port = 15130
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -476,7 +482,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_get_experiment_use_by_id(self):
-        port = 15129
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -496,7 +502,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_get_experiment_uses_by_id(self):
-        port = 15131
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -536,7 +542,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
             self.rfs.stop()
     @uses_module(RemoteFacadeServer)
     def test_get_reservation_status(self):
-        port = 15128
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -567,7 +573,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_finished_experiment(self):
-        port = 15127
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
