@@ -17,6 +17,7 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.List;
 import java.util.Vector;
 
+import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
@@ -77,6 +78,7 @@ class EntryRegistry {
 		new UnrCreatorFactory(),
 		new ControlAppCreatorFactory(),
 		new IncubatorCreatorFactory(),
+		new AquariumCreatorFactory(),
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();
