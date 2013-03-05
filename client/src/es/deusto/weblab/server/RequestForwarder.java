@@ -69,7 +69,11 @@ public class RequestForwarder extends HttpServlet{
 	    for(final String header : serverConnection.getHeaderFields().keySet()){
 	    	for(final String value : serverConnection.getHeaderFields().get(header)) { 
 		        if(isValidHeader(header) && value != null){
-		    		resp.addHeader(header, value);
+		        	if(header.startsWith("Set-Cookie")) {
+		        		resp.addHeader(header, value.replaceAll("path=/[^;]*", "path=/"));
+		        	} else {
+		        		resp.addHeader(header, value);
+		        	}
 		        }
 	    	}
 	    }
