@@ -252,6 +252,15 @@
 	    	                        	    "experiment.info.description" : "description"
 	    	                			}
 	    	                		],
+	    	        "aquarium" : [
+									{
+										"experiment.name" : "aquarium",
+										"experiment.picture" : "/img/experiments/aquarium.png",
+										"experiment.category" : "Aquatic experiments",
+										"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+									    "experiment.info.description" : "description"
+									}
+	    	                 ],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
