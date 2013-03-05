@@ -27,7 +27,7 @@ from weblab.util import data_filename
 from voodoo.log import logged
 from voodoo.lock import locked
 from voodoo.override import Override
-from weblab.experiment.experiment import Experiment
+from weblab.experiment.concurrent_experiment import ConcurrentExperiment
 
 module_directory = os.path.join(*__name__.split('.')[:-1])
 
@@ -50,7 +50,7 @@ class EventManager(threading.Thread):
             except:
                 traceback.print_exc()
 
-class Aquarium(Experiment):
+class Aquarium(ConcurrentExperiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Aquarium, self).__init__(*args, **kwargs)
@@ -181,9 +181,9 @@ class Aquarium(Experiment):
                     remaining = (counter - current_hour) % 24
                     return 'notfed:%s' % remaining
 
-    @Override(Experiment)
+    @Override(ConcurrentExperiment)
     @logged("info")
-    def do_start_experiment(self, *args, **kwargs):
+    def do_start_experiment(self, lab_session_id, *args, **kwargs):
         """
         Callback run when the experiment is started.
         """
@@ -245,10 +245,10 @@ class Aquarium(Experiment):
             self._send("LIGHT ON")
             self.debug_critical_msg('LIGHT ON')
 
-    @Override(Experiment)
+    @Override(ConcurrentExperiment)
     @logged("info")
     @locked('_lock')
-    def do_send_command_to_device(self, command):
+    def do_send_command_to_device(self, lab_session_id, command):
         """
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
@@ -352,9 +352,9 @@ class Aquarium(Experiment):
                 return "ok"
 
 
-    @Override(Experiment)
+    @Override(ConcurrentExperiment)
     @logged("info")
-    def do_send_file_to_device(self, content, file_info):
+    def do_send_file_to_device(self, lab_session_id, content, file_info):
         """
         Callback for when the client sends a file to the experiment
         server.
@@ -364,9 +364,9 @@ class Aquarium(Experiment):
         return "ok"
 
 
-    @Override(Experiment)
+    @Override(ConcurrentExperiment)
     @logged("info")
-    def do_dispose(self):
+    def do_dispose(self, lab_session_id):
         """
         Callback to perform cleaning after the experiment ends.
         """
