@@ -306,6 +306,9 @@ def populate_weblab_tests(engine, tests):
     cat_submarine = Model.DbExperimentCategory("Submarine experiments")
     session.add(cat_submarine)
 
+    cat_aquatic = Model.DbExperimentCategory("Aquatic experiments")
+    session.add(cat_aquatic)
+
     cat_labview = Model.DbExperimentCategory("LabVIEW experiments")
     session.add(cat_labview)
 
@@ -410,6 +413,9 @@ def populate_weblab_tests(engine, tests):
     submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
     session.add(submarine)
     
+    aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date)
+    session.add(aquarium)
+
     rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date)
     session.add(rob_arm)
 
@@ -861,7 +867,22 @@ def populate_weblab_tests(engine, tests):
     up_any_submarine_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p3, "200")
     session.add(up_any_submarine_allowed_p3)
          
+    up_any_aquarium_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::weblab-aquarium",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-robot-standard"
+    )
 
+    session.add(up_any_aquarium_allowed)
+    up_any_aquarium_allowed_p1 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p1, "aquarium")
+    session.add(up_any_aquarium_allowed_p1)
+    up_any_aquarium_allowed_p2 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p2, "Aquatic experiments")
+    session.add(up_any_aquarium_allowed_p2)
+    up_any_aquarium_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_aquarium_allowed_p3)
+ 
     up_any_rob_robotarm_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
