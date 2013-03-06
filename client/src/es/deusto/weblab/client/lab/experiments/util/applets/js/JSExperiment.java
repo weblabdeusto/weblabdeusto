@@ -23,6 +23,9 @@ import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppB
 
 
 public class JSExperiment extends AbstractExternalAppBasedBoard {
+	
+	
+	private String jsfile;
 
 	
 	/**
@@ -30,12 +33,12 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * 
 	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
-	 * flashvars parameters.
 	 */
-	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) 
+	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String jsfile, int width, int height) 
 	{
 		super(configurationRetriever, boardController, width, height);
 		
+		this.jsfile = jsfile;
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}
 	
@@ -47,10 +50,10 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	element.innerHTML = iFrameHtml + divHtml;
 	$wnd.wl_div_extra = $doc.getElementById('div_extra');
 	$wnd.wl_iframe    = element.getElementsByTagName('iframe')[0];
-	$wnd.wl_inst  = null;
+	$wnd.wl_inst = {}; // This is the object that will contain the in-javascript callbacks.
 }-*/;
 	
-	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
+	private static native void populateIframe(String jsfile, int width, int height, int iframeWidth, int iframeHeight) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
@@ -61,6 +64,8 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    
 	    $wnd.wl_iframe.height = iframeHeight;
 	    $wnd.wl_iframe.width = iframeWidth;
+	    
+	    var scriptinc = "\n<script language=\"JavaScript\" src=\"" + jsfile + "\"></script>\n";
 	    
 	//    var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
 	//						"<meta http-Equiv=\"Pragma\" Content=\"no-cache\">\n" +
@@ -95,18 +100,11 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 				"function onHandleCommandResponse(a, b) { alert(a); } \n" +
 				"function onHandleCommandError(a, b) { alert(a); } \n" +
 				"</script>";
-		// Important: this must be the first <div> element
-		var flashHtml    = "<div id=\"wl_flashobj_container\"><object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
-								"<param name=\"movie\" value=\"" + swfFile + "\" id=\"flash_emb\"/>" + 
-								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
-								"<embed type=\"application/x-shockwave-flash\" src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
-							"</object></div>";
+				
 							
-		var other		= "<div id=\"div_iframe_extra\"></div>";
-		
 		var completeHtml = "<html>" +
-								"<head>" + metasHtml + functionsHtml + "</head>" +
-								"<body>" + flashHtml + other + "</body>" +
+								"<head>" + metasHtml + functionsHtml + scriptinc"</head>" +
+								"<body></body>" +
 							"</html>";
 		
 		doc.open();
@@ -123,27 +121,35 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	@Override
 	public void setTime(int time) {
-		
 		super.setTime(time);
+		AbstractExternalAppBasedBoard.setTimeImpl(time);
 	}
+	
+    @Override
+    public void end() {
+    	AbstractExternalAppBasedBoard.endImpl();
+    }
 	
 	@Override
 	/**
 	 * Called on initialization.
 	 */
 	public void initialize() {
-		JSExperiment.populateIframe("oo.swf", this.width, 
-				this.height, this.width + 10, this.height + 10, "");
+		JSExperiment.populateIframe(this.jsfile, this.width, 
+				this.height, this.width + 10, this.height + 10);
 	}
 	
 	/**
 	 * Called by the WebLab server to tell the experiment that it is
 	 * meant to start.
+	 * Internally, it calls the base classes' startInteractionImpl to 
+	 * refer the call to the JS file.
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		
+		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}
+	
 	
 	public static native void wlSendCommand()/*-{
 		alert('test');

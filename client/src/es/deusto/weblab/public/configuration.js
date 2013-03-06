@@ -67,7 +67,10 @@
 	                    	   {
 	                    		   "experiment.name"		: "jsdummy",
 	                    		   "experiment.category"	: "Dummy experiments",
-	                    		   "experiment.picture"		: "/img/experiments/java.jpg"
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   "js.file"					: "test.js"
 	                    	   }
 	                       ],
 	                "vm"    : [

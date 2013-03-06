@@ -204,6 +204,11 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		AbstractExternalAppBasedBoard.staticBoardController.clean();
 	}
 	
+	// TODO: It is somewhat counter-intuitive, design-wise, that certain callbacks such as
+	// handleCommandResponse are called from this base class, while others aren't, such
+	// as setTimeImpl (in this last case, they are expected to be called from the derived classes).
+	// Might be a good idea to find an alternative for this.
+	
 	
 	/**
 	 * This method, and the following "static native" ones, are callbacks which

@@ -19,6 +19,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
@@ -36,6 +37,20 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
 		
+		final int width;
+		final int height;
+		final String jsfile;
+		final String message;
+		
+		try{
+			width   = configurationRetriever.getIntProperty("width");
+			height  = configurationRetriever.getIntProperty("height");
+			jsfile = configurationRetriever.getProperty("js.file");
+		}catch(ConfigurationException icve){
+			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
+		}
+
+		
 		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
@@ -45,6 +60,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 						callback.onExperimentLoaded(new JSExperiment(
 								configurationRetriever,
 								boardController,
+								jsfile,
 								640, // TODO: Make these configurable. 
 								480
 							));
