@@ -35,8 +35,8 @@ class StatusUpdater implements IWlDisposableWidget {
 					
 					@Override
 					public void onFailure(CommException e) {
-						// TODO Auto-generated method stub
-						
+						experiment.setMessage("Error retrieving status: " + e.getMessage());
+						e.printStackTrace();
 					}
 					
 					@Override

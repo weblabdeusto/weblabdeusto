@@ -15,6 +15,7 @@ package es.deusto.weblab.client.experiments.aquarium.ui;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
@@ -98,5 +99,9 @@ public class AquariumExperiment extends UIExperimentBase {
 	
 	void updateStatus(Status status) {
 		this.statusUpdatable.updateStatus(status);
+	}
+
+	public void setMessage(String msg) {
+		Window.alert(msg);
 	}
 }

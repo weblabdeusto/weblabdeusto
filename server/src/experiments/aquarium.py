@@ -93,6 +93,9 @@ class Aquarium(ConcurrentExperiment):
         if self.debug:
             print "[Aquarium*] do_send_command_to_device called: %s" % command
 
+        if command == 'get-status':
+            return json.dumps(self._status.get_status())
+
         return 'ok'
 
 
