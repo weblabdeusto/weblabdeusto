@@ -104,10 +104,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_logout(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14124)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14124/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 MESSAGE  = 'my message'
@@ -140,10 +141,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_list_experiments(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14125)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14125/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
@@ -176,10 +178,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_reserve_experiment(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14126)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14126/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
@@ -217,10 +220,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_finished_experiment(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14127)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14127/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
@@ -237,10 +241,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_get_reservation_status(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14128)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14128/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
@@ -267,10 +272,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_send_file(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14129)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14129/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 expected_content = 'my file'
@@ -298,10 +304,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_send_command(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14130)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14130/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 expected_command = Command.Command('my command')
@@ -323,10 +330,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
         
         @uses_module(RemoteFacadeServer)
         def test_get_user_information(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14131)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14131/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
