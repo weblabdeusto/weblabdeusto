@@ -1,9 +1,20 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
-	xmlns:g="urn:import:com.google.gwt.user.client.ui">
-	<ui:style>
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:a="urn:import:es.deusto.weblab.client.experiments.aquarium.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	
+	<g:VerticalPanel width="100%" spacing="10" horizontalAlignment="CENTER">
 		
-	</ui:style>
-	<g:HTMLPanel>
-	</g:HTMLPanel>
+		<a:WebcamPanel ui:field="webcamPanel"></a:WebcamPanel>
+		
+		<w:WlTimer ui:field="timer"></w:WlTimer>
+	
+		<g:HorizontalPanel spacing="12">
+			<a:BallPanel color="red"  />
+			<a:BallPanel color="blue" />
+			<a:BallPanel color="green"  />
+			<a:BallPanel color="yellow" />
+		</g:HorizontalPanel>
+	</g:VerticalPanel>
 </ui:UiBinder> 

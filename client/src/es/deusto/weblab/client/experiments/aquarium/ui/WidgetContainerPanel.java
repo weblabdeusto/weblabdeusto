@@ -28,7 +28,7 @@ import es.deusto.weblab.client.lab.experiments.IDisposableWidgetsContainer;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public class WidgetContainerPanel extends Composite implements IDisposableWidgetsContainer {
+public class WidgetContainerPanel extends Composite implements IDisposableWidgetsContainer, IStatusUpdatable  {
 
 	private static WidgetContainerUiBinder uiBinder = GWT.create(WidgetContainerUiBinder.class);
 
@@ -38,12 +38,18 @@ public class WidgetContainerPanel extends Composite implements IDisposableWidget
 	@UiField VerticalPanel panel;
 	
 	private final IDisposableWidgetsContainer mainWidget;
+	private final IStatusUpdatable statusUpdatable;  
 
 	public WidgetContainerPanel(Widget widget, int time) {
 		if(widget instanceof IDisposableWidgetsContainer)
 			this.mainWidget = (IDisposableWidgetsContainer)widget;
 		else
 			this.mainWidget = null;
+		
+		if(widget instanceof IStatusUpdatable) 
+			this.statusUpdatable = (IStatusUpdatable)widget;
+		else
+			this.statusUpdatable = null;
 		
 		this.timer = new WlTimer(false);
 		initWidget(uiBinder.createAndBindUi(this));
@@ -68,5 +74,11 @@ public class WidgetContainerPanel extends Composite implements IDisposableWidget
 	@Override
 	public Widget asGwtWidget() {
 		return this;
+	}
+
+	@Override
+	public void updateStatus(Status status) {
+		if(this.statusUpdatable != null)
+			this.statusUpdatable.updateStatus(status);
 	}
 }

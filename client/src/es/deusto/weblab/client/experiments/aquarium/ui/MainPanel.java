@@ -14,12 +14,12 @@
 
 package es.deusto.weblab.client.experiments.aquarium.ui;
 
+import java.util.List;
+import java.util.Vector;
+
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -27,73 +27,54 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IDisposableWidgetsContainer;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public class MainPanel extends Composite implements IDisposableWidgetsContainer {
+public class MainPanel extends Composite implements IDisposableWidgetsContainer, IStatusUpdatable  {
 
-	private static MainPanelUiBinder uiBinder = GWT
-			.create(MainPanelUiBinder.class);
-
-	interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
-	}
-
-	public MainPanel(IBoardBaseController boardController, IConfigurationRetriever configurationRetriever, int time, String initialConfiguration) {
-		initWidget(uiBinder.createAndBindUi(this));
-	}
-
-	private JSONObject parseWebcamConfig(String initialConfiguration) {
-		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);
-	    final JSONObject initialConfigObject = initialConfigValue.isObject();
-	    if(initialConfigObject == null) {
-	    	Window.alert("Error parsing submarine configuration: not an object: " + initialConfiguration);
-	    	return null;
-	    }
-	    
-	    // configureWebcam(this.webcam1, initialConfigObject, 1);
-	    // configureWebcam(this.webcam2, initialConfigObject, 2);
-	    
-	    return initialConfigObject;
-	}
+	@UiField(provided=true) WebcamPanel webcamPanel;
+	@UiField(provided=true) WlTimer timer;
 	
-	private void configureWebcam(WlWebcam webcam, JSONObject initialConfigObject, int number) {
-		final JSONValue webcamValue = initialConfigObject.get("webcam" + number);
-	    if(webcamValue != null) {
-	    	final String urlWebcam = webcamValue.isString().stringValue();
-	    	webcam.setUrl(urlWebcam);
-	    }
-	    
-	    final JSONValue mjpegValue = initialConfigObject.get("mjpeg" + number);
-	    if(mjpegValue != null) {
-	    	final String mjpeg = mjpegValue.isString().stringValue();
-	    	int width = 320;
-	    	int height = 240;
-	    	if(initialConfigObject.get("mjpegWidth" + number) != null) {
-	    		final JSONValue mjpegWidth = initialConfigObject.get("mjpegWidth" + number);
-	    		if(mjpegWidth.isNumber() != null) {
-	    			width = (int)mjpegWidth.isNumber().doubleValue();
-	    		} else if(mjpegWidth.isString() != null) {
-	    			width = Integer.parseInt(mjpegWidth.isString().stringValue());
-	    		}
-	    	}
-	    	if(initialConfigObject.get("mjpegHeight" + number) != null) {
-	    		final JSONValue mjpegHeight = initialConfigObject.get("mjpegHeight" + number);
-	    		if(mjpegHeight.isNumber() != null) {
-	    			height = (int)mjpegHeight.isNumber().doubleValue();
-	    		} else if(mjpegHeight.isString() != null) {
-	    			height = Integer.parseInt(mjpegHeight.isString().stringValue());
-	    		}
-	    	}
-	    	webcam.setStreamingUrl(mjpeg, width, height);
-	    }
+	private static MainPanelUiBinder uiBinder = GWT.create(MainPanelUiBinder.class);
+
+	interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
+
+	private final IBoardBaseController boardController;
+	
+	public MainPanel(IBoardBaseController boardController, IConfigurationRetriever configurationRetriever, int time, String initialConfiguration, Status initialStatus) {
+		
+		this.boardController = boardController;
+		this.timer = new WlTimer(false);
+		this.webcamPanel = new WebcamPanel(configurationRetriever, initialConfiguration);
+		
+		initWidget(uiBinder.createAndBindUi(this));
+		
+		this.timer.updateTime(time);
+		this.timer.start();
+		
+		this.webcamPanel.start();
 	}
+
 
 	@Override
 	public IWlDisposableWidget [] getDisposableWidgets() {
-		return new IWlDisposableWidget[]{};
+		final List<IWlDisposableWidget> disposables = new Vector<IWlDisposableWidget>();
+		
+		for(IWlDisposableWidget disposable : this.webcamPanel.getDisposableWidgets())
+			disposables.add(disposable);
+		
+		disposables.add(this.timer);
+		return disposables.toArray(new IWlDisposableWidget[]{});
 	}
 
 	@Override
 	public Widget asGwtWidget() {
 		return this;
+	}
+
+
+	@Override
+	public void updateStatus(Status status) {
+		// TODO Auto-generated method stub
+		
 	}
 }

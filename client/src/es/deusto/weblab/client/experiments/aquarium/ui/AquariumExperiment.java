@@ -13,7 +13,8 @@
 */ 
 package es.deusto.weblab.client.experiments.aquarium.ui;
 
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
@@ -25,6 +26,8 @@ import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 
 public class AquariumExperiment extends UIExperimentBase {
 
+	private IStatusUpdatable statusUpdatable;
+	
 	public AquariumExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);
 	}
@@ -42,18 +45,27 @@ public class AquariumExperiment extends UIExperimentBase {
 		final String widgetName = HistoryProperties.getValue(HistoryProperties.WIDGET, null);
 		Widget widget = null;
 		
+		final JSONObject initialStatusObj = JSONParser.parseStrict(initialConfiguration).isObject().get("status").isObject();
+		final Status initialStatus = new Status(initialStatusObj);
+		
 		if (widgetName != null) {
 			
 			// If so, identify which widget must be shown
-			if (widgetName.equals("ball1")) {
-				widget = new Label("ball1");
-			} else if (widgetName.equals("ball2")){
-				widget = new Label("ball2");
-			} else if (widgetName.equals("ball3")){
-				widget = new Label("ball3");
+			if (widgetName.equals("ball-blue")) {
+				widget = new BallPanel(Color.blue);
+			} else if (widgetName.equals("ball-green")){
+				widget = new BallPanel(Color.green);
+			} else if (widgetName.equals("ball-yellow")){
+				widget = new BallPanel(Color.yellow);
+			} else if (widgetName.equals("ball-red")){
+				widget = new BallPanel(Color.red);
 			} else if (widgetName.equals("camera")){
-				widget = new Label("camera");
+				final WebcamPanel webcam = new WebcamPanel(this.configurationRetriever, initialConfiguration);
+				webcam.start();
+				widget = webcam;
 			}
+			
+			System.out.println("Widget is: " + widget);
 
 			// If a widget is shown, wrap it and put it
 			if (widget != null) {
@@ -61,19 +73,30 @@ public class AquariumExperiment extends UIExperimentBase {
 				final WidgetContainerPanel containerPanel = new WidgetContainerPanel(widget, time);
 				putWidget(containerPanel);
 				disposableContainer = containerPanel;
+				this.statusUpdatable = containerPanel;
 			}
 		}
 		
 		// If there was no identified widget (or no widget mode), load the regular main panel
 		if (widget == null) {
-			final MainPanel mainPanel = new MainPanel(this.boardController, this.configurationRetriever, time, initialConfiguration);
+			final MainPanel mainPanel = new MainPanel(this.boardController, this.configurationRetriever, time, initialConfiguration, initialStatus);
 			putWidget(mainPanel);
 			disposableContainer = mainPanel;
+			this.statusUpdatable = mainPanel;
 		}
 		
 		// Append all the disposable widgets
 		if(disposableContainer != null)
 			for(IWlDisposableWidget disposableWidget : disposableContainer.getDisposableWidgets()) 
 				addDisposableWidgets(disposableWidget);
+		
+		final StatusUpdater updater = new StatusUpdater(2500, this.boardController, this);
+		addDisposableWidgets(updater);
+		
+		this.statusUpdatable.updateStatus(initialStatus);
+	}
+	
+	void updateStatus(Status status) {
+		this.statusUpdatable.updateStatus(status);
 	}
 }
