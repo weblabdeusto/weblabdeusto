@@ -79,20 +79,25 @@ public class BallPanel extends Composite implements IStatusUpdatable {
 		setColor(color);
 	}
 	
+	private void sendButtonCommand(String on) {
+		if(this.controller != null) {
+			disableButtons();
+			this.controller.sendCommand("ball:" + this.color.name() + ":" + on, this.callback);
+		}
+	}
+	
 	@UiHandler("upButton")
 	public void onUpButtonClickHandler(@SuppressWarnings("unused") ClickEvent event) {
 		System.out.println("Ball " + this.color + ": up pressed; with status " + this.status + " and controller being null: " + (this.controller == null));
 		if(!this.status) // If it's down
-			if(this.controller != null)
-				this.controller.sendCommand("ball:" + this.color.name() + ":true", this.callback);
+			sendButtonCommand("true");
 	}
 
 	@UiHandler("downButton")
 	public void onDownButtonClickHandler(@SuppressWarnings("unused") ClickEvent event) {
 		System.out.println("Ball " + this.color + ": down pressed; with status " + this.status + " and controller being null: " + (this.controller == null));
 		if(this.status) // If it's up
-			if(this.controller != null)
-				this.controller.sendCommand("ball:" + this.color.name() + ":false", this.callback);
+			sendButtonCommand("false");
 	}
 	
 	@UiHandler("takePictureButton")
@@ -151,6 +156,11 @@ public class BallPanel extends Composite implements IStatusUpdatable {
 			this.downButton.setStyleName("wl-disabled-img-button");
 			this.upButton.setStyleName("wl-img-button");
 		}
+	}
+	
+	private void disableButtons() {
+		this.downButton.setStyleName("wl-disabled-img-button");
+		this.upButton.setStyleName("wl-disabled-img-button");
 	}
 	
 	@Override

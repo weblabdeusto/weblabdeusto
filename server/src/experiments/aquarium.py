@@ -30,11 +30,10 @@ COLORS = {
     'red'    : 4,
 }
 
-FAKE_REQUESTS = True
-
 class Proxy(object):
 
-    def __init__(self, url):
+    def __init__(self, url, fake):
+        self.fake   = fake
         self.url    = url
         self.opener = urllib2.build_opener(urllib2.ProxyHandler({}))
 
@@ -43,13 +42,13 @@ class Proxy(object):
         mode = 'U' if on else 'D'
         ball_number = COLORS[ball]
         try:
-            self._process("%s/MOVE/%s/%s/9" % (self.url, mode, ball_number))
+            self._process("%s/MOVE/%s/%s/9" % (self.url, mode, ball_number), get = False)
         except:
             traceback.print_exc()
 
     def get_status(self):
         try:
-            content_str = self._process("%s/ballStatus/ALL" % self.url)
+            content_str = self._process("%s/ballStatus/ALL" % self.url, get = True)
             content = json.loads(content_str)
             white, yellow, blue, red = content['Balls']
             return {
@@ -67,12 +66,17 @@ class Proxy(object):
                 'red'   : True,
             }
 
-    def _process(self, url):
-        if FAKE_REQUESTS:
-            print "[aquarium] Simulating call to:", url
+    def _process(self, url, get):
+        if self.fake:
+            print "[aquarium] Simulating %s call to:" % ('GET' if get else 'POST'), url
             return json.dumps({'Balls' : [0,0,0,0]})
         else:
-            return self.opener.open(url).read()
+            print "[aquarium] Calling:", url
+            if get:
+                urlobj = self.opener.open(url)
+            else:
+                urlobj = self.opener.open(url, '{}')
+            return urlobj.read().replace("'",'"')
 
 class StatusManager(object):
 
@@ -106,7 +110,9 @@ class Aquarium(ConcurrentExperiment):
 
         self._cfg_manager    = cfg_manager
         
-        self.proxy = Proxy('http://192.168.0.130:8000')
+        self.fake            = self._cfg_manager.get_value('fake', True)
+
+        self.proxy = Proxy('http://192.168.0.130:8000', self.fake)
 
         self.debug           = self._cfg_manager.get_value('debug', True)
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
