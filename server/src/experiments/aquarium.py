@@ -15,25 +15,84 @@
 
 import os
 import json
+import urllib2
 import threading
+import traceback
 
 from voodoo.log import logged
 from voodoo.override import Override
 from weblab.experiment.concurrent_experiment import ConcurrentExperiment
 
+COLORS = {
+    'white'  : 1,
+    'yellow' : 2,
+    'blue'   : 3,
+    'red'    : 4,
+}
+
+FAKE_REQUESTS = True
+
+class Proxy(object):
+
+    def __init__(self, url):
+        self.url    = url
+        self.opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+
+    def move_ball(self, ball, on):
+        # 192.168.0.130:8000/MOVE/{MODE}/{BALL}/{TURNS}
+        mode = 'U' if on else 'D'
+        ball_number = COLORS[ball]
+        try:
+            self._process("%s/MOVE/%s/%s/9" % (self.url, mode, ball_number))
+        except:
+            traceback.print_exc()
+
+    def get_status(self):
+        try:
+            content_str = self._process("%s/ballStatus/ALL" % self.url)
+            content = json.loads(content_str)
+            white, yellow, blue, red = content['Balls']
+            return {
+                'white'  : white  != 0,
+                'yellow' : yellow != 0,
+                'blue'   : blue   != 0,
+                'red'    : red    != 0,
+            }
+        except:
+            traceback.print_exc()
+            return {
+                'white' : True,
+                'yellow': True,
+                'blue'  : True,
+                'red'   : True,
+            }
+
+    def _process(self, url):
+        if FAKE_REQUESTS:
+            print "[aquarium] Simulating call to:", url
+            return json.dumps({'Balls' : [0,0,0,0]})
+        else:
+            return self.opener.open(url).read()
+
 class StatusManager(object):
-    def __init__(self):
+
+    def __init__(self, proxy):
+        self._proxy = proxy
         self._status_lock = threading.Lock()
-        self._status = {
-            'red'    : True,
-            'green'  : True,
-            'blue'   : True,
-            'yellow' : True,
-        }
+        self._ops_lock    = threading.Lock()
+        self._status = {}
+
+        initial = self._proxy.get_status()
+
+        for color in COLORS:
+            self._status[color] = initial[color]
 
     def move(self, ball, on):
         with self._status_lock:
-            self._status[ball] = on.lower() == 'on'
+            self._status[ball] = on
+        
+        with self._ops_lock:
+            self._proxy.move_ball(ball, on)
 
     def get_status(self):
         with self._status_lock:
@@ -46,6 +105,9 @@ class Aquarium(ConcurrentExperiment):
         super(Aquarium, self).__init__(*args, **kwargs)
 
         self._cfg_manager    = cfg_manager
+        
+        self.proxy = Proxy('http://192.168.0.130:8000')
+
         self.debug           = self._cfg_manager.get_value('debug', True)
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
 
@@ -66,7 +128,7 @@ class Aquarium(ConcurrentExperiment):
             if mjpeg_height is not None:
                 self.initial_configuration['mjpegHeight%s' % num] = mjpeg_height
 
-        self._status = StatusManager()
+        self._status = StatusManager(self.proxy)
 
 
     @Override(ConcurrentExperiment)
@@ -95,8 +157,27 @@ class Aquarium(ConcurrentExperiment):
 
         if command == 'get-status':
             return json.dumps(self._status.get_status())
+        elif command.startswith('ball:'):
+            try:
+                _, ball, on = command.split(':')
+            except:
+                traceback.print_exc()
+                return "ERROR:Invalid ball command"
 
-        return 'ok'
+            if not ball.lower() in COLORS:
+                return "ERROR:Invalid ball color"
+
+            if not on.lower() in ('true','false'):
+                return "ERROR:Invalid state"
+
+            on   = on.lower() == 'true'
+            ball = ball.lower()
+            
+            self._status.move(ball, on)
+
+            return json.dumps(self._status.get_status())
+
+        return 'ERROR:Invalid command'
 
 
     @Override(ConcurrentExperiment)
