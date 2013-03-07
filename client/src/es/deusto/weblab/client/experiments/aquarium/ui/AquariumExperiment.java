@@ -55,7 +55,7 @@ public class AquariumExperiment extends UIExperimentBase {
 			if (widgetName.equals("ball-blue")) {
 				widget = new BallPanel(Color.blue);
 			} else if (widgetName.equals("ball-green")){
-				widget = new BallPanel(Color.green);
+				widget = new BallPanel(Color.white);
 			} else if (widgetName.equals("ball-yellow")){
 				widget = new BallPanel(Color.yellow);
 			} else if (widgetName.equals("ball-red")){
@@ -75,6 +75,12 @@ public class AquariumExperiment extends UIExperimentBase {
 				putWidget(containerPanel);
 				disposableContainer = containerPanel;
 				this.statusUpdatable = containerPanel;
+				
+				if(widget instanceof BallPanel) {
+					final BallPanel ballPanel = (BallPanel)widget;
+					ballPanel.setGlobalUpdater(this.statusUpdatable);
+					ballPanel.setBoardController(this.boardController);
+				}
 			}
 		}
 		

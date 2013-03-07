@@ -21,6 +21,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -29,29 +31,53 @@ import es.deusto.weblab.client.lab.experiments.IDisposableWidgetsContainer;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 import es.deusto.weblab.client.ui.widgets.WlTimer;
 
-public class MainPanel extends Composite implements IDisposableWidgetsContainer, IStatusUpdatable  {
+public class MainPanel extends Composite implements IDisposableWidgetsContainer, IStatusUpdatable, IPictureManager  {
 
 	@UiField(provided=true) WebcamPanel webcamPanel;
 	@UiField(provided=true) WlTimer timer;
+	
+	@UiField BallPanel redBall;
+	@UiField BallPanel blueBall;
+	@UiField BallPanel yellowBall;
+	@UiField BallPanel whiteBall;
+	
+	@UiField Label webcamLabel;
+	@UiField Label pictureLabel;
+	
+	@UiField Image picture;
 	
 	private static MainPanelUiBinder uiBinder = GWT.create(MainPanelUiBinder.class);
 
 	interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
 
-	private final IBoardBaseController boardController;
-	
 	public MainPanel(IBoardBaseController boardController, IConfigurationRetriever configurationRetriever, int time, String initialConfiguration, Status initialStatus) {
-		
-		this.boardController = boardController;
 		this.timer = new WlTimer(false);
 		this.webcamPanel = new WebcamPanel(configurationRetriever, initialConfiguration);
 		
 		initWidget(uiBinder.createAndBindUi(this));
 		
+		this.whiteBall.setBoardController(boardController);
+		this.blueBall.setBoardController(boardController);
+		this.redBall.setBoardController(boardController);
+		this.yellowBall.setBoardController(boardController);
+		
+		this.whiteBall.setGlobalUpdater(this);
+		this.blueBall.setGlobalUpdater(this);
+		this.redBall.setGlobalUpdater(this);
+		this.yellowBall.setGlobalUpdater(this);
+
+		this.whiteBall.setPictureManager(this);
+		this.blueBall.setPictureManager(this);
+		this.redBall.setPictureManager(this);
+		this.yellowBall.setPictureManager(this);
+
+		
 		this.timer.updateTime(time);
 		this.timer.start();
 		
 		this.webcamPanel.start();
+		
+		updateStatus(initialStatus);
 	}
 
 
@@ -74,7 +100,19 @@ public class MainPanel extends Composite implements IDisposableWidgetsContainer,
 
 	@Override
 	public void updateStatus(Status status) {
-		// TODO Auto-generated method stub
+		this.whiteBall.updateStatus(status);
+		this.blueBall.updateStatus(status);
+		this.redBall.updateStatus(status);
+		this.yellowBall.updateStatus(status);
+	}
+
+
+	@Override
+	public void takePicture() {
+		this.picture.setVisible(true);
+		this.picture.setUrl(this.webcamPanel.webcam.getUrl());
 		
+		this.pictureLabel.setVisible(true);
+		this.webcamLabel.setVisible(true);
 	}
 }

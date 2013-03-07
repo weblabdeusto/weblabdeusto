@@ -12,6 +12,6 @@
 			<g:Image ui:field="upButton" resource='{res.up}' styleName="wl-disabled-img-button"/>
 			<g:Image ui:field="downButton" resource='{res.down}' styleName="wl-disabled-img-button"/>
 		</g:HorizontalPanel>
-		<g:Button>Take picture</g:Button>
+		<g:Button ui:field="takePictureButton" visible="false">Take picture</g:Button>
 	</g:VerticalPanel>
 </ui:UiBinder> 

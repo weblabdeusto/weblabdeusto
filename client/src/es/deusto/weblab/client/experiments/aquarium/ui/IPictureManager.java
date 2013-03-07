@@ -14,9 +14,6 @@
 
 package es.deusto.weblab.client.experiments.aquarium.ui;
 
-enum Color {
-	red,
-	blue,
-	white,
-	yellow
+public interface IPictureManager {
+	public void takePicture();
 }

@@ -43,7 +43,7 @@ public class Status {
 		this(JSONParser.parseStrict(initialConfiguration).isObject());
 	}
 	
-	public boolean getColor(Color color) {
+	public Boolean getColor(Color color) {
 		return this.data.get(color);
 	}
 }
