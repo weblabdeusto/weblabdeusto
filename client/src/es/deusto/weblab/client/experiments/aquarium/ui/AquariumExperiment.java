@@ -54,7 +54,7 @@ public class AquariumExperiment extends UIExperimentBase {
 			// If so, identify which widget must be shown
 			if (widgetName.equals("ball-blue")) {
 				widget = new BallPanel(Color.blue);
-			} else if (widgetName.equals("ball-green")){
+			} else if (widgetName.equals("ball-white")){
 				widget = new BallPanel(Color.white);
 			} else if (widgetName.equals("ball-yellow")){
 				widget = new BallPanel(Color.yellow);

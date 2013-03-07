@@ -33,7 +33,8 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 
 	private static WebcamPanelUiBinder uiBinder = GWT.create(WebcamPanelUiBinder.class);
 
-	@UiField(provided=true) WlWebcam webcam;
+	@UiField(provided=true) WlWebcam webcam1;
+	@UiField(provided=true) WlWebcam webcam2;
 	
 	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
@@ -47,15 +48,18 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 		
 		this.configurationRetriever = configurationRetriever;
 		
-		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(getWebcamRefreshingTime());
+		this.webcam1 = GWT.create(WlWebcam.class);
+		this.webcam1.setTime(getWebcamRefreshingTime());
+		this.webcam2 = GWT.create(WlWebcam.class);
+		this.webcam2. setTime(getWebcamRefreshingTime());
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		parseWebcamConfig(initialConfiguration);
 	}
 	
 	public void start() {
-		this.webcam.start();
+		this.webcam1.start();
+		this.webcam2.start();
 	}
 	
 	private int getWebcamRefreshingTime() {
@@ -72,7 +76,8 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 	    	return;
 	    }
 	    
-	    configureWebcam(this.webcam, initialConfigObject, 1);
+	    configureWebcam(this.webcam1, initialConfigObject, 1);
+	    configureWebcam(this.webcam2, initialConfigObject, 2);
 	}
 	
 	private void configureWebcam(WlWebcam webcam, JSONObject initialConfigObject, int number) {
@@ -110,7 +115,7 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 
 	@Override
 	public IWlDisposableWidget[] getDisposableWidgets() {
-		return new IWlDisposableWidget[]{ this.webcam };
+		return new IWlDisposableWidget[]{ this.webcam1, this.webcam2 };
 	}
 
 

@@ -5,5 +5,8 @@
 	<ui:style>
 		
 	</ui:style>
-	<w:WlWebcam ui:field="webcam"></w:WlWebcam>
+	<g:VerticalPanel>
+		<w:WlWebcam ui:field="webcam1"></w:WlWebcam>
+		<w:WlWebcam ui:field="webcam2"></w:WlWebcam>
+	</g:VerticalPanel>
 </ui:UiBinder> 

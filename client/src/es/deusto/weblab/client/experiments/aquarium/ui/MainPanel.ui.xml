@@ -26,6 +26,10 @@
 				<g:Label ui:field="pictureLabel" visible="false" styleName="{style.pictureLabel}">Picture</g:Label>
 				<g:Image ui:field="picture" visible="false"/>
 			</g:VerticalPanel>
+			<g:VerticalPanel horizontalAlignment="CENTER">
+				<g:Label ui:field="processedLabel" visible="false" styleName="{style.pictureLabel}">Picture processed</g:Label>
+				<g:Image ui:field="processed" visible="false"/>
+			</g:VerticalPanel>
 		</g:HorizontalPanel>
 		
 		<w:WlTimer ui:field="timer"></w:WlTimer>

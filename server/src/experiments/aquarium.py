@@ -30,6 +30,13 @@ COLORS = {
     'red'    : 4,
 }
 
+FORCE = {
+    'white'  : '3',
+    'yellow' : '3',
+    'blue'   : '3',
+    'red'    : '3',
+}
+
 class Proxy(object):
 
     def __init__(self, url, fake):
@@ -41,10 +48,23 @@ class Proxy(object):
         # 192.168.0.130:8000/MOVE/{MODE}/{BALL}/{TURNS}
         mode = 'U' if on else 'D'
         ball_number = COLORS[ball]
+        force = FORCE[ball]
         try:
-            self._process("%s/MOVE/%s/%s/9" % (self.url, mode, ball_number), get = False)
+            self._process("%s/MOVE/%s/%s/%s" % (self.url, mode, ball_number, force), get = False)
         except:
             traceback.print_exc()
+
+    def process_image(self):
+        try:
+            content_str = self._process("http://192.168.0.155:7777/image", get = True)
+            content = json.loads(content_str)
+
+            base_path = 'https://www.weblab.deusto.es/aquarium'
+
+            return (base_path + content['url_processed']), (base_path + content['url_original'])
+        except:
+            traceback.print_exc()
+            return "error-processing-image", "error-processing-image"
 
     def get_status(self):
         try:
@@ -182,6 +202,8 @@ class Aquarium(ConcurrentExperiment):
             self._status.move(ball, on)
 
             return json.dumps(self._status.get_status())
+        elif command == 'process':
+            return json.dumps(self.proxy.process_image())
 
         return 'ERROR:Invalid command'
 
