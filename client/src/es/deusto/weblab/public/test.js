@@ -14,8 +14,9 @@ function include(filename)
 }
 
 
-include('http://mrdoob.github.com/three.js/build/three.min.js');
+//include('jslib/three.min.js');
 
+var wl_inst = {}
 
 parent.wl_inst.handleCommandResponse = function(msg, id)
 {
@@ -45,7 +46,12 @@ parent.wl_inst.end = function()
 
 function gfxtest()
 {
-	alert("Test");
+	alert("Test2");
+}
+
+function gfxinit2()
+{
+	camera = new THREE.Persssspectives( 2 );
 }
 
 
@@ -54,7 +60,7 @@ function gfxinit()
 	container = document.createElement('div');
 	document.body.appendChild(container);
 	
-	camera = new THREE.PesrpectiveCamera( 45, window.innerWidth / window.innertHeight, 1, 10000);
+	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innertHeight, 1, 10000);
 	camera.position.z = 1000;
 	
 	scene = new THREE.Scene();
@@ -88,4 +94,4 @@ function gfxrender()
 	renderer.render(scene, camera);
 }
 
-//@ sourceURL=dynamicScript.js
+//@ sourceURL=test.js

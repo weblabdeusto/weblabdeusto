@@ -65,6 +65,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    $wnd.wl_iframe.height = iframeHeight;
 	    $wnd.wl_iframe.width = iframeWidth;
 	    
+	    var libsinc = "\n<script language=\"JavaScript\" src=\"jslib/three.min.js\"></script>\n";
 	    var scriptinc = "\n<script language=\"JavaScript\" src=\"" + jsfile + "\"></script>\n";
 	    
 	//    var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
@@ -103,7 +104,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 				
 							
 		var completeHtml = "<html>" +
-								"<head>" + metasHtml + functionsHtml + scriptinc"</head>" +
+								"<head>" + metasHtml + functionsHtml + libsinc + scriptinc"</head>" +
 								"<body></body>" +
 							"</html>";
 		
