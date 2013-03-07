@@ -26,6 +26,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	
 	private String jsfile;
+	private String htmlfile;
 
 	
 	/**
@@ -34,11 +35,12 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 */
-	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String jsfile, int width, int height) 
+	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String jsfile, String htmlfile, int width, int height) 
 	{
 		super(configurationRetriever, boardController, width, height);
 		
 		this.jsfile = jsfile;
+		this.htmlfile = htmlfile;
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
 	}
 	
@@ -53,7 +55,22 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	$wnd.wl_inst = {}; // This is the object that will contain the in-javascript callbacks.
 }-*/;
 	
-	private static native void populateIframe(String jsfile, int width, int height, int iframeWidth, int iframeHeight) /*-{
+	/**
+	 * Populates the iframe that will host the JS experiment.
+	 * @param file This is the file that describes the experiment. It can either be an HTML, 
+	 * which will generally contain or reference several JS scripts, or a JS script, which will
+	 * be embedded into a generic HTML stub.
+	 * 
+	 * TODO: Probably there is currently no need to separate kinds of width/height.
+	 * Probably, a set of height/width should be removed.
+	 * 
+	 * @param isJS Specifies whether the file is an HTML file or a JS script.
+	 * @param width 
+	 * @param height 
+	 * @param iframeWidth 
+	 * @param iframeHeight
+	 */
+	private static native void populateIframe(String file, boolean isJS, int width, int height, int iframeWidth, int iframeHeight) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;

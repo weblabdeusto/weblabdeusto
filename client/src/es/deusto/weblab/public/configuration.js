@@ -70,7 +70,10 @@
 	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
 	                    		   "width"					: 500,
 	                    		   "height"					: 350,
-	                    		   "js.file"					: "test.js"
+	                    		   //"js.file"				: "test.js",
+	                    		   // If we use an html.file as base, we cannot use a js.file.
+	                    		   // (Though of course, we may include that js file from our html file).
+	                    		   "html.file"				: "jstest.html"
 	                    	   }
 	                       ],
 	                "vm"    : [
