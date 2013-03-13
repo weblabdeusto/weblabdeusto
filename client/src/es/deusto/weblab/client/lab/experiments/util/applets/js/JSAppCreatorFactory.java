@@ -41,6 +41,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 		final int height;
 		final String jsfile;
 		final String htmlfile;
+		
 		//final String message;
 		
 		try{
@@ -63,6 +64,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
 		}
 
+		final String file = jsfile.length() > 0 ? jsfile : htmlfile;
+		final boolean isJSFile = jsfile.length() > 0;
 		
 		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
 			@Override
@@ -73,8 +76,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 						callback.onExperimentLoaded(new JSExperiment(
 								configurationRetriever,
 								boardController,
-								jsfile.length() != 0 ? jsfile : null,
-								htmlfile.length() != 0 ? htmlfile : null,
+								file,
+								isJSFile,
 								width, // TODO: Make these configurable. 
 								height
 							));
