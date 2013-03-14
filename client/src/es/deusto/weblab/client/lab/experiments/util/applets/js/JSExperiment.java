@@ -14,6 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments.util.applets.js;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -40,7 +41,11 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		
 		this.file = file;
 		this.isJSFile = isJSFile;
-		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, 0);
+		
+		if(!this.isJSFile)
+			this.file = GWT.getModuleBaseURL() + this.file;
+		
+		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
 	}
 	
 	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, int width, int height) /*-{
@@ -102,7 +107,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    
 	    var metasHtml = "";
 	
-		var weblabjsScript = "<script src=\"weblabjs.js\">";
+		var weblabjsScript = "<script src=\"jslib/weblabjs.js\">";
 				
 							
 		var completeHtml = "<html>" +
