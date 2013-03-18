@@ -17,9 +17,15 @@ package es.deusto.weblab.client.lab.experiments.util.applets.js;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
+import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 
 
 
@@ -28,6 +34,8 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	private String file;
 	private boolean isJSFile;
+	
+	private final UploadStructure uploadStructure;
 	
 	/**
 	 * Constructs a JSExperiment.
@@ -44,6 +52,13 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		
 		if(!this.isJSFile)
 			this.file = GWT.getModuleBaseURL() + this.file;
+		
+		this.uploadStructure = new UploadStructure();
+		this.uploadStructure.setFileInfo("program");
+		//this.uploadButton = new Button(i18n.upload());
+		
+		this.fileUploadPanel.add(this.uploadStructure);
+		//this.panel.add(this.uploadButton);
 		
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
 	}
@@ -162,6 +177,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
+		tryUpload();
 		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}
 	
@@ -169,5 +185,60 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	public static native void wlSendCommand()/*-{
 		alert('test');
 	}-*/;
+	
+	
+	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+	    
+	    @Override
+	    public void onSuccess(ResponseCommand response) {
+	    	GWT.log("The file was sent");
+	    }
+
+	    @Override
+	    public void onFailure(CommException e) {
+	    	GWT.log("It was not possible to send the file");
+	    }
+	    
+	};	
+	
+	
+	/**
+	 * Helper method to try to upload a file. Currently, we only consider that an upload
+	 * failed if the filename the user chose is empty.
+	 * If the upload succeeds we load the standard experiment controls through loadStartControls and
+	 * hide the upload panel, which is no longer needed.
+	 * 
+	 * @return True if the upload succeeds, false otherwise.
+	 */
+	private boolean tryUpload() {
+		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+		
+		if(didChooseFile) {
+			
+			// Extract the file extension.
+			final String filename = this.uploadStructure.getFileUpload().getFilename();
+			final String [] split = filename.split("\\.");
+			String extension;
+			if(split.length == 0)
+				extension = "bit"; // BIT as default
+			extension = split[split.length-1];
+			
+			this.uploadStructure.getFormPanel().setVisible(false);
+			this.uploadStructure.setFileInfo(extension.toLowerCase());
+			
+			// TODO: Probably it would be more elegant if the server itself would decide whether we are synthesizing
+			// and programming or just programming. However, at least for now, this will do fine. The mode is currently
+			// used only to decide how to estimate progress bar length.
+			//if(extension.toLowerCase().equals("vhd"))
+			//	this.synthesizingMode = true;
+			
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			//this.loadStartControls();
+		} else {
+			GWT.log("The user did not really choose a file");
+		}
+		
+		return didChooseFile;
+	}
 	
 }

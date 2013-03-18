@@ -52,7 +52,7 @@
 	                          {
 	                        	  "experiment.name"      : "javadummy",
 	                        	  "experiment.category"  : "Dummy experiments",
-	                        	  "experiment.picture"   : "/img/experiments/java.jpg",
+	                        	  "experiment.picture"   : "/img/experiments/java.jpg,
 	                        	  "width"                : 500,
 	                        	  "height"               : 350,
 	                        	  "jar.file"             : "WeblabJavaSample.jar",
@@ -68,6 +68,7 @@
 	                    		   "experiment.name"		: "jsdummy",
 	                    		   "experiment.category"	: "Dummy experiments",
 	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "provide.file.upload"	: true,
 	                    		   "width"					: 500,
 	                    		   "height"					: 350,
 	                    		   //"js.file"				: "test.js",

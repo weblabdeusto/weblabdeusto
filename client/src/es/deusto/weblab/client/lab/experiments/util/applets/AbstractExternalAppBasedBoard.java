@@ -37,7 +37,12 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	private static final int MAX_FACEBOOK_WIDTH = 710; // differs from WebClient.MAX_FACEBOOK_WIDTH taking into account the size of the whole page
 	private static IConfigurationRetriever staticConfigurationRetriever;
 	protected static IBoardBaseController staticBoardController;
+	
 	private final VerticalPanel panel;
+	
+	// A panel is created, in case derived classes wish to provide a file uploading system.
+	protected final VerticalPanel fileUploadPanel; 
+	
 	protected Label message;
 	protected final HTML html;
 	protected final int width;
@@ -85,6 +90,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.pageFooterPanel = new VerticalPanel();
 		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", getDefaultFooterMessage()));
 		this.pageFooterPanel.add(this.pageFooter);
+
 		
 		this.panel = new VerticalPanel();
 		this.html = new HTML("<div/>");
@@ -93,6 +99,10 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.panel.add(this.html);
 		this.message = new Label();
 		this.message.addStyleName("wl-message");
+		
+		this.fileUploadPanel = new VerticalPanel();
+		this.panel.add(this.fileUploadPanel);
+		
 		this.panel.add(this.message);
 		this.panel.add(this.pageFooterPanel);
 	}
@@ -104,6 +114,9 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	protected String getDefaultFooterMessage() {
 		return "";
 	}
+	
+	
+	
 	
 	
 	/**

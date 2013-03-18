@@ -18,6 +18,13 @@ function include(filename)
 
 var wl_inst = {}
 
+wl_inst.startInteraction = function()
+{
+	alert("should not run");
+}
+
+parent.wl_inst = {}
+
 parent.wl_inst.handleCommandResponse = function(msg, id)
 {
 	alert("On command response: " + msg);
