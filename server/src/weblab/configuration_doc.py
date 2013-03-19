@@ -7,6 +7,7 @@ _Argument = namedtuple('Argument', 'category type default message')
 
 _sorted_variables = []
 
+DESCRIPTIONS = {}
 
 # 
 # Regexp magic :-)
@@ -19,12 +20,14 @@ _sorted_variables = []
 # 
 
 COMMON = 'Common configuration'
+DESCRIPTIONS[COMMON] = """These variables affect all the servers. For instance, certain servers use a session manager (e.g. the Core server for users, but also the Laboratory server)."""
 
 # 
 # General
 # 
 
 GENERAL = (COMMON, 'General')
+DESCRIPTIONS[GENERAL] = """These variables are simple variables which are general to the whole project."""
 
 DEBUG_MODE                        = 'debug_mode'
 SERVER_ADMIN                      = 'server_admin'
@@ -33,8 +36,8 @@ FACADE_TIMEOUT                    = 'facade_timeout'
 SERVER_HOSTADDRESS                = 'server_hostaddress'
 
 _sorted_variables.extend([
-    (DEBUG_MODE,                       _Argument(GENERAL, bool,         False,      "If True, errors and exceptions are shown instead of generic feedback (like !WebLabInternalServerError)")),
-    (SERVER_ADMIN,                     _Argument(GENERAL, basestring,   None,       "!WebLab-Deusto administrator's email address for notifications. See Admin Notifier settings below.")),
+    (DEBUG_MODE,                       _Argument(GENERAL, bool,         False,      "If True, errors and exceptions are shown instead of generic feedback (like WebLabInternalServerError)")),
+    (SERVER_ADMIN,                     _Argument(GENERAL, basestring,   None,       "WebLab-Deusto administrator's email address for notifications. See Admin Notifier settings below.")),
     (SERVER_HOSTADDRESS,               _Argument(GENERAL, basestring,   '',         "Host address of this WebLab-Deusto deployment")),
     (PROPAGATE_STACK_TRACES_TO_CLIENT, _Argument(GENERAL, bool,         False,      "If True, stacktraces are propagated to the client (useful for debugging).")),
     (FACADE_TIMEOUT,                   _Argument(GENERAL, float,        0.5,        "Seconds that the facade will wait accepting a connection before checking again for shutdown requests.")),
@@ -45,6 +48,7 @@ _sorted_variables.extend([
 # 
 
 ADMIN_NOTIFIER = (COMMON, 'Admin Notifier')
+DESCRIPTIONS[ADMIN_NOTIFIER] = """The Admin notifier is mainly used by the core server for notifying administrators of certain activity such as broken laboratories."""
 
 MAIL_NOTIFICATION_ENABLED = 'mail_notification_enabled'
 MAIL_SERVER_HOST          = 'mail_server_host'
@@ -67,6 +71,7 @@ _sorted_variables.extend([
 #
 
 DATABASE = (COMMON, 'Database')
+DESCRIPTIONS[DATABASE] = """The database configuration applies to the Core Server and the Login Server (which both connect to the same database)."""
 
 DB_HOST                         = 'db_host'
 DB_PORT                         = 'db_port'
@@ -91,8 +96,9 @@ _sorted_variables.extend([
 # 
 
 SESSIONS = (COMMON, 'Sessions')
+DESCRIPTIONS[SESSIONS] = """The session configuration is mainly used by the Core Server, but also by the Laboratory Server and by certain Experiment Servers."""
 
-# !WebLab-Deusto supports two types of Session Managers:
+# WebLab-Deusto supports two types of Session Managers:
 #  * "Memory", storing all the sessions in memory. Fastest.
 #  * "MySQL", storing all the sessions in MySQL tables. Far slower, but it can be shared among two servers to provide fault tolerance.
 
@@ -140,12 +146,14 @@ _sorted_variables.extend([
 
 CORE_SERVER = 'Core Server'
 
+DESCRIPTIONS[CORE_SERVER] = """This configuration is used only by the Core servers. The Core server manages the scheduling, life cycle of the users, the sessions, and the incoming web services calls. Note that there is other common configuration which affects the Core server, so also take a look at the Common Configuration in this document."""
 
 # 
 # General
 # 
 
 CORE = (CORE_SERVER,'General')
+DESCRIPTIONS[CORE] = """General variables for the Core server: what type of session, should we store students programs, etc."""
 
 # || core_checking_time || int || 3 || How often the server will check what sessions have expired and delete them. Expressed in seconds. || 
 
@@ -157,7 +165,7 @@ CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
 
 _sorted_variables.extend([
     (WEBLAB_CORE_SERVER_SESSION_TYPE,    _Argument(CORE, basestring, 'Memory', """What type of session manager the Core Server will use: Memory or MySQL.""")),
-    (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, basestring, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "!UserProcessing_A_B" and "!UserProcessing_C_D" would be enough.""")),
+    (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, basestring, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "UserProcessing_A_B" and "UserProcessing_C_D" would be enough.""")),
     (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://www.weblab.deusto.es/weblab/ ")),
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
     (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
@@ -168,6 +176,7 @@ _sorted_variables.extend([
 # 
 
 CORE_FACADE = (CORE_SERVER, 'Facade')
+DESCRIPTIONS[CORE_FACADE] = """Here you can customize the general web services consumed by the clients. Stuff like which ports will be used, etc."""
 
 CORE_FACADE_SERVER_ROUTE            = 'core_facade_server_route'
 CORE_FACADE_SOAP_BIND               = 'core_facade_soap_bind'
@@ -198,6 +207,7 @@ _sorted_variables.extend([
 # 
 
 COORDINATOR = (CORE_SERVER, 'Coordinator')
+DESCRIPTIONS[COORDINATOR] = """This is the configuration variables used by the scheduling backend (called Coordinator). Basically, you can choose among redis or a SQL based one, and customize the one selected."""
 
 COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
 COORDINATOR_DB_PORT            = 'core_coordinator_db_port'
@@ -227,12 +237,14 @@ _sorted_variables.extend([
 
 LOGIN_SERVER = 'Login Server'
 
+DESCRIPTIONS[LOGIN_SERVER] = """This configuration is used only by the Login servers. The Login server manages the authentication requests and check the credentials (e.g. LDAP, OpenID, OAuth 2.0 or using the database). It is the only server which ever transports a password. Note that there is other common configuration which affects the Login server, so also take a look at the Common Configuration in this document."""
 
 # 
 # Facade
 # 
 
 LOGIN_FACADE = (LOGIN_SERVER, 'Facade')
+DESCRIPTIONS[LOGIN_FACADE] = """The login facade configuration variables are used by the web services interface. You can change the ports, etc., but take into account the final web server (e.g. Apache) configuration."""
 
 LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
 LOGIN_FACADE_SOAP_BIND               = 'login_facade_soap_bind'
@@ -246,7 +258,7 @@ LOGIN_FACADE_XMLRPC_BIND             = 'login_facade_xmlrpc_bind'
 LOGIN_FACADE_XMLRPC_PORT             = 'login_facade_xmlrpc_port'
 
 _sorted_variables.extend([
-    (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access !WebLab from a well known IP address, and if Moodle says "I'm user foo", and in !WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
+    (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
     (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, basestring, "/weblab/login/soap/", """Service name for the SOAP facade at Login Server""")), 
@@ -266,6 +278,7 @@ _sorted_variables.extend([
 #
 
 LABORATORY_SERVER = 'Laboratory Server'
+DESCRIPTIONS[LABORATORY_SERVER] = """The laboratory server is closer to the experiment server and checks if it is alive, maintains the sessions and acts as a bridge between the pool of core servers and the experiments."""
 LABORATORY = (LABORATORY_SERVER, 'General')
 
 LABORATORY_SESSION_TYPE              = 'laboratory_session_type'
@@ -276,7 +289,7 @@ LABORATORY_EXCLUDE_CHECKING          = 'laboratory_exclude_checking'
 _sorted_variables.extend([
     (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, basestring, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
     (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, basestring, "LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
-    (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the !WebLab Address of the experiment server.""")), 
+    (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the WebLab Address of the experiment server.""")), 
     (LABORATORY_EXCLUDE_CHECKING,     _Argument(LABORATORY, list, [], """List of ids of experiments upon which checks will not be run""")), 
 ])
 
@@ -316,6 +329,9 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     categories = set([ variable.category for variable in variables.values() ])
+    # Ignore proxy
+    categories.remove(PROXY)
+
     variables_by_category = {}
 
     sections = {}
@@ -346,10 +362,25 @@ if __name__ == '__main__':
                                         }
                 print
     elif options.format == 'sphinx':
+        print 
+        print ".. DO NOT EDIT THIS FILE. It has been autogenerated at weblab/server/src/weblab/configuration_doc.py"
+        print 
+        print "Configuration variables"
+        print "======================="
+        print
+        print "This section covers the available configuration variables, organized by"
+        print "different sections."
+        print 
+        print ".. contents:: Table of Contents"
+        print
         for section in sections:
             print section
             print '-' * len(section)
             print
+            if section in DESCRIPTIONS:
+                print DESCRIPTIONS[section]
+                print
+
             for subsection in sections[section]:
                 
                 print subsection
@@ -357,6 +388,10 @@ if __name__ == '__main__':
                 print
 
                 category = (section, subsection)
+
+                if category in DESCRIPTIONS:
+                    print DESCRIPTIONS[category]
+                    print
 
                 header1 = '*Property*'
                 header2 = '*Type*'
