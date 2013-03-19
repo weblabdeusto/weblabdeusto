@@ -38,6 +38,7 @@ system and connect existing laboratories.
    installation_next_steps
    authentication
    tools
+   configuration
 
 
 Remote laboratory development

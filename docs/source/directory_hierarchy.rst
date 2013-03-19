@@ -53,4 +53,6 @@ WebLab-Deusto uses a configuration hierarchy. This hiearchy is based on three ma
 * **Instance**: refers to a process running in a *machine*.
 * **Server**: refers to a functionality running in an *instance*.
 
+Foo bar :ref:`configuration_variables`.
+
 **TODO: this is being written in March 2013.**
