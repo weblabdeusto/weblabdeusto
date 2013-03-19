@@ -308,6 +308,13 @@ _sorted_variables.extend([
 variables = dict(_sorted_variables)
 
 if __name__ == '__main__':
+    from optparse import OptionParser
+
+    parser = OptionParser()
+    parser.add_option("-f", "--format", dest="format", default='sphinx', choices=('gcode','sphinx'),
+                      help="use FORMAT (gcode, sphinx)", metavar="FORMAT")
+    (options, args) = parser.parse_args()
+
     categories = set([ variable.category for variable in variables.values() ])
     variables_by_category = {}
 
@@ -320,21 +327,82 @@ if __name__ == '__main__':
         sections[section] = subsections
         variables_by_category[category] = [ variable for variable in variables if variables[variable].category == category ]
 
-    for section in sections:
-        print ' '.join(('=' * 3,section,'=' * 3))
-        print
-        for subsection in sections[section]:
-            print ' '.join(('=' * 4,subsection,'=' * 4))
+    if options.format == 'gcode':
+        for section in sections:
+            print ' '.join(('=' * 3,section,'=' * 3))
             print
-            category = (section, subsection)
-            print "|| *Property* || *Type* || *Default value* || *Description* ||"
-            for variable, argument in _sorted_variables:
-                if variable in variables_by_category[category]:
-                    print "|| %(variable)s || %(type)s || %(default)s || %(doc)s ||" % {
-                                        'variable' : variable,
-                                        'type'     : variables[variable].type.__name__,
-                                        'default'  : variables[variable].default if variables[variable].default is not NO_DEFAULT else '',
-                                        'doc'      : variables[variable].message
-                                    }
+            for subsection in sections[section]:
+                print ' '.join(('=' * 4,subsection,'=' * 4))
+                print
+                category = (section, subsection)
+                print "|| *Property* || *Type* || *Default value* || *Description* ||"
+                for variable, argument in _sorted_variables:
+                    if variable in variables_by_category[category]:
+                        print "|| %(variable)s || %(type)s || %(default)s || %(doc)s ||" % {
+                                            'variable' : variable,
+                                            'type'     : variables[variable].type.__name__,
+                                            'default'  : variables[variable].default if variables[variable].default is not NO_DEFAULT else '',
+                                            'doc'      : variables[variable].message
+                                        }
+                print
+    elif options.format == 'sphinx':
+        for section in sections:
+            print section
+            print '-' * len(section)
             print
+            for subsection in sections[section]:
+                
+                print subsection
+                print '^' * len(subsection)
+                print
+
+                category = (section, subsection)
+
+                header1 = '*Property*'
+                header2 = '*Type*'
+                header3 = '*Default value*'
+                header4 = '*Description*'
+
+                max_c1, max_c2, max_c3, max_c4 = len(header1), len(header2), len(header3), len(header4)
+
+                for variable, argument in _sorted_variables:
+                    if variable in variables_by_category[category]:
+                        name    = variable
+                        type    = variables[variable].type.__name__
+                        default = unicode(variables[variable].default if variables[variable].default is not NO_DEFAULT else '')
+                        doc     = variables[variable].message
+
+                        if len(name) > max_c1:
+                            max_c1 = len(name)
+                        if len(type) > max_c2:
+                            max_c2 = len(type)
+                        if len(default) > max_c3:
+                            max_c3 = len(default)
+                        if len(doc) > max_c4:
+                            max_c4 = len(doc)
+                
+                def sfill(s, n):
+                    return s + ' ' * (n - len(s))
+
+                def print_row(s1, s2, s3, s4):
+                    print sfill(s1, max_c1), sfill(s2, max_c2), sfill(s3, max_c3), sfill(s4, max_c4)
+                    
+                print '=' * max_c1,   '=' * max_c2,   '=' * max_c3,   '=' * max_c4
+                print_row(header1, header2, header3, header4)
+                print '=' * max_c1,   '=' * max_c2,   '=' * max_c3,   '=' * max_c4
+                for variable, argument in _sorted_variables:
+                    if variable in variables_by_category[category]:
+                        name    = variable
+                        type    = variables[variable].type.__name__
+                        default = unicode(variables[variable].default if variables[variable].default is not NO_DEFAULT else '')
+                        doc     = variables[variable].message
+                        print_row(name, type, default, doc)
+
+                print '=' * max_c1,   '=' * max_c2,   '=' * max_c3,   '=' * max_c4
+
+
+                print
+
+    else:
+        print "Error: unknown format: %s" % options.format
 
