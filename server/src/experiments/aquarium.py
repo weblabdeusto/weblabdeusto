@@ -102,25 +102,27 @@ class StatusManager(object):
 
     def __init__(self, proxy):
         self._proxy = proxy
-        self._status_lock = threading.Lock()
-        self._ops_lock    = threading.Lock()
-        self._status = {}
+
+        self._ops_locks    = {}
+        self._status       = {}
+        self._status_locks = {}
 
         initial = self._proxy.get_status()
 
         for color in COLORS:
-            self._status[color] = initial[color]
+            self._status[color]       = initial[color]
+            self._status_locks[color] = threading.Lock()
+            self._ops_locks[color]    = threading.Lock()
 
     def move(self, ball, on):
-        with self._status_lock:
+        with self._status_locks[ball]:
             self._status[ball] = on
         
-        with self._ops_lock:
+        with self._ops_locks[ball]:
             self._proxy.move_ball(ball, on)
 
     def get_status(self):
-        with self._status_lock:
-            return self._status.copy()
+        return self._status.copy()
 
 
 class Aquarium(ConcurrentExperiment):
