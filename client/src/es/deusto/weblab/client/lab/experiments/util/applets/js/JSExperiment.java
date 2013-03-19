@@ -20,12 +20,10 @@ import com.google.gwt.user.client.Element;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
-import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
-import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 
 
 
@@ -34,6 +32,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	private String file;
 	private boolean isJSFile;
+	private boolean provideFileUpload;
 	
 	private final UploadStructure uploadStructure;
 	
@@ -43,22 +42,23 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 */
-	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String file, boolean isJSFile, int width, int height) 
+	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String file, boolean isJSFile, int width, int height, boolean provideFileUpload) 
 	{
 		super(configurationRetriever, boardController, width, height);
 		
 		this.file = file;
 		this.isJSFile = isJSFile;
+		this.provideFileUpload = provideFileUpload;
 		
 		if(!this.isJSFile)
 			this.file = GWT.getModuleBaseURL() + this.file;
 		
 		this.uploadStructure = new UploadStructure();
-		this.uploadStructure.setFileInfo("program");
-		//this.uploadButton = new Button(i18n.upload());
 		
-		this.fileUploadPanel.add(this.uploadStructure);
-		//this.panel.add(this.uploadButton);
+		if(this.provideFileUpload) {
+			this.uploadStructure.setFileInfo("program");
+			this.fileUploadPanel.add(this.uploadStructure);
+		}
 		
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
 	}
@@ -177,7 +177,9 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		tryUpload();
+		
+		if(this.provideFileUpload)
+			tryUpload();
 		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}
 	
@@ -187,16 +189,18 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	}-*/;
 	
 	
-	final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+	private final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
 	    	GWT.log("The file was sent");
+	    	handleFileResponse(response.getCommandString(), 0);
 	    }
 
 	    @Override
 	    public void onFailure(CommException e) {
 	    	GWT.log("It was not possible to send the file");
+	    	handleFileError(e.getMessage(), 0);
 	    }
 	    
 	};	
@@ -214,7 +218,6 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
 		
 		if(didChooseFile) {
-			
 			// Extract the file extension.
 			final String filename = this.uploadStructure.getFileUpload().getFilename();
 			final String [] split = filename.split("\\.");

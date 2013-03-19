@@ -249,4 +249,12 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	protected static native void endImpl() /*-{
 		$wnd.wl_inst.end();
 	}-*/;
+	
+	protected static native void handleFileResponse(String msg, int fileId) /*-{
+		$wnd.wl_inst.handleFileResponse(msg, fileId);
+	}-*/;
+	
+	protected static native void handleFileError(String msg, int fileId) /*-{
+		$wnd.wl_inst.handleFileError(msg, fileId);
+	}-*/;
 }

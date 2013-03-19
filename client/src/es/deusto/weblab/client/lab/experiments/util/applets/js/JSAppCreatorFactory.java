@@ -41,6 +41,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 		final int height;
 		final String jsfile;
 		final String htmlfile;
+		final boolean provideFileUpload;
 		
 		//final String message;
 		
@@ -49,6 +50,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 			height  = configurationRetriever.getIntProperty("height");
 			jsfile = configurationRetriever.getProperty("js.file", "");
 			htmlfile = configurationRetriever.getProperty("html.file", "");
+			provideFileUpload = configurationRetriever.getBoolProperty("provide.file.upload", false);
 			
 			// Throw an exception if no file was specified. The configuration needs to specify either
 			// an HTML or a JS script as base files.
@@ -79,7 +81,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 								file,
 								isJSFile,
 								width, // TODO: Make these configurable. 
-								height
+								height,
+								provideFileUpload
 							));
 					}
 					

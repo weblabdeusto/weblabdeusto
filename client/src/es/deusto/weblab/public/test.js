@@ -51,6 +51,16 @@ parent.wl_inst.end = function()
 	alert("OnEnd");
 }
 
+parent.wl_inst.handleFileResponse = function(resp, id)
+{
+	alert("On file response: " + resp);
+}
+
+parent.wl_inst.handleFileError = function(resp, id)
+{
+	alert("On file error: " + resp);
+}
+
 function gfxtest()
 {
 	alert("Test2");
