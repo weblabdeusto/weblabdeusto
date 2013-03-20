@@ -74,13 +74,13 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 		if(isJSFile)
 		{	
-			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
+			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
 									"></iframe>";
 		}
 		else
 		{
-			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
+			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  allowfullscreen webkitallowfullscreen mozallowfullscreen vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
 									"src=\"" + file + "\"" + "></iframe>"; 
 		}

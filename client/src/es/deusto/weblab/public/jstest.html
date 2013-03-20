@@ -20,6 +20,7 @@
 
 		<script src="jslib/three.min.js"></script>
 		<script src="jslib/stats.min.js"></script>
+		<script src="jslib/THREEx.FullScreen.js"></script>
 
 		<!--<video id="video" autoplay style="display:none">
 			<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
@@ -60,6 +61,14 @@
 			var bg;
 			var bgScene;
 			var bgCam;
+			
+			
+			document.body.addEventListener("keydown", function() {
+			  THREEx.FullScreen.request();
+			  alert('FS now');
+			}, false);
+			
+
 
 			init();
 			animate();
@@ -254,9 +263,9 @@
 
 				}
 
-				imageReflectionContext.drawImage( image, 0, 0 );
-				imageReflectionContext.fillStyle = imageReflectionGradient;
-				imageReflectionContext.fillRect( 0, 0, 480, 204 );
+				//imageReflectionContext.drawImage( image, 0, 0 );
+				//imageReflectionContext.fillStyle = imageReflectionGradient;
+				//imageReflectionContext.fillRect( 0, 0, 480, 204 );
 
 			
 				// mod
