@@ -53,6 +53,312 @@ WebLab-Deusto uses a configuration hierarchy. This hiearchy is based on three ma
 * **Instance**: refers to a process running in a *machine*.
 * **Server**: refers to a functionality running in an *instance*.
 
-Foo bar :ref:`configuration_variables`.
+All the servers described in :ref:`technical_description` are *servers* using
+these categories. Each experiment server (e.g. a Robotics experiment) is a
+*server*.
+
+Now, *servers* can be grouped in a single *instance* (at operating system level,
+this is a single process) in a single *machine*. However, they may also be
+distributed among different *machines*, each one containing multiple
+*instances*. For this reason, WebLab-Deusto provides a middleware that manages
+the communications, providing an addressing and registry system. For example,
+login servers are not implemented knowing where are the core servers. They ask
+the registry for **a** core server, and they get the closest one, wherever it
+is and whatever the communication protocol is used.
+
+This enables flexibility supporting multiple types of deployments. For instance,
+in a standalone system in a Single Board Computer such as a Raspberry Pi, it is
+possible to deploy the whole thing in a single process. The communications among
+all the different components will not use XML-RPC or any other sockets based
+communication, but simply a function call in Python. This optimization is
+provided by this middleware: if a Login server and a Core server are in the same
+process, the communication will always be direct: when the Login server calls a
+method of the Core server, internally it will be simply calling that method in
+the Core server. However, if they are separated in a different network, it will
+use other protocol.
+
+Basic structure example
+```````````````````````
+
+Let's see a couple of example prior to proceeding. By running (as before)::
+
+ $ weblab-admin.py create sample
+
+We can see how this is generated (skipping the basic files explained above)::
+
+ (...)
+ - configuration.xml
+ + core_machine
+   - configuration.xml
+   - machine_config.py
+   + laboratory1
+     - configuration.xml
+     + experiment1
+       - server_config.py
+       - configuration.xml
+     + laboratory1
+       - server_config.py
+       - configuration.xml
+   + core_server1
+     - configuration.xml
+     + core
+       - server_config.py
+       - configuration.xml
+     + login
+       - server_config.py
+       - configuration.xml
+  (...)
+
+Here, we can see how a single *machine* (``core_machine``) has been generated, which has two separated *instances*: ``laboratory1`` and ``core_server1``. The first *instance*, ``laboratory1``, contains two *servers*: ``experiment1`` (which is an Experiment Server) and ``laboratory1`` (which is a Laboratory Server). The second *instance* also contains two *servers*: ``login`` (which is a Login Server) and ``core`` (which is a Core Server). In this case, the login server and the core server will be communicated directly without using any network, while the core server will communicate with the Laboratory Server through a network in localhost, using SOAP in this case, as shown in the following diagram.
+
+.. image:: /_static/config-sample-1.png
+   :width: 600 px
+   :align: center
+
+So as to define this structure, WebLab-Deusto relies on a set of ``configuration.xml`` files. The first ``configuration.xml`` will define which machines are available (each one represented as a subdirectory):
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <machines
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="global_configuration.xsd">
+
+      <machine>core_machine</machine>
+
+    </machines> 
+
+Once it is defined that there is a single machine called ``core_machine``, inside it there must be another ``configuration.xml`` file, such as:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <instances
+            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="machine_configuration.xsd">
+        <runner file="run.py"/>
+        <configuration file="machine_config.py"/>
+        <instance>core_server1</instance>
+        <instance>laboratory1</instance>
+    </instances>
+
+Which establishes that there are two *instances*: ``core_server1`` and ``laboratory1``. In this case, it also establishes that there is a configuration file at this level called ``machine_config.py``. This is a simple Python file which contains a set of variables as those defined in :ref:`configuration_variables`, but we will get deeper on this later.
+
+Inside the first instance, we'll find another ``configuration.xml`` file:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <servers 
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="instance_configuration.xsd">
+        <user>weblab</user>
+
+        <server>login</server>
+        <server>core</server>
+
+    </servers>
+
+Which defines that in this *instance* there are two *servers*: ``login`` and ``core``. Now it gets the interesting part: in each of these servers, it will be defined what type of *server* it will be (i.e. what are they implementing) and what protocols they support. So as to do this, a ``configuration.xml`` is available inside each of these directories. In the case of the ``login`` *server*:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+    >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::Login</type>
+        <methods>weblab.methods::Login</methods>
+
+        <implementation>weblab.login.server.LoginServer</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+        </protocols>
+    </server>
+
+We can see that:
+
+* There is a configuration file called ``server_config.py`` file (we'll go deeper in this later).
+* This server is of the type is a Login server (as defined in ``weblab.data.server_type``).
+* This server provides those methods found in ``weblab.methods`` for ``Login`` (in this case, none).
+* It is implemented by a class called ``LoginServer`` in the ``weblab.login.server`` package.
+* It only supports a protocol called ``Direct``, which means that it only supports calls from and to the same *instance* (process), not supporting any network protocol. This is common in the case of the Login Server, usually located in the same *instance* as the core server.
+
+However, in the case of the ``core``, it is slightly more complex:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd" >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::UserProcessing</type>
+        <methods>weblab.methods::UserProcessing</methods>
+
+        <implementation>weblab.core.server.UserProcessingServer</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+            <protocol name="SOAP">
+                <coordinations>
+                    <coordination>
+                        <parameter name="address" value="127.0.0.1:10009@NETWORK" />
+                    </coordination>
+                </coordinations>
+                <creation>
+                    <parameter name="address" value=""     />
+                    <parameter name="port"    value="10009" />
+                </creation>
+            </protocol>
+        </protocols>
+    </server>
+
+Conceptually, it is the same as the previous case, changing the server type and methods provided (since it implements the UserProcessing interface). However, in the communications we can see that this server additionally supports SOAP, listening in the port 10009 at the network called ``NETWORK``. This is used since WebLab-Deusto has been in the past deployed in different networks, so the IP address of one network could not be reached by other network. For this reason, the system assumes that connections will only be possible among nodes in the same network.
+
+At this point, it is possible to see that the communication between ``login`` and ``core``, both located in the same ``instance``, is managed using the ``Direct`` protocol (this is, no network protocol used). However, other servers may contact ``core`` using the SOAP protocol, and ``core`` will be able to use the SOAP protocol to contact other servers.
+
+This is indeed the case of the ``laboratory1`` *server*. If we check its configuration file:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+    >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::Laboratory</type>
+        <methods>weblab.methods::Laboratory</methods>
+
+        <implementation>weblab.lab.server.LaboratoryServer</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+            <protocol name="SOAP">
+                <coordinations>
+                    <coordination>
+                        <parameter name="address" value="127.0.0.1:10010@NETWORK" />
+                    </coordination>
+                </coordinations>
+                <creation>
+                    <parameter name="address" value=""     />
+                    <parameter name="port"    value="10010" />
+                </creation>
+            </protocol>
+            <protocol name="XMLRPC">
+                <coordinations>
+                    <coordination>
+                        <parameter name="address" value="127.0.0.1:10011@NETWORK" />
+                    </coordination>
+                </coordinations>
+                <creation>
+                    <parameter name="address" value=""     />
+                    <parameter name="port"    value="10011" />
+                </creation>
+            </protocol>
+        </protocols>
+    </server>
+
+We can see that conceptually is the same, but it supports not only SOAP (through a different port), but also XML-RPC. However, whenever the core server looks for this laboratory server, it will use SOAP, contacting the 10010 port directly. It is not using the ``Direct`` protocol since the system checks that they are not in the same ``instance``, neither the XML-RPC protocol since the ``core`` server did not support it. This is entirely managed by WebLab-Deusto internals.
+
+Finally, the Experiment Server is defined in ``experiment1`` as:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+    >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::Experiment</type>
+        <methods>weblab.methods::Experiment</methods>
+
+        <implementation>experiments.dummy.DummyExperiment</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+        </protocols>
+    </server>
+
+In this case, the only communication supported is ``Direct``, so the laboratory server will contact using this protocol. Note that in this case, the server is implemented by ``experiments.dummy.DummyExperiment``. Here you can use other experiment servers implemented provided with the system or implemented by third party agents, but which still keep the same interface.
+
+Propagating configuration
+`````````````````````````
+
+During the example above, we've seen that it was possible to add configuration files such as: 
+
+
+.. code-block:: xml
+
+    <configuration file="server_config.py" />
+
+These files can be defined at any ``configuration.xml`` file: in the global one, at *machine* level, *instance* level or *server* level. That said, it will only be consumed by the *servers*, since they are the ones which have functionalities. For this reason, all the configuration could be defined at *server* level. However, if certain configuration is shared among multiple *servers*, it makes sense to place this configuration at *instance* level. For example, both the Login Server and the Core Server connect to the same database, so it makes sense to share this configuration among both *servers*, rather than duplicating it. This is a decision of the administrator. Since commonly more than one copy of the core and login servers are used, the configuration is located at *machine* level, with server-dependent configuration (such as ports used) at *server* level.
+
+If one variable is duplicated in more than one level, it will always be overriden by the one closest to the server. For instance, if at *machine* level a variable is defined, it is possible to re-define it and override it at *instance* or *server* level. So as to show this more clear, if we have this scenario::
+
+ (...)
+ - configuration.xml
+ - global_config.py ( var1 = "global"; var2 = "global" )
+ + core_machine
+   - configuration.xml
+   - machine_config.py ( var2 = "machine"; var3 = "machine" )
+   + core_server1
+     - configuration.xml
+     - instance_config.py (var3 = "instance"; var4 = "instance" )
+     + core
+       - configuration.xml
+       - server_config.py (var4 = "server")
+  (...)
+
+The ``core`` server will see that ``var1`` is "global", ``var2`` is "machine", ``var3`` is "instance" and ``var4`` is "server".
+
+The full list of configuration variables are listed in :ref:`configuration_variables`.
 
 **TODO: this is being written in March 2013.**
+
+
+
+In the addressing system used, one *server* called ``experiment1`` at the *instance* ``laboratory1`` at the
+*machine* ``core_machine`` will be refered as
+``experiment1:laboratory1@core_machine``.
+
