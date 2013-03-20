@@ -18,13 +18,6 @@ function include(filename)
 
 var wl_inst = {}
 
-wl_inst.startInteraction = function()
-{
-	alert("should not run");
-}
-
-parent.wl_inst = {}
-
 parent.wl_inst.handleCommandResponse = function(msg, id)
 {
 	alert("On command response: " + msg);
@@ -51,14 +44,14 @@ parent.wl_inst.end = function()
 	alert("OnEnd");
 }
 
-parent.wl_inst.handleFileResponse = function(resp, id)
+parent.wl_inst.handleFileResponse = function(msg, id)
 {
-	alert("On file response: " + resp);
+	alert("On handle file response: " + msg);
 }
 
-parent.wl_inst.handleFileError = function(resp, id)
+parent.wl_inst.handleFileError = function(msg, id)
 {
-	alert("On file error: " + resp);
+	alert("On handle file error: " + msg);
 }
 
 function gfxtest()

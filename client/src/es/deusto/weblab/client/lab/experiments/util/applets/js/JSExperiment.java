@@ -56,8 +56,11 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		this.uploadStructure = new UploadStructure();
 		
 		if(this.provideFileUpload) {
+			GWT.log("Creating upload structure");
 			this.uploadStructure.setFileInfo("program");
-			this.fileUploadPanel.add(this.uploadStructure);
+			this.fileUploadPanel.add(this.uploadStructure.getFormPanel());
+		} else {
+			GWT.log("NOT creating upload structure");
 		}
 		
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
@@ -177,7 +180,6 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		
 		if(this.provideFileUpload)
 			tryUpload();
 		AbstractExternalAppBasedBoard.startInteractionImpl();
@@ -235,7 +237,12 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			//if(extension.toLowerCase().equals("vhd"))
 			//	this.synthesizingMode = true;
 			
+			GWT.log("Now trying to send file");
+			
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			
+			GWT.log("sendFile was run");
+			
 			//this.loadStartControls();
 		} else {
 			GWT.log("The user did not really choose a file");
