@@ -3,6 +3,8 @@
 Download using git
 ==================
 
+.. contents:: Table of Contents
+
 Microsoft Windows
 ~~~~~~~~~~~~~~~~~
 
