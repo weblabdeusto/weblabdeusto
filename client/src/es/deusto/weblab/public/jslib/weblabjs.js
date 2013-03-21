@@ -38,6 +38,9 @@ Weblab = new function () {
     var mOnEndCallback;
     var mOnStartInteractionCallback;
 
+    var mDefaultFileHandlerSuccessCallback;
+    var mDefaultFileHandlerErrorCallback;
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -109,17 +112,50 @@ Weblab = new function () {
     };
 
 
+    //! Sets the callback that will be invoked when the experiment finishes. Generally,
+    //! an experiment finishes when it runs out of allocated time, but it may also 
+    //! be finished explicitly by the user or the experiment code, or by errors and
+    //! and disconnections.
+    //!
     this.setOnEndCallback = function (onEndCallback) {
         mOnEndCallback = onEndCallback;
     }
 
+
+    //! Sets the callbacks that will be invoked by default when a sendfile request
+    //! finishes. The appropriate callback specified here will be invoked if no 
+    //! callback was specified in the sendFile call, or if the sendFile was done
+    //! from GWT itself and not through this API.
+    //!
+    //! @param onSuccess Callback invoked when the sendFile request succeeds. Takes
+    //! the return message as argument.
+    //! @param onError Callback invoked when the sendFile request fails. Takes the
+    //! return message as argument.
+    this.setFileHandlerCallbacks = function (onSuccess, onError) {
+        mDefaultFileHandlerErrorCallback = onError;
+        mDefaultFileHandlerSuccessCallback = onSuccess;
+    }
+
+    //! Sets the startInteractionCallback. This is the callback that will be invoked
+    //! after the Weblab experiment is successfully reserved, and the user can start
+    //! interacting with the experiment. 
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
     }
 
+    //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
+    //! the time that the experiment has left. Currently, the Weblab system only invokes
+    //! this once, on startup. Hence, from the moment setTime is invoked, the experiment
+    //! can take for granted that that is indeed the time it has left. Unless, of course,
+    //! the experiment itself chooses to finish, or the user finishes early.
+    //!
+    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
+    //! the experiment.
+    //!
     this.setOnTimeCallback = function (onTimeCallback) {
         mOnTimeCallback = onTimeCallback;
     }
+
 
     this.setCallbacks = function (onStartInteraction, onTime, onEnd) {
         this.setOnStartInteractionCallback(onStartInteraction);
