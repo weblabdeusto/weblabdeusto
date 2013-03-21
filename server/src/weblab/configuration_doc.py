@@ -166,7 +166,7 @@ CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
 _sorted_variables.extend([
     (WEBLAB_CORE_SERVER_SESSION_TYPE,    _Argument(CORE, basestring, 'Memory', """What type of session manager the Core Server will use: Memory or MySQL.""")),
     (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, basestring, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "UserProcessing_A_B" and "UserProcessing_C_D" would be enough.""")),
-    (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://www.weblab.deusto.es/weblab/ ")),
+    (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://your-uni.edu/weblab/ ")),
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
     (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
 ])
@@ -225,7 +225,7 @@ _sorted_variables.extend([
     (COORDINATOR_DB_USERNAME,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Username to access the coordination database.""")), 
     (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Password to access the coordination database.""")), 
     (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, basestring, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
-    (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "laboratory1:main_instance@main_machine;exp1|ud-fpga|FPGA experiments", for the "laboratory1" in the instance "main_instance" at the machine "main_machine", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
+    (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "lab1:inst@mach;exp1|ud-fpga|FPGA experiments", for the "lab1" in the instance "inst" at the machine "mach", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
     (COORDINATOR_CLEAN,              _Argument(COORDINATOR, bool, True, """Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.""")), 
 ])
 
@@ -289,7 +289,7 @@ LABORATORY_EXCLUDE_CHECKING          = 'laboratory_exclude_checking'
 _sorted_variables.extend([
     (LABORATORY_SESSION_TYPE,         _Argument(LABORATORY, basestring, "Memory", """What type of session manager the Core Server will use: Memory or MySQL.""")), 
     (LABORATORY_SESSION_POOL_ID,      _Argument(LABORATORY, basestring, "LaboratoryServer", """See "core_session_pool_id" in the core server.""")), 
-    (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;experiment_fpga:main_instance@main_machine', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment (see core_coordinator_laboratory_servers), and "experiment_fpga:main_instance@main_machine" is the WebLab Address of the experiment server.""")), 
+    (LABORATORY_ASSIGNED_EXPERIMENTS, _Argument(LABORATORY, list, NO_DEFAULT, """List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;fpga:inst@mach', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment, and "fpga:inst@mach" is the WebLab Address of the experiment server.""")), 
     (LABORATORY_EXCLUDE_CHECKING,     _Argument(LABORATORY, list, [], """List of ids of experiments upon which checks will not be run""")), 
 ])
 
