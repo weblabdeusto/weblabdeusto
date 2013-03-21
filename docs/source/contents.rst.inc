@@ -34,8 +34,8 @@ system and connect existing laboratories.
 
    installation
    first_steps
-   directory_hierarchy
    installation_next_steps
+   directory_hierarchy
    authentication
    tools
    configuration

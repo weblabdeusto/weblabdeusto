@@ -1,6 +1,11 @@
 Directory hierarchy
 ===================
 
+.. contents:: Table of Contents
+
+Introduction
+~~~~~~~~~~~~
+
 WebLab-Deusto uses a directory hierarchy which is also used for managing
 configuration. Basically, if you create a simple WebLab-Deusto instance::
 
@@ -322,6 +327,40 @@ Finally, the Experiment Server is defined in ``experiment1`` as:
 
 In this case, the only communication supported is ``Direct``, so the laboratory server will contact using this protocol. Note that in this case, the server is implemented by ``experiments.dummy.DummyExperiment``. Here you can use other experiment servers implemented provided with the system or implemented by third party agents, but which still keep the same interface.
 
+Single process example
+``````````````````````
+
+So as to illustrate a more compact example, where all the servers are running in a single process, run the following::
+
+   $ weblab-admin.py create sample2 --inline-lab-server
+
+The following hierarchy will be generated::
+
+    - configuration.xml
+    + core_machine1
+      - configuration.xml
+      - machine_config.py
+      + core_server1
+        - configuration.xml
+        + experiment1
+          - configuration.xml
+          - server_config.py
+        + laboratory1
+          - configuration.xml
+          - server_config.py
+        + core
+          - configuration.xml
+          - server_config.py
+        + login
+          - configuration.xml
+          - server_config.py
+
+As explained above, this hierarchy represents a single *machine* (``core_machine1``) running a single *instance* (``core_server1``), running four *servers* (``experiment1``, ``laboratory1``, ``core`` and ``login``). Since they are all in the same process, all the communication between the different servers will use the ``Direct`` protocol (calling directly the function without using any network), regardless the configured protocols. Therefore, the generated structure is as follows:
+
+.. image:: /_static/config-sample-2.png
+   :width: 600 px
+   :align: center
+
 Propagating configuration
 `````````````````````````
 
@@ -354,11 +393,160 @@ The ``core`` server will see that ``var1`` is "global", ``var2`` is "machine", `
 
 The full list of configuration variables are listed in :ref:`configuration_variables`.
 
-**TODO: this is being written in March 2013.**
+Multiple core servers
+`````````````````````
+
+Let's take a more complex example, involving more laboratories and more core servers. Here we assume that you have installed MySQL and the PyMySQL driver as suggested in :ref:`installation_further`, and therefore we can run more than one core server. Running::
+
+    $ weblab-admin.py create sample3 --lab-copies=2 --dummy-copies=5 --cores=3 --db-engine=mysql --coordination-db-engine=mysql
+
+With this command, we are creating a new deployment where there will be 5 copies of an experiment, 3 core and login servers and 2 laboratory servers. The use of MySQL both for database backend and for coordination is required, since otherwise it will be using SQLite, which does not support concurrent access by multiple processes.
+
+The generated hierarchy is the following::
+
+ - configuration.xml
+ + core_machine
+   - configuration.xml
+   - machine_config.py
+
+   + core_server1
+     - configuration.xml
+     + core
+       - server_config.py
+       - configuration.xml
+     + login
+       - server_config.py
+       - configuration.xml
+
+   + core_server2
+     - configuration.xml
+     + core
+       - server_config.py
+       - configuration.xml
+     + login
+       - server_config.py
+       - configuration.xml
+
+   + core_server3
+     - configuration.xml
+     + core
+       - server_config.py
+       - configuration.xml
+     + login
+       - server_config.py
+       - configuration.xml
+
+   + laboratory1
+     - configuration.xml
+     + experiment1
+       - server_config.py
+       - configuration.xml
+     + experiment3
+       - server_config.py
+       - configuration.xml
+     + experiment5
+       - server_config.py
+       - configuration.xml
+     + laboratory1
+       - server_config.py
+       - configuration.xml
+
+   + laboratory2
+     + configuration.xml
+     + experiment2
+       - server_config.py
+       - configuration.xml
+     + experiment4
+       - server_config.py
+       - configuration.xml
+     + laboratory2
+       - server_config.py
+       - configuration.xml
+
+As requested, 3 Core servers (and three Login servers) have been created. Each pair has been created in a single *instance*, so there are ``core_server1``, ``core_server2`` and ``core_server3``. Each of them will have a ``core`` and a ``login`` servers. On the other hand, it was requested to create 5 copies of an experiment (and therefore, 5 Experiment servers) and only 2 Laboratory servers. Since an Experiment server can only be associated to a single Laboratory server, the number of Experiment servers have been divided among the available Laboratory servers. The communication between each Laboratory server and each Experiment server will be ``Direct``, since they will be in the same *instance*. However, the communication among the Core servers and the Laboratory servers will use the most suitable network protocol, which by default it will be SOAP.
+
+This configuration is represented with the following figure:
+
+.. image:: /_static/config-sample-3.png
+   :width: 600 px
+   :align: center
+
+Multiple machines
+`````````````````
+
+So as to generate more than one machine with the ``weblab-admin.py`` script, run the following::
+
+  $ weblab-admin.py create sample4 --xmlrpc-experiment
+
+This command is intended for deploying laboratories that use XML-RPC (such as those laboratories developed in programming languages other than Python). This command generates the deployment detailed in the following figure:
+
+.. image:: /_static/config-sample-4.png
+   :width: 600 px
+   :align: center
 
 
+If we look at the directory hierarchy, we can appreciate this::
 
-In the addressing system used, one *server* called ``experiment1`` at the *instance* ``laboratory1`` at the
-*machine* ``core_machine`` will be refered as
-``experiment1:laboratory1@core_machine``.
+ - configuration.xml
+ + core_machine
+   - configuration.xml
+   - machine_config.py
+
+   + laboratory1
+     - configuration.xml
+     + laboratory1
+       - server_config.py
+       - configuration.xml
+
+   + core_server1
+     - configuration.xml
+     + core
+       - server_config.py
+       - configuration.xml
+     + login
+       - server_config.py
+       - configuration.xml
+
+ + exp_machine
+   - configuration.xml
+   + exp_instance
+     - configuration.xml
+     + experiment1
+       - server_config.py
+       - configuration.xml
+
+
+There are two machines: ``exp_machine`` and ``core_machine``. The ``core_machine`` contains the Laboratory server (in the ``laboratory1`` *instance*), the Core server and the Login server (both in the ``core_server1`` *instance*). The ``exp_machine`` has a single *instance* which has a single *server* which is the ``experiment1``. 
+
+Notes on addressing
+~~~~~~~~~~~~~~~~~~~
+
+In the addressing system used, one *server* called ``experiment1`` at the *instance* ``laboratory1`` at the *machine* ``core_machine`` will be refered as::
+
+  experiment1:laboratory1@core_machine 
+
+For this reason, in some parts of the configuration files you will notice that the core server defines::
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:core_server1@core_machine' : {
+            'exp1|dummy|Dummy experiments'        : 'dummy1@dummy',
+        },
+    }
+
+Where it defines "there is a Laboratory server which is identified by ``laboratory1`` in the ``core_server1`` instance, which is in the ``core_machine`` machine. Similarly, you will see that the Laboratory is configured as::
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:core_server1@core_machine',
+                    'checkers' : ()
+                },
+        }
+
+Here, the configuration establishes that a particular experiment (at database level) is located in a particular address. You will notice that this address is using the format explained.
+
+Summary
+~~~~~~~
+
+The focus of this section is showing the basics of the configuration subsystem of WebLab-Deusto. You may use the type of setting that suits better your system, even modifying it by yourself instead of using the ``weblab-admin.py`` script (or modifying the results of this script). With this section, you should be able to customize these aspects of the deployments.
+
 
