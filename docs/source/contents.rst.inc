@@ -27,7 +27,7 @@ Users
 -----
 
 This section is intended for people who is going to install the WebLab-Deusto
-system and connect existing laboratories. 
+system.
 
 .. toctree::
    :maxdepth: 2
