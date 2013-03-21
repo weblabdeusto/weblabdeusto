@@ -120,6 +120,8 @@ Redis by `downloading it <http://redis.io/download>`_ and compiling it directly.
 If you do not manage to run it, remember that it is an optional requirement and
 that you can use MySQL as scheduling backend.
 
+.. _native_libraries:
+
 Installing native libraries
 ---------------------------
 

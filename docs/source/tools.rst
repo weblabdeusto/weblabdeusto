@@ -1,7 +1,11 @@
+.. _tools:
+
 Tools
 =====
 
 .. contents:: Table of Contents
+
+.. _bot:
 
 WebLab Bot
 ----------
@@ -26,4 +30,23 @@ In order to test these variables easily, a students simulator has been implement
 .. note::
 
     **TO BE WRITTEN** The old documentation is available `here <http://code.google.com/p/weblabdeusto/wiki/Latest_WebLabBot>`_, but needs to be updated.
+
+
+.. _experiment_server_tester:
+
+Experiment Server Tester
+------------------------
+
+.. note::
+
+   **TO BE WRITTEN**
+
+.. _visir_battle_tester:
+
+VISIR Battle Tester
+-------------------
+
+.. note::
+
+   **TO BE WRITTEN**
 

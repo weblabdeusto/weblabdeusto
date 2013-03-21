@@ -1,3 +1,5 @@
+.. _remote_lab_development:
+
 Remote laboratory development
 =============================
 

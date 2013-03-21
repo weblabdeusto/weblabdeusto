@@ -42,8 +42,8 @@ system.
    configuration
 
 
-Remote laboratory development
------------------------------
+Remote laboratory development and management
+--------------------------------------------
 
 This section is intended for people who is going to create a new laboratory
 using the WebLab-Deusto tools.
@@ -52,6 +52,8 @@ using the WebLab-Deusto tools.
    :maxdepth: 2
 
    remote_lab_development
+   remote_lab_deployment
+   remote_lab_sharing
 
 External systems
 ----------------
