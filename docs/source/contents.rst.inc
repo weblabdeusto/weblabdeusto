@@ -35,6 +35,7 @@ system and connect existing laboratories.
    installation
    first_steps
    installation_next_steps
+   performance
    directory_hierarchy
    authentication
    tools
@@ -80,3 +81,5 @@ Appendixes
 .. toctree::
 
    download_from_github
+   first_steps_cli
+   userguide_boole_weblab_es
