@@ -105,6 +105,14 @@ Weblab = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
+    //! Sends a command to the experiment server.
+    //!
+    //! @param text Text of the command. 
+    //! @param successHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //! @param errorHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //!
     this.sendCommand = function (text, successHandler, errorHandler) {
         mCommandsSentCounter++;
         mCommandsSentMap[mCommandsSentCounter] = [successHandler, errorHandler];
@@ -156,29 +164,55 @@ Weblab = new function () {
         mOnTimeCallback = onTimeCallback;
     }
 
-
+    //! Sets the three Weblab callbacks at once.
+    //! 
+    //! @param onStartInteraction Start Interaction callback.
+    //! @param onTime On Time callback.
+    //! @param onEnd On End callback.
+    //! 
+    //! @see setOnStartInteraction
+    //! @see setOnTimeCallback
+    //! @see setOnEndCallback
     this.setCallbacks = function (onStartInteraction, onTime, onEnd) {
         this.setOnStartInteractionCallback(onStartInteraction);
         this.setOnTimeCallback(onTime);
         this.setOnEndCallback(onEnd);
     }
 
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
     this.getProperty = function (name) {
         return parent.wl_getProperty(name);
     };
 
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
     this.getPropertyDef = function (name, def) {
         return parent.wl_getPropertyDef(name, def);
     };
 
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
     this.getIntProperty = function (name) {
         return parent.wl_getIntProperty(name);
     };
 
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
     this.getIntPropertyDef = function (name, def) {
         return parent.wl_getIntPropertyDef(name, def);
     };
 
+    //! Finishes the experiment.
+    //!
     this.clean = function () {
         return parent.wl_onClean();
     };
