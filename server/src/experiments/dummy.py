@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN
+import weblab.configuration_doc as configuration_doc
 import weblab.experiment.experiment as Experiment
 
 from voodoo.override import Override
@@ -23,7 +23,7 @@ class DummyExperiment(Experiment.Experiment):
         super(DummyExperiment, self).__init__(*args, **kwargs)
         self.cfg_manager = cfg_manager
         self.verbose           = cfg_manager.get_value('dummy_verbose', True)
-        self.server_identifier = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'core server not available from dummy configuration')
+        self.server_identifier = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
 
     @Override(Experiment.Experiment)
     def do_get_api(self):

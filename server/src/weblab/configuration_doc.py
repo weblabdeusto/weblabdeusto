@@ -162,11 +162,20 @@ WEBLAB_CORE_SERVER_SESSION_POOL_ID  = 'core_session_pool_id'
 CORE_SERVER_URL                     = 'core_server_url'
 CORE_STORE_STUDENTS_PROGRAMS        = 'core_store_students_programs'
 CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
+CORE_UNIVERSAL_IDENTIFIER           = 'core_universal_identifier'
+CORE_UNIVERSAL_IDENTIFIER_HUMAN     = 'core_universal_identifier_human'
+
 
 _sorted_variables.extend([
+    # URL, identifiers
+    (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://your-uni.edu/weblab/ ")),
+    (CORE_UNIVERSAL_IDENTIFIER,          _Argument(CORE, basestring, '00000000', """Unique global ID for this WebLab-Deusto deployment. Used in federated environments, where multiple nodes register each other and do not want to enter in a loop. You should generate one (search for online GUID or UUID generators or use the uuid module in Python).""")),
+    (CORE_UNIVERSAL_IDENTIFIER_HUMAN,    _Argument(CORE, basestring, 'WARNING; MISCONFIGURED SERVER. ADD A UNIVERSAL IDENTIFIER', """Message such as 'University A', which identifies which system is using performing the reservation. The unique identifier above must be unique, but this one only helps debugging.""")),
+
+    # Sessions
     (WEBLAB_CORE_SERVER_SESSION_TYPE,    _Argument(CORE, basestring, 'Memory', """What type of session manager the Core Server will use: Memory or MySQL.""")),
     (WEBLAB_CORE_SERVER_SESSION_POOL_ID, _Argument(CORE, basestring, 'UserProcessingServer', """ A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "UserProcessing_A_B" and "UserProcessing_C_D" would be enough.""")),
-    (CORE_SERVER_URL,                    _Argument(CORE, basestring, NO_DEFAULT, "The base URL for this server. For instance, http://your-uni.edu/weblab/ ")),
+
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
     (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
 ])
@@ -206,7 +215,7 @@ _sorted_variables.extend([
 # Coordinator
 # 
 
-COORDINATOR = (CORE_SERVER, 'Coordinator')
+COORDINATOR = (CORE_SERVER, 'Scheduling')
 DESCRIPTIONS[COORDINATOR] = """This is the configuration variables used by the scheduling backend (called Coordinator). Basically, you can choose among redis or a SQL based one, and customize the one selected."""
 
 COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
@@ -338,8 +347,11 @@ if __name__ == '__main__':
 
     for category in categories:
         section, subsection = category
-        subsections = sections.get(section, set())
-        subsections.add(subsection)
+        subsections = sections.get(section, [])
+        if subsection == 'General':
+            subsections.insert(0, subsection)
+        else:
+            subsections.append(subsection)
         sections[section] = subsections
         variables_by_category[category] = [ variable for variable in variables if variables[variable].category == category ]
 
@@ -372,6 +384,10 @@ if __name__ == '__main__':
         print "This section covers the available configuration variables, organized by"
         print "servers. Take a look at :ref:`technical_description` to identify the "
         print "different servers described here."
+        print
+        print ".. note::"
+        print
+        print "   At the time of this writing, not all the variables have been documented. We're working on this (March 2013)."
         print 
         print ".. contents:: Table of Contents"
         print
