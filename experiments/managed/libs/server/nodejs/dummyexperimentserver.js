@@ -28,8 +28,11 @@ DummyExperimentServer = new function() {
 	}
 	
 	this.start_experiment = function() {
-		console.log("On start_experiment");
-		return "ok";
+		// Start experiment can return a JSON string specifying the initial configuration.
+		// The "config" object can contain anything. It will be delivered as-is to the client.
+		var config = {};
+		var initial_config = { "initial_configuration" : config, "batch" : false };
+		return JSON.stringify(initial_config);
 	}
 	
 	this.send_file = function (content, file_info) {

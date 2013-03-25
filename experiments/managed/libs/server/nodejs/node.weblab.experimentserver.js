@@ -14,6 +14,11 @@
 var xmlrpc = require('xmlrpc')
 
 
+exports.module_version = "1.0";
+exports.api_version = "2";
+exports.api_concurrent_version = "2_concurrent";
+
+
 function launch( port, exp_server ) {
 
 	// Creates an XML-RPC server to listen to XML-RPC method calls
@@ -50,6 +55,14 @@ function launch( port, exp_server ) {
 				return func;
 			}
 		);
+		
+		// We will also register the get_api method. This is an special method which specifies
+		// which version of the Weblab API experiments are made for. The response of this method
+		// is hard-coded because it is precissely this library which implements a specific
+		// version of the Weblab-API.
+		server.on("Util.get_api", function(err, params, callback) {
+						callback(null, exports.api_version);
+						});
 	}
 	
 	console.log('[SYSTEM] XML-RPC server listening on port ' + port)	
@@ -66,8 +79,12 @@ DefaultExperimentServer = new function() {
 		return True;
 	}
 	
-	this.start_experiment = function() {
-		return "ok";
+	this.start_experiment = function(client_initial_data, server_initial_data) {
+		// Start experiment can return a JSON string specifying the initial configuration.
+		// The "config" object can contain anything. It will be delivered as-is to the client.
+		var config = {};
+		var initial_config = { "initial_configuration" : config, "batch" : false };
+		return JSON.stringify(initial_config);
 	}
 	
 	this.send_file = function (content, file_info) {
@@ -87,7 +104,6 @@ DefaultExperimentServer = new function() {
 
 // We define the visible interface of the module here. Exports is an special object
 // in the node environment.
-exports.version = "1.0";
 exports.launch = launch;
 exports.DefaultExperimentServer = DefaultExperimentServer;
 
