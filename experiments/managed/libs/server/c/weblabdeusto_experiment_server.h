@@ -8,7 +8,7 @@
 // This software consists of contributions made by many individuals,
 // listed below:
 //
-// Author: Luis Rodr�guez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 //         Jaime Irurzun <jaime.irurzun@gmail.com>
 //
 
@@ -17,6 +17,8 @@
 
 #define TRUE  1
 #define FALSE 0
+
+#define API_VERSION "2"
 
 int default_is_up_and_running();
 
