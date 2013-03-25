@@ -21,6 +21,9 @@
 #include <xmlrpc-c/server_abyss.h>
 
 
+#define API_VERSION "2"
+
+
 class ExperimentServer
 {
 
@@ -46,6 +49,7 @@ private:
 	static xmlrpc_value * c_xmlrpc_send_file(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_send_command(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_dispose(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_get_api(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 };
 
 #endif

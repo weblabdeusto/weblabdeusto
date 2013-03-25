@@ -23,7 +23,7 @@ public:
 
 	virtual std::string onStartExperiment()
 	{
-		return "ok";
+		return "{'initial_configuration' : {}, 'batch' : false}";
 	}
 
 	virtual std::string onSendFile(std::string const & encoded_file, std::string const & fileinfo)
