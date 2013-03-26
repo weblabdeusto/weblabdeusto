@@ -34,9 +34,9 @@ Managed laboratories
 Managed laboratories are those laboratories developed with the API of
 WebLab-Deusto. They basically have two parts:
 
-* A client, developed using one of the libraries provided by WebLab-Deusto (see
+* A **client**, developed using one of the libraries provided by WebLab-Deusto (see
   :ref:`below <managed_libraries_client>`).
-* A server, developed using one of the provided server libraries or using
+* A **server**, developed using one of the provided server libraries or using
   XML-RPC directly (see :ref:`below <managed_libraries_server>`).
 
 This way, the client will run on the web browser and will basically display the
@@ -49,21 +49,21 @@ particular message.
 
 Therefore, managed laboratories count with the following advantages:
 
-* Experiment developer does not manage any type of communications. The client
+* Experiment developer does not manage any type of **communications**. The client
   API has a method for submitting a command, which the WebLab-Deusto client will
   propagate as securely as the system has been configured (e.g. supporting SSL)
   to the server, which once in the campus side, the server will submit the
   command to the particular equipment (regardless where it is deployed in the
   internal topology of the campus side network). All commands submitted through
   WebLab-Deusto will go through pure HTTP, crossing firewalls and proxies.
-* All the information is stored in the database by default, so it is possible to
+* All the **information is stored** in the database by default, so it is possible to
   perform learning analytics. By default, administrators and instructors be able
   to track what exact commands were submitted by the student. This process
   however does not add a relevant latency, since instead of storing each command
   whenever is sent, it adds it to a memory queue (which is a fast operation),
   and other thread is continuosly retrieving information from the queue and
   storing it in the database in a batch basis.
-* Managed laboratories support local load balancing. This means that if you ever
+* Managed laboratories support local **load balancing**. This means that if you ever
   have multiple copies of a laboratory, if the communication goes through the
   WebLab-Deusto API, the client will not need to know which copy is being
   addressed, since the WebLab-Deusto internals will forward the message to the
@@ -84,24 +84,24 @@ server.
 
 The two clear examples of this are:
 
-#. Virtual Machines based remote laboratories. A VirtualBox (at this moment)
+#. **Virtual Machines** based remote laboratories. A VirtualBox (at this moment)
    virtual machine created by the experiment developer is loaded. The virtual
    machine might run a Linux or Windows system, which will be accessed through
    SSH, VNC or Remote Desktop. WebLab-Deusto guarantees that the server will be
    executed.
-#. LabVIEW Remote Panels. They were developed but they caused too many problems.
+#. **LabVIEW Remote Panels**. They were developed but they caused too many problems.
    If you are really interested, contact us and we can create more
    documentation on their support in WebLab-Deusto. But at this stage, it simply
    does not make too much sense. It is much better if you support :ref:`LabVIEW
    as managed <managed_library_server_labview>`.
 
-The main drawbacks of unmanaged laboratories is that:
+The main **drawbacks** of unmanaged laboratories is that:
 
-* They might cause problems with proxies or firewalls, since the communication
+* They might cause problems with **proxies or firewalls**, since the communication
   is managed by the final system.
-* The user tracking functionality is decreased: WebLab-Deusto still registers
+* The **user tracking** functionality is decreased: WebLab-Deusto still registers
   who uses what and when, but not what the user did during the session.
-* The load balancing functionality is decreased or even removed.
+* The **load balancing** functionality is decreased or even removed.
 
 Additionally, this is more complex to deploy for system administrators.
 
@@ -279,12 +279,6 @@ WebLab-Deusto server (Python)
 Java
 ....
 
-.. note::
-
-   To be written (March 2013).
-
-
-
 The Java library can be found in the `experiments/managed/libs/server/java
 <https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/java>`_
 library. It is an `Eclipse <http://www.eclipse.org/>`_ project, so you should be
@@ -318,19 +312,67 @@ the experiment developer (e.g. a method for receiving commands). The latter is a
 class that will start a XML-RPC server taking an instance of the class generated
 by the experiment developer.
 
-Then, you can use:
+The first thing you must implement is a class which inherits from
+``ExperimentServer``. An example of this is the ``DummyExperimentServer`` class,
+which supports multiple methods such as:
+
+.. code-block:: java
+
+    // A new user comes in
+    public String startExperiment(String clientInitialData, String serverInitialData) throws WebLabException {
+        System.out.println("I'm at startExperiment");
+        System.out.println("The client provided me this data: " + clientInitialData);
+        System.out.println("The server provided me this data: " + serverInitialData);
+        return "{}";
+    }
+
+    // Typical server initial data:
+    // [java] The server provided me this data: 
+    //        {
+    //          "request.locale": "es", 
+    //          "request.experiment_id.experiment_name": "dummy", 
+    //          "request.experiment_id.category_name": "Dummy experiments", 
+    //          "priority.queue.slot.initialization_in_accounting": true, 
+    //          "priority.queue.slot.start": "2013-03-27 00:36:08.397675", 
+    //          "priority.queue.slot.length": "200", 
+    //          "request.username": "admin" 
+    //        }
+
+    // A user leaves (or is kicked out)
+    public String dispose() {
+        System.out.println("I'm at dispose");
+        return "ok";
+    }
+
+    public String sendFile(File file, String fileInfo)  throws WebLabException {
+        System.out.println("I'm at send_program: " + file.getAbsolutePath() + "; fileInfo: " + fileInfo);
+        return "ok";
+    }
+
+    public String sendCommand(String command)  throws WebLabException {
+        System.out.println("I'm at send_command: " + command);
+        return "ok";
+    }
+
+Those methods should parse the command send by the client and do the required
+actions (such as interact with certain equipment and return some response).
+
+Once you have implemented this class, you can use the ``Launcher`` as:
 
 .. code-block:: java
 
     public class DummyExperimentServerMain {
         public static void main(String [] args) throws Exception{
+            int port = 10039;
             IExperimentServer experimentServer = new DummyExperimentServer();
-            Launcher launcher = new Launcher(10039, experimentServer);
+            Launcher launcher = new Launcher(port, experimentServer);
             launcher.start();
         }
     }
 
-
+This way, you willhave the experiment running on port ``10039`` in this case.
+Once you have the server running, you will need to register it in WebLab-Deusto.
+This is explained in :ref:`this section <remote_lab_deployment>`.
 
 .NET
 ....
