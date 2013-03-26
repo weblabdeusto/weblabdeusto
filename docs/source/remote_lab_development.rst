@@ -120,58 +120,189 @@ a priority for you.
 Managed laboratories
 --------------------
 
+This section describes how to develop experiments using the managed model.
+
+Introduction
+^^^^^^^^^^^^
+
+As previously defined, in the managed laboratories, all the communications are
+managed by WebLab-Deusto. This basically means that, as seen on the following
+figure, the client code will call a set of methods such as:
+
+.. code-block:: java
+
+   // In the client side
+   weblab.sendCommand("press button1");
+
+And WebLab-Deusto guarantees that this string will be forwarded to the proper
+experiment server. In the experiment server, there will be a method such as (in
+Java):
+
+.. code-block:: java
+
+    public String sendCommand(String command) throws WebLabException {
+        // Manage the command and return the results
+        if (command.startsWith("press ")) {
+            String what = command.substring("press ".length);
+            pressButton(what);
+            return getStatus();
+        }
+    }
+
+So as to do this, WebLab-Deusto provides :ref:`APIs for the client
+<managed_libraries_client>`, which wrap the communications submitting the
+commands to the server side using HTTP (and HTTPS if available), adding the
+required metadata (such as the session identifier). This is *step 1* in the
+following figure. Once in the Core server (check :ref:`the technical description
+if lost <technical_description>`), it checks if that the session is still
+available and with an experiment assigned.  If so, it submits the command to the
+Laboratory server in charge of the assigned experiment (there might be different
+laboratory servers) and stores the command in the database. This process is
+faster than it may sound, since it uses memory structures and internal queues so
+there is only a single thread using the database for adding the commands
+submitted. This is *step 2* in the figure. Once in the Laboratory server, it
+checks to which Experiment server the command should be submitted, and submits
+it (this is *step 3*). If the Experiment Server was developed with one of the
+:ref:`libraries for servers <managed_libraries_server>`, then this gets the
+message in the programming language used and passes it to the Experiment server
+code.
+
+.. figure:: /_static/managed_model.png
+   :align: center
+
+   Command sent through the managed model. See the diagram `in full size here <_static/managed_model.png>`_.
+
+This way, it is entirely up to the experiment developer to choose the proper
+programming environment for its experiments. Furthermore, developers will select
+the format of the contents submitted as commands. WebLab-Deusto does not impose
+any restriction on this side, so developers may send a simple string such as
+``press button1`` that will later parse, or they may use an XML or JSON format.
+
+For this reason, in the case of the managed model, developers do not need to handle:
+
+* Scheduling (the core server manages it)
+* Communications (the libraries manage it)
+* User tracking (every command is stored in the database)
+* Complex deployments (e.g. load balancing: it is configured at WebLab-Deusto
+  level)
+
+
 .. _managed_libraries_client:
 
 Client side
 ^^^^^^^^^^^
 
+In this section, the client side libraries and approaches for developing remote
+laboratories are presented.
+
 Introduction
 ............
+
+The client code is focused on two tasks:
+
+* Providing the user interface
+* Submitting commands to the Experiment server and managing the responses
+
+While WebLab-Deusto supports some web libraries, it is highly recommended to use
+libraries which rely on JavaScript (such as JavaScript itself or Google Web
+Toolkit). Those laboratories developed on top of these libraries will be
+available for mobile devices, and the number of conflicts in different platforms
+will be highly decreased, since they will not need any plug-in installed.
+
+In the following sections describe how to use each of the provided APIs.
 
 Google Web Toolkit
 ..................
 
+.. note::
+
+   To be written (March 2013).
+
+
 JavaScript
 ..........
+
+.. note::
+
+   To be written (March 2013).
 
 
 Java applets
 ............
 
+.. note::
+
+   To be written (March 2013).
 
 Flash applets
 .............
 
+.. note::
+
+   To be written (March 2013).
 
 .. _managed_libraries_server:
 
 Server side
 ^^^^^^^^^^^
 
+This section covers
+
 Introduction
 ............
 
+.. note::
 
-Python
-......
+   To be written (March 2013).
+
+
+WebLab-Deusto server (Python)
+.............................
+
+.. note::
+
+   To be written (March 2013).
 
 
 Java
 ....
 
+.. note::
+
+   To be written (March 2013).
+
+
 
 .NET
 ....
+
+.. note::
+
+   To be written (March 2013).
 
 
 C
 ..
 
+.. note::
+
+   To be written (March 2013).
+
+
 C++
 ...
 
+.. note::
+
+   To be written (March 2013).
+
+
 Node.js
 .......
+
+.. note::
+
+   To be written (March 2013).
 
 
 .. _managed_library_server_labview:
@@ -179,18 +310,41 @@ Node.js
 LabVIEW
 .......
 
-Native Python server
-....................
+.. note::
+
+   To be written (March 2013).
+
+Python
+......
+
+.. note::
+
+   To be written (March 2013).
+
 
 
 Tools
 ^^^^^
 
+.. note::
+
+   To be written
 
 
 Unmanaged laboratories
 ----------------------
 
+Virtual machines
+^^^^^^^^^^^^^^^^
+
+.. note::
+
+   To be written
+
 Conclusions
 -----------
+
+.. note::
+
+   To be written
 
