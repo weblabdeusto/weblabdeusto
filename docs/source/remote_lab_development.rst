@@ -253,10 +253,19 @@ Introduction
 
 There are two ways to develop a remote laboratory using the WebLab-Deusto API in the managed model:
 
-* Using Python (which is the programming language used by the rest of the WebLab-Deusto system) as a native laboratory (therefore managing even the configuration through WebLab-Deusto)
-* Running an external process which acts as a XML-RPC server. We provide libraries for doing this automatically, described below.
+* Using Python (which is the programming language used by the rest of the
+  WebLab-Deusto system) as a native laboratory (therefore managing even the
+  configuration through WebLab-Deusto).
+* Running an external process which acts as a XML-RPC server. We provide
+  libraries for doing this automatically, described below.
 
-In this case, there is no prefered way to develop the laboratories, whatever is easier for the developer.
+In this case, there is no prefered way to develop the laboratories, whatever is
+easier for the developer.
+
+All the libraries can be found in the repository, in the
+`experiments/managed/libs/server
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server>`_
+directory.
 
 
 WebLab-Deusto server (Python)
@@ -273,6 +282,53 @@ Java
 .. note::
 
    To be written (March 2013).
+
+
+
+The Java library can be found in the `experiments/managed/libs/server/java
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/java>`_
+library. It is an `Eclipse <http://www.eclipse.org/>`_ project, so you should be
+able to import it if you are using this IDE. Otherwise, you can use `ant
+<http://ant.apache.org/>`_ to compile it, by running::
+
+   $ ant build 
+   $ ant run
+
+The structure of the source code is the following::
+
+   + src
+     + es/deusto/weblab/experimentservers
+       + exceptions
+         - (defined exceptions)
+       - ExperimentServer.java
+       - Launcher.java
+       - (Other auxiliar classes)
+     + com/example/weblab
+       - DummyExperimentServerMain.java
+       - DummyExperimentServer.java
+
+There, the important classes are those available in the package ``es.deusto``.
+The ones in the ``com.example`` can be removed and replaced by the proper
+package of your application. They are there as a working example of what the
+interface is.
+
+The two important classes are ``ExperimentServer`` and ``Launcher``. The former
+is a class which defines all the optional methods which can be implemented by
+the experiment developer (e.g. a method for receiving commands). The latter is a
+class that will start a XML-RPC server taking an instance of the class generated
+by the experiment developer.
+
+Then, you can use:
+
+.. code-block:: java
+
+    public class DummyExperimentServerMain {
+        public static void main(String [] args) throws Exception{
+            IExperimentServer experimentServer = new DummyExperimentServer();
+            Launcher launcher = new Launcher(10039, experimentServer);
+            launcher.start();
+        }
+    }
 
 
 
