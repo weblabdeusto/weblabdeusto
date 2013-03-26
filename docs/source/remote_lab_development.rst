@@ -246,14 +246,17 @@ Flash applets
 Server side
 ^^^^^^^^^^^
 
-This section covers
+This section covers how to develop the server side of a remote laboratory using the WebLab-Deusto Managed model.
 
 Introduction
 ............
 
-.. note::
+There are two ways to develop a remote laboratory using the WebLab-Deusto API in the managed model:
 
-   To be written (March 2013).
+* Using Python (which is the programming language used by the rest of the WebLab-Deusto system) as a native laboratory (therefore managing even the configuration through WebLab-Deusto)
+* Running an external process which acts as a XML-RPC server. We provide libraries for doing this automatically, described below.
+
+In this case, there is no prefered way to develop the laboratories, whatever is easier for the developer.
 
 
 WebLab-Deusto server (Python)
