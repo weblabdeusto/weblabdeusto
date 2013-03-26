@@ -14,6 +14,8 @@ import es.deusto.weblab.experimentservers.exceptions.WebLabException;
 
 public final class ExperimentServerXMLRPC {
 	
+	private static String API_VERSION = "2";
+	
 	static class IExperimentServerHolder{
 		private static volatile IExperimentServer implementor;
 		
@@ -34,15 +36,22 @@ public final class ExperimentServerXMLRPC {
 		return message;
 	}
 	
-	public final boolean is_up_and_running(){
+	public final String get_api(){
+		return API_VERSION;
+	}
+	
+	public final boolean is_up_and_running() {
 		return this.implementor.isUpAndRunning();
 	}
 	
-	public final String start_experiment() throws WebLabException{
+	public final int should_finish() {
+		return this.implementor.shouldFinish();
+	}
+	
+	public final String start_experiment(String clientInitialData, String serverInitialData) throws WebLabException{
 		if(this.implementor.isDebugging())
 			System.out.println("Starting experiment...");
-		this.implementor.startExperiment();
-		return "ok";
+		return this.implementor.startExperiment(clientInitialData, serverInitialData);
 	}
 	
 	public final String send_file_to_device(String fileEncodedWithBase64, String fileInfo) throws WebLabException{
@@ -78,7 +87,6 @@ public final class ExperimentServerXMLRPC {
 	public final String dispose(){
 		if(this.implementor.isDebugging())
 			System.out.println("Disposing");
-		this.implementor.dispose();
-		return "ok";
+		return this.implementor.dispose();
 	}
 }
