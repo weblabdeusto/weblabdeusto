@@ -16,6 +16,7 @@ import sys
 import unittest
 import random
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 
@@ -34,7 +35,7 @@ SENTENCE1='Hello'
 SENTENCE2='Goodbye'
 sentences = (SENTENCE1, SENTENCE2)
 
-PORT = 8094
+PORT = new_port()
 
 def get_server(protocol,methods,sentence):
     cfg_manager= ConfigurationManager.ConfigurationManager()

@@ -150,3 +150,7 @@ It does not store it in any format, but if the WebLab-Deusto server is hacked,
 the credentials of those users using the system during that time are in danger.
 In the University of Deusto this is the system used with our students. However,
 if you still don't trust it and prefer other solutions, check other systems.
+
+.. note::
+
+   How to use LDAP has not been yet documented.

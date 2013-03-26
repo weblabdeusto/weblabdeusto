@@ -8,7 +8,7 @@
 // This software consists of contributions made by many individuals, 
 // listed below:
 //
-// Author: Luis Rodr�guez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 // 
 
 #include "weblabdeusto_experiment_server.hpp"
@@ -30,6 +30,19 @@ xmlrpc_value * ExperimentServer::c_xmlrpc_start_experiment( xmlrpc_env * const e
 	ExperimentServer * _this = (ExperimentServer*)user_data;
 		
 	std::string const & ret = _this->onStartExperiment();
+	return xmlrpc_build_value(env, "s", ret.c_str());
+}
+
+/* static */
+xmlrpc_value * ExperimentServer::c_xmlrpc_get_api( xmlrpc_env * const env, xmlrpc_value * const param_array, void * user_data )
+{
+	if (env->fault_occurred)
+		return NULL;
+	
+	ExperimentServer * _this = (ExperimentServer*)user_data;
+		
+	// Return the hard-coded current API version that this library supports.
+	std::string const & ret = API_VERSION;
 	return xmlrpc_build_value(env, "s", ret.c_str());
 }
 
@@ -125,6 +138,7 @@ void ExperimentServer::launch(unsigned short port, std::string const & log_file)
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_command_to_device", &ExperimentServer::c_xmlrpc_send_command, this);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file_to_device", &ExperimentServer::c_xmlrpc_send_file, this);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.dispose", &ExperimentServer::c_xmlrpc_dispose, this);
+	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.get_api", &ExperimentServer::c_xmlrpc_get_api, this);
 
 	serverparm.config_file_name = NULL;
 	serverparm.registryP        = registryP;

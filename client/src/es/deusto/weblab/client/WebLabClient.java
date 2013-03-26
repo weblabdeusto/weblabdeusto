@@ -67,7 +67,6 @@ public abstract class WebLabClient implements EntryPoint {
 	private static final int MIN_NON_MOBILE_WIDTH = 480;
 	private static final int MIN_NON_MOBILE_HEIGHT = 350;
 	private static final int MIN_NON_MOBILE_AREA = 350 * 300;
-	protected static final String INDEX_ADMIN_HTML = "index-admin.html";
 	
 	public ConfigurationManager configurationManager;
 	private boolean languageDecisionPending = false;

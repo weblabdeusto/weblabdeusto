@@ -1,0 +1,44 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:a="urn:import:es.deusto.weblab.client.experiments.aquarium.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	
+	<ui:style>
+		.cameraLabel {
+			font-weight: bold;
+		}
+		
+		.pictureLabel {
+			font-weight: bold;
+			font-style: italic;
+		}
+	</ui:style>
+	
+	<g:VerticalPanel width="100%" spacing="10" horizontalAlignment="CENTER">
+		
+		<g:HorizontalPanel spacing="40">
+			<g:VerticalPanel horizontalAlignment="CENTER">
+				<g:Label ui:field="webcamLabel" visible="false" styleName="{style.cameraLabel}">Camera</g:Label>
+				<a:WebcamPanel ui:field="webcamPanel"></a:WebcamPanel>
+			</g:VerticalPanel>
+			<g:VerticalPanel horizontalAlignment="CENTER">
+				<g:Label ui:field="pictureLabel" visible="false" styleName="{style.pictureLabel}">Picture</g:Label>
+				<g:Image ui:field="picture" visible="false"/>
+			</g:VerticalPanel>
+			<g:VerticalPanel horizontalAlignment="CENTER">
+				<g:Label ui:field="processedLabel" visible="false" styleName="{style.pictureLabel}">Picture processed</g:Label>
+				<g:Image ui:field="processed" visible="false"/>
+			</g:VerticalPanel>
+		</g:HorizontalPanel>
+		
+		<w:WlTimer ui:field="timer"></w:WlTimer>
+	
+		<g:HorizontalPanel spacing="12">
+			<a:BallPanel ui:field="whiteBall"  color="white"  />
+			<a:BallPanel ui:field="yellowBall" color="yellow" />
+			<a:BallPanel ui:field="blueBall"   color="blue" />
+			<a:BallPanel ui:field="redBall"    color="red"  />
+		</g:HorizontalPanel>
+	</g:VerticalPanel>
+</ui:UiBinder> 

@@ -8,14 +8,14 @@
 // This software consists of contributions made by many individuals,
 // listed below:
 //
-// Author: Luis Rodr�guez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 //         Jaime Irurzun <jaime.irurzun@gmail.com>
 //
 
 #include "weblabdeusto_experiment_server.h"
 
 char * start_experiment(){
-    return "ok";
+    return "{'initial_configuration' : {}, 'batch' : false}";
 }
 
 char * send_file(char * encoded_file, char * fileinfo){

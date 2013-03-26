@@ -163,6 +163,8 @@ def debugThreads():
     print
     import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
     print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
+    from test.util.ports import CURRENT_PORT
+    print "Max port achieved:", CURRENT_PORT
 
 def get_files():
 

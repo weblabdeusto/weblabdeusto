@@ -18,10 +18,11 @@ import traceback
 import types
 import voodoo.log as log
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module
 import voodoo.gen.protocols.XMLRPC.ServerXMLRPC as ServerXMLRPC
 
-PORT = 12345
+PORT = new_port()
 
 class ServerXMLRPCTestCase(unittest.TestCase):
 

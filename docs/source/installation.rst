@@ -110,6 +110,52 @@ Run the following (don't take into account the particular versions)::
 
   1.7.1.2
 
+Troubleshooting
+```````````````
+
+virtualenv and virtualenvwrapper **are not strictly necessary**. If you don't use
+them, you can always install WebLab-Deusto at system level (using administrator
+credentials. So if you get problems that you can not solve when installing
+virtualenv, do not worry and skip that step.
+
+That said, there are some common problems installing virtualenvwrapper, listed
+here:
+
+* **mkvirtualenv: command not found**: virtualenvwrapper is a bash script, which
+  must be loaded. By default in Ubuntu, it is correctly loaded in all the new
+  terminals, so try closing the current terminal and opening it again. If the
+  problem persists, you may need to find where is a script called
+  ``virtualenvwrapper.sh``, and add to your ``~/.bashrc``::
+
+  source /path/to/virtualenvwrapper.sh
+
+
+* Problems in **Microsoft Windows Windows** with path not found: Check that you
+  have installed virtualenvwrapper-win and not virtualenvwrapper.
+
+If you still have problems with ``mkvirtualenv``, try uninstalling it (``pip
+uninstall virtualenvwrapper``) and installing only the ``virtualenv`` package.
+If do this, you will need to do::
+
+  $ virtualenv weblab_env
+  New python executable in weblab_env/bin/python
+  Installing distribute....................done.
+  Installing pip...............done.
+  $ 
+
+And then, each time you want to workin the virtualenv, run::
+
+  (On UNIX)
+  $ ./weblab_env/bin/activate
+  (weblab_env) user@machine:~$
+
+  (On Windows)
+  C:\> .\weblab_env\Scripts\activate
+  (weblab_env) C:\> 
+
+If this also generates problems, you can safely avoid using a virtual
+environment and install the whole system as administrator.
+
 Installing WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

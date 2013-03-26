@@ -1312,7 +1312,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 		"""    <implementation>weblab.login.server.LoginServer</implementation>\n"""
 		"""\n"""
 		"""    <protocols>\n"""
-		"""        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
 		"""        <protocol name="Direct">\n"""
 		"""            <coordinations>\n"""
 		"""                <coordination></coordination>\n"""

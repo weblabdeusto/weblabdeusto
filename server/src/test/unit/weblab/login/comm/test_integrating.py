@@ -21,6 +21,8 @@ try:
 except ImportError:
     pass
 
+from test.util.ports import new as new_port
+
 import weblab.configuration_doc as configuration_doc
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
@@ -39,6 +41,10 @@ import weblab.login.exc as LoginErrors
 
 from test.unit.weblab.login.comm.test_manager import MockLogin
 
+ZSI_PORT    = new_port()
+JSON_PORT   = new_port()
+XMLRPC_PORT = new_port()
+
 class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if LoginFacadeServer.ZSI_AVAILABLE:
         def setUp(self):
@@ -47,14 +53,14 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
             self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10223)
+            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, ZSI_PORT)
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_LISTEN, '')
 
-            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, 10224)
+            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
 
-            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, 10225)
+            self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
             self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -63,10 +69,11 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_login(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14122)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = LoginWebLabDeustoSOAP("http://localhost:14122/weblab/soap/")
+                wds = LoginWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 USERNAME = 'the username'
@@ -106,10 +113,11 @@ class LoginIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_extensible_login(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14123)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = LoginWebLabDeustoSOAP("http://localhost:14123/weblab/soap/")
+                wds = LoginWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 SYSTEM = 'facebook'
@@ -157,14 +165,14 @@ class LoginIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
         self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10223)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, ZSI_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_LISTEN, '')
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, 10224)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, 10225)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -173,7 +181,7 @@ class LoginIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_login(self):
-        port = 15123
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:

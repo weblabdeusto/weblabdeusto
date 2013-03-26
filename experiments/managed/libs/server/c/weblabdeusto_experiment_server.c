@@ -8,7 +8,7 @@
 // This software consists of contributions made by many individuals,
 // listed below:
 //
-// Author: Luis Rodr�guez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 //         Jaime Irurzun <jaime.irurzun@gmail.com>
 //
 
@@ -83,6 +83,14 @@ static xmlrpc_value * weblab_xmlrpc_is_up_and_running(xmlrpc_env * const env, xm
     return xmlrpc_build_value(env, "b", response);
 }
 
+static xmlrpc_value * weblab_xmlrpc_get_api(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data) {
+    char * response;
+    if (env->fault_occurred)
+        return NULL;
+    response = API_VERSION;
+    return xmlrpc_build_value(env, "s", response);
+}
+
 
 /* Default implementations */
 
@@ -111,9 +119,10 @@ void launch(int port, struct ExperimentServer handlers){
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.test_me", &weblab_xmlrpc_test_me, NULL);
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.is_up_and_running", &weblab_xmlrpc_is_up_and_running, NULL);
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.start_experiment", &weblab_xmlrpc_start_experiment, NULL);
-    xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_command", &weblab_xmlrpc_send_command_to_device, NULL);
-    xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file", &weblab_xmlrpc_send_file_to_device, NULL);
+    xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_command_to_device", &weblab_xmlrpc_send_command_to_device, NULL);
+    xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file_to_device", &weblab_xmlrpc_send_file_to_device, NULL);
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.dispose", &weblab_xmlrpc_dispose, NULL);
+	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.get_api", &weblab_xmlrpc_get_api, NULL);
 
     serverparm.config_file_name = NULL;
     serverparm.registryP        = registryP;

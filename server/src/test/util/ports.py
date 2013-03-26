@@ -10,7 +10,8 @@ RESERVED_PORTS =   500 # for static files, etc.
 
 CURRENT_PORT = STARTING_PORT + RESERVED_PORTS
 
-def increase():
+def new():
+    global CURRENT_PORT
     port = CURRENT_PORT
-    CURRENT_PORT + 1
+    CURRENT_PORT += 1
     return port

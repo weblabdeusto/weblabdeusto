@@ -419,6 +419,9 @@ def populate_weblab_tests(engine, tests):
     rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date)
     session.add(rob_arm)
 
+    rob_maz = Model.DbExperiment("robot-maze", cat_robot, start_date, end_date)
+    session.add(rob_maz)
+
     rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
     session.add(rob_std)
 
@@ -882,7 +885,24 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_aquarium_allowed_p2)
     up_any_aquarium_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p3, "200")
     session.add(up_any_aquarium_allowed_p3)
- 
+
+    up_any_rob_maz_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::weblab-maz",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-maz"
+    )
+
+    session.add(up_any_rob_maz_allowed)
+    up_any_rob_maz_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p1, "robot-maze")
+    session.add(up_any_rob_maz_allowed_p1)
+    up_any_rob_maz_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p2, "Robot experiments")
+    session.add(up_any_rob_maz_allowed_p2)
+    up_any_rob_maz_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_rob_maz_allowed_p3)
+
+
     up_any_rob_robotarm_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,

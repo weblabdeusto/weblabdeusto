@@ -5,18 +5,16 @@
 This library can be used to easily implement new experiments using the C++
 programming language.
 
-Currently the library has been tested on Windows using Microsoft Visual C++
-2008 and Ubuntu GNU/Linux with GNU g++. Prebuilt binaries for this Microsoft
-Windows are included in the win32 folder, for both Debug and Release.
+Currently the library has been tested on Windows using Cygwin.
 
 Nonetheless, the library should compile on any standard C++ compiler, as long as
 the libraries it depends on are available (mainly xmlrpc-c, see below).
 
 
-*** USING THE LIBRARY ON WINDOWS VC++ 2008 ***
+*** USING THE LIBRARY ON WINDOWS WITH CYGWIN ***
 
-New experiments can be based on the cpp_microserver_dummy project (which can be
-found on the win32 folder).
+New experiments can be based on the dummy_experiment_server.cpp example.
+
 This experiment simply links to the library and declares a class which inherits
 from the abstract ExperimentServer, overriding the following events:
 
@@ -33,12 +31,33 @@ member functions above will be automatically called as requests are received.
 *** COMPILING & DEPENDENCIES ***
 
 This library depends on the xmlrpc-c library. Though theorethically you should
-be able to use any version of it, older versions don't seem to support windows
-properly. The prebuilt binaries are linked against the xmlrpc-c "advanced"
-version from their repository.
+be able to use any version of it, older versions may lead to some trouble.
 
 
 *** KNOWN BUGS ***
 
 Seems to crash under certain situations, especially if there are a high number
 of simultaneous connections to the server.
+
+
+
+*** STEP BY STEP GUIDE FOR CYGWIN ***
+
+1) Get the xmlrpc-c library and place it somewhere.
+
+2) Open cygwin. Previously, make sure that all necessary tools are installed. This includes GNU make and the g++ compiler.
+
+3) Go to the xmlrpc-c folder and make and install it in the usual way:
+	./configure
+	make
+	make install
+	
+4) Ensure that your LD_LIBRARY_PATH and LIBRARY_PATH environment variables are set properly. Particularly, they should point to /usr/local/lib, 
+   where the xmlrpc-c binaries will be placed. This will make it possible to link xmlrpc through the standard "g++ -lxmlrpc ..."
+   
+5) Build your experiment server, using the DummyExperimentServer as base.
+
+6) Use the provided makefile to build your experiment server, using:
+	make all
+	
+7) You will need cygwin1.dll to run the .exe.

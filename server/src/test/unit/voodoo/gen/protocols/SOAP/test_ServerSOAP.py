@@ -15,6 +15,7 @@
 import sys
 import unittest
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module
 from test.util.optional_modules import OptionalModuleTestCase
 import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
@@ -24,7 +25,7 @@ try:
 except ImportError:
     pass
 
-PORT = 12345
+PORT = new_port()
 
 class ServerSOAPTestCase(unittest.TestCase):
     if ServerSOAP.SOAPPY_AVAILABLE:

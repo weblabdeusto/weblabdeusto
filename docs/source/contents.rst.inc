@@ -27,7 +27,7 @@ Users
 -----
 
 This section is intended for people who is going to install the WebLab-Deusto
-system and connect existing laboratories. 
+system.
 
 .. toctree::
    :maxdepth: 2
@@ -35,12 +35,15 @@ system and connect existing laboratories.
    installation
    first_steps
    installation_next_steps
+   performance
+   directory_hierarchy
    authentication
    tools
+   configuration
 
 
-Remote laboratory development
------------------------------
+Remote laboratory development and management
+--------------------------------------------
 
 This section is intended for people who is going to create a new laboratory
 using the WebLab-Deusto tools.
@@ -49,6 +52,8 @@ using the WebLab-Deusto tools.
    :maxdepth: 2
 
    remote_lab_development
+   remote_lab_deployment
+   remote_lab_sharing
 
 External systems
 ----------------
@@ -78,3 +83,5 @@ Appendixes
 .. toctree::
 
    download_from_github
+   first_steps_cli
+   userguide_boole_weblab_es

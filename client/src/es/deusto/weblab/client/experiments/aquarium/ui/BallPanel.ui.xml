@@ -1,0 +1,17 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	
+	<ui:with field='res' type='es.deusto.weblab.client.experiments.aquarium.ui.Resources'/>
+	 
+	
+	<g:VerticalPanel width="100%" spacing="12" horizontalAlignment="CENTER">
+		<g:Label ui:field="ballName" visible="false"/>
+		<g:Image ui:field="ballImg" resource='{res.blue}'/>
+		<g:HorizontalPanel>
+			<g:Image ui:field="upButton" resource='{res.up}' styleName="wl-disabled-img-button"/>
+			<g:Image ui:field="downButton" resource='{res.down}' styleName="wl-disabled-img-button"/>
+		</g:HorizontalPanel>
+		<g:Button ui:field="takePictureButton" visible="false">Take picture</g:Button>
+	</g:VerticalPanel>
+</ui:UiBinder> 

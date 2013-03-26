@@ -19,6 +19,8 @@ import time as time_module
 
 import voodoo.log as log
 
+import weblab.configuration_doc as configuration_doc
+
 import weblab.data.server_type as ServerType
 import weblab.data.command as Command
 
@@ -100,11 +102,10 @@ class ReservationProcessor(object):
         try:
             status = self._coordinator.get_reservation_status( self._reservation_id )
         except coord_exc.ExpiredSessionError as e:
-            from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
             log.log(ReservationProcessor, log.level.Debug, "reason for rejecting:")
             log.log_exc(ReservationProcessor, log.level.Debug)
-            human   = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, "human universal identifier not provided")
-            core_id = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, "universal identifier not provided")
+            human   = self._cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
+            core_id = self._cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
             raise core_exc.NoCurrentReservationError("get_reservation_status at %s (%s) called but coordinator rejected reservation id (%s). Reason: %s" % (human, core_id, self._reservation_id, str(e)))
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:

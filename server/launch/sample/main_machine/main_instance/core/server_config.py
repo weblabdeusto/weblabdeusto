@@ -62,6 +62,7 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
             "exp1|robot-movement|Robot experiments"  : "robot@robot",
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
+            "exp1|robot-maze|Robot experiments"      : "robot-maze@robot-maze",
             "exp1|robotarm|Robot experiments"        : "robotarm@robotarm",
             "exp1|submarine|Submarine experiments"   : "submarine@submarine",
             "exp1|aquarium|Aquatic experiments"      : "submarine@submarine",
@@ -119,6 +120,7 @@ core_scheduling_systems = {
         "unr"         : ("PRIORITY_QUEUE", {}),
         "control"     : ("PRIORITY_QUEUE", {}),
         "incubator"   : ("PRIORITY_QUEUE", {}),
+        "robot-maze"  : ("PRIORITY_QUEUE", {}),
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
