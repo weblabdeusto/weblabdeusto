@@ -61,7 +61,7 @@ WebLab-Deusto uses a configuration hierarchy. This hiearchy is based on three ma
 * **Server**: refers to a functionality running in an *instance*.
 
 All the servers described in :ref:`technical_description` are *servers* using
-these categories. Each experiment server (e.g. a Robotics experiment) is a
+these categories. Each experiment server (e.g., a Robotics experiment) is a
 *server*.
 
 Now, *servers* can be grouped in a single *instance* (at operating system level,

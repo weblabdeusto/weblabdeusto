@@ -51,7 +51,7 @@ Therefore, managed laboratories count with the following advantages:
 
 * Experiment developer does not manage any type of **communications**. The client
   API has a method for submitting a command, which the WebLab-Deusto client will
-  propagate as securely as the system has been configured (e.g. supporting SSL)
+  propagate as securely as the system has been configured (e.g., supporting SSL)
   to the server, which once in the campus side, the server will submit the
   command to the particular equipment (regardless where it is deployed in the
   internal topology of the campus side network). All commands submitted through
@@ -113,7 +113,7 @@ Future
 ^^^^^^
 
 At the time of this writing (March 2013), we might create a new type of
-unmanaged laboratory based on web frameworks (e.g. ASP.NET, Flask, Django,
+unmanaged laboratory based on web frameworks (e.g., ASP.NET, Flask, Django,
 etc.). Contact us if you are interested on more information or if this would be
 a priority for you.
 
@@ -183,7 +183,7 @@ For this reason, in the case of the managed model, developers do not need to han
 * Scheduling (the core server manages it)
 * Communications (the libraries manage it)
 * User tracking (every command is stored in the database)
-* Complex deployments (e.g. load balancing: it is configured at WebLab-Deusto
+* Complex deployments (e.g., load balancing: it is configured at WebLab-Deusto
   level)
 
 
@@ -264,14 +264,37 @@ The package hierarchy is the following::
 The ``java`` package is the library itself, used by WebLab-Deusto. The
 ``es.deusto.weblab.javadummy`` package is just an example of a user interface
 built using this library. You may remove it and use your own package, even
-outside (e.g. ``edu.myuniversity.mylab``). However, you must include the
+outside (e.g., ``edu.myuniversity.mylab``). However, you must include the
 ``java`` package.
 
 The first step is to make a class which inherits from ``WebLabApplet`` (`view
 code
 <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/java/WebLabApplet.java>`_). In the
 example, this class is ``JavaDummyApplet`` (`view code <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/es/deusto/weblab/javadummy/JavaDummyApplet.java>`_). This new class is the one which will
-be instanciated by WebLab-Deusto.
+be instanciated by WebLab-Deusto. There are three methods that should be implemented in this class:
+
+
+.. code-block:: java
+
+    public void startInteraction() {
+        // When this method is called, student has access to 
+        // the remote equipment (he has been assigned). You
+        // can show a cool user interface for your remote 
+        // laboratory and call the sendCommand methods (later
+        // explained).
+    }
+
+    public void setTime(int time) {
+        // This method is called to inform you how many seconds
+        // the user will be using this laboratory. You should 
+        // print it somewhere and maintain a custom counter.
+    }
+
+    public void end() {
+        // When this method is called, the user has stated that
+        // he is not using the laboratory anymore, or the system
+        // has kicked him out (e.g., because his slot finished).
+    }   
 
 .. note::
    To be extended
@@ -350,7 +373,7 @@ interface is.
 
 The two important classes are ``ExperimentServer`` and ``Launcher``. The former
 is a class which defines all the optional methods which can be implemented by
-the experiment developer (e.g. a method for receiving commands). The latter is a
+the experiment developer (e.g., a method for receiving commands). The latter is a
 class that will start a XML-RPC server taking an instance of the class generated
 by the experiment developer.
 
@@ -480,14 +503,15 @@ Unmanaged laboratories
 Virtual machines
 ^^^^^^^^^^^^^^^^
 
-.. note::
+.. toctree::
+   :maxdepth: 2
 
-   To be written
+   deploying_vm_experiment
 
-Conclusions
------------
+Summary
+-------
 
-.. note::
-
-   To be written
+With this section, you have learnt to develop a new remote laboratory using
+WebLab-Deusto. Now it's time to deploy it, going to :ref:`the following section
+<remote_lab_deployment>`.
 

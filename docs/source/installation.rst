@@ -82,7 +82,7 @@ Run the following (don't take into account the particular versions, these are ju
 5. Install setuptools following `the instructions <http://pypi.python.org/pypi/setuptools#installation-instructions>`_. It should be as simple as downloading and executing a file.
 #. Once setuptools are installed, you can install ``pip``, ``virtualenv`` and ``virtualenvwrapper`` (``virtualenvwrapper-win`` in Microsoft Windows). 
 
-In Linux systems you can get them in the package repositories (e.g. in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running::
+In Linux systems you can get them in the package repositories (e.g., in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running::
 
   $ easy_install pip
 
@@ -161,7 +161,7 @@ Installing WebLab-Deusto
 
 Create a virtualenv. In UNIX systems::
 
-  user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g. /opt/weblabdeusto/ )
+  user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g., /opt/weblabdeusto/ )
 
   user@machine:/opt/weblabdeusto$ mkvirtualenv weblab
 
@@ -169,7 +169,7 @@ Create a virtualenv. In UNIX systems::
 
 In Microsoft Windows environments::
 
-  C:\> cd WHEREVER-IS-WEBLAB (e.g. C:\weblabdeusto\ )
+  C:\> cd WHEREVER-IS-WEBLAB (e.g., C:\weblabdeusto\ )
 
   C:\weblabdeusto> mkvirtualenv weblab
 

@@ -68,7 +68,7 @@ Use case
 This way, if a university (University A) wants to share their experiments with
 other university (University B) in a very simple way, students of University B
 can be registered as OpenID users. As long as the consumer university
-(University B) counts with an OpenID server (e.g. in Spain the `RedIRIS
+(University B) counts with an OpenID server (e.g., in Spain the `RedIRIS
 <http://www.rediris.es/>`_ `SIR <http://www.rediris.es/sir/>`_ 
 provides http://yo.rediris.es/soy/username@universitydomain as OpenID for those
 universities enroled), they can provide a list such as::
