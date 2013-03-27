@@ -230,9 +230,51 @@ JavaScript
 Java applets
 ............
 
-.. note::
+You can develop the client side using Java Applets. They will not work in
+tablets (iPad, Android) neither in mobile phones, and many web browsers nowadays
+do not support Java applets. For this reason, it is recommended to avoid it and
+rely on JavaScript or Google Web Toolkit (see below).
 
-   To be written (March 2013).
+However, if you are going to reuse code or you need to use Java Applets for
+other reasons, WebLab-Deusto supports it. If you go to
+`experiments/managed/libs/client
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/client/java>`_,
+you will find the Java applets source code. It is an `Eclipse
+<http://www.eclipse.org/>`_ project, so you should be able to import it if you
+are using this IDE. Otherwise, you can use `ant <http://ant.apache.org/>`_ to
+compile it, by running::
+
+   $ ant package
+
+The package hierarchy is the following::
+
+   + es.deusto.weblab.client.experiment.plugins
+     + es.deusto.weblab.javadummy
+       + commands
+         - PulseCommand
+       - JavaDummyApplet
+     + java
+       - WebLabApplet
+       - ICommandCallback
+       - ResponseCommand
+       - ConfigurationManager
+       - BoardController
+       - Command
+
+The ``java`` package is the library itself, used by WebLab-Deusto. The
+``es.deusto.weblab.javadummy`` package is just an example of a user interface
+built using this library. You may remove it and use your own package, even
+outside (e.g. ``edu.myuniversity.mylab``). However, you must include the
+``java`` package.
+
+The first step is to make a class which inherits from ``WebLabApplet`` (`view
+code
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/java/WebLabApplet.java>`_). In the
+example, this class is ``JavaDummyApplet`` (`view code <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/es/deusto/weblab/javadummy/JavaDummyApplet.java>`_). This new class is the one which will
+be instanciated by WebLab-Deusto.
+
+.. note::
+   To be extended
 
 Flash applets
 .............
