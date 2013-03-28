@@ -281,9 +281,71 @@ JavaScript
 
 Java applets
 ^^^^^^^^^^^^
-.. note::
 
-    To be written (March 2013).
+In the case of Java applets, the identifier is simply ``java``. However, so as
+to load a particular laboratory, some additional parameters must be configured,
+such as where is the JAR file, what class inside the JAR file must be loaded,
+and the size of the applet. An example of this configuration would be:
+
+.. code-block:: javascript
+
+  "java": [
+       {
+           "experiment.name": "javadummy",
+           "experiment.category": "Dummy experiments",
+
+           "jar.file": "WeblabJavaSample.jar",
+           "code"  : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+
+           "height": 350,
+           "width": 500,
+
+           "message": "This is a message displayed on top of the experiment client",
+           "experiment.picture": "/img/experiments/java.jpg",
+
+
+           "experiment.info.description": "description",
+           "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy"
+       }
+    ]
+
+Once again, let us assume that you have 2 laboratories developed in Java
+applets, one of physics and other of electronics. You may have the following:
+
+.. code-block:: javascript
+
+    "experiments" : {
+        "java": [
+            {
+               "experiment.name": "physics-1",
+               "experiment.category": "Physics experiments",
+
+               "jar.file": "PhysicsApplet.jar",
+               "code"  : "edu.example.physics.PhysicsApplet",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/physics.jpg"
+           },
+           {
+               "experiment.name": "electronics-1",
+               "experiment.category": "Electronics experiments",
+
+               "jar.file": "ElectronicsApplet.jar",
+               "code"  : "edu.example.physics.ElectronicsApplet",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/electronics.jpg"
+           }
+        ]
+    }
+
+Those JAR files should be located in the ``public`` directory (`see here
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
+which will require you to re-compile and re-run the ``setup`` script.
 
 Flash
 ^^^^^
