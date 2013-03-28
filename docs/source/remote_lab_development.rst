@@ -28,6 +28,13 @@ There are two major approaches for using WebLab-Deusto:
 
 Which are described below.
 
+.. note::
+
+    This section explains the provided APIs and tools for development. However,
+    you need to read :ref:`the following section <remote_lab_deployment>` to
+    register the new laboratory and use it. So you probably need to go from one
+    document to the other during the development cycle.
+
 Managed laboratories
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -90,7 +97,7 @@ The two clear examples of this are:
    SSH, VNC or Remote Desktop. WebLab-Deusto guarantees that the server will be
    executed.
 #. **LabVIEW Remote Panels**. They were developed but they caused too many problems.
-   If you are really interested, contact us and we can create more
+   If you are really interested, :ref:`contact us <contact>` and we can create more
    documentation on their support in WebLab-Deusto. But at this stage, it simply
    does not make too much sense. It is much better if you support :ref:`LabVIEW
    as managed <managed_library_server_labview>`.
@@ -114,7 +121,7 @@ Future
 
 At the time of this writing (March 2013), we might create a new type of
 unmanaged laboratory based on web frameworks (e.g., ASP.NET, Flask, Django,
-etc.). Contact us if you are interested on more information or if this would be
+etc.). :ref:`Contact us <contact>` if you are interested on more information or if this would be
 a priority for you.
 
 Managed laboratories
