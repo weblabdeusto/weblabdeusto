@@ -349,10 +349,72 @@ which will require you to re-compile and re-run the ``setup`` script.
 
 Flash
 ^^^^^
-.. note::
 
-    To be written (March 2013).
+In the case of Flash applications, the identifier is simply ``flash``. However, so as
+to load a particular laboratory, some additional parameters must be configured,
+such as where is the SWF file, the size of the application, or the maximum time
+that WebLab-Deusto will wait to check if the Flash applet has been connected
+-e.g., 20 seconds-, since sometimes the user uses a flash blocking application
+or a wrong version of Adobe Flash. An example of this configuration would be:
 
+.. code-block:: javascript
+
+    "flash": [
+        {
+            "experiment.name": "flashdummy",
+            "experiment.category": "Dummy experiments",
+
+            "flash.timeout": 20,
+            "swf.file": "WeblabFlashSample.swf",
+
+            "height": 350,
+            "width": 500,
+
+            "message": "This is a message that will be loaded before the applet",
+            "page.footer": "This message will be loaded under the flash applet",
+
+            "experiment.picture": "/img/experiments/flash.jpg",
+
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy"
+        }
+    ]
+
+Once again, let us assume that you have 2 laboratories developed in Flash
+applets, one of physics and other of electronics. You may have the following:
+
+.. code-block:: javascript
+
+    "experiments" : {
+        "flash": [
+            {
+               "experiment.name": "physics-1",
+               "experiment.category": "Physics experiments",
+
+               "swf.file": "PhysicsLab.swf",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/physics.jpg"
+           },
+           {
+               "experiment.name": "electronics-1",
+               "experiment.category": "Electronics experiments",
+
+               "swf.file": "ElectronicsLab.swf",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/electronics.jpg"
+           }
+        ]
+    }
+
+Those SWF files should be located in the ``public`` directory (`see here
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
+which will require you to re-compile and re-run the ``setup`` script.
 
 .. _remote_lab_deployment_deploy_experiment_server:
 
@@ -398,8 +460,6 @@ Registering the experiment server in a Laboratory server
 
     To be written (March 2013).
 
-    This covers the changes on the core and the laboratory server, as well as
-    the database.
 
 .. _remote_lab_deployment_register_scheduling:
 
@@ -409,9 +469,6 @@ Registering a scheduling system for the experiment
 .. note::
 
     To be written (March 2013).
-
-    This covers the changes on the core and the laboratory server, as well as
-    the database.
 
 
 .. _remote_lab_deployment_add_to_database:
@@ -423,9 +480,6 @@ Add the experiment server to the database
 
     To be written (March 2013).
 
-    This covers the changes on the core and the laboratory server, as well as
-    the database.
-
 .. _remote_lab_deployment_grant_permissions:
 
 Grant permissions on this experiment server
@@ -434,10 +488,6 @@ Grant permissions on this experiment server
 .. note::
 
     To be written (March 2013).
-
-    This covers the changes on the core and the laboratory server, as well as
-    the database.
-
 
 
 .. _remote_lab_deployment_troubleshooting:
