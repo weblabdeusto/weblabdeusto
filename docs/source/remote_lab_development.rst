@@ -270,8 +270,12 @@ outside (e.g., ``edu.myuniversity.mylab``). However, you must include the
 The first step is to make a class which inherits from ``WebLabApplet`` (`view
 code
 <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/java/WebLabApplet.java>`_). In the
-example, this class is ``JavaDummyApplet`` (`view code <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/es/deusto/weblab/javadummy/JavaDummyApplet.java>`_). This new class is the one which will
-be instanciated by WebLab-Deusto. There are three methods that should be implemented in this class:
+example, this class is ``JavaDummyApplet`` (`view code
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/es/deusto/weblab/javadummy/JavaDummyApplet.java>`_).
+This new class is the one which will be instanciated by WebLab-Deusto. It will
+be instanciated whenever the user selects the laboratory, before 
+reserving it. Then, there are three methods that should be implemented by this
+class:
 
 
 .. code-block:: java
@@ -296,8 +300,55 @@ be instanciated by WebLab-Deusto. There are three methods that should be impleme
         // has kicked him out (e.g., because his slot finished).
     }   
 
-.. note::
-   To be extended
+From this point, the client knows when the user interfaces should be loaded. So
+as to interact with the Experiment server, the ``WebLabApplet`` provides a
+method which gives access to the ``BoardController``. The ``BoardController``
+provides a set of methods for submitting commands.
+
+.. code-block:: java
+
+    // From the class which inherits from JavaDummyApplet:
+    MyCommandCallback callback = new MyCommandCallback();
+
+    // Send a message to the Experiment server, and provide a callback
+    // which will be called when the method comes back.
+    this.getBoardController().sendCommand("turn switch on", callback);
+    
+The callback itself can be defined as follows: 
+
+.. code-block:: java
+
+    // Somewhere else
+    public class MyCommandCallback inherits ICommandCallback {
+
+        public void onSuccess(ResponseCommand response) {
+            String responseText = response.getCommandString();
+            // Do something with the message returned from the
+            // Experiment server.
+        }
+
+        public void onFailure(String message) {
+            // Something failed in the server side or in the
+            // communications. Do something with the error.
+        }
+    }
+
+Additionally, the ``WebLabApplet`` class provides other methods, such as:
+
+.. code-block:: java
+
+    // Call this if you want to terminate the current session
+    this.getBoardController().onClean();
+
+    // Retrieve String properties from the configuration.js file
+    this.getConfigurationManager().getProperty("my.property", "default value");
+
+    // Retrieve int properties from the configuration.js file
+    this.getConfigurationManager().getIntProperty("my.property");
+
+From this point, you will need to register the client in the client
+configuration file. Find out how :ref:`in the following section
+<remote_lab_deployment>`.
 
 Flash applets
 .............
@@ -499,6 +550,9 @@ Tools
 
 Unmanaged laboratories
 ----------------------
+
+At this moment, we are only documenting the unmanaged laboratories with
+Virtual Machines.
 
 Virtual machines
 ^^^^^^^^^^^^^^^^
