@@ -277,7 +277,7 @@ outside (e.g., ``edu.myuniversity.mylab``). However, you must include the
 The first step is to make a class which inherits from ``WebLabApplet`` (`view
 code
 <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/java/WebLabApplet.java>`_). In the
-example, this class is ``JavaDummyApplet`` (`view code
+example, this class is ``JavaDummyApplet`` (`view applet code
 <https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/managed/libs/client/java/src/es/deusto/weblab/client/experiment/plugins/es/deusto/weblab/javadummy/JavaDummyApplet.java>`_).
 This new class is the one which will be instanciated by WebLab-Deusto. It will
 be instanciated whenever the user selects the laboratory, before 

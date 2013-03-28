@@ -15,6 +15,13 @@ have not covered how to use them in an existing deployment of WebLab-Deusto.
 This section covers this task. This way, here we will see how to register the
 already developed clients and servers.
 
+.. figure:: /_static/weblab_deployment.png
+   :align: center
+   :width: 600px
+
+   Steps to deploy a remote laboratory in WebLab-Deusto.
+
+
 This process is compounded of the following steps:
 
 #. :ref:`remote_lab_deployment_register_experiment_client`
@@ -245,7 +252,7 @@ must be registered in a global list.
 
 This list is located in the client code, in the class
 ``es.deusto.weblab.client.lab.experiments.EntryRegistry``. You may find the
-source code `here
+source code `in this directory
 <https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/lab/experiments/EntryRegistry.java>`_.
 On it, you can see that it basically collects instances of ``CreatorFactory``,
 which are classes that implement the interface ``IExperimentCreatorFactory``
@@ -425,12 +432,6 @@ Deploying the Experiment server
     To be written (March 2013).
 
 
-Introduction
-^^^^^^^^^^^^
-.. note::
-
-    To be written (March 2013).
-
 WebLab-Deusto Python server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. note::
@@ -456,10 +457,104 @@ Run::
 Registering the experiment server in a Laboratory server
 --------------------------------------------------------
 
+In the following figure, we have already finished steps 1 and 2, which are the
+most complex. The rest of the steps are independent of the technology used, and
+they are only focusing on registering the laboratory in the different layers. In
+this subsection, we're in the step 3: registering the server in the Laboratory
+server.
+
+.. figure:: /_static/weblab_deployment.png
+   :align: center
+   :width: 600px
+
+   We're in step 3.
+
+
+Each Experiment Server must be registered in a single Laboratory server. One
+Laboratory Server can manage multiple Experiment servers. So as to register a
+Experiment server, we have to go to the Laboratory server configuration file.
+When you create a WebLab-Deusto instance doing::
+
+   $ weblab-admin create sample
+
+This file is typically in ``core_machine`` -> ``laboratory1`` -> ``laboratory1``
+-> ``server_config.py``, and by default it contains the following:
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+        }
+
+This means that the current laboratory has one Experiment server assigned. The
+identifier of this Experiment server is ``exp1:dummy@Dummy experiments``, which
+means ``exp1`` of the Experiment ``dummy`` of the category ``Dummy
+experiments``. It is located in the server ``experiment1`` in the *instance*
+``laboratory1`` in the ``core_machine``. You can find in
+:ref:``<directory_hierarchy_multiple_servers>`` more elaborated examples.
+
+So as to add the new experiment, you must add a new entry in that dictionary.
+For example, if you have added two different laboratories of electronics, and in
+the previous step you have located them in the ``laboratory1`` instance in the
+``core_machine``, you should edit this file to add the following:
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+            'exp1:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+            'exp1:electronics-lesson-2@Electronics experiments' : {
+                    'coord_address' : 'electronics2:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+        }
+
+If you have used XML-RPC (i.e., any of the libraries which is not Python) and
+the experiment server is somewhere else outside the ``core_machine``, you only
+need to change the ``coord_address``. For example, if you created a new
+laboratory using Java, you will need to add something like:
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+            'exp1:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : ()
+                },
+        }
+
+One of the duties of the Laboratory server is to check frequently whether the
+Experiment server is alive or not. This may happen due to a set of reasons, such
+as:
+
+* The laboratory uses a camera which is broken
+* The connection failed
+* The Experiment server was not started or failed
+
+By default, every few seconds the system checks if the communication with the
+Experiment server works. If it is broken, it will notify the administrator (if
+the mailing variables are configured) and will remove it from the queue. If it
+comes back, it marks it as fixed again.
+
+However, you may customize the ``checkers`` that are applied.
+
 .. note::
 
-    To be written (March 2013).
-
+    Add documentation on checkers and related variables (e.g., "do not check
+    this laboratory").
 
 .. _remote_lab_deployment_register_scheduling:
 

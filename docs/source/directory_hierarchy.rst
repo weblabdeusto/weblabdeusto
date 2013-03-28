@@ -395,6 +395,8 @@ The ``core`` server will see that ``var1`` is "global", ``var2`` is "machine", `
 
 The full list of configuration variables are listed in :ref:`configuration_variables`.
 
+.. _directory_hierarchy_multiple_servers:
+
 Multiple core servers
 `````````````````````
 

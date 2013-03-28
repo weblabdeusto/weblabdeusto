@@ -11,7 +11,7 @@ Microsoft Windows
 Git is a source control system. It enables you to download the code, keep track of what you have changed (if you make any change), and you can easily download the latest code in the repository. 
 There are different visual and command line tools to use Git. Use the tool you're more familiar with. Here we are going to detail the most basic one, which is the standard system (command-line based).
 
-So as to download git for Microsoft Windows, go to the `official page <http://git-scm.com/download/win>`_. An installer will be downloaded. The installation process is straightforward: you just need to click on "Next" except for one point, which it says "Adjusting your PATH environment". In that step, select the second option ("Run Git from the Windows Command Prompt"):
+So as to download git for Microsoft Windows, go to the `git official page <http://git-scm.com/download/win>`_. An installer will be downloaded. The installation process is straightforward: you just need to click on "Next" except for one point, which it says "Adjusting your PATH environment". In that step, select the second option ("Run Git from the Windows Command Prompt"):
 
 .. image:: /_static/git-windows.jpg
    :width: 400 px
