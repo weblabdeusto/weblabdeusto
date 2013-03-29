@@ -283,7 +283,7 @@ JavaScript
 ^^^^^^^^^^
 .. note::
 
-    To be written (March 2013).
+    To be written (April 2013).
 
 Java applets
 ^^^^^^^^^^^^
@@ -426,30 +426,177 @@ which will require you to re-compile and re-run the ``setup`` script.
 
 Deploying the Experiment server
 -------------------------------
-.. note::
 
-    To be written (March 2013).
+As :ref:`previously explained <remote_lab_development>`, there are two major
+ways to develop a WebLab-Deusto Experiment server:
 
+#. Managed, which includes Experiment servers developed in Python, as well as
+   experiments developed in other platforms (e.g., Java, .NET, LabVIEW, C,
+   C++...)
+#. Unmanaged, which includes Virtual Machines. Internally, a particular Python
+   server is used to wrap the Virtual Machine.
+
+If the Experiment server was developed in Python, then it might use any of the
+protocols of WebLab-Deusto. This part is explained below in 
+:ref:`remote_lab_deployment_deploy_python_server`. However, if other platform
+was used (e.g., Java, .NET, C, C++), then the XML-RPC approach must be taken.
+This is explained below in :ref:`remote_lab_deployment_deploy_xmlrpc_server`.
+
+This section assumes that you have previously read the following two sections:
+
+* :ref:`directory_hierarchy`
+* :ref:`technical_description`
+
+.. _remote_lab_deployment_deploy_python_server:
 
 WebLab-Deusto Python server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. note::
 
     To be written (March 2013).
+
+.. _remote_lab_deployment_deploy_xmlrpc_server:
 
 Other servers (XML-RPC based)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. note::
 
-    To be written (March 2013).
+As explained in :ref:`directory_hierarchy`, WebLab-Deusto uses a directory
+hierarchy for configuring how the communications among different nodes is
+managed. In the case of experiments using XML-RPC, it is required to *lie the
+system*, by stating that there is an experiment server listening through XML-RPC
+in a particular port, with a particular configuration that will never be run.
 
+The easiest way to see an example of this configuration is running the following::
 
-Run::
+    weblab-admin create sample --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
 
-    weblab-admin create foo --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
+This will generate a particular configuration, with two *machines* at
+WebLab-Deusto level: one called ``core_machine``, and the other ``exp_machine``.
+So as to run the first one, you should run::
 
-    weblab-admin start foo -m core_machine
+    weblab-admin start sample -m core_machine
 
+You may also run::
+
+    weblab-admin start sample -m exp_machine
+
+In other console at the same time. That way, there would be a Python Experiment
+server listening on port ``10039``. However, this is not what we want here. What
+we want here is to be able to run other laboratories, such as a Java or .NET
+Experiment server. So if we don't execute this last command, and instead we run
+our Java (or .NET, C++, C...) application listening in that port, everything
+will work.
+
+For this reason, using the ``weblab-admin`` command with those arguments is the
+simplest way to get a laboratory running. If you only want to test the system
+with your new developed remote laboratory, you can simply use the
+``--xmlrpc-experiment`` flags and skip to the next section.
+
+However, the typical action is to use the :ref:`directory_hierarchy`
+documentation to establish at WebLab-Deusto level that there will be an
+Experiment server listening in a particular port.
+
+So, let's start from scratch. Let's imagine that we create other example, such
+as::
+
+    weblab-admin create sample --http-server-port=12345
+
+We want to add an external Experiment server. We will first create a new
+*machine*, by modifying ``sample/configuration.xml`` to look like this:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <machines
+            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="global_configuration.xsd" >
+
+        <machine>core_machine</machine>
+        <!-- Add a new machine exp_machine -->
+        <machine>exp_machine</machine>
+
+    </machines>
+
+We will create that directory (``exp_machine``), and we will add a new file inside called ``configuration.xml``:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <instances
+            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="machine_configuration.xsd" >
+
+        <instance>exp_instance</instance>
+
+    </instances>
+
+In this directory, we will create such a directory called ``exp_instance``, which will also have the following ``configuration.xml``:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <servers 
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="instance_configuration.xsd">
+
+        <user>weblab</user>
+
+        <server>experiment1</server>
+    </servers>
+
+On it, we will create that directory (``experiment1``), which will have a single file called ``configuration.xlm`` as follows:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+    >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::Experiment</type>
+        <methods>weblab.methods::Experiment</methods>
+
+        <implementation>experiments.dummy.DummyExperiment</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+            <protocol name="XMLRPC">
+                <coordinations>
+                    <coordination>
+                        <parameter name="address" value="127.0.0.1:10039@NETWORK" />
+                    </coordination>
+                </coordinations>
+                <creation>
+                    <parameter name="address" value="127.0.0.1"     />
+                    <parameter name="port"    value="10039" />
+                </creation>
+            </protocol>
+        </protocols>
+    </server>
+
+Note that the port number is repeated twice (one for creating the server, which
+we will never do, and the other for informing the rest of the WebLab-Deusto
+servers how to access the Experiment server).
+
+Doing this, the Experiment server will have been created. You only need to be
+sure that you start the Experiment server every time you start the WebLab-Deusto
+servers (preferibly, just before than just after).
+
+In the following sections, you will address the Experiment server as
+``experiment1:exp_instance@exp_machine``.
 
 .. _remote_lab_deployment_register_in_lab_server:
 
@@ -815,7 +962,8 @@ interface.
 Troubleshooting
 ---------------
 
-No point defined at this point. In case of errors, :ref:`contact us <contact>`.
+No point defined at the time of this writing. This will contain typical errors.
+In case of errors, please :ref:`contact us <contact>`.
 
 Summary
 -------
