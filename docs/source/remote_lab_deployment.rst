@@ -452,9 +452,86 @@ This section assumes that you have previously read the following two sections:
 WebLab-Deusto Python server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note::
+As explained in :ref:`directory_hierarchy`, WebLab-Deusto uses a directory
+hierarchy for configuring how the communications among different nodes is
+managed. In the case of WebLab-Deusto Python servers, you may run them inside
+the same process as the Laboratory server, being able to use the configuration
+subsystem and being easier to manage.
 
-    To be written (March 2013).
+So as to do this, let us assume that there is a simple system as the one created
+by::
+
+    weblab-admin create sample --http-server-port=12345
+
+And that the absolute path of your laboratory is
+``myexperiments.ElectronicsLab``. Then, you have to go to the directory
+``core_machine``, then to ``laboratory1``, and modify the ``configuration.xml``
+file to show the following:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <servers 
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="instance_configuration.xsd" >
+        <user>weblab</user>
+
+        <server>laboratory1</server>
+        <server>experiment1</server>
+        <!-- Just added: -->
+        <server>electronics1</server>
+    </servers>
+
+Then, create a directory called ``electronics1`` inside ``laboratory1``, and on
+it, create a ``configuration.xml`` file. The contents of the file should be the
+following:
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <server
+        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+    >
+
+        <configuration file="server_config.py" />
+
+        <type>weblab.data.server_type::Experiment</type>
+        <methods>weblab.methods::Experiment</methods>
+
+        <!-- Note that this is YOUR class -->
+        <implementation>myexperiments.ElectronicsLab</implementation>
+
+        <protocols>
+            <protocol name="Direct">
+                <coordinations>
+                    <coordination></coordination>
+                </coordinations>
+                <creation></creation>
+            </protocol>
+        </protocols>
+    </server>
+
+Finally, create a new file in the same directory called ``server_config.py``. On
+it, you can put the configuration variables of your Experiment server.
+
+From this point, the WebLab-Deusto address of your Experiment server is
+``electronics1:laboratory1@core_machine``.
+
+However, refer to :ref:`directory_hierarchy` for further details for more
+complex deployments.
+
+.. warning::
+
+    Avoid naming conflicts with your laboratory name. For instance,
+    ``myexperiments.ElectronicsLab`` relies on the fact that there is no other
+    ``myexperiments`` directory in the ``PYTHONPATH``. If you use other names,
+    such as ``experiments.ElectronicsLab`` (and you don't put the code in the
+    experiments/ directory of WebLab-Deusto and re-run the ``python setup.py
+    install`` script), or ``weblab.ElectronicsLab``, you will enter in naming
+    conflicts with existing modules.
 
 .. _remote_lab_deployment_deploy_xmlrpc_server:
 
@@ -962,8 +1039,16 @@ interface.
 Troubleshooting
 ---------------
 
-No point defined at the time of this writing. This will contain typical errors.
-In case of errors, please :ref:`contact us <contact>`.
+Take into account the following issues:
+
+* Everything in the client's *public* directory will not be available until you re-compile the client (``ant gwtc``) **AND** you re-install the codebase (``python setup.py install``).
+* Web browsers tend to cache information. If you have changed the configuration.js document and the changes are not shown, go manually to ``/weblab/client/weblabclientlab/configuration.js``, verify if it was updated, and if not refresh the page (e.g., using Control + F5).
+
+.. note::
+
+    More errors will be added in this section.
+
+In case of further errors, please :ref:`contact us <contact>`.
 
 Summary
 -------
