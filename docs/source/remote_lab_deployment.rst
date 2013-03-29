@@ -29,7 +29,6 @@ This process is compounded of the following steps:
 #. :ref:`remote_lab_deployment_register_in_lab_server`
 #. :ref:`remote_lab_deployment_register_scheduling`
 #. :ref:`remote_lab_deployment_add_to_database`
-#. :ref:`remote_lab_deployment_grant_permissions`
 
 After these steps, your laboratory should be working. If you have any trouble,
 check the :ref:`remote_lab_deployment_troubleshooting` section.
@@ -510,11 +509,13 @@ the previous step you have located them in the ``laboratory1`` instance in the
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
                     'coord_address' : 'electronics1:laboratory1@core_machine',
-                    'checkers' : ()
+                    'checkers' : (),
+                    'api'      : '2',
                 },
             'exp1:electronics-lesson-2@Electronics experiments' : {
                     'coord_address' : 'electronics2:laboratory1@core_machine',
-                    'checkers' : ()
+                    'checkers' : (),
+                    'api'      : '2',
                 },
         }
 
@@ -532,9 +533,14 @@ laboratory using Java, you will need to add something like:
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
                     'coord_address' : 'electronics1:exp_instance@exp_machine',
-                    'checkers' : ()
+                    'checkers' : (),
+                    'api'      : '2'
                 },
         }
+
+The ``api`` variable indicates that the API version is ``2``. If in the future
+we change the Experiment server API, the system will still call your Experiment
+server using the API available at this time.
 
 One of the duties of the Laboratory server is to check frequently whether the
 Experiment server is alive or not. This may happen due to a set of reasons, such
@@ -549,40 +555,259 @@ Experiment server works. If it is broken, it will notify the administrator (if
 the mailing variables are configured) and will remove it from the queue. If it
 comes back, it marks it as fixed again.
 
-However, you may customize the ``checkers`` that are applied.
+However, you may customize the ``checkers`` that are applied. The default
+checkers are defined in ``weblab.lab.status_handler`` (`code
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/lab/status_handler.py>`_).
+At the time of this writing, there are two:
 
-.. note::
+* ``HostIsUpAndRunningHandler``, which opens a TCP/IP connection to a particular
+  host and port. If the connection fails, it marks the experiment as broken.
+* ``WebcamIsUpAndRunningHandler``, which downloads an image from a URL and
+  checks that the image is a JPEG or PNG.
 
-    Add documentation on checkers and related variables (e.g., "do not check
-    this laboratory").
+So as to use them, you have to add them to the ``checkers`` variable in the
+Laboratory server configuration. For example, if you have a FPGA laboratory with
+a camera and a microcontroller that does something, you may have the following:
+
+.. code-block:: python
+
+    'exp1:ud-fpga@FPGA experiments' : {
+        'coord_address' : 'fpga:process1@box_fpga1',
+        'checkers' : (
+                        ('WebcamIsUpAndRunningHandler', ("https://www.weblab.deusto.es/webcam/proxied.py/fpga1",)),
+                        ('HostIsUpAndRunningHandler', ("192.168.0.70", 10532)),
+                    ),
+        'api'      : '2',
+    },
+
+In this case, the system will check from time to time that URL to find out an
+image, and will connect to that port in that IP address, as well as the default
+checking (calling a method in the Experiment server to see that it is running).
+
+You can develop your own checkers in Python, inheriting the
+``AbstractLightweightIsUpAndRunningHandler`` class and adding the class to the
+global ``HANDLERS`` variable of that module.
+
+Additionally, if you have laboratories that you don't want to check, you may use
+the following variable in the Laboratory server. It will simply skip this.
+
+.. code-block:: python
+
+    laboratory_exclude_checking = [
+        'exp1:electronics@Electronics experiments',
+        'exp1:physics@Physics experiments',
+    ]
+
 
 .. _remote_lab_deployment_register_scheduling:
 
 Registering a scheduling system for the experiment
 --------------------------------------------------
 
-.. note::
+Now we move to the Core server. The Core server manages, among other features,
+the scheduling of the experiments. At the moment of this writing, there are
+different scheduling options (federation, iLabs compatibility, and priority
+queues). We do not support booking using a calendar at this moment.
 
-    To be written (March 2013).
+All the configuration of the Core server related to scheduling is by default in
+the ``core_machine/machine_config.py`` file. It is placed there so if you have 4
+Core servers in different instances (:ref:`which is highly recommended
+<performance>`), you have the configuration in a single location. In this file,
+you will find information about the database, the scheduling backend, etc.
 
+The most important information for registering a remote laboratory is the following:
+
+.. code-block:: python
+
+    core_scheduling_systems = {
+            'dummy'            : ('PRIORITY_QUEUE', {}),
+            'robot_external'   : weblabdeusto_federation_demo,
+    }
+
+Here, it is defined the different schedulers available for each remote
+laboratory *type*. WebLab-Deusto supports load balancing, so it assumes that
+you may have multiple copies of a remote laboratory. In that sense, we will
+say that one *experiment type* might have multiple *experiment instances*.
+This variable (``core_scheduling_systems``) defines which scheduling system
+applies to a particular *experiment type*. Say that you have one of two copies
+of a experiment identified by ``electronics`` (of category ``Electronics
+experiments``). Then you will add a single *experiment type* to this variable:
+
+.. code-block:: python
+
+    core_scheduling_systems = {
+            'dummy'            : ('PRIORITY_QUEUE', {}),
+            'robot_external'   : weblabdeusto_federation_demo,
+            'electronics'      : ('PRIORITY_QUEUE', {}),
+    }
+
+However, we still have to map the different experiment instances to this
+experiment type. So as to do this, you will see that there is another variable
+in the Core server which by default it has: 
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+                'exp1|dummy|Dummy experiments' : 'dummy1@dummy',
+            },
+    }
+
+This variable defines which Laboratory servers are associated, which
+*experiment instances* are associated to each of them, and how they are related
+to the scheduling system. For instance, with this default value, it is stating
+that there is a Laboratory server located at ``core_machine``, then in
+``laboratory1`` and then in ``laboratory1``. This Laboratory server manages a
+single experiment server, identified by ``exp1`` of the experiment type
+``dummy`` of category ``Dummy experiments``. This *experiment instance*
+represents a slot called ``dummy1`` of the scheduler identified by ``dummy``.
+
+So, when a user attempts to use an experiment of type ``dummy`` (category
+``Dummy experiments``), the system is going to look for how many are available.
+It will see that there is only one slot (``dummy1``) in the queue (``dummy1``)
+that is of that type. So if it is available, it will call that Laboratory server
+asking for ``exp1`` of that *experiment type*.
+
+Therefore, if you have added a single Experiment server of electronics to the
+existing Laboratory server, you can safely add:
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
+            },
+    }
+
+And if you have two copies of the same type of laboratory, you can add:
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
+                'exp2|electronics|Electronics experiments' : 'electronics2@electronics',
+            },
+    }
+
+This means that if two students come it asking for an ``electronics``
+laboratory, one will go to one of the copies and the other to the other. The
+process is random. A third user would wait for one of these two students to
+leave.
+
+If you have two different experiments (one of electronics and one of physics), then you should add:
+
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
+                'exp1|physics|Physics experiments'         : 'physics1@physics',
+            },
+    }
+
+This system is quite flexible. For instance, it becomes possible to have more
+than one Experiment server associated to the same physical equipment. For
+example, in WebLab-Deusto we have the CPLDs and the FPGAs, with one Experiment
+server that allows users to submit their own programs. However, we also have
+other Experiment servers called ``demo``, which are publicly available and
+anyone can use them. These Experiment servers do not allow users to submit their
+own program, though: they use their own default program for demonstration
+purposes. Additionally, we have two CPLDs, so the load of users is balanced
+between these two copies, and a single FPGA. The configuration is the following:
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+
+                # Normal experiments:
+                'exp1|ud-pld|PLD experiments'    : 'pld1@pld',
+                'exp2|ud-pld|PLD experiments'    : 'pld2@pld',
+                'exp1|ud-fpga|FPGA experiments'  : 'fpga1@fpga',
+
+                # Demo experiments: note that the scheduling side is the same
+                # so they are using the same physical equipment.
+                'exp1|ud-demo-pld|PLD experiments' : 'pld1@pld',
+                'exp2|ud-demo-pld|PLD experiments' : 'pld2@pld',
+                'exp1|ud-demo-fpga|FPGA experiments' : 'fpga1@fpga',
+            },
+    }
+
+In this case, if three students reserve ``ud-pld@PLD experiments``, two of them
+will go to the two copies, but the third one will be in the queue. If somebody
+reserves a ``ud-demo-pld@PLD experiments``, he will also be in the queue, even
+if the laboratory and the code that he will execute is different. The reason is
+that it is using the same exact device, so it makes sense decoupling the
+scheduling subsystem of the experiment servers and clients.
 
 .. _remote_lab_deployment_add_to_database:
 
-Add the experiment server to the database
------------------------------------------
+Add the experiment server to the database and grant permissions
+---------------------------------------------------------------
 
-.. note::
+At this point, we have the Experiment server running, the Experiment client
+configured, the Laboratory has registered the Experiment server and the Core
+server has registered that this experiment has an associated scheduling scheme
+(queue) and knows in which Laboratory server it is located.
 
-    To be written (March 2013).
+Now we need to make it accessible for the users. The first thing is to register
+the remote laboratory in the database. Go to the administrator panel by clicking
+on the top right corner the following icon:
 
-.. _remote_lab_deployment_grant_permissions:
+.. image:: /_static/click_on_admin_panel.png
+   :width: 300 px
+   :align: center
 
-Grant permissions on this experiment server
--------------------------------------------
 
-.. note::
+You will see this:
 
-    To be written (March 2013).
+.. image:: /_static/weblab_admin.jpg
+   :width: 650 px
+   :align: center
+
+On it, go to ``Experiments``, then on ``Categories``, and then on ``Create``.
+You will be able to add a new category (if it did not exist), such as
+``Electronics experiments``, and click on Submit:
+
+.. image:: /_static/add_experiment_category.png
+   :width: 450 px
+   :align: center
+
+
+Then, go back to ``Experiments``, then ``Experiments``, and then on ``Create``.
+You will be able to add a new experiment, such as ``electronics``, using the
+category just created. The Start and End dates refer to the usage data. At this
+moment, no more action is taken on these data, but you should define since when
+the experiment is available and until when:
+
+.. image:: /_static/add_new_experiment.png
+   :width: 450 px
+   :align: center
+
+
+At this moment, the laboratory has been added to the database. Now you can
+guarantee the permissions on users. So as to do this, click on ``Permissions``,
+``Create``. Select that you want to grant permission to a Group, of permission
+type ``experiment_allowed``.
+
+.. image:: /_static/weblab_admin_grant_permission1.jpg
+   :width: 450 px
+   :align: center
+
+And then you will be able to grant permissions on the developed laboratory to a
+particular group (such as Administrators):
+
+.. image:: /_static/weblab_admin_grant_permission_on_electronics.jpg
+   :width: 450 px
+   :align: center
+
+From this point, you will be able to register this experiment from the main user
+interface.
 
 
 .. _remote_lab_deployment_troubleshooting:
@@ -595,7 +820,21 @@ No point defined at this point. In case of errors, :ref:`contact us <contact>`.
 Summary
 -------
 
-.. note::
+WebLab-Deusto requires five actions to add a new experiment, explained in this
+section and on this figure:
 
-    To be written (March 2013).
+.. figure:: /_static/weblab_deployment.png
+   :align: center
+   :width: 600px
+
+   Steps to deploy a remote laboratory in WebLab-Deusto.
+
+These five actions are registering the new client by modifying the
+``configuration.js`` file, deploying the new server, modifying the
+configuration of the Laboratory server and the Core server and adding the
+experiment to the database using the Admin panel.
+
+After doing this, you may start sharing your laboratories with other
+WebLab-Deusto deployments, as stated in the :ref:`following section
+<remote_lab_sharing>`.
 
