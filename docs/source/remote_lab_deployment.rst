@@ -904,7 +904,10 @@ existing Laboratory server, you can safely add:
             },
     }
 
-And if you have two copies of the same type of laboratory, you can add:
+Load balancing
+^^^^^^^^^^^^^^
+
+If you have two copies of the same type of laboratory, you can add:
 
 .. code-block:: python
 
@@ -933,6 +936,10 @@ If you have two different experiments (one of electronics and one of physics), t
                 'exp1|physics|Physics experiments'         : 'physics1@physics',
             },
     }
+
+Sharing resources among laboratories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 This system is quite flexible. For instance, it becomes possible to have more
 than one Experiment server associated to the same physical equipment. For
@@ -968,6 +975,120 @@ reserves a ``ud-demo-pld@PLD experiments``, he will also be in the queue, even
 if the laboratory and the code that he will execute is different. The reason is
 that it is using the same exact device, so it makes sense decoupling the
 scheduling subsystem of the experiment servers and clients.
+
+.. _remote_lab_deployment_concurrency:
+
+Concurrency
+^^^^^^^^^^^
+
+Finally, one feature of this system is that it enables that you provide more
+than one time slot to a single resource. For example, you may establish at Core
+server that there are 10 different ``copies`` of the laboratory, even if there
+is a single one:
+
+.. code-block:: python
+
+    core_coordinator_laboratory_servers = {
+        'laboratory1:laboratory1@core_machine' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
+                'exp2|electronics|Electronics experiments' : 'electronics2@electronics',
+                'exp3|electronics|Electronics experiments' : 'electronics3@electronics',
+                'exp4|electronics|Electronics experiments' : 'electronics4@electronics',
+                'exp5|electronics|Electronics experiments' : 'electronics5@electronics',
+            },
+    }
+
+Then, in the Laboratory server you must create those registries, but they can
+point to the same laboratory:
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+            'exp1:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2'
+                },
+            'exp2:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2'
+                },
+            'exp3:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2'
+                },
+            'exp4:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2'
+                },
+            'exp5:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2'
+                },
+        }
+
+This way, five students will be able to enter to the laboratory at the same
+time, and they will be able to interact each other. The main problem is that by
+default, the API does not support knowing which student is submitting each
+request, since the methods are essentially something like::
+
+    String sendCommand(String command);
+
+However, there is other API, called the Concurrent API, not supported at the
+moment by most of the libraries but yes by the Python experiments, which
+supports this. It which basically adds a ``lab_session_id`` string to the
+beginning of each parameter. That way, the method for sending commands, for
+instance, is as follows::
+
+    String sendCommand(String labSessionId, String command);
+
+Using this, the Experiment developer can identify who is accessing in the
+laboratory and reply different messages to each user. So as to configure this,
+the Laboratory server must use the following: 
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'checkers' : ()
+                },
+            'exp1:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2_concurrent'
+                },
+            'exp2:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2_concurrent'
+                },
+            'exp3:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2_concurrent'
+                },
+            'exp4:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2_concurrent'
+                },
+            'exp5:electronics-lesson-1@Electronics experiments' : {
+                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'checkers' : (),
+                    'api'      : '2_concurrent'
+                },
+        }
+
 
 .. _remote_lab_deployment_add_to_database:
 

@@ -798,12 +798,183 @@ All the libraries can be found in the repository, in the
 directory.
 
 
+Server APIs
+...........
+
+Before starting, there is a concept of API version or level for the Experiment
+server API. Basically, we started with a very simple API which contained the
+following methods::
+
+    void startExperiment();
+    void dispose();
+    String sendCommand(String);
+    String sendFile(String content, String fileInfo);
+
+Changing this API breaks compatibility with existing laboratories. For this
+reason, we implemented a method called ``get_api``, which returns the current
+API. And at the moment of this writing, there are 3 APIs:
+
+* ``1``, which is the one presented above.
+* ``2``, which is the one used in the majority of our laboratories, but not in
+  all the libraries at this moment.
+* ``2_concurrent``, which right now is only provided in Python, while it should
+  be easy to change the underlying XML-RPC services in each library to support
+  it.
+
+The Laboratory server can define which is the API of a laboratory. If it is not
+stated by the Laboratory server, the system attempts to request the API version.
+If it fails to provide it, it will assume that it is version ``1`` (where there
+was no such concept, and therefore, no explicit method detailing it). From that
+point, it will know which version the Experiment server is running and it will
+call the methods in one way or other (e.g., providing arguments to the
+startExperiment or not, using more methods, etc.).
+
+
 WebLab-Deusto server (Python)
 .............................
 
-.. note::
+In the case of Python, no external library is required, other than WebLab-Deusto
+itself. A dummy example would be the following:
 
-   To be written (April 2013).
+.. code-block:: python
+
+    import json
+
+    from weblab.experiment.experiment import Experiment
+    import weblab.experiment.level as ExperimentApiLevel
+
+    class DummyExperiment(Experiment):
+        
+        def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+            super(DummyExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+            
+            # Keep an instance of the configuration manager
+            self._cfg_manager = cfg_manager
+
+            # Retrieve a configuration variable from the configuration file:
+            self._cfg_manager.get_value("property_name", "default_value") 
+
+        def do_start_experiment(self, client_initial_data, server_initial_data):
+            """A new student is granted access to the laboratory (scheduled,
+            authenticated, etc.)"""
+
+            # Data provided by the client
+            print "Client initial data:", json.loads(client_initial_data)
+            # Data provided by the server (username, time slot...)
+            print "Server initial data:", json.loads(server_initial_data)
+
+            # Default response
+            return "{}"
+
+            # If you want to provide some initial data (URLs to cameras or so)
+            # return json.dumps({ "initial_configuration" : "this will be batch", "batch" : False })
+
+            # In case of batch laboratories, use the following:
+            # return json.dumps({ "initial_configuration" : "this will be batch", "batch" : True })
+
+        def do_get_api(self):
+            # The current Laboratory API is the version 2. Whenever we add new
+            # methods or change the API, it will not affect you if you are
+            # stating that the API that the rest of the system must use with
+            # this experiment is v2.
+            return ExperimentApiLevel.level_2 
+
+        def do_dispose(self):
+            """ The user exited (or the time slot finished). Clean resources. """
+
+            print "User left"
+
+            return "{}"
+
+        def do_send_file_to_device(self, file_content, file_info):
+            """ A file, encoded in BASE64, has been sent. Do something with it """
+
+            return "A response that the client will receive"
+
+        def do_send_command_to_device(self, command):
+            """ A command has been submitted. Do something with it and reply. """
+
+            print "Command received:", command
+
+            return "Got your command"
+
+        def do_should_finish(self):
+            """
+            Should the experiment finish? If the experiment server should be able to
+            say "I've finished", it will be asked every few time; if the experiment
+            is completely interactive (so it's up to the user and the permissions of
+            the user to say when the session should finish), it will never be asked.
+
+            Therefore, this method will return a numeric result, being:
+              - result > 0: it hasn't finished but ask within result seconds.
+              - result == 0: completely interactive, don't ask again
+              - result < 0: it has finished.
+            """
+            return 0
+
+
+.. ** (to avoid problems with highlighting in Python)
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>`.
+
+However, it is worth mentioning that there is other API called the concurrent
+API, which enables that the Experiment server manages multiple concurrent users
+at the same time. For example, imagine that you want that a fixed number (e.g.,
+10) students talk each other while using the laboratory. You can change this in
+the deployment, as it is later explained in
+:ref:`remote_lab_deployment_concurrency`. But then, you would not be able to
+differentiate who is accessing, or send different messages to each student. For
+this reason, the concurrent API provides a unique identifier (which is a random
+number, and is not maintained across sessions) called ``session_id``. This
+``session_id`` is passed through all the methods, as seen below:
+
+.. code-block:: python
+
+    from weblab.experiment.concurrent_experiment import ConcurrentExperiment
+    import weblab.experiment.level as ExperimentApiLevel
+
+    class DummyConcurrentExperiment(ConcurrentExperiment):
+        
+        def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+            super(DummyConcurrentExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+            
+            # Keep an instance of the configuration manager
+            self._cfg_manager = cfg_manager
+
+            # Retrieve a configuration variable from the configuration file:
+            self._cfg_manager.get_value("property_name", "default_value") 
+
+        def do_start_experiment(self, session_id, client_initial_data, server_initial_data):
+            # Store in a local dictionary that there is a new user defined as
+            # session_id
+
+            return "{}"
+
+        def do_get_api(self):
+            return ExperimentApiLevel.level_2_concurrent
+
+        def do_dispose(self, session_id):
+            # Remove that particular user from the active users
+            return "{}"
+
+        def do_send_file_to_device(self, session_id, file_content, file_info):
+            # That user (identified by session_id) is sending a file
+
+            return "A response that the client will receive"
+
+        def do_send_command_to_device(self, session_id, command):
+            # That user (identified by session_id) is sending a command
+
+            print "Command received:", command
+
+            return "Got your command"
+
+        def do_should_finish(self, session_id):
+            # Should that user be kicked out?
+            return 0
+
+.. ** (to avoid problems with highlighting in vim)
 
 
 Java
