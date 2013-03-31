@@ -353,11 +353,14 @@ You will see this:
    :width: 650 px
    :align: center
 
-There, go to ``General`` -> ``Users`` -> ``Create``.
+There, go to ``General`` -> ``Users`` -> ``Create``, and add a user using the
+Role ``federated``, and providing a password (click on "Add Auths" and select
+``DB``):
 
-.. warning::
+.. image:: /_static/weblab_admin_add_federated_user.png
+   :width: 650 px
+   :align: center
 
-    To be written
 
 .. _remote_lab_sharing_consumer_grant_permissions:
 
@@ -368,11 +371,20 @@ Still in the administration panel, click on ``Permissions``,
 ``Create``. Select that you want to grant permission to a User instead of a
 group, of permission type ``experiment_allowed``.
 
-.. image:: /_static/weblab_admin_grant_permission1.jpg
+.. image:: /_static/weblab_admin_permission_on_user.png
    :width: 450 px
    :align: center
 
-.. warning::
+Then, select the laboratory you wish to grant access to, select the user, and
+select the rest of the arguments. 
 
-    To be written
+.. image:: /_static/weblab_admin_grant_to_unia.png
+   :width: 450 px
+   :align: center
 
+You may for instance establish that you allow 3600 seconds (1 hour) to the
+laboratory, but then  the consumer side system may establish that one particular
+group will only have permission to use it for 10 minutes. However, the opposite
+is not possible, since even if the consumer system establishes that they can use
+it for one hour, when the consumer system contacts the provider system, it will
+define that they only have permissions for 10 minutes.

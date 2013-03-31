@@ -11,6 +11,7 @@ consume laboratories provided by the other university.
    :width: 500 px
    :align: center
 
+.. contents:: Table of Contents
 
 See it in action
 ----------------
