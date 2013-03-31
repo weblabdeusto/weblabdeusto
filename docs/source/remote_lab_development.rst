@@ -4,7 +4,7 @@ Remote laboratory development
 =============================
 
 .. note::
-    **This section is being written at this time (March 2013)**
+    **This section is being written at this time (April 2013)**
 
 .. contents:: Table of Contents
 
@@ -218,7 +218,7 @@ Google Web Toolkit
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 JavaScript
@@ -226,7 +226,7 @@ JavaScript
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 Java applets
@@ -357,7 +357,7 @@ Flash applets
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 .. _managed_libraries_server:
 
@@ -391,7 +391,7 @@ WebLab-Deusto server (Python)
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 Java
@@ -497,7 +497,7 @@ This is explained in :ref:`this section <remote_lab_deployment>`.
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 C
@@ -505,7 +505,7 @@ C
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 C++
@@ -513,7 +513,7 @@ C++
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 Node.js
@@ -521,7 +521,7 @@ Node.js
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 .. _managed_library_server_labview:
@@ -531,14 +531,14 @@ LabVIEW
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 Python
 ......
 
 .. note::
 
-   To be written (March 2013).
+   To be written (April 2013).
 
 
 

@@ -1030,7 +1030,7 @@ particular group (such as Administrators):
    :width: 450 px
    :align: center
 
-From this point, you will be able to register this experiment from the main user
+From this point, you will be able to use this experiment from the main user
 interface.
 
 
