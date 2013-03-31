@@ -216,10 +216,310 @@ In the following sections describe how to use each of the provided APIs.
 Google Web Toolkit
 ..................
 
-.. note::
+`Google Web Toolkit (GWT) <http://developers.google.com/web-toolkit/>`_ is the
+technology used by all the remote labs developed by the WebLab-Deusto team. You
+are encouraged to use it, while we support the other options.
 
-   To be written (April 2013).
+**Why GWT?**
 
+
+In GWT, you write code in Java using Eclipse, and it generates optimized
+JavaScript code. For instance, it generates the whole application for each of
+the supported web browsers (implementing the high level features in different
+ways for each one), and translated to each supported language. Therefore, when
+you access the web application, you only download the code dependent of your
+language and web browser.
+
+The platform is mature and very advanced, providing the following features:
+
+* The `provided widgets
+  <http://gwt.googleusercontent.com/samples/Showcase/Showcase.html#!CwCheckBox>`_
+  are natively supported in many web browsers.
+
+* It does not wrap *too much:* you can still call native code and export
+  functionalities to pure JavaScript using `JSNI
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideCodingBasicsJSNI>`_.
+  You can even provide alternatives to widgets, and when compiling the system it
+  will use different code for each web browser. For example, in WebLab-Deusto,
+  the camera component is different in `Chrome/Safari
+  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcamSafariBased.java>`_,
+  in `Firefox
+  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcamFirefox.java>`_
+  or `other web browsers
+  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcam.java>`_,
+  by simply `defining it in the XML file
+  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/WebLabClient.gwt.xml#L30>`_.
+
+* It supports writing the user interface directly with code, with `a custom XML
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideUiBinder>`_, or
+  even with the `GWT Designer
+  <https://developers.google.com/web-toolkit/tools/gwtdesigner/userinterface/design_view>`_
+  (a visual tool).
+
+* It enables you to easily define how to `split the application
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideCodeSplitting>`_.
+  For instance, when you enter in the application, you will download the desktop
+  version (and not the mobile version), and no laboratory by default. When you
+  click on a laboratory, then you download the client code of that laboratory.
+  And with the proper caching configuration in the web server, you will only
+  download this once (kept in the cache during the rest of the accesses). Then,
+  you will only download the response of the requests, which are commonly small
+  JSON objects. This is very suitable for mobile environments.
+
+* It enables you to `embed the images directly in the JavaScript code
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideUiImageBundles>`_,
+  therefore avoiding HTTP connections and loading from cache in a faster way.
+
+* The development cycle is fast: with the development mode in Eclipse, you
+  refresh the web page and automatically you are using it without compiling the
+  whole thing.
+
+* Localizing the `application is very simple
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n>`_. See it
+  `in WebLab-Deusto
+  <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/client/i18n>`_.
+
+* You program in Java with Eclipse as a regular application. Your tests are in
+  `JUnit
+  <https://developers.google.com/web-toolkit/doc/latest/DevGuideTesting>`_.
+
+The WebLab-Deusto server is entirely developed in Python. We therefore not use
+those communication components or server side stuff of GWT. We use plain HTTP to
+communicate all the client requests to the server. So we basically compile all
+the application into JavaScript and load it.
+
+.. warning::
+
+    When running it with the development, the communication is being
+    proxied by a server component which takes the requests and sends them to
+    ``http://localhost/weblab/``. Note that this will not work if you were using a
+    custom WebLab-Deusto deployment and you are not using Apache or you are using
+    other path.
+
+You have plenty of information in `the official website
+<https://developers.google.com/web-toolkit/doc/latest/DevGuide>`, so you are
+encouraged to learn there some basics before developing the laboratory.
+
+**How to develop the lab**
+
+The source code is in ``client/src``. The main package is
+``es.deusto.weblab.client``, and inside this, all the laboatories are in the
+``experiments`` package (`see here
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/client/experiments>`_).
+You can check any, but the binary one is one of the simplest ones. As you `can
+see there
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/binary/BinaryCreatorFactory.java>`_,
+you have to create a class which inherits from ``IExperimentCreatorFactory``.
+We'll go to this one later. Then you see a package called ``ui``. It contains
+both the class inheriting from ``ExperimentBase`` and the different user
+interfaces.
+
+First, let's see the class inheriting from ``ExperimentBase``. In this case, it
+is called ``BinaryExperiment``. The `ExperimentBase
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/lab/experiments/ExperimentBase.java>`_
+class is the one from which all the remote laboratories inherit. It contains
+many methods, most of them optinally implemented by the experiment class. The
+methods are the following:
+
+.. code-block:: java
+
+    /**
+     * User selected this experiment. It can start showing the UI. It can 
+     * load the VM used (Adobe Flash, Java VM, Silverlight/Moonlight, etc.), 
+     * or define requirements of the (i.e. require 2 files, etc.). It should
+     * also show options to gather information that will be sent to the 
+     * initialization method of the experiment server, that later will be 
+     * retrieved through the {@link #getInitialData()} method. 
+     */
+    public void initialize(){}
+
+    /**
+     * A user, who performed the reservation outside the regular client (in
+     * a LMS or a federated environment) is going to start using this 
+     * experiment. Basically it is like the {@link #initialize()} method, 
+     * except for that it should be very fast, and take into account that no
+     * configuration can be provided (since the reservation has already been 
+     * done). 
+     */
+    public void initializeReserved(){
+        initialize();
+    }
+
+    /**
+     * Retrieves information sent to the experiment when reserving the 
+     * experiment. It might have been collected in the UI of the 
+     * {@link #initialize()} method.
+     */
+    public JSONValue getInitialData(){
+        return null;
+    }
+
+    /**
+     * User is in a queue. Thetype filter text typical behavior will be to hide the UI shown
+     * in the {@link #initialize()} method. 
+     */
+    public void queued(){}
+
+    /**
+     * User grabs the control of the experiment (in the server side, the 
+     * experiment is already reserved for the user).
+     * 
+     * @param time Seconds remaining. This time is the maximum permission time.
+     * @param initialConfiguration Data sent by the experiment server in the 
+     * initialization method.
+     */
+    public void start(int time, String initialConfiguration){}
+
+    /**
+     * User experiment session finished. The experiment should clean 
+     * its resources, or notify the user that it has finished. It may still
+     * wait for the {@link #postEnd(String)} method to be called so as to
+     * receive the information sent by the experiment when disposing 
+     * resources.
+     */
+    public void end(){}
+
+.. /* (this is to avoid highlight problems in vim)
+
+Therefore, it is up to the Experiment client to do something when these methods
+are called. Most typically, developers will implement the ``start`` method and
+the ``end`` method. Additionally, all the classes inheriting from
+``ExperimentBase`` also inherit the following attributes:
+
+.. code-block:: java
+
+    protected final IBoardBaseController boardController;
+    protected final IConfigurationRetriever configurationRetriever;
+    protected static final IWebLabI18N i18n = GWT.create(IWebLabI18N.class);
+
+The first one allows developers to interact with the Experiment Server, as
+`documented here
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/lab/experiments/IBoardBaseController.java>`_, but the most relevant are the following:
+
+.. code-block:: java
+
+    ////////////////////////////////////
+    // 
+    // General information
+    //
+
+    /**
+     * Is the user accessing through facebook?
+     */
+    public boolean isFacebook();
+
+    /**
+     * What is the session id of the user? It is useful when using other type of communications, such
+     * as iframes in the LabVIEW experiment.
+     */
+    public SessionID getSessionId();
+
+    ////////////////////////////////////
+    // 
+    // Sending commands
+    //
+
+    /**
+     * Send a string command, don't care about the result
+     */
+    public void sendCommand(String command);
+    
+    /**
+     * Send a string command, notify me with the result
+     */
+    public void sendCommand(String command, IResponseCommandCallback callback);
+
+
+    ////////////////////////////////////
+    // 
+    // Cleaning
+    // 
+
+    /**
+     * Clean the experiment widgets and move to the list of experiments
+     */
+    public void clean();
+
+    /**
+     * Finish the experiment.
+     */
+    public void finish();
+
+
+.. /* (this is to avoid highlight problems in vim)
+
+So basically, what you do when implementing an experiment is to inherit from
+``ExperimentBase``, override the ``start`` method to be notified when the
+laboratory has been assigned, and then start showing the user interface and
+interacting with the server through commands. In the ``end`` method, you usually
+clean up the remaining resources (e.g., stop camera streams, cancel timers,
+etc.).
+
+However, there are some common operations, such as putting a panel in the
+screen, or cleaning up the resources. For this reason, there is a utility class
+which inherits from ``ExperimentBase`` called
+`UIExperimentBase
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/lab/experiments/UIExperimentBase.java>`_,
+which provides the following extra operations:
+
+.. code-block:: java
+
+    protected void putWidget(Widget widget);
+
+    protected void addDisposableWidgets(IWlDisposableWidget widget);
+
+So you don't need to implement the ``end`` method, and simply use these methods
+to add the resources to be cleaned. In the binary experiment, you can see that
+``BinaryExperiment`` (`see code
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/binary/ui/BinaryExperiment.java>`_)
+inherits from this class. In that class, you may see that it simply calls to the
+``putWidget`` method, providing the `panels implemented in that laboratory
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/binary/ui/>`_.
+For instance, you can see the `user interface in XML
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/binary/ui/InteractivePanel.ui.xml>`_,
+and the `attached Java code
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/binary/ui/InteractivePanel.java>`_
+which manages the event handlers and calls the ``sendCommand`` method in the
+``processSwitch`` method to interact with the laboratory.
+
+Finally, going back to the class which inherits from
+``IExperimentCreatorFactory``, it will have two methods, and you can copy and
+paste code as most of them are very similar:
+
+#. ``getCodeName``, which returns a unique code for that laboratory, and will
+   later be used in the deployment.
+#. ``createExperimentCreator``, which creates an ``ExperimentCreator`` class
+   where you define the support in mobile phones (so later in mobile phones the
+   user interface will show a different color), and where internally it will
+   create the user interface. Note that it uses ``GWT.runAsync`` to define that
+   this code will not be compiled in the same JavaScript and it will be loaded
+   only once the user has clicked on this laboratory. The ``ExperimentCreator``
+   has other method called ``createMobile``, used if you want to pass an
+   alternative user interface for mobile devices, as done in the `logic
+   laboratory
+   <https://github.com/weblabdeusto/weblabdeusto/blob/master/client/src/es/deusto/weblab/client/experiments/logic/LogicCreatorFactory.java>`_.
+
+.. code-block:: java
+
+            @Override
+            public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
+                GWT.runAsync(new RunAsyncCallback() {
+                    @Override
+                    public void onSuccess() {
+                        callback.onExperimentLoaded(new BinaryExperiment(
+                                configurationRetriever,
+                                boardController
+                            ));
+                    }
+
+                    @Override
+                    public void onFailure(Throwable e){
+                        callback.onFailure(e);
+                    }
+                });
+            }
+
+So as to test all this code, you will need to read the next section (:ref:`remote_lab_deployment`).
 
 JavaScript
 ..........
@@ -355,9 +655,121 @@ configuration file. Find out how :ref:`in the following section
 Flash applets
 .............
 
-.. note::
+We provide a .fla project in ``experiments/managed/libs/client/flash`` to see a
+simple sample of !WebLab accessed from Adobe Flash, as well as a .as file with
+all the glue code that the experiment developer might use. You can see it `in
+github
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/client/flash>`_.
 
-   To be written (April 2013).
+In order to create a new experiment using ``WeblabFlash``,
+``weblab.util.WeblabFlash`` must be imported.
+
+Done this, it is possible to access the singleton instance of ``WeblabFlash``
+through its static method ``getInstance()``.
+
+.. code-block:: actionscript
+
+        //! Retrieves a reference to the only instance of WeblabFlash.
+        //!
+        public static function getInstance() : WeblabFlash {
+            // ...
+        }
+
+
+After getting a reference to this instance the programmer should register the
+weblab callbacks. This is done through the registerCallbacks method. The
+callback functions to call whenever events take place are passed to
+registerCallbacks as parameters. If being notified of a certain event is not
+required, it is possible to pass null for it instead. Events are, in order:
+``onSetTime``, ``onStartInteraction``, ``onEnd``, ``onSecondEllapsed``. This
+last one is null by default and hence may not be passed at all.
+
+.. code-block:: actionscript
+
+    //! Registers the JS callbacks setTime, startInteraction and end, so that
+    //! the appropiate user-specified delegate is automatically called when appropiate.
+    //! Optionally registers a seconds timer.
+    //!
+    //! @param setTime Function called to set the time.
+    //! @param startInteraction Function called to start interacting with the user.
+    //! @param end Function called when the experiment ends.
+    //! @param onSecondEllapsed Function called every second.
+    public function registerCallbacks(setTime : Function, startInteraction : Function, end : Function, onSecondEllapsed : Function = null) : void{
+       //...
+    }
+
+Anyway, the developer can ask for the state at any moment. An experiment may be found in one of three different states:
+
+* ``WeblabFlash.STATE_WAITING``: When weblab is yet to call startInteraction.
+* ``WeblabFlash.STATE_INTERACTING``: When startInteraction has been called and therefore the experiment has started, and is not done yet.
+* ``WeblabFlash.STATE_FINISHED``: When weblab has called ``onEnd()`` or when ``onClean()`` has been called locally.
+
+Current state may be obtained through the getcurrentState() method.
+
+The method sendCommand is used to send commands to the server. It takes a string with the command as first parameter plus two callback functions. First of those will be called in case the command succeeds and the other one in case it fails. Both callbacks are passed a message string when called.
+
+.. code-block:: actionscript
+
+        //! Sends a command to the server. Its response will be received asynchroneously through
+        //! two alternative callbacks.
+        //!
+        //! @param command_str The command string.
+        //! @param onSuccess Function to call if the command succeeds. Should take the response string
+        //! as a parameter.
+        //! @param onError Function to call if the command fails. Should take the response string
+        //! as a paramter.
+        public function sendCommand(command_str : String, onSuccess : Function, onError : Function) {
+           //...
+        }
+
+The time of an experiment is limited. ``WeblabFlash`` internally keeps a timer. This timer is
+initialized to the value passed by weblab through its ``setTime()`` call and
+starts decreasing once interaction starts. When zero is reached, ``onClean()``
+is automatically called and the experiment is considered to be finished.
+``onClean()`` may also be called explicitally before the timer reaches zero.
+Moreover, weblab may call ``onEnd()`` at any time to finish the experiment.
+Whenever this happens, the programmer is responsible to clean all resources in
+use (such as timers).
+
+In order to retrieve the global configuration values, stored in the
+configuration.xml file in the client side, the developer may call these methods:
+
+.. code-block:: actionscript
+
+        //! Retrieves a property as a string.
+        //!
+        //! @param prop The name of the property.
+        //! @param def The default value to return if the property is not found.
+        public function getPropertyDef( prop : String, def : String):String {
+            // ...
+        }
+
+        //! Retrieves a property as a string.
+        //!
+        //! @param prop The name of the property.
+        public function getProperty( prop : String ):String {
+            // ...
+        }
+
+        //! Retrieves an integer property.
+        //!
+        //! @param prop The name of the property.
+        //! @param def The default value to return if the property is not found.
+        public function getIntPropertyDef( prop : String, def : int ):int {
+            // ...
+        }
+
+        //! Retrieves an integer property.
+        //!
+        //! @param prop The name of the property.
+        public function getIntProperty( prop : String ):int {
+            // ...
+        }
+
+From this point, you will need to register the client in the client
+configuration file. Find out how :ref:`in the following section
+<remote_lab_deployment>`.
+
 
 .. _managed_libraries_server:
 
