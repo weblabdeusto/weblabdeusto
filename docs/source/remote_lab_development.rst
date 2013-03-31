@@ -957,9 +957,14 @@ Python
 Tools
 ^^^^^
 
-.. note::
+The :ref:`Experiment Server Tester <experiment_server_tester>` helps you in the
+process of writing the server code, by being able to test it easily with a
+graphic tool, and even create your own scripts to verify that it works as
+expected. Refer to that documentation for using it.
 
-   To be written
+.. image:: /_static/screenshots/weblab_experiment_server_tester.png
+   :width: 700 px
+   :align: center
 
 
 Unmanaged laboratories
