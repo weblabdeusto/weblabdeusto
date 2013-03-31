@@ -162,7 +162,7 @@ class Tester(object):
 if __name__ == '__main__':
     URL = "http://www.weblab.deusto.es/weblab/"
     USERNAME = "tester"
-    PASSWORD = "t3st3r6"
+    PASSWORD = "tester"
     EXECUTIONS = 20
     tester = Tester(URL, USERNAME, PASSWORD, EXECUTIONS)
     result = tester.run()

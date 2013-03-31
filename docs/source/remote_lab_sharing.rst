@@ -1,9 +1,25 @@
 .. _remote_lab_sharing:
 
-Remote laboratory sharing
-=========================
-
 .. note::
 
     **TO BE WRITTEN**
+
+
+Remote laboratory sharing
+=========================
+
+Introduction
+------------
+
+
+Consuming other remote laboratories
+-----------------------------------
+
+
+Sharing your remote laboratories
+--------------------------------
+
+Summary
+-------
+
 
