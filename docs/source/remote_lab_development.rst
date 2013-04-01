@@ -1119,9 +1119,54 @@ LabVIEW
 Python
 ......
 
-.. note::
+The Python library can be found in the `experiments/managed/libs/server/python
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/python>`_.
+It does not rely on any external library, since Python comes with an XML-RPC
+server included. You will find two modules:
 
-   To be written (April 2013).
+* ``weblab_server.py``, which includes the ``ExperimentServer`` and the
+  ``Launcher``.
+* ``sample.py``, which includes an example of how to use the
+  ``ExperimentServer`` code, and how to run it with the ``Launcher``.
+
+Basically, you have to create a class which inherits from ``ExperimentServer``
+and implements a subset of the following methods (none of these are required 
+since they are already implemented in the parent class):
+
+.. code-block:: python
+
+    from weblab_server import ExperimentServer, Launcher
+
+    class DummyExperimentServer(ExperimentServer):
+
+        def start_experiment(self, client_initial_data, server_initial_data):
+            print "start_experiment", client_initial_data, server_initial_data
+            return "{}"
+
+        def get_api(self):
+            return "2"
+
+        def send_file(self, content, file_info):
+            print "send_file", file_info
+            return "ok"
+
+        def send_command(self, command_string):
+            print "send_command", command_string
+            return "ok"
+
+        def dispose(self):
+            print "dispose"
+            return "{}"
+
+        def should_finish(self):
+            return 0
+
+Then, you only need to create a Launcher with a port, and start it:
+
+.. code-block:: python
+
+    launcher = Launcher(12345, DummyExperimentServer())
+    launcher.start()
 
 
 
