@@ -15,6 +15,7 @@
 #define __WEBLABSERVER_HPP
 
 #include <string>
+#include <utility>
 
 #include <xmlrpc-c/base.h>
 #include <xmlrpc-c/server.h>
@@ -33,7 +34,8 @@ public:
 	virtual std::string onSendFile(std::string const & encoded_file, std::string const & fileinfo) = 0;
 	virtual std::string onSendCommand(std::string const & command) = 0;
 	virtual std::string onDispose() = 0;
-	virtual bool onIsUpAndRunning();
+	virtual std::pair<int, std::string> onIsUpAndRunning();
+	virtual int onShouldFinish();
 
 	void launch(unsigned short port, std::string const & log_file = "");
 	
@@ -45,6 +47,7 @@ private:
 
 	static xmlrpc_value * c_xmlrpc_test_me(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_is_up_and_running(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
+	static xmlrpc_value * c_xmlrpc_should_finish(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_start_experiment(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_send_file(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);
 	static xmlrpc_value * c_xmlrpc_send_command(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data);

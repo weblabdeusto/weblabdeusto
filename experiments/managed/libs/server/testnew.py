@@ -42,6 +42,9 @@ try:
     
     print "send_file('loooong file', 'info')... -> ",
     print conn.Util.send_file_to_device(base64.encodestring("looooong file"), 'info')
+	
+    print "should_finish()... -> ",
+    print conn.Util.should_finish()
     
     print "dispose()... -> ",
     print conn.Util.dispose()
