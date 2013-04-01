@@ -675,6 +675,26 @@ servers (preferibly, just before than just after).
 In the following sections, you will address the Experiment server as
 ``experiment1:exp_instance@exp_machine``.
 
+.. warning::
+
+    When this is specified:
+
+    .. code-block:: xml
+
+        <parameter name="address" value="127.0.0.1:10039@NETWORK" />
+
+    Then, WebLab-Deusto will attempt to perform XML-RPC requests to
+    ``http://127.0.0.1:10039/``.
+
+    However, certain libraries (such as the one of .NET) does not support this
+    scheme, and it requires that WebLab-Deusto calls
+    ``http://127.0.0.1:10039/weblab``. For this reason, in .NET and LabVIEW, you
+    need to configure the system using:
+
+    .. code-block:: xml
+
+        <parameter name="address" value="127.0.0.1:10039/weblab@NETWORK" />
+
 .. _remote_lab_deployment_register_in_lab_server:
 
 Registering the experiment server in a Laboratory server
