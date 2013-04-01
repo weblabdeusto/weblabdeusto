@@ -16,7 +16,7 @@
 
 import json
 import argparse
-from WebLabDeustoExperimentServer import ExperimentServer, Launcher
+from weblab_server import ExperimentServer, Launcher
 
 
 class DummyExperimentServer(ExperimentServer):
