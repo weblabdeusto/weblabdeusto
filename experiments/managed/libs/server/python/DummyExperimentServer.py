@@ -11,33 +11,44 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+#         Pablo Orduña <pablo@ordunya.com>
 #
 
+import json
+import argparse
 from WebLabDeustoExperimentServer import ExperimentServer, Launcher
 
 
 class DummyExperimentServer(ExperimentServer):
     
-    def start_experiment(self):
-        print "start_experiment"
-        return "ok"
+    def start_experiment(self, client_initial_data, server_initial_data):
+        print "start_experiment", client_initial_data, server_initial_data
+        return "{}"
+
+    def get_api(self):
+        return "2"
         
     def send_file(self, content, file_info):
-        print "send_file"
+        print "send_file", file_info
         return "ok"
         
     def send_command(self, command_string):
-        print "send_command"
+        print "send_command", command_string
         return "ok"
     
     def dispose(self):
         print "dispose"
-        return "ok"
-    
-    # Optional:
-    def is_up_and_running(self):
-        return False
-        
+        return "{}"
 
-launcher = Launcher(12345, DummyExperimentServer())
-launcher.start()
+    def should_finish(self):
+        return 0
+    
+        
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser() 
+    parser.add_argument("-p", "--port", type=int, default=12345,
+                        help="port to listen")
+    args = parser.parse_args()
+
+    launcher = Launcher(args.port, DummyExperimentServer())
+    launcher.start()

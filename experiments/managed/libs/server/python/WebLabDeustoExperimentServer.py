@@ -43,8 +43,8 @@ class ExperimentServer(object):
     def is_up_and_running(self):
         return True
     
-    def start_experiment(self):
-        return "ok"
+    def start_experiment(self, client_initial_data, server_initial_data):
+        return "{}"
 
     def send_file(self, content, file_info):
         return "ok"
@@ -53,8 +53,17 @@ class ExperimentServer(object):
         return "ok"
 
     def dispose(self):
-        return "ok"
+        return "{}"
+
+    def should_finish(self):
+        return 0
+
+    def get_api(self):
+        return "2"
     
+
+class WebLabHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
+    rpc_paths = '/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/','/weblab','/weblab/'
     
 class Launcher(object):
     
@@ -64,12 +73,14 @@ class Launcher(object):
         self.experiment_server = experiment_server
 
     def start(self):
-        self.server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", self.port))
+        self.server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", self.port), WebLabHandler)
         self.server.register_function(self.experiment_server.test_me, "Util.test_me")
         self.server.register_function(self.experiment_server.is_up_and_running, "Util.is_up_and_running")
         self.server.register_function(self.experiment_server.start_experiment, "Util.start_experiment")
         self.server.register_function(self.experiment_server.send_file, "Util.send_file_to_device")
         self.server.register_function(self.experiment_server.send_command, "Util.send_command_to_device")
         self.server.register_function(self.experiment_server.dispose, "Util.dispose")
+        self.server.register_function(self.experiment_server.get_api, "Util.get_api")
+        self.server.register_function(self.experiment_server.should_finish, "Util.should_finish")
         print "Running XML-RPC server on port %i" % self.port
         self.server.serve_forever()
