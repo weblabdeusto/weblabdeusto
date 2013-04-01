@@ -49,7 +49,7 @@ using different numbers of processes (1 and 5) with different database backends
    :align: center
 
    The red line represents the maximum value, the blue line the minimum value,
-   and the green line the mean and the standard deviation. Each measurement (e.g.
+   and the green line the mean and the standard deviation. Each measurement (e.g.,
    140 students with the MySQL db) have been taken 5 times.
 
 
@@ -60,7 +60,7 @@ requires you compiling the code as explained in the section
 :ref:`native_libraries`. The native one works faster than the pure Python
 version.
 
-However, the biggest change is when you increase the number of processes (e.g.
+However, the biggest change is when you increase the number of processes (e.g.,
 ``5 core servers``). This is something you can not do if you are using SQLite,
 but yes with MySQL. For this reason, you will get an error when you run::
 
@@ -96,7 +96,7 @@ considerably faster. In older machines, this difference is even multiplied.
    :align: center
 
    The red line represents the maximum value, the blue line the minimum value,
-   and the green line the mean and the standard deviation. Each measurement (e.g.
+   and the green line the mean and the standard deviation. Each measurement (e.g.,
    140 students with the MySQL db) have been taken 5 times.
 
 For this reason, using Redis is recommended. However, Redis is not officially
@@ -159,7 +159,7 @@ process, and ``Redis`` (left) and ``SQLite`` (right) for scheduling.
    :align: center
 
    The red line represents the maximum value, the blue line the minimum value,
-   and the green line the mean and the standard deviation. Each measurement (e.g.
+   and the green line the mean and the standard deviation. Each measurement (e.g.,
    140 students with the MySQL db) have been taken 5 times. Note that each row
    has a different scale.
 

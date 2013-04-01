@@ -98,6 +98,11 @@ using the web application, :ref:`refer to the equivalent section using CLI tools
 Using the *admin* user, you'll see the settings button in the top-right corner. 
 Click on it:
 
+.. image:: /_static/click_on_admin_panel.png                           
+   :width: 300 px      
+   :align: center 
+
+And you will see this:
 
 .. image:: /_static/weblab_admin.jpg
    :width: 650 px

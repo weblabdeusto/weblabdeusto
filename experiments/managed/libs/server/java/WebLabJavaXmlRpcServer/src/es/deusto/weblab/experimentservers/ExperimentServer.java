@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import es.deusto.weblab.experimentservers.exceptions.ExperimentServerInstantiationException;
+import es.deusto.weblab.experimentservers.exceptions.WebLabException;
 
 public abstract class ExperimentServer implements IExperimentServer {
 
@@ -35,6 +36,27 @@ public abstract class ExperimentServer implements IExperimentServer {
 			}
 		}
 	}
+
+	public String startExperiment(String clientInitialData, String serverInitialData) throws WebLabException {
+		return "ok";
+	}
+	
+	public int shouldFinish() {
+		return 0;
+	}
+	
+	public String sendFile(File file, String fileInfo) throws WebLabException {
+		return "sendFile not implemented in Java Experiment server";
+	}
+	
+	public String sendCommand(String command) throws WebLabException {
+		return "sendCommand not implemented in Java Experiment server";
+	}
+	
+	public String dispose() {
+		return "ok";
+	}
+
 	
 	public boolean isDebugging(){
 		return this.debugging;

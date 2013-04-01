@@ -11,6 +11,7 @@ consume laboratories provided by the other university.
    :width: 500 px
    :align: center
 
+.. contents:: Table of Contents
 
 See it in action
 ----------------
@@ -65,6 +66,7 @@ Examples
 Other WebLab-Deusto deployments:
 
 * `UNED <http://www.uned.es/>`_: http://weblab.ieec.uned.es/
+* `Slovenská technická univerzita <http://www.kirp.chtf.stuba.sk/>`_: http://kirp50.chtf.stuba.sk/
 * `Colegio Urdaneta (secondary school) <http://www.colegiourdaneta.com>`_: http://weblab.colegiourdaneta.com/
 * `Unidades Tecnologicas de Santander <http://www.uts.edu.co/>`_: http://www.weblab.deusto.es/utsantander/
 

@@ -61,7 +61,7 @@ WebLab-Deusto uses a configuration hierarchy. This hiearchy is based on three ma
 * **Server**: refers to a functionality running in an *instance*.
 
 All the servers described in :ref:`technical_description` are *servers* using
-these categories. Each experiment server (e.g. a Robotics experiment) is a
+these categories. Each experiment server (e.g., a Robotics experiment) is a
 *server*.
 
 Now, *servers* can be grouped in a single *instance* (at operating system level,
@@ -394,6 +394,8 @@ If one variable is duplicated in more than one level, it will always be override
 The ``core`` server will see that ``var1`` is "global", ``var2`` is "machine", ``var3`` is "instance" and ``var4`` is "server".
 
 The full list of configuration variables are listed in :ref:`configuration_variables`.
+
+.. _directory_hierarchy_multiple_servers:
 
 Multiple core servers
 `````````````````````
