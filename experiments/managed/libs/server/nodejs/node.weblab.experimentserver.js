@@ -26,7 +26,7 @@ function launch( port, exp_server ) {
 	
 	// Lists the supported methods
 	var methods = {'Util.test_me' : exp_server.test_me, 'Util.is_up_and_running' : exp_server.is_up_and_running, 'Util.start_experiment' : exp_server.start_experiment, 
-		'Util.send_file_to_device' : exp_server.send_file, 'Util.send_command_to_device' : exp_server.send_command, 'Util.dispose' : exp_server.dispose};
+		'Util.send_file_to_device' : exp_server.send_file, 'Util.send_command_to_device' : exp_server.send_command, 'Util.dispose' : exp_server.dispose, 'Util.should_finish' : exp_server.should_finish};
 	
 	// Handle methods not found
 	server.on('NotFound', 
@@ -75,8 +75,19 @@ DefaultExperimentServer = new function() {
 		return message;
 	}
 	
+    // Is the experiment up and running?
+    // The scheduling system will ensure that the experiment will not be
+    // assigned to other student while this method is called. The result
+    // is an array of integer + String, where the first argument is:
+    //   - result >= 0: "the experiment is OK; please check again
+    //                 within $result seconds"
+    //   - result == 0: the experiment is OK and I can't perform a proper
+    //                 estimation
+    //   - result == -1: "the experiment is broken"
+    // And the second (String) argument is the message detailing while
+    // it failed.
 	this.is_up_and_running = function() {
-		return True;
+		return [600, ""];
 	}
 	
 	this.start_experiment = function(client_initial_data, server_initial_data) {
@@ -93,6 +104,14 @@ DefaultExperimentServer = new function() {
 	
 	this.send_command = function (command_string) {
 		return "ok";
+	}
+	
+	// Returns a numeric result, defined as follows:
+    // result > 0: it hasn't finished but ask within result seconds.
+    // result == 0: completely interactive, don't ask again
+    // result < 0: it has finished.
+	this.should_finish = function() {
+		return 0;
 	}
 	
 	this.dispose = function () {
