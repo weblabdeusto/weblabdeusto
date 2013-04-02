@@ -20,14 +20,16 @@
 
 #define API_VERSION "2"
 
-int default_is_up_and_running();
+int default_is_up_and_running(char * out_msg);
+int default_should_finish();
 
 struct ExperimentServer{
     char * (* start_experiment)();
     char * (* send_file)(char * encoded_file, char * fileinfo);
     char * (* send_command)(char * command);
     char * (* dispose)();
-    int    (* is_up_and_running)();
+    int    (* is_up_and_running)(char * out_msg);
+	int    (* should_finish)();
 };
 
 void launch(int port, struct ExperimentServer handlers);
