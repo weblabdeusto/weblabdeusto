@@ -152,6 +152,12 @@ class TaskManager(threading.Thread):
                 settings[Creation.DB_USER]        = app.config['DB_USERNAME']
                 settings[Creation.DB_PASSWD]      = app.config['DB_PASSWORD']
 
+                databases_per_port = app.config['REDIS_DBS_PER_PORT']
+                initial_redis_port = app.config['REDIS_START_PORT']
+
+                settings[Creation.COORD_REDIS_DB]   = entity.id % databases_per_port
+                settings[Creation.COORD_REDIS_PORT] = initial_redis_port + entity.id / databases_per_port
+
                 settings[Creation.ADMIN_USER]     = task['admin_user']
                 settings[Creation.ADMIN_NAME]     = task['admin_name']
                 settings[Creation.ADMIN_PASSWORD] = task['admin_password']
