@@ -14,6 +14,13 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+try:
+    from PIL import Image
+except ImportError:
+    PIL_AVAILABLE = False
+else:
+    PIL_AVAILABLE = True
+
 import os
 import getpass
 import signal
@@ -445,6 +452,31 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
     metadata.create_all(engine)
     if verbose: print >> stdout, "[done]"
     return engine
+
+def resize_image(image_path, max_width, max_height, final_path):
+    img = Image.open(image_path)
+
+    width, height = img.size
+    
+    # Example, (max_width = 200) / (width = 400) = 0.5 (height must be half)
+    wpercent   = max_width / float(width)
+    # 0.5 * 400 = 200 px is the new height
+    new_height = wpercent * height
+    
+    # If 200 > 200
+    if new_height > max_height:
+        # Then invert height and width
+        new_height = max_height
+        new_width  = width  * (max_height / float(height))
+    else:
+        # Otherwise, the new_width is half what it was
+        new_width  = max_width
+
+    new_size = int(new_width), int(new_height)
+
+    img = img.resize( new_size, Image.ANTIALIAS)
+    img.save(final_path)
+
 
 def _build_parser():
     parser = OptionParser(usage="%prog create DIR [options]")
@@ -2491,11 +2523,24 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     creation_results[CreationResult.IMG_FILE]        = logo_path
     creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
 
-    # TODO: try to convert to manage sizes
-    logo_contents = open(original_logo_path, 'rb').read()
-    logo_mobile_contents = logo_contents
-    open(logo_path, 'wb').write(logo_contents)
-    open(logo_mobile_path, 'wb').write(logo_mobile_contents)
+    if PIL_AVAILABLE:
+        try:
+            resize_image(original_logo_path, 250, 120, logo_path)
+            resize_image(original_logo_path, 100,  50, logo_mobile_path)
+        except Exception as e:
+            print >> stderr, "Error resizing images (%s). Original images will be used." % e
+            processed = False
+        else:
+            processed = True
+    else:
+        processed = False
+        print >> stderr, "PIL (pip install pillow) not installed. Not resizing images."
+
+    if not processed:
+        logo_contents = open(original_logo_path, 'rb').read()
+        logo_mobile_contents = logo_contents
+        open(logo_path, 'wb').write(logo_contents)
+        open(logo_mobile_path, 'wb').write(logo_mobile_contents)
 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False

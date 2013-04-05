@@ -1,3 +1,9 @@
+#
+# Pillow (a PIL fork compatible with setuptools) is used to resize 
+# the logo image if necessary, when using weblab-admin create.
+# 
+pillow
+
 # 
 # ZSI is used to provide the SOAP interface for other applications. It is only required
 # if you are going to use SOAP as a client.
