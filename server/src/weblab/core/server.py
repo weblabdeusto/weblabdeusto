@@ -86,11 +86,6 @@ WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION  = "core_coordination_impl"
 
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
-WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER               = "core_universal_identifier"
-DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER       = "00000000-0000-0000-0000-000000000000"
-WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN         = "core_universal_identifier_human"
-DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN = "WARNING; MISCONFIGURED SERVER. ADD %s AND %s PROPERTIES" % (WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
-
 def load_user_processor(func):
     @wraps(func)
     def wrapper(self, session, *args, **kwargs):
@@ -144,19 +139,19 @@ class UserProcessingServer(object):
 
         self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
 
-        if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
+        if cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
             generated = uuid.uuid1()
             msg = "Property %(property)s or %(property_human)s not configured. Please establish: %(property)s = '%(uuid)s' and %(property_human)s = 'server at university X'. Otherwise, when federating the experiment it could enter in an endless loop." % {
-                'property'       : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER,
-                'property_human' : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN,
+                'property'       : configuration_doc.CORE_UNIVERSAL_IDENTIFIER,
+                'property_human' : configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN,
                 'uuid'           : generated
             }
             print msg
             print >> sys.stderr, msg
             log.log( UserProcessingServer, log.level.Error, msg)
 
-        self.core_server_universal_id       = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
-        self.core_server_universal_id_human = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+        self.core_server_universal_id       = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
+        self.core_server_universal_id_human = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
 
         #
         # Create session managers
@@ -167,8 +162,8 @@ class UserProcessingServer(object):
             raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type_str )
         session_type = getattr(SessionType, session_type_str)
 
-        session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
-        self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
+        session_pool_id       = cfg_manager.get_doc_value(configuration_doc.WEBLAB_CORE_SERVER_SESSION_POOL_ID)
+        self._session_manager = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
 
         reservations_session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID, "CoreServerReservations")
         self._reservations_session_manager = SessionManager.SessionManager( cfg_manager, session_type, reservations_session_pool_id )

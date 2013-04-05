@@ -338,13 +338,16 @@ public class XilinxExperiment extends ExperimentBase{
     		return;
 		}
 		
+		// TODO: Consider whether this parameter should or should not be mandatory. For now, it isn't. 
+		// If the parameter is not provided by the server then the default will be used.
 		try {
 			double expectedSynthesizingTime = parsedInitialConfiguration.isObject().get("expected_synthesizing_time").isNumber().doubleValue();
 			XilinxExperiment.this.expectedSynthesizingTime = (int)(expectedSynthesizingTime * 1000);
 		} catch(Exception e) {	
-			this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
-    		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter.", null);
-    		return;
+			//this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
+    		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter. Using the default. ", null);
+    		XilinxExperiment.this.expectedSynthesizingTime = DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+    		//return;
 		}
 	
 		// If it's not a demo, the user will have been prompted a file uploading form.

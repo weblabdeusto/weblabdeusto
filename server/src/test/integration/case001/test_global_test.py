@@ -14,6 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
 from experiments.ud_xilinx.programmers import XilinxImpactProgrammer
@@ -105,6 +106,13 @@ class FakeSerialPort(object):
         self.dict = {'open':[], 'close':[], 'send' : []}
         self.cycle = 0
 
+PORT1 = new_port()
+PORT2 = new_port()
+PORT3 = new_port()
+PORT5 = new_port()
+PORT7 = new_port()
+PORT8 = new_port()
+
 # Abstract
 class Case001TestCase(object):
 
@@ -159,12 +167,12 @@ class Case001TestCase(object):
             # They all have SOAP
 
             # 1st: address
-            address1 = SOAPAddress.Address('127.0.0.1:10025@NETWORK')
-            address2 = SOAPAddress.Address('127.0.0.1:10026@NETWORK')
-            address3 = SOAPAddress.Address('127.0.0.1:10027@NETWORK')
-            address5 = SOAPAddress.Address('127.0.0.1:10029@NETWORK')
-            address7 = SOAPAddress.Address('127.0.0.1:10031@NETWORK')
-            address8 = SOAPAddress.Address('127.0.0.1:10032@NETWORK')
+            address1 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT1)
+            address2 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT2)
+            address3 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT3)
+            address5 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT5)
+            address7 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT7)
+            address8 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT8)
 
             # 2nd: network
             soap_network1 = SOAPNetwork.SOAPNetwork( address1 )
@@ -213,7 +221,7 @@ class Case001TestCase(object):
                 cfg_manager,
                 map,
                 Direct = (map['WL_MACHINE1']['WL_SERVER1']['coordinator1'].address.address,),
-                SOAP   = ('',10027)
+                SOAP   = ('',PORT3)
             )
         real_coordinator_server.start()
         self.map = map
@@ -274,7 +282,7 @@ class Case001TestCase(object):
                 locator,
                 cfg_manager,
                 Direct = (login_coord_address.address,),
-                SOAP   = ('',10025)
+                SOAP   = ('',PORT1)
             )
         real_login_server.start()
 
@@ -311,7 +319,7 @@ class Case001TestCase(object):
                 locator,
                 cfg_manager,
                 Direct = (ups_coord_address.address,),
-                SOAP   = ('',10026)
+                SOAP   = ('',PORT2)
             )
         real_core_server.start()
 
@@ -346,7 +354,7 @@ class Case001TestCase(object):
                 fake_xilinx_impact,
                 fake_serial_port,
                 Direct = ( self.map['WL_MACHINE1']['WL_SERVER1']['experiment' + number].address.address,),
-                SOAP   = ('',10031 + (int(number)-1))
+                SOAP   = ('',PORT7 + (int(number)-1))
             )
         real_experiment.start()
 
@@ -382,7 +390,7 @@ class Case001TestCase(object):
                 locator,
                 cfg_manager,
                 Direct = (self.map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address.address,),
-                SOAP   = ('',10029)
+                SOAP   = ('',PORT5)
             )
         real_laboratory_server.start()
 

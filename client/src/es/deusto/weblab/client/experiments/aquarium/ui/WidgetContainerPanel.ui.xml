@@ -1,0 +1,13 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	<ui:style>
+		
+	</ui:style>
+	<g:VerticalPanel ui:field="panel" horizontalAlignment="CENTER" width="100%">
+		<w:WlTimer ui:field="timer" width="100%" styleName="wl-time_remaining"></w:WlTimer>
+		
+		<!--  The widget will be located here -->
+	</g:VerticalPanel>
+</ui:UiBinder> 

@@ -89,11 +89,11 @@ category::
             Reservation reservation = weblab.ReserveExperiment(sessionId, "ud-logic", "PIC experiments", consumerData);
 
 Now, the fourth argument is ``consumerData``, which represents additional
-information that the consumer system (e.g. a LMS) will provide. This includes
+information that the consumer system (e.g., a LMS) will provide. This includes
 statistics information like the user-agent (i.e. what web browser is the student
 using?), the referer (i.e. where did he come from?) or the IP address, but also
 information about the reservation itself: who is the user, what is the maximum
-time that he will have for the laboratory (e.g. the consumer may have 150
+time that he will have for the laboratory (e.g., the consumer may have 150
 seconds, but still the consumer can restrict it to 50 seconds for a group of
 students), or a certain priority::
 

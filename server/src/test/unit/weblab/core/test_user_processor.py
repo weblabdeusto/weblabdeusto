@@ -22,7 +22,8 @@ import mocker
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 from   test.util.module_disposer import case_uses_module
 
-from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
+import weblab.configuration_doc as configuration_doc
+
 import weblab.core.user_processor as UserProcessor
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -129,7 +130,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
 
     def test_reserve_experiment_repeated_uuid(self):
-        uuid = self.cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
+        uuid = self.cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
 
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),

@@ -1,15 +1,9 @@
-.. note::
-
-    At this moment, we're migrating and extending the documentation from the
-    `old documentation site <http://code.google.com/p/weblabdeusto/wiki/Latest_Index>`_.
-    If there was anything missing here, you may want to look there, but take into account
-    that whatever you find in the old documentation site might be old and deprecated. In
-    case of doubt, contact the `mailing list <https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto>`_.
-
 .. contents:: Table of Contents
 
 General
 -------
+
+This section provides a general overview of the project.
 
 .. toctree::
    :maxdepth: 1
@@ -27,7 +21,7 @@ Users
 -----
 
 This section is intended for people who is going to install the WebLab-Deusto
-system and connect existing laboratories. 
+system.
 
 .. toctree::
    :maxdepth: 2
@@ -35,12 +29,15 @@ system and connect existing laboratories.
    installation
    first_steps
    installation_next_steps
+   performance
+   directory_hierarchy
    authentication
    tools
+   configuration
 
 
-Remote laboratory development
------------------------------
+Remote laboratory development and management
+--------------------------------------------
 
 This section is intended for people who is going to create a new laboratory
 using the WebLab-Deusto tools.
@@ -49,6 +46,8 @@ using the WebLab-Deusto tools.
    :maxdepth: 2
 
    remote_lab_development
+   remote_lab_deployment
+   remote_lab_sharing
 
 External systems
 ----------------
@@ -67,9 +66,13 @@ Systems, OAuth providers or similar.
 WebLab-Deusto Development
 -------------------------
 
+This section is intended for people who is going to contribute to the WebLab-Deusto
+system itself, rather than remote laboratories on top of it.
+
 .. toctree::
    :maxdepth: 2
 
+   contributing
    development
 
 Appendixes
@@ -78,3 +81,5 @@ Appendixes
 .. toctree::
 
    download_from_github
+   first_steps_cli
+   userguide_boole_weblab_es

@@ -20,8 +20,6 @@ import com.google.gwt.user.client.Window;
 
 public class WebLabClientLab extends WebLabClient {
 
-	private static String ADMIN_URL_PARAM = "admin";
-	
 	public static final String DEMO_AVAILABLE_PROPERTY = "demo.available";
 	public static final boolean DEFAULT_DEMO_AVAILABLE = false;
 	
@@ -31,16 +29,8 @@ public class WebLabClientLab extends WebLabClient {
 	public static final String DEMO_PASSWORD_PROPERTY = "demo.password";
 	public static final String DEFAULT_DEMO_PASSWORD = "demo";
 	
-	private boolean wantsAdminApp(){
-		final String urlSaysWantsAdminApp = Window.Location.getParameter(WebLabClientLab.ADMIN_URL_PARAM);
-		return urlSaysWantsAdminApp != null && (urlSaysWantsAdminApp.toLowerCase().equals("yes") || urlSaysWantsAdminApp.toLowerCase().equals("true")); 
-	}
-	
 	@Override
 	public void loadApplication() {
-		if(wantsAdminApp())
-			Window.Location.replace(INDEX_ADMIN_HTML);
-			
 		GWT.runAsync(new RunAsyncCallback() {
 			@Override
 			public void onSuccess() {

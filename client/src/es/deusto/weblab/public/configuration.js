@@ -243,6 +243,13 @@
 	                        	    "experiment.info.description" : "description"
 	                			}
 	                		],
+	       	        "robot-maze" : [
+	    	                			{
+	    	                				"experiment.name" : "robot-maze",
+	    						        	"experiment.picture" : "/img/experiments/robot.jpg",
+	    	                				"experiment.category" : "Robot experiments"
+	    	                			}
+	    	                		],
 	       	        "submarine" : [
 	    	                			{
 	    	                				"experiment.name" : "submarine",

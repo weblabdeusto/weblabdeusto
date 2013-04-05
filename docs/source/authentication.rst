@@ -68,7 +68,7 @@ Use case
 This way, if a university (University A) wants to share their experiments with
 other university (University B) in a very simple way, students of University B
 can be registered as OpenID users. As long as the consumer university
-(University B) counts with an OpenID server (e.g. in Spain the `RedIRIS
+(University B) counts with an OpenID server (e.g., in Spain the `RedIRIS
 <http://www.rediris.es/>`_ `SIR <http://www.rediris.es/sir/>`_ 
 provides http://yo.rediris.es/soy/username@universitydomain as OpenID for those
 universities enroled), they can provide a list such as::
@@ -150,3 +150,7 @@ It does not store it in any format, but if the WebLab-Deusto server is hacked,
 the credentials of those users using the system during that time are in danger.
 In the University of Deusto this is the system used with our students. However,
 if you still don't trust it and prefer other solutions, check other systems.
+
+.. note::
+
+   How to use LDAP has not been yet documented.

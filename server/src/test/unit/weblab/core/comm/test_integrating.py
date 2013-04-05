@@ -16,6 +16,8 @@ import time
 import sys
 import unittest
 
+from test.util.ports import new as new_port
+
 try:
     import ZSI
     from weblab.core.comm.generated.weblabdeusto_client import weblabdeustoSOAP as UserProcessingWebLabDeustoSOAP
@@ -53,6 +55,10 @@ import weblab.core.exc as coreExc
 
 from test.unit.weblab.core.comm.test_user_manager import MockUPS
 
+ZSI_PORT  = new_port()
+JSON_PORT = new_port()
+XMLRPC_PORT = new_port()
+
 class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
     if UserProcessingFacadeServer.ZSI_AVAILABLE:
         def setUp(self):
@@ -61,14 +67,14 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
             self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, 10223)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, ZSI_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, 10224)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
 
-            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
+            self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
             self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -98,10 +104,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_logout(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14124)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14124/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 MESSAGE  = 'my message'
@@ -134,10 +141,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_list_experiments(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14125)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14125/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
@@ -170,10 +178,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_reserve_experiment(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14126)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14126/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
@@ -211,10 +220,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_finished_experiment(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14127)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14127/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
@@ -231,10 +241,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_get_reservation_status(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14128)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14128/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 NUMBER   = 5
@@ -261,10 +272,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_send_file(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14129)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14129/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 expected_content = 'my file'
@@ -292,10 +304,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         @uses_module(RemoteFacadeServer)
         def test_send_command(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14130)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14130/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
                 expected_command = Command.Command('my command')
@@ -317,10 +330,11 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
         
         @uses_module(RemoteFacadeServer)
         def test_get_user_information(self):
-            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, 14131)
+            port = new_port()
+            self.configurationManager._set_value(self.rfs.FACADE_ZSI_PORT, port)
             self.rfs.start()
             try:
-                wds = UserProcessingWebLabDeustoSOAP("http://localhost:14131/weblab/soap/")
+                wds = UserProcessingWebLabDeustoSOAP("http://localhost:%s/weblab/soap/" % port)
 
                 expected_sess_id = SessionId.SessionId("whatever")
 
@@ -366,14 +380,14 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
         self.configurationManager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, 10223)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, ZSI_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, 10224)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, 10225)
+        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
 
 
@@ -403,7 +417,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_reserve_experiment(self):
-        port = 15126
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -445,7 +459,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_send_command(self):
-        port = 15130
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -476,7 +490,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_get_experiment_use_by_id(self):
-        port = 15129
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -496,7 +510,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_get_experiment_uses_by_id(self):
-        port = 15131
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -536,7 +550,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
             self.rfs.stop()
     @uses_module(RemoteFacadeServer)
     def test_get_reservation_status(self):
-        port = 15128
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
@@ -567,7 +581,7 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     @uses_module(RemoteFacadeServer)
     def test_finished_experiment(self):
-        port = 15127
+        port = new_port()
         self.configurationManager._set_value(self.rfs.FACADE_JSON_PORT, port)
         self.rfs.start()
         try:
