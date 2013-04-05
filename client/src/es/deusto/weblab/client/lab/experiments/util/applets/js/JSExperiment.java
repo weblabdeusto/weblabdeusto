@@ -14,97 +14,123 @@
 
 package es.deusto.weblab.client.lab.experiments.util.applets.js;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.UploadStructure;
+import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
-import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashExperiment;
 
 
 
 public class JSExperiment extends AbstractExternalAppBasedBoard {
-
+	
+	
+	private String file;
+	private boolean isJSFile;
+	private boolean provideFileUpload;
+	
+	private final UploadStructure uploadStructure;
 	
 	/**
 	 * Constructs a JSExperiment.
 	 * 
 	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
-	 * flashvars parameters.
 	 */
-	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, int width, int height) 
+	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String file, boolean isJSFile, int width, int height, boolean provideFileUpload) 
 	{
 		super(configurationRetriever, boardController, width, height);
 		
-		JSExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
+		this.file = file;
+		this.isJSFile = isJSFile;
+		this.provideFileUpload = provideFileUpload;
+		
+		if(!this.isJSFile)
+			this.file = GWT.getModuleBaseURL() + this.file;
+		
+		this.uploadStructure = new UploadStructure();
+		
+		if(this.provideFileUpload) {
+			GWT.log("Creating upload structure");
+			this.uploadStructure.setFileInfo("program");
+			this.fileUploadPanel.add(this.uploadStructure.getFormPanel());
+		} else {
+			GWT.log("NOT creating upload structure");
+		}
+		
+		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
 	}
 	
-	private static native void createJavaScriptCode(Element element, int width, int height) /*-{
-	var iFrameHtml   = "<iframe name=\"wlframe\" frameborder=\"0\"  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
-								"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
-							"></iframe>";
-	var divHtml = "<div id=\"div_extra\"></div>";
-	element.innerHTML = iFrameHtml + divHtml;
-	$wnd.wl_div_extra = $doc.getElementById('div_extra');
-	$wnd.wl_iframe    = element.getElementsByTagName('iframe')[0];
-	$wnd.wl_inst  = null;
+	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, int width, int height) /*-{
+		
+		var divHtml = "<div id=\"div_extra\"></div>";	
+		
+		$wnd.wl_inst = {}; // This is the object that will contain the in-javascript callbacks.
+	
+		if(isJSFile)
+		{	
+			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
+										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+									"></iframe>";
+		}
+		else
+		{
+			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  allowfullscreen webkitallowfullscreen mozallowfullscreen vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
+										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+									"src=\"" + file + "\"" + "></iframe>"; 
+		}
+		
+		element.innerHTML = iFrameHtml + divHtml;
+		$wnd.wl_div_extra = $doc.getElementById('div_extra');
+		$wnd.wl_iframe    = element.getElementsByTagName('iframe')[0];
+
 }-*/;
 	
-	private static native void populateIframe(String swfFile, int width, int height, int iframeWidth, int iframeHeight, String flashvars) /*-{
+	/**
+	 * Populates the iframe that will host the JS experiment. This is only used when a JS file is used as
+	 * a base for the experiment. If an HTML file is used, the whole file is used straightaway to populate 
+	 * it, and this method is not invoked.
+	 * @param file This is the file that describes the experiment. It is a JS script, which is
+	 * included within an iframe.
+	 * 
+	 * TODO: Probably there is currently no need to separate kinds of width/height.
+	 * Probably, a set of height/width should be removed.
+	 * 
+	 * @param isJS Specifies whether the file is an HTML file or a JS script.
+	 * @param width 
+	 * @param height 
+	 * @param iframeWidth 
+	 * @param iframeHeight
+	 */
+	private static native void populateIframe(String file, boolean isJS, int width, int height, int iframeWidth, int iframeHeight) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
 	    	
 	    $wnd.wl_inst = {};
 	    $wnd.wl_inst.handleCommandResponse = function(a, b) { $doc.wlframe.onHandleCommandResponse(a, b);};
+	    $wnd.wl_inst.handleCommandError = function(a, b) { $doc.wlframe.onHandleCommandError(a, b);};
+	    
 	    $wnd.wl_iframe.height = iframeHeight;
 	    $wnd.wl_iframe.width = iframeWidth;
 	    
-	//    var metasHtml = "<meta http-Equiv=\"Cache-Control\" Content=\"no-cache\">\n" +
-	//						"<meta http-Equiv=\"Pragma\" Content=\"no-cache\">\n" +
-	//						"<meta http-Equiv=\"Expires\" Content=\"0\">\n\n";
+	    var libsinc = "\n<script language=\"JavaScript\" src=\"jslib/three.min.js\"></script>\n";
+	    
+	    var scriptinc = "\n<script language=\"JavaScript\" src=\"" + jsfile + "\"></script>\n";
+	    
 	    var metasHtml = "";
 	
-		var functionsHtml = "<script language=\"JavaScript\">\n" +
-				"function wl_getIntProperty(name){ " +
-					"return parent.wl_getIntProperty(name); " +
-				"} \n" +
-				"" +
-				"function wl_getIntPropertyDef(name, defaultValue){ " +
-					"return parent.wl_getIntPropertyDef(name, defaultValue); " +
-				"} \n" +
-				"" +
-				"function wl_getProperty(name){ " +
-					"return parent.wl_getProperty(name); " +
-				"} \n" +
-				"" +
-				"function wl_getPropertyDef(name, defaultValue){ " +
-					"return parent.wl_getPropertyDef(name, defaultValue); " +
-				"} \n" +
-				"" +
-				"function wl_sendCommand(command, commandId){" + 
-					"return parent.wl_sendCommand(command, commandId); " +
-				"} \n" +
-				"" +
-				"function wl_onClean(){ " +
-					"return parent.wl_onClean(); " +
-				"} \n" +
-				"" +
-				"function onHandleCommandResponse(a, b) { alert(a); } \n" +
-				"</script>";
-		// Important: this must be the first <div> element
-		var flashHtml    = "<div id=\"wl_flashobj_container\"><object id=\"wl_flashobj\" classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" type=\"application/x-shockwave-flash\" width=\"" + width + "\" height=\"" + height + "\" id=\"flashobj\">" + 
-								"<param name=\"movie\" value=\"" + swfFile + "\" id=\"flash_emb\"/>" + 
-								"<param name=\"flashvars\" value=\"" + flashvars + "\"/>" + 
-								"<embed type=\"application/x-shockwave-flash\" src=\"" + swfFile + "\" width=\"" + width + "\" height=\"" + height + "\" flashvars=\"" + flashvars + "\"   />" + 
-							"</object></div>";
+		var weblabjsScript = "<script src=\"jslib/weblabjs.js\">";
+				
 							
-		var other		= "<div id=\"div_iframe_extra\"></div>";
-		
 		var completeHtml = "<html>" +
-								"<head>" + metasHtml + functionsHtml + "</head>" +
-								"<body>" + flashHtml + other + "</body>" +
+								"<head>" + metasHtml + weblabjsScript + libsinc + scriptinc"</head>" +
+								"<body></body>" +
 							"</html>";
 		
 		doc.open();
@@ -121,30 +147,108 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	@Override
 	public void setTime(int time) {
-		
 		super.setTime(time);
+		AbstractExternalAppBasedBoard.setTimeImpl(time);
 	}
+	
+    @Override
+    public void end() {
+    	AbstractExternalAppBasedBoard.endImpl();
+    }
 	
 	@Override
 	/**
 	 * Called on initialization.
 	 */
 	public void initialize() {
-		JSExperiment.populateIframe("oo.swf", this.width, 
-				this.height, this.width + 10, this.height + 10, "");
+		
+		// We will only populate the iframe if we chose to use a JS file as base for the experiment.
+		// If we're using an HTML, the HTML file itself will populate the iframe, and the stub that
+		// the population method uses is hence no longer required.
+		if(this.isJSFile)
+		{
+			JSExperiment.populateIframe(this.file, this.isJSFile, this.width, 
+					this.height, this.width + 10, this.height + 10);
+		}
 	}
 	
 	/**
 	 * Called by the WebLab server to tell the experiment that it is
 	 * meant to start.
+	 * Internally, it calls the base classes' startInteractionImpl to 
+	 * refer the call to the JS file.
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		
+		if(this.provideFileUpload)
+			tryUpload();
+		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}
+	
 	
 	public static native void wlSendCommand()/*-{
 		alert('test');
 	}-*/;
+	
+	
+	private final IResponseCommandCallback sendFileCallback = new IResponseCommandCallback() {
+	    
+	    @Override
+	    public void onSuccess(ResponseCommand response) {
+	    	GWT.log("The file was sent");
+	    	handleFileResponse(response.getCommandString(), 0);
+	    }
+
+	    @Override
+	    public void onFailure(CommException e) {
+	    	GWT.log("It was not possible to send the file");
+	    	handleFileError(e.getMessage(), 0);
+	    }
+	    
+	};	
+	
+	
+	/**
+	 * Helper method to try to upload a file. Currently, we only consider that an upload
+	 * failed if the filename the user chose is empty.
+	 * If the upload succeeds we load the standard experiment controls through loadStartControls and
+	 * hide the upload panel, which is no longer needed.
+	 * 
+	 * @return True if the upload succeeds, false otherwise.
+	 */
+	private boolean tryUpload() {
+		final boolean didChooseFile = !this.uploadStructure.getFileUpload().getFilename().isEmpty();
+		
+		if(didChooseFile) {
+			// Extract the file extension.
+			final String filename = this.uploadStructure.getFileUpload().getFilename();
+			final String [] split = filename.split("\\.");
+			String extension;
+			if(split.length == 0)
+				extension = "bit"; // BIT as default
+			extension = split[split.length-1];
+			
+			this.uploadStructure.getFormPanel().setVisible(false);
+			this.uploadStructure.setFileInfo(extension.toLowerCase());
+			
+			// TODO: Probably it would be more elegant if the server itself would decide whether we are synthesizing
+			// and programming or just programming. However, at least for now, this will do fine. The mode is currently
+			// used only to decide how to estimate progress bar length.
+			//if(extension.toLowerCase().equals("vhd"))
+			//	this.synthesizingMode = true;
+			
+			GWT.log("Now trying to send file");
+			
+			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
+			
+			GWT.log("sendFile was run");
+			
+			//this.loadStartControls();
+		} else {
+			GWT.log("The user did not really choose a file");
+		}
+		
+		return didChooseFile;
+	}
 	
 }

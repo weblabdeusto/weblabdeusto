@@ -67,7 +67,14 @@
 	                    	   {
 	                    		   "experiment.name"		: "jsdummy",
 	                    		   "experiment.category"	: "Dummy experiments",
-	                    		   "experiment.picture"		: "/img/experiments/java.jpg"
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   //"js.file"				: "test.js",
+	                    		   "provide.file.upload"	: true,
+	                    		   // If we use an html.file as base, we cannot use a js.file.
+	                    		   // (Though of course, we may include that js file from our html file).
+	                    		   "html.file"				: "jstest.html"
 	                    	   }
 	                       ],
 	                "vm"    : [
