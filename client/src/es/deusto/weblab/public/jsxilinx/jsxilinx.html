@@ -17,36 +17,64 @@
 	</head>
 	<body>
 
-		<script src="jslib/three.min.js"></script>
-		<script src="jslib/stats.min.js"></script>
-		<script src="jslib/THREEx.FullScreen.js"></script>
+		<script src="../jslib/three.min.js"></script>
+		<script src="../jslib/stats.min.js"></script>
+		<script src="../jslib/THREEx.FullScreen.js"></script>
 
-		<!--<video id="video" autoplay style="display:none">
-			<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
-			<source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
-		</video>-->
-		
-		<img id="video" style="display:none" src="http://www.weblab.deusto.es/webcam/fishtank1/video.mjpeg"/>
-		
-		<video id="video" autoplay style="display:none">
-			<source src="http://www.weblab.deusto.es/webcam/fishtank1/video.mjpeg" type='video/mjpeg'>
-			<source src="http://www.weblab.deusto.es/webcam/fishtank1/video.mjpeg" type='video/ogg'>
-		</video>
-		
-		<!--https://www.weblab.deusto.es/webcam/robot0/video.mjpeg-->
+
+        <!--<img id="video" style="display:none" src="http://www.weblab.deusto.es/webcam/fishtank1/video.mjpeg"/>-->
+        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
 
 		<script>
 
+
+		    // The following code is used to refresh the webcam 
+		    // It is refreshed frame-by-frame every second.
+		    CameraRefresher = new function () {
+
+		        var tick = 0;
+		        var image = new Image();
+		        var reload = new Date();
+		        var reload = reload.getTime();
+
+		        image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+
+		        function refreshCam() {
+		            tick++;
+		            if (tick > 3) { restart = 1; } else { restart = 0; }
+		            if (image.complete) {
+		                tick = 0;
+		                document.images["video"].src = image.src;
+		                image = new Image();
+		                reload = new Date();
+		                reload = reload.getTime();
+		                window.status = "";
+		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+		            }
+		            if (restart) {
+		                tick = 0;
+		                image = new Image();
+		                reload = new Date();
+		                reload = reload.getTime();
+		                window.status = "";
+		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+		            }
+		            window.status = window.status + ".";
+		            setTimeout(refreshCam, 1000);
+		        }
+
+		        refreshCam();
+		    };
+
+
+
+
 			var AMOUNT = 100;
-
 			var container, stats;
-
 			var camera, scene, renderer;
-
 			var video, image, imageContext,
 			imageReflection, imageReflectionContext, imageReflectionGradient,
 			texture, textureReflection;
-
 			var mesh;
 
 			var mouseX = 0;
