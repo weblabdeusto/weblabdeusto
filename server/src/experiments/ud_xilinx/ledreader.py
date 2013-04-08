@@ -15,6 +15,7 @@
 
 import urllib
 import cStringIO
+import time
 import PIL
 from PIL import Image
 import colorsys
@@ -22,13 +23,11 @@ import colorsys
 
 class LedReader(object):
     
-    LED_DIAMETER = 10
-    LED_DIAMETER_EXTRA = 5
-    LED_LIT_PIXEL_THRESHOLD = 35
-    
-    def __init__(self, url):
+    def __init__(self, url, leds, led_diameter, led_threshold):
         self._url = url
-        self._leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
+        self._leds = leds
+        self._led_diameter = led_diameter
+        self._led_threshold = led_threshold
         
     def irgb_to_frgb(self, p):
         return p[0] / 255., p[1] / 255., p[2] / 255.
@@ -75,7 +74,7 @@ class LedReader(object):
         rgbim = img.convert('RGB')
         pix = rgbim.load()
         
-        print "Size: ", rgbim.size[0], " ", rgbim.size[1]
+        #print "Size: ", rgbim.size[0], " ", rgbim.size[1]
         
         # Turn reds blue for testing.
         for x in xrange(0, rgbim.size[0]):
@@ -87,7 +86,7 @@ class LedReader(object):
                     print "inv"
                     pix[x, y] = 0, 255, 0
                     
-        rgbim.show()
+        #rgbim.show()
         
         
         
@@ -97,13 +96,22 @@ class LedReader(object):
         rgbim = img.convert('RGB')
         pix = rgbim.load()
         
-        print "Size: ", rgbim.size[0], " ", rgbim.size[1]
+        #print "Size: ", rgbim.size[0], " ", rgbim.size[1]
+        
+        states = []
         
         for led in self._leds:
-            count = self.count_led_red_in_sq(pix, rgbim.size, led, self.LED_DIAMETER + self.LED_DIAMETER_EXTRA)
-            print (count > self.LED_LIT_PIXEL_THRESHOLD), "(", count, ")"
+            count = self.count_led_red_in_sq(pix, rgbim.size, led, self._led_diameter)
+            if count > self._led_threshold:
+                states.append(count)
+            else:
+                states.append('0')
+                
+        #print (count > self._led_threshold), "(", count, ")"
                
-        rgbim.show()        
+        #rgbim.show()    
+        
+        return states    
         
         
     def __str__(self):
@@ -112,13 +120,17 @@ class LedReader(object):
 # PLD LED positions
 
 if __name__ == '__main__':
-    lr = LedReader("https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330")
+    pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
+    fpga_leds = [ (84, 192), (92, 192), (101, 192), (111, 192), (120, 192), (128, 192), (138, 192), (147, 192) ]
+    fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
+    pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
+    lr = LedReader(fpga, fpga_leds, 5, 7)
     
     while(True):
         try:
-            lr.read()
+            print lr.read()
         except IOError:
             print "Err"
-        else:
-            break
+        time.sleep(1)
+            
     print str(lr)
