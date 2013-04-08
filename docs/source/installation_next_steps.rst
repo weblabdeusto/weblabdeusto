@@ -224,8 +224,3 @@ Summary
 
 With these components installed and validated, now it is possible to enhance the performance in the next section: :ref:`performance`.
 
-
-.. toctree::
-   :maxdepth: 2
-
-   deploying_vm_experiment

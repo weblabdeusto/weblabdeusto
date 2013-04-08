@@ -15,6 +15,7 @@
 import voodoo.gen.generators.ClientSkel as ClientSkel
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 
+import threading
 import xmlrpclib
 
 import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
@@ -35,7 +36,13 @@ def _generate_stub(METHOD_NAME):
         """ Dynamically generated method. Protocol: XMLRPC.
              Method name: METHOD_NAME. Documentation: DOCUMENTATION """
         try:
-            return getattr(self._server,'Util.%s' % METHOD_NAME)(*parameters,**kparameters)
+            # 
+            # The XML-RPC client relies on httplib, which does not support concurrency.
+            # Either we create a new connection each time, or we lock it and we support
+            # a single concurrent request (which is what we do here).
+            # 
+            with self._xmlrpc_lock:
+                return getattr(self._server,'Util.%s' % METHOD_NAME)(*parameters,**kparameters)
         except xmlrpclib.Fault as ft:
             raise Exceptions.UnknownFaultType(
                     "Unknown fault type: " + str(ft.faultCode) + ": " + str(ft.faultString),
@@ -86,6 +93,7 @@ def generate(methods):
     class ClientXMLRPC(clientSkel):
 
         def __init__(self, url, port=80, uri='/'):
+            self._xmlrpc_lock = threading.Lock()
             clientSkel.__init__(self,xmlrpclib.Server('http://'+url+':'+str(port)+uri, allow_none = True))
 
     # Adding properly the testing method to check availability

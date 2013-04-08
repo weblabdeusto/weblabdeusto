@@ -41,6 +41,7 @@ int main(int const argc, const char ** const argv) {
     /* For optional methods, you can use the default
        implementation by pointing to default_<handler-name> */
     handlers.is_up_and_running = default_is_up_and_running;
+	handlers.should_finish = default_should_finish;
 
     launch(12345, handlers);
 

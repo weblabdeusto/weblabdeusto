@@ -14,7 +14,7 @@ from visir_tester import Tester
 # PROCESSES  = 80
 URL = "http://www.weblab.deusto.es/weblab/"
 USERNAME = "tester"
-PASSWORD = "t3st3r6"
+PASSWORD = "tester"
 
 EXECUTIONS =  20
 PROCESSES  =  20

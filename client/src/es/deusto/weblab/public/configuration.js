@@ -75,6 +75,15 @@
 	                    		   // If we use an html.file as base, we cannot use a js.file.
 	                    		   // (Though of course, we may include that js file from our html file).
 	                    		   "html.file"				: "jstest.html"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "jsfpga",
+	                    		   "experiment.category"	: "FPGA experiments",
+	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   "provide.file.upload"	: true,
+	                    		   "html.file"				: "jsxilinx/jsxilinx.html"
 	                    	   }
 	                       ],
 	                "vm"    : [

@@ -75,12 +75,25 @@ static xmlrpc_value * weblab_xmlrpc_dispose(xmlrpc_env * const env, xmlrpc_value
     return xmlrpc_build_value(env, "s", response);
 }
 
+static xmlrpc_value * weblab_xmlrpc_should_finish(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data) {
+    int response;
+    if (env->fault_occurred)
+        return NULL;
+    response = weblab_handlers.should_finish();
+    return xmlrpc_build_value(env, "i", response);
+}
+
 static xmlrpc_value * weblab_xmlrpc_is_up_and_running(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data) {
     int response;
     if (env->fault_occurred)
         return NULL;
-    response = weblab_handlers.is_up_and_running();
-    return xmlrpc_build_value(env, "b", response);
+	
+	char buf[255];
+	strcpy(buf, "");
+	
+    response = weblab_handlers.is_up_and_running(buf);
+	
+    return xmlrpc_build_value(env, "(is)", response, buf);
 }
 
 static xmlrpc_value * weblab_xmlrpc_get_api(xmlrpc_env * const env, xmlrpc_value * const param_array, void * const user_data) {
@@ -94,8 +107,14 @@ static xmlrpc_value * weblab_xmlrpc_get_api(xmlrpc_env * const env, xmlrpc_value
 
 /* Default implementations */
 
-int default_is_up_and_running(){
-    return TRUE;
+int default_is_up_and_running(char * out_msg){
+	strcpy(out_msg, "");
+    return 600;
+}
+
+
+int default_should_finish(){
+	return 0;
 }
 
 
@@ -111,6 +130,7 @@ void launch(int port, struct ExperimentServer handlers){
     weblab_handlers.send_command      = handlers.send_command;
     weblab_handlers.send_file         = handlers.send_file;
     weblab_handlers.dispose           = handlers.dispose;
+	weblab_handlers.should_finish     = handlers.should_finish;
 
     xmlrpc_env_init(&env);
 
@@ -123,6 +143,7 @@ void launch(int port, struct ExperimentServer handlers){
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.send_file_to_device", &weblab_xmlrpc_send_file_to_device, NULL);
     xmlrpc_registry_add_method( &env, registryP, NULL, "Util.dispose", &weblab_xmlrpc_dispose, NULL);
 	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.get_api", &weblab_xmlrpc_get_api, NULL);
+	xmlrpc_registry_add_method( &env, registryP, NULL, "Util.should_finish", &weblab_xmlrpc_should_finish, NULL);
 
     serverparm.config_file_name = NULL;
     serverparm.registryP        = registryP;
