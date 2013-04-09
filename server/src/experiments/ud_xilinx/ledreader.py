@@ -90,9 +90,23 @@ class LedReader(object):
         
         
         
-    def read(self):
-        file = cStringIO.StringIO(urllib.urlopen(self._url).read())
-        img = Image.open(file)
+    def read(self, ret_count = False):
+        """
+        read(ret_count = False)
+        
+        Tries to read the state of the LEDs.
+        Throws an exception on failure.
+        
+        @param ret_count If true, the list returned will contain when the
+        LED is turned on a count of "lit" pixels. If false, it will simply
+        return '1'.
+        
+        @return Returns a list containing the state of each LED. The 
+        state will be '0' if the LED is off, and '1' or a
+        higher-than-the-threshold count if it is on.
+        """
+        f = cStringIO.StringIO(urllib.urlopen(self._url).read())
+        img = Image.open(f)
         rgbim = img.convert('RGB')
         pix = rgbim.load()
         
@@ -103,19 +117,35 @@ class LedReader(object):
         for led in self._leds:
             count = self.count_led_red_in_sq(pix, rgbim.size, led, self._led_diameter)
             if count > self._led_threshold:
-                states.append(count)
+                if ret_count: states.append(count)
+                else: states.append('1')
             else:
                 states.append('0')
-                
-        #print (count > self._led_threshold), "(", count, ")"
-               
-        #rgbim.show()    
         
         return states    
         
         
     def __str__(self):
-        return "00"
+        return "LedReader"
+    
+    
+    def read_times(self, times):
+        """
+        read_times(times)
+        Tries to read the state of the LEDs the specified number of times.
+        Each attempt takes around a second.
+        @param times Number of times it tries to read the led state. Should be higher than 0.
+        @return List with the value of each LED.
+        """
+        errcount = 0
+        while(True):
+            try:
+                return lr.read()
+            except IOError:
+                errcount += 1
+            if errcount >= times:
+                raise 
+            time.sleep(1)
 
 # PLD LED positions
 
@@ -128,7 +158,7 @@ if __name__ == '__main__':
     
     while(True):
         try:
-            print lr.read()
+            print lr.read_times(5)
         except IOError:
             print "Err"
         time.sleep(1)
