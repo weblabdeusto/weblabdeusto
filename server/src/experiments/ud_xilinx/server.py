@@ -36,6 +36,9 @@ import json
 import base64
 import time
 
+import sys
+import traceback
+
 from voodoo.threaded import threaded
 
 
@@ -315,12 +318,15 @@ class UdXilinxExperiment(Experiment.Experiment):
             elif command == 'READ_LEDS':
                 try:
                     if self._led_reader == None:
+                        if(DEBUG):
+                            print "[DBG]: Initializing led reading."
                         self._load_led_reading_support()
                     self._led_state = self._led_reader.read_times(5)
-                    if(DEBUG or True):
-                        print "[DBG]: READ_LEDS: " + self._led_state
+                    if(DEBUG):
+                        print "[DBG]: READ_LEDS: " + "".join(self._led_state)
                     return "".join(self._led_state)
                 except Exception as e:
+                    traceback.print_exc()
                     return "ERROR"
 
             # Otherwise we assume that the command is intended for the actual device handler

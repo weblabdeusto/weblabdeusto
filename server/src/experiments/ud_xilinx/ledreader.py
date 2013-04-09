@@ -140,7 +140,7 @@ class LedReader(object):
         errcount = 0
         while(True):
             try:
-                return lr.read()
+                return self.read()
             except IOError:
                 errcount += 1
             if errcount >= times:
