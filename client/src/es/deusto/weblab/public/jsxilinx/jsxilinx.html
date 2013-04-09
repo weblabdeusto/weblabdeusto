@@ -20,13 +20,22 @@
 		<script src="../jslib/three.min.js"></script>
 		<script src="../jslib/stats.min.js"></script>
 		<script src="../jslib/THREEx.FullScreen.js"></script>
+        <script src="../jslib/jquery-1.9.1.js"></script>
+        <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
 
-
-        <!--<img id="video" style="display:none" src="http://www.weblab.deusto.es/webcam/fishtank1/video.mjpeg"/>-->
         <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
 
 		<script>
 
+            /// The following references are for VisualStudio, so that Intellisense recognizes every library.
+		    /// <reference path="../jslib/weblabjs.js" />
+		    /// <reference path="../jslib/three.min.js" />
+		    /// <reference path="../jslib/stats.min.js" />
+		    /// <reference path="../jslib/THREEx.FullScreen.js" />
+		    /// <reference path=""../jslib/jquery-1.9.1.js" />
+		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
+            
+          
 
 		    // The following code is used to refresh the webcam 
 		    // It is refreshed frame-by-frame every second.
@@ -67,6 +76,61 @@
 		    };
 
 
+            // Switch widget
+		    SwitchWidget = function (pos_x, pos_y, text, on_img, off_img) {
+
+		        var wid_img;
+		        var wid_container;
+		        var mState = true;
+		        var mOnClickCB;
+
+		        createElement(pos_x, pos_y, text);
+
+		        function createElement(pos_x, pos_y, text) {
+		            wid_img = document.createElement('img');
+		            wid_img.style.width = "50px";
+		            wid_img.onclick = onClick;
+
+		            wid_text = document.createElement('span');
+		            wid_text.innerHTML = "<br>" + text;
+
+		            wid_container = document.createElement('div');
+		            wid_container.style.position = 'absolute';
+		            wid_container.style.left = "" + pos_x + "px";
+		            wid_container.style.top = "" + pos_y + "px";
+		            wid_container.style.width = "100%";
+		            wid_container.appendChild(wid_img);
+		            wid_container.appendChild(wid_text);
+
+		            return wid_container;
+		        }
+
+		        function onClick() {
+		            this.setState(!this.getState());
+		            mOnClickCB(); 
+		        }
+
+		        this.setOnClick = function(func) {
+		            mOnClickCB = func;
+		        }
+
+		        this.setState = function setState(state) {
+		            mState = state;
+		            if (state)
+		                wid_img.src = on_img;
+		            else
+		                wid_img.src = off_img;
+		        }
+
+		        this.getState = function getState() {
+		            return mState;
+		        }
+
+		        this.getElement = function () {
+		            return wid_container;
+		        }
+
+		    };
 
 
 			var AMOUNT = 100;
@@ -101,10 +165,6 @@
 			var LEDs = [];
 
 
-			init();
-			animate();
-
-
 		    //! Creates a turned-off LED at the specified position, returning
             //! its DIV container.
 		    //!
@@ -137,15 +197,26 @@
 			    }
 			}
 			
-			
 			function onLedClicked() {
 			    alert("yep");
 			    this.src = "http://www.bitsbox.co.uk/images/redled.jpg";
 			    this.style.top = 20;
 			}
 
+			function updateLed(led_num, state) {
+			    led = LEDs[led_num];
+			    if (state == '0')
+			        led.getElementsByTagName('img')[0].src = "http://www.bitsbox.co.uk/images/redled.jpg";
+			    else
+			        led.getElementsByTagName('img')[0].src = "http://ledshoppe.com/Photo/Product%20photo/PICT0014.JPG";
+			}
+
 			function onReadLedsSuccess(response) {
-			    alert('Success reading leds response: ' + response);
+			    var cur_led = 7;
+			    for (var i = 0; i < 8; i++, cur_led--) {
+			        var led_state = response[i];
+			        updateLed(cur_led, led_state);
+			    }
 			}
 
 			function onReadLedsFailure(response) {
@@ -155,7 +226,8 @@
 			function refreshLeds() {
 			    try
 			    {
-			        Weblab.sendCommand("READ_LEDS", onReadLedsSuccess, onReadLedsFailure);
+                    if(Weblab.isExperimentActive())
+			            Weblab.sendCommand("READ_LEDS", onReadLedsSuccess, onReadLedsFailure);
 			    }
 			    catch(err)
 			    {
@@ -165,9 +237,15 @@
 			}
 
 
+			init();
+			animate();
+
+
+
 			function init() {
 
-				container = document.createElement( 'div' );
+			    container = document.createElement('div');
+			    container.id = "container";
 				document.body.appendChild( container );
 
 				var info = document.createElement( 'div' );

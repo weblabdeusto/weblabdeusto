@@ -41,6 +41,8 @@ Weblab = new function () {
     var mDefaultFileHandlerSuccessCallback;
     var mDefaultFileHandlerErrorCallback;
 
+    var mIsExperimentActive;
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -58,10 +60,12 @@ Weblab = new function () {
     }
 
     parent.wl_inst.startInteraction = function () {
+        mIsExperimentActive = true;
         mOnStartInteractionCallback();
     }
 
     parent.wl_inst.end = function () {
+        mIsExperimentActive = false;
         mOnEndCallback();
     }
 
@@ -216,6 +220,15 @@ Weblab = new function () {
     this.clean = function () {
         return parent.wl_onClean();
     };
+
+    //! Returns true if the experiment is active, false otherwise.
+    //! An experiment is active if it has started and not finished.
+    //! That is, if the server, supposedly, should be able to receive
+    //! commands.
+    //!
+    this.isExperimentActive = function () {
+        return mIsExperimentActive;
+    }
 
 }; //! end-of class-like Weblab function
 
