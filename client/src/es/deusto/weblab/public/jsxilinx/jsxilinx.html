@@ -5,7 +5,7 @@
 		<title>three.js CUSTOM TEST</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<script src="jslib/weblabjs.js"></script>
+		<script src="../jslib/weblabjs.js"></script>
 		<style>
 			body {
 				font-family: Monospace;
@@ -37,7 +37,7 @@
 		        var reload = new Date();
 		        var reload = reload.getTime();
 
-		        image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+		        image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
 
 		        function refreshCam() {
 		            tick++;
@@ -49,7 +49,7 @@
 		                reload = new Date();
 		                reload = reload.getTime();
 		                window.status = "";
-		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
 		            }
 		            if (restart) {
 		                tick = 0;
@@ -57,7 +57,7 @@
 		                reload = new Date();
 		                reload = reload.getTime();
 		                window.status = "";
-		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" + reload;
+		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
 		            }
 		            window.status = window.status + ".";
 		            setTimeout(refreshCam, 1000);
@@ -97,10 +97,72 @@
 			
 
 
+
+			var LEDs = [];
+
+
 			init();
 			animate();
+
+
+		    //! Creates a turned-off LED at the specified position, returning
+            //! its DIV container.
+		    //!
+            //! @return div element containing the LED img.
+			function createLed(number, pos_x, pos_y) {
+			    var led_img = document.createElement('img');
+			    led_img.src = "http://www.bitsbox.co.uk/images/redled.jpg";
+			    led_img.style.width = "50px";
+
+			    var led_text = document.createElement('span');
+			    led_text.innerHTML = "<br>LED " + number;
+
+			    var led_container = document.createElement('div');
+			    led_container.style.position = 'absolute';
+			    led_container.style.left = "" + pos_x + "px";
+			    led_container.style.top = "" + pos_y + "px";
+			    led_container.style.width = "100%";
+			    led_container.appendChild(led_img);
+			    led_container.appendChild(led_text);
+
+			    LEDs[number] = led_container;
+
+			    return led_container;
+			}
+
+			function createLeds(container) {
+			    for (var i = 0; i < 8; i++) {
+			        var led = createLed(7-i, 100 + i * 60, 150);
+			        container.appendChild(led);
+			    }
+			}
 			
 			
+			function onLedClicked() {
+			    alert("yep");
+			    this.src = "http://www.bitsbox.co.uk/images/redled.jpg";
+			    this.style.top = 20;
+			}
+
+			function onReadLedsSuccess(response) {
+			    alert('Success reading leds response: ' + response);
+			}
+
+			function onReadLedsFailure(response) {
+			    alert('Failure reading leds response: ' + response);
+			}
+
+			function refreshLeds() {
+			    try
+			    {
+			        Weblab.sendCommand("READ_LEDS", onReadLedsSuccess, onReadLedsFailure);
+			    }
+			    catch(err)
+			    {
+			        console.log('Error');
+			    }
+			    setTimeout(refreshLeds, 1000);
+			}
 
 
 			function init() {
@@ -113,8 +175,11 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = '<a href="http://threejs.org" target="_blank">three.js</a> - video demo. playing <a href="http://durian.blender.org/" target="_blank">sintel</a> trailer';
-				container.appendChild( info );
+				info.innerHTML = '<b>JSFPGA TEST EXPERIMENT</b>';
+				container.appendChild(info);
+
+				createLeds(container);
+				refreshLeds(container);
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 1000;
@@ -126,23 +191,24 @@
 				//
 
 				image = document.createElement( 'canvas' );
-				image.width = 480;
-				image.height = 204;
+				image.width = 320;
+				image.height = 240;
 
 				imageContext = image.getContext( '2d' );
 				imageContext.fillStyle = '#000000';
-				imageContext.fillRect( 0, 0, 480, 204 );
+				imageContext.fillRect( 0, 0, 320, 240 );
 
 				texture = new THREE.Texture( image );
-				texture.minFilter = THREE.LinearFilter;
-				texture.magFilter = THREE.LinearFilter;
+				//texture.minFilter = THREE.LinearFilter;
+				//texture.magFilter = THREE.LinearFilter;
 
-				var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
+				//var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
 				
 				// mOD: Create bg thing
 				bg = new THREE.Mesh(
 				  new THREE.PlaneGeometry(2, 2, 0),
-				  new THREE.MeshBasicMaterial({map: texture})
+				  //new THREE.MeshBasicMaterial({map: texture})
+                    new THREE.MeshBasicMaterial({ map: texture, color: 0xff5500, wireframe: false })
 				);
 				bg.material.depthTest = false;
 				bg.material.depthWrite = false;
@@ -155,37 +221,37 @@
 				
 				
 
-				imageReflection = document.createElement( 'canvas' );
-				imageReflection.width = 480;
-				imageReflection.height = 204;
+				//imageReflection = document.createElement( 'canvas' );
+				//imageReflection.width = 480;
+				//imageReflection.height = 204;
 
-				imageReflectionContext = imageReflection.getContext( '2d' );
-				imageReflectionContext.fillStyle = '#000000';
-				imageReflectionContext.fillRect( 0, 0, 480, 204 );
+				//imageReflectionContext = imageReflection.getContext( '2d' );
+				//imageReflectionContext.fillStyle = '#000000';
+				//imageReflectionContext.fillRect( 0, 0, 480, 204 );
 
-				imageReflectionGradient = imageReflectionContext.createLinearGradient( 0, 0, 0, 204 );
-				imageReflectionGradient.addColorStop( 0.2, 'rgba(240, 240, 240, 1)' );
-				imageReflectionGradient.addColorStop( 1, 'rgba(240, 240, 240, 0.8)' );
+				//imageReflectionGradient = imageReflectionContext.createLinearGradient( 0, 0, 0, 204 );
+				//imageReflectionGradient.addColorStop( 0.2, 'rgba(240, 240, 240, 1)' );
+				//imageReflectionGradient.addColorStop( 1, 'rgba(240, 240, 240, 0.8)' );
 
-				textureReflection = new THREE.Texture( imageReflection );
-				textureReflection.minFilter = THREE.LinearFilter;
-				textureReflection.magFilter = THREE.LinearFilter;
+				//textureReflection = new THREE.Texture( imageReflection );
+				//textureReflection.minFilter = THREE.LinearFilter;
+				//textureReflection.magFilter = THREE.LinearFilter;
 
-				var materialReflection = new THREE.MeshBasicMaterial( { map: textureReflection, side: THREE.BackSide, overdraw: true } );
+				//var materialReflection = new THREE.MeshBasicMaterial( { map: textureReflection, side: THREE.BackSide, overdraw: true } );
 
 				//
 
-				var plane = new THREE.PlaneGeometry( 480, 204, 4, 4 );
+				//var plane = new THREE.PlaneGeometry( 480, 204, 4, 4 );
 
-				mesh = new THREE.Mesh( plane, material );
-				mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.5;
-				scene.add(mesh);
+				//mesh = new THREE.Mesh( plane, material );
+				//mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.5;
+				//scene.add(mesh);
 
-				mesh = new THREE.Mesh( plane, materialReflection );
-				mesh.position.y = -306;
-				mesh.rotation.x = - Math.PI;
-				mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.5;
-				scene.add( mesh );
+				//mesh = new THREE.Mesh( plane, materialReflection );
+				//mesh.position.y = -306;
+				//mesh.rotation.x = - Math.PI;
+				//mesh.scale.x = mesh.scale.y = mesh.scale.z = 1.5;
+				//scene.add( mesh );
 
 				//
 
@@ -194,33 +260,33 @@
 				var amounty = 10;
 
 				var PI2 = Math.PI * 2;
-				var material = new THREE.ParticleCanvasMaterial( {
+				//var material = new THREE.ParticleCanvasMaterial( {
 
-					color: 0x0808080,
-					program: function ( context ) {
+				//	color: 0x0808080,
+				//	program: function ( context ) {
 
-						context.beginPath();
-						context.arc( 0, 0, 1, 0, PI2, true );
-						context.closePath();
-						context.fill();
+				//		context.beginPath();
+				//		context.arc( 0, 0, 1, 0, PI2, true );
+				//		context.closePath();
+				//		context.fill();
 
-					}
+				//	}
 
-				} );
+				//} );
 
-				for ( var ix = 0; ix < amountx; ix++ ) {
+				//for ( var ix = 0; ix < amountx; ix++ ) {
 
-					for ( var iy = 0; iy < amounty; iy++ ) {
+				//	for ( var iy = 0; iy < amounty; iy++ ) {
 
-						particle = new THREE.Particle( material );
-						particle.position.x = ix * separation - ( ( amountx * separation ) / 2 );
-						particle.position.y = -153
-						particle.position.z = iy * separation - ( ( amounty * separation ) / 2 );
-						scene.add( particle );
+				//		particle = new THREE.Particle( material );
+				//		particle.position.x = ix * separation - ( ( amountx * separation ) / 2 );
+				//		particle.position.y = -153
+				//		particle.position.z = iy * separation - ( ( amounty * separation ) / 2 );
+				//		scene.add( particle );
 
-					}
+				//	}
 
-				}
+				//}
 
 				renderer = new THREE.CanvasRenderer();
 				//renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -286,7 +352,7 @@
 					imageContext.drawImage( video, 0, 0 );
 
 					if ( texture ) texture.needsUpdate = true;
-					if ( textureReflection ) textureReflection.needsUpdate = true;
+				//	if ( textureReflection ) textureReflection.needsUpdate = true;
 
 				}
 
