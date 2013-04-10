@@ -136,8 +136,10 @@
 		                mWidImg.style.width = imgwidth;
                     if(imgheight != undefined)
 		                mWidImg.style.height = imgheight;
-		            mWidImg.onclick = this.onClick.bind(this);
-		            mWidImg.src = imgsrc;
+                    mWidImg.onclick = this.onClick.bind(this);
+
+                    if(imgsrc != undefined)
+		                mWidImg.src = imgsrc;
 
 		            wid_text = document.createElement('span');
 		            wid_text.style.color = "white";
@@ -309,58 +311,73 @@
 
 
 
-			var LEDs = {};
+		    //! Helper pseudo-singleton class to manage
+            //! the LEDs.
+            LedsManager = new function () {
+
+                var mLEDs = {}
+
+                //! Creates a turned-off LED at the specified position, returning
+                //! its DIV container.
+                //!
+                //! @return div element containing the LED img.
+                this._createLed = function (number, pos_x, pos_y) {
+                    led = new LEDWidget(pos_x, pos_y, "LED " + number);
+                    mLEDs[number] = led;
+                    return led;
+                }
+
+                this._createLeds = function (container) {
+                    for (var i = 0; i < 8; i++) {
+                        var led = this._createLed(7 - i, "" + (10 + i * 5) + "%", "50%");
+                        container.appendChild(led.getElement());
+                    }
+                }
+
+                this._updateLed = function (led_num, state) {
+                    led = mLEDs[led_num];
+                    if (state == '0')
+                        led.setState(false);
+                    else
+                        led.setState(true);
+                }
 
 
-		    //! Creates a turned-off LED at the specified position, returning
-            //! its DIV container.
-		    //!
-            //! @return div element containing the LED img.
-			function createLed(number, pos_x, pos_y) {
-			    led = new LEDWidget(pos_x, pos_y, "LED " + number);
-			    LEDs[number] = led;
-			    return led;
-			}
+                this._onReadLedsSuccess = function (response) {
+                    var cur_led = 7;
+                    for (var i = 0; i < 8; i++, cur_led--) {
+                        var led_state = response[i];
+                        LedsManager._updateLed(cur_led, led_state);
+                    }
+                }
 
-			function createLeds(container) {
-			    for (var i = 0; i < 8; i++) {
-			        var led = createLed(7-i, "" + (10+i*5) + "%", "50%");
-			        container.appendChild(led.getElement());
-			    }
-			}
 
-			function updateLed(led_num, state) {
-			    led = LEDs[led_num];
-			    if (state == '0')
-			        led.setState(false);
-			    else
-			        led.setState(true);
-			}
+                this._onReadLedsFailure = function (response) {
+                    console.error('Failure reading leds response: ' + response);
+                }
 
-			function onReadLedsSuccess(response) {
-			    var cur_led = 7;
-			    for (var i = 0; i < 8; i++, cur_led--) {
-			        var led_state = response[i];
-			        updateLed(cur_led, led_state);
-			    }
-			}
 
-			function onReadLedsFailure(response) {
-			    alert('Failure reading leds response: ' + response);
-			}
+                this.startRefreshingLeds = function () {
+                    try {
+                        if (Weblab.isExperimentActive())
+                            Weblab.sendCommand("READ_LEDS", this._onReadLedsSuccess, this._onReadLedsFailure);
+                    }
+                    catch (err) {
+                        console.log('Error');
+                    }
+                    setTimeout(this.startRefreshingLeds.bind(this), 1000);
+                }
 
-			function refreshLeds() {
-			    try
-			    {
-                    if(Weblab.isExperimentActive())
-			            Weblab.sendCommand("READ_LEDS", onReadLedsSuccess, onReadLedsFailure);
-			    }
-			    catch(err)
-			    {
-			        console.log('Error');
-			    }
-			    setTimeout(refreshLeds, 1000);
-			}
+                this.getLEDs = function () {
+                    return mLEDs;
+                }
+            }
+
+
+
+
+
+
 
 			init();
 
@@ -387,8 +404,8 @@
 				info.innerHTML = '<b>JSFPGA TEST EXPERIMENT</b>';
 				container.appendChild(info);
 
-				createLeds(container);
-				refreshLeds(container);
+				LedsManager._createLeds(container);
+				LedsManager.startRefreshingLeds();
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 1000;
