@@ -84,12 +84,11 @@
 		        var mState = true;
 		        var mOnClickCB;
 
-		        createElement(pos_x, pos_y, text);
 
-		        function createElement(pos_x, pos_y, text) {
+		        this.createElement = function(pos_x, pos_y, text) {
 		            wid_img = document.createElement('img');
 		            wid_img.style.width = "50px";
-		            wid_img.onclick = onClick;
+		            wid_img.onclick = this.onClick.bind(this);
 
 		            wid_text = document.createElement('span');
 		            wid_text.innerHTML = "<br>" + text;
@@ -105,9 +104,12 @@
 		            return wid_container;
 		        }
 
-		        function onClick() {
+		        this.onClick = function() {
+		            console.log(this);
 		            this.setState(!this.getState());
-		            mOnClickCB(); 
+
+                    if(mOnClickCB != undefined)
+		                mOnClickCB(); 
 		        }
 
 		        this.setOnClick = function(func) {
@@ -130,7 +132,20 @@
 		            return wid_container;
 		        }
 
+
+		        this.createElement(pos_x, pos_y, text);
+		        this.setState('0');
+
 		    };
+
+
+		    function placeSwitch() {
+		        sw = new SwitchWidget(300, 300, "Test", "http://www.bitsbox.co.uk/images/redled.jpg", "http://e-lamundial.com.ar/wordpress/wp-content/uploads/2011/11/nterruptor.jpg");
+		        et = document.body.getElementsByTagName('div');
+		        el = et[0];
+		        el.appendChild(sw.getElement());
+		        return sw;
+		    }
 
 
 			var AMOUNT = 100;
@@ -239,6 +254,8 @@
 
 			init();
 			animate();
+
+			placeSwitch();
 
 
 
