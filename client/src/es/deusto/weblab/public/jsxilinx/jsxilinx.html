@@ -37,13 +37,13 @@
             
           
 
-		    // The following code is used to refresh the webcam 
-		    // It is refreshed frame-by-frame every second.
+		    //! The following code is used to refresh the webcam 
+		    //! It is refreshed frame-by-frame every second.
 		    RefreshingCameraWidget = function (targetid, imgsrc) {
 
 		        var mTick = 0;
 		        var mImage = new Image();
-		        var mReload = (new Date).getTime();
+		        var mReload = (new Date()).getTime();
 
 		        var mTargetId;
 		        var mImgSrc;
@@ -55,23 +55,25 @@
 		            mImgSrc = imgsrc;
 		        }
 
-		        mImageSrc = mImgSrc + "?" + mReload;
+		        mImage = mImgSrc + "?" + mReload;
 
 		        this.startRefreshing = function () {
 		            mTick++;
 		            if (mTick > 3) { mRestart = 1; } else { mRestart = 0; }
 		            if (mImage.complete) {
 		                mTick = 0;
+		                console.log("Changing: " + mImage.src);
+		                console.log(document[mTargetId]);
 		                document.images[mTargetId].src = mImage.src;
 		                mImage = new Image();
-		                mReload = (new Date).getTime
+		                mReload = (new Date()).getTime();
 		                mImage.src = mImgSrc + "?" + mReload;
 		            }
 		            if (mRestart) {
 		                mTick = 0;
 		                mImage = new Image();
 		                mReload = (new Date()).getTime();
-		                image.src = mImageSrc + "?" + mReload;
+		                mImage.src = mImgSrc + "?" + mReload;
 		            }
 
 		            setTimeout(this.startRefreshing.bind(this), 1000);
@@ -81,8 +83,14 @@
 		        this._init();
 		    };
 
+
 		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
 		    rc.startRefreshing();
+
+
+
+
+
 
 
 		    //! Base Image widget
@@ -92,7 +100,8 @@
 		    //! @param pos_y Y position of the image (left top corner). 
 		    //! As a CSS string or a pixel-integer.
 		    //! @param text Text beneath the image
-		    //! @param imgwidth CSS string describing hte image width
+		    //! @param imgwidth CSS string describing the image width
+            //! @param imgheight CSS string describing the image height
             //! @param imgsrc Src URL for the image
 		    ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
 
@@ -131,6 +140,10 @@
 		            mWidImg.src = imgsrc;
 
 		            wid_text = document.createElement('span');
+		            wid_text.style.color = "white";
+		            wid_text.style.fontWeight = "bold";
+		            wid_text.style.fontSize = "large";
+		            wid_text.style.textAlign = "center";
 		            wid_text.innerHTML = "<br>" + text;
 
 		            mWidContainer = document.createElement('div');
@@ -144,13 +157,17 @@
 		            if (typeof pos_y == "number")
 		                mWidContainer.style.top = "" + pos_y + "px";
 		            else
-		                mWidContainer.style.left = pos_x;
+		                mWidContainer.style.top = pos_y;
 
 		            mWidContainer.style.width = "100%";
 		            mWidContainer.appendChild(mWidImg);
 		            mWidContainer.appendChild(wid_text);
 
 		            return mWidContainer;
+		        }
+
+		        this.changeImage = function (imgsrc) {
+		            mWidImg.src = imgsrc;
 		        }
 
 		        this.onClick = function () {
@@ -170,13 +187,23 @@
 		    };
 
 
-            // Switch widget
+		    //! Switch Widget. Switches between two different states when clicked.
+		    //!
+		    //! @param pos_x X position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param pos_y Y position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param text Text beneath the image
+		    //! @param on_img Image when turned on.
+            //! @param off_img Image when turned off.
 		    SwitchWidget = function (pos_x, pos_y, text, on_img, off_img) {
+
+		        var mState;
 
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 
 		        this._init = function () {
-		            this.setState('0');
+		            this.setState(false);
 		            this.setOnClick(this.onClick.bind(this));
 		        }
 
@@ -187,9 +214,48 @@
 		        this.setState = function setState(state) {
 		            mState = state;
 		            if (state)
-		                this._getImageElement().src = on_img;
+		                this.changeImage(on_img);
 		            else
-		                this._getImageElement().src = off_img;
+		                this.changeImage(off_img);
+		        }
+
+		        this.getState = function getState() {
+		            return mState;
+		        }
+
+		        this._init();
+		    };
+
+
+
+
+		    //! LED Widget. Simply used to display the state of the LEDs. 
+            //! Which can either be on or off.
+		    //!
+		    //! @param pos_x X position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param pos_y Y position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param text Text beneath the image
+		    LEDWidget = function (pos_x, pos_y, text) {
+
+		        var mState;
+
+		        var mOffImg = "http://www.bitsbox.co.uk/images/redled.jpg";
+		        var mOnImg = "http://ledshoppe.com/Photo/Product%20photo/PICT0014.JPG";
+
+		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
+
+		        this._init = function () {
+		            this.setState(false);
+		        }
+
+		        this.setState = function setState(state) {
+		            mState = state;
+		            if (state)
+		                this.changeImage(mOnImg);
+		            else
+		                this.changeImage(mOffImg);
 		        }
 
 		        this.getState = function getState() {
@@ -201,10 +267,15 @@
 
 
 		    function placeSwitch() {
-		        sw = new SwitchWidget(300, 300, "Test", "http://www.bitsbox.co.uk/images/redled.jpg", "http://e-lamundial.com.ar/wordpress/wp-content/uploads/2011/11/nterruptor.jpg");
+		        sw = new SwitchWidget(300, 300, "Test", "http://ledshoppe.com/Photo/Product%20photo/PICT0014.JPG", "http://www.bitsbox.co.uk/images/redled.jpg");
 		        et = document.body.getElementsByTagName('div');
 		        el = et[0];
 		        el.appendChild(sw.getElement());
+
+
+		        led = new LEDWidget(400, 400, "LED TEST");
+		        el.appendChild(led.getElement());
+
 		        return sw;
 		    }
 
@@ -238,7 +309,7 @@
 
 
 
-			var LEDs = [];
+			var LEDs = {};
 
 
 		    //! Creates a turned-off LED at the specified position, returning
@@ -246,45 +317,24 @@
 		    //!
             //! @return div element containing the LED img.
 			function createLed(number, pos_x, pos_y) {
-			    var led_img = document.createElement('img');
-			    led_img.src = "http://www.bitsbox.co.uk/images/redled.jpg";
-			    led_img.style.width = "50px";
-
-			    var led_text = document.createElement('span');
-			    led_text.innerHTML = "<br>LED " + number;
-
-			    var led_container = document.createElement('div');
-			    led_container.style.position = 'absolute';
-			    led_container.style.left = "" + pos_x + "px";
-			    led_container.style.top = "" + pos_y + "px";
-			    led_container.style.width = "100%";
-			    led_container.appendChild(led_img);
-			    led_container.appendChild(led_text);
-
-			    LEDs[number] = led_container;
-
-			    return led_container;
+			    led = new LEDWidget(pos_x, pos_y, "LED " + number);
+			    LEDs[number] = led;
+			    return led;
 			}
 
 			function createLeds(container) {
 			    for (var i = 0; i < 8; i++) {
-			        var led = createLed(7-i, 100 + i * 60, 150);
-			        container.appendChild(led);
+			        var led = createLed(7-i, "" + (10+i*5) + "%", "50%");
+			        container.appendChild(led.getElement());
 			    }
-			}
-			
-			function onLedClicked() {
-			    alert("yep");
-			    this.src = "http://www.bitsbox.co.uk/images/redled.jpg";
-			    this.style.top = 20;
 			}
 
 			function updateLed(led_num, state) {
 			    led = LEDs[led_num];
 			    if (state == '0')
-			        led.getElementsByTagName('img')[0].src = "http://www.bitsbox.co.uk/images/redled.jpg";
+			        led.setState(false);
 			    else
-			        led.getElementsByTagName('img')[0].src = "http://ledshoppe.com/Photo/Product%20photo/PICT0014.JPG";
+			        led.setState(true);
 			}
 
 			function onReadLedsSuccess(response) {
@@ -312,12 +362,15 @@
 			    setTimeout(refreshLeds, 1000);
 			}
 
-
 			init();
-			animate();
+
+
 
 			placeSwitch();
 
+
+
+			animate();
 
 
 			function init() {
