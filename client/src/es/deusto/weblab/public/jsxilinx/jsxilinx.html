@@ -39,41 +39,50 @@
 
 		    // The following code is used to refresh the webcam 
 		    // It is refreshed frame-by-frame every second.
-		    CameraRefresher = new function () {
+		    RefreshingCameraWidget = function (targetid, imgsrc) {
 
-		        var tick = 0;
-		        var image = new Image();
-		        var reload = new Date();
-		        var reload = reload.getTime();
+		        var mTick = 0;
+		        var mImage = new Image();
+		        var mReload = (new Date).getTime();
 
-		        image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
+		        var mTargetId;
+		        var mImgSrc;
 
-		        function refreshCam() {
-		            tick++;
-		            if (tick > 3) { restart = 1; } else { restart = 0; }
-		            if (image.complete) {
-		                tick = 0;
-		                document.images["video"].src = image.src;
-		                image = new Image();
-		                reload = new Date();
-		                reload = reload.getTime();
-		                window.status = "";
-		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
-		            }
-		            if (restart) {
-		                tick = 0;
-		                image = new Image();
-		                reload = new Date();
-		                reload = reload.getTime();
-		                window.status = "";
-		                image.src = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?" + reload;
-		            }
-		            window.status = window.status + ".";
-		            setTimeout(refreshCam, 1000);
+		        var mRestart = 0;
+
+		        this._init = function () {
+		            mTargetId = targetid;
+		            mImgSrc = imgsrc;
 		        }
 
-		        refreshCam();
+		        mImageSrc = mImgSrc + "?" + mReload;
+
+		        this.startRefreshing = function () {
+		            mTick++;
+		            if (mTick > 3) { mRestart = 1; } else { mRestart = 0; }
+		            if (mImage.complete) {
+		                mTick = 0;
+		                document.images[mTargetId].src = mImage.src;
+		                mImage = new Image();
+		                mReload = (new Date).getTime
+		                mImage.src = mImgSrc + "?" + mReload;
+		            }
+		            if (mRestart) {
+		                mTick = 0;
+		                mImage = new Image();
+		                mReload = (new Date()).getTime();
+		                image.src = mImageSrc + "?" + mReload;
+		            }
+
+		            setTimeout(this.startRefreshing.bind(this), 1000);
+		        }
+
+
+		        this._init();
 		    };
+
+		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
+		    rc.startRefreshing();
 
 
 		    //! Base Image widget
