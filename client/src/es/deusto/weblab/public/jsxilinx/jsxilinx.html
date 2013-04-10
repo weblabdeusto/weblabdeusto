@@ -76,66 +76,118 @@
 		    };
 
 
-            // Switch widget
-		    SwitchWidget = function (pos_x, pos_y, text, on_img, off_img) {
+		    //! Base Image widget
+		    //!
+		    //! @param pos_x X position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param pos_y Y position of the image (left top corner). 
+		    //! As a CSS string or a pixel-integer.
+		    //! @param text Text beneath the image
+		    //! @param imgwidth CSS string describing hte image width
+            //! @param imgsrc Src URL for the image
+		    ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
 
-		        var wid_img;
-		        var wid_container;
-		        var mState = true;
+		        var mWidImg;
+		        var mWidContainer;
+		        var mTextSpan;
 		        var mOnClickCB;
 
+		        this._init = function () {
+		            this._createElement(pos_x, pos_y, text, imgwidth, imgheight, imgsrc);
+		        }
 
-		        this.createElement = function(pos_x, pos_y, text) {
-		            wid_img = document.createElement('img');
-		            wid_img.style.width = "50px";
-		            wid_img.onclick = this.onClick.bind(this);
+		        this._getTextSpan = function () {
+		            return mTextSpan;
+		        }
+
+		        this._getImageElement = function () {
+		            return mWidImg;
+		        }
+
+		        this._getContainerElement = function () {
+		            return mWidContainer;
+		        }
+
+		        this._getOnClickCB = function () {
+		            return mOnClickCB;
+		        }
+
+		        this._createElement = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
+		            mWidImg = document.createElement('img');
+                    if(imgwidth != undefined)
+		                mWidImg.style.width = imgwidth;
+                    if(imgheight != undefined)
+		                mWidImg.style.height = imgheight;
+		            mWidImg.onclick = this.onClick.bind(this);
+		            mWidImg.src = imgsrc;
 
 		            wid_text = document.createElement('span');
 		            wid_text.innerHTML = "<br>" + text;
 
-		            wid_container = document.createElement('div');
-		            wid_container.style.position = 'absolute';
-		            wid_container.style.left = "" + pos_x + "px";
-		            wid_container.style.top = "" + pos_y + "px";
-		            wid_container.style.width = "100%";
-		            wid_container.appendChild(wid_img);
-		            wid_container.appendChild(wid_text);
+		            mWidContainer = document.createElement('div');
+		            mWidContainer.style.position = 'absolute';
 
-		            return wid_container;
+		            if (typeof pos_x == "number")
+		                mWidContainer.style.left = "" + pos_x + "px";
+		            else
+		                mWidContainer.style.left = pos_x;
+
+		            if (typeof pos_y == "number")
+		                mWidContainer.style.top = "" + pos_y + "px";
+		            else
+		                mWidContainer.style.left = pos_x;
+
+		            mWidContainer.style.width = "100%";
+		            mWidContainer.appendChild(mWidImg);
+		            mWidContainer.appendChild(wid_text);
+
+		            return mWidContainer;
+		        }
+
+		        this.onClick = function () {
+		            if (mOnClickCB != undefined)
+		                mOnClickCB();
+		        }
+
+		        this.setOnClick = function (func) {
+		            mOnClickCB = func;
+		        }
+
+		        this.getElement = function () {
+		            return mWidContainer;
+		        }
+
+		        this._init();
+		    };
+
+
+            // Switch widget
+		    SwitchWidget = function (pos_x, pos_y, text, on_img, off_img) {
+
+		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
+
+		        this._init = function () {
+		            this.setState('0');
+		            this.setOnClick(this.onClick.bind(this));
 		        }
 
 		        this.onClick = function() {
-		            console.log(this);
 		            this.setState(!this.getState());
-
-                    if(mOnClickCB != undefined)
-		                mOnClickCB(); 
-		        }
-
-		        this.setOnClick = function(func) {
-		            mOnClickCB = func;
 		        }
 
 		        this.setState = function setState(state) {
 		            mState = state;
 		            if (state)
-		                wid_img.src = on_img;
+		                this._getImageElement().src = on_img;
 		            else
-		                wid_img.src = off_img;
+		                this._getImageElement().src = off_img;
 		        }
 
 		        this.getState = function getState() {
 		            return mState;
 		        }
 
-		        this.getElement = function () {
-		            return wid_container;
-		        }
-
-
-		        this.createElement(pos_x, pos_y, text);
-		        this.setState('0');
-
+		        this._init();
 		    };
 
 
@@ -169,10 +221,10 @@
 			var bgCam;
 			
 			
-	//		document.body.addEventListener("keydown", function() {
-	//		  THREEx.FullScreen.request();
-	//		  alert('FS now');
-	//		}, false);
+			//document.body.addEventListener("keydown", function() {
+			//  THREEx.FullScreen.request();
+			//  alert('FS now');
+			//}, false);
 			
 
 
