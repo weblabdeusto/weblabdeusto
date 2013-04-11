@@ -6,6 +6,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="../jslib/weblabjs.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
 				font-family: Monospace;
@@ -13,6 +14,36 @@
 				margin: 0px;
 				overflow: hidden;
 			}
+
+            .progress-label {
+            float: left;
+            margin-left: 48%;
+            margin-top: 5px;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #fff;
+            }
+
+            .dim
+            {
+			height:100%;
+			width:100%;
+			position:fixed;
+			left:0;
+			top:0;
+			z-index:1 !important;
+			background-color:black;
+            opacity:0.5;
+            }
+
+		    .progress-bar {
+                position: absolute;
+                left: 30%;
+                right: 30%;
+                top: 50%;
+                border-width: 5px;
+                border-color: darkgoldenrod;
+                z-index:2;
+		    }
 		</style>
 	</head>
 	<body>
@@ -25,6 +56,10 @@
 
         <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
 
+        <div id="progressbar" class="progress-bar"><div class="progress-label">Loading...</div></div>
+
+        <!--<div id="dim" class="dim"></div>-->
+
 		<script>
 
             /// The following references are for VisualStudio, so that Intellisense recognizes every library.
@@ -34,6 +69,50 @@
 		    /// <reference path="../jslib/THREEx.FullScreen.js" />
 		    /// <reference path=""../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
+		    
+
+		    function dim_page() {
+		        var dimmingElement = document.createElement('div');
+		        dimmingElement.id = "dim";
+		        dimmingElement.className = "dim";
+		        document.body.appendChild(dimmingElement);
+		    }
+
+		    function light_page() {
+		        var dimmingElement = document.getElementById('dim');
+		        document.body.removeChild(dimmingElement);
+		    }
+
+		    dim_page();
+		    light_page();
+
+
+		    $(function () {
+		        var progressbar = $("#progressbar"),
+                  progressLabel = $(".progress-label");
+
+		        progressbar.progressbar({
+		            value: false,
+		            change: function () {
+		                progressLabel.text(progressbar.progressbar("value") + "%");
+		            },
+		            complete: function () {
+		                progressLabel.text("Complete!");
+		            }
+		        });
+
+		        function progress() {
+		            var val = progressbar.progressbar("value") || 0;
+
+		            progressbar.progressbar("value", val + 1);
+
+		            if (val < 99) {
+		                setTimeout(progress, 100);
+		            }
+		        }
+
+		        setTimeout(progress, 3000);
+		    });
             
           
 
