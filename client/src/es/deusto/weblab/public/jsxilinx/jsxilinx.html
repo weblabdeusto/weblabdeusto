@@ -62,8 +62,8 @@
 		            if (mTick > 3) { mRestart = 1; } else { mRestart = 0; }
 		            if (mImage.complete) {
 		                mTick = 0;
-		                console.log("Changing: " + mImage.src);
-		                console.log(document[mTargetId]);
+		                //console.log("Changing: " + mImage.src);
+		                //console.log(document[mTargetId]);
 		                document.images[mTargetId].src = mImage.src;
 		                mImage = new Image();
 		                mReload = (new Date()).getTime();
@@ -139,14 +139,14 @@
                     mWidImg.onclick = this.onClick.bind(this);
 
                     if(imgsrc != undefined)
-		                mWidImg.src = imgsrc;
+                        mWidImg.src = imgsrc;
 
-		            wid_text = document.createElement('span');
-		            wid_text.style.color = "white";
-		            wid_text.style.fontWeight = "bold";
-		            wid_text.style.fontSize = "large";
-		            wid_text.style.textAlign = "center";
-		            wid_text.innerHTML = "<br>" + text;
+		            mTextSpan = document.createElement('span');
+		            mTextSpan.style.color = "white";
+		            mTextSpan.style.fontWeight = "bold";
+		            mTextSpan.style.fontSize = "large";
+		            mTextSpan.style.textAlign = "center";
+		            mTextSpan.innerHTML = "<br>" + text;
 
 		            mWidContainer = document.createElement('div');
 		            mWidContainer.style.position = 'absolute';
@@ -163,13 +163,17 @@
 
 		            mWidContainer.style.width = "100%";
 		            mWidContainer.appendChild(mWidImg);
-		            mWidContainer.appendChild(wid_text);
+		            mWidContainer.appendChild(mTextSpan);
 
 		            return mWidContainer;
 		        }
 
 		        this.changeImage = function (imgsrc) {
 		            mWidImg.src = imgsrc;
+		        }
+
+		        this.setText = function (text) {
+		            mTextSpan.innerHTML = "<br>" + text;
 		        }
 
 		        this.onClick = function () {
@@ -196,29 +200,32 @@
 		    //! @param pos_y Y position of the image (left top corner). 
 		    //! As a CSS string or a pixel-integer.
 		    //! @param text Text beneath the image
-		    //! @param on_img Image when turned on.
-            //! @param off_img Image when turned off.
-		    SwitchWidget = function (pos_x, pos_y, text, on_img, off_img) {
+		    SwitchWidget = function (pos_x, pos_y, text) {
 
 		        var mState;
+
+		        var mOnImg = "../img/switch_on.png";
+		        var mOffImg = "../img/switch_off.png";
 
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 
 		        this._init = function () {
 		            this.setState(false);
+
 		            this.setOnClick(this.onClick.bind(this));
 		        }
 
-		        this.onClick = function() {
+		        this.onClick = function () {
+		            //console.log("Clicked: " + text);
 		            this.setState(!this.getState());
 		        }
 
 		        this.setState = function setState(state) {
 		            mState = state;
 		            if (state)
-		                this.changeImage(on_img);
+		                this.changeImage(mOnImg);
 		            else
-		                this.changeImage(off_img);
+		                this.changeImage(mOffImg);
 		        }
 
 		        this.getState = function getState() {
@@ -226,6 +233,41 @@
 		        }
 
 		        this._init();
+		    };
+
+		    //! FullScreen Widget. Switches between windowed mode and full screen.
+		    //!
+		    FullScreenWidget = function (pos_x, pos_y, text) {
+
+		        var mFullScreenImg = "http://cdn1.iconfinder.com/data/icons/bloggers-1-to-7-vol-PNG/512/full_screen.png";
+
+		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px", mFullScreenImg);
+
+		        this._init = function () {
+
+		            this.setOnClick(this.onClick.bind(this));
+		        }
+
+
+		        this.onClick = function () {
+
+		            console.log("Fullscreen request received");
+
+		            if (THREEx.FullScreen.available() == false) {
+		                console.error("FullScreen is not available in your system");
+		                this.setText("[Unavailable]");
+		            }
+
+		            if (THREEx.FullScreen.activated() == false) {
+		                THREEx.FullScreen.request();
+		            }
+		            else
+		                THREEx.FullScreen.cancel();
+		        }
+
+
+		        this._init();
+
 		    };
 
 
@@ -269,7 +311,7 @@
 
 
 		    function placeSwitch() {
-		        sw = new SwitchWidget(300, 300, "Test", "http://ledshoppe.com/Photo/Product%20photo/PICT0014.JPG", "http://www.bitsbox.co.uk/images/redled.jpg");
+		        sw = new SwitchWidget(300, 300, "Test");
 		        et = document.body.getElementsByTagName('div');
 		        el = et[0];
 		        el.appendChild(sw.getElement());
@@ -309,7 +351,25 @@
 			//}, false);
 			
 
+		    //! Helper pseudo-singleton class to manage
+		    //! the switches.
+			SwitchesManager = new function () {
 
+			    var mSwitches = {}
+
+			    //! Creates the specified number of switches.
+			    //!
+			    this._createSwitches = function (container) {
+			        for (var i = 0; i < 8; i++) {
+			            var swit = new SwitchWidget("" + (15+i*8) + "%", "85%", "Switch " + i);
+			            mSwitches[i] = swit;
+
+			            container.appendChild(swit.getElement());
+			        }
+
+			    }
+
+			}
 
 		    //! Helper pseudo-singleton class to manage
             //! the LEDs.
@@ -320,7 +380,7 @@
                 //! Creates a turned-off LED at the specified position, returning
                 //! its DIV container.
                 //!
-                //! @return div element containing the LED img.
+                //! @return The LED img.
                 this._createLed = function (number, pos_x, pos_y) {
                     led = new LEDWidget(pos_x, pos_y, "LED " + number);
                     mLEDs[number] = led;
@@ -329,7 +389,7 @@
 
                 this._createLeds = function (container) {
                     for (var i = 0; i < 8; i++) {
-                        var led = this._createLed(7 - i, "" + (10 + i * 5) + "%", "50%");
+                        var led = this._createLed(7 - i, "" + (60 + i * 5) + "%", "5%");
                         container.appendChild(led.getElement());
                     }
                 }
@@ -406,6 +466,12 @@
 
 				LedsManager._createLeds(container);
 				LedsManager.startRefreshingLeds();
+
+				SwitchesManager._createSwitches(container);
+
+				var fsw = new FullScreenWidget("1%", "8%", "FULLSCREEN");
+				container.appendChild(fsw.getElement());
+
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 1000;
