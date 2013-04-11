@@ -43,6 +43,18 @@ Weblab = new function () {
 
     var mIsExperimentActive;
 
+    // Exception thrown when trying to use a WebLab-provided function while offline.
+    // (Such as when this script is used stand-alone).
+    var mNotOnline = { name: "WeblabJS Error", level: "high", message: "Tried to call WebLab method. WebLab-provided methods are not available." }
+
+
+    // For experiments debugging purposes. Allows fixed responses when
+    // not connected to the real WebLab, thus allowing stand-alone
+    // debugging of user-experiments.
+    var mSendCommandDbg = false;
+    var mSendCommandResponse;
+    var mSendCommandResult;
+
 
     ///////////////////////////////////////////////////////////////
     //
@@ -119,8 +131,17 @@ Weblab = new function () {
     //!
     this.sendCommand = function (text, successHandler, errorHandler) {
         mCommandsSentCounter++;
-        mCommandsSentMap[mCommandsSentCounter] = [successHandler, errorHandler];
-        return parent.wl_sendCommand(text, mCommandsSentCounter);
+
+        if (this.checkOnline() == false) {
+            if (mSendCommandDbg)
+                setTimeout(mSendCommandResult ? successHandler : errorHandler, 100, mSendCommandResponse);
+            else
+                throw mNotOnline;
+        }
+        else {
+            mCommandsSentMap[mCommandsSentCounter] = [successHandler, errorHandler];
+            return parent.wl_sendCommand(text, mCommandsSentCounter);
+        }
     };
 
 
@@ -132,7 +153,6 @@ Weblab = new function () {
     this.setOnEndCallback = function (onEndCallback) {
         mOnEndCallback = onEndCallback;
     }
-
 
     //! Sets the callbacks that will be invoked by default when a sendfile request
     //! finishes. The appropriate callback specified here will be invoked if no 
@@ -228,6 +248,26 @@ Weblab = new function () {
     //!
     this.isExperimentActive = function () {
         return mIsExperimentActive;
+    }
+    
+    //! Checks whether this interface is actually connected to the real
+    //! WebLab client. 
+    //!
+    //! @return True, if connected to the real WL client. False otherwise.
+    this.checkOnline = function () {
+        return parent.wl_sendCommand != undefined;
+    }
+
+    //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
+    //! offline from the real Weblab client, then the response to SendCommand will be as specified.
+    //!
+    //! @param response Text in the response.
+    //! @param result If true, SendCommand will invoke the success handler.
+    //! @param result If false, SendCommand will invoke the failure handler.
+    this.dbgSetOfflineSendCommandResponse = function (response, result) {
+        mSendCommandDbg = true;
+        mSendCommandResult = result == undefined ? true : result;
+        mSendCommandResponse = response;
     }
 
 }; //! end-of class-like Weblab function

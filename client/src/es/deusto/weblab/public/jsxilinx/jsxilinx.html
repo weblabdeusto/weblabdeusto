@@ -200,9 +200,10 @@
 		    //! @param pos_y Y position of the image (left top corner). 
 		    //! As a CSS string or a pixel-integer.
 		    //! @param text Text beneath the image
-		    SwitchWidget = function (pos_x, pos_y, text) {
+		    SwitchWidget = function (id, pos_x, pos_y, text) {
 
 		        var mState;
+		        var mID;
 
 		        var mOnImg = "../img/switch_on.png";
 		        var mOffImg = "../img/switch_off.png";
@@ -210,23 +211,57 @@
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 
 		        this._init = function () {
-		            this.setState(false);
-
+		            mID = id;
+		            this.setInitialState(false);
 		            this.setOnClick(this.onClick.bind(this));
+		        }
+
+		        this.getId = function () {
+		            return mID;
 		        }
 
 		        this.onClick = function () {
 		            //console.log("Clicked: " + text);
+
 		            this.setState(!this.getState());
 		        }
 
-		        this.setState = function setState(state) {
+		        this.setInitialState = function (state) {
 		            mState = state;
 		            if (state)
 		                this.changeImage(mOnImg);
 		            else
 		                this.changeImage(mOffImg);
 		        }
+
+		        this.setState = function (state) {
+
+		            command = "ChangeSwitch " + (state ? "on" : "off") + " " + this.getId();
+
+		            // Set debugging response for when running stand-alone
+		            Weblab.dbgSetOfflineSendCommandResponse("ok", true);
+
+		            Weblab.sendCommand(command,
+
+                        function (response) {
+                            // On success
+                            console.log("[DBG]: Command: " + command + " Reply: " + response);
+                            mState = state;
+                            if (state)
+                                this.changeImage(mOnImg);
+                            else
+                                this.changeImage(mOffImg);
+                        }.bind(this),
+
+                        function (response) {
+                            // On failure
+                            console.error("ChangeSwitch failed: " + response);
+                        }.bind(this)
+
+                        );
+
+		        }
+
 
 		        this.getState = function getState() {
 		            return mState;
@@ -310,20 +345,6 @@
 		    };
 
 
-		    function placeSwitch() {
-		        sw = new SwitchWidget(300, 300, "Test");
-		        et = document.body.getElementsByTagName('div');
-		        el = et[0];
-		        el.appendChild(sw.getElement());
-
-
-		        led = new LEDWidget(400, 400, "LED TEST");
-		        el.appendChild(led.getElement());
-
-		        return sw;
-		    }
-
-
 			var AMOUNT = 100;
 			var container, stats;
 			var camera, scene, renderer;
@@ -361,14 +382,13 @@
 			    //!
 			    this._createSwitches = function (container) {
 			        for (var i = 0; i < 8; i++) {
-			            var swit = new SwitchWidget("" + (15+i*8) + "%", "85%", "Switch " + i);
+			            var swit = new SwitchWidget(i, "" + (15+i*8) + "%", "85%", "Switch " + i);
 			            mSwitches[i] = swit;
 
 			            container.appendChild(swit.getElement());
 			        }
 
 			    }
-
 			}
 
 		    //! Helper pseudo-singleton class to manage
@@ -440,13 +460,6 @@
 
 
 			init();
-
-
-
-			placeSwitch();
-
-
-
 			animate();
 
 
@@ -656,7 +669,6 @@
 				// mod
 				
 				renderer.render(bgScene, bgCam);
-			
 				renderer.render( scene, camera );
 
 			}
