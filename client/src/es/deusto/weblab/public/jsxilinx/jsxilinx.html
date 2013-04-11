@@ -67,7 +67,7 @@
 		    /// <reference path="../jslib/three.min.js" />
 		    /// <reference path="../jslib/stats.min.js" />
 		    /// <reference path="../jslib/THREEx.FullScreen.js" />
-		    /// <reference path=""../jslib/jquery-1.9.1.js" />
+		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 		    
 
@@ -518,7 +518,15 @@
 
                 this.startRefreshingLeds = function () {
                     try {
-                        if (Weblab.isExperimentActive())
+                        // Create a fake READ_LEDS response, for testing offline.
+                        var fakeResponse = "";
+                        for (var i = 0; i < 8; i++) {
+                            var st = Math.floor(Math.random() * 2);
+                            fakeResponse += st;
+                        }
+                        Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
+
+                        if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
                             Weblab.sendCommand("READ_LEDS", this._onReadLedsSuccess, this._onReadLedsFailure);
                     }
                     catch (err) {
@@ -533,9 +541,61 @@
             }
 
 
+            StateChecker = function () {
+                
+                var mState = "offline";
+                var mStateChangedCB;
 
+                this._init = function () {
 
+                }
 
+                this._createStateBox = function {
+                    
+                }
+
+                this.setOnStateChangedCallback = function (callback) {
+                    mStateChangedCB = callback;
+                }
+
+                this.getState = function () {
+                    return mState;
+                }
+
+                this.changeState = function (state) {
+                    mState = state;
+                    if (mStateChangedCB != undefined)
+                        mStateChangedCB();
+                }
+
+                this._checkState = function () {
+
+                    // Create a fake STATE response, for testing offline.
+                    var fakeResponse = "STATE=programming";
+                    Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
+                    
+                    // Send the state-checking command.
+                    Weblab.sendCommand("STATE",
+
+                        function (response) {
+                            // Success
+                            var splits = response.split("=");                            
+                            var curstate = splits[1];
+
+                            this._changeState(curstate);
+                        }.bind(this),
+
+                        function (response) {
+                            // Failure
+                            console.error("Error while trying to check state");
+                        }.bind(this)
+
+                    );
+
+                }
+
+                this._init();
+            }
 
 
 			init();
