@@ -87,33 +87,31 @@
 		    light_page();
 
 
-		    $(function () {
-		        var progressbar = $("#progressbar"),
-                  progressLabel = $(".progress-label");
+		    ProgressBarWidget = function () {
 
-		        progressbar.progressbar({
-		            value: false,
-		            change: function () {
-		                progressLabel.text(progressbar.progressbar("value") + "%");
-		            },
-		            complete: function () {
-		                progressLabel.text("Complete!");
-		            }
-		        });
+		        var progressbar = $("#progressbar");
+		        var progressLabel = $(".progress-label");
 
-		        function progress() {
-		            var val = progressbar.progressbar("value") || 0;
-
-		            progressbar.progressbar("value", val + 1);
-
-		            if (val < 99) {
-		                setTimeout(progress, 100);
-		            }
+		        this.setDetermination = function (determined) {
+		            progressbar.progressbar("value", determined);
 		        }
 
-		        setTimeout(progress, 3000);
-		    });
-            
+		        this.setText = function (text) {
+		            progressLabel.text(text);
+		        }
+
+		        //progressbar.progressbar({
+		        //    value: false,
+		        //    change: function () {
+		        //        progressLabel.text(progressbar.progressbar("value") + "%");
+		        //    },
+		        //    complete: function () {
+		        //        progressLabel.text("Complete!");
+		        //    }
+		        //});
+		    }
+
+		    pb = new ProgressBarWidget();
           
 
 		    //! The following code is used to refresh the webcam 
