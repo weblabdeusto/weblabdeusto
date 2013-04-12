@@ -73,7 +73,7 @@ class ReservationConfirmer(object):
             else:
                 end_time = datetime.datetime.now()
                 experiment_coordaddress = CoordAddress.CoordAddress.translate_address(exp_info['address'])
-                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name)
+                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name, exp_info)
         except:
             if DEBUG:
                 traceback.print_exc()

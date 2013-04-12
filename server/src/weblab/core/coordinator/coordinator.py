@@ -391,9 +391,9 @@ class AbstractCoordinator(object):
     #
     # Called when it is confirmed by the Laboratory Server.
     #
-    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime, basestring)
+    @typecheck(CoordAddress, ExperimentId, basestring, basestring, SessionId, (basestring, type(None)), datetime.datetime, datetime.datetime, basestring, dict)
     @logged()
-    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name):
+    def confirm_experiment(self, experiment_coordaddress, experiment_id, reservation_id, lab_coordaddress_str, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name, exp_info):
 
         # 
         # Options parsing
