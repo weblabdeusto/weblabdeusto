@@ -141,9 +141,9 @@
 		        this._init();
 		    }
 
-		    pb = new ProgressBarWidget("25%", "55%");
-		    pb.show();
-		    setTimeout(function () { pb.hide(); }, 2000);
+		    //pb = new ProgressBarWidget("25%", "55%");
+		    //pb.show();
+		    //setTimeout(function () { pb.hide(); }, 2000);
           
 
 		    //! The following code is used to refresh the webcam 
@@ -647,6 +647,10 @@
 
                 this._checkState = function () {
 
+                    // If the experiment has not yet started, we do nothing.
+                    if (Weblab.checkOnline() && !Weblab.isExperimentActive())
+                        return;
+
                     // Create a fake STATE response, for testing offline.
                     var fakeResponse = "STATE=programming";
                     Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
@@ -688,6 +692,85 @@
 			init();
 			animate();
 
+			function main() {
+
+                // Set up the LEDs, to display the detected state of the real LEDs.
+			    LedsManager._createLeds(container);
+			    LedsManager.startRefreshingLeds();
+
+			    // Set up the switches, to be able to change the state of the switches
+                // when appropriate.
+			    SwitchesManager._createSwitches(container);
+
+			    // Set up the FullSreenWidget, which will let the user switch between
+                // standard and full-screen.
+			    var fsw = new FullScreenWidget("1%", "8%", "FULLSCREEN");
+			    container.appendChild(fsw.getElement());
+
+			    // Set up the state checker, which will continuously query WebLab
+                // for state changes, and display the current experiment state.
+			    var sc = new StateChecker();
+			    var scbox = sc.getStateBoxElement();
+			    sc.startCheckingState();
+			    container.appendChild(scbox);
+
+			    var pb = new ProgressBarWidget("25%", "55%");
+
+                // Set up the logic for each state.
+			    sc.setOnStateReachedCallback("programming",
+                    function (state, previous) {
+                        console.log("Reached state: " + state);
+                        pb.setText("Programming...");
+                        pb.show();
+                    }
+                );
+			    sc.setOnStateReachedCallback("synthesizing",
+                    function (state, previous) {
+                        console.log("Reached state: " + state);
+                        pb.setText("Compiling...");
+                        pb.show();
+                    }
+                );
+			    sc.setOnStateReachedCallback("ready",
+                    function (state, previous) {
+                        console.log("Reached state: " + state);
+                        pb.hide();
+                    }
+                );
+			    sc.setOnStateReachedCallback("failed",
+                    function (state, previous) {
+                        dim_page();
+                        console.log("Reached state: " + state);
+                        console.error("State: Failed");
+                        pb.hide();
+                    }
+			    );
+			    sc.setOnStateReachedCallback("synthesizing_error",
+                    function (state, previous) {
+                        dim_page();
+                        console.log("Reached state: " + state);
+                        console.error("State: Synthesizing error");
+                        pb.hide();
+                    }
+                );
+			    sc.setOnStateReachedCallback("not_ready",
+                    function (state, previous) {
+                        dim_page();
+                        console.log("Reached state: " + state);
+                        pb.hide();
+                    }
+                );
+
+			    sc.setOnStateReachedCallback("awaiting_code",
+                    function (state, previous) {
+                        dim_page();
+                        console.log("Reached state: " + state);
+                        pb.hide();
+                    }
+                );
+
+			}
+
 
 			function init() {
 
@@ -703,25 +786,9 @@
 				info.innerHTML = '<b>JSFPGA TEST EXPERIMENT</b>';
 				container.appendChild(info);
 
-				LedsManager._createLeds(container);
-				LedsManager.startRefreshingLeds();
 
-				SwitchesManager._createSwitches(container);
-
-				var fsw = new FullScreenWidget("1%", "8%", "FULLSCREEN");
-				container.appendChild(fsw.getElement());
-
-				var sc = new StateChecker();
-				var scbox = sc.getStateBoxElement();
-				sc.startCheckingState();
-				container.appendChild(scbox);
-
-				sc.setOnStateReachedCallback("programming",
-
-                    function (state, previous) {
-                        //dim_page();
-                    }
-                    );
+                // Set up the experiment.
+				main();
 
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
