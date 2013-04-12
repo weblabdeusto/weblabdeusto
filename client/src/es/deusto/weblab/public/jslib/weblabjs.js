@@ -41,7 +41,7 @@ Weblab = new function () {
     var mDefaultFileHandlerSuccessCallback;
     var mDefaultFileHandlerErrorCallback;
 
-    var mIsExperimentActive;
+    var mIsExperimentActive = false;
 
     // Exception thrown when trying to use a WebLab-provided function while offline.
     // (Such as when this script is used stand-alone).
