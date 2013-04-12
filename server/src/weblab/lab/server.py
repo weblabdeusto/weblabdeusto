@@ -144,15 +144,22 @@ class LaboratoryServer(object):
                         checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
                     else:
                         raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
-                parsed_experiments.append( (experiment_instance_id, coord_address, checking_handlers ) )
+
+                # API
+                api = data.get('api', None)
+                
+                # Polling: if it manages its own polling, the client does not need to manage it
+                manages_polling = data.get('manages_polling', False)
+
+                parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling }) )
         return parsed_experiments
 
     def _load_assigned_experiments(self):
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
         parsed_experiments         = self._parse_assigned_experiments()
 
-        for exp_inst_id, coord_address, checking_handlers in parsed_experiments:
-            self._assigned_experiments.add_server(exp_inst_id, coord_address, checking_handlers)
+        for exp_inst_id, coord_address, exp_info in parsed_experiments:
+            self._assigned_experiments.add_server(exp_inst_id, coord_address, exp_info)
 
     #####################################################
     #
@@ -245,7 +252,12 @@ class LaboratoryServer(object):
             # ERROR: Unrecognized version.
             experiment_server_response = experiment_server.start_experiment(lab_sess_id, client_initial_data, server_initial_data)
 
-        return lab_sess_id, experiment_server_response, { 'address' : experiment_coord_address.address }
+        experiment_info = {
+            'address' : experiment_coord_address.address,
+            'manages_polling' : self._assigned_experiments.manages_polling(experiment_instance_id),
+        }
+
+        return lab_sess_id, experiment_server_response, experiment_info
 
 
     @logged(log.level.Info)
