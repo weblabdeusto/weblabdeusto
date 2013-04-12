@@ -37,6 +37,7 @@
 
 		    .progress-bar {
                 position: absolute;
+                display: none;
                 left: 30%;
                 right: 30%;
                 top: 50%;
@@ -87,18 +88,45 @@
 		    light_page();
 
 
-		    ProgressBarWidget = function () {
+		    //! To easily control the progress bar. It depends
+		    //! on a previously placed progress bar, and on 
+            //! CSS styles on the page.
+            //!
+		    ProgressBarWidget = function (posx, posy) {
 
-		        var progressbar = $("#progressbar");
-		        var progressLabel = $(".progress-label");
+		        var mProgressBar = $("#progressbar");
+		        var mProgressLabel = $(".progress-label");
+
+		        this._init = function () {
+		            mProgressBar.position = "absolute";
+		            mProgressBar.css("left", posx);
+		            mProgressBar.css("top", posy);
+
+		            mProgressBar.progressbar({
+		                value: false,
+		                change: function () { },
+		                complete: function () { }
+		            });
+		        }
+
+		        this.hide = function () {
+		            mProgressBar.hide();
+		            light_page();
+		        }
+
+		        this.show = function () {
+		            dim_page();
+		            mProgressBar.show();
+		        }
 
 		        this.setDetermination = function (determined) {
-		            progressbar.progressbar("value", determined);
+		            mProgressBar.progressbar("value", determined);
 		        }
 
 		        this.setText = function (text) {
-		            progressLabel.text(text);
+		            mProgressLabel.text(text);
 		        }
+
 
 		        //progressbar.progressbar({
 		        //    value: false,
@@ -109,9 +137,13 @@
 		        //        progressLabel.text("Complete!");
 		        //    }
 		        //});
+
+		        this._init();
 		    }
 
-		    pb = new ProgressBarWidget();
+		    pb = new ProgressBarWidget("25%", "55%");
+		    pb.show();
+		    setTimeout(function () { pb.hide(); }, 2000);
           
 
 		    //! The following code is used to refresh the webcam 
