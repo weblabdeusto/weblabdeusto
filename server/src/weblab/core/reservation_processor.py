@@ -130,7 +130,7 @@ class ReservationProcessor(object):
         self._reservation_session['federated'] = True
 
     def disable_polling(self):
-        self._reservation_session['supports_polling'] = False
+        self._reservation_session['manages_polling'] = True
 
     def finish(self):
 
@@ -184,8 +184,8 @@ class ReservationProcessor(object):
     def is_federated(self):
         return self._reservation_session.get('federated', False)
 
-    def supports_polling(self):
-        return self._reservation_session.get('supports_polling', True)
+    def manages_polling(self):
+        return self._reservation_session.get('manages_polling', False)
 
     def _renew_expiration_time(self, expiration_time):
         if self.is_polling():
@@ -214,7 +214,7 @@ class ReservationProcessor(object):
         # If it has been assigned to a laboratory that explicitly requests to avoid 
         # using polling, then it is only expired when the particular laboratory
         # states that it is expired.
-        if not self.supports_polling():
+        if self.manages_polling():
             return False
 
         # If it has been assigned in a foreign server, then, it is never expired
