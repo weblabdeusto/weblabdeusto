@@ -120,7 +120,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
 
         mock_laboratory = self.mocker.mock()
         mock_laboratory.reserve_experiment(ExperimentInstanceId('inst1','exp1','cat1'), '"sample initial data"', mocker.ANY)
-        self.mocker.result((lab_session_id, None, 'server:inst@mach'))
+        self.mocker.result((lab_session_id, None, { 'address' : 'server:inst@mach'}))
 
         self.mock_locator.real_mock = self.mocker.mock()
         self.mock_locator.real_mock.get_server_from_coordaddress(

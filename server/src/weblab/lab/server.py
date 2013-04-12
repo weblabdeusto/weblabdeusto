@@ -245,7 +245,7 @@ class LaboratoryServer(object):
             # ERROR: Unrecognized version.
             experiment_server_response = experiment_server.start_experiment(lab_sess_id, client_initial_data, server_initial_data)
 
-        return lab_sess_id, experiment_server_response, experiment_coord_address.address
+        return lab_sess_id, experiment_server_response, { 'address' : experiment_coord_address.address }
 
 
     @logged(log.level.Info)
