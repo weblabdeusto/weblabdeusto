@@ -71,4 +71,4 @@ TASK_MANAGER_PORT    = 1661
 
 PUBLIC_URL = 'http://localhost'
 DIR_BASE = os.path.expanduser(os.path.join('~', '.weblab')) # home path
-
+ADMINISTRATORS = ('pablo.orduna@deusto.es',)

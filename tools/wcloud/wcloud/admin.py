@@ -19,25 +19,49 @@
 
 from wcloud import app, db
 
-from flask.ext.admin import Admin
+from flask import session, redirect, url_for, request
+from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 import wcloud.models as models
+
+databases_per_port = app.config['REDIS_DBS_PER_PORT']
+initial_redis_port = app.config['REDIS_START_PORT']
+
+def is_accessible():
+    logged_in  = session.get('logged_in', False)
+    user_email = session.get('user_email', 'not provided') 
+    administrators = app.config.get('ADMINISTRATORS', ())
+
+    print logged_in, user_email, administrators
+
+    return logged_in and user_email in administrators
 
 class AdministratorModelView(ModelView):
 
     def is_accessible(self):
-        return True
+        return is_accessible()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(url_for('login', next=request.url))
 
         return super(AdministratorModelView, self)._handle_view(name, **kwargs)
+
+class HomeView(AdminIndexView):
+
+    def is_accessible(self):
+        return is_accessible()
+
+    def _handle_view(self, name, **kwargs):
+        if not self.is_accessible():
+            return redirect(url_for('login', next=request.url))
+
+        return super(HomeView, self)._handle_view(name, **kwargs)
 
 
 class UsersPanel(AdministratorModelView):
 
-    column_list = ('full_name', 'email', 'active', 'token')
+    column_list = ('full_name', 'email', 'active', 'token.token', 'entity.name', 'entity.base_url')
 
     can_edit   = False
     can_create = False
@@ -46,12 +70,39 @@ class UsersPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(models.User, session, **kwargs)
 
+class TokensPanel(AdministratorModelView):
+
+    column_list = ('token', 'date','user.full_name', 'user.email','user.active')
+
+    can_edit   = False
+    can_create = False
+    can_delete = False
+
+    def __init__(self, session, **kwargs):
+        super(TokensPanel, self).__init__(models.Token, session, **kwargs)
+
+class EntitiesPanel(AdministratorModelView):
+
+    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'mysql', 'redis')
+
+    column_formatters = {
+        'mysql' : lambda c, e, p: 'wcloud%s' % e.id,
+        'redis' : lambda c, e, p: initial_redis_port + e.id / databases_per_port,
+    }
+
+    can_edit   = False
+    can_create = False
+    can_delete = False
+
+    def __init__(self, session, **kwargs):
+        super(EntitiesPanel, self).__init__(models.Entity, session, **kwargs)
+
 
 admin_url = '/admin'
 
-# admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = 'wCloud Admin', url = admin_url, endpoint = admin_url)
-admin = Admin(name = 'wCloud Admin', url = admin_url, endpoint = admin_url)
+admin = Admin(app, index_view = HomeView(), name = 'wCloud Admin')
 
 admin.add_view(UsersPanel(db.session,  name = 'Users',  endpoint = 'users'))
+admin.add_view(TokensPanel(db.session,  name = 'Tokens',  endpoint = 'tokens'))
+admin.add_view(EntitiesPanel(db.session,  name = 'Entities',  endpoint = 'entities'))
 
-admin.init_app(app)

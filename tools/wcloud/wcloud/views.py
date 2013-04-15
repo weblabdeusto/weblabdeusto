@@ -104,13 +104,14 @@ def login():
             #Redirect
             next_url = request.args.get('next')
             if next_url != '' and next_url != None:
-                return redirect(url_for(next_url))
+                return redirect(next_url)
                 
             return redirect(url_for('configure'))
         else:
             flash('Failure login', 'error')
     
-    return render_template('login.html', form=form)
+    next_url = request.args.get('next')
+    return render_template('login.html', form=form, next=next_url)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
