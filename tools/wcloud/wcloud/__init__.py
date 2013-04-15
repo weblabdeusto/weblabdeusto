@@ -35,3 +35,5 @@ db = SQLAlchemy(app)
 import wcloud.models
 
 import wcloud.views
+
+import wcloud.admin
