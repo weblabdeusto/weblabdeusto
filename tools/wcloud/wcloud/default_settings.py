@@ -30,8 +30,7 @@ RECAPTCHA_PRIVATE_KEY = 'private key'
 # and adding more may affect performance)
 # 
 REDIS_START_PORT=6379 + 1 # So we don't use the 6379
-REDIS_DBS_PER_PROCESS=16
-
+REDIS_DBS_PER_PORT=16
 
 ##########################
 # 

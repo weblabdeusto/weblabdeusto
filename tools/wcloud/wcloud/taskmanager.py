@@ -257,6 +257,7 @@ class TaskManager(threading.Thread):
             except:
                 import traceback
                 print(traceback.format_exc())
+                sys.stdout.flush()
                 self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
 
                 # Revert changes:
@@ -270,6 +271,10 @@ class TaskManager(threading.Thread):
                
                 # 
                 # 3. Remove from the instances to be loaded
+                # TODO
+
+                # 
+                # 4. Remove from the database
                 # TODO
 
 
