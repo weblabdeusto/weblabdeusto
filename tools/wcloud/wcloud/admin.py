@@ -83,11 +83,12 @@ class TokensPanel(AdministratorModelView):
 
 class EntitiesPanel(AdministratorModelView):
 
-    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'mysql', 'redis')
+    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'mysql', 'redis port', 'redis db')
 
     column_formatters = {
         'mysql' : lambda c, e, p: 'wcloud%s' % e.id,
-        'redis' : lambda c, e, p: initial_redis_port + e.id / databases_per_port,
+        'redis port' : lambda c, e, p: initial_redis_port + e.id / databases_per_port,
+        'redis db'   : lambda c, e, p: e.id % databases_per_port,
     }
 
     can_edit   = False
