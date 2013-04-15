@@ -14,6 +14,8 @@ export PYTHONPATH=.
 export http_proxy=http://proxy-s-priv.deusto.es:3128/
 export https_proxy=https://proxy-s-priv.deusto.es:3128/
 
+sleep 2 # Wait until Redis servers are loaded before starting WebLab-Deusto instances
+
 echo -n "Starting taskmanager..."
 nohup python wcloud/taskmanager.py > nohup_taskmanager 2>&1 &
 echo "Look at nohup_taskmanager"
