@@ -72,7 +72,7 @@ class Entity(db.Model):
     
     id                      = Column(Integer, primary_key=True)
     name                    = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. University of Deusto
-    logo                    = Column(db.LargeBinary, nullable=False)           # e.g. (the logo of the entity)
+    logo                    = Column(db.LargeBinary(16 * 1024 * 1024), nullable=False)           # e.g. (the logo of the entity)
     logo_ext                = Column(Unicode(4), nullable=False)           # e.g. '.jpeg'
     base_url                = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. /myschool.
     link_url                = Column(Unicode(300), nullable=False)             # e.g. http://www.deusto.es
