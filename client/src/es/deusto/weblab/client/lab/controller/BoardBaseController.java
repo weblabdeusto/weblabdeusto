@@ -99,15 +99,12 @@ final class BoardBaseController implements IBoardBaseController {
 	}
 	
 	@Override
-	public void sendFile(UploadStructure uploadStructure,
-		IResponseCommandCallback callback) {
+	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
 	    this.controller.sendFile(uploadStructure, callback);
-	    
 	}
 	
 	@Override
-	public void sendAsyncFile(UploadStructure uploadStructure,
-			IResponseCommandCallback callback) {
+	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
 		this.controller.sendAsyncFile(uploadStructure, callback);
 	}
 	
