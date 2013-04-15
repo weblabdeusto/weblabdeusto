@@ -330,6 +330,13 @@ def deploy():
     base_url = app.config['PUBLIC_URL']
     base_url += '/w/'
 
+    if request.method == 'GET':
+        # If it was not filled
+        if not form.admin_name.data:
+            form.admin_name.data = user.full_name
+            form.admin_user.data = 'admin'
+            form.admin_email.data = user.email
+
     if request.method == 'POST' and form.validate():
         if not enabled:
             flash("You have already deployed your system, so you can not redeploy it")
