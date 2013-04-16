@@ -19,7 +19,7 @@
 
 from wcloud import app, db
 
-from flask import session, redirect, url_for, request
+from flask import session, redirect, url_for, request, Markup
 from flask.ext.admin import Admin, AdminIndexView
 from flask.ext.admin.contrib.sqlamodel import ModelView
 import wcloud.models as models
@@ -89,6 +89,7 @@ class EntitiesPanel(AdministratorModelView):
         'mysql' : lambda c, e, p: 'wcloud%s' % e.id,
         'redis port' : lambda c, e, p: initial_redis_port + e.id / databases_per_port,
         'redis db'   : lambda c, e, p: e.id % databases_per_port,
+        'base_url'   : lambda c, e, p: Markup("""<a target="_blank" href="https://cloud.weblab.deusto.es/w/%s">%s</a>""" % (e.base_url, e.base_url))
     }
 
     can_edit   = False
