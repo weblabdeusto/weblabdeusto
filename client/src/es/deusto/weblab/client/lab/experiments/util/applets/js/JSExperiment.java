@@ -53,7 +53,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		if(!this.isJSFile)
 		{
 			// If it seems to be a relative address, preppend the module base.
-			if(!this.file.trim().startsWith("http://") || !this.file.trim().startsWith("https://"))
+			if(!this.file.trim().startsWith("http://") && !this.file.trim().startsWith("https://"))
 				this.file = GWT.getModuleBaseURL() + this.file;
 		}
 		
