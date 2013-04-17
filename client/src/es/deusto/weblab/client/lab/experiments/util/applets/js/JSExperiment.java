@@ -51,7 +51,11 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		this.provideFileUpload = provideFileUpload;
 		
 		if(!this.isJSFile)
-			this.file = GWT.getModuleBaseURL() + this.file;
+		{
+			// If it seems to be a relative address, preppend the module base.
+			if(!this.file.trim().startsWith("http://"))
+				this.file = GWT.getModuleBaseURL() + this.file;
+		}
 		
 		this.uploadStructure = new UploadStructure();
 		
@@ -121,7 +125,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    
 	    var libsinc = "\n<script language=\"JavaScript\" src=\"jslib/three.min.js\"></script>\n";
 	    
-	    var scriptinc = "\n<script language=\"JavaScript\" src=\"" + jsfile + "\"></script>\n";
+	    var scriptinc = "\n<script language=\"JavaScript\" src=\"" + file + "\"></script>\n";
 	    
 	    var metasHtml = "";
 	
