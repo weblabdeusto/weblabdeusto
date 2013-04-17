@@ -6,7 +6,7 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="../jslib/weblabjs.js"></script>
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" /> <!-- Just for the progress bar. TODO: Localize -->
+        <link rel="stylesheet" href="../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
 				font-family: Monospace;
@@ -17,7 +17,8 @@
 
             .progress-label {
             float: left;
-            margin-left: 48%;
+            width: 100%;
+            text-align: center;
             margin-top: 5px;
             font-weight: bold;
             text-shadow: 1px 1px 0 #fff;
@@ -71,17 +72,25 @@
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 		    
+		    _page_dim = false;
 
 		    function dim_page() {
+
+		        if (_page_dim != undefined && _page_dim == true)
+		            return;
+
 		        var dimmingElement = document.createElement('div');
 		        dimmingElement.id = "dim";
 		        dimmingElement.className = "dim";
 		        document.body.appendChild(dimmingElement);
+
+		        _page_dim = true;
 		    }
 
 		    function light_page() {
 		        var dimmingElement = document.getElementById('dim');
 		        document.body.removeChild(dimmingElement);
+		        _page_dim = false;
 		    }
 
 		    dim_page();
@@ -388,8 +397,8 @@
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px", mFullScreenImg);
 
 		        this._init = function () {
-
 		            this.setOnClick(this.onClick.bind(this));
+		            this.getElement().style.zIndex = 2;
 		        }
 
 
@@ -534,6 +543,7 @@
 
                 this._onReadLedsSuccess = function (response) {
                     var cur_led = 7;
+                    console.log("LEDs: " + response);
                     for (var i = 0; i < 8; i++, cur_led--) {
                         var led_state = response[i];
                         LedsManager._updateLed(cur_led, led_state);
@@ -709,25 +719,28 @@
 
 			    // Set up the state checker, which will continuously query WebLab
                 // for state changes, and display the current experiment state.
-			    var sc = new StateChecker();
+			    sc = new StateChecker();
 			    var scbox = sc.getStateBoxElement();
 			    sc.startCheckingState();
 			    container.appendChild(scbox);
 
-			    var pb = new ProgressBarWidget("25%", "55%");
+			    pb = new ProgressBarWidget("25%", "55%");
+
+			    pb.setText("Waiting");
+			    pb.show();
 
                 // Set up the logic for each state.
 			    sc.setOnStateReachedCallback("programming",
                     function (state, previous) {
                         console.log("Reached state: " + state);
-                        pb.setText("Programming...");
+                        pb.setText("Programming");
                         pb.show();
                     }
                 );
 			    sc.setOnStateReachedCallback("synthesizing",
                     function (state, previous) {
                         console.log("Reached state: " + state);
-                        pb.setText("Compiling...");
+                        pb.setText("Synthesizing");
                         pb.show();
                     }
                 );
@@ -739,7 +752,6 @@
                 );
 			    sc.setOnStateReachedCallback("failed",
                     function (state, previous) {
-                        dim_page();
                         console.log("Reached state: " + state);
                         console.error("State: Failed");
                         pb.hide();
@@ -747,7 +759,6 @@
 			    );
 			    sc.setOnStateReachedCallback("synthesizing_error",
                     function (state, previous) {
-                        dim_page();
                         console.log("Reached state: " + state);
                         console.error("State: Synthesizing error");
                         pb.hide();
@@ -755,7 +766,6 @@
                 );
 			    sc.setOnStateReachedCallback("not_ready",
                     function (state, previous) {
-                        dim_page();
                         console.log("Reached state: " + state);
                         pb.hide();
                     }
@@ -763,11 +773,14 @@
 
 			    sc.setOnStateReachedCallback("awaiting_code",
                     function (state, previous) {
-                        dim_page();
                         console.log("Reached state: " + state);
                         pb.hide();
                     }
                 );
+
+			    Weblab.setOnEndCallback(function () {
+			        sc.stopCheckingState();
+			    });
 
 			}
 
