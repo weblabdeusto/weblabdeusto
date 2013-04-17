@@ -13,7 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
-import urllib
+import urllib2
 import cStringIO
 import time
 import PIL
@@ -69,7 +69,7 @@ class LedReader(object):
     
     def test(self):
         
-        file = cStringIO.StringIO(urllib.urlopen(self._url).read())
+        file = cStringIO.StringIO(urllib2.urlopen(self._url).read())
         img = Image.open(file)
         rgbim = img.convert('RGB')
         pix = rgbim.load()
@@ -105,7 +105,7 @@ class LedReader(object):
         state will be '0' if the LED is off, and '1' or a
         higher-than-the-threshold count if it is on.
         """
-        f = cStringIO.StringIO(urllib.urlopen(self._url).read())
+        f = cStringIO.StringIO(urllib2.urlopen(self._url).read())
         img = Image.open(f)
         rgbim = img.convert('RGB')
         pix = rgbim.load()
@@ -122,7 +122,7 @@ class LedReader(object):
             else:
                 states.append('0')
                 
-        img.show()
+        #img.show()
         
         return states    
         
