@@ -327,7 +327,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                     return "".join(self._led_state)
                 except Exception as e:
                     traceback.print_exc()
-                    return "ERROR"
+                    return "ERROR: " + traceback.format_exc()
 
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
