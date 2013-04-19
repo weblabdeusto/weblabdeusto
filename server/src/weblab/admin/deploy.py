@@ -355,6 +355,12 @@ def populate_weblab_tests(engine, tests):
 
     javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date)
     session.add(javadummy)
+    
+    jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date)
+    session.add(jsdummy)
+    
+    jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date)
+    session.add(jsfpga)
 
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
     session.add(logic)
@@ -636,10 +642,41 @@ def populate_weblab_tests(engine, tests):
     session.add(up_student6_pld_allowed_p3)    
     
     
+    up_any_jsdummy_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::jsdummy",
+        datetime.datetime.utcnow(),
+        "Permission for any to use jsdummy"
+    )
+    session.add(up_any_jsdummy_allowed)
+    up_any_jsdummy_allowed_p1 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p1, "jsdummy")
+    session.add(up_any_jsdummy_allowed_p1)
+    up_any_jsdummy_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(up_any_jsdummy_allowed_p2)
+    up_any_jsdummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p3, "1400")
+    session.add(up_any_jsdummy_allowed_p3)   
+    
+    up_any_jsfpga_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::jsfpga",
+        datetime.datetime.utcnow(),
+        "Permission for any to use jsfpga"
+    )
+    session.add(up_any_jsfpga_allowed)
+    up_any_jsfpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p1, "jsfpga")
+    session.add(up_any_jsfpga_allowed_p1)
+    up_any_jsfpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p2, "FPGA experiments")
+    session.add(up_any_jsfpga_allowed_p2)
+    up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p3, "1400")
+    session.add(up_any_jsfpga_allowed_p3)   
+    
+    
     up_any_fpga_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
-        "student6::weblab-fpga",
+        "any::weblab-fpga",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-FPGA"
     )

@@ -35,3 +35,10 @@ def send_email(app, body_text, subject, from_email, to_email, body_html=None):
         s.sendmail(from_email, (to_email, from_email), msg.as_string())
         print "Mail sent using %s" % email_host
         sys.stdout.flush()
+
+if __name__ == '__main__':
+    class Fake(): pass
+    fake_app = Fake()
+    fake_app.config = {}
+
+    send_email(fake_app, "Hi there. This is a test", "Test", "pablo.orduna@deusto.es", "pablo.orduna@deusto.es", """<b>Esto es negrita</b>""")

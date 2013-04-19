@@ -36,6 +36,9 @@ import json
 import base64
 import time
 
+import sys
+import traceback
+
 from voodoo.threaded import threaded
 
 
@@ -72,7 +75,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
+        self._device_name, self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
@@ -90,12 +93,17 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._ucf_file = None
         
+        # These are only for led-state reading. This is an experimental
+        # feature.
+        self._led_reader = None
+        self._led_state = None
+        
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
         devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name ]
         if len(devices) == 1:
-            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
+            return device_name, devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
             raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(device_name)
 
@@ -266,6 +274,28 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._current_state = STATE_NOT_READY
         return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s }""" % (self.webcam_url, self._programmer_time, self._synthesizer_time), "batch" : False })
 
+
+    def _load_led_reading_support(self):
+        """
+        Will load the modules required to do image processing for reading the led state.
+        For this, PIL is needed as a dependency. 
+        Also, it is currently in a very experimental state, and cannot 
+        really be configured for different boards.
+        """
+        if self._led_reader != None:
+            return
+        
+        from ledreader import LedReader
+        pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
+        fpga_leds = [ (84, 171), (93, 171), (97, 171), (110, 171), (120, 171), (129, 171), (138, 171), (147, 171) ]
+        fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
+        pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
+        if self._device_name == "FPGA":
+            self._led_reader = LedReader(fpga, fpga_leds, 5, 7)
+        elif self._device_name == "PLD":
+            self._led_reader = LedReader(pld, pld_leds, 10, 30)
+        
+
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
@@ -284,6 +314,20 @@ class UdXilinxExperiment(Experiment.Experiment):
                 if(DEBUG):
                     print "[DBG]: SYNTHESIZING_RESULT: " + self._compiling_result
                 return self._compiling_result
+            
+            elif command == 'READ_LEDS':
+                try:
+                    if self._led_reader == None:
+                        if(DEBUG):
+                            print "[DBG]: Initializing led reading."
+                        self._load_led_reading_support()
+                    self._led_state = self._led_reader.read_times(5)
+                    if(DEBUG):
+                        print "[DBG]: READ_LEDS: " + "".join(self._led_state)
+                    return "".join(self._led_state)
+                except Exception as e:
+                    traceback.print_exc()
+                    return "ERROR: " + traceback.format_exc()
 
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.

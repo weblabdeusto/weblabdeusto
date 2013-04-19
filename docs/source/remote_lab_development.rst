@@ -524,9 +524,75 @@ So as to test all this code, you will need to read the next section (:ref:`remot
 JavaScript
 ..........
 
+An easy way to develop an experiment is to use standard JavaScript.
+Though you will not have access to certain GWT widgets that are already implemented,
+and though you will have to implement most of the experiment and interface yourself,
+it has certain advantages:
+
+* It's easy. You simply develop an HTML file without any restriction. You include a JavaScript that WebLab provides to interface with the server.
+* Does not have any dependency, other than a JavaScript script file.
+* New experiments can be developed without needing to compile anything.
+* Can easily make use of any kind of JavaScript library or framework.
+* Possible to develop and test the experiments offline, without deploying a WebLab first. You can just open the HTML file in a browser.
+
+What to develop
+```````````````
+
+In order to create a new experiment, essentially you need:
+
+* An experiment server
+* **An experiment client**
+
+This section is, as you are probably aware, dedicated to the later (an experiment client). 
+An experiment client provides the interface and client-side logic that your particular experiment
+requires. It communicates with WebLab and the experiment server through a very simple API. 
+
+A good way to start, however, is to simply create a new folder, with an empty HTML file.
+You have certain freedom when choosing where to place it, but it is advisable to place it
+within the "public" folder of the WebLab standard client. For instance, if your experiment is going to
+control a remote lightbulb, you could create a jslightbulb.html, in the following path:
+
+``src\es\deusto\weblab\public\lightbulb\jslightbulb.html``
+
+
+The public folder is automatically exported when you deploy WebLab, so you can feel free to put any number
+of HTML, JS or image files (or any kind of file, really) within it.
+
+This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab Deusto as an iframe.
+If we continue with the aforementioned example (an experiment to remotely control a lightbulb), you might want to add, for instance,
+a webcam feed to your HTML (in order to see the lightbulb), and maybe some JavaScript button (to turn the lightbulb on and off).
+
+Because it is just standard HTML, you can use any library or framework you wish to make your work easier.
+
+As of now, however, our lightbulb experiment does not really connect to WebLab. You are hence probably wondering how to *actually* 
+tell the lightbulb to turn off when the user presses your JS button. That is, how to send a command to the experiment server.
+
+This is done through the JavaScript API, which will be explained next.
+
+JavaScript API
+``````````````
+
+The WebLab API is relatively simple.
+The basic API provides these base functions, which is all you really need:
+
+* Sending a command.
+* Sending a file.
+* Receiving a time-left notification.
+* Receiving an experiment-starts notification.
+* Receiving an experiment-ends notification.
+* Forcing the experiment to end early.
+
+For JavaScript, this API can be found in the following place:
+
+``src\es\deusto\weblab\public\jslib\jsweblab.js``
+
+You can simply reference it from your HTML. For instance, if your HTML is within public\jslightbulb\jslightbulb.html, you can do, within ``<head>``:
+``<script src="../jslib/weblabjs.js"></script>``
+
+
 .. note::
 
-   To be written (April 2013).
+   More to be written (April 2013).
 
 
 Java applets

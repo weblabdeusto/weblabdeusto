@@ -104,13 +104,14 @@ def login():
             #Redirect
             next_url = request.args.get('next')
             if next_url != '' and next_url != None:
-                return redirect(url_for(next_url))
+                return redirect(next_url)
                 
             return redirect(url_for('configure'))
         else:
             flash('Failure login', 'error')
     
-    return render_template('login.html', form=form)
+    next_url = request.args.get('next')
+    return render_template('login.html', form=form, next=next_url)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -329,6 +330,13 @@ def deploy():
 
     base_url = app.config['PUBLIC_URL']
     base_url += '/w/'
+
+    if request.method == 'GET':
+        # If it was not filled
+        if not form.admin_name.data:
+            form.admin_name.data = user.full_name
+            form.admin_user.data = 'admin'
+            form.admin_email.data = user.email
 
     if request.method == 'POST' and form.validate():
         if not enabled:

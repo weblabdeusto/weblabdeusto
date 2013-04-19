@@ -21,6 +21,7 @@
 	<extend-property name="locale" values="hu"/>
 	<extend-property name="locale" values="pt"/>
 	<extend-property name="locale" values="ro"/>
+	<extend-property name="locale" values="ru"/>
 	<extend-property name="locale" values="sk"/>
 	
 	<source path="client">
