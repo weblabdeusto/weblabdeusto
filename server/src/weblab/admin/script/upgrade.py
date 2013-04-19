@@ -20,6 +20,8 @@ import sys
 from voodoo.gen.loader.ConfigurationParser import GlobalParser
 from weblab.admin.script.utils import check_dir_exists
 
+from weblab.db.upgrade import DbUpgrader
+
 #########################################################################################
 # 
 # 
@@ -75,6 +77,8 @@ def weblab_upgrade(directory):
         db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
 
         print db_host, db_port, db_engine, db_name, db_user, db_pass
+        url = ""
+        DbUpgrader(url)
 
     finally:
         os.chdir(old_cwd)
