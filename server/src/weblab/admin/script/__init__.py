@@ -18,7 +18,8 @@ import sys
 
 from weblab import __version__ as weblab_version
 
-from weblab.admin.script.creation import weblab_create
+from weblab.admin.script.creation import weblab_create, Creation
+assert Creation != None # Avoid pyflakes warning, wcloud still uses "from weblab.admin.script import Creation"
 from weblab.admin.script.run import weblab_start, weblab_stop
 from weblab.admin.script.monitor import weblab_monitor
 from weblab.admin.script.admin import weblab_admin
