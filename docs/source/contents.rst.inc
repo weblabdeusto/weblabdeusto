@@ -34,6 +34,7 @@ system.
    authentication
    tools
    configuration
+   upgrade
 
 
 Remote laboratory development and management
