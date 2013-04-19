@@ -1,3 +1,20 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2013 onwards University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals,
+# listed below:
+#
+# Author: Pablo Orduña <pablo@ordunya.com>
+#
+
+import os
+
 from alembic.script import ScriptDirectory
 from alembic.config import Config
 from alembic.migration import MigrationContext
@@ -6,32 +23,33 @@ from alembic import command
 
 from sqlalchemy import create_engine
 
-URL = 'sqlite:///foo.db'
-ALEMBIC_PATH = 'alembic'
+ALEMBIC_PATH = os.path.abspath(os.path.dirname(__file__))
 
-def get_config():
-    config = Config("alembic.ini")
-    config.set_main_option("script_location", ALEMBIC_PATH)
-    config.set_main_option("url", URL)
-    config.set_main_option("sqlalchemy.url", URL)
-    return config
+class DbUpgrader(object):
+    def __init__(self, url):
+        self.url = url
+        self.config = Config(os.path.join(ALEMBIC_PATH, "alembic.ini"))
+        self.config.set_main_option("script_location", ALEMBIC_PATH)
+        self.config.set_main_option("url", self.url)
+        self.config.set_main_option("sqlalchemy.url", self.url)
 
-def is_head():
-    engine = create_engine(URL)
+    def check(self):
+        engine = create_engine(self.url)
 
-    script = ScriptDirectory.from_config(get_config())
-    current_head = script.get_current_head()
+        script = ScriptDirectory.from_config(self.config)
+        current_head = script.get_current_head()
 
-    context = MigrationContext.configure(engine)
-    current_rev = context.get_current_revision()
+        context = MigrationContext.configure(engine)
+        current_rev = context.get_current_revision()
 
-    return current_head == current_rev
+        return current_head == current_rev
 
-def upgrade():
-    command.upgrade(get_config(), "head")
+    def upgrade(self):
+        command.upgrade(self.config, "head")
 
 if __name__ == '__main__':
-    if is_head():
-        print "Already in head"
-    else:
-        upgrade()
+    import sqlite3
+    sqlite3.connect('foo.db').close()
+    dbu = DbUpgrader("sqlite:///foo.db")
+    print dbu.check()
+    print dbu.upgrade()
