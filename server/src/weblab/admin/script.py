@@ -58,7 +58,6 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 # 
 # TODO
 #  - --virtual-machine
-#  - Support rebuild-db
 # 
 
 SORTED_COMMANDS = []
@@ -67,7 +66,7 @@ SORTED_COMMANDS.append(('start',      'Start an existing weblab instance')),
 SORTED_COMMANDS.append(('stop',       'Stop an existing weblab instance')),
 SORTED_COMMANDS.append(('admin',      'Adminstrate a weblab instance')),
 SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab instance')),
-SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instance')), 
+SORTED_COMMANDS.append(('upgrade',    'Upgrade the current setting')), 
 
 COMMANDS = dict(SORTED_COMMANDS)
 HIDDEN_COMMANDS = ('-version', '--version', '-V')
@@ -114,8 +113,8 @@ def weblab():
         weblab_monitor(sys.argv[2])
     elif main_command == 'admin':
         weblab_admin(sys.argv[2])
-    elif main_command == 'rebuild-db':
-        weblab_rebuild_db(sys.argv[2])
+    elif main_command == 'upgrade':
+        weblab_upgrade(sys.argv[2])
     elif main_command == '--version':
         print weblab_version
     else:
@@ -2866,13 +2865,59 @@ def weblab_monitor(directory):
 # 
 # 
 # 
-#      W E B L A B     R E B U I L D     D A T A B A S E
+#      W E B L A B     U P G R A D E
 # 
 # 
 # 
 
 
-def weblab_rebuild_db(directory):
-    print >> sys.stderr, "Rebuilding database is not yet implemented"
-    sys.exit(-1)
+def weblab_upgrade(directory):
+    # TODO: this comes from weblab_admin
+    check_dir_exists(directory)
+    old_cwd = os.getcwd()
+    os.chdir(directory)
+    try:
+        parser = GlobalParser()
+        global_configuration = parser.parse('.')
+        configuration_files = []
+        configuration_files.extend(global_configuration.configurations)
+        for machine in global_configuration.machines:
+            machine_config = global_configuration.machines[machine]
+            configuration_files.extend(machine_config.configurations)
 
+            for instance in machine_config.instances:
+                instance_config = machine_config.instances[instance]
+                configuration_files.extend(instance_config.configurations)
+
+                for server in instance_config.servers:
+                    server_config = instance_config.servers[server]
+                    configuration_files.extend(server_config.configurations)
+
+
+        # TODO: this comes from weblab.admin.cli.controller
+        from weblab.admin.cli.controller import get_variable
+        import weblab.configuration_doc as configuration_doc
+
+        for configuration_file in configuration_files:
+            if not os.path.exists(configuration_file):
+                print >> sys.stderr, "Could not find configuration file", configuration_file
+                sys.exit(1)
+
+            globals()['CURRENT_PATH'] = configuration_file
+            execfile(configuration_file, globals(), globals())
+
+        global_vars = globals()
+
+        db_host           = get_variable(global_vars, configuration_doc.DB_HOST)
+        db_port           = get_variable(global_vars, configuration_doc.DB_PORT)
+        db_engine         = get_variable(global_vars, configuration_doc.DB_ENGINE)
+        db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
+        db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
+        db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
+
+        print db_host, db_port, db_engine, db_name, db_user, db_pass
+
+    finally:
+        os.chdir(old_cwd)
+
+    print >> sys.stderr, "Upgrading is not yet implemented"

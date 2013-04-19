@@ -47,7 +47,7 @@ class Controller(object):
 
         for configuration_file in configuration_files:
             if not os.path.exists(configuration_file):
-                print >> sys.stderr, "Could not file configuration file", configuration_file
+                print >> sys.stderr, "Could not find configuration file", configuration_file
                 sys.exit(1)
 
             globals()['CURRENT_PATH'] = configuration_file
