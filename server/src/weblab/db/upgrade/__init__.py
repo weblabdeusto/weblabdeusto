@@ -18,7 +18,6 @@ import os
 from alembic.script import ScriptDirectory
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from alembic.environment import EnvironmentContext
 from alembic import command
 
 from sqlalchemy import create_engine
