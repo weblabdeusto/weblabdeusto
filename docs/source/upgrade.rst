@@ -79,8 +79,13 @@ need a command like `mysqldump
     to run the following command in a copy of the directory using a different
     database.
 
-So as to do it, run the following command::
+So as to use the automatic upgrader, first stop your current instance, and then
+run the following::
 
  $ weblab-admin.py upgrade sample
+
+Once finished, you will be able to start again your system::
+
+ $ weblab-admin.py start sample
 
 If there is any error, please :ref:`report it <contact>`.
