@@ -22,13 +22,37 @@ from alembic import command
 
 from sqlalchemy import create_engine
 
-ALEMBIC_PATH = os.path.abspath(os.path.dirname(__file__))
+REGULAR_ALEMBIC_PATH    = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'regular')
+SCHEDULING_ALEMBIC_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'scheduling')
 
 class DbUpgrader(object):
-    def __init__(self, url):
+    def __init__(self, regular_url, scheduling_url):
+        self.regular_upgrader    = DbParticularUpgrader(regular_url, REGULAR_ALEMBIC_PATH)
+        if scheduling_url is not None:
+            self.scheduling_upgrader = DbParticularUpgrader(scheduling_url, SCHEDULING_ALEMBIC_PATH)
+        else:
+            self.scheduling_upgrader = DbNullUpgrader()
+
+    def check_updated(self):
+        return self.regular_upgrader.check() and self.scheduling_upgrader.check()
+
+    def upgrade(self):
+        self.regular_upgrader.upgrade()
+        self.scheduling_upgrader.upgrade()
+
+class DbNullUpgrader(object):
+
+    def check(self):
+        return True
+
+    def upgrade(self):
+        pass
+
+class DbParticularUpgrader(object):
+    def __init__(self, url, alembic_path):
         self.url = url
-        self.config = Config(os.path.join(ALEMBIC_PATH, "alembic.ini"))
-        self.config.set_main_option("script_location", ALEMBIC_PATH)
+        self.config = Config(os.path.join(alembic_path, "alembic.ini"))
+        self.config.set_main_option("script_location", alembic_path)
         self.config.set_main_option("url", self.url)
         self.config.set_main_option("sqlalchemy.url", self.url)
 
@@ -44,11 +68,6 @@ class DbUpgrader(object):
         return current_head == current_rev
 
     def upgrade(self):
-        command.upgrade(self.config, "head")
+        if not self.check():
+            command.upgrade(self.config, "head")
 
-if __name__ == '__main__':
-    import sqlite3
-    sqlite3.connect('foo.db').close()
-    dbu = DbUpgrader("sqlite:///foo.db")
-    print dbu.check()
-    print dbu.upgrade()

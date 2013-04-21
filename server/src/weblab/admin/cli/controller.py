@@ -61,6 +61,17 @@ class DbConfiguration(object):
         self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
         self.db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
 
+        if get_variable(global_vars, configuration_doc.COORDINATOR_IMPL) == 'sqlalchemy':
+            self.coord_db_host     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_HOST)
+            self.coord_db_port     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_PORT)
+            self.coord_db_engine   = get_variable(global_vars, configuration_doc.COORDINATOR_DB_ENGINE)
+            self.coord_db_name     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_NAME)
+            self.coord_db_user     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_USERNAME)
+            self.coord_db_pass     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_PASSWORD)
+        else:
+            self.coord_db_host = self.coord_db_port = self.coord_db_engine = self.coord_db_name = self.coord_db_user = self.coord_db_pass = None
+
+
     def build_url(self):
         if self.db_engine == 'sqlite':
             return 'sqlite:///%s' % get_sqlite_dbname(self.db_name)
@@ -69,6 +80,17 @@ class DbConfiguration(object):
                             { "ENGINE":   self.db_engine,
                               "USER":     self.db_user, "PASSWORD": self.db_pass,
                               "HOST":     self.db_host, "DATABASE": self.db_name }
+    
+    def build_coord_url(self):
+        if self.coord_db_engine is None:
+            return None
+        elif self.coord_db_engine == 'sqlite':
+            return 'sqlite:///%s' % get_sqlite_dbname(self.coord_db_name)
+        else:
+            return "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "ENGINE":   self.coord_db_engine,
+                              "USER":     self.coord_db_user, "PASSWORD": self.coord_db_pass,
+                              "HOST":     self.coord_db_host, "DATABASE": self.coord_db_name }
 
 class Controller(object):
 

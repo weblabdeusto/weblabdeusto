@@ -34,9 +34,10 @@ from weblab.db.upgrade import DbUpgrader
 def weblab_upgrade(directory):
     def on_dir(directory, configuration_files):
         db_conf = DbConfiguration(configuration_files)
-        url = db_conf.build_url()
-        upgrader = DbUpgrader(url)
-        if not upgrader.check():
+        regular_url = db_conf.build_url()
+        coord_url   = db_conf.build_coord_url()
+        upgrader = DbUpgrader(regular_url, coord_url)
+        if not upgrader.check_updated():
             print "Upgrading database...",
             upgrader.upgrade()
             print "[done]"
