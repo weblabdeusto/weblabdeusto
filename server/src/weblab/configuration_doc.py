@@ -218,7 +218,7 @@ _sorted_variables.extend([
 COORDINATOR = (CORE_SERVER, 'Scheduling')
 DESCRIPTIONS[COORDINATOR] = """This is the configuration variables used by the scheduling backend (called Coordinator). Basically, you can choose among redis or a SQL based one, and customize the one selected."""
 
-COORDINATOR_IMPL               = 'core_coordinator_impl'
+COORDINATOR_IMPL               = 'core_coordination_impl'
 COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
 COORDINATOR_DB_PORT            = 'core_coordinator_db_port'
 COORDINATOR_DB_NAME            = 'core_coordinator_db_name'
@@ -229,7 +229,7 @@ COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
 COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
-    (COORDINATOR_IMPL,               _Argument(COORDINATOR, basestring, "sqlalchemy", "Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'."),
+    (COORDINATOR_IMPL,               _Argument(COORDINATOR, basestring, "sqlalchemy", "Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'.")),
     (COORDINATOR_DB_HOST,            _Argument(COORDINATOR, basestring, "localhost", """Host of the database server.""")), 
     (COORDINATOR_DB_PORT,            _Argument(COORDINATOR, int, None,        """Port of the database server.""")), 
     (COORDINATOR_DB_NAME,            _Argument(COORDINATOR, basestring, "WebLabCoordination", """Name of the coordination database.""")), 
