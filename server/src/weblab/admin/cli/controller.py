@@ -21,6 +21,7 @@ import sha
 import traceback
 import weblab.configuration_doc as configuration_doc
 import weblab.permissions as permissions
+from voodoo.dbutil import get_sqlite_dbname
 
 from console_ui import ConsoleUI
 from exc import GoBackError
@@ -40,10 +41,8 @@ def get_variable(dictionary, name):
     else:
         return dictionary.get(name, default)
 
-class Controller(object):
-
-    def __init__(self, configuration_files = None):
-        super(Controller, self).__init__()
+class DbConfiguration(object):
+    def __init__(self, configuration_files):
 
         for configuration_file in configuration_files:
             if not os.path.exists(configuration_file):
@@ -61,6 +60,28 @@ class Controller(object):
         self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
         self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
         self.db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
+
+    def build_url(self):
+        if self.db_engine == 'sqlite':
+            return 'sqlite:///%s' % get_sqlite_dbname(self.db_name)
+        else:
+            return "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "ENGINE":   self.db_engine,
+                              "USER":     self.db_user, "PASSWORD": self.db_pass,
+                              "HOST":     self.db_host, "DATABASE": self.db_name }
+
+class Controller(object):
+
+    def __init__(self, configuration_files = None):
+        super(Controller, self).__init__()
+
+        db_conf = DbConfiguration(configuration_files)
+        self.db_host   = db_conf.db_host
+        self.db_port   = db_conf.db_port
+        self.db_engine = db_conf.db_engine
+        self.db_name   = db_conf.db_name
+        self.db_user   = db_conf.db_user
+        self.db_pass   = db_conf.db_pass
 
         self.smtp_host         = globals().get(configuration_doc.MAIL_SERVER_HOST)
         self.smtp_helo         = globals().get(configuration_doc.MAIL_SERVER_HELO)

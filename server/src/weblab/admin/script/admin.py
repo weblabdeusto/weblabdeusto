@@ -14,12 +14,8 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-import os
-
-from voodoo.gen.loader.ConfigurationParser import GlobalParser
-
 from weblab.admin.cli.controller import Controller
-from weblab.admin.script.utils import check_dir_exists
+from weblab.admin.script.utils import run_with_config
 
 #########################################################################################
 # 
@@ -31,27 +27,7 @@ from weblab.admin.script.utils import check_dir_exists
 # 
 
 def weblab_admin(directory):
-    check_dir_exists(directory)
-    old_cwd = os.getcwd()
-    os.chdir(directory)
-    try:
-        parser = GlobalParser()
-        global_configuration = parser.parse('.')
-        configuration_files = []
-        configuration_files.extend(global_configuration.configurations)
-        for machine in global_configuration.machines:
-            machine_config = global_configuration.machines[machine]
-            configuration_files.extend(machine_config.configurations)
-
-            for instance in machine_config.instances:
-                instance_config = machine_config.instances[instance]
-                configuration_files.extend(instance_config.configurations)
-
-                for server in instance_config.servers:
-                    server_config = instance_config.servers[server]
-                    configuration_files.extend(server_config.configurations)
-
+    def on_dir(directory, configuration_files):
         Controller(configuration_files)
-    finally:
-        os.chdir(old_cwd)
-
+    
+    run_with_config(directory, on_dir)
