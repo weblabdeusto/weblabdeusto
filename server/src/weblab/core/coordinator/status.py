@@ -148,10 +148,11 @@ class WaitingConfirmationQueueStatus(WebLabSchedulingStatus):
 # the experiment in this campus.
 #
 class LocalReservedStatus(WebLabSchedulingStatus):
-    def __init__(self, reservation_id, coord_address, lab_session_id, time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining_time, url):
+    def __init__(self, reservation_id, coord_address, lab_session_id, exp_info, time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining_time, url):
         super(LocalReservedStatus,self).__init__(WebLabSchedulingStatus.RESERVED_LOCAL, reservation_id)
         self.coord_address                = coord_address
         self.lab_session_id               = lab_session_id
+        self.exp_info                     = exp_info
         self.time                         = time
         self.initial_configuration        = initial_configuration
         self.timestamp_before             = timestamp_before
@@ -162,13 +163,14 @@ class LocalReservedStatus(WebLabSchedulingStatus):
 
     def __repr__(self):
         full_name = self.__class__.__module__ + '.' + self.__class__.__name__
-        return "%s( reservation_id = %r, coord_address = %r, lab_session_id = %r, time = %r, initial_configuration = %r, timestamp_before = %r, timestamp_after = %r, initialization_in_accounting = %r, remaining_time = %r, url = %r)" % (full_name, self.reservation_id, self.coord_address, self.lab_session_id, self.time, self.initial_configuration, self.timestamp_before, self.timestamp_after, self.initialization_in_accounting, self.remaining_time, self.url)
+        return "%s( reservation_id = %r, coord_address = %r, lab_session_id = %r, exp_info = %r, time = %r, initial_configuration = %r, timestamp_before = %r, timestamp_after = %r, initialization_in_accounting = %r, remaining_time = %r, url = %r)" % (full_name, self.reservation_id, self.coord_address, self.lab_session_id, self.exp_info, self.time, self.initial_configuration, self.timestamp_before, self.timestamp_after, self.initialization_in_accounting, self.remaining_time, self.url)
 
     def __eq__(self, other):
         if not isinstance(other, LocalReservedStatus):
             return False
 
         return self.coord_address == other.coord_address and self.lab_session_id == other.lab_session_id \
+                and self.exp_info == other.exp_info \
                 and self.time == other.time and self.initial_configuration == other.initial_configuration \
                 and self.timestamp_before == other.timestamp_before and self.timestamp_after == other.timestamp_after \
                 and self.initialization_in_accounting == other.initialization_in_accounting

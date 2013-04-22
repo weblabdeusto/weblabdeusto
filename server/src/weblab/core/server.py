@@ -38,7 +38,7 @@ import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
-from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
+from weblab.core.coordinator.gateway import create as coordinator_create
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import weblab.core.coordinator.status as WebLabSchedulingStatus
@@ -81,9 +81,6 @@ DEFAULT_CHECKING_TIME = 3 # seconds
 
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
-
-WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION  = "core_coordination_impl"
-
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 def load_user_processor(func):
@@ -172,7 +169,7 @@ class UserProcessingServer(object):
         # Coordination
         #
 
-        coordinator_implementation = cfg_manager.get_value(WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION, SQLALCHEMY)
+        coordinator_implementation = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_IMPL)
         self._coordinator    = coordinator_create(coordinator_implementation, self._locator, cfg_manager)
 
         #

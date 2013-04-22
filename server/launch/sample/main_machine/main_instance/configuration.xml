@@ -41,4 +41,5 @@
 	<server>experiment_controlapp</server>
 	<server>experiment_incubator</server>
 	<server>experiment_robot_maze</server>
+	<server>experiment_http</server>
 </servers>

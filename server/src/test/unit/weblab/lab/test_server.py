@@ -170,10 +170,10 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
-        self.assertEquals('myserver:myinstance@mymachine', exp_coord_str)
+        self.assertEquals('myserver:myinstance@mymachine', exp_info['address'])
 
         expected_return = '{"foo" : "bar"}'
         self.fake_client.next_dispose = expected_return
@@ -198,7 +198,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
 
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
@@ -231,7 +231,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id_old, {}, {})
 
         # Now we will make sure that on reserve, the old API version of do_start was called, and not the new one.
         self.assertEquals(1, self.fake_client.started_old)
@@ -242,7 +242,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
@@ -259,7 +259,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
         # However, this is in fact interesting. If the experiment said
         # that it has not finished, the dispose method is called
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.assertEquals(2, self.fake_client.started_new)
         self.assertEquals(1, self.fake_client.disposed)
         self.fake_client.next_dispose = json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE: False })
@@ -273,7 +273,7 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
 
 
     def test_resolve_experiment_address(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         exp_coord_address = self.lab.do_resolve_experiment_address(lab_session_id)
         self.assertEquals(self.experiment_coord_address, exp_coord_address)
 
@@ -282,17 +282,17 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.assertEquals(0, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id1, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id1, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(1, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id2, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id2, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(2, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
 
-        lab_session_id3, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id3, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
 
         self.assertEquals(3, self.fake_client.started_new)
         self.assertEquals(0, self.fake_client.disposed)
@@ -368,7 +368,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
 
 
     def test_send_async_command_ok(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
 
         responses = ["result1", "result2" ]
@@ -415,7 +415,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_commands(commands_sent) )
 
     def test_send_command_ok(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         commands_sent = [ "foo", "bar" ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -428,7 +428,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         self.assertTrue( self.fake_client.verify_commands(commands_sent) )
 
     def test_send_command_fail(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(
@@ -439,7 +439,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         )
 
     def test_send_async_command_fail(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         reqid = self.lab.do_send_async_command(lab_session_id, Command.Command("foo"))
@@ -464,7 +464,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         return
 
     def test_send_async_file_ok(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
 
         responses = ["result1", "result2" ]
@@ -511,7 +511,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_files(files_sent) )
 
     def test_send_file_ok(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         files_sent = [ ("foo", "file_info1"), ("bar", "file_info2") ]
         responses = ["result1", "result2" ]
         self.fake_client.responses = responses[:]
@@ -525,7 +525,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         # self.assertTrue( self.fake_client.verify_files(files_sent) )
 
     def test_send_async_file_fail(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         reqid = self.lab.do_send_async_file(lab_session_id, "foo", "file_info")
@@ -550,7 +550,7 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         return
 
     def test_send_file_fail(self):
-        lab_session_id, experiment_server_result, exp_coord_str = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
+        lab_session_id, experiment_server_result, exp_info = self.lab.do_reserve_experiment(self.experiment_instance_id, {}, {})
         self.fake_client.fail = True
 
         self.assertRaises(

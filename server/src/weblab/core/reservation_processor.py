@@ -122,12 +122,19 @@ class ReservationProcessor(object):
 
         self._reservation_session['lab_session_id'] = status.lab_session_id
         self._reservation_session['lab_coordaddr']  = status.coord_address
+
+        if status.exp_info.get('manages_polling', False):
+            self.disable_polling()
+
         # TODO: it should not be time_module.time, but retrieve this information
         # from the status manager to know when it started
         self._renew_expiration_time( self.time_module.time() + status.time )
 
     def process_reserved_remote_status(self, status):
         self._reservation_session['federated'] = True
+
+    def disable_polling(self):
+        self._reservation_session['manages_polling'] = True
 
     def finish(self):
 
@@ -181,6 +188,9 @@ class ReservationProcessor(object):
     def is_federated(self):
         return self._reservation_session.get('federated', False)
 
+    def manages_polling(self):
+        return self._reservation_session.get('manages_polling', False)
+
     def _renew_expiration_time(self, expiration_time):
         if self.is_polling():
             self._reservation_session['session_polling'] = (
@@ -204,7 +214,13 @@ class ReservationProcessor(object):
     def is_expired(self):
 
         """Did this reservation's user stay out for a long time without polling?"""
-    
+   
+        # If it has been assigned to a laboratory that explicitly requests to avoid 
+        # using polling, then it is only expired when the particular laboratory
+        # states that it is expired.
+        if self.manages_polling():
+            return False
+
         # If it has been assigned in a foreign server, then, it is never expired
         if self.is_federated():
             return False

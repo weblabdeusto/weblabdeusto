@@ -43,6 +43,16 @@ Base = declarative_base()
 
 TABLE_KWARGS = get_table_kwargs()
 
+class AlembicVersion(Base):
+    """ Alembic is a database version manager for SQLAlchemy. This class
+    represents the internal way of Alembic for managing versions.
+    """
+    __tablename__ = 'alembic_version'
+    
+    version_num = Column(String(32), nullable = False, primary_key = True)
+
+    def __init__(self, version_num):
+        self.version_num = version_num
 
 ##############################################################################
 # N<->M RELATIONAL TABLES

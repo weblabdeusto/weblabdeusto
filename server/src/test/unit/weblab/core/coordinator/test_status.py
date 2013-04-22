@@ -33,7 +33,7 @@ class WebLabSchedulingStatusTest(unittest.TestCase):
         str(wc)
 
     def test_str_local_reservation(self):
-        res    = WSS.LocalReservedStatus("reservation_id", "coord_address1", "lab_session_id1", 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 45, 'http://www.weblab.deusto.es/weblab/client/#reservation-id=foo&...')
+        res    = WSS.LocalReservedStatus("reservation_id", "coord_address1", "lab_session_id1", {}, 50, None, datetime.datetime.now(), datetime.datetime.now(), True, 45, 'http://www.weblab.deusto.es/weblab/client/#reservation-id=foo&...')
         str(res)
 
     def test_str_remote_reservation(self):

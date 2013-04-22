@@ -62,7 +62,7 @@ class ReservationConfirmer(object):
             try:
                 labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
                 reservation_result  = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
-                lab_session_id, server_initialization_response, experiment_coordaddress_str = reservation_result
+                lab_session_id, server_initialization_response, exp_info = reservation_result
             except Exception as e:
                 if DEBUG:
                     traceback.print_exc()
@@ -72,8 +72,8 @@ class ReservationConfirmer(object):
                 self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
             else:
                 end_time = datetime.datetime.now()
-                experiment_coordaddress = CoordAddress.CoordAddress.translate_address(experiment_coordaddress_str)
-                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name)
+                experiment_coordaddress = CoordAddress.CoordAddress.translate_address(exp_info['address'])
+                self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name, exp_info)
         except:
             if DEBUG:
                 traceback.print_exc()

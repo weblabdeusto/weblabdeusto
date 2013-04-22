@@ -513,6 +513,12 @@
                                     "experiment.category"             : "Control experiments"
                                 }
                             ],
+                    "redirect" : [
+                                     {
+                                         "experiment.name"                 : "http",
+                                         "experiment.category"             : "HTTP experiments"
+                                     }
+                                 ],                            
                      "incubator" : [
                                 {
 	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",

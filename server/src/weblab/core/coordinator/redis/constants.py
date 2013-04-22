@@ -75,6 +75,7 @@ TIMESTAMP_AFTER              = 'timestamp_after'
 LAB_SESSION_ID               = 'lab_session_id'
 INITIAL_CONFIGURATION        = 'initial_configuration'
 ACTIVE_STATUS                = 'active_status'
+EXP_INFO                     = 'exp_info'
 
 STATUS_RESERVED              = 'status_reserved'
 STATUS_WAITING_CONFIRMATION  = 'status_waiting_confirmation'

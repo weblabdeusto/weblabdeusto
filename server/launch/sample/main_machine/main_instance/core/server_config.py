@@ -4,7 +4,7 @@
 
 core_store_students_programs      = False
 core_store_students_programs_path = 'files_stored'
-core_experiment_poll_time         = 350 # seconds
+core_experiment_poll_time         = 30 # seconds
 
 ####################################
 # Core Server Facade configuration #
@@ -73,6 +73,7 @@ core_coordinator_laboratory_servers = {
             "exp1|binary|Games"                      : "binary@binary",
             "exp1|control-app|Control experiments"   : "control@control",
             "exp1|incubator|Farm experiments"        : "incubator@incubator",
+            "exp1|http|HTTP experiments"             : "http1@http",
         }
 }
 
@@ -123,6 +124,7 @@ core_scheduling_systems = {
         "control"     : ("PRIORITY_QUEUE", {}),
         "incubator"   : ("PRIORITY_QUEUE", {}),
         "robot-maze"  : ("PRIORITY_QUEUE", {}),
+        "http"  : ("PRIORITY_QUEUE", {}),
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'
