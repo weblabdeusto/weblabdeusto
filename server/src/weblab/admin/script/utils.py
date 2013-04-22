@@ -54,7 +54,7 @@ def run_with_config(directory, func):
                 for server in instance_config.servers:
                     server_config = instance_config.servers[server]
                     configuration_files.extend(server_config.configurations)
-        func(directory, configuration_files)
+        return func(directory, configuration_files)
     finally:
         os.chdir(old_cwd)
 
