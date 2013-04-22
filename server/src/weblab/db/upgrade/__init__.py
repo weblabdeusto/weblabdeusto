@@ -27,11 +27,19 @@ SCHEDULING_ALEMBIC_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)
 
 class DbUpgrader(object):
     def __init__(self, regular_url, scheduling_url):
-        self.regular_upgrader    = DbParticularUpgrader(regular_url, REGULAR_ALEMBIC_PATH)
+        self.regular_upgrader    = DbRegularUpgrader(regular_url)
         if scheduling_url is not None:
-            self.scheduling_upgrader = DbParticularUpgrader(scheduling_url, SCHEDULING_ALEMBIC_PATH)
+            self.scheduling_upgrader = DbSchedulingUpgrader(scheduling_url)
         else:
             self.scheduling_upgrader = DbNullUpgrader()
+
+    @property
+    def regular_head(self):
+        return self.regular_upgrader.head
+
+    @property
+    def scheduling_head(self):
+        return self.scheduling_upgrader.head
 
     def check_updated(self):
         return self.regular_upgrader.check() and self.scheduling_upgrader.check()
@@ -42,6 +50,10 @@ class DbUpgrader(object):
 
 class DbNullUpgrader(object):
 
+    @property
+    def head(self):
+        return None
+
     def check(self):
         return True
 
@@ -49,25 +61,35 @@ class DbNullUpgrader(object):
         pass
 
 class DbParticularUpgrader(object):
-    def __init__(self, url, alembic_path):
+    alembic_path = None
+
+    def __init__(self, url):
         self.url = url
-        self.config = Config(os.path.join(alembic_path, "alembic.ini"))
-        self.config.set_main_option("script_location", alembic_path)
+        self.config = Config(os.path.join(self.alembic_path, "alembic.ini"))
+        self.config.set_main_option("script_location", self.alembic_path)
         self.config.set_main_option("url", self.url)
         self.config.set_main_option("sqlalchemy.url", self.url)
+
+    @property
+    def head(self):
+        script = ScriptDirectory.from_config(self.config)
+        return script.get_current_head()
 
     def check(self):
         engine = create_engine(self.url)
 
-        script = ScriptDirectory.from_config(self.config)
-        current_head = script.get_current_head()
-
         context = MigrationContext.configure(engine)
         current_rev = context.get_current_revision()
 
-        return current_head == current_rev
+        return self.head == current_rev
 
     def upgrade(self):
         if not self.check():
             command.upgrade(self.config, "head")
+
+class DbRegularUpgrader(DbParticularUpgrader):
+    alembic_path = REGULAR_ALEMBIC_PATH
+
+class DbSchedulingUpgrader(DbParticularUpgrader):
+    alembic_path = SCHEDULING_ALEMBIC_PATH
 

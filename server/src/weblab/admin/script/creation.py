@@ -39,6 +39,7 @@ import sqlalchemy
 from weblab.util import data_filename
 
 import weblab.db.model as Model
+from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
 
@@ -264,7 +265,7 @@ def uncomment_json(lines):
 DB_ROOT     = None
 DB_PASSWORD = None
 
-def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
+def _check_database_connection(what, metadata, upgrader_class, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
 
     if db_engine == 'sqlite':
@@ -376,6 +377,18 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
     if verbose: print >> stdout, "Adding information to the %s database..." % what,; stdout.flush()
     metadata.drop_all(engine)
     metadata.create_all(engine)
+
+    if upgrader_class is not None:
+        if 'alembic_version' in metadata.tables:
+            upgrader = upgrader_class(db_str)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            session.execute(
+                metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+            )
+            session.commit()
+            session.close()
+
     if verbose: print >> stdout, "[done]"
     return engine
 
@@ -824,7 +837,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         db_passwd  = options[Creation.COORD_DB_PASSWD]
         import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
-        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, DbSchedulingUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
         print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
         exit_func(-1)
@@ -843,8 +856,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         db_name   = options[Creation.SESSION_DB_NAME]
         db_user   = options[Creation.SESSION_DB_USER]
         db_passwd = options[Creation.SESSION_DB_PASSWD]
-        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
-        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     elif options[Creation.SESSION_STORAGE] != 'memory':
         print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
         exit_func(-1)
@@ -855,7 +868,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, DbRegularUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
