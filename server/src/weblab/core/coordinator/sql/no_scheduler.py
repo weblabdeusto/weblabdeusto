@@ -46,6 +46,8 @@ class NoScheduler(Scheduler):
         #
         lab_coord_address = ""
 
+        exp_info = ""
+
         #
         # TODO: we must support at laboratory server level that several
         # sessions have access to the same experiment. Basically, always
@@ -70,7 +72,7 @@ class NoScheduler(Scheduler):
         #
         initialization_in_accounting = True
 
-        return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+        return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), exp_info, obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
 
     #######################################################################

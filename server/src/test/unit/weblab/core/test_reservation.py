@@ -77,7 +77,7 @@ class ReservationTest(unittest.TestCase):
         self.assertEquals(status, reservation.to_status())
 
     def test_translate_local_reservation_reserved(self):
-        status = WSS.LocalReservedStatus('foo', 'i:s@m', 'lab_session', 100, "{}", time.time(), time.time(), True, 80, 'http://...')
+        status = WSS.LocalReservedStatus('foo', 'i:s@m', 'lab_session', {}, 100, "{}", time.time(), time.time(), True, 80, 'http://...')
         reservation = Reservation.translate_reservation(status)
         self.assertEquals(Reservation.CONFIRMED, reservation.status)
         self.assertEquals('foo', reservation.reservation_id.id)

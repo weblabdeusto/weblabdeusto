@@ -122,6 +122,10 @@ class ReservationProcessor(object):
 
         self._reservation_session['lab_session_id'] = status.lab_session_id
         self._reservation_session['lab_coordaddr']  = status.coord_address
+
+        if status.exp_info.get('manages_polling', False):
+            self.disable_polling()
+
         # TODO: it should not be time_module.time, but retrieve this information
         # from the status manager to know when it started
         self._renew_expiration_time( self.time_module.time() + status.time )

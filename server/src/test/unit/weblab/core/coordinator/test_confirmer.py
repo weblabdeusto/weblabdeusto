@@ -139,7 +139,7 @@ class ConfirmerTestCase(mocker.MockerTestCase):
         self.assertEquals( None, self.confirmer._confirm_handler.raised_exc )
 
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status =  WSS.LocalReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
+        expected_status =  WSS.LocalReservedStatus(reservation1_id, CoordAddress.CoordAddress.translate_address(self.lab_address), lab_session_id, { 'address' : 'server:inst@mach' }, 30, '{}', now, now, True, 30, 'http://www.weblab.deusto.es/weblab/client/adfas')
 
         self.assertTrue(hasattr(status, 'timestamp_before'),  "Unexpected status. Expected\n %s\n, but the obtained does not have timestamp_before:\n %s\n" % (status, expected_status))
         self.assertTrue(status.timestamp_before >= now and status.timestamp_before <= now + datetime.timedelta(seconds=10),

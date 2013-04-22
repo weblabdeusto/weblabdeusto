@@ -451,7 +451,7 @@ class AbstractCoordinatorTestCase(object):
 
         self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now, 'res_type', {})
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
+        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), {}, DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
 
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status),
