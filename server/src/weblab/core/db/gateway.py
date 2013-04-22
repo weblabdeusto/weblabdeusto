@@ -17,14 +17,9 @@
 from functools import wraps
 import numbers
 
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import desc
 
-import weblab.configuration_doc as configuration_doc
-from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
 
@@ -37,6 +32,7 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
 import weblab.db.exc as DbErrors
+import weblab.permissions as permissions
 
 def admin_panel_operation(func):
     """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
@@ -60,41 +56,10 @@ DEFAULT_VALUE = object()
 
 class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
-    engine = None
-
     forbidden_access = 'forbidden_access'
 
     def __init__(self, cfg_manager):
         super(DatabaseGateway, self).__init__(cfg_manager)
-
-        user     = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
-        password = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
-        host     = self.host
-        port     = self.port
-        dbname   = self.database_name
-        engine   = self.engine_name
-
-        if DatabaseGateway.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
-            getconn = generate_getconn(engine, user, password, host, port, dbname)
-
-            if engine == 'sqlite':
-                connection_url = 'sqlite:///%s' % get_sqlite_dbname(dbname)
-                pool = sqlalchemy.pool.NullPool(getconn)
-            else:
-                if port is None:
-                    port_str = ''
-                else:
-                    port_str = ':%s' % port
-                connection_url = "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s%(PORT)s/%(DATABASE)s" % \
-                                { "ENGINE":   engine, 'PORT' : port_str,
-                                  "USER":     user, "PASSWORD": password,
-                                  "HOST":     host, "DATABASE": dbname  }
-
-                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
-
-            DatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
-
-        self.Session = sessionmaker(bind=self.engine)
 
     @typecheck(basestring)
     @logged()
@@ -123,7 +88,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
 
                 experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).one()
-                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting)
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if experiment_unique_id in grouped_experiments:
@@ -155,6 +120,18 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             return len(permissions) > 0
         finally:
             session.close()
+
+    @typecheck(basestring)
+    @logged()
+    def is_admin(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            permissions = self._gather_permissions(session, user, 'admin_panel_access')
+            return len(permissions) > 0
+        finally:
+            session.close()
+
 
     @typecheck(basestring, ExperimentUsage)
     @logged()
@@ -620,33 +597,15 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    @admin_panel_operation
-    @logged()
-    def get_permission_types(self, user_login):
-        """
-        get_permission_types(user_login)
-
-        Retrieves every permission type from the database
-        """
-        session = self.Session()
-        try:
-            ptypes = session.query(model.DbPermissionType).all()
-            dto_ptypes = [ ptype.to_dto() for ptype in ptypes ]
-            return tuple(dto_ptypes)
-        finally:
-            session.close()
-
-
     @logged()
     def get_user_permissions(self, user_login):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permission_types = session.query(model.DbPermissionType).all()
-            permissions = []
-            for pt in permission_types:
-                permissions.extend(self._gather_permissions(session, user, pt.name))
-            dto_permissions = [ permission.to_dto() for permission in permissions ]
+            user_permissions = []
+            for pt in permissions.permission_types:
+                user_permissions.extend(self._gather_permissions(session, user, pt))
+            dto_permissions = [ permission.to_dto() for permission in user_permissions ]
             return tuple(dto_permissions)
         finally:
             session.close()
@@ -665,11 +624,26 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         except NoResultFound:
             raise DbErrors.DbProvidedExperimentNotFoundError("Unable to find an Experiment with the provided unique id: '%s@%s'" % (exp_name, cat_name))
 
+    def _gather_groups_permissions(self, session, group, permission_type_name, permissions, remaining_list):
+        if group.id in remaining_list:
+            return
+
+        remaining_list.append(group.id)
+        self._add_or_replace_permissions(permissions, self._get_permissions(session, group, permission_type_name))
+        
+        if group.parent is not None:
+            self._gather_groups_permissions(session, group.parent, permission_type_name, permissions, remaining_list)
+        
+        
+
     def _gather_permissions(self, session, user, permission_type_name):
         permissions = []
         self._add_or_replace_permissions(permissions, self._get_permissions(session, user.role, permission_type_name))
+
+        remaining_list = []
         for group in user.groups:
-            self._add_or_replace_permissions(permissions, self._get_permissions(session, group, permission_type_name))
+            self._gather_groups_permissions(session, group, permission_type_name, permissions, remaining_list)
+
         self._add_or_replace_permissions(permissions, self._get_permissions(session, user, permission_type_name))
         return permissions
 
@@ -677,7 +651,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         permissions.extend(permissions_to_add)
 
     def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
-        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type().name == permission_type_name ]
+        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type() == permission_type_name ]
 
     def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
@@ -685,7 +659,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         except IndexError:
             if default_value == DEFAULT_VALUE:
                 raise DbErrors.DbIllegalStatusError(
-                    permission.get_permission_type().name + " permission without " + parameter_name
+                    permission.get_permission_type() + " permission without " + parameter_name
                 )
             else:
                 return default_value
@@ -699,7 +673,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected float as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
-                    permission.get_permission_type().name,
+                    permission.get_permission_type(),
                     value
                 )
             )
@@ -712,7 +686,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             raise DbErrors.InvalidPermissionParameterFormatError(
                 "Expected int as parameter '%s' of '%s', found: '%s'" % (
                     parameter_name,
-                    permission.get_permission_type().name,
+                    permission.get_permission_type(),
                     value
                 )
             )
@@ -726,9 +700,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             uu = session.query(model.DbUserUsedExperiment).all()
             for i in uu:
-                session.delete(i)
-            eu = session.query(model.DbExternalEntityUsedExperiment).all()
-            for i in eu:
                 session.delete(i)
             session.commit()
         finally:
@@ -757,20 +728,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    def _insert_ee_used_experiment(self, ee_name, experiment_name, experiment_category_name, start_time, origin, coord_address, reservation_id, end_date):
-        """ IMPORTANT: SHOULD NEVER BE USED IN PRODUCTION, IT'S HERE ONLY FOR TESTS """
-        session = self.Session()
-        try:
-            ee = session.query(model.DbExternalEntity).filter_by(name=ee_name).one()
-            category = session.query(model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
-            experiment = session.query(model.DbExperiment). \
-                                    filter_by(name=experiment_name). \
-                                    filter_by(category=category).one()
-            exp_use = model.DbExternalEntityUsedExperiment(ee, experiment, start_time, origin, coord_address, reservation_id, end_date)
-            session.add(exp_use)
-            session.commit()
-        finally:
-            session.close()
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

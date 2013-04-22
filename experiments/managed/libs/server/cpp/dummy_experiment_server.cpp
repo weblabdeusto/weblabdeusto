@@ -8,7 +8,7 @@
 // This software consists of contributions made by many individuals,
 // listed below:
 //
-// Author: Luis Rodr�guez <4lurodri@rigel.deusto.es>
+// Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 //         Jaime Irurzun <jaime.irurzun@gmail.com>
 //
 
@@ -23,7 +23,7 @@ public:
 
 	virtual std::string onStartExperiment()
 	{
-		return "ok";
+		return "{'initial_configuration' : {}, 'batch' : false}";
 	}
 
 	virtual std::string onSendFile(std::string const & encoded_file, std::string const & fileinfo)

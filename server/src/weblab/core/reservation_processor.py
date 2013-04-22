@@ -19,6 +19,8 @@ import time as time_module
 
 import voodoo.log as log
 
+import weblab.configuration_doc as configuration_doc
+
 import weblab.data.server_type as ServerType
 import weblab.data.command as Command
 
@@ -100,15 +102,17 @@ class ReservationProcessor(object):
         try:
             status = self._coordinator.get_reservation_status( self._reservation_id )
         except coord_exc.ExpiredSessionError as e:
-            from weblab.core.server import WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER
             log.log(ReservationProcessor, log.level.Debug, "reason for rejecting:")
             log.log_exc(ReservationProcessor, log.level.Debug)
-            human   = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, "human universal identifier not provided")
-            core_id = self._cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, "universal identifier not provided")
+            human   = self._cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
+            core_id = self._cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
             raise core_exc.NoCurrentReservationError("get_reservation_status at %s (%s) called but coordinator rejected reservation id (%s). Reason: %s" % (human, core_id, self._reservation_id, str(e)))
         else:
             if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_LOCAL:
                 self.process_reserved_status(status)
+            
+            if status.status == scheduling_status.WebLabSchedulingStatus.RESERVED_REMOTE:
+                self.process_reserved_remote_status(status)
 
             return Reservation.Reservation.translate_reservation( status )
 
@@ -118,10 +122,19 @@ class ReservationProcessor(object):
 
         self._reservation_session['lab_session_id'] = status.lab_session_id
         self._reservation_session['lab_coordaddr']  = status.coord_address
+
+        if status.exp_info.get('manages_polling', False):
+            self.disable_polling()
+
         # TODO: it should not be time_module.time, but retrieve this information
         # from the status manager to know when it started
         self._renew_expiration_time( self.time_module.time() + status.time )
 
+    def process_reserved_remote_status(self, status):
+        self._reservation_session['federated'] = True
+
+    def disable_polling(self):
+        self._reservation_session['manages_polling'] = True
 
     def finish(self):
 
@@ -172,6 +185,12 @@ class ReservationProcessor(object):
 
         return 'session_polling' in self._reservation_session
 
+    def is_federated(self):
+        return self._reservation_session.get('federated', False)
+
+    def manages_polling(self):
+        return self._reservation_session.get('manages_polling', False)
+
     def _renew_expiration_time(self, expiration_time):
         if self.is_polling():
             self._reservation_session['session_polling'] = (
@@ -195,10 +214,20 @@ class ReservationProcessor(object):
     def is_expired(self):
 
         """Did this reservation's user stay out for a long time without polling?"""
+   
+        # If it has been assigned to a laboratory that explicitly requests to avoid 
+        # using polling, then it is only expired when the particular laboratory
+        # states that it is expired.
+        if self.manages_polling():
+            return False
+
+        # If it has been assigned in a foreign server, then, it is never expired
+        if self.is_federated():
+            return False
 
         # If it is not polling, it was expired in the past
         if not self.is_polling():
-           return True
+            return True
 
         #
         # But if it polling and it hasn't polled in some time

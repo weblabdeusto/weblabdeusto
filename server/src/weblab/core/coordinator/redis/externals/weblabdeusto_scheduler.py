@@ -40,7 +40,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     EXTERNAL_WEBLABDEUSTO_RESERVATIONS    = 'weblab:externals:weblabdeusto:%s:%s:reservations'
     EXTERNAL_WEBLABDEUSTO_PENDING_RESULTS = 'weblab:externals:weblabdeusto:pending:%s:%s'
 
-    def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, experiments_map = None, **kwargs):
+    def __init__(self, generic_scheduler_arguments, baseurl, username, password, login_baseurl = None, experiments_map = None, uuid = None, **kwargs):
         super(ExternalWebLabDeustoScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
         self.baseurl       = baseurl
@@ -51,6 +51,13 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             self.experiments_map = {}
         else:
             self.experiments_map = experiments_map
+        if uuid is None:
+            self.uuids = []
+        elif isinstance(uuid, basestring):
+            human = baseurl
+            self.uuids = [ (uuid, human) ]
+        else:
+            self.uuids = [uuid]
 
         from weblab.core.coordinator.coordinator import POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME
         post_reservation_expiration_time = self.cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
@@ -68,6 +75,10 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     @Override(Scheduler)
     def is_remote(self):
         return True
+
+    @Override(Scheduler)
+    def get_uuids(self):
+        return self.uuids
 
     @logged()
     @Override(Scheduler)
@@ -236,7 +247,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     @logged('info')
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         # At some point, we must call the upper level to say that we want to confirm
         # at this point, it's normal that they call us back, even if there is nothing
         # to do

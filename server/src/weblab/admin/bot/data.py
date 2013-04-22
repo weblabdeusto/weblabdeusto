@@ -24,6 +24,8 @@ except ImportError:
 else:
     NUMPY_AVAILABLE = True
 
+PRINT_FULL_TRACE = False
+
 class BotError(object):
 
     def __init__(self, (exception, trace), max_number=0, min_number=0, avg_number=0):
@@ -65,8 +67,16 @@ class BotIteration(object):
         self.err        = err
 
     def dispose(self):
+        data = []
         for botuser in self.botusers:
+            user_data = []
+            for call in botuser.bot.calls:
+                user_data.append( (call.begin, call.end, call.method) )
+            data.append(user_data)
             botuser.dispose()
+
+        if PRINT_FULL_TRACE:
+            print repr(data)
 
     def get_times(self):
         return [ botuser.time() for botuser in self.botusers ]

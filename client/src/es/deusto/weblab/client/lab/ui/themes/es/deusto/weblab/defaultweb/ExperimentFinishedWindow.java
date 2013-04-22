@@ -45,12 +45,16 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	@UiField Anchor logoutLink;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField Label separatorLabel3;
+	@UiField WlAHref administrationLink;
+	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref bottomInstitutionLink;
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
 	@UiField Button backButton;
+	@UiField HorizontalPanel poweredByPanel;
 	
 	interface ExperimentFinishedWindowUiBinder extends UiBinder<Widget, ExperimentFinishedWindow> {
 	}
@@ -77,10 +81,17 @@ public class ExperimentFinishedWindow extends BaseWindow {
 		final boolean visibleHeader = HistoryProperties.getBooleanValue(HistoryProperties.HEADER_VISIBLE, true);
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.hostedByPanel.setVisible(!visibleHeader);
+
+	    final String widgetName = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+	    if(!widgetName.isEmpty()) {
+	    	this.hostedByPanel.setVisible(false);
+	    	this.poweredByPanel.setVisible(false);
+	    }
 	    
     	this.logoutLink.setVisible(false);
     	this.separatorLabel.setVisible(false);
     	this.separatorLabel2.setVisible(false);
+    	this.separatorLabel3.setVisible(false);
 	}
 	
 	@UiHandler("backButton")

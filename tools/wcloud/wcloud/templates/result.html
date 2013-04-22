@@ -1,0 +1,14 @@
+{% set current_link = "deploy" %}
+{% extends "base.html" %}
+
+{% block headers_meta %}
+{% if loop %}
+    <meta http-equiv="refresh" content="1">
+{% endif %}
+{% endblock %}
+
+{% block body %}
+   <strong>Status:</strong> {{ status }}
+   <pre>{{stdout}}</pre>
+    <a href="{{ url_for('result', deploy_id = deploy_id) }}"><input type="button" class="btn btn-success" value="Reload log" /></a>
+{% endblock body %}

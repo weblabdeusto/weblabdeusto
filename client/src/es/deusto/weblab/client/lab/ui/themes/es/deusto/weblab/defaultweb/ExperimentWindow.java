@@ -20,9 +20,9 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -67,7 +68,7 @@ class ExperimentWindow extends BaseWindow {
 	@UiField VerticalPanel containerPanel;
 	@UiField Label userLabel;
 	@UiField Anchor logoutLink;
-	@UiField AbsolutePanel navigationPanel;
+	@UiField HorizontalPanel navigationPanel;
 	@UiField Anchor backLink;
 	@UiField VerticalPanel experimentAreaPanel;
 	@UiField Label contentTitleLabel;
@@ -85,12 +86,17 @@ class ExperimentWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
-	@UiField HorizontalPanel headerPanel;
+	@UiField Label separatorLabel3;
+	@UiField WlAHref profileLink;
+	@UiField WlAHref administrationLink;
+	@UiField Label separatorLabelAdministration;
+	@UiField CellPanel headerPanel;
+	@UiField CellPanel footerPanel;
 	@UiField WlAHref bottomInstitutionLink;
 	@UiField WlAHref institutionLink;
 	@UiField Image bottomLogoImage;
 	@UiField HorizontalPanel hostedByPanel;
-	@UiField WlAHref directLink;
+	@UiField HorizontalPanel poweredByPanel;
 
 	// Callbacks
 	private final IExperimentWindowCallback callback;
@@ -157,13 +163,37 @@ class ExperimentWindow extends BaseWindow {
 	    this.navigationPanel.setVisible(visibleHeader);
 	    this.hostedByPanel.setVisible(!visibleHeader);
 	    
-	    if(this.user != null)
+		final String widgetMode = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
+
+	    if(!widgetMode.isEmpty()) {
+	    	this.poweredByPanel.setVisible(false);
+		    this.contentTitleLabel.setVisible(false);
+		    this.contentTitleLabelSelected.setVisible(false);
+		    this.hostedByPanel.setVisible(false);
+		    this.headerPanel.setVisible(false);
+		    this.footerPanel.setVisible(false);
+		    this.institutionLink.setVisible(false);
+		    this.logoutLink.setVisible(false);
+	    } else {
+	    	this.poweredByPanel.setVisible(true);
+	    	this.institutionLink.setVisible(true);
+	    	this.logoutLink.setVisible(true);
+	    }
+	    
+	    
+	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-		
+	    	if(this.user.getAdminUrl() != null && !this.user.getAdminUrl().equals("")) {
+	    		this.administrationLink.setVisible(true);
+	    		this.administrationLink.setHref(this.user.getAdminUrl());
+	    		this.separatorLabelAdministration.setVisible(true);
+	    	}
+	    	this.profileLink.setHref(WebLabClient.PROFILE_URL);
+	    }
+	    
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
-	    	this.separatorLabel.setVisible(false);
-	    	this.separatorLabel2.setVisible(false);
+	    	this.separatorLabel3.setVisible(false);
 	    }
 	}
 	
@@ -210,7 +240,10 @@ class ExperimentWindow extends BaseWindow {
 		if(reserved){
 			this.reserveButton.setVisible(false);
 			this.waitingLabel.start();
-			this.contentTitleLabelSelected.setVisible(true);
+			
+			final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
+			if(widgetMode)
+				this.contentTitleLabelSelected.setVisible(false);
 			this.contentTitleLabel.setVisible(false);
 		}else{
 			this.contentTitleLabelSelected.setVisible(false);
@@ -219,7 +252,6 @@ class ExperimentWindow extends BaseWindow {
 		this.experimentNameLabel.setText(this.experimentAllowed.getExperiment().getName());
 		this.experimentCategoryLabel.setText(this.experimentAllowed.getExperiment().getCategory().getCategory());
 		this.timeAllowedLabel.setText(this.experimentAllowed.getTimeAllowed()+"");
-		this.directLink.setHref(Window.Location.getHref());
 		this.updateInfolinkField();
 
 		// Important note: this MUST be done here or FileUpload will cause problems
@@ -228,7 +260,9 @@ class ExperimentWindow extends BaseWindow {
 	}
 
 	public void loadUsingExperimentPanels() {
-		this.contentTitleLabelInfo.setVisible(this.infolink != null);
+		final boolean widgetMode = !HistoryProperties.getValue(HistoryProperties.WIDGET, "").isEmpty();
+		
+		this.contentTitleLabelInfo.setVisible(this.infolink != null && !widgetMode);
 		if(this.infolink != null)
 			this.contentTitleLabelInfo.setHref(this.infolink);
 
@@ -245,7 +279,9 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentAreaPanel.clear();
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+		String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+        if(WebLabClient.getLocale() != null)
+            remoteUrl += "&locale=" + WebLabClient.getLocale();
 
         this.callback.disableFinishOnClose();
 		Window.Location.assign(remoteUrl);

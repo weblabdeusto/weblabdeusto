@@ -68,6 +68,16 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_javadummy:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:jsdummy@Dummy experiments':
+            {
+                 'coord_address': 'experiment_jsdummy:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:jsfpga@FPGA experiments':
+            {
+                 'coord_address': 'experiment_jsfpga:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:visirtest@Dummy experiments':
             {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',
@@ -133,6 +143,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_submarine:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:aquarium@Aquatic experiments':
+            {
+                 'coord_address': 'experiment_aquarium:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:unr-physics@Physics experiments':
             {
                  'coord_address': 'experiment_unr:main_instance@main_machine',
@@ -174,5 +189,25 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_binary:main_instance@main_machine',
                 'checkers': ()
             },
-
+        'exp1:control-app@Control experiments':
+            {
+                'coord_address' : 'experiment_controlapp:main_instance@main_machine',
+                'checkers': ()
+            },
+        'exp1:incubator@Farm experiments':
+            {
+                'coord_address' : 'experiment_incubator:main_instance@main_machine',
+                'checkers': ()
+            },
+        'exp1:robot-maze@Robot experiments':
+            {
+                'coord_address' : 'experiment_robot_maze:main_instance@main_machine',
+                'checkers': ()
+            },
+        'exp1:http@HTTP experiments':
+            {
+                'coord_address' : 'experiment_http:main_instance@main_machine',
+                'checkers': (),
+                'manages_polling' : True,
+            },
     }

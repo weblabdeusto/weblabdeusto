@@ -10,12 +10,13 @@
 # This software consists of contributions made by many individuals, 
 # listed below:
 #
-# Author: Luis Rodríguez <4lurodri@rigel.deusto.es>
+# Author: Luis Rodríguez <luis.rodriguez@opendeusto.es>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 # 
 
 import xmlrpclib
 import base64
+import sys
 
 host = "http://localhost:12345"
 
@@ -34,10 +35,10 @@ try:
     print conn.Util.start_experiment()
     
     print "send_command('switch 2 on')... -> ",
-    print conn.Util.send_command('switch 2 on')
+    print conn.Util.send_command_to_device('switch 2 on')
     
     print "send_file('loooong file', 'info')... -> ",
-    print conn.Util.send_file(base64.encodestring("looooong file"), 'info')
+    print conn.Util.send_file_to_device(base64.encodestring("looooong file"), 'info')
     
     print "dispose()... -> ",
     print conn.Util.dispose()

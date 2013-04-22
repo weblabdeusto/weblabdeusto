@@ -2,3 +2,4 @@
 external
 gwt-unitCache
 junit*.properties
+www-test

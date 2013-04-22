@@ -57,6 +57,7 @@ from weblab.core.coordinator.redis.constants import (
     TIMESTAMP_BEFORE,
     TIMESTAMP_AFTER,
     LAB_SESSION_ID,
+    EXP_INFO,
     INITIAL_CONFIGURATION,
     RESOURCE_INSTANCE,
     ACTIVE_STATUS,
@@ -131,6 +132,7 @@ class PriorityQueueScheduler(Scheduler):
                 reservation_data.pop(TIMESTAMP_BEFORE, None)
                 reservation_data.pop(TIMESTAMP_AFTER,  None)
                 reservation_data.pop(LAB_SESSION_ID,   None)
+                reservation_data.pop(EXP_INFO,         None)
                 reservation_data_str = json.dumps(reservation_data)
                 reservation_data = client.set(weblab_reservation_pqueue, reservation_data_str)
                 # Add back to the queue
@@ -236,6 +238,10 @@ class PriorityQueueScheduler(Scheduler):
             initial_configuration        = reservation_data[INITIAL_CONFIGURATION]
             timestamp_before_tstamp      = reservation_data[TIMESTAMP_BEFORE]
             timestamp_after_tstamp       = reservation_data[TIMESTAMP_AFTER]
+            if EXP_INFO in reservation_data and reservation_data[EXP_INFO]:
+                exp_info                 = json.loads(reservation_data[EXP_INFO])
+            else:
+                exp_info                 = {}
             timestamp_before             = datetime.datetime.fromtimestamp(timestamp_before_tstamp)
             timestamp_after              = datetime.datetime.fromtimestamp(timestamp_after_tstamp)
             lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
@@ -250,7 +256,7 @@ class PriorityQueueScheduler(Scheduler):
             else:
                 remaining = obtained_time
 
-            return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+            return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), exp_info, obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
         # else it's waiting
 
@@ -283,7 +289,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         self._remove_expired_reservations()
 
         weblab_reservation_pqueue = WEBLAB_RESOURCE_RESERVATION_PQUEUE % (self.resource_type_name, reservation_id)
@@ -306,6 +312,7 @@ class PriorityQueueScheduler(Scheduler):
         pqueue_reservation_data[INITIAL_CONFIGURATION] = initial_configuration
         pqueue_reservation_data[TIMESTAMP_AFTER]       = self.time_provider.get_time()
         pqueue_reservation_data[ACTIVE_STATUS]         = STATUS_RESERVED
+        pqueue_reservation_data[EXP_INFO]              = json.dumps(exp_info)
 
         pqueue_reservation_data_str = json.dumps(pqueue_reservation_data)
         client.set(weblab_reservation_pqueue, pqueue_reservation_data_str)
@@ -492,7 +499,9 @@ class PriorityQueueScheduler(Scheduler):
                 initialization_in_accounting               = pqueue_reservation_data[INITIALIZATION_IN_ACCOUNTING]
 
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
-                username                  = json.loads(reservation_data[REQUEST_INFO]).get('username')
+                request_info              = json.loads(reservation_data[REQUEST_INFO])
+                username                  = request_info.get('username')
+                locale                    = request_info.get('locale')
 
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
 
@@ -533,6 +542,7 @@ class PriorityQueueScheduler(Scheduler):
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
                         'request.username'                                 : username,
                         'request.full_name'                                : username,
+                        'request.locale'                                   : locale,
                         # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)

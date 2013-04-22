@@ -22,6 +22,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 import weblab.db.model as Model
+import weblab.permissions as permissions
 
 
 class DbGateway(object):
@@ -55,12 +56,6 @@ class DbGateway(object):
     def get_group(self, group_name):
         try:
             return self.session.query(Model.DbGroup).filter_by(name=group_name).one()
-        except NoResultFound:
-            return None
-
-    def get_permission_type(self, permission_type_name):
-        try:
-            return self.session.query(Model.DbPermissionType).filter_by(name=permission_type_name).one()
         except NoResultFound:
             return None
 
@@ -161,7 +156,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -169,31 +164,31 @@ class DbGateway(object):
             self.session.add(group_permission)
             group_permission_p1 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("experiment_permanent_id"),
+                                        permissions.EXPERIMENT_PERMANENT_ID,
                                         experiment.name
                                   )
             self.session.add(group_permission_p1)
             group_permission_p2 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("experiment_category_id"),
+                                        permissions.EXPERIMENT_CATEGORY_ID,
                                         experiment.category.name
                                   )
             self.session.add(group_permission_p2)
             group_permission_p3 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("time_allowed"),
+                                        permissions.TIME_ALLOWED,
                                         time_allowed
                                   )
             self.session.add(group_permission_p3)
             group_permission_p4 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("priority"),
+                                        permissions.PRIORITY,
                                         priority
                                   )
             self.session.add(group_permission_p4)
             group_permission_p5 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("initialization_in_accounting"),
+                                        permissions.INITIALIZATION_IN_ACCOUNTING,
                                         initialization_in_accounting
                                   )
             self.session.add(group_permission_p5)
@@ -207,7 +202,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -215,31 +210,31 @@ class DbGateway(object):
             self.session.add(user_permission)
             user_permission_p1 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("experiment_permanent_id"),
+                                        permissions.EXPERIMENT_PERMANENT_ID,
                                         experiment.name
                                   )
             self.session.add(user_permission_p1)
             user_permission_p2 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("experiment_category_id"),
+                                        permissions.EXPERIMENT_CATEGORY_ID,
                                         experiment.category.name
                                   )
             self.session.add(user_permission_p2)
             user_permission_p3 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("time_allowed"),
+                                        permissions.TIME_ALLOWED,
                                         time_allowed
                                   )
             self.session.add(user_permission_p3)
             user_permission_p4 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("priority"),
+                                        permissions.PRIORITY,
                                         priority
                                   )
             self.session.add(user_permission_p4)
             user_permission_p5 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("initialization_in_accounting"),
+                                        permissions.INITIALIZATION_IN_ACCOUNTING,
                                         initialization_in_accounting
                                   )
             self.session.add(user_permission_p5)
@@ -253,7 +248,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -261,7 +256,7 @@ class DbGateway(object):
             self.session.add(group_permission)
             group_permission_p1 = Model.DbGroupPermissionParameter(
                                         group_permission,
-                                        permission_type.get_parameter("full_privileges"),
+                                        permissions.FULL_PRIVILEGES,
                                         True
                                   )
             self.session.add(group_permission_p1)
@@ -274,7 +269,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -282,7 +277,7 @@ class DbGateway(object):
             self.session.add(user_permission)
             user_permission_p1 = Model.DbUserPermissionParameter(
                                         user_permission,
-                                        permission_type.get_parameter("full_privileges"),
+                                        permissions.FULL_PRIVILEGES,
                                         True
                                   )
             self.session.add(user_permission_p1)
@@ -295,7 +290,7 @@ class DbGateway(object):
         try:
             group_permission = Model.DbGroupPermission(
                                     group,
-                                    permission_type.group_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments
@@ -310,7 +305,7 @@ class DbGateway(object):
         try:
             user_permission = Model.DbUserPermission(
                                     user,
-                                    permission_type.user_applicable,
+                                    permission_type,
                                     permanent_id,
                                     date,
                                     comments

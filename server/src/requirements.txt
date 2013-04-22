@@ -26,3 +26,13 @@ SQLAlchemy<0.7.100
 # 
 
 SOAPpy<0.13
+
+# 
+# Flask_admin is used for the new administration panel
+# 
+Flask-Admin<1.1
+
+# 
+# alembic is used for upgrading the database from version to version
+# 
+alembic<0.6

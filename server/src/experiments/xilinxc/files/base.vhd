@@ -5,6 +5,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity base is
 	Port (
+	
 		A: in std_logic;
 		B: in std_logic;
 		S0: out std_logic;
@@ -24,8 +25,11 @@ end base;
 
 architecture behavioral of base is
 begin
+
 	S0<=((A and not(B)) or (not(A) and B));
 	S1<=((not(A) and not(B)) or (A and B));
 	
-	Leds <= Switches(7 downto 0);
+	Leds(7 downto 2) <= Switches(7 downto 2);
+	Leds(0) <= not Switches(0);
+	Leds(1) <= not Switches(1);
 end behavioral;

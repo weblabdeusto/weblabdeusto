@@ -44,7 +44,7 @@
 					        	   "swf.file"            : "WeblabFlashSample.swf",
 					        	   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
 	                       		   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.description" : "description"
 	                       		}
 	                       		// Other flash experiments could be added here
 	                       ],
@@ -59,9 +59,32 @@
 	                        	  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
 	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
 	                          	  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
-	                        	  "experiment.info.description" : "wiki"
+	                        	  "experiment.info.description" : "description"
 	                          }
 	                          // Other java experiments could be added here
+	                       ],
+	                "js"	: [
+	                    	   {
+	                    		   "experiment.name"		: "jsdummy",
+	                    		   "experiment.category"	: "Dummy experiments",
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   //"js.file"				: "test.js",
+	                    		   "provide.file.upload"	: true,
+	                    		   // If we use an html.file as base, we cannot use a js.file.
+	                    		   // (Though of course, we may include that js file from our html file).
+	                    		   "html.file"				: "jstest.html"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "jsfpga",
+	                    		   "experiment.category"	: "FPGA experiments",
+	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
+	                    		   "width"					: 800,
+	                    		   "height"					: 600,
+	                    		   "provide.file.upload"	: true,
+	                    		   "html.file"				: "jsxilinx/jsxilinx.html"
+	                    	   }
 	                       ],
 	                "vm"    : [
 	                           {
@@ -78,8 +101,8 @@
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"     : "ud-linux-vm",
 	                        	   "experiment.category" : "VM experiments",
-	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Linux_VM",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab",
+	                        	   "experiment.info.description" : "description"
 	                           },
 	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
@@ -143,16 +166,16 @@
 								   "experiment.category" : "PLD experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
 								   "is.demo"             : true,
-								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Pld",
-	                        	   "experiment.info.description" : "wiki"
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#cpld",
+	                        	   "experiment.info.description" : "description"
 							  },
 							  {
 								   "experiment.name"     : "ud-demo-fpga",
 								   "experiment.category" : "FPGA experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
 								   "is.demo"             : true,
-								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Fpga",
-	                        	   "experiment.info.description" : "wiki"
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
+	                        	   "experiment.info.description" : "description"
 						      },
 						      {
 							       "experiment.name"     : "ud-demo-xilinx",
@@ -161,14 +184,14 @@
 							       "is.demo"             : true,
 							       "is.multiresource.demo" : true,
 							       "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.description" : "description"
 						      },
 							  {
 								   "experiment.name"     : "ud-fpga",
 								   "experiment.category" : "FPGA experiments",
 	                        	   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Fpga",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
+	                        	   "experiment.info.description" : "description"
 							  },
 	                          {
 	                        	  "experiment.name"      : "ud-pld",
@@ -223,8 +246,8 @@
 	                			   "experiment.name" : "robot-standard",
 	                			   "experiment.category" : "Robot experiments",
 					        	   "experiment.picture"	 : "/img/experiments/robot.jpg",
-					        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Standard",
-	                        	   "experiment.info.description" : "wiki"
+					        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+	                        	   "experiment.info.description" : "description"
 	                			}
 	                		],
 	       	        "robot-movement" : [
@@ -232,33 +255,49 @@
 	                				"experiment.name" : "robot-movement",
 						        	"experiment.picture" : "/img/experiments/robot.jpg",
 	                				"experiment.category" : "Robot experiments",
-	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Movement",
-	                        	    "experiment.info.description" : "wiki"
+	                				"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+	                        	    "experiment.info.description" : "description"
 	                			}
 	                		],
+	       	        "robot-maze" : [
+	    	                			{
+	    	                				"experiment.name" : "robot-maze",
+	    						        	"experiment.picture" : "/img/experiments/robot.jpg",
+	    	                				"experiment.category" : "Robot experiments"
+	    	                			}
+	    	                		],
 	       	        "submarine" : [
 	    	                			{
 	    	                				"experiment.name" : "submarine",
 	    						        	"experiment.picture" : "/img/experiments/submarine.png",
 	    	                				"experiment.category" : "Submarine experiments",
-	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
-	    	                        	    "experiment.info.description" : "wiki"
+	    	                				"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+	    	                        	    "experiment.info.description" : "description"
 	    	                			},
 	    	                			{
 	    	                				"experiment.name" : "submarine",
 	    						        	"experiment.picture" : "/img/experiments/submarine.png",
 	    	                				"experiment.category" : "Aquatic experiments",
-	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Submarine",
-	    	                        	    "experiment.info.description" : "wiki"
+	    	                				"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+	    	                        	    "experiment.info.description" : "description"
 	    	                			}
 	    	                		],
+	    	        "aquarium" : [
+									{
+										"experiment.name" : "aquarium",
+										"experiment.picture" : "/img/experiments/aquarium.png",
+										"experiment.category" : "Aquatic experiments",
+										"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+									    "experiment.info.description" : "description"
+									}
+	    	                 ],
 	                "robot-proglist" : [
 	                			{
 	                				"experiment.name" : "robot-proglist",
 						        	"experiment.picture"  : "/img/experiments/robot.jpg",
 	                				"experiment.category" : "Robot experiments",
-	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Proglist",
-	                        	    "experiment.info.description" : "wiki"
+	                				"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+	                        	    "experiment.info.description" : "description"
 	                			}
 	                		],
 	                "robotarm" : [
@@ -266,8 +305,7 @@
 	    	                				"experiment.name" : "robotarm",
 	    						        	"experiment.picture"  : "/img/experiments/robot.jpg",
 	    	                				"experiment.category" : "Robot experiments",
-	    	                				"experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Robot_Proglist",
-	    	                        	    "experiment.info.description" : "wiki"
+	    	                        	    "experiment.info.description" : "description"
 	    	                			}
 	    	                		],
 	                "blank" : [
@@ -280,60 +318,102 @@
 	                        ],
 	                "visir" : [
 	                           {
+	                        	   "experiment.name"      : "Fisica-1",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-2",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-3",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-1-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-2-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.name"      : "Fisica-3-PXI",
+	                        	   "experiment.category"  : "Visir experiments",
+	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
 	                        	   "experiment.name"      : "visirtest",
 	                        	   "experiment.category"  : "Dummy experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
 	                           {
 	                        	   "experiment.name"      : "visir-lesson2",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
 	                           {
 	                        	   "experiment.name"      : "lxi_visir",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
                                {
 	                        	   "experiment.name"      : "visir",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
                                {
 	                        	   "experiment.name"      : "visir-student",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
                                {
 	                        	   "experiment.name"      : "visir-uned",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
                                {
 	                        	   "experiment.name"      : "visir-fed-balance",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           },
                                {
 	                        	   "experiment.name"      : "visir-fed-balance-multiple",
 	                        	   "experiment.category"  : "Visir experiments",
 	                        	   "experiment.picture"   : "/img/experiments/visir.jpg",
-	                           	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Visir",
-	                        	   "experiment.info.description" : "wiki"
+	                           	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+	                        	   "experiment.info.description" : "description"
 	                           }
 	                       ],
 	                "logic" : [
@@ -341,15 +421,15 @@
 	                        	   "experiment.name"     : "ud-logic",
 	                        	   "experiment.category" : "PIC experiments",
 	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
-	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+	                        	   "experiment.info.description" : "description"
 	                           },
 	                           {
 	                        	   "experiment.name"     : "logic",
 	                        	   "experiment.category" : "Games",
 	                        	   "experiment.picture"   : "/img/experiments/logic.jpg",
-	                        	   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Logic",
-	                        	   "experiment.info.description" : "wiki"
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+	                        	   "experiment.info.description" : "description"
 	                           }
 	                       ],
 	                "binary" : [
@@ -424,6 +504,26 @@
                                     "code"                            : "weblab.client.graphicalUI.GraphicalApplet",
                                     "lab_server_id"                   : "microelectronics",
                                     "service_broker"                  : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                }
+                            ],
+                     "control-app" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/bulb.png",
+                                    "experiment.name"                 : "control-app",
+                                    "experiment.category"             : "Control experiments"
+                                }
+                            ],
+                    "redirect" : [
+                                     {
+                                         "experiment.name"                 : "http",
+                                         "experiment.category"             : "HTTP experiments"
+                                     }
+                                 ],                            
+                     "incubator" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
+                                	"experiment.name"                 : "incubator",
+                                	"experiment.category"             : "Farm experiments"
                                 }
                             ]
 		}

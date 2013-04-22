@@ -12,8 +12,7 @@
 
     <property name="gwt.style" value="OBFUSCATED"/>
 
-	<property name="lab.module.name" value="es.deusto.weblab.WebLabClientLab"/>
-	<property name="admin.module.name" value="es.deusto.weblab.WebLabClientAdmin"/>
+	<property name="lab.module.name" value="es.deusto.weblab.WebLabClient"/>
 	
 	<!--
 	***********************************
@@ -49,7 +48,6 @@
 		<!-- Add any additional non-server libs (such as JUnit) -->
 		<pathelement path="${junit.jar}"/>
 		<pathelement location="external/lib-client/junit.jar"/>
-		<pathelement location="external/lib-client/smartgwt.jar"/>
 	</path>
 
 	<path id="fast.project.class.path">
@@ -60,7 +58,6 @@
 		<!-- Add any additional non-server libs (such as JUnit) -->
 		<pathelement path="${junit.jar}"/>
 		<pathelement location="external/lib-client/junit.jar"/>
-		<pathelement location="external/lib-client/smartgwt.jar"/>
 	</path>
 	
 	<!--
@@ -116,23 +113,6 @@
 	</target>
 
 
-    <target name="gwtc-admin" depends="javac">
-	  <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
-	      <classpath>
-	        <pathelement location="src"/>
-	        <path refid="project.class.path"/>
-	      </classpath>
-	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
-	      <jvmarg value="-Xmx512M"/>
-	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-	      <arg value="${admin.module.name}"/>
-		  <arg value="-style"/>
-          <arg value="${gwt.style}"/>
-      </java>
-      <delete dir="war/weblabclient/.junit_symbolMaps" failonerror="false" />
-      <delete dir="war/weblabclientadmin/.junit_symbolMaps" failonerror="false" />
-    </target>
-
     <target name="version">
         <exec executable="python">
             <arg value="version.py"/>
@@ -164,21 +144,10 @@
       <delete dir="war/weblabclientlab/.junit_symbolMaps" failonerror="false" />
     </target>
 
-    <target name="gwtc" depends="gwtc-admin, gwtc-lab" description="GWT compile to JavaScript">
+    <target name="gwtc" depends="gwtc-lab" description="GWT compile to JavaScript">
 	</target>	
 	
 	<target name="gwtc-fast" depends="javac" description="GWT compile to JavaScript">
-	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
-	      <classpath>
-	        <pathelement location="src"/>
-	        <path refid="fast.project.class.path"/>
-	      </classpath>
-	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
-	      <jvmarg value="-Xmx512M"/>
-	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
-	      <arg value="${admin.module.name}"/>
-		  <arg value="-draftCompile"/>
-      </java>
 	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
 	      <classpath>
 	        <pathelement location="src"/>
@@ -262,7 +231,6 @@
 	    <delete dir="war/WEB-INF/classes"   failonerror="false" />
 	    <delete dir="war/weblabclient"      failonerror="false" />		
 	    <delete dir="war/weblabclientlab"   failonerror="false" />		
-	    <delete dir="war/weblabclientadmin" failonerror="false" />		
 	</target>
 	
 </project>

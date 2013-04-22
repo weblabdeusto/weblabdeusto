@@ -20,6 +20,8 @@ import random
 import sha
 import traceback
 import weblab.configuration_doc as configuration_doc
+import weblab.permissions as permissions
+from voodoo.dbutil import get_sqlite_dbname
 
 from console_ui import ConsoleUI
 from exc import GoBackError
@@ -27,7 +29,7 @@ from exc import GoBackError
 from db import DbGateway
 from smtp import SmtpGateway
 try:
-    from ldap_gateway import LdapGateway
+    from weblab.admin.ldap_gateway import LdapGateway
     LdapGatewayClass = LdapGateway
 except ImportError:
     LdapGatewayClass = None
@@ -39,14 +41,12 @@ def get_variable(dictionary, name):
     else:
         return dictionary.get(name, default)
 
-class Controller(object):
-
-    def __init__(self, configuration_files = None):
-        super(Controller, self).__init__()
+class DbConfiguration(object):
+    def __init__(self, configuration_files):
 
         for configuration_file in configuration_files:
             if not os.path.exists(configuration_file):
-                print >> sys.stderr, "Could not file configuration file", configuration_file
+                print >> sys.stderr, "Could not find configuration file", configuration_file
                 sys.exit(1)
 
             globals()['CURRENT_PATH'] = configuration_file
@@ -60,6 +60,50 @@ class Controller(object):
         self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
         self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
         self.db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
+
+        if get_variable(global_vars, configuration_doc.COORDINATOR_IMPL) == 'sqlalchemy':
+            self.coord_db_host     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_HOST)
+            self.coord_db_port     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_PORT)
+            self.coord_db_engine   = get_variable(global_vars, configuration_doc.COORDINATOR_DB_ENGINE)
+            self.coord_db_name     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_NAME)
+            self.coord_db_user     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_USERNAME)
+            self.coord_db_pass     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_PASSWORD)
+        else:
+            self.coord_db_host = self.coord_db_port = self.coord_db_engine = self.coord_db_name = self.coord_db_user = self.coord_db_pass = None
+
+
+    def build_url(self):
+        if self.db_engine == 'sqlite':
+            return 'sqlite:///%s' % get_sqlite_dbname(self.db_name)
+        else:
+            return "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "ENGINE":   self.db_engine,
+                              "USER":     self.db_user, "PASSWORD": self.db_pass,
+                              "HOST":     self.db_host, "DATABASE": self.db_name }
+    
+    def build_coord_url(self):
+        if self.coord_db_engine is None:
+            return None
+        elif self.coord_db_engine == 'sqlite':
+            return 'sqlite:///%s' % get_sqlite_dbname(self.coord_db_name)
+        else:
+            return "%(ENGINE)s://%(USER)s:%(PASSWORD)s@%(HOST)s/%(DATABASE)s" % \
+                            { "ENGINE":   self.coord_db_engine,
+                              "USER":     self.coord_db_user, "PASSWORD": self.coord_db_pass,
+                              "HOST":     self.coord_db_host, "DATABASE": self.coord_db_name }
+
+class Controller(object):
+
+    def __init__(self, configuration_files = None):
+        super(Controller, self).__init__()
+
+        db_conf = DbConfiguration(configuration_files)
+        self.db_host   = db_conf.db_host
+        self.db_port   = db_conf.db_port
+        self.db_engine = db_conf.db_engine
+        self.db_name   = db_conf.db_name
+        self.db_user   = db_conf.db_user
+        self.db_pass   = db_conf.db_pass
 
         self.smtp_host         = globals().get(configuration_doc.MAIL_SERVER_HOST)
         self.smtp_helo         = globals().get(configuration_doc.MAIL_SERVER_HELO)
@@ -395,7 +439,6 @@ class Controller(object):
         group_names = [ (group.id, group.name) for group in groups ]
         experiments = self.db.get_experiments()
         experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
-        permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             group_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_group(group_names, experiment_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
@@ -404,7 +447,7 @@ class Controller(object):
             group_permission_permanent_id = "%s::%s" % (group.name, experiment_unique_id)
             group_permission = self.db.grant_on_experiment_to_group(
                     group,
-                    permission_type,
+                    permissions.EXPERIMENT_ALLOWED,
                     group_permission_permanent_id,
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, experiment_unique_id),
@@ -428,7 +471,6 @@ class Controller(object):
         user_names = [ (user.id, user.login) for user in users ]
         experiments = self.db.get_experiments()
         experiment_names = [ (experiment.id, '%s@%s' % (experiment.name, experiment.category.name)) for experiment in experiments ]
-        permission_type = self.db.get_permission_type("experiment_allowed")
         try:
             user_id, experiment_id, time_allowed, priority, initialization_in_accounting = self.ui.dialog_grant_on_experiment_to_user(user_names, experiment_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
@@ -437,7 +479,7 @@ class Controller(object):
             user_permission_permanent_id = "%s::%s" % (user.login, experiment_unique_id)
             user_permission = self.db.grant_on_experiment_to_user(
                     user,
-                    permission_type,
+                    permissions.EXPERIMENT_ALLOWED,
                     user_permission_permanent_id,
                     datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, experiment_unique_id),
@@ -459,12 +501,11 @@ class Controller(object):
     def grant_on_admin_panel_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
-        permission_type = self.db.get_permission_type("admin_panel_access")
         try:
             group_id = self.ui.dialog_grant_on_admin_panel_to_group(group_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             group_permission_permanent_id = "%s::admin_panel_access" % group.name
-            group_permission = self.db.grant_on_admin_panel_to_group( group, permission_type,
+            group_permission = self.db.grant_on_admin_panel_to_group( group, permissions.ADMIN_PANEL_ACCESS,
                     group_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
             if group_permission is not None:
@@ -480,12 +521,11 @@ class Controller(object):
     def grant_on_admin_panel_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
-        permission_type = self.db.get_permission_type("admin_panel_access")
         try:
             user_id = self.ui.dialog_grant_on_admin_panel_to_user(user_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             user_permission_permanent_id = "%s::admin_panel_access" % user.login
-            user_permission = self.db.grant_on_admin_panel_to_user( user, permission_type,
+            user_permission = self.db.grant_on_admin_panel_to_user( user, permissions.ADMIN_PANEL_ACCESS,
                     user_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
             if user_permission is not None:
@@ -501,12 +541,11 @@ class Controller(object):
     def grant_on_access_forward_to_group(self):
         groups = self.db.get_groups()
         group_names = [ (group.id, group.name) for group in groups ]
-        permission_type = self.db.get_permission_type("access_forward")
         try:
             group_id = self.ui.dialog_grant_on_access_forward_to_group(group_names)
             group = [ group for group in groups if group.id == group_id ][0] if group_id is not None else None
             group_permission_permanent_id = "%s::access_forward" % group.name
-            group_permission = self.db.grant_on_access_forward_to_group( group, permission_type,
+            group_permission = self.db.grant_on_access_forward_to_group( group, permissions.ACCESS_FORWARD,
                     group_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (group.name, group_permission_permanent_id))
             if group_permission is not None:
@@ -522,12 +561,11 @@ class Controller(object):
     def grant_on_access_forward_to_user(self):
         users = self.db.get_users()
         user_names = [ (user.id, user.login) for user in users ]
-        permission_type = self.db.get_permission_type("access_forward")
         try:
             user_id = self.ui.dialog_grant_on_access_forward_to_user(user_names)
             user = [ user for user in users if user.id == user_id ][0] if user_id is not None else None
             user_permission_permanent_id = "%s::access_forward" % user.login
-            user_permission = self.db.grant_on_access_forward_to_user( user, permission_type,
+            user_permission = self.db.grant_on_access_forward_to_user( user, permissions.ACCESS_FORWARD,
                     user_permission_permanent_id, datetime.datetime.utcnow(),
                     "Permission on %s to use %s" % (user.login, user_permission_permanent_id))
             if user_permission is not None:

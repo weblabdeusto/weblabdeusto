@@ -10,13 +10,15 @@
     	.visible-message { display: block; color: #000000; }
   	</ui:style>
     
-    <ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages"/>
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N"/>
     <ui:with field='res' type='es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.Resources'/>
     
     <g:VerticalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="10">
    		<g:Cell horizontalAlignment="ALIGN_CENTER"> 
 		    <g:VerticalPanel horizontalAlignment='ALIGN_CENTER'  styleName='main-title'>
-		    	<g:Image ui:field="logoImage" styleName="wl-main_title"/>
+		    	<w:WlAHref ui:field="institutionLink" target="_blank">
+		    		<g:Image ui:field="logoImage" styleName="wl-main_title"/>
+		    	</w:WlAHref>
 		    </g:VerticalPanel>
 		</g:Cell>
 		

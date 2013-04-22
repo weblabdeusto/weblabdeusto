@@ -23,6 +23,7 @@ import com.google.gwt.user.client.History;
 public class HistoryProperties {
 	
 	public static final String HEADER_VISIBLE      = "header.visible";
+	public static final String WIDGET              = "widget";
 	public static final String EXPERIMENT_NAME     = "exp.name";
 	public static final String EXPERIMENT_CATEGORY = "exp.category";
 	public static final String PAGE                = "page"; 

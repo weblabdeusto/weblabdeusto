@@ -13,12 +13,12 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 import unittest
+import threading
+import xmlrpclib
 
 import voodoo.gen.protocols.XMLRPC.ClientXMLRPC as ClientXMLRPC
 import voodoo.gen.protocols.XMLRPC.Errors as Exceptions
 import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
-
-import xmlrpclib
 
 class ClientXMLRPCTestCase(unittest.TestCase):
     def test_method(self):
@@ -30,6 +30,7 @@ class ClientXMLRPCTestCase(unittest.TestCase):
         class Fake(object):
             def __init__(self):
                 self._server = self
+                self._xmlrpc_lock = threading.RLock()
 
             def method1(self, arg1):
                 return arg1 + msg2

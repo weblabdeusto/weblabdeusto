@@ -138,7 +138,7 @@ class ServerLocator(object):
                     # There was some error creating the client
                     log.log(
                         ServerLocator,
-                        log.level.Info,
+                        log.level.Warning,
                         "Generating client for server with %s raised exception %s. Trying another server..." % (
                             address.address,
                             ccce
@@ -146,7 +146,7 @@ class ServerLocator(object):
                     )
                     log.log_exc(
                         ServerLocator,
-                        log.level.Debug
+                        log.level.Info
                     )
                     continue
 
@@ -238,7 +238,7 @@ class ServerLocator(object):
                 # There was some error creating the client
                 log.log(
                     ServerLocator,
-                    log.level.Info,
+                    log.level.Warning,
                     "Generating client for server with %s raised exception %s. Trying another server..." % (
                         address.address,
                         ccce
@@ -246,7 +246,7 @@ class ServerLocator(object):
                 )
                 log.log_exc(
                     ServerLocator,
-                    log.level.Debug
+                    log.level.Info
                 )
                 continue
 
@@ -276,7 +276,7 @@ class ServerLocator(object):
                 # This was not a valid server, try another
                 log.log(
                     ServerLocator,
-                    log.level.Info,
+                    log.level.Warning,
                     "Test message received from server %s different from the message sent (%s vs %s). Trying another server" %(
                         address.address,
                         random_msg,
@@ -288,7 +288,7 @@ class ServerLocator(object):
             #There was a exception: this is not a valid server, try another
             log.log(
                 ServerLocator,
-                log.level.Info,
+                log.level.Warning,
                 "Testing server %s raised exception %s. Trying another server" % (
                     address.address,
                     e

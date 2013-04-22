@@ -3,7 +3,7 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui"
 	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
 	
-	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.i18n.IWebLabDeustoThemeMessages" />
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
 	<ui:with field="res" type='es.deusto.weblab.client.ui.Resources' />
 	
 	<g:VerticalPanel ui:field="containerPanel" styleName="web-logged-container"  horizontalAlignment="CENTER">
@@ -30,7 +30,19 @@
 						 	<w:WlSoundSwitch imgWidth="20px" imgHeight="20px"></w:WlSoundSwitch>
 						 	
 						 	<g:Label ui:field="separatorLabel2" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+
+						 	<w:WlAHref visible="false" ui:field="administrationLink">
+								<g:Image resource='{res.administration}' />
+							</w:WlAHref>
+						 	
+						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
 					
+						 	<w:WlAHref ui:field="profileLink">
+								<g:Image resource='{res.profile}' />
+							</w:WlAHref>
+						 	
+							<g:Label ui:field="separatorLabel3" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+						 	
 						 	<g:Anchor ui:field="logoutLink" text="{i18n.logOut}"></g:Anchor>		
 			
 						</g:HorizontalPanel>
@@ -54,7 +66,7 @@
 				</w:WlAHref>
 				
 			</g:HorizontalPanel>
-			<g:HorizontalPanel horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
+			<g:HorizontalPanel ui:field="poweredByPanel" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
 				
 				<g:Label text="{i18n.poweredBy}" />
 				<w:WlAHref href="http://www.weblab.deusto.es/" target="_blank">

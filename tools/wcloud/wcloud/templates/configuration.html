@@ -1,0 +1,44 @@
+{% set current_link = "configure" %}
+{% extends "base.html" %}
+
+
+{% block body %}
+    {% from "macros/_formhelpers.html" import render_field %}
+
+    <div class="row">
+        <div class="offset2 span6">
+
+            <h1>Basic configuration</h1>
+            <br/>
+
+            <form method="POST" enctype=multipart/form-data action="{{ url_for('configure') }}" class="form-horizontal">
+              <fieldset>
+                {{ form.hidden_tag() }}
+                {{ render_field(form.name) }}
+                {% if form|attr('logo') %}
+                {{ render_field(form.logo) }}
+                {% endif %}
+                {% if logo_available %}
+                    <div class="control-group">
+                        <div class="controls">
+                            <img src="{{ url_for('logo') }}" width="225"/>
+                        </div>
+                    </div>
+                {% endif %}
+                {{ render_field(form.base_url) }}
+                {{ render_field(form.link_url) }}
+                {{ render_field(form.google_analytics_number) }}
+
+                {% if enabled %}
+                <div class="form-actions">
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
+                    <button type="submit" name="action" value="savedeploy" class="btn btn-success">Save and deploy</button>
+                </div>
+                {% endif %}
+
+              </fieldset>
+            </form>
+         </div>
+    </div>
+{% endblock body %}
+

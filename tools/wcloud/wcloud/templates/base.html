@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>wCloud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    {% block headers_meta %}
+    {% endblock %}
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.css') }}">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+   <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="{{ url_for('index') }}">wCloud</a>
+          <div class="nav-collapse">
+            {% block navbar %}
+<ul class="nav">
+    {% if session.get('logged_in', False) %}
+    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('home')      }}">Home</a></li>
+    <li {% if current_link == 'configure' %}class="active"{%endif%}><a href="{{ url_for('configure') }}">Configure</a></li>
+    <li {% if current_link == 'deploy'    %}class="active"{%endif%}><a href="{{ url_for('deploy')    }}">Deploy</a></li>
+    {% else %}
+    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('index')     }}">Home</a></li>
+    {% endif %}
+    <li {% if current_link == 'about'     %}class="active"{%endif%}><a href="{{ url_for('about')     }}">About</a></li>
+    <li {% if current_link == 'contact'   %}class="active"{%endif%}><a href="{{ url_for('contact')   }}">Contact</a></li>
+</ul>
+{% if session.get('logged_in', False) %}
+<ul class="nav pull-right" >
+    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
+</ul>
+{% endif %}
+
+            {% endblock navbar %}
+          </div><!--/.nav-collapse -->
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if category == 'success' %}
+              <div class="alert alert-success">
+            {% elif category == 'error' %}
+              <div class="alert alert-error">
+            {% endif %}
+                <button class="close" data-dismiss="alert">×</button>
+                {{ message }}
+              </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block body %}
+      {% endblock body %}
+      
+      <hr>
+
+      <footer>
+         {% block footer %}
+         <p style="text-align: center; font-style: italic; font-size: 10px">wCloud, the <a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> cloud hosting service.</p>
+         {% endblock footer %}
+      </footer>
+
+    </div> <!-- /container -->
+
+    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-transition.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-alert.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-dropdown.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-scrollspy.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-tab.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-tooltip.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-popover.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-button.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-collapse.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap-carousel.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-typeahead.js') }}"></script>
+
+  </body>
+</html>

@@ -22,26 +22,9 @@ recommended to use virtualenv first to create a user-level environment.
 
 import os
 import shutil
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py as _build_py
 
-# TODO: in the weblab-admin script, choose between the absolute directory
-# to the source code and sys.prefix
-
-# Taken from django setup.py :-)
-def fullsplit(path, result=None):
-    """
-    Split a pathname into components (the opposite of os.path.join) in a
-    platform-neutral way.
-    """
-    if result is None:
-        result = []
-    head, tail = os.path.split(path)
-    if head == '':
-        return [tail] + result
-    if head == path:
-        return result
-    return fullsplit(head, [tail] + result)
 
 def _build_requirements():
     ##########################################################
@@ -94,41 +77,25 @@ class WebLabBuild(_build_py):
 if not os.path.exists('weblabdeusto_data'):
     os.mkdir('weblabdeusto_data')
 
-packages     = []
 data_files   = []
-
-for weblab_dir in ['voodoo','weblab','experiments','webserver']:
-    for dirpath, dirnames, filenames in os.walk(weblab_dir):
-        # Ignore dirnames that start with '.'   
-        for i, dirname in enumerate(dirnames):
-            if dirname.startswith('.'): 
-                del dirnames[i]
-
-        if '__init__.py' in filenames:
-            packages.append('.'.join(fullsplit(dirpath)))
-
-        non_python_files = [ filename for filename in filenames if not filename.endswith(('.py','.pyc','.pyo')) ]
-        if non_python_files:
-            new_path = os.path.join('weblabdeusto_data', dirpath)
-            try:
-                os.makedirs(new_path)
-            except:
-                pass
-            
-            for f in non_python_files:
-                if os.path.exists(os.path.join(new_path, f)):
-                    os.remove(os.path.join(new_path, f))
-                shutil.copy2(os.path.join(dirpath, f), os.path.join(new_path, f))
-
 
 for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     # Ignore dirnames that start with '.'   
     for i, dirname in enumerate(dirnames):
         if dirname.startswith('.'): 
             del dirnames[i]
-
-    if len(filenames) > 0:
-        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+    
+    # In the war directory, don't take into account whatever we have now, but whatever has been
+    # compiled and will be copied. Otherwise, there will be problems when a compilation has been
+    # made.
+    if dirpath.startswith(os.path.join('weblabdeusto_data','war')):
+        newdir = dirpath.replace(os.path.join('weblabdeusto_data','war'), os.path.join('..','..','client','war'))
+        if os.path.exists(newdir):
+            filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
+    else:
+        if len(filenames) > 0:
+            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 ##########################################################
 #
@@ -183,7 +150,8 @@ setup(name='weblabdeusto',
       author='WebLab-Deusto Team',
       author_email='weblab@deusto.es',
       url='http://code.google.com/p/weblabdeusto/',
-      packages=packages,
+      packages=find_packages(exclude=['test.*','test']),
+      include_package_data=True,
       data_files=data_files,
       license=cp_license,
       scripts=scripts,

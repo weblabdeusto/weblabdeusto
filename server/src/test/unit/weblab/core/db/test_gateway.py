@@ -527,7 +527,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
                 first_permission,
                 'experiment_permanent_id'
             )
-        self.assertEquals(first_permission.get_permission_type().name, 'experiment_allowed')
+        self.assertEquals(first_permission.get_permission_type(), 'experiment_allowed')
 
         # GPIB (User Permission)
         gpib_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-gpib"]
@@ -538,7 +538,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(second_permission.get_parameter('experiment_permanent_id').value, 'ud-gpib')
         self.assertEquals(second_permission.get_parameter('experiment_category_id').value, 'GPIB experiments')
         self.assertEquals(second_permission.get_parameter('time_allowed').value, '150')
-        self.assertEquals(second_permission.get_permission_type().name, 'experiment_allowed')
+        self.assertEquals(second_permission.get_permission_type(), 'experiment_allowed')
 
         self.assertEquals(first_permission.get_permission_type(), second_permission.get_permission_type())
         self.assertEquals(
@@ -558,7 +558,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').value, 'ud-dummy')
         self.assertEquals(fpga_permission.get_parameter('experiment_category_id').value, 'Dummy experiments')
         self.assertEquals(fpga_permission.get_parameter('time_allowed').value, '150')
-        self.assertEquals(fpga_permission.get_permission_type().name, 'experiment_allowed')
+        self.assertEquals(fpga_permission.get_permission_type(), 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
 
@@ -573,7 +573,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         experiment_id = 1
 
         self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '9', time.time())
 
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)
@@ -586,7 +585,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         experiment_id = None
 
         self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
-        self.gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time(), "unknown", "dummy:process1@plunder", '6', time.time())
 
         experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
         self.assertEquals(len(experiment_uses), 0)

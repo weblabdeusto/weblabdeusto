@@ -2,7 +2,7 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	
-	<ui:with field="i18n" type="es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile.i18n.IWebLabDeustoThemeMessages" />
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
 	
 	<g:VerticalPanel spacing="20" horizontalAlignment="ALIGN_CENTER">
 		<g:Label text="{i18n.experimentInteractionFinishedGoBack}"/>

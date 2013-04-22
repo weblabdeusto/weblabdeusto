@@ -17,6 +17,8 @@ import hashlib
 import time as time_module
 import weblab.experiment.util as ExperimentUtil
 
+import weblab.configuration_doc as configuration_doc
+
 def _get_time_in_str():
     cur_time = time_module.time()
     s = time_module.strftime('%Y_%m_%d___%H_%M_%S_',time_module.gmtime(cur_time))
@@ -42,7 +44,7 @@ class FileStorer(object):
         #       but, if store_student_files is activated, it should check that for a given experiment, they should be stored or not.
         #       For instance, I may want to store GPIB experiments but not FPGA experiments. Indeed, this should be stored in the db
         #       in the permission of the student/group with the particular experiment, with a default value to True.
-        should_i_store = self._cfg_manager.get_value('core_store_students_programs',False)
+        should_i_store = self._cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS)
         timestamp_before   = self._utc_timestamp()
         if should_i_store:
             # TODO not tested
@@ -51,7 +53,7 @@ class FileStorer(object):
             else:
                 file_content_encoded = file_content
             deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
-            storage_path = self._cfg_manager.get_value('core_store_students_programs_path')
+            storage_path = self._cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
             relative_file_path = _get_time_in_str() + '_' + self._reservation_id
             sha_obj            = hashlib.new('sha')
             sha_obj.update(deserialized_file_content)

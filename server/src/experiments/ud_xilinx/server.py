@@ -34,6 +34,10 @@ from experiments.xilinxc.compiler import Compiler
 
 import json
 import base64
+import time
+
+import sys
+import traceback
 
 from voodoo.threaded import threaded
 
@@ -42,8 +46,8 @@ from voodoo.threaded import threaded
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
 STATE_AWAITING_CODE = "awaiting_code"
-STATE_COMPILING = "compiling"
-STATE_COMPILER_ERROR = "compiler_error"
+STATE_SYNTHESIZING = "synthesizing"
+STATE_SYNTHESIZING_ERROR = "synthesizing_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
@@ -71,7 +75,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
+        self._device_name, self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
         self._programmer = self._load_programmer()
         self._command_sender = self._load_command_sender()
         self.webcam_url = self._load_webcam_url()
@@ -79,18 +83,27 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
         self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
+        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
+        self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', True)
         self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
         
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
+        self._synthesizing_result = ""
         
         self._ucf_file = None
+        
+        # These are only for led-state reading. This is an experimental
+        # feature.
+        self._led_reader = None
+        self._led_state = None
+        
 
     def _load_xilinx_device(self):
         device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
         devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name ]
         if len(devices) == 1:
-            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
+            return device_name, devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
         else:
             raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(device_name)
 
@@ -129,7 +142,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             try:
                 if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
-                return "STATE=" + STATE_COMPILING
+                return "STATE=" + STATE_SYNTHESIZING
             except Exception as ex:
                 if DEBUG: print "EXCEPTION: " + ex
                 raise ex
@@ -154,18 +167,26 @@ class UdXilinxExperiment(Experiment.Experiment):
         Running in its own thread, this method will compile the provided
         VHDL code and then program the board if the result is successful.
         """
-        self._current_state = STATE_COMPILING
+        self._current_state = STATE_SYNTHESIZING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path)
         #c.DEBUG = True
         content = base64.b64decode(file_content)
         c.feed_vhdl(content)
         if DEBUG: print "[DBG]: VHDL fed. Now compiling."
-        success = c.compile()
+        success = c.compileit()
         if(not success):
-            self._current_state = STATE_COMPILER_ERROR
+            self._current_state = STATE_SYNTHESIZING_ERROR
+            self._compiling_result = c.errors()
         else:
+            # If we are using adaptive timing, modify it according to this last input.
+            # TODO: Consider limiting the allowed range of variation, in order to dampen potential anomalies.
+            elapsed = c.get_time_elapsed()
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
+            
             bitfile = c.retrieve_bitfile()
             if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            c._compiling_result = "Synthesizing done."
             self._program_file_t(bitfile)
         
 
@@ -177,9 +198,16 @@ class UdXilinxExperiment(Experiment.Experiment):
         while updating the state of the experiment appropriately.
         """
         try:
+            start_time = time.time() # To track the time it takes
             self._current_state = STATE_PROGRAMMING
             self._program_file(file_content)
             self._current_state = STATE_READY
+            elapsed = time.time() - start_time # Calculate the time the programming process took
+            
+            # If we are in adaptive mode, change the programming time appropriately.
+            # TODO: Consider limiting the variation range to dampen anomalies.
+            if(self._adaptive_time):
+                self._programmer_time = elapsed
         except Exception as e:
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
@@ -244,7 +272,29 @@ class UdXilinxExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s }""" % (self.webcam_url, self._programmer_time), "batch" : False })
+        return json.dumps({ "initial_configuration" : """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s }""" % (self.webcam_url, self._programmer_time, self._synthesizer_time), "batch" : False })
+
+
+    def _load_led_reading_support(self):
+        """
+        Will load the modules required to do image processing for reading the led state.
+        For this, PIL is needed as a dependency. 
+        Also, it is currently in a very experimental state, and cannot 
+        really be configured for different boards.
+        """
+        if self._led_reader != None:
+            return
+        
+        from ledreader import LedReader
+        pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
+        fpga_leds = [ (84, 171), (93, 171), (97, 171), (110, 171), (120, 171), (129, 171), (138, 171), (147, 171) ]
+        fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
+        pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
+        if self._device_name == "FPGA":
+            self._led_reader = LedReader(fpga, fpga_leds, 5, 7)
+        elif self._device_name == "PLD":
+            self._led_reader = LedReader(pld, pld_leds, 10, 30)
+        
 
     @logged("info")
     @Override(Experiment.Experiment)
@@ -259,6 +309,25 @@ class UdXilinxExperiment(Experiment.Experiment):
                     print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE="+ self._current_state
                 return reply
+            
+            elif command == 'SYNTHESIZING_RESULT':
+                if(DEBUG):
+                    print "[DBG]: SYNTHESIZING_RESULT: " + self._compiling_result
+                return self._compiling_result
+            
+            elif command == 'READ_LEDS':
+                try:
+                    if self._led_reader == None:
+                        if(DEBUG):
+                            print "[DBG]: Initializing led reading."
+                        self._load_led_reading_support()
+                    self._led_state = self._led_reader.read_times(5)
+                    if(DEBUG):
+                        print "[DBG]: READ_LEDS: " + "".join(self._led_state)
+                    return "".join(self._led_state)
+                except Exception as e:
+                    traceback.print_exc()
+                    return "ERROR: " + traceback.format_exc()
 
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.

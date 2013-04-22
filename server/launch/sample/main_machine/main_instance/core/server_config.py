@@ -4,7 +4,7 @@
 
 core_store_students_programs      = False
 core_store_students_programs_path = 'files_stored'
-core_experiment_poll_time         = 350 # seconds
+core_experiment_poll_time         = 30 # seconds
 
 ####################################
 # Core Server Facade configuration #
@@ -46,6 +46,8 @@ core_coordinator_laboratory_servers = {
             "exp1|ud-logic|PIC experiments"          : "logic@logic",
             "exp1|flashdummy|Dummy experiments"      : "flashdummy@flashdummy",
             "exp1|javadummy|Dummy experiments"       : "javadummy@javadummy",
+            "exp1|jsdummy|Dummy experiments"         : "jsdummy@jsdummy",
+            "exp1|jsfpga|FPGA experiments"           : "jsfpga@jsfpga",
             "exp1|visirtest|Dummy experiments"       : "visir1@visir",
             "exp2|visirtest|Dummy experiments"       : "visir2@visir",
             "exp3|visirtest|Dummy experiments"       : "visir3@visir",
@@ -61,12 +63,17 @@ core_coordinator_laboratory_servers = {
             "exp1|robot-standard|Robot experiments"  : "robot@robot",
             "exp1|robot-movement|Robot experiments"  : "robot@robot",
             "exp1|robot-proglist|Robot experiments"  : "robot@robot",
+            "exp1|robot-maze|Robot experiments"      : "robot-maze@robot-maze",
             "exp1|robotarm|Robot experiments"        : "robotarm@robotarm",
             "exp1|submarine|Submarine experiments"   : "submarine@submarine",
+            "exp1|aquarium|Aquatic experiments"      : "submarine@submarine",
             "exp1|unr-physics|Physics experiments"   : "unr@unr",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18",
             "exp1|binary|Games"                      : "binary@binary",
+            "exp1|control-app|Control experiments"   : "control@control",
+            "exp1|incubator|Farm experiments"        : "incubator@incubator",
+            "exp1|http|HTTP experiments"             : "http1@http",
         }
 }
 
@@ -102,6 +109,8 @@ core_scheduling_systems = {
         "logic"       : ("PRIORITY_QUEUE", {}),
         "flashdummy"  : ("PRIORITY_QUEUE", {}),
         "javadummy"   : ("PRIORITY_QUEUE", {}),
+        "jsdummy"     : ("PRIORITY_QUEUE", {}),
+        "jsfpga"      : ("PRIORITY_QUEUE", {}),
         "visir"       : ("PRIORITY_QUEUE", {}),
         "vm"          : ("PRIORITY_QUEUE", {}),
         "vm-win"      : ("PRIORITY_QUEUE", {}),
@@ -112,6 +121,10 @@ core_scheduling_systems = {
         "pic18"       : ("PRIORITY_QUEUE", {}),
         "binary"      : ("PRIORITY_QUEUE", {}),
         "unr"         : ("PRIORITY_QUEUE", {}),
+        "control"     : ("PRIORITY_QUEUE", {}),
+        "incubator"   : ("PRIORITY_QUEUE", {}),
+        "robot-maze"  : ("PRIORITY_QUEUE", {}),
+        "http"  : ("PRIORITY_QUEUE", {}),
     }
 
 core_universal_identifier       = 'da2579d6-e3b2-11e0-a66a-00216a5807c8'

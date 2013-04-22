@@ -18,6 +18,7 @@ import sys
 import uuid
 import time
 import threading
+import urlparse
 
 from functools import wraps
 
@@ -37,14 +38,13 @@ import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
 from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
-from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
+from weblab.core.coordinator.gateway import create as coordinator_create
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.db.manager as DatabaseManager
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.user_server as UserProcessingFacadeServer
-import weblab.core.comm.admin_server as AdminFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
@@ -55,6 +55,8 @@ import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
+
+from weblab.admin.web.server import AdminRemoteFacadeServer
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -79,15 +81,7 @@ DEFAULT_CHECKING_TIME = 3 # seconds
 
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
-
-WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION  = "core_coordination_impl"
-
 WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
-
-WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER               = "core_universal_identifier"
-DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER       = "00000000-0000-0000-0000-000000000000"
-WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN         = "core_universal_identifier_human"
-DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN = "WARNING; MISCONFIGURED SERVER. ADD %s AND %s PROPERTIES" % (WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
 
 def load_user_processor(func):
     @wraps(func)
@@ -127,11 +121,11 @@ class UserProcessingServer(object):
 
     FACADE_SERVERS = (
                         UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
-                        AdminFacadeServer.AdminRemoteFacadeServer,
+                        AdminRemoteFacadeServer,
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 
-    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+    def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
         log.log( UserProcessingServer, log.level.Info, "Starting Core Server...")
@@ -140,19 +134,21 @@ class UserProcessingServer(object):
         self._cfg_manager    = cfg_manager
         self._locator        = locator
 
-        if cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
+        self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
+
+        if cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER, 'default') == 'default' or cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN, 'default') == 'default':
             generated = uuid.uuid1()
             msg = "Property %(property)s or %(property_human)s not configured. Please establish: %(property)s = '%(uuid)s' and %(property_human)s = 'server at university X'. Otherwise, when federating the experiment it could enter in an endless loop." % {
-                'property'       : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER,
-                'property_human' : WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN,
+                'property'       : configuration_doc.CORE_UNIVERSAL_IDENTIFIER,
+                'property_human' : configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN,
                 'uuid'           : generated
             }
             print msg
             print >> sys.stderr, msg
             log.log( UserProcessingServer, log.level.Error, msg)
 
-        self.core_server_universal_id       = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
-        self.core_server_universal_id_human = cfg_manager.get_value(WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+        self.core_server_universal_id       = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
+        self.core_server_universal_id_human = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
 
         #
         # Create session managers
@@ -163,8 +159,8 @@ class UserProcessingServer(object):
             raise coreExc.NotASessionTypeError( 'Not a session type: %s' % session_type_str )
         session_type = getattr(SessionType, session_type_str)
 
-        session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_SESSION_POOL_ID, "UserProcessingServer")
-        self._session_manager              = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
+        session_pool_id       = cfg_manager.get_doc_value(configuration_doc.WEBLAB_CORE_SERVER_SESSION_POOL_ID)
+        self._session_manager = SessionManager.SessionManager( cfg_manager, session_type, session_pool_id )
 
         reservations_session_pool_id = cfg_manager.get_value(WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID, "CoreServerReservations")
         self._reservations_session_manager = SessionManager.SessionManager( cfg_manager, session_type, reservations_session_pool_id )
@@ -173,7 +169,7 @@ class UserProcessingServer(object):
         # Coordination
         #
 
-        coordinator_implementation = cfg_manager.get_value(WEBLAB_CORE_SERVER_COORDINATION_IMPLEMENTATION, SQLALCHEMY)
+        coordinator_implementation = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_IMPL)
         self._coordinator    = coordinator_create(coordinator_implementation, self._locator, cfg_manager)
 
         #
@@ -202,10 +198,11 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
-        for FacadeClass in self.FACADE_SERVERS:
-            facade_server = FacadeClass(self, cfg_manager)
-            self._facade_servers.append(facade_server)
-            facade_server.start()
+        if not dont_start:
+            for FacadeClass in self.FACADE_SERVERS:
+                facade_server = FacadeClass(self, cfg_manager)
+                self._facade_servers.append(facade_server)
+                facade_server.start()
 
         #
         # Start checking times
@@ -264,8 +261,8 @@ class UserProcessingServer(object):
             try:
                 expired_session = self._reservations_session_manager.get_session_locking(expired_reservation)
                 try:
-                    reservation = self._load_reservation(expired_session)
-                    reservation.finish()
+                    reservation_processor = self._load_reservation(expired_session)
+                    reservation_processor.finish()
                 finally:
                     self._reservations_session_manager.modify_session_unlocking(expired_reservation, expired_session)
             except Exception as e:
@@ -349,7 +346,17 @@ class UserProcessingServer(object):
     @check_session(**check_session_params)
     @load_user_processor
     def get_user_information(self, user_processor, session):
-        return user_processor.get_user_information()
+        user_information = user_processor.get_user_information()
+        if user_processor.is_admin():
+            admin_url = self.core_server_url + "administration/admin/"
+
+            try:
+                user_information.admin_url = urlparse.urlparse(admin_url).path
+            except:
+                user_information.admin_url = admin_url
+        else:
+            user_information.admin_url = ""
+        return user_information
 
     @logged(log.level.Info)
     @update_session_id
@@ -386,12 +393,16 @@ class UserProcessingServer(object):
                         'experiment_id'      : experiment_id,
                         'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
                         'reservation_id'     : reservation_session_id,
+                        'federated'          : False,
                     }
         reservation_processor = self._load_reservation(initial_session)
         reservation_processor.update_latest_timestamp()
 
         if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
             reservation_processor.process_reserved_status(status)
+
+        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_REMOTE:
+            reservation_processor.process_reserved_remote_status(status)
 
         self._reservations_session_manager.modify_session(session_id, initial_session)
         return Reservation.Reservation.translate_reservation( status )

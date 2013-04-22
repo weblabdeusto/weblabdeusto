@@ -22,18 +22,24 @@ public class User extends Agent {
 	private String fullName;
 	private String email;
 	private Role role;
+	private String adminUrl;
 	private ArrayList<Group> groups;
 	
 	public User() {}
 
-	public User(String login, String fullName, String email, Role role) {
+	public User(String login, String fullName, String email, Role role, String adminUrl) {
 		super();
 		this.login = login;
 		this.fullName = fullName;
 		this.email = email;
 		this.role = role;
+		this.adminUrl = adminUrl;
 		this.groups = new ArrayList<Group>();
 	}	
+	
+	public String getAdminUrl() {
+		return this.adminUrl;
+	}
 	
 	public String getLogin() {
 		return this.login;

@@ -33,12 +33,13 @@ public class CommonSerializerJSONTest extends GWTTestCase {
 	public void testParseGetUserInformationResponse() throws Exception{
 		final ICommonSerializer weblabSerializer = new CommonSerializerJSON();
 		final User user = weblabSerializer.parseGetUserInformationResponse(
-				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false}"
+				"{\"result\": {\"login\": \"porduna\", \"email\": \"porduna@tecnologico.deusto.es\", \"full_name\": \"Pablo Orduna\", \"role\": {\"name\": \"student\"}}, \"is_exception\": false, \"admin_url\" : \"\"}"
 		);
 		Assert.assertEquals("porduna", user.getLogin());
 		Assert.assertEquals("Pablo Orduna", user.getFullName());
 		Assert.assertEquals("porduna@tecnologico.deusto.es", user.getEmail());
 		Assert.assertEquals("student", user.getRole().getName());
+		Assert.assertEquals("", user.getAdminUrl());
 	}
 
 	public void testParseGetUserInformationResponse_Exceptions() throws Exception{

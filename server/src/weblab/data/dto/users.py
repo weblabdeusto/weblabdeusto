@@ -24,29 +24,11 @@ class User(object):
         self.role = role
 
     def __repr__(self):
-        return "User(login = '%s', full_name = '%s', email = '%s', role = %r)" % (
+        return "User(login = %r, full_name = %r, email = %r, role = %r)" % (
                 self.login,
                 self.full_name,
                 self.email,
                 self.role
-            )
-
-class ExternalEntity(object):
-
-    def __init__(self, name, country, description, email, id=None):
-        super(ExternalEntity,self).__init__()
-        self.id = id
-        self.name = name
-        self.country = country
-        self.description = description
-        self.email = email
-
-    def __repr__(self):
-        return "ExternalEntity(id = %i, name = '%s', country = '%s', description = '%s', email = '%s')" % (
-                self.name,
-                self.country,
-                self.description,
-                self.email
             )
 
 class Group(object):
@@ -73,7 +55,7 @@ class Group(object):
             return self._parent.get_full_name() + " > " + self.name
 
     def __repr__(self):
-        return "Group(id = %i, full_name = '%s')" % (
+        return "Group(id = %i, full_name = %r)" % (
                 self.id,
                 self.get_full_name()
             )
@@ -85,7 +67,7 @@ class Role(object):
         self.name = name
 
     def __repr__(self):
-        return "Role(name = '%s')" % (
+        return "Role(name = %r)" % (
                 self.name
             )
 

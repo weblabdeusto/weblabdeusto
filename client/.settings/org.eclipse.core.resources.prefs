@@ -1,4 +1,3 @@
 eclipse.preferences.version=1
-encoding//src/es/deusto/weblab/client/experiments/visir/i18n/IVisirMessages_es.properties=ISO-8859-1
-encoding//src/es/deusto/weblab/client/lab/ui/themes/es/deusto/weblab/defaultweb/i18n/IWebLabDeustoThemeMessages_es.properties=UTF-8
+encoding//src/es/deusto/weblab/client/i18n/IWebLabI18N_es.properties=UTF-8
 encoding/<project>=UTF-8

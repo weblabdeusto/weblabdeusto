@@ -37,7 +37,12 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	private static final int MAX_FACEBOOK_WIDTH = 710; // differs from WebClient.MAX_FACEBOOK_WIDTH taking into account the size of the whole page
 	private static IConfigurationRetriever staticConfigurationRetriever;
 	protected static IBoardBaseController staticBoardController;
+	
 	private final VerticalPanel panel;
+	
+	// A panel is created, in case derived classes wish to provide a file uploading system.
+	protected final VerticalPanel fileUploadPanel; 
+	
 	protected Label message;
 	protected final HTML html;
 	protected final int width;
@@ -85,6 +90,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.pageFooterPanel = new VerticalPanel();
 		this.pageFooter = new HTML(configurationRetriever.getProperty("page.footer", getDefaultFooterMessage()));
 		this.pageFooterPanel.add(this.pageFooter);
+
 		
 		this.panel = new VerticalPanel();
 		this.html = new HTML("<div/>");
@@ -93,6 +99,10 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		this.panel.add(this.html);
 		this.message = new Label();
 		this.message.addStyleName("wl-message");
+		
+		this.fileUploadPanel = new VerticalPanel();
+		this.panel.add(this.fileUploadPanel);
+		
 		this.panel.add(this.message);
 		this.panel.add(this.pageFooterPanel);
 	}
@@ -104,6 +114,9 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	protected String getDefaultFooterMessage() {
 		return "";
 	}
+	
+	
+	
 	
 	
 	/**
@@ -141,10 +154,23 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getIntProperty(key, def);
 	}
 
+	/**
+	 * Retrieves the specified property from the configuration.js file.
+	 * @param key Name of the property
+	 * @return Property identified by the key, as a string
+	 * @throws ConfigurationKeyNotFoundException
+	 * @throws InvalidConfigurationValueException
+	 */
 	static String getProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException{
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key);
 	}
 
+	/**
+	 * Retrieves the specified property from the configuration.js file.
+	 * @param key Name of the property
+	 * @param def Default value to retrieve, if an exception occurs and nothing can really be retrieved.
+	 * @return Property identified by the key, as a string, or def value.
+	 */
 	static String getProperty(String key, String def){
 		return AbstractExternalAppBasedBoard.staticConfigurationRetriever.getProperty(key, def);
 	}
@@ -167,7 +193,16 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		});
 	}
 	
+	
+	/**
+	 * The AbstractExternalAppBasedBoard implements several static methods whose main purpose
+	 * is to be accessed from JavaScript. In order for this to be possible, this method exports
+	 * these methods, which would otherwise be inaccessible, to JavaScript.
+	 */
 	private static native void exportStaticMethods() /*-{
+		
+		$wnd.wl_dbg_board = "Board";
+		
 		$wnd.wl_getIntProperty    = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getIntProperty(Ljava/lang/String;);
 		$wnd.wl_getIntPropertyDef = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getIntProperty(Ljava/lang/String;I);
 		$wnd.wl_getProperty       = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::getProperty(Ljava/lang/String;);
@@ -175,12 +210,26 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	
 		$wnd.wl_sendCommand       = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::sendCommand(Ljava/lang/String;I);
 		$wnd.wl_onClean           = @es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard::onClean();
+
 	}-*/;	
 
 	static void onClean(){
 		AbstractExternalAppBasedBoard.staticBoardController.clean();
 	}
 	
+	// TODO: It is somewhat counter-intuitive, design-wise, that certain callbacks such as
+	// handleCommandResponse are called from this base class, while others aren't, such
+	// as setTimeImpl (in this last case, they are expected to be called from the derived classes).
+	// Might be a good idea to find an alternative for this.
+	
+	
+	/**
+	 * This method, and the following "static native" ones, are callbacks which
+	 * are invoked when an event such as a command response arrival occurs. They are native
+	 * because they will then rely the handling of that event to a JavaScript-defined callback.
+	 * @param msg
+	 * @param commandId
+	 */
 	protected static native void handleCommandResponse(String msg, int commandId) /*-{
 		$wnd.wl_inst.handleCommandResponse(msg, commandId);
 	}-*/;
@@ -199,5 +248,13 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	
 	protected static native void endImpl() /*-{
 		$wnd.wl_inst.end();
+	}-*/;
+	
+	protected static native void handleFileResponse(String msg, int fileId) /*-{
+		$wnd.wl_inst.handleFileResponse(msg, fileId);
+	}-*/;
+	
+	protected static native void handleFileError(String msg, int fileId) /*-{
+		$wnd.wl_inst.handleFileError(msg, fileId);
 	}-*/;
 }

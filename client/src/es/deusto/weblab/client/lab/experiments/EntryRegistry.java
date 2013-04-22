@@ -17,19 +17,24 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.List;
 import java.util.Vector;
 
+import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
+import es.deusto.weblab.client.experiments.controlapp.ControlAppCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib1.Gpib1CreatorFactory;
 import es.deusto.weblab.client.experiments.gpib2.Gpib2CreatorFactory;
 import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
+import es.deusto.weblab.client.experiments.incubator.IncubatorCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
+import es.deusto.weblab.client.experiments.redirect.RedirectCreatorFactory;
+import es.deusto.weblab.client.experiments.robot_maze.RobotMazeCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_movement.RobotMovementCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_proglist.RobotProglistCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_standard.RobotStandardCreatorFactory;
@@ -41,6 +46,7 @@ import es.deusto.weblab.client.experiments.vm.VMCreatorFactory;
 import es.deusto.weblab.client.experiments.xilinx.XilinxCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.flash.FlashAppCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.util.applets.java.JavaAppletCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.util.applets.js.JSAppCreatorFactory;
 
 /**
  * This class acts as a registry of all the available entries for the currently known experiments.
@@ -55,6 +61,7 @@ class EntryRegistry {
 		new VisirCreatorFactory(),
 		new FlashAppCreatorFactory(),
 		new JavaAppletCreatorFactory(),
+		new JSAppCreatorFactory(),
 		new XilinxCreatorFactory(),
 		new DummyCreatorFactory(),
 		new DummyBatchCreatorFactory(),
@@ -73,6 +80,11 @@ class EntryRegistry {
 		new SubmarineCreatorFactory(),
 		new ILabBatchCreatorFactory(),
 		new UnrCreatorFactory(),
+		new ControlAppCreatorFactory(),
+		new IncubatorCreatorFactory(),
+		new AquariumCreatorFactory(),
+		new RobotMazeCreatorFactory(),
+		new RedirectCreatorFactory(),
 	};
 	
 	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();

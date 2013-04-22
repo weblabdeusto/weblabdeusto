@@ -18,39 +18,9 @@ import datetime
 
 import weblab.db.model as Model
 
+import weblab.permissions as permissions
 
 class ModelTestCase(unittest.TestCase):
-
-    def test_link_relation(self):
-
-        class EntityA(object):
-            def __init__(self):
-                self.b = None
-                self.b_id = None
-                self.b_fk = None
-
-        class EntityB(object):
-            def __init__(self, id=None):
-                self.id = id
-
-        # Linking b to a.b not having b being persisted
-        a = EntityA()
-        b = EntityB()
-        Model.link_relation(a, b, "b")
-        self.assertEquals(a.b, b)
-
-        # Linking b to a.b having b being persisted (specific fkfield)
-        a = EntityA()
-        b = EntityB(3)
-        Model.link_relation(a, b, "b", "bfk")
-        self.assertEquals(getattr(a, "bfk"), b.id)
-
-        # Linking b to a.b having b being persisted (default fkfield)
-        a = EntityA()
-        b = EntityB(3)
-        Model.link_relation(a, b, "b")
-        self.assertEquals(a.b_id, b.id)
-
 
     def test_model(self):
 
@@ -59,17 +29,10 @@ class ModelTestCase(unittest.TestCase):
         #
         auth_type = Model.DbAuthType("DB")
 
-        permission_type = Model.DbPermissionType(
-                'experiment_allowed',
-                'This type has a parameter which is the permanent ID (not a INT) of an Experiment. Users which have this permission will have access to the experiment defined in this parameter',
-                user_applicable = True,
-                group_applicable = True,
-                role_applicable = True,
-                ee_applicable = True
-        )
-        permission_type_p1 = Model.DbPermissionTypeParameter(permission_type, 'experiment_permanent_id', 'string', 'the unique name of the experiment')
-        permission_type_p2 = Model.DbPermissionTypeParameter(permission_type, 'experiment_category_id', 'string', 'the unique name of the category of experiment')
-        permission_type_p3 = Model.DbPermissionTypeParameter(permission_type, 'time_allowed', 'float', 'Time allowed (in seconds)')
+        permission_type = permissions.EXPERIMENT_ALLOWED
+        permission_type_p1 = permissions.EXPERIMENT_PERMANENT_ID 
+        permission_type_p2 = permissions.EXPERIMENT_CATEGORY_ID 
+        permission_type_p3 = permissions.TIME_ALLOWED 
 
         auth = Model.DbAuth(auth_type, "WebLab DB", 1)
 
@@ -77,13 +40,11 @@ class ModelTestCase(unittest.TestCase):
 
         user = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, role)
 
-        ee = Model.DbExternalEntity("ee1", "Country of ee1", "Description of ee1", "weblab@other.es", "password")
-
         group = Model.DbGroup("5A")
 
         user_permission = Model.DbUserPermission(
             user,
-            permission_type.group_applicable,
+            permission_type,
             "student2::weblab-pld",
             datetime.datetime.utcnow(),
             "Permission for student2 to use WebLab-PLD"
@@ -94,7 +55,7 @@ class ModelTestCase(unittest.TestCase):
 
         group_permission = Model.DbGroupPermission(
             group,
-            permission_type.group_applicable,
+            permission_type,
             "5A::weblab-dummy",
             datetime.datetime.utcnow(),
             "Permission for group 5A to use WebLab-Dummy"
@@ -105,7 +66,7 @@ class ModelTestCase(unittest.TestCase):
 
         role_permission = Model.DbRolePermission(
             role,
-            permission_type.role_applicable,
+            permission_type,
             "administrator::weblab-dummy",
             datetime.datetime.utcnow(),
             "Permission for administrator to use WebLab-Dummy"
@@ -113,17 +74,6 @@ class ModelTestCase(unittest.TestCase):
         role_permission_p1 = Model.DbRolePermissionParameter(role_permission, permission_type_p1, "ud-dummy")
         role_permission_p2 = Model.DbRolePermissionParameter(role_permission, permission_type_p2, "Dummy experiments")
         role_permission_p3 = Model.DbRolePermissionParameter(role_permission, permission_type_p3, "300")
-
-        ee_permission = Model.DbExternalEntityPermission(
-            ee,
-            permission_type.ee_applicable,
-            "ee1::weblab-dummy",
-            datetime.datetime.utcnow(),
-            "Permission for ee1 to use WebLab-Dummy"
-        )
-        ee_permission_p1 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p1, "ud-dummy")
-        ee_permission_p2 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p2, "Dummy experiments")
-        ee_permission_p3 = Model.DbExternalEntityPermissionParameter(ee_permission, permission_type_p3, "300")
 
         #
         # Method __repr__()
@@ -141,22 +91,14 @@ class ModelTestCase(unittest.TestCase):
         self.assertEquals("value2", auth.get_config_value("param2"))
 
         #
-        # Method DbPermissionType.get_parameter()
-        #
-        self.assertEquals(permission_type_p1, permission_type.get_parameter("experiment_permanent_id"))
-        self.assertEquals(permission_type_p2, permission_type.get_parameter("experiment_category_id"))
-        self.assertEquals(permission_type_p3, permission_type.get_parameter("time_allowed"))
-
-        #
-        # Method Db(User|Group|Role|ExternalEntity)Permission.get_permission_type()
+        # Method Db(User|Group|Role)Permission.get_permission_type()
         #
         self.assertEquals(permission_type, user_permission.get_permission_type())
         self.assertEquals(permission_type, group_permission.get_permission_type())
         self.assertEquals(permission_type, role_permission.get_permission_type())
-        self.assertEquals(permission_type, ee_permission.get_permission_type())
 
         #
-        # Method Db(User|Group|Role|ExternalEntity)Permission.get_parameter()
+        # Method Db(User|Group|Role)Permission.get_parameter()
         #
         self.assertEquals(user_permission_p1, user_permission.get_parameter("experiment_permanent_id"))
         self.assertEquals(user_permission_p2, user_permission.get_parameter("experiment_category_id"))
@@ -167,12 +109,9 @@ class ModelTestCase(unittest.TestCase):
         self.assertEquals(role_permission_p1, role_permission.get_parameter("experiment_permanent_id"))
         self.assertEquals(role_permission_p2, role_permission.get_parameter("experiment_category_id"))
         self.assertEquals(role_permission_p3, role_permission.get_parameter("time_allowed"))
-        self.assertEquals(ee_permission_p1, ee_permission.get_parameter("experiment_permanent_id"))
-        self.assertEquals(ee_permission_p2, ee_permission.get_parameter("experiment_category_id"))
-        self.assertEquals(ee_permission_p3, ee_permission.get_parameter("time_allowed"))
 
         #
-        # Method Db(User|Group|Role|ExternalEntity)PermissionParameter.get_name()
+        # Method Db(User|Group|Role)PermissionParameter.get_name()
         #
         self.assertEquals("experiment_permanent_id", user_permission_p1.get_name())
         self.assertEquals("experiment_category_id", user_permission_p2.get_name())
@@ -183,12 +122,9 @@ class ModelTestCase(unittest.TestCase):
         self.assertEquals("experiment_permanent_id", role_permission_p1.get_name())
         self.assertEquals("experiment_category_id", role_permission_p2.get_name())
         self.assertEquals("time_allowed", role_permission_p3.get_name())
-        self.assertEquals("experiment_permanent_id", ee_permission_p1.get_name())
-        self.assertEquals("experiment_category_id", ee_permission_p2.get_name())
-        self.assertEquals("time_allowed", ee_permission_p3.get_name())
 
         #
-        # Method Db(User|Group|Role|ExternalEntity)PermissionParameter.get_datatype()
+        # Method Db(User|Group|Role)PermissionParameter.get_datatype()
         #
         self.assertEquals("string", user_permission_p1.get_datatype())
         self.assertEquals("string", user_permission_p2.get_datatype())
@@ -199,9 +135,6 @@ class ModelTestCase(unittest.TestCase):
         self.assertEquals("string", role_permission_p1.get_datatype())
         self.assertEquals("string", role_permission_p2.get_datatype())
         self.assertEquals("float", role_permission_p3.get_datatype())
-        self.assertEquals("string", ee_permission_p1.get_datatype())
-        self.assertEquals("string", ee_permission_p2.get_datatype())
-        self.assertEquals("float", ee_permission_p3.get_datatype())
 
 
     def test_splitted_utc_datetime_to_timestamp(self):

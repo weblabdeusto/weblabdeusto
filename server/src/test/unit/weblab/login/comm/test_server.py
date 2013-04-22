@@ -20,6 +20,8 @@ import mocker
 
 import time
 
+from test.util.ports import new as new_port
+
 import weblab.configuration_doc as configuration_doc
 
 import weblab.admin.bot.client as Client
@@ -50,6 +52,9 @@ class WrappedRemoteFacadeServer(LoginFacadeServer.LoginRemoteFacadeServer):
     def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
 
+ZSI_PORT    = new_port()
+JSON_PORT   = new_port()
+XMLRPC_PORT = new_port()
 
 class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
@@ -60,14 +65,14 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
         time.sleep( 0.01 * 5 )
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, 10123)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, ZSI_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/login/soap/')
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_LISTEN, '')
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, 10124)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, 10125)
+        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
 
     if RemoteFacadeServer.ZSI_AVAILABLE:
@@ -84,7 +89,7 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
             self.mocker.replay()
             self.rfs.start()
             try:
-                zsi_client = Client.BotZSI("http://localhost:10123/weblab/soap/", "http://localhost:10123/weblab/login/soap/")
+                zsi_client = Client.BotZSI("http://localhost:%s/weblab/soap/" % ZSI_PORT, "http://localhost:%s/weblab/login/soap/" % ZSI_PORT)
                 session = zsi_client.do_login(USERNAME, PASSWORD)
                 self.assertEquals(session.id, REAL_ID)
             finally:
@@ -105,7 +110,7 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
         self.mocker.replay()
         self.rfs.start()
         try:
-            json_client = Client.BotJSON("http://localhost:10124/weblab/json/", "http://localhost:10124/weblab/login/json/")
+            json_client = Client.BotJSON("http://localhost:%s/weblab/json/" % JSON_PORT, "http://localhost:%s/weblab/login/json/" % JSON_PORT)
             session = json_client.do_login(USERNAME, PASSWORD)
             self.assertEquals(session.id, REAL_ID)
         finally:
@@ -123,7 +128,7 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
         self.mocker.replay()
         self.rfs.start()
         try:
-            xmlrpc_client = Client.BotXMLRPC("http://localhost:10125/weblab/xmlrpc/", "http://localhost:10125/weblab/login/xmlrpc/")
+            xmlrpc_client = Client.BotXMLRPC("http://localhost:%s/weblab/xmlrpc/" % XMLRPC_PORT, "http://localhost:%s/weblab/login/xmlrpc/" % XMLRPC_PORT)
             session = xmlrpc_client.do_login(USERNAME, PASSWORD)
             self.assertEquals(session.id, REAL_ID)
         finally:

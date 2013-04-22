@@ -439,8 +439,6 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # student4 uses a different experiment, after both student2 and any
         #
         self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
-
-        self.ups._db_manager._gateway._insert_ee_used_experiment("ee1", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "dummy:process1@plunder", '8', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
@@ -685,11 +683,12 @@ class UserProcessingServerTestCase(unittest.TestCase):
         roles = self.ups.get_roles(sess_id)
         self.ups.logout(sess_id)
 
-        self.assertEquals(3, len(roles) )
+        self.assertEquals(4, len(roles) )
         role_names = list( role.name for role in roles )
         self.assertTrue( 'student' in role_names )
         self.assertTrue( 'professor' in role_names )
         self.assertTrue( 'administrator' in role_names )
+        self.assertTrue( 'federated' in role_names )
 
     def test_get_roles_without_permission(self):
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
@@ -753,24 +752,32 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         self.assertEquals(7, len(permissions))
 
-        self.assertEquals('experiment_allowed', permissions[0].name)
-        self.assertEquals(3, len(permissions[0].parameters))
+        permissions = list(permissions)
+        permissions.sort(lambda x, y: cmp(x.name, y.name))
 
-        # We only check the first permission's parameters, all of them would be death...
-        self.assertEquals('experiment_permanent_id', permissions[0].parameters[0].name)
-        self.assertEquals('string',                  permissions[0].parameters[0].datatype)
-        self.assertEquals('ud-fpga',                 permissions[0].parameters[0].value)
+        self.assertEquals('admin_panel_access', permissions[0].name)
+        self.assertEquals(1, len(permissions[0].parameters))
 
-        self.assertEquals('experiment_category_id',  permissions[0].parameters[1].name)
-        self.assertEquals('string',                  permissions[0].parameters[1].datatype)
-        self.assertEquals('FPGA experiments',        permissions[0].parameters[1].value)
+        self.assertEquals('full_privileges', permissions[0].parameters[0].name)
+        self.assertEquals('bool',            permissions[0].parameters[0].datatype)
+        self.assertEquals('1',               permissions[0].parameters[0].value)
 
-        self.assertEquals('time_allowed',            permissions[0].parameters[2].name)
-        self.assertEquals('float',                   permissions[0].parameters[2].datatype)
-        self.assertEquals('300',                     permissions[0].parameters[2].value)
 
         self.assertEquals('experiment_allowed', permissions[1].name)
         self.assertEquals(3, len(permissions[1].parameters))
+
+        # We only check the first permission's parameters, all of them would be death...
+        self.assertEquals('experiment_permanent_id', permissions[1].parameters[0].name)
+        self.assertEquals('string',                  permissions[1].parameters[0].datatype)
+        self.assertEquals('ud-fpga',                 permissions[1].parameters[0].value)
+
+        self.assertEquals('experiment_category_id',  permissions[1].parameters[1].name)
+        self.assertEquals('string',                  permissions[1].parameters[1].datatype)
+        self.assertEquals('FPGA experiments',        permissions[1].parameters[1].value)
+
+        self.assertEquals('time_allowed',            permissions[1].parameters[2].name)
+        self.assertEquals('float',                   permissions[1].parameters[2].datatype)
+        self.assertEquals('300',                     permissions[1].parameters[2].value)
 
         self.assertEquals('experiment_allowed', permissions[2].name)
         self.assertEquals(3, len(permissions[2].parameters))
@@ -784,13 +791,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals('experiment_allowed', permissions[5].name)
         self.assertEquals(3, len(permissions[5].parameters))
 
-        self.assertEquals('admin_panel_access', permissions[6].name)
-        self.assertEquals(1, len(permissions[6].parameters))
-
-        # Ok, the last one too... it's short!
-        self.assertEquals('full_privileges', permissions[6].parameters[0].name)
-        self.assertEquals('bool',            permissions[6].parameters[0].datatype)
-        self.assertEquals('1',               permissions[6].parameters[0].value)
+        self.assertEquals('experiment_allowed', permissions[6].name)
+        self.assertEquals(3, len(permissions[6].parameters))
 
 
 class FakeLocator(object):
@@ -825,7 +827,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name)
 
 
 

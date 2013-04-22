@@ -45,13 +45,13 @@ public class MockController implements ILabController {
 
 	@Override
 	public void login(String username, String password) {
-		final User user = new User(username, username + "full name", "weblab@deusto.es", new Role("student"));
+		final User user = new User(username, username + "full name", "weblab@deusto.es", new Role("student"), "");
 		this.uimanager.onLoggedIn(user);
 	}
 
 	@Override
 	public void startLoggedIn(SessionID sessionId, boolean externallyLoggedIn) {
-		final User user = new User("tester", "tester full name", "weblab@deusto.es", new Role("student"));
+		final User user = new User("tester", "tester full name", "weblab@deusto.es", new Role("student"), "");
 	    this.uimanager.onLoggedIn(user);
 	}
 	

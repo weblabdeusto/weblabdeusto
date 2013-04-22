@@ -550,7 +550,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
     def _fake_simple_lab_response(self):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
-        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
+        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
         self.lab_mock.should_experiment_finish(SessionId.SessionId('my_lab_session_id'))
@@ -559,7 +559,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
 
     def _return_reserved(self):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
-        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', 'servexp:inst@mach'))
+        self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
         self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)
@@ -627,7 +627,7 @@ def generate_experiment(exp_name,exp_cat_name):
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name)
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(

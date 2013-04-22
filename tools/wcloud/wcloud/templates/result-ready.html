@@ -1,0 +1,8 @@
+{% set current_link = "deploy" %}
+{% extends "base.html" %}
+
+{% block body %}
+   <strong>Congratulations! Your system is ready. Go to <a href="{{ url }}">{{ url }}</a> and enjoy it!</strong>
+   <pre>{{stdout}}</pre>
+{% endblock body %}
+

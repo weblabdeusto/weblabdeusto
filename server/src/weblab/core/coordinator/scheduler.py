@@ -15,6 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 
+import weblab.configuration_doc as configuration_doc
 import weblab.core.comm.user_server as comm_user_server
 
 class GenericSchedulerArguments(object):
@@ -117,10 +118,8 @@ class Scheduler(object):
 
         self.core_server_route = self.cfg_manager.get_value(comm_user_server.USER_PROCESSING_FACADE_SERVER_ROUTE, comm_user_server.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
-        import weblab.core.server as core_server
-        self.core_server_uuid       = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER)
-
-        self.core_server_uuid_human = self.cfg_manager.get_value(core_server.WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN, core_server.DEFAULT_WEBLAB_CORE_SERVER_UNIVERSAL_IDENTIFIER_HUMAN)
+        self.core_server_uuid       = self.cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
+        self.core_server_uuid_human = self.cfg_manager.get_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
 
         self.completed_store = generic_scheduler_arguments.completed_store
 
@@ -157,12 +156,15 @@ class Scheduler(object):
         pass
 
     @abstractmethod
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         pass
 
     @abstractmethod
     def finish_reservation(self, reservation_id):
         pass
+
+    def get_uuids(self):
+        return []
 
     # Not abstract since most schedulers will not have it.
     def assign_single_scheduler(self, reservation_id, assigned_resource_type_name, locking):

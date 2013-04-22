@@ -63,7 +63,7 @@ def check_session(
         @wraps(func)
         def session_checked_wrapper(self, session_id, *args, **kargs):
             # Make it compatible for both SessionId and SessionId.id datatypes
-            if isinstance(session_id, str):
+            if isinstance(session_id, basestring):
                 session_id = SessionId.SessionId(session_id)
 
             session_id_str = session_id.id

@@ -435,7 +435,7 @@ This test assumes that the first test was successful. We will try the following:
 		  OS through RDP, in the same way you did before when you configured the *network settings* of the VM (in previous sections of this guide).
 		  If you still can connect to the machine through RDP, then you should repeat the first test, to make sure the service is still working.
 		  If RDP is working, and the first test is working, but the second test is still failing, please repeat the second test with a different
-		  browser. If it still does not work, please contact the developers for support. (In this guide, from this point, we will assume that
+		  browser. If it still does not work, please :ref:`contact <contact>` the developers for support. (In this guide, from this point, we will assume that
 		  the second test did work. If it didn't, you may not want to proceed until the issue is solved).
 		  
 Congratulations, if you are here, both tests should have passed. This means that WeblabVMService is properly installed and working.
@@ -658,17 +658,17 @@ If you are in this section, some problem occurred and your VM deployment is not 
 *My experiment seems to work properly, but I can't connect through RDP to the provided address.*
 
 Make sure that the IP that you are being provided with is the same as the IP you tested with, on the `network configuration` section of this guide.
-If it is and the `network configuration` section's test still succeeds, please contact the Weblab developers for support.
+If it is and the `network configuration` section's test still succeeds, please :ref:`contact <contact>` the Weblab developers for support.
 
 *The VM experiment appears, but an error occurs before the reservation succeeds.*
 
 Make sure that you installed Weblab properly. That is, make sure that experiments other than the VM one work. If other experiments don't work,
 then the problem is most likely not related to VMs. Check the weblab installation guide. If it's only the VM experiment which does not work,
-then please contact the Weblab developers for support.
+then please :ref:`contact <contact>` the Weblab developers for support.
 
 *The VM experiment appears, I can reserve, but when the experiment loads, the progress bar never finishes.*
 
-Check the console in case there is an error. If there is, please contact the Weblab developers for support. 
+Check the console in case there is an error. If there is, please :ref:`contact <contact>` the Weblab developers for support. 
 
 
 

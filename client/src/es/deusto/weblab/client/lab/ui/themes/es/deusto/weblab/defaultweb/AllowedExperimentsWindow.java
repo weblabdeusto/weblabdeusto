@@ -43,6 +43,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
@@ -79,6 +80,10 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label generalErrorLabel;
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
+	@UiField Label separatorLabel3;
+	@UiField WlAHref administrationLink;
+	@UiField WlAHref profileLink;
+	@UiField Label separatorLabelAdministration;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref institutionLink;
 
@@ -101,6 +106,8 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    loadExperimentsAllowedConfigurations(experimentsAllowed);
 	    
 	    this.loadWidgets();
+
+	    
 	    
 	    if(RESIZE_HANDLER != null)
 	    	RESIZE_HANDLER.removeHandler();
@@ -171,15 +178,21 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    this.headerPanel.setVisible(visibleHeader);
 	    this.navigationPanel.setVisible(visibleHeader);
 
-	    if(this.user != null)
+	    if(this.user != null) {
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
-
+	    	if(this.user.getAdminUrl() != null && !this.user.getAdminUrl().equals("")) {
+                this.administrationLink.setTarget("_top");
+	    		this.administrationLink.setVisible(true);
+	    		this.administrationLink.setHref(this.user.getAdminUrl());
+	    		this.separatorLabelAdministration.setVisible(true);
+	    	}
+	    	this.profileLink.setHref(WebLabClient.PROFILE_URL);
+	    }
 	    loadExperimentsTable();
 		
 	    if(this.callback.startedLoggedIn()){
 	    	this.logoutLink.setVisible(false);
-	    	this.separatorLabel.setVisible(false);
-	    	this.separatorLabel2.setVisible(false);
+	    	this.separatorLabel3.setVisible(false);
 	    }
 	}
 

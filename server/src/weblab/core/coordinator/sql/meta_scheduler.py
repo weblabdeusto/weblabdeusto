@@ -14,6 +14,7 @@
 #
 
 from voodoo.log import logged
+from weblab.core.user_processor import SERVER_UUIDS
 from weblab.core.coordinator.exc import NoSchedulerFoundError, ExpiredSessionError
 from weblab.core.coordinator.scheduler import Scheduler
 from voodoo.override import Override
@@ -74,6 +75,15 @@ class IndependentSchedulerAggregator(Scheduler):
     def stop(self):
         pass
 
+    @Override(Scheduler)
+    def get_uuids(self):
+        uuids = []
+
+        for scheduler in self.schedulers:
+            uuids.extend(scheduler.get_uuids())
+
+        return uuids
+
     @logged()
     @Override(Scheduler)
     def is_remote(self):
@@ -91,11 +101,31 @@ class IndependentSchedulerAggregator(Scheduler):
 
         used_schedulers = []
         any_assigned = False
+
+        server_uuids = {}
+        for resource_type_name in self.schedulers:
+            scheduler = self.schedulers[resource_type_name]
+            server_uuids[resource_type_name] = scheduler.get_uuids()
+
+        original_server_uuids = list(request_info.get(SERVER_UUIDS, []))
+
         for resource_type_name in self.ordered_schedulers:
 
             # TODO: catch possible exceptions and "continue"
 
             scheduler = self.schedulers[resource_type_name]
+
+            other_server_uuids = []
+            for cur_resource_type_name in self.schedulers:
+                if cur_resource_type_name != resource_type_name:
+                    other_server_uuids.extend(server_uuids[cur_resource_type_name])
+
+            current_server_uuids = original_server_uuids[:]
+            for server_uuid, server_uuid_human in other_server_uuids:
+                current_server_uuids.append((server_uuid, server_uuid_human))
+            
+            request_info[SERVER_UUIDS] = current_server_uuids
+
 
             self.resources_manager.associate_scheduler_to_reservation(reservation_id, self.experiment_id, resource_type_name)
 
@@ -186,11 +216,11 @@ class IndependentSchedulerAggregator(Scheduler):
 
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
         for resource_type_name in resource_type_names:
             scheduler = self.schedulers[resource_type_name]
-            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
+            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration, exp_info)
 
     @logged()
     @Override(Scheduler)
@@ -258,7 +288,7 @@ class SharedSchedulerAggregator(object):
 
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         pass
 
     @logged()

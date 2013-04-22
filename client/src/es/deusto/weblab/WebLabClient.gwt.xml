@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.1//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.7.1/distro-source/core/src/gwt-module.dtd">
-<module rename-to="weblabclient">
+<module rename-to="weblabclientlab">
 	<!-- Inherit the core Web Toolkit stuff.                  -->
 	<inherits name='com.google.gwt.user.User'   />
 	<inherits name='com.google.gwt.http.HTTP'   />
@@ -14,6 +14,15 @@
 	<extend-property name="locale" values="en"/>
 	<extend-property name="locale" values="es"/>
 	<extend-property name="locale" values="eu"/>
+	<extend-property name="locale" values="de"/>
+	<extend-property name="locale" values="fr"/>
+	<extend-property name="locale" values="nl"/>
+	<extend-property name="locale" values="cs"/>
+	<extend-property name="locale" values="hu"/>
+	<extend-property name="locale" values="pt"/>
+	<extend-property name="locale" values="ro"/>
+	<extend-property name="locale" values="ru"/>
+	<extend-property name="locale" values="sk"/>
 	
 	<source path="client">
 		<exclude name="admin/**java" />
@@ -43,4 +52,6 @@
 	<stylesheet src="weblab_style.css" />
 	
 	<public path="public"></public>
+	
+	<entry-point class='es.deusto.weblab.client.WebLabClientLab'/>
 </module>

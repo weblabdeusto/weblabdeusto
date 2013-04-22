@@ -39,18 +39,18 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.ui.widgets.IWlActionListener;
+import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlClockActivator;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar;
-import es.deusto.weblab.client.ui.widgets.WlSwitch;
-import es.deusto.weblab.client.ui.widgets.WlTimedButton;
-import es.deusto.weblab.client.ui.widgets.WlTimer;
-import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
-import es.deusto.weblab.client.ui.widgets.WlWebcam;
-import es.deusto.weblab.client.ui.widgets.WlButton.IWlButtonUsed;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarListener;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.IProgressBarTextUpdater;
 import es.deusto.weblab.client.ui.widgets.WlPredictiveProgressBar.TextProgressBarTextUpdater;
+import es.deusto.weblab.client.ui.widgets.WlSwitch;
+import es.deusto.weblab.client.ui.widgets.WlTimedButton;
+import es.deusto.weblab.client.ui.widgets.WlTimer;
 import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
+import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
+import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class XilinxExperiment extends ExperimentBase{
 
@@ -76,12 +76,13 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final int    DEFAULT_XILINX_WEBCAM_REFRESH_TIME    = 400;
 	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
+	private final int DEFAULT_EXPECTED_SYNTHESIZING_TIME = 120000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
-	private static final String STATE_COMPILER_ERROR = "compiler_error";
+	private static final String STATE_SYNTHESIZING_ERROR = "synthesizing_error";
 	private static final String STATE_AWAITING_CODE = "awaiting_code";
 	private static final String STATE_NOT_READY = "not_ready";
-	private static final String STATE_COMPILING = "compiling";
+	private static final String STATE_SYNTHESIZING = "synthesizing";
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
@@ -125,6 +126,9 @@ public class XilinxExperiment extends ExperimentBase{
 	private Timer readyTimer;
 	private boolean deviceReady;
 	private int expectedProgrammingTime = this.DEFAULT_EXPECTED_PROGRAMMING_TIME;
+	private int expectedSynthesizingTime = this.DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+	
+	private boolean synthesizingMode = false;
 
 	private final Vector<Widget> interactiveWidgets;
 	
@@ -147,9 +151,9 @@ public class XilinxExperiment extends ExperimentBase{
 		
 		if(isDemo()){
 			if(isMultiresourceDemo()){
-				this.selectProgram.setText("This demo demonstrates the multiresource queues of WebLab-Deusto. You will use a CPLD or a FPGA depending on which one is available. You can test to log in ud-demo-pld and ud-demo-fpga and then log in this experiment to check that it will go to the one you free. If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText(i18n.thisDemoDemonstratesMultiresourceXilinx());
 			}else{
-				this.selectProgram.setText("If this wasn't a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.");
+				this.selectProgram.setText(i18n.thisDemoDoesNotAllowUpload());
 			}
 		}
 	}
@@ -285,6 +289,13 @@ public class XilinxExperiment extends ExperimentBase{
 			
 			this.uploadStructure.getFormPanel().setVisible(false);
 			this.uploadStructure.setFileInfo(extension.toLowerCase());
+			
+			// TODO: Probably it would be more elegant if the server itself would decide whether we are synthesizing
+			// and programming or just programming. However, at least for now, this will do fine. The mode is currently
+			// used only to decide how to estimate progress bar length.
+			if(extension.toLowerCase().equals("vhd"))
+				this.synthesizingMode = true;
+			
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 			this.loadStartControls();
 		} else {
@@ -300,7 +311,7 @@ public class XilinxExperiment extends ExperimentBase{
 	 * @param time Time available for the experiment
 	 * @param initialConfiguration JSON-encoded server-provided configuration parameters. 
 	 * This feature is part of the API version 2. Parameters expected by this experiment
-	 * are "webcam" and "expected_programming_time".
+	 * are "webcam", "expected_programming_time", "expected_synthesizing_time".
 	 */
 	@Override
 	public void start(int time, String initialConfiguration){
@@ -325,6 +336,18 @@ public class XilinxExperiment extends ExperimentBase{
 			this.messages.setText("[Xilinx] Did not receive the expected_programming_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_programming_time parameter.", null);
     		return;
+		}
+		
+		// TODO: Consider whether this parameter should or should not be mandatory. For now, it isn't. 
+		// If the parameter is not provided by the server then the default will be used.
+		try {
+			double expectedSynthesizingTime = parsedInitialConfiguration.isObject().get("expected_synthesizing_time").isNumber().doubleValue();
+			XilinxExperiment.this.expectedSynthesizingTime = (int)(expectedSynthesizingTime * 1000);
+		} catch(Exception e) {	
+			//this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
+    		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter. Using the default. ", null);
+    		XilinxExperiment.this.expectedSynthesizingTime = DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+    		//return;
 		}
 	
 		// If it's not a demo, the user will have been prompted a file uploading form.
@@ -421,7 +444,7 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_READY)) {
 							// Ready
 							XilinxExperiment.this.onDeviceReady();
-						} else if(state.equals(STATE_COMPILING)) {
+						} else if(state.equals(STATE_SYNTHESIZING)) {
 							// Check in a few seconds whether the state changed.
 							XilinxExperiment.this.readyTimer.schedule(IS_READY_QUERY_TIMER);
 						} else if(state.equals(STATE_PROGRAMMING)) {
@@ -430,9 +453,9 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_FAILED)) {
 							// Something failed in the programming.
 							XilinxExperiment.this.onDeviceProgrammingFailed();
-						} else if(state.equals(STATE_COMPILER_ERROR)) {
+						} else if(state.equals(STATE_SYNTHESIZING_ERROR)) {
 							// Compiling failed. 
-							XilinxExperiment.this.onDeviceCompilerError();
+							XilinxExperiment.this.onDeviceSynthesizingError();
 						} else if(state.equals(STATE_AWAITING_CODE)) {
 							// Awaiting for VHDL code.
 							// TODO: Implement this. THIS IS NOT YET SUPPORTED.
@@ -455,7 +478,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	XilinxExperiment.this.messages.setText("File sent.");
+	    	XilinxExperiment.this.messages.setText(i18n.fileSent());
 	    }
 
 	    @Override
@@ -495,7 +518,7 @@ public class XilinxExperiment extends ExperimentBase{
 			this.progressBar.finish(300);
 
 		this.enableInteractiveWidgets();
-		this.messages.setText("Device ready");
+		this.messages.setText(i18n.deviceReady());
 		this.messages.stop();
 	}
 	
@@ -514,7 +537,7 @@ public class XilinxExperiment extends ExperimentBase{
 	    	// invisible once it is full.
 			this.progressBar.finish(300);
     	
-		this.messages.setText("Device programming failed");
+		this.messages.setText(i18n.deviceProgrammingFailed());
 		this.messages.stop();	
 	}
 	
@@ -522,7 +545,7 @@ public class XilinxExperiment extends ExperimentBase{
 	/**
 	 * Called when the STATE query tells us that the compiling process failed.
 	 */
-	private void onDeviceCompilerError() {
+	private void onDeviceSynthesizingError() {
 		this.deviceReady = false;
 		
 		if(XilinxExperiment.this.progressBar.isWaiting()){
@@ -533,8 +556,30 @@ public class XilinxExperiment extends ExperimentBase{
 			// invisible once it is full.
 			this.progressBar.finish(300);
 		
-		this.messages.setText("Compiling failed");
+		
+		final Command compilingResultCommand = new Command() {
+			@Override
+			public String getCommandString() {
+				return "SYNTHESIZING_RESULT";
+			}};
+		
+		this.messages.setText("Synthesizing failed");
 		this.messages.stop();
+			
+		// Find out why compiling failed through the COMPILING_RESULT command.
+		XilinxExperiment.this.boardController.sendCommand(compilingResultCommand, new IResponseCommandCallback() {
+			@Override
+			public void onFailure(CommException e) {
+				XilinxExperiment.this.messages.setText("There was an error while trying to retrieve the SYNTHESIZING_RESULT");
+			}
+
+			@Override
+			public void onSuccess(ResponseCommand responseCommand) {
+				XilinxExperiment.this.messages.setText("Synthesizing failed: \n" + responseCommand);
+			}
+		});
+		
+
 	}
 	
 	private void loadWidgets() {
@@ -543,7 +588,7 @@ public class XilinxExperiment extends ExperimentBase{
 		this.webcam.start();
 		
 	
-		this.messages.setText("Sending file");
+		this.messages.setText(i18n.sendingFile());
 		this.messages.start();
 		
 		final ClockActivationListener clockActivationListener = new ClockActivationListener(this.boardController, this.getResponseCommandCallback());
@@ -572,8 +617,8 @@ public class XilinxExperiment extends ExperimentBase{
 				final String currentAction;
 				if( XilinxExperiment.this.currentState.equals(STATE_PROGRAMMING) )
 					currentAction = "Programming device";
-				else if( XilinxExperiment.this.currentState.equals(STATE_COMPILING) )
-					currentAction = "Compiling VHDL";
+				else if( XilinxExperiment.this.currentState.equals(STATE_SYNTHESIZING) )
+					currentAction = "Synthesizing VHDL";
 				else
 					currentAction = "Processing";
 				
@@ -590,13 +635,18 @@ public class XilinxExperiment extends ExperimentBase{
 				}else{
 					// This order is important, since setTextUpdater would call onFinished again
 					XilinxExperiment.this.progressBar.keepWaiting();
-					XilinxExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater("Finishing programming..."));
+					XilinxExperiment.this.progressBar.setTextUpdater(new TextProgressBarTextUpdater(i18n.finishingProgramming() + "..."));
 				}
 			}});
 		
 		this.progressBar.setWaitPoint(0.98);
 		this.progressBar.setVisible(true);
-		this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
+		if(this.synthesizingMode)
+			this.progressBar.setEstimatedTime(this.expectedSynthesizingTime + this.expectedProgrammingTime);
+		else
+			this.progressBar.setEstimatedTime(this.expectedProgrammingTime);
+		
 		this.progressBar.start();
 	}
 	

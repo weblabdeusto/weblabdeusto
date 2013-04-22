@@ -1,0 +1,47 @@
+
+# CUIDADO, El WebLab-DEUSTO permite usar uno de dos relojes: el interno a 4 MHz (T9) o el definido por el usuario en el interface del WebLab-DEUSTO (D9). El usuario decide.
+#NET "clk"  LOC = "D9"  ; //Reloj externo controlable por el usuario en el Weblab en frecuencia
+#NET "clk"  LOC = "T9"  ; //Reloj interno de 4 MHz (o 1 MHz, no lo recuerdo)
+
+NET "clk" LOC = "K15"; //El reloj es lo que normalmente sería el button 3
+NET "clk" CLOCK_DEDICATED_ROUTE = FALSE; // Necesario para que acepte el switch como reloj
+
+NET "ena3"  LOC = "E13"  ;
+NET "ena2"  LOC = "F14"  ;
+NET "ena1"  LOC = "G14"  ;
+NET "ena0"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
+
+NET "seg6"  LOC = "E14"  ; //segmento a NIVEL BAJO
+NET "seg5"  LOC = "G13"  ; //segmento b NIVEL BAJO
+NET "seg4"  LOC = "N15"  ; //segmento c NIVEL BAJO
+NET "seg3"  LOC = "P15"  ; //segmento d NIVEL BAJO
+NET "seg2"  LOC = "R16"  ; //segmento e NIVEL BAJO
+NET "seg1"  LOC = "F13"  ; //segmento f NIVEL BAJO
+NET "seg0"  LOC = "N16"  ; //segmento g NIVEL BAJO
+NET "dot"  LOC = "P16"  ; //punto
+
+NET "but0"  LOC = "H16"  ; //Pulsador derecha
+NET "but1"  LOC = "J16"  ;
+NET "but2"  LOC = "K16"  ;
+#NET "but3"  LOC = "K15"  ; // Pulsador izquierda
+
+NET "led0"  LOC = "K12"  ; //Led de la derecha
+NET "led1"  LOC = "P14"  ;
+NET "led2"  LOC = "L12"  ;
+NET "led3"  LOC = "N14"  ;
+NET "led4"  LOC = "P13"  ;
+NET "led5"  LOC = "N12"  ;
+NET "led6"  LOC = "P12"  ;
+NET "led7"  LOC = "P11"  ; //Led de la izquierda
+
+NET "swi9"  LOC = "C15"  ; //Interruptor de la izquierda
+NET "swi8"  LOC = "C16"  ;
+NET "swi7"  LOC = "D15"  ;
+NET "swi6"  LOC = "D16"  ; 
+NET "swi5"  LOC = "E15"  ;
+NET "swi4"  LOC = "E16"  ;
+NET "swi3"  LOC = "F15"  ;
+NET "swi2"  LOC = "G15"  ;  
+NET "swi1"  LOC = "G16"  ; 
+NET "swi0"  LOC = "H15"  ; // Interruptor de la derecha
+

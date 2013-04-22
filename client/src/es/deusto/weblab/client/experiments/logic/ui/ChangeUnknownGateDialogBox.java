@@ -17,6 +17,7 @@
  */
 package es.deusto.weblab.client.experiments.logic.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -24,11 +25,14 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import es.deusto.weblab.client.experiments.logic.circuit.Operation;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 
 class ChangeUnknownGateDialogBox extends DialogBox {
-        
+    
+	static IWebLabI18N i18n = GWT.create(IWebLabI18N.class);
+	
     public ChangeUnknownGateDialogBox(final LogicExperiment board) {
-      this.setText("Choose the correct gate:");
+      this.setText(i18n.chooseCorrectGate());
 
       final ClickHandler imageHandler = new ClickHandler() {
 	        @Override

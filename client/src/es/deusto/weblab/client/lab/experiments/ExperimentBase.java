@@ -13,9 +13,11 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
 /**
@@ -28,6 +30,7 @@ public abstract class ExperimentBase implements IWlWidget{
 	
 	protected final IBoardBaseController boardController;
 	protected final IConfigurationRetriever configurationRetriever;
+	protected static final IWebLabI18N i18n = GWT.create(IWebLabI18N.class);
 	
 	/**
 	 * Initializes the ExperimentBase, providing the controller and the configuration retriever.

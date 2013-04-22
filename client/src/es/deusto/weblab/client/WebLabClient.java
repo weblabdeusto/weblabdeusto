@@ -38,7 +38,11 @@ public abstract class WebLabClient implements EntryPoint {
 	public static final String BASE_LOCATION = "base.location";
 	public static final String DEFAULT_BASE_LOCATION = "";
 
+	
     public static String baseLocation;
+    
+	public static String PROFILE_URL;
+	
     public static boolean IS_MOBILE = false;
 
 	public static final int MAX_FACEBOOK_WIDTH = 735;
@@ -63,7 +67,6 @@ public abstract class WebLabClient implements EntryPoint {
 	private static final int MIN_NON_MOBILE_WIDTH = 480;
 	private static final int MIN_NON_MOBILE_HEIGHT = 350;
 	private static final int MIN_NON_MOBILE_AREA = 350 * 300;
-	protected static final String INDEX_ADMIN_HTML = "index-admin.html";
 	
 	public ConfigurationManager configurationManager;
 	private boolean languageDecisionPending = false;
@@ -82,6 +85,10 @@ public abstract class WebLabClient implements EntryPoint {
 	private boolean localeConfigured(){
 	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM) != null;
 	}
+
+    public static String getLocale() {
+	    return Window.Location.getParameter(WebLabClient.LOCALE_URL_PARAM);
+    }
 	
 	/**
 	 * Check whether we must display the mobile or the standard version. If the "mobile" GET var is 
@@ -203,6 +210,7 @@ public abstract class WebLabClient implements EntryPoint {
 			@Override
 			public void onLoaded() {
                 WebLabClient.baseLocation = WebLabClient.this.configurationManager.getProperty(BASE_LOCATION, DEFAULT_BASE_LOCATION);
+                WebLabClient.PROFILE_URL  = WebLabClient.baseLocation + "/weblab/administration/profile/";
                 
                 if(WebLabClient.this.languageDecisionPending) {
         			String currentLocaleName = LocaleInfo.getCurrentLocale().getLocaleName();

@@ -58,6 +58,12 @@ class RemoteFacadeContext(object):
         except KeyError:
             return ''
 
+    def get_locale(self):
+        try:
+            return self.headers.get('weblabdeusto-locale') or ''
+        except KeyError:
+            return ''
+
     def is_mobile(self):
         if self.headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
             return True

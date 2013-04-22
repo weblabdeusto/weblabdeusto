@@ -3,14 +3,13 @@
     xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets"
     >
     
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
     
     <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
         
 		<g:VerticalPanel ui:field="verticalPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
 		
-			<g:Label ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER">
-			Select the program to send:
-			</g:Label>
+			<g:Label ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER" text="{i18n.selectProgramToSend}" />
 		
 			<!-- Originally the width was 85% but apparently the webcam doesn't appear centered in that case. -->
 			<g:VerticalPanel ui:field="innerVerticalPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width='100%' spacing='0'>
@@ -69,7 +68,7 @@
 				<g:Hidden></g:Hidden>
 			</g:HorizontalPanel>
 			
-			<g:Button ui:field="uploadButton" visible="false">Upload</g:Button>
+			<g:Button ui:field="uploadButton" visible="false" text="{i18n.upload}" />
 			
 		</g:VerticalPanel>
 		

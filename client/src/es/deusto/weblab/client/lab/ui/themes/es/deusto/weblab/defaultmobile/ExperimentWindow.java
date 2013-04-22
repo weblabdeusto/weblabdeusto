@@ -16,19 +16,18 @@ package es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultmobile;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
 import es.deusto.weblab.client.dto.users.User;
@@ -158,8 +157,11 @@ class ExperimentWindow extends BaseWindow {
 		loadUsingExperimentPanels();
 		
 		this.experimentArea.clear();
-		final String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+		String remoteUrl = url + "client/federated.html#reservation_id=" + remoteReservationId + "&back=" + HistoryProperties.encode(Window.Location.getHref());
+        if(WebLabClient.getLocale() != null)
+            remoteUrl += "&locale=" + WebLabClient.getLocale();
         this.callback.disableFinishOnClose();
+        Window.Location.assign(remoteUrl);
 	}
 	
 	@UiHandler("finishButton")

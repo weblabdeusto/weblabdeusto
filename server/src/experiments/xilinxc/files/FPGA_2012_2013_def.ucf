@@ -4,19 +4,19 @@
 
 NET "clk"  LOC = "T9"  ; //Reloj interno de 4 MHz (o 1 MHz, no lo recuerdo)
 
-NET "enable_seg_out<3>"  LOC = "E13"  ;
-NET "enable_seg_out<2>"  LOC = "F14"  ;
-NET "enable_seg_out<1>"  LOC = "G14"  ;
-NET "enable_seg_out<0>"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
+NET "EnableSegOut<3>"  LOC = "E13"  ;
+NET "EnableSegOut<2>"  LOC = "F14"  ;
+NET "EnableSegOut<1>"  LOC = "G14"  ;
+NET "EnableSegOut<0>"  LOC = "D14"  ; //Ánodo comunes de los 4 displays NIVEL BAJO
 
-NET "seven_seg<6>"  LOC = "E14"  ; //segmento a NIVEL BAJO
-NET "seven_seg<5>"  LOC = "G13"  ; //segmento b NIVEL BAJO
-NET "seven_seg<4>"  LOC = "N15"  ; //segmento c NIVEL BAJO
-NET "seven_seg<3>"  LOC = "P15"  ; //segmento d NIVEL BAJO
-NET "seven_seg<2>"  LOC = "R16"  ; //segmento e NIVEL BAJO
-NET "seven_seg<1>"  LOC = "F13"  ; //segmento f NIVEL BAJO
-NET "seven_seg<0>"  LOC = "N16"  ; //segmento g NIVEL BAJO
-NET "Punto"  LOC = "P16"  ; //punto
+NET "SevenSeg<6>"  LOC = "E14"  ; //segmento a NIVEL BAJO
+NET "SevenSeg<5>"  LOC = "G13"  ; //segmento b NIVEL BAJO
+NET "SevenSeg<4>"  LOC = "N15"  ; //segmento c NIVEL BAJO
+NET "SevenSeg<3>"  LOC = "P15"  ; //segmento d NIVEL BAJO
+NET "SevenSeg<2>"  LOC = "R16"  ; //segmento e NIVEL BAJO
+NET "SevenSeg<1>"  LOC = "F13"  ; //segmento f NIVEL BAJO
+NET "SevenSeg<0>"  LOC = "N16"  ; //segmento g NIVEL BAJO
+NET "Dot"  LOC = "P16"  ; //punto
 
 NET "Buttons<0>"  LOC = "H16"  ; //Pulsador derecha
 NET "Buttons<1>"  LOC = "J16"  ;
