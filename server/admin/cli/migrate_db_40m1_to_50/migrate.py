@@ -4,6 +4,16 @@ from migrationlib import Patch, PatchApplier
 import weblab.db.model as Model
 import weblab.permissions as permissions
 
+# 
+#  XXX: Important: WebLab-Deusto has migrated to 
+#  alembic. So please do not add any more patch here,
+#  and convert existing patches to:
+# 
+#  ./weblab/db/upgrade/regular/versions/4c23f9943036_first.py
+# 
+# 
+
+
 class AddingPriorityToPermissionParameterPatch(Patch):
 
     APPLY_FORMAT = Patch.SQLALCHEMY_FORMAT
