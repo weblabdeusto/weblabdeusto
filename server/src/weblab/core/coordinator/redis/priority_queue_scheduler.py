@@ -283,7 +283,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         self._remove_expired_reservations()
 
         weblab_reservation_pqueue = WEBLAB_RESOURCE_RESERVATION_PQUEUE % (self.resource_type_name, reservation_id)

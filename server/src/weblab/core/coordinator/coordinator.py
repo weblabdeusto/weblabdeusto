@@ -451,7 +451,7 @@ class AbstractCoordinator(object):
             raise NotImplementedError("Not yet implemented: still_initializing")
 
         aggregator = self._get_scheduler_aggregator_per_reservation(reservation_id)
-        aggregator.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
+        aggregator.confirm_experiment(reservation_id, lab_session_id, initial_configuration, exp_info)
 
         if batch: # It has already finished, so make this experiment available to others
             self.finish_reservation(reservation_id)
