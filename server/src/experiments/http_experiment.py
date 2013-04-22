@@ -21,6 +21,7 @@ import json
 import weblab.configuration_doc as configuration_doc
 from weblab.experiment.experiment import Experiment
 import weblab.experiment.level as ExperimentApiLevel
+import weblab.core.coordinator.coordinator as Coordinator
 
 class HttpExperiment(Experiment):
 
@@ -63,7 +64,7 @@ class HttpExperiment(Experiment):
             }
             self.session_id = response.get('session_id','invalid_session_id')
 
-            return { "initial_configuration" : json.dumps(config), "batch" : self.batch }
+            return json.dumps({ "initial_configuration" : json.dumps(config), "batch" : self.batch })
         except:
             traceback.print_exc()
             raise

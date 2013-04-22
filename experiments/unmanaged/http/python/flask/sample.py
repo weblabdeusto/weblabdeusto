@@ -73,7 +73,7 @@ def status(session_id):
     return json.dumps({'should_finish' : 10})
 
 
-@app.route('/foo/weblab/sessions/<session_id>')
+@app.route('/foo/weblab/sessions/<session_id>', methods=['POST'])
 def dispose_experiment(session_id):
     request_data = get_json()
     if 'action' in request_data and request_data['action'] == 'delete':

@@ -207,6 +207,7 @@ laboratory_assigned_experiments = {
         'exp1:http@HTTP experiments':
             {
                 'coord_address' : 'experiment_http:main_instance@main_machine',
-                'checkers': ()
+                'checkers': (),
+                'manages_polling' : True,
             },
     }
