@@ -38,9 +38,14 @@ def weblab_upgrade(directory):
         coord_url   = db_conf.build_coord_url()
         upgrader = DbUpgrader(regular_url, coord_url)
         if not upgrader.check_updated():
-            print "Upgrading database...",
-            upgrader.upgrade()
-            print "[done]"
+            print "The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database)."
+            if raw_input("Do you want to continue with the upgrade? (y/n)") == 'y':
+                print "Upgrading database."
+                sys.stdout.flush()
+                upgrader.upgrade()
+                print "Upgrade completed."
+            else:
+                print "Upgrade aborted."
 
     run_with_config(directory, on_dir)
 
