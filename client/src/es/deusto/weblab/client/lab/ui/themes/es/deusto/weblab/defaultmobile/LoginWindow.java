@@ -39,6 +39,7 @@ import es.deusto.weblab.client.WebLabClientLab;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
 import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.DefaultTheme;
+import es.deusto.weblab.client.ui.widgets.WlAHref;
 import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 class LoginWindow extends BaseWindow {
@@ -68,6 +69,7 @@ class LoginWindow extends BaseWindow {
 	@UiField Label passwordErrorLabel;
 	
 	@UiField Button loginButton;
+	@UiField WlAHref institutionLink;
 
 	private final ILoginWindowCallback callback;
 
@@ -85,6 +87,9 @@ class LoginWindow extends BaseWindow {
 
 	private void setupWidgets(final Widget wid) {
 	    this.logoImage.setUrl(GWT.getModuleBaseURL() + this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
+	    
+	    final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
+		this.institutionLink.setHref(hostEntityLink);
 	    
 		// If ENTER is pressed, login as if the button had been clicked.
 		final KeyDownHandler keyboardHandler = new KeyDownHandler(){
