@@ -204,5 +204,9 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_robot_maze:main_instance@main_machine',
                 'checkers': ()
             },
-
+        'exp1:http@HTTP experiments':
+            {
+                'coord_address' : 'experiment_http:main_instance@main_machine',
+                'checkers': ()
+            },
     }

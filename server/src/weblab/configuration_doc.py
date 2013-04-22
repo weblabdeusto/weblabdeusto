@@ -322,6 +322,31 @@ _sorted_variables.extend([
 ])
 
 
+#####################################
+# 
+# EXPERIMENTS
+# 
+
+EXPERIMENTS = 'Experiments'
+DESCRIPTIONS[EXPERIMENTS] = "This section includes the configuration of existing laboratories."
+
+HTTP_EXPERIMENT = (EXPERIMENTS, 'HTTP')
+DESCRIPTIONS[HTTP_EXPERIMENT] = "The HTTP experiment is a type of unmanaged laboratory which enables you to develop your own laboratory. WebLab-Deusto will call certain methods in that laboratory, and your laboratory will act taking that into account."
+
+HTTP_EXPERIMENT_URL      = 'http_experiment_url'
+HTTP_EXPERIMENT_USERNAME = 'http_experiment_username'
+HTTP_EXPERIMENT_PASSWORD = 'http_experiment_password'
+HTTP_EXPERIMENT_BATCH    = 'http_experiment_batch'
+
+
+_sorted_variables.extend([
+    (HTTP_EXPERIMENT_URL,          _Argument(HTTP_EXPERIMENT, basestring, NO_DEFAULT, "The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/")),
+    (HTTP_EXPERIMENT_USERNAME,     _Argument(HTTP_EXPERIMENT, basestring, None, "The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).")),
+    (HTTP_EXPERIMENT_PASSWORD,     _Argument(HTTP_EXPERIMENT, basestring, None, "The password used for performing that request. If not present, it will not use any credentials.")),
+    (HTTP_EXPERIMENT_BATCH,        _Argument(HTTP_EXPERIMENT, bool, False, "Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.")),
+])
+
+
 
 #####################################
 # 

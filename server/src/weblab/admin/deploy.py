@@ -306,6 +306,9 @@ def populate_weblab_tests(engine, tests):
     cat_submarine = Model.DbExperimentCategory("Submarine experiments")
     session.add(cat_submarine)
 
+    cat_http = Model.DbExperimentCategory("HTTP experiments")
+    session.add(cat_http)
+
     cat_aquatic = Model.DbExperimentCategory("Aquatic experiments")
     session.add(cat_aquatic)
 
@@ -416,6 +419,9 @@ def populate_weblab_tests(engine, tests):
     submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
     session.add(submarine)
     
+    http = Model.DbExperiment("http", cat_http, start_date, end_date)
+    session.add(http)
+
     aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date)
     session.add(aquarium)
 
@@ -887,7 +893,23 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_submarine_allowed_p2)
     up_any_submarine_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p3, "200")
     session.add(up_any_submarine_allowed_p3)
-         
+
+    up_any_http_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::weblab-http",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-http"
+    )
+
+    session.add(up_any_http_allowed)
+    up_any_http_allowed_p1 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p1, "http")
+    session.add(up_any_http_allowed_p1)
+    up_any_http_allowed_p2 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p2, "HTTP experiments")
+    session.add(up_any_http_allowed_p2)
+    up_any_http_allowed_p3 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_http_allowed_p3)
+
     up_any_aquarium_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
