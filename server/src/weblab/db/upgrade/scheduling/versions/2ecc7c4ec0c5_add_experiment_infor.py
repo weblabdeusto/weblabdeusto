@@ -13,10 +13,11 @@ down_revision = None
 from alembic import op
 import sqlalchemy as sa
 
+import weblab.core.coordinator.sql.priority_queue_scheduler_model as pq_model
 
 def upgrade():
-    pass
+    op.add_column(pq_model.ConcreteCurrentReservation.__tablename__, sa.Column('exp_info', sa.Text))
 
 
 def downgrade():
-    pass
+    op.drop_column(pq_model.ConcreteCurrentReservation.__tablename__, sa.Column('exp_info', sa.Text))
