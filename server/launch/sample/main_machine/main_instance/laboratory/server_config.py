@@ -192,7 +192,8 @@ laboratory_assigned_experiments = {
         'exp1:control-app@Control experiments':
             {
                 'coord_address' : 'experiment_controlapp:main_instance@main_machine',
-                'checkers': ()
+                'checkers': (),
+                'manages_polling' : True,
             },
         'exp1:incubator@Farm experiments':
             {

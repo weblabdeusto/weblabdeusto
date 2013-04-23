@@ -18,6 +18,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.Anchor;
@@ -39,7 +41,7 @@ public class ControlAppExperiment extends UIExperimentBase {
 		popup, iframe, redirection
 	}
 	
-	public static final String DEFAULT_PRESENTATION_PROPERTY = LinkPresentation.popup.name();
+	public static final String DEFAULT_PRESENTATION_PROPERTY = LinkPresentation.redirection.name();
 	
 	public ControlAppExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(configurationRetriever, boardController);
@@ -52,6 +54,13 @@ public class ControlAppExperiment extends UIExperimentBase {
 		} catch (IllegalArgumentException iae) {
 			return LinkPresentation.valueOf(DEFAULT_PRESENTATION_PROPERTY);
 		}
+	}
+
+	@Override
+	public JSONValue getInitialData() {
+		final JSONObject object = new JSONObject();
+		object.put("back", new JSONString(Location.getHref()));
+		return object;
 	}
 
 	@Override
