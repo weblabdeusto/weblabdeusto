@@ -586,13 +586,137 @@ For JavaScript, this API can be found in the following place:
 
 ``src\es\deusto\weblab\public\jslib\jsweblab.js``
 
-You can simply reference it from your HTML. For instance, if your HTML is within public\jslightbulb\jslightbulb.html, you can do, within ``<head>``:
-``<script src="../jslib/weblabjs.js"></script>``
+You can simply reference it from your HTML. For instance, if your HTML is within ``public\jslightbulb\jslightbulb.html``, you can do, within ``<head>``:
+
+	``<script src="../jslib/weblabjs.js"></script>``
+
+The API follows:
+	
+.. code-block:: javascript
+
+	//! Sends a command to the experiment server.
+    //!
+    //! @param text Text of the command. 
+    //! @param successHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //! @param errorHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //!
+    this.sendCommand = function (text, successHandler, errorHandler) 
 
 
-.. note::
+    //! Sets the callback that will be invoked when the experiment finishes. Generally,
+    //! an experiment finishes when it runs out of allocated time, but it may also 
+    //! be finished explicitly by the user or the experiment code, or by errors and
+    //! and disconnections.
+    //!
+    this.setOnEndCallback = function (onEndCallback) 
 
-   More to be written (April 2013).
+    //! Sets the callbacks that will be invoked by default when a sendfile request
+    //! finishes. The appropriate callback specified here will be invoked if no 
+    //! callback was specified in the sendFile call, or if the sendFile was done
+    //! from GWT itself and not through this API.
+    //!
+    //! @param onSuccess Callback invoked when the sendFile request succeeds. Takes
+    //! the return message as argument.
+    //! @param onError Callback invoked when the sendFile request fails. Takes the
+    //! return message as argument.
+    this.setFileHandlerCallbacks = function (onSuccess, onError) 
+
+    //! Sets the startInteractionCallback. This is the callback that will be invoked
+    //! after the Weblab experiment is successfully reserved, and the user can start
+    //! interacting with the experiment. 
+    this.setOnStartInteractionCallback = function (onStartInteractionCallback) 
+	
+    //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
+    //! the time that the experiment has left. Currently, the Weblab system only invokes
+    //! this once, on startup. Hence, from the moment setTime is invoked, the experiment
+    //! can take for granted that that is indeed the time it has left. Unless, of course,
+    //! the experiment itself chooses to finish, or the user finishes early.
+    //!
+    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
+    //! the experiment.
+    //!
+    this.setOnTimeCallback = function (onTimeCallback) 
+
+    //! Sets the three Weblab callbacks at once.
+    //! 
+    //! @param onStartInteraction Start Interaction callback.
+    //! @param onTime On Time callback.
+    //! @param onEnd On End callback.
+    //! 
+    //! @see setOnStartInteraction
+    //! @see setOnTimeCallback
+    //! @see setOnEndCallback
+    this.setCallbacks = function (onStartInteraction, onTime, onEnd) 
+
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
+    this.getProperty = function (name) 
+	
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
+    this.getPropertyDef = function (name, def) 
+
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
+    this.getIntProperty = function (name) 
+
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
+    this.getIntPropertyDef = function (name, def) 
+
+    //! Finishes the experiment.
+    //!
+    this.clean = function () 
+
+    //! Returns true if the experiment is active, false otherwise.
+    //! An experiment is active if it has started and not finished.
+    //! That is, if the server, supposedly, should be able to receive
+    //! commands.
+    //!
+    this.isExperimentActive = function () 
+	
+    //! Checks whether this interface is actually connected to the real
+    //! WebLab client. 
+    //!
+    //! @return True, if connected to the real WL client. False otherwise.
+    this.checkOnline = function () 
+	
+    //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
+    //! offline from the real Weblab client, then the response to SendCommand will be as specified.
+    //!
+    //! @param response Text in the response.
+    //! @param result If true, SendCommand will invoke the success handler.
+    //! @param result If false, SendCommand will invoke the failure handler.
+    this.dbgSetOfflineSendCommandResponse = function (response, result) 
+	
+	
+Using the API is easy. Once the script has been included, you can simply:
+
+.. code-block:: javascript
+	
+	Weblab.sendCommand( "LIGHTBULB ON", 
+		function(response) {
+			console.log("Light turned on successfully");
+		},
+		function(response) {
+			console.error("Light failed to turn on");
+		}
+	);
+	
+Note that as you can see above, there are some functions that start with "dbg". Those are for development purposes.
+Sometimes, for instance, it is convenient to be able to run your HTML interface stand-alone. In order for the experiment
+to behave in a way that more closely resembles in its intended way, you can use these to simulate command responses
+from the server and the like.
 
 
 Java applets
