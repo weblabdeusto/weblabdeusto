@@ -21,7 +21,8 @@ class ExperimentHandler(object):
         self._is_up_and_running_handlers = is_up_and_running_handlers
         self._busy                       = False
         self._lab_session_id             = None
-        self._api                        = None
+        self.api                         = None
+        self.manages_polling             = False
 
     def reserve(self, lab_session_id):
         if self._busy:
@@ -35,15 +36,6 @@ class ExperimentHandler(object):
             return False
         self._busy = False
         return True
-
-    @property
-    def api(self):
-        return self._api
-
-    # TODO: Consider making this an internal method
-    @api.setter
-    def api(self, value):
-        self._api = value
 
     @property
     def busy(self):

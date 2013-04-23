@@ -449,9 +449,9 @@ class AbstractCoordinatorTestCase(object):
         self.assertEquals( laboratory_coord_address, self.coordinator.confirmer.uses_confirm[0][0] )
         self.assertEquals( experiment_instance_id, self.coordinator.confirmer.uses_confirm[0][2] )
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now, 'res_type')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), "{}", now, now, 'res_type', {})
         status = self.coordinator.get_reservation_status(reservation1_id)
-        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
+        expected_status = WSS.LocalReservedStatus(reservation1_id, coord_addr(laboratory_coord_address), SessionId.SessionId("mysessionid"), {}, DEFAULT_TIME, "{}", now, now, True, DEFAULT_TIME, 'http://www.weblab.deusto.es/weblab/client/foo')
 
 
         self.assertTrue("Unexpected status due to timestamp_before: %s; expected something like %s" % (status, expected_status),
@@ -485,7 +485,7 @@ class AbstractCoordinatorTestCase(object):
             'initial_configuration' : 'foobar'
         }
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), json.dumps(response), now, now, 'res_type')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('exp1', 'cat1'), reservation1_id, "lab:server@mach", SessionId.SessionId("mysessionid"), json.dumps(response), now, now, 'res_type', {})
 
         status = self.coordinator.get_reservation_status(reservation1_id)
         expected_status = WSS.PostReservationStatus(reservation1_id, True, '"foobar"', 'null')
@@ -1008,7 +1008,7 @@ class AbstractCoordinatorMultiResourceTestCase(object):
         #    RES.INST (pld2) : res9* [removed res2]*
         #    RES.INST (fpga1): res3
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation2_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards', {})
         self.coordinator.finish_reservation(reservation2_id)
 
         status = self.coordinator.get_reservation_status(reservation9_id)
@@ -1034,7 +1034,7 @@ class AbstractCoordinatorMultiResourceTestCase(object):
         #    RES.INST (pld2) : res10* [removed res9]*
         #    RES.INST (fpga1): res3
 
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation9_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards', {})
         self.coordinator.finish_reservation(reservation9_id)
 
         status, reservation10_id = self.coordinator.reserve_experiment(ExperimentId("ud-pld","PLD experiments"), DEFAULT_TIME + 10, DEFAULT_PRIORITY, True, DEFAULT_INITIAL_DATA, DEFAULT_REQUEST_INFO, DEFAULT_CONSUMER_DATA)
@@ -1060,7 +1060,7 @@ class AbstractCoordinatorMultiResourceTestCase(object):
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4*          [removed res3]*
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'fpga boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation3_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'fpga boards', {})
         self.coordinator.finish_reservation(reservation3_id)
 
         status = self.coordinator.get_reservation_status(reservation4_id)
@@ -1094,7 +1094,7 @@ class AbstractCoordinatorMultiResourceTestCase(object):
         #    RES.INST (pld2) : res10
         #    RES.INST (fpga1): res4
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation1_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation1_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards', {})
         self.coordinator.finish_reservation(reservation1_id)
 
         status = self.coordinator.get_reservation_status(reservation8_id)
@@ -1138,11 +1138,11 @@ class AbstractCoordinatorMultiResourceTestCase(object):
         #    RES.INST (pld2) : <empty> [removed res10]*
         #    RES.INST (fpga1): <empty> [removed res4 ]*
         #
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'fpga boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation4_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'fpga boards', {})
         self.coordinator.finish_reservation(reservation4_id)
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation8_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation8_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards', {})
         self.coordinator.finish_reservation(reservation8_id)
-        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation10_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards')
+        self.coordinator.confirm_experiment(coord_addr('expser:inst@mach'), ExperimentId('ud-pld','PLD experiments'), reservation10_id, "lab:inst@mach", SessionId.SessionId("the.session"), "{}", now, now, 'pld boards', {})
         self.coordinator.finish_reservation(reservation10_id)
 
 

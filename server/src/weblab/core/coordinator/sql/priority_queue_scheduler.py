@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import json
 import time
 import datetime
 import random
@@ -37,8 +38,6 @@ from weblab.core.coordinator.sql.priority_queue_scheduler_model import ConcreteC
 import weblab.core.coordinator.status as WSS
 
 from weblab.data.experiments import ExperimentInstanceId
-
-import json
 
 EXPIRATION_TIME  = 3600 # seconds
 
@@ -186,6 +185,10 @@ class PriorityQueueScheduler(Scheduler):
                 lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
                 obtained_time                = concrete_current_reservation.time
                 lab_session_id               = concrete_current_reservation.lab_session_id
+                if concrete_current_reservation.exp_info:
+                    exp_info                 = json.loads(concrete_current_reservation.exp_info)
+                else:
+                    epx_info                 = {}
                 initial_configuration        = concrete_current_reservation.initial_configuration
                 initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
 
@@ -212,7 +215,7 @@ class PriorityQueueScheduler(Scheduler):
                     else:
                         remaining = obtained_time
 
-                    return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
+                    return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), exp_info, obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
             resource_type = session.query(ResourceType).filter_by(name = self.resource_type_name).one()
             waiting_reservation = session.query(WaitingReservation).filter_by(reservation_id = reservation_id, resource_type_id = resource_type.id).first()
@@ -264,7 +267,7 @@ class PriorityQueueScheduler(Scheduler):
     @exc_checker
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         self._remove_expired_reservations()
 
         session = self.session_maker()
@@ -290,6 +293,7 @@ class PriorityQueueScheduler(Scheduler):
 
             concrete_current_reservation.lab_session_id        = lab_session_id.id
             concrete_current_reservation.initial_configuration = initial_configuration
+            concrete_current_reservation.exp_info              = json.dumps(exp_info)
             concrete_current_reservation.set_timestamp_after(self.time_provider.get_time())
 
             session.commit()

@@ -216,11 +216,11 @@ class IndependentSchedulerAggregator(Scheduler):
 
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         resource_type_names = self.resources_manager.retrieve_schedulers_per_reservation(reservation_id, self.experiment_id)
         for resource_type_name in resource_type_names:
             scheduler = self.schedulers[resource_type_name]
-            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration)
+            scheduler.confirm_experiment(reservation_id, lab_session_id, initial_configuration, exp_info)
 
     @logged()
     @Override(Scheduler)
@@ -288,7 +288,7 @@ class SharedSchedulerAggregator(object):
 
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         pass
 
     @logged()

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005 onwards University of Deusto
+# Copyright (C) 2012 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -23,11 +23,9 @@ else:
 
 import os
 import getpass
-import signal
 import sys
 import stat
 import uuid
-import time
 import traceback
 import sqlite3
 import urlparse
@@ -38,14 +36,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import sqlalchemy
 
-from weblab import __version__ as weblab_version
 from weblab.util import data_filename
-from weblab.admin.monitor.monitor import WebLabMonitor
-import weblab.core.coordinator.status as WebLabQueueStatus
-
-from weblab.admin.cli.controller import Controller
 
 import weblab.db.model as Model
+from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
 
@@ -53,73 +47,16 @@ import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
 from voodoo.dbutil import generate_getconn
-from voodoo.gen.loader.ConfigurationParser import GlobalParser
 
+
+#########################################################################################
 # 
-# TODO
-#  - --virtual-machine
-#  - Support rebuild-db
 # 
-
-SORTED_COMMANDS = []
-SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
-SORTED_COMMANDS.append(('start',      'Start an existing weblab instance')), 
-SORTED_COMMANDS.append(('stop',       'Stop an existing weblab instance')),
-SORTED_COMMANDS.append(('admin',      'Adminstrate a weblab instance')),
-SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab instance')),
-SORTED_COMMANDS.append(('rebuild-db', 'Rebuild the database of the weblab instance')), 
-
-COMMANDS = dict(SORTED_COMMANDS)
-HIDDEN_COMMANDS = ('-version', '--version', '-V')
-
-def check_dir_exists(directory, parser = None):
-    if not os.path.exists(directory):
-        if parser is not None:
-            parser.error("ERROR: Directory %s does not exist" % directory)
-        else:
-            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
-        sys.exit(-1)
-    if not os.path.isdir(directory):
-        if parser is not None:
-            parser.error("ERROR: File %s exists, but it is not a directory" % directory)
-        else:
-            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
-        sys.exit(-1)
-
-def weblab():
-    if len(sys.argv) == 2 and sys.argv[1] in HIDDEN_COMMANDS:
-        if sys.argv[1] in ('--version', '-version', '-V'):
-            print weblab_version
-        else:
-            print >> sys.stderr, "Command %s not implemented" % sys.argv[1]
-        sys.exit(0)
-    if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
-        command_list = ""
-        max_size = max((len(command) for command in COMMANDS))
-        for command, help_text in SORTED_COMMANDS:
-            filled_command = command + ' ' * (max_size - len(command))
-            command_list += "\t%s\t%s\n" % (filled_command, help_text)
-        print >> sys.stderr, "Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list)
-        sys.exit(0)
-    main_command = sys.argv[1]
-    if main_command == 'create':
-        weblab_create(sys.argv[2])
-        sys.exit(0)
-
-    if main_command == 'start':
-        weblab_start(sys.argv[2])
-    elif main_command == 'stop':
-        weblab_stop(sys.argv[2])
-    elif main_command == 'monitor':
-        weblab_monitor(sys.argv[2])
-    elif main_command == 'admin':
-        weblab_admin(sys.argv[2])
-    elif main_command == 'rebuild-db':
-        weblab_rebuild_db(sys.argv[2])
-    elif main_command == '--version':
-        print weblab_version
-    else:
-        print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
+# 
+#      W E B L A B     D I R E C T O R Y     C R E A T I O N
+# 
+# 
+# 
 
 class OptionWrapper(object):
     """ OptionWrapper is a wrapper of an OptionParser options object, 
@@ -144,16 +81,6 @@ class OptionWrapper(object):
 
     def __repr__(self):
         return repr(self._options)
-
-
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     D I R E C T O R Y     C R E A T I O N
-# 
-# 
-# 
 
 class Creation(object):
 
@@ -338,7 +265,7 @@ def uncomment_json(lines):
 DB_ROOT     = None
 DB_PASSWORD = None
 
-def _check_database_connection(what, metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
+def _check_database_connection(what, metadata, upgrader_class, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
     if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
 
     if db_engine == 'sqlite':
@@ -450,6 +377,18 @@ def _check_database_connection(what, metadata, directory, verbose, db_engine, db
     if verbose: print >> stdout, "Adding information to the %s database..." % what,; stdout.flush()
     metadata.drop_all(engine)
     metadata.create_all(engine)
+
+    if upgrader_class is not None:
+        if 'alembic_version' in metadata.tables:
+            upgrader = upgrader_class(db_str)
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            session.execute(
+                metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+            )
+            session.commit()
+            session.close()
+
     if verbose: print >> stdout, "[done]"
     return engine
 
@@ -898,7 +837,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         db_passwd  = options[Creation.COORD_DB_PASSWD]
         import weblab.core.coordinator.sql.model as CoordinatorModel
         CoordinatorModel.load()
-        _check_database_connection("coordination", CoordinatorModel.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("coordination", CoordinatorModel.Base.metadata, DbSchedulingUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
         print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
         exit_func(-1)
@@ -917,8 +856,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         db_name   = options[Creation.SESSION_DB_NAME]
         db_user   = options[Creation.SESSION_DB_USER]
         db_passwd = options[Creation.SESSION_DB_PASSWD]
-        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
-        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+        _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     elif options[Creation.SESSION_STORAGE] != 'memory':
         print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
         exit_func(-1)
@@ -929,7 +868,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, DbRegularUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
@@ -2606,273 +2545,4 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     creation_results[CreationResult.END_PORT] = current_port
     return creation_results
 
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     R U N N I N G      A N D     S T O P P I N G 
-# 
-# 
-# 
-
-def weblab_start(directory):
-    parser = OptionParser(usage="%prog create DIR [options]")
-
-    parser.add_option("-m", "--machine",           dest="machine", default=None, metavar="MACHINE",
-                                                   help = "If there is more than one machine in the configuration, which one should be started.")
-    parser.add_option("-l", "--list-machines",     dest="list_machines", action='store_true', default=False, 
-                                                   help = "List machines.")
-
-    parser.add_option("-s", "--script",            dest="script", default=None, metavar="SCRIPT",
-                                                   help = "If the runner option is not available, which script should be used.")
-
-    options, args = parser.parse_args()
-
-    check_dir_exists(directory, parser)
-
-    old_cwd = os.getcwd()
-    os.chdir(directory)
-    try:
-        if options.script: # If a script is provided, ignore the rest
-            if os.path.exists(options.script):
-                execfile(options.script)
-            elif os.path.exists(os.path.join(old_cwd, options.script)):
-                execfile(os.path.join(old_cwd, options.script))
-            else:
-                print >> sys.stderr, "Provided script %s does not exist" % options.script
-                sys.exit(-1)
-        else:
-            parser = GlobalParser()
-            global_configuration = parser.parse('.')
-            if options.list_machines:
-                for machine in global_configuration.machines:
-                    print ' - %s' % machine
-                sys.exit(0)
-
-            machine_name = options.machine
-            if machine_name is None: 
-                if len(global_configuration.machines) == 1:
-                    machine_name = global_configuration.machines.keys()[0]
-                else:
-                    print >> sys.stderr, "System has more than one machine (see -l). Please detail which machine you want to start with the -m option."
-                    sys.exit(-1)
-
-            if not machine_name in global_configuration.machines:
-                print >> sys.stderr, "Error: %s machine does not exist. Use -l to see the list of existing machines." % machine_name
-                sys.exit(-1)
-
-            machine_config = global_configuration.machines[machine_name]
-            if machine_config.runner is None:
-                if os.path.exists('run.py'):
-                    execfile('run.py')
-                else:
-                    print >> sys.stderr, "No runner was specified, and run.py was not available. Please the -s argument to specify the script or add the <runner file='run.py'/> option in %s." % machine_name
-                    sys.exit(-1)
-            else:
-                if os.path.exists(machine_config.runner):
-                    execfile(machine_config.runner)
-                else:
-                    print >> sys.stderr, "Misconfigured system. Machine %s points to %s which does not exist." % (machine_name, os.path.abspath(machine_config.runner))
-                    sys.exit(-1)
-    finally:
-        os.chdir(old_cwd)
-
-def weblab_stop(directory):
-    parser = OptionParser(usage="%prog stop DIR [options]")
-
-    check_dir_exists(directory, parser)
-    if sys.platform.lower().startswith('win'):
-        print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
-        sys.exit(-1)
-    os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
-
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     A D M I N
-# 
-# 
-# 
-
-def weblab_admin(directory):
-    check_dir_exists(directory)
-    old_cwd = os.getcwd()
-    os.chdir(directory)
-    try:
-        parser = GlobalParser()
-        global_configuration = parser.parse('.')
-        configuration_files = []
-        configuration_files.extend(global_configuration.configurations)
-        for machine in global_configuration.machines:
-            machine_config = global_configuration.machines[machine]
-            configuration_files.extend(machine_config.configurations)
-
-            for instance in machine_config.instances:
-                instance_config = machine_config.instances[instance]
-                configuration_files.extend(instance_config.configurations)
-
-                for server in instance_config.servers:
-                    server_config = instance_config.servers[server]
-                    configuration_files.extend(server_config.configurations)
-
-        Controller(configuration_files)
-    finally:
-        os.chdir(old_cwd)
-
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     M O N I T O R I N G
-# 
-# 
-# 
-
-def weblab_monitor(directory):
-    check_dir_exists(directory)
-    new_globals = {}
-    new_locals  = {}
-    execfile(os.path.join(directory, 'debugging.py'), new_globals, new_locals)
-
-    SERVERS = new_locals['SERVERS']
-
-    def list_users(experiment):
-        information, ups_orphans, coordinator_orphans = wl.list_users(experiment)
-
-        print "%15s\t%25s\t%11s\t%11s" % ("LOGIN","STATUS","UPS_SESSID","RESERV_ID")
-        for login, status, ups_session_id, reservation_id in information:
-            if isinstance(status, WebLabQueueStatus.WaitingQueueStatus) or isinstance(status, WebLabQueueStatus.WaitingInstancesQueueStatus):
-                status_str = "%s: %s" % (status.status, status.position)
-            else:
-                status_str = status.status
-
-            if options.full_info:
-                    print "%15s\t%25s\t%8s\t%8s" % (login, status_str, ups_session_id, reservation_id)
-            else:
-                    print "%15s\t%25s\t%8s...\t%8s..." % (login, status_str, ups_session_id[:8], reservation_id)
-
-        if len(ups_orphans) > 0:
-            print 
-            print "UPS ORPHANS"
-            for ups_info in ups_orphans:
-                print ups_info
-
-        if len(coordinator_orphans) > 0:
-            print 
-            print "COORDINATOR ORPHANS"
-            for coordinator_info in coordinator_orphans:
-                print coordinator_info
-
-    def show_server(number):
-        if number > 0:
-            print 
-        print "Server %s" % (number + 1)
-
-    option_parser = OptionParser()
-
-    option_parser.add_option( "-e", "--list-experiments",
-                              action="store_true",
-                              dest="list_experiments",
-                              help="Lists all the available experiments" )
-                            
-    option_parser.add_option( "-u", "--list-users",
-                              dest="list_users",
-                              nargs=1,
-                              default=None,
-                              metavar='EXPERIMENT_ID',
-                              help="Lists all users using a certain experiment (format: experiment@category)" )
-
-    option_parser.add_option( "-a", "--list-experiment-users",
-                              action="store_true",
-                              dest="list_experiment_users",
-                              help="Lists all users using any experiment" )
-
-    option_parser.add_option( "-l", "--list-all-users",
-                              action="store_true",
-                              dest="list_all_users",
-                              help="Lists all connected users" )
-
-    option_parser.add_option( "-f", "--full-info",
-                      action="store_true",
-                              dest="full_info",
-                              help="Shows full information (full session ids instead of only the first characteres)" )
-                             
-    option_parser.add_option( "-k", "--kick-session",
-                              dest="kick_session",
-                              nargs=1,
-                              default=None,
-                              metavar='SESSION_ID',
-                              help="Given the full UPS Session ID, it kicks out a user from the system" )
-
-    option_parser.add_option( "-b", "--kick-user",
-                              dest="kick_user",
-                              nargs=1,
-                              default=None,
-                              metavar='USER_LOGIN',
-                              help="Given the user login, it kicks him out from the system" )
-
-    options, _ = option_parser.parse_args()
-
-    for num, server in enumerate(SERVERS):
-        wl = WebLabMonitor(server)
-
-        if options.list_experiments:
-            print wl.list_experiments(),
-
-        elif options.list_experiment_users:
-            show_server(num)
-            experiments = wl.list_experiments()
-            if experiments != '':
-                for experiment in experiments.split('\n')[:-1]:
-                    print 
-                    print "%s..." % experiment
-                    print 
-                    list_users(experiment)
-            
-        elif options.list_users != None:
-            show_server(num)
-            list_users(options.list_users)
-            
-        elif options.list_all_users:
-            show_server(num)
-            all_users = wl.list_all_users()
-
-            print "%15s\t%11s\t%17s\t%24s" % ("LOGIN","UPS_SESSID","FULL_NAME","LATEST TIMESTAMP")
-
-            for ups_session_id, user_information, latest_timestamp in all_users:
-                latest = time.asctime(time.localtime(latest_timestamp))
-                if options.full_info:
-                    print "%15s\t%11s\t%17s\t%24s" % (user_information.login, ups_session_id.id, user_information.full_name, latest)
-                else:
-                    if len(user_information.full_name) <= 14:
-                        print "%15s\t%8s...\t%s\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name, latest)
-                    else:
-                        print "%15s\t%8s...\t%14s...\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name[:14], latest)
-            
-        elif options.kick_session != None:
-            show_server(num)
-            wl.kick_session(options.kick_session)
-
-        elif options.kick_user != None:
-            show_server(num)
-            wl.kick_user(options.kick_user)
-           
-        else:
-            option_parser.print_help()
-            break
-
-#########################################################################################
-# 
-# 
-# 
-#      W E B L A B     R E B U I L D     D A T A B A S E
-# 
-# 
-# 
-
-
-def weblab_rebuild_db(directory):
-    print >> sys.stderr, "Rebuilding database is not yet implemented"
-    sys.exit(-1)
 

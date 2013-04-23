@@ -218,6 +218,7 @@ _sorted_variables.extend([
 COORDINATOR = (CORE_SERVER, 'Scheduling')
 DESCRIPTIONS[COORDINATOR] = """This is the configuration variables used by the scheduling backend (called Coordinator). Basically, you can choose among redis or a SQL based one, and customize the one selected."""
 
+COORDINATOR_IMPL               = 'core_coordination_impl'
 COORDINATOR_DB_HOST            = 'core_coordinator_db_host'
 COORDINATOR_DB_PORT            = 'core_coordinator_db_port'
 COORDINATOR_DB_NAME            = 'core_coordinator_db_name'
@@ -228,6 +229,7 @@ COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
 COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
+    (COORDINATOR_IMPL,               _Argument(COORDINATOR, basestring, "sqlalchemy", "Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'.")),
     (COORDINATOR_DB_HOST,            _Argument(COORDINATOR, basestring, "localhost", """Host of the database server.""")), 
     (COORDINATOR_DB_PORT,            _Argument(COORDINATOR, int, None,        """Port of the database server.""")), 
     (COORDINATOR_DB_NAME,            _Argument(COORDINATOR, basestring, "WebLabCoordination", """Name of the coordination database.""")), 
@@ -317,6 +319,31 @@ PROXY_STORE_STUDENTS_PROGRAMS_PATH = 'proxy_store_students_programs_path'
 _sorted_variables.extend([
     (PROXY_EXPERIMENT_POLL_TIME,         _Argument(PROXY, int, 30, """Maximum amount of time that the server will wait for polls from a user using an experiment, in seconds, before considering that the user is not connected anymore.""")), 
     (PROXY_STORE_STUDENTS_PROGRAMS_PATH, _Argument(PROXY, basestring, NO_DEFAULT, """Local path to store the files sent by the students with send_file() (only when the proper Translator decides to store the program).""")), 
+])
+
+
+#####################################
+# 
+# EXPERIMENTS
+# 
+
+EXPERIMENTS = 'Experiments'
+DESCRIPTIONS[EXPERIMENTS] = "This section includes the configuration of existing laboratories."
+
+HTTP_EXPERIMENT = (EXPERIMENTS, 'HTTP')
+DESCRIPTIONS[HTTP_EXPERIMENT] = "The HTTP experiment is a type of unmanaged laboratory which enables you to develop your own laboratory. WebLab-Deusto will call certain methods in that laboratory, and your laboratory will act taking that into account."
+
+HTTP_EXPERIMENT_URL      = 'http_experiment_url'
+HTTP_EXPERIMENT_USERNAME = 'http_experiment_username'
+HTTP_EXPERIMENT_PASSWORD = 'http_experiment_password'
+HTTP_EXPERIMENT_BATCH    = 'http_experiment_batch'
+
+
+_sorted_variables.extend([
+    (HTTP_EXPERIMENT_URL,          _Argument(HTTP_EXPERIMENT, basestring, NO_DEFAULT, "The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/")),
+    (HTTP_EXPERIMENT_USERNAME,     _Argument(HTTP_EXPERIMENT, basestring, None, "The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).")),
+    (HTTP_EXPERIMENT_PASSWORD,     _Argument(HTTP_EXPERIMENT, basestring, None, "The password used for performing that request. If not present, it will not use any credentials.")),
+    (HTTP_EXPERIMENT_BATCH,        _Argument(HTTP_EXPERIMENT, bool, False, "Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.")),
 ])
 
 

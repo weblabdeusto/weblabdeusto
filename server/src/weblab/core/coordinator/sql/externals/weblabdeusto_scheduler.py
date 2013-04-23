@@ -237,7 +237,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
     #
     @logged()
     @Override(Scheduler)
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         # At some point, we must call the upper level to say that we want to confirm
         # at this point, it's normal that they call us back, even if there is nothing
         # to do

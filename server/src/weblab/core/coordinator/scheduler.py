@@ -156,7 +156,7 @@ class Scheduler(object):
         pass
 
     @abstractmethod
-    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration):
+    def confirm_experiment(self, reservation_id, lab_session_id, initial_configuration, exp_info):
         pass
 
     @abstractmethod

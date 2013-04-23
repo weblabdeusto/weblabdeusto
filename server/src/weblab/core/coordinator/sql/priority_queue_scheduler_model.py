@@ -53,6 +53,7 @@ class ConcreteCurrentReservation(Base):
     priority                         = Column(Integer)
     lab_session_id                   = Column(String(255))
     initial_configuration            = Column(Text)
+    exp_info                         = Column(Text)
 
     def __init__(self, slot_reservation, current_reservation_id, time, start_time, priority, initialization_in_accounting):
         self.slot_reservation              = slot_reservation
@@ -65,6 +66,7 @@ class ConcreteCurrentReservation(Base):
         self.initial_configuration         = None
         self.timestamp_before              = None
         self.timestamp_after               = None
+        self.exp_info                      = None
 
     def set_timestamp_before(self, timestamp_before):
         self.timestamp_before = timestamp_before
@@ -77,7 +79,7 @@ class ConcreteCurrentReservation(Base):
             self.expired_timestamp = self.time + timestamp_after
 
     def __repr__(self):
-        return SUFFIX + "ConcreteCurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r, %r)" % (
+        return SUFFIX + "ConcreteCurrentReservation(%r, %r, %r, %r, %r, %r, %r, %r, %r, %r, %r)" % (
                             self.slot_reservation,
                             self.current_reservation_id,
                             self.time,
@@ -87,7 +89,8 @@ class ConcreteCurrentReservation(Base):
                             self.initial_configuration,
                             self.timestamp_before,
                             self.timestamp_after,
-                            self.initialization_in_accounting
+                            self.initialization_in_accounting,
+                            self.exp_info,
                         )
 
 # TODO: instead of doing this, make a new column which is already the sum of both, and make an index on that column
