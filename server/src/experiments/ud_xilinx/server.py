@@ -103,6 +103,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         # These are for virtual-worlds
         self._virtual_world = ""
         self._virtual_world_state = "";
+        self._watertank = None
         
 
     def _load_xilinx_device(self):
@@ -271,6 +272,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._programming_thread.join()
             # Cleaning references
             self._programming_thread = None
+            
+        if self._watertank is not None:
+            # In case it is running.
+            self._watertank.autoupdater_stop()
+            
         return "ok"
 
 
@@ -320,7 +326,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
                 if vw == "watertank":
-                    pass
+                    self._watertank = watertank_simulation.Watertank(1000, [5, 5], [5], 0.5)
+                    self._watertank.autoupdater_start(1000)
                 else:
                     pass
                 
