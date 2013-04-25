@@ -332,6 +332,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                     pass
                 
             elif command.startswith('VIRTUALWORLD_STATE'):
+                self._virtual_world_state = str(self._watertank.get_water_level())
                 return self._virtual_world_state
             
             elif command == 'SYNTHESIZING_RESULT':
@@ -348,6 +349,25 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._led_state = self._led_reader.read_times(5)
                     if(DEBUG):
                         print "[DBG]: READ_LEDS: " + "".join(self._led_state)
+                        
+                    # This probably shouldn't be here. Ideally, the server by itself
+                    # would every once in a while check the state of the LEDs and update
+                    # the simulation's state automatically. For now, however, it will only
+                    # check the state upon the client's request.
+                    if self._virtual_world == "watertank":
+                        first_pump = self._led_state[7]
+                        second_pump = self._led_state[6]
+                        if first_pump:
+                            first_pump = 5
+                        else:
+                            first_pump = 0
+                        if second_pump:
+                            second_pump = 5
+                        else:
+                            second_pump = 0
+                        self._watertank.set_input(0, first_pump)
+                        self._watertank.set_input(1, second_pump)
+                        
                     return "".join(self._led_state)
                 except Exception as e:
                     traceback.print_exc()
