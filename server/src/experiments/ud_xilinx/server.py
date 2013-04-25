@@ -39,6 +39,8 @@ import time
 import sys
 import traceback
 
+import watertank_simulation
+
 from voodoo.threaded import threaded
 
 
@@ -97,6 +99,10 @@ class UdXilinxExperiment(Experiment.Experiment):
         # feature.
         self._led_reader = None
         self._led_state = None
+        
+        # These are for virtual-worlds
+        self._virtual_world = ""
+        self._virtual_world_state = "";
         
 
     def _load_xilinx_device(self):
@@ -309,6 +315,17 @@ class UdXilinxExperiment(Experiment.Experiment):
                     print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE="+ self._current_state
                 return reply
+            
+            elif command.startswith('VIRTUALWORLD_MODE'):
+                vw = command.split(" ")[1]
+                self._virtual_world = vw
+                if vw == "watertank":
+                    pass
+                else:
+                    pass
+                
+            elif command.startswith('VIRTUALWORLD_STATE'):
+                return self._virtual_world_state
             
             elif command == 'SYNTHESIZING_RESULT':
                 if(DEBUG):
