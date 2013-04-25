@@ -1,0 +1,180 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2005 onwards University of Deusto
+# All rights reserved.
+#
+# This software is licensed as described in the file COPYING, which
+# you should have received as part of this distribution.
+#
+# This software consists of contributions made by many individuals,
+# listed below:
+#
+# Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
+#
+
+
+import threading
+import time
+
+
+class Watertank(object):
+    
+    
+    def __init__(self, tank_capacity, inputs, outputs, water_level):
+        self.initialize(tank_capacity, inputs, outputs, water_level)
+        
+        
+    def initialize(self, tank_capacity, inputs, outputs, water_level):
+        """
+        Initializes the simulation with the specified data.
+        @param tank_capacity Capacity of the water tank, in liters.
+        @param Array containing the flow volume of the inputs (such as water pumps), in liters per second. 
+        The flow can be modified dynamically, but no inputs can be added. 
+        @param Array containing the outputs (such as a water hose or evaporation), in liters per second. 
+        The flow can be modified dynamically, but no inputs can be added.
+        @param water_level The starting water level. Value from 0 to 1. 
+        """
+        self.tank_capacity = tank_capacity;
+        self.inputs = inputs;
+        self.outputs = outputs;
+        self.current_volume = water_level * tank_capacity;
+        
+        self.simlock = threading.RLock()
+        self._thread = None
+        self._autoupdating = False
+        self._autoupdating_interval = 1000
+    
+    def update(self, delta):
+        """
+        Updates the simulation. Can be done automatically if the autoupdater is used.
+        @param delta Delta in seconds.
+        @see autoupdater_start
+        """
+        total_output = 0;
+        for out in self.outputs:
+            total_output += out * delta;
+        total_input = 0;
+        for ins in self.inputs:
+            total_input += ins * delta;
+        increment = total_input - total_output;
+        
+        with self.simlock:
+            self.current_volume += increment;
+            
+            # Ensure the volume stays realistic
+            if self.current_volume >= self.tank_capacity:
+                self.current_volume = self.tank_capacity
+            elif self.current_volume < 0:
+                self.current_volume = 0;
+                
+    def t_updater(self):
+        """
+        This internal method is used by the autoupdating thread to update
+        the simulation every few seconds (specified as the autoupdater interval).
+        """
+        while self._autoupdating:
+            time.sleep(self._autoupdating_interval)
+            self.update(self._autoupdating_interval)
+        
+    
+    def autoupdater_start(self, interval):
+        """
+        Starts the autoupdating thread. That is, a thread that will call update
+        every so often. If started, it should eventually be stopped. Otherwise,
+        it will run forever in the background.
+        @param interval Interval between updates, in seconds.
+        @see autoupdater_stop
+        """
+        self._autoupdating = True
+        self._autoupdating_interval = interval
+        self._thread = threading.Thread(None, self.t_updater)
+        self._thread.start()
+    
+    def autoupdater_stop(self):
+        """
+        Stops the autoupdating thread. This method is non-blocking. It will signal
+        the thread to stop, but may take a while before it *really* does stop.
+        There is a blocking version of this method.
+        @see autoupdater_join
+        """
+        self._autoupdating = False
+        
+    def autoupdater_join(self):
+        """
+        Stops the autoupdating thread, and joins that thread until it really does stop.
+        May block forever if for some reason the thread won't stop, but that
+        should not happen.
+        """
+        self._autoupdating = False
+        self._thread.join(0)
+                
+    def set_input(self, input_number, input_flow):
+        """
+        Sets the value for an input in the simulation. 
+        @param input_number Number identifying the input. The input should exist.
+        @param input_flow New flow of the input, in liters per second.
+        """
+        with self.simlock:
+            self.inputs[input_number] = input_flow
+        
+    def set_output(self, output_number, output_flow):
+        """
+        Sets the value for an output in the simulation.
+        @param output_number Number identifying the output. The output should exist.
+        @param output_flow New flow of the output, in liters per second.
+        """
+        with self.simlock:
+            self.outputs
+        
+    def set_inputs(self, inputs):
+        """
+        Redefines the whole array of inputs.
+        @param inputs Array containing the flow of every input.
+        """
+        with self.simlock:
+            self.inputs = inputs
+        
+    def set_outputs(self, outputs):
+        """
+        Redefines the whole array of outputs.
+        @param outputs Array containing the flow of every output.
+        """
+        with self.simlock:
+            self.outputs = outputs
+        
+    def get_water_volume(self):
+        """
+        Gets the current water volume in liters. It will vary dynamically according to the 
+        simulation's state.
+        """
+        with self.simlock:
+            return self.current_volume
+    
+    def get_water_level(self):
+        """
+        Gets the current water level, as a number from 0 to 1 (empty to full). It will vary dynamically
+        according to the simulation's state.
+        """
+        with self.simlock:
+            return self.current_volume / self.tank_capacity
+        
+        
+        
+        
+if __name__ == '__main__':
+    
+    w = Watertank(10, [0.1, 0.1], [0.1], 0)
+    w.autoupdater_start(1)
+    
+    
+    i = 0
+    while(i < 15):
+        print w.get_water_level(), w.get_water_volume();
+        time.sleep(0.5);
+        i += 1
+    
+    w.autoupdater_join()
+        
+        
+        
