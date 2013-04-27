@@ -7,7 +7,7 @@ WorldLoader = function () {
         this.file = undefined;
         this.world = undefined;
         this.scene = undefined;
-        this.objects = {}
+        this.objects = {};
         this.jsonLoader = new THREE.JSONLoader();
     }
 
@@ -43,18 +43,25 @@ WorldLoader = function () {
 
     //! Loads the objects into the scene manager.
     //! @param objs JSON object describing the objects.
-    this._loadObjects = function(objs) {
+    this._loadObjects = function (objs) {
+
         for (var i = 0; i < objs.length; i++) {
             var obj = objs[i];
 
-            var name = obj["name"];
             var model = obj["model"];
-            var scale = obj["scale"];
-            var initialTranslation = obj["initialTranslation"];
-            var position = obj["position"];
+            var enabled = obj["enabled"];
 
-            this.jsonLoader.load(model, function (geometry, materials) {
+            if (enabled != undefined && !enabled)
+                return;
+
+            this.jsonLoader.load(model, function (obj, geometry, materials) {
+
                 var mats = undefined;
+
+                var name = obj["name"];
+                var scale = obj["scale"];
+                var initialTranslation = obj["initialTranslation"];
+                var position = obj["position"];
 
                 if (materials != undefined)
                     mats = new THREE.MeshFaceMaterial(materials);
@@ -67,13 +74,14 @@ WorldLoader = function () {
                 if(scale != undefined)
                     mesh.scale.set(scale[0], scale[1], scale[2]);
 
+                console.log("POSITION: " + position[0]);
                 if(position != undefined)
                     mesh.position.set(position[0], position[1], position[2]);
-                
+
                 this.scene.add(mesh);
 
                 this.objects[name] = mesh;
-            });
+            }.bind(this, obj));
         } //! for
     } //! func
 
