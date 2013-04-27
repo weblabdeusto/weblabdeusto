@@ -1,4 +1,10 @@
-
+/// The following references are for VisualStudio, so that Intellisense recognizes every library.
+/// <reference path="../jslib/weblabjs.js" />
+/// <reference path="../jslib/three.min.js" />
+/// <reference path="../jslib/stats.min.js" />
+/// <reference path="../jslib/THREEx.FullScreen.js" />
+/// <reference path="../jslib/jquery-1.9.1.js" />
+/// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
 
 WorldLoader = function () {
@@ -8,6 +14,8 @@ WorldLoader = function () {
         this.world = undefined;
         this.scene = undefined;
         this.objects = {};
+        this.pointlights = {};
+        this.ambientlight = undefined;
         this.jsonLoader = new THREE.JSONLoader();
     }
 
@@ -38,6 +46,16 @@ WorldLoader = function () {
         var objs = this.world["objects"];
         if (objs != undefined) {
             this._loadObjects(objs);
+        }
+
+        var pointlights = this.world["pointlights"];
+        if (pointlights != undefined) {
+            this._loadPointlights(pointlights);
+        }
+
+        var ambientlight = this.world["ambientlight"];
+        if (ambientlight != undefined) {
+            this._loadAmbientlight(ambientlight);
         }
     }
 
@@ -85,11 +103,48 @@ WorldLoader = function () {
         } //! for
     } //! func
 
+
+    //! Loads the pointlights into the scene manager.
+    //! @param pointlights JSON object describing the point lights.
+    this._loadPointlights = function (pointlights) {
+        for (var i = 0; i < pointlights.length; i++) {
+            var pl = pointlights[i];
+            
+            var enabled = pl["enabled"];
+            if (enabled != undefined && !enabled)
+                return;
+
+            var name = pl["name"];
+            var color = parseInt(pl["color"]);
+            var pos = pl["position"];
+
+            var light = new THREE.PointLight(color);
+            
+            this.scene.add(light);
+
+            this.pointlights[name] = light;
+        }
+    }
+
+    //! Loads the ambientlight into the scene manager.
+    //! @param ambientlight JSON object describing the ambientlight.
+    this._loadAmbientlight = function (ambientlight) {
+        this.ambientlight = new THREE.AmbientLight(parseInt(ambientlight["color"]));
+        this.scene.add(this.ambientlight);
+    }
+
     //! Returns the THREEJS Mesh for a loaded object.
     //!
     //! @param name Name of the object.
     this.getObject = function (name) {
         return this.objects[name];
+    }
+
+    //! Returns the THREEJS PointLight.
+    //!
+    //! @param name Name of the pointlight.
+    this.getPointlight = function (name) {
+        return this.pointlights[name];
     }
 
     this._init();

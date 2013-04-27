@@ -1,5 +1,5 @@
 {
-    "metadata" :
+    "metadata":
     {
         "format" : "myWorld",
         "formatVersion" : 1.0
@@ -21,5 +21,20 @@
             "scale": [100, 100, 100],
             "position": [700, 0, 0]
         }
-    ]
+    ],
+
+    "pointlights":
+    [
+        {
+            "name" : "light1",
+            "position" : [10, 250, 130],
+            "color": "0xFFFFFF"
+        }
+    ],
+
+    "ambientlight":
+    {
+        "color" : "0xFFFFFF"
+    }
+
 }

@@ -81,11 +81,6 @@
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
-
-
-		    //wl = new WorldLoader();
-		    //wl.load("World.js");
-
 		    
 		    _page_dim = false;
 
@@ -896,34 +891,13 @@
 
 
 
+				wl = new WorldLoader();
+				wl.load("World.js", scene);
+
+
 				loader = new THREE.JSONLoader();
 
 				loader.load("WaterTank.js", function (geometry, materials) {
-
-				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
-
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = 000;
-				    mesh.position.x = 600;
-
-				    // create a point light
-				    var pointLight =
-                      new THREE.PointLight(0xFFFFFF);
-
-				    // set its position
-				    pointLight.position.x = 10;
-				    pointLight.position.y = 50 * 5;
-				    pointLight.position.z = 130;
-
-				    // add to the scene
-				    scene.add(pointLight);
-
-				    scene.add(mesh);
-
-				    scene.add(new THREE.AmbientLight(0xFFFFFF));
 
 
 				    // Create and add a blue cylinder representing water
