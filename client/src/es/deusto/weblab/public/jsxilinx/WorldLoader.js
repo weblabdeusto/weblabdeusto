@@ -80,6 +80,7 @@ WorldLoader = function () {
                 var scale = obj["scale"];
                 var initialTranslation = obj["initialTranslation"];
                 var position = obj["position"];
+                var rotations = obj["rotations"];
 
                 if (materials != undefined)
                     mats = new THREE.MeshFaceMaterial(materials);
@@ -95,6 +96,33 @@ WorldLoader = function () {
                 console.log("POSITION: " + position[0]);
                 if(position != undefined)
                     mesh.position.set(position[0], position[1], position[2]);
+
+                if (rotations != undefined) {
+                    for (var i = 0; i < rotations.length; i++) {
+                        var rot = rotations[i];
+                        var axis = rot["axis"];
+
+                        var deg = rot["deg"];
+                        var rad = rot["rad"];
+
+                        var realrad = undefined;
+
+                        if (deg != undefined)
+                            realrad = deg * Math.PI / 180;
+
+                        if (rad != undefined)
+                            realrad = rad;
+
+                        if (realrad == undefined) {
+                            console.error("[WorldLoader]: Invalid rotation");
+                            break;
+                        }
+
+                        var realaxis = new THREE.Vector3(axis[0], axis[1], axis[2]);
+
+                        rotateAroundWorldAxis(mesh, realaxis, realrad);
+                    }
+                }
 
                 this.scene.add(mesh);
 
@@ -146,6 +174,16 @@ WorldLoader = function () {
     this.getPointlight = function (name) {
         return this.pointlights[name];
     }
+
+    //! Registers an object (a THREEJS Mesh) with the specified name.
+    //! This can be used to register custom objects in the WorldLoader.
+    //!
+    //! @param name Name of the object to register. Should be unique.
+    //! @param THREEJS mesh to associate with the object.
+    this.registerObject = function ( name, mesh ) {
+        this.objects[name] = mesh;
+    }
+
 
     this._init();
 

@@ -81,6 +81,24 @@
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
+
+
+            // The following function is required by the World Loader
+
+		    var rotWorldMatrix;
+
+		    function rotateAroundWorldAxis(object, axis, radians) {
+
+		        var rotationMatrix = new THREE.Matrix4();
+
+		        rotationMatrix.makeRotationAxis(axis.normalize(), radians);
+		        rotationMatrix.multiply(object.matrix);                       // pre-multiply
+		        object.matrix = rotationMatrix;
+		        object.rotation.setEulerFromRotationMatrix(object.matrix);
+		    }
+
+
+
 		    
 		    _page_dim = false;
 
@@ -970,6 +988,8 @@
 
 
 
+			    // Load the RIGHT waterfall
+
 				loader.load("waterfall.js", function (geometry, materials) {
 
 				    var highest_x = -0xFFFFFF;
@@ -992,30 +1012,13 @@
 
 
 
+
 				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
-
-				    // We translate the geometry. The practical effect of this is moving the object's center
-                    // to the right of the object. This way, when we scale it, it scales in the right way.
-				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
-
 				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
-
-
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = 000;
-				    mesh.position.x = 700;
+				    mesh = wl.getObject("waterfallRight");
+				    mesh.material = mats;
 
 				    waterfall = mesh;
-
-				    scene.add(mesh);
-
-
-				    console.log(geometry);
-
-
 
 
 				    // Add a small sphere to mark the position
@@ -1031,19 +1034,6 @@
 				});
 
 
-				var rotWorldMatrix;
-
-				function rotateAroundWorldAxis(object, axis, radians) {
-
-				    var rotationMatrix = new THREE.Matrix4();
-
-				    rotationMatrix.makeRotationAxis(axis.normalize(), radians);
-				    rotationMatrix.multiply(object.matrix);                       // pre-multiply
-				    object.matrix = rotationMatrix;
-				    object.rotation.setEulerFromRotationMatrix(object.matrix);
-				}
-
-
 
 				loader.load("waterfall.js", function (geometry, materials) {
 
@@ -1069,34 +1059,16 @@
 
 				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
 
-				    // We translate the geometry. The practical effect of this is moving the object's center
-				    // to the right of the object. This way, when we scale it, it scales in the right way.
-				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
 
 				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
 
 
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = 000;
-				    mesh.position.x = 495;
+				    mesh = wl.getObject("waterfallLeft");
+				    mesh.material = mats;
 
 				    waterfall2 = mesh;
 
-
-				    rotateAroundWorldAxis(waterfall2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
-
-
-				    scene.add(mesh);
-
-
-				    console.log(geometry);
-
-
-
-
+				    //rotateAroundWorldAxis(waterfall2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
 				});
 
 
