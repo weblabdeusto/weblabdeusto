@@ -6,6 +6,21 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="../jslib/weblabjs.js"></script>
+
+        <script src="../jslib/three.min.js"></script>
+		<script src="../jslib/stats.min.js"></script>
+		<script src="../jslib/THREEx.FullScreen.js"></script>
+        <script src="../jslib/jquery-1.9.1.js"></script>
+        <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
+        <script src="../jslib/detector.js"></script>
+
+        <script src="WorldLoader.js"></script>
+        <script src="WaterTankSimulation.js"></script>
+
+
+        <script>
+
+        </script>
         <link rel="stylesheet" href="../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
@@ -50,12 +65,6 @@
 	</head>
 	<body>
 
-		<script src="../jslib/three.min.js"></script>
-		<script src="../jslib/stats.min.js"></script>
-		<script src="../jslib/THREEx.FullScreen.js"></script>
-        <script src="../jslib/jquery-1.9.1.js"></script>
-        <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
-
         <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
 
         <div id="progressbar" class="progress-bar"><div class="progress-label">Loading...</div></div>
@@ -71,6 +80,12 @@
 		    /// <reference path="../jslib/THREEx.FullScreen.js" />
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
+
+
+
+		    //wl = new WorldLoader();
+		    //wl.load("World.js");
+
 		    
 		    _page_dim = false;
 
@@ -543,7 +558,7 @@
 
                 this._onReadLedsSuccess = function (response) {
                     var cur_led = 7;
-                    console.log("LEDs: " + response);
+                    //console.log("LEDs: " + response);
                     for (var i = 0; i < 8; i++, cur_led--) {
                         var led_state = response[i];
                         LedsManager._updateLed(cur_led, led_state);
@@ -785,6 +800,28 @@
 			}
 
 
+			function rnd_bmt() {
+			    var x = 0, y = 0, rds, c;
+
+			    // Get two random numbers from -1 to 1.
+			    // If the radius is zero or greater than 1, throw them out and pick two new ones
+			    // Rejection sampling throws away about 20% of the pairs.
+			    do {
+			        x = Math.random() * 2 - 1;
+			        y = Math.random() * 2 - 1;
+			        rds = x * x + y * y;
+			    }
+			    while (rds == 0 || rds > 1)
+
+			    // This magic is the Box-Muller Transform
+			    c = Math.sqrt(-2 * Math.log(rds) / rds);
+
+			    // It always creates a pair of numbers. I'll return them in an array. 
+			    // This function is quite efficient so don't be afraid to throw one away if you don't need both.
+			    return [x * c, y * c];
+			}
+
+
 			function init() {
 
 			    container = document.createElement('div');
@@ -805,7 +842,7 @@
 
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.z = 1000;
+				camera.position.z = 600;
 
 				scene = new THREE.Scene();
 
@@ -831,7 +868,7 @@
 				bg = new THREE.Mesh(
 				  new THREE.PlaneGeometry(2, 2, 0),
 				  //new THREE.MeshBasicMaterial({map: texture})
-                    new THREE.MeshBasicMaterial({ map: texture, color: 0xff5500, wireframe: false })
+                    new THREE.MeshBasicMaterial({ map: texture, color: 0xFFFFFF, wireframe: false })
 				);
 				bg.material.depthTest = false;
 				bg.material.depthWrite = false;
@@ -846,13 +883,388 @@
 				var amounty = 10;
 
 				var PI2 = Math.PI * 2;
-
-				renderer = new THREE.CanvasRenderer();
-				//renderer = new THREE.WebGLRenderer( { antialias: false } );
+                
+                if(!Detector.webgl)
+                    renderer = new THREE.CanvasRenderer();
+                else
+				    renderer = new THREE.WebGLRenderer( { antialias: false } );
 				
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
-				container.appendChild( renderer.domElement );
+				container.appendChild(renderer.domElement);
+
+
+
+
+				loader = new THREE.JSONLoader();
+
+				loader.load("WaterTank.js", function (geometry, materials) {
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = 000;
+				    mesh.position.x = 600;
+
+				    // create a point light
+				    var pointLight =
+                      new THREE.PointLight(0xFFFFFF);
+
+				    // set its position
+				    pointLight.position.x = 10;
+				    pointLight.position.y = 50 * 5;
+				    pointLight.position.z = 130;
+
+				    // add to the scene
+				    scene.add(pointLight);
+
+				    scene.add(mesh);
+
+				    scene.add(new THREE.AmbientLight(0xFFFFFF));
+
+
+				    // Create and add a blue cylinder representing water
+				    geometry02 = new THREE.CylinderGeometry(95, 95, 200, 50, 50, false);
+
+
+				    geometry02.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(0, 100, 0)));
+				    geometry02.dynamic = false;
+				    material02 = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+				    material02.transparent = false;
+				    material02.opacity = 1;
+				    material02.depthWrite = true;
+				    cylinder02 = new THREE.Mesh(geometry02, material02);
+				    //cylinder02.scale.set(100, 100, 100);
+				    cylinder02.position.x = 597;
+				    cylinder02.position.y = -95;
+				    cylinder02.scale.set(.95, .1, .95);
+				    cylinder02.overdraw = true;
+
+				    scene.add(cylinder02);
+
+				    setTimeout(
+
+                        function () {
+                            pb.hide();
+                        },
+                        2000
+                        );
+
+				    waterLevel = 0.01;
+				    waterLevelChange = 0.03;
+				    setTimeout(
+				        function () {
+				            setInterval(
+                                function () {
+
+                                    elapsed = 50;
+
+                                    waterLevel += waterLevelChange;
+                                    if (waterLevel > 1)
+                                        waterLevel = 1;
+                                    else if (waterLevel < 0)
+                                        waterLevel = 0;
+
+                                    if (waterLevel >= 1 || waterLevel <= 0) {
+                                        waterLevelChange *= -1;
+
+                                        if (typeof (waterfall) != "undefined") {
+                                            if (waterLevelChange > 0) {
+                                                waterfall.scale.set(150, 100, 100);
+                                                waterfall2.scale.set(150, 100, 100);
+                                            }
+                                            else {
+                                                waterfall.scale.set(50, 100, 100);
+                                                waterfall2.scale.set(50, 100, 100);
+                                            }
+
+                                        }
+                                    }
+
+                                    cylinder02.scale.set(.95, waterLevel, .95);
+
+                                },
+                                    50
+                                );
+				        },
+                    3000
+                    );
+				});
+
+
+
+				loader.load("waterfall.js", function (geometry, materials) {
+
+				    var highest_x = -0xFFFFFF;
+				    for (var i = 0; i < geometry.vertices.length; i++) {
+				        var x = geometry.vertices[i].x;
+				        if (x > highest_x)
+				            highest_x = x;
+				    }
+
+				    console.log("Highest X: " + highest_x);
+
+				    var lowest_x = 0xFFFFFF;
+				    for (var i = 0; i < geometry.vertices.length; i++) {
+				        var x = geometry.vertices[i].x;
+				        if (x < lowest_x)
+				            lowest_x = x;
+				    }
+
+				    console.log("Lowest X: " + lowest_x);
+
+
+
+				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+
+				    // We translate the geometry. The practical effect of this is moving the object's center
+                    // to the right of the object. This way, when we scale it, it scales in the right way.
+				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = 000;
+				    mesh.position.x = 700;
+
+				    waterfall = mesh;
+
+				    scene.add(mesh);
+
+
+				    console.log(geometry);
+
+
+
+
+				    // Add a small sphere to mark the position
+				    markerGeom = new THREE.SphereGeometry(5, 10, 10);
+				    markerMat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+				    markerMesh = new THREE.Mesh(markerGeom, markerMat);
+				    markerMesh.position.y = 000;
+				    markerMesh.position.x = 600;
+
+				    scene.add(markerMesh);
+
+
+				});
+
+
+				var rotWorldMatrix;
+
+				function rotateAroundWorldAxis(object, axis, radians) {
+
+				    var rotationMatrix = new THREE.Matrix4();
+
+				    rotationMatrix.makeRotationAxis(axis.normalize(), radians);
+				    rotationMatrix.multiply(object.matrix);                       // pre-multiply
+				    object.matrix = rotationMatrix;
+				    object.rotation.setEulerFromRotationMatrix(object.matrix);
+				}
+
+
+
+				loader.load("waterfall.js", function (geometry, materials) {
+
+				    var highest_x = -0xFFFFFF;
+				    for (var i = 0; i < geometry.vertices.length; i++) {
+				        var x = geometry.vertices[i].x;
+				        if (x > highest_x)
+				            highest_x = x;
+				    }
+
+				    console.log("Highest X: " + highest_x);
+
+				    var lowest_x = 0xFFFFFF;
+				    for (var i = 0; i < geometry.vertices.length; i++) {
+				        var x = geometry.vertices[i].x;
+				        if (x < lowest_x)
+				            lowest_x = x;
+				    }
+
+				    console.log("Lowest X: " + lowest_x);
+
+
+
+				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+
+				    // We translate the geometry. The practical effect of this is moving the object's center
+				    // to the right of the object. This way, when we scale it, it scales in the right way.
+				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = 000;
+				    mesh.position.x = 495;
+
+				    waterfall2 = mesh;
+
+
+				    rotateAroundWorldAxis(waterfall2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
+
+
+				    scene.add(mesh);
+
+
+				    console.log(geometry);
+
+
+
+
+				});
+
+
+
+				loader.load("waterfall.js", function (geometry, materials) {
+
+
+				    //materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00, map:texture });
+				    watertexture = THREE.ImageUtils.loadTexture('water.jpg');
+
+				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient:0.9, color: 0xAAAAFF});
+
+				    // We translate the geometry. The practical effect of this is moving the object's center
+				    // to the right of the object. This way, when we scale it, it scales in the right way.
+				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = -155;
+				    mesh.position.x = 445;
+				    mesh.position.z = -0;
+
+				    exit_waterfall = mesh;
+
+				    scene.add(mesh);
+
+
+
+				    wfrange = 5;
+				    wfinc = 25;
+				    wfcurrent = 0;
+				    wftarget = 100;
+				    setTimeout(
+				        function () {
+				            setInterval(
+                                function () {
+
+                     
+
+                                    wfcurrent += wfinc;
+
+                                    if (wfcurrent > wftarget) {
+                                        wfcurrent = wftarget;
+                                        wfinc *= -1;
+
+                                        wftarget = 100 + Math.random(40) * 20;
+                                    }
+
+                      
+                                    if (wfcurrent < 0) {
+                                        wfcurrent = 0;
+                                        wfinc *= -1;
+
+                                        wftarget = 100 + Math.random(40) * 20;
+                                    }
+
+                                    wfscale = 100 + wfcurrent / 100.0 * wfrange;
+                                    //console.log("New scale: " + wfscale + " " + wfcurrent + " " + wfinc);
+
+                                    exit_waterfall.scale.set(wfscale, 100, 100);
+
+                                },
+                                    50
+                                );
+				        },
+                    3000
+                    );
+				});
+
+
+
+
+				loader.load("waterpump.js", function (geometry, materials) {
+
+				    materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 });
+
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = 70;
+				    mesh.position.x = 720;
+				    mesh.position.z = 30;
+
+				    pump = mesh;
+
+				    scene.add(mesh);
+
+
+
+				    var mats2 = new THREE.MeshFaceMaterial(materials);
+				    var mesh2 = new THREE.Mesh(geometry, mats);
+				    mesh2.scale.set(100, 100, 100);
+				    mesh2.position.y = 78;
+				    mesh2.position.x = 470;
+				    mesh2.position.z = 0;
+				    rotateAroundWorldAxis(mesh2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
+				    scene.add(mesh2);
+
+
+
+				    console.log(geometry);
+
+
+				});
+
+
+				loader.load("pipe.js", function (geometry, materials) {
+
+
+				    var mats = new THREE.MeshFaceMaterial(materials);
+				    var mesh = new THREE.Mesh(geometry, mats);
+
+
+				    console.log(mesh);
+				    mesh.scale.set(100, 100, 100);
+				    //mesh.scale.set(0.2, 0.2, 0.2);
+				    mesh.position.y = -80;
+				    mesh.position.x = 470;
+				    mesh.position.z = 0;
+
+				    pipe = mesh;
+
+				    scene.add(mesh);
+
+
+				    console.log(geometry);
+
+
+				});
+
+
+
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -899,7 +1311,9 @@
 
 				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
 				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
-				camera.lookAt( scene.position );
+				camera.lookAt(scene.position);
+
+				camera.lookAt(cylinder02.position);
 
 				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
 
