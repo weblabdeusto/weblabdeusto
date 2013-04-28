@@ -7,6 +7,19 @@
 /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
 
+var rotWorldMatrix;
+function rotateAroundWorldAxis(object, axis, radians) {
+
+    var rotationMatrix = new THREE.Matrix4();
+
+    rotationMatrix.makeRotationAxis(axis.normalize(), radians);
+    rotationMatrix.multiply(object.matrix);                       // pre-multiply
+    object.matrix = rotationMatrix;
+    object.rotation.setEulerFromRotationMatrix(object.matrix);
+}
+
+
+
 WorldLoader = function () {
     
     this._init = function () {
@@ -82,8 +95,14 @@ WorldLoader = function () {
                 var position = obj["position"];
                 var rotations = obj["rotations"];
 
-                if (materials != undefined)
+                var ignoreMaterials = obj["ignoreMaterials"];
+                if(ignoreMaterials == undefined)
+                    ignoreMaterials = false;
+
+                if (materials != undefined && !ignoreMaterials)
                     mats = new THREE.MeshFaceMaterial(materials);
+                else
+                    mats = new THREE.MeshBasicMaterial({ color: 0xFF00FF });
 
                 var mesh = new THREE.Mesh(geometry, mats);
 
@@ -93,7 +112,6 @@ WorldLoader = function () {
                 if(scale != undefined)
                     mesh.scale.set(scale[0], scale[1], scale[2]);
 
-                console.log("POSITION: " + position[0]);
                 if(position != undefined)
                     mesh.position.set(position[0], position[1], position[2]);
 

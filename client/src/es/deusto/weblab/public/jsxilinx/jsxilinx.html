@@ -83,22 +83,6 @@
 
 
 
-            // The following function is required by the World Loader
-
-		    var rotWorldMatrix;
-
-		    function rotateAroundWorldAxis(object, axis, radians) {
-
-		        var rotationMatrix = new THREE.Matrix4();
-
-		        rotationMatrix.makeRotationAxis(axis.normalize(), radians);
-		        rotationMatrix.multiply(object.matrix);                       // pre-multiply
-		        object.matrix = rotationMatrix;
-		        object.rotation.setEulerFromRotationMatrix(object.matrix);
-		    }
-
-
-
 		    
 		    _page_dim = false;
 
@@ -1035,6 +1019,8 @@
 
 
 
+			    // Load the LEFT waterfall.
+
 				loader.load("waterfall.js", function (geometry, materials) {
 
 				    var highest_x = -0xFFFFFF;
@@ -1068,7 +1054,6 @@
 
 				    waterfall2 = mesh;
 
-				    //rotateAroundWorldAxis(waterfall2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
 				});
 
 
@@ -1076,25 +1061,15 @@
 				loader.load("waterfall.js", function (geometry, materials) {
 
 
-				    //materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00, map:texture });
+
+
+
 				    watertexture = THREE.ImageUtils.loadTexture('water.jpg');
-
-				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient:0.9, color: 0xAAAAFF});
-
-				    // We translate the geometry. The practical effect of this is moving the object's center
-				    // to the right of the object. This way, when we scale it, it scales in the right way.
-				    geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(-0.311444, 0, 0)));
-
+				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
 				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
 
-
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = -155;
-				    mesh.position.x = 445;
-				    mesh.position.z = -0;
+				    var mesh = wl.getObject("waterfallOut");
+				    mesh.material = mats;
 
 				    exit_waterfall = mesh;
 
@@ -1149,37 +1124,17 @@
 				loader.load("waterpump.js", function (geometry, materials) {
 
 				    materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 });
-
-
 				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
-
-
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = 70;
-				    mesh.position.x = 720;
-				    mesh.position.z = 30;
-
-				    pump = mesh;
-
-				    scene.add(mesh);
 
 
 
-				    var mats2 = new THREE.MeshFaceMaterial(materials);
-				    var mesh2 = new THREE.Mesh(geometry, mats);
-				    mesh2.scale.set(100, 100, 100);
-				    mesh2.position.y = 78;
-				    mesh2.position.x = 470;
-				    mesh2.position.z = 0;
-				    rotateAroundWorldAxis(mesh2, new THREE.Vector3(0, 1, 0), 180 * Math.PI / 180);
-				    scene.add(mesh2);
 
+				    var mymesh = wl.getObject("waterpumpRight");
+				    mymesh.material = mats;
 
+				    var mymesh2 = wl.getObject("waterpumpLeft");
+				    mymesh2.material = mats;
 
-				    console.log(geometry);
 
 
 				});
@@ -1187,25 +1142,7 @@
 
 				loader.load("pipe.js", function (geometry, materials) {
 
-
-				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = new THREE.Mesh(geometry, mats);
-
-
-				    console.log(mesh);
-				    mesh.scale.set(100, 100, 100);
-				    //mesh.scale.set(0.2, 0.2, 0.2);
-				    mesh.position.y = -80;
-				    mesh.position.x = 470;
-				    mesh.position.z = 0;
-
 				    pipe = mesh;
-
-				    scene.add(mesh);
-
-
-				    console.log(geometry);
-
 
 				});
 
