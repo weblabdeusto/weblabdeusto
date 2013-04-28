@@ -1,3 +1,7 @@
+//! This script contains the WorldLoader class and several utility functions.
+//! The WorldLoader class is able to load a THREEJS scene from a custom JSON
+//! file describing it.
+
 /// The following references are for VisualStudio, so that Intellisense recognizes every library.
 /// <reference path="../jslib/weblabjs.js" />
 /// <reference path="../jslib/three.min.js" />
@@ -56,9 +60,22 @@ WorldLoader = function () {
         this.file = file;
         this.scene = scene;
 
-        $.getJSON("World.js",
-            function (json) {
-                this._onWorldFileLoaded(json);
+        //$.getJSON("World.js",
+        //    function (json) {
+        //        this._onWorldFileLoaded(json);
+        //    }.bind(this))
+        //    .fail(function (jqxhr, textStatus, error) {
+        //        var err = textStatus + ', ' + error;
+        //        console.log("[WorldLoader] Request Failed: " + err);
+        //});
+
+        $.get("World.js",
+            function (script) {
+                // We use a somewhat shady way to load the extended JSON
+                // (That is, JSON plus JS callbacks etc)
+                script = "__worldjson = " + script;
+                $.globalEval(script);
+                this._onWorldFileLoaded(__worldjson);
             }.bind(this))
             .fail(function (jqxhr, textStatus, error) {
                 var err = textStatus + ', ' + error;
@@ -99,7 +116,7 @@ WorldLoader = function () {
             if (enabled != undefined && !enabled)
                 return;
 
-            this.jsonLoader.load(model, function (obj, geometry, materials) {
+            var loadingCallback = function (obj, geometry, materials) {
 
                 var mats = undefined;
 
@@ -108,17 +125,33 @@ WorldLoader = function () {
                 var initialTranslation = obj["initialTranslation"];
                 var position = obj["position"];
                 var rotations = obj["rotations"];
+                var material = obj["material"];
 
                 var ignoreMaterials = obj["ignoreMaterials"];
                 if(ignoreMaterials == undefined)
                     ignoreMaterials = false;
 
-                if (materials != undefined && !ignoreMaterials)
+
+                // Create the materials. Method will be different depending on the options.
+                var mats;
+
+                // If we have a "material" attribute, and it is a function, we use it to create the material.
+                if (material != undefined && typeof (material) == "function" && !ignoreMaterials) {
+                    mats = material();
+                }
+
+                // If we do not have a "material" attribute, we will use the mesh default materials.
+                else if (materials != undefined && !ignoreMaterials)
                     mats = new THREE.MeshFaceMaterial(materials);
+
+                // If we have to ignoreMaterials, or no "material" or mesh default material exists, we use a basic material.
                 else
                     mats = new THREE.MeshBasicMaterial({ color: 0xFF00FF });
 
+
+
                 var mesh = new THREE.Mesh(geometry, mats);
+
 
                 if(initialTranslation != undefined)
                     geometry.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(initialTranslation[0], initialTranslation[1], initialTranslation[2])));
@@ -159,7 +192,21 @@ WorldLoader = function () {
                 this.scene.add(mesh);
 
                 this.objects[name] = mesh;
-            }.bind(this, obj));
+            }.bind(this, obj);
+
+
+            // If the model is a string, we assume it points to a JSON object.
+            // If it is a function, then it is a custom geometry. We build it ourselves.
+            if (typeof (model) == "string")
+                this.jsonLoader.load(model, loadingCallback);
+            else if (typeof (model) == "function") {
+                var geom = model();
+                loadingCallback(geom, undefined);
+            }
+            else {
+                console.error("[WorldLoader]: Loading object with no model");
+            }
+
         } //! for
     } //! func
 

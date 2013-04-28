@@ -22,6 +22,7 @@
         <script>
 
         </script>
+
         <link rel="stylesheet" href="../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
@@ -82,6 +83,8 @@
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
+
+		    window.__water = THREE.ImageUtils.loadTexture('water.jpg', new THREE.UVMapping());
 
 
 		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
@@ -401,8 +404,15 @@
             }
 
 
-			init();
-			animate();
+            $(
+                function () {
+
+                    init();
+                    setTimeout(function () {
+                        animate();
+                    }.bind(this), 3000);
+                }
+            );
 
 			function main() {
 
@@ -589,27 +599,21 @@
 
 				loader = new THREE.JSONLoader();
 
+
+                // Old attributes of the water cylinder. To remove, if it proves unnecesary.
+				//material02.transparent = false;
+				//material02.opacity = 1;
+				//material02.depthWrite = true;
+				//cylinder02 = new THREE.Mesh(geometry02, material02);
+			    ////cylinder02.scale.set(100, 100, 100);
+				//cylinder02.position.x = 597;
+				//cylinder02.position.y = -95;
+				//cylinder02.scale.set(.95, .1, .95);
+				//cylinder02.overdraw = true;
+
 				loader.load("WaterTank.js", function (geometry, materials) {
 
-
-				    // Create and add a blue cylinder representing water
-				    geometry02 = new THREE.CylinderGeometry(95, 95, 200, 50, 50, false);
-
-
-				    geometry02.applyMatrix(new THREE.Matrix4().translate(new THREE.Vector3(0, 100, 0)));
-				    geometry02.dynamic = false;
-				    material02 = new THREE.MeshBasicMaterial({ color: 0x0000FF });
-				    material02.transparent = false;
-				    material02.opacity = 1;
-				    material02.depthWrite = true;
-				    cylinder02 = new THREE.Mesh(geometry02, material02);
-				    //cylinder02.scale.set(100, 100, 100);
-				    cylinder02.position.x = 597;
-				    cylinder02.position.y = -95;
-				    cylinder02.scale.set(.95, .1, .95);
-				    cylinder02.overdraw = true;
-
-				    scene.add(cylinder02);
+				    cylinder02 = wl.getObject("water");
 
 				    setTimeout(
 
@@ -662,47 +666,10 @@
 
 
 
-			    // Load the RIGHT waterfall
-
 				loader.load("waterfall.js", function (geometry, materials) {
 
-				    var highest_x = -0xFFFFFF;
-				    for (var i = 0; i < geometry.vertices.length; i++) {
-				        var x = geometry.vertices[i].x;
-				        if (x > highest_x)
-				            highest_x = x;
-				    }
+				    waterfall = wl.getObject("waterfallRight");
 
-				    console.log("Highest X: " + highest_x);
-
-				    var lowest_x = 0xFFFFFF;
-				    for (var i = 0; i < geometry.vertices.length; i++) {
-				        var x = geometry.vertices[i].x;
-				        if (x < lowest_x)
-				            lowest_x = x;
-				    }
-
-				    console.log("Lowest X: " + lowest_x);
-
-
-
-
-				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
-				    var mats = new THREE.MeshFaceMaterial(materials);
-				    mesh = wl.getObject("waterfallRight");
-				    mesh.material = mats;
-
-				    waterfall = mesh;
-
-
-				    // Add a small sphere to mark the position
-				    markerGeom = new THREE.SphereGeometry(5, 10, 10);
-				    markerMat = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
-				    markerMesh = new THREE.Mesh(markerGeom, markerMat);
-				    markerMesh.position.y = 000;
-				    markerMesh.position.x = 600;
-
-				    scene.add(markerMesh);
 				});
 
 
@@ -710,31 +677,25 @@
 			    // Load the LEFT waterfall.
 
 				loader.load("waterfall.js", function (geometry, materials) {
-
-
-				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
-				    var mats = new THREE.MeshFaceMaterial(materials);
-
 				    mesh = wl.getObject("waterfallLeft");
-				    mesh.material = mats;
 
 				    waterfall2 = mesh;
-
 				});
 
 
 
 				loader.load("waterfall.js", function (geometry, materials) {
 
+				    materials = {};
 				    watertexture = THREE.ImageUtils.loadTexture('water.jpg');
 				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
 				    var mats = new THREE.MeshFaceMaterial(materials);
 				    var mesh = wl.getObject("waterfallOut");
-				    mesh.material = mats;
 
+				    console.log("THE MESH: " + mesh);
+				    mesh.material = mats;
 				    exit_waterfall = mesh;
 
-				    scene.add(mesh);
 
 
 
@@ -779,21 +740,6 @@
                     );
 				});
 
-
-
-
-				loader.load("waterpump.js", function (geometry, materials) {
-
-				    materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 });
-				    var mats = new THREE.MeshFaceMaterial(materials);
-
-				    var mymesh = wl.getObject("waterpumpRight");
-				    mymesh.material = mats;
-
-				    var mymesh2 = wl.getObject("waterpumpLeft");
-				    mymesh2.material = mats;
-
-				});
 
 
 				stats = new Stats();
