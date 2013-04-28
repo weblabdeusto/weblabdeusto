@@ -8,6 +8,8 @@
 
 
 var rotWorldMatrix;
+//! Utility function to rotate an object around a specified axis.
+//!
 function rotateAroundWorldAxis(object, axis, radians) {
 
     var rotationMatrix = new THREE.Matrix4();
@@ -16,6 +18,18 @@ function rotateAroundWorldAxis(object, axis, radians) {
     rotationMatrix.multiply(object.matrix);                       // pre-multiply
     object.matrix = rotationMatrix;
     object.rotation.setEulerFromRotationMatrix(object.matrix);
+}
+
+
+//! Here mostly for reference purposes.
+//! 
+function getGeometryHighestX(geometry) {
+    var highest_x = -0xFFFFFF;
+    for (var i = 0; i < geometry.vertices.length; i++) {
+        var x = geometry.vertices[i].x;
+        if (x > highest_x)
+            highest_x = x;
+    }
 }
 
 

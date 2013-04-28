@@ -1023,31 +1023,9 @@
 
 				loader.load("waterfall.js", function (geometry, materials) {
 
-				    var highest_x = -0xFFFFFF;
-				    for (var i = 0; i < geometry.vertices.length; i++) {
-				        var x = geometry.vertices[i].x;
-				        if (x > highest_x)
-				            highest_x = x;
-				    }
-
-				    console.log("Highest X: " + highest_x);
-
-				    var lowest_x = 0xFFFFFF;
-				    for (var i = 0; i < geometry.vertices.length; i++) {
-				        var x = geometry.vertices[i].x;
-				        if (x < lowest_x)
-				            lowest_x = x;
-				    }
-
-				    console.log("Lowest X: " + lowest_x);
-
-
 
 				    materials[0] = new THREE.MeshBasicMaterial({ color: 0x0000FF });
-
-
 				    var mats = new THREE.MeshFaceMaterial(materials);
-
 
 				    mesh = wl.getObject("waterfallLeft");
 				    mesh.material = mats;
@@ -1060,14 +1038,9 @@
 
 				loader.load("waterfall.js", function (geometry, materials) {
 
-
-
-
-
 				    watertexture = THREE.ImageUtils.loadTexture('water.jpg');
 				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
 				    var mats = new THREE.MeshFaceMaterial(materials);
-
 				    var mesh = wl.getObject("waterfallOut");
 				    mesh.material = mats;
 
@@ -1126,27 +1099,13 @@
 				    materials[0] = new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 });
 				    var mats = new THREE.MeshFaceMaterial(materials);
 
-
-
-
 				    var mymesh = wl.getObject("waterpumpRight");
 				    mymesh.material = mats;
 
 				    var mymesh2 = wl.getObject("waterpumpLeft");
 				    mymesh2.material = mats;
 
-
-
 				});
-
-
-				loader.load("pipe.js", function (geometry, materials) {
-
-				    pipe = mesh;
-
-				});
-
-
 
 
 				stats = new Stats();
