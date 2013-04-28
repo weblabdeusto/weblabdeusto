@@ -226,7 +226,7 @@ class DbUserAuth(Base):
         return user_auth_repr
 
     def to_business(self):
-        return UserAuth.UserAuth.create_user_auth(self.auth.auth_type.name, self.auth.configuration) #TODO: Add DbUserAuth's configuration too
+        return UserAuth.UserAuth.create_user_auth(self.auth.auth_type.name, self.auth.configuration, self.configuration)
 
 
 class DbGroup(Base):

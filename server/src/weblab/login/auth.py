@@ -75,7 +75,7 @@ class WebLabDBLoginAuth(LoginAuth):
         #would be the stored password for "password", since
         #the sha hash of "aaaapassword" is a7761...
         #
-        retrieved_password = self.user_auth.hashed_password
+        retrieved_password = self._user_auth.hashed_password
 
         REGEX = "([a-zA-Z0-9]*){([a-zA-Z0-9_-]+)}([a-fA-F0-9]+)"
         mo = re.match(REGEX, retrieved_password)

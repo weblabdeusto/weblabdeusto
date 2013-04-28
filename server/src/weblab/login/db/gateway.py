@@ -44,7 +44,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
 
-            user_auths = sorted(session.query(Model.DbUserAuth).filter_by(user=p_user).all(), lambda x, y: cmp(x.auth.priority, y.auth.priority))
+            user_auths = sorted(session.query(Model.DbUserAuth).filter_by(user=user).all(), lambda x, y: cmp(x.auth.priority, y.auth.priority))
             if len(user_auths) > 0:
                 return [ user_auth.to_business() for user_auth in user_auths ]
             else:

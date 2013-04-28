@@ -94,23 +94,17 @@ class LoginServerTestCase(unittest.TestCase):
 
     def setUp(self):
         coord_address = CoordAddress.CoordAddress.translate_address(
-                "server0:instance0@machine0"
-            )
+                "server0:instance0@machine0")
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
         self.real_locator = FakeLocator()
         self.locator      = EasyLocator.EasyLocator(
-                coord_address,
-                self.real_locator
-            )
+                coord_address, self.real_locator)
 
         self.login_server = LoginServer.LoginServer(
-                    coord_address,
-                    self.locator,
-                    self.cfg_manager
-                )
+                    coord_address, self.locator, self.cfg_manager)
 
     def tearDown(self):
         self.login_server.stop()

@@ -15,6 +15,7 @@
 import voodoo.log as log
 from voodoo.log import logged
 import time
+import traceback
 
 import weblab.login.auth as LoginAuth
 import weblab.login.delegated_auth as DelegatedLoginAuth
@@ -108,8 +109,13 @@ class LoginServer(object):
             LoginErrors.InvalidCredentialsError
         )
         """
-        db_session_id = self._validate_simple_interface(username, password)
+        db_session_id = self._validate_simple_authn(username, password)
         return self._reserve_session(db_session_id)
+
+    def _process_invalid(self):
+        # Add a timeout when fails to authenticate in a normal way.
+        time.sleep(LOGIN_FAILED_DELAY)
+        raise LoginErrors.InvalidCredentialsError( "Invalid username or password!" )
 
 
     def _validate_simple_authn(self, username, credentials):
@@ -118,7 +124,10 @@ class LoginServer(object):
         username and credentials (e.g., password, IP address, etc.). This
         method will only check the SimpleAuthn instances.
         """
-        user_auths = self._db_gateway.retrieve_auth_types(username)
+        try:
+            user_auths = self._db_gateway.retrieve_auth_types(username)
+        except DbErrors.DbUserNotFoundError:
+            return self._process_invalid()
 
         errors = False
 
@@ -129,12 +138,13 @@ class LoginServer(object):
     
                 # With each user auth, try to authenticate the user.
                 try:
-                    authenticated = login_auth.authenticate(username, credentials)
+                    authenticated = simple_login_auth.authenticate(username, credentials)
                 except:
                     # If there is an error, the user could not be authenticated.
                     log.log( LoginServer, log.level.Warning, "Username: %s with user_auth %s: ERROR" % (username, user_auth) )
                     log.log_exc( LoginServer, log.level.Warning)
                     errors = True
+                    traceback.print_exc()
                     continue
                 
                 if authenticated:
@@ -152,10 +162,7 @@ class LoginServer(object):
             # local database or so.
             raise LoginErrors.LoginError( "Error checking credentials. Contact administrators!" )
 
-        # Add a timeout when fails to authenticate in a normal way.
-        time.sleep(LOGIN_FAILED_DELAY)
-
-        raise LoginErrors.InvalidCredentialsError( "Invalid username or password!" )
+        return self._process_invalid()
 
 # TODO: remove me
 #     def _validate_local_user(self, username, password):
