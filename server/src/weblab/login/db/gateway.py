@@ -34,6 +34,26 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
     def __init__(self, cfg_manager):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
 
+    @logged()
+    def retrieve_auth_types(self, username):
+        """ Retrieve the auth types for a given username."""
+        session = self.Session()
+        try:
+            try:
+                user = session.query(Model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
+
+            user_auths = sorted(session.query(Model.DbUserAuth).filter_by(user=p_user).all(), lambda x, y: cmp(x.auth.priority, y.auth.priority))
+            if len(user_auths) > 0:
+                return [ user_auth.to_business() for user_auth in user_auths ]
+            else:
+                raise DbErrors.DbNoUserAuthNorPasswordFoundError(
+                        "No UserAuth found"
+                    )
+        finally:
+            session.close()
+
     ###########################################################################
     ##################   check_external_credentials   #########################
     ###########################################################################

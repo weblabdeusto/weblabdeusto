@@ -13,7 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import re
+import hashlib
 import sys
+import weblab.db.exc as DbErrors
 from abc import ABCMeta, abstractmethod
 try:
     import ldap
@@ -50,6 +53,50 @@ class LoginAuth(object):
 
     def __repr__(self):
         return "<LoginAuth class='%s'><UserAuth>%s</UserAuth></LoginAuth>" % (self.__class__, (getattr(self,'_user_auth') or 'Not available'))
+
+
+class WebLabDBLoginAuth(LoginAuth):
+    NAME = UserAuth.WebLabDbUserAuth.NAME
+
+    def __init__(self, user_auth):
+        self._user_auth = user_auth
+
+    def authenticate(self, login, password):
+        #Now, user_password is the value stored in the database
+        #
+        #The format is: random_chars{algorithm}hashed_password
+        #
+        #random_characters will be, for example, axjl
+        #algorithm will be md5 or sha (or sha1), or in the future, other hash algorithms
+        #hashed_password will be the hash of random_chars + passwd, using "algorithm" algorithm
+        #
+        #For example:
+        #aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474
+        #would be the stored password for "password", since
+        #the sha hash of "aaaapassword" is a7761...
+        #
+        retrieved_password = self.user_auth.hashed_password
+
+        REGEX = "([a-zA-Z0-9]*){([a-zA-Z0-9_-]+)}([a-fA-F0-9]+)"
+        mo = re.match(REGEX, retrieved_password)
+        if mo is None:
+            raise DbErrors.DbInvalidPasswordFormatError( "Invalid password format" )
+        first_chars, algorithm, hashed_passwd = mo.groups()
+
+        if algorithm == 'sha':
+            algorithm = 'sha1' #TODO
+
+        try:
+            hashobj = hashlib.new(algorithm)
+        except Exception:
+            raise DbErrors.DbHashAlgorithmNotFoundError( "Algorithm %s not found" % algorithm )
+
+        hashobj.update((first_chars + password).encode())
+        return hashobj.hexdigest() == hashed_passwd
+
+LoginAuth.HANDLERS += (WebLabDBLoginAuth,)
+
+
 
 # TODO: no test actually test the real ldap module. The problem is
 # requiring a LDAP server in the integration machine (in our integration
@@ -122,21 +169,6 @@ class TrustedIpAddressesLoginAuth(LoginAuth):
 
 LoginAuth.HANDLERS += (TrustedIpAddressesLoginAuth,)
 
-
-class WebLabDBLoginAuth(LoginAuth):
-    NAME = UserAuth.WebLabDbUserAuth.NAME
-
-    def __init__(self, user_auth):
-        self._user_auth = user_auth
-
-    def authenticate(self, login, password):
-        if not isinstance(password, ClientAddress.ClientAddress):
-            return False
-        client_address = password.client_address
-        return client_address in self._user_auth.addresses
-
-LoginAuth.HANDLERS += (WebLabDBLoginAuth,)
-
 class FacebookLoginAuth(LoginAuth):
     NAME = UserAuth.FacebookUserAuth.NAME
 
@@ -147,3 +179,14 @@ class FacebookLoginAuth(LoginAuth):
         return False
 
 LoginAuth.HANDLERS += (FacebookLoginAuth,)
+
+class OpenIDLoginAuth(LoginAuth):
+    NAME = UserAuth.OpenIDUserAuth.NAME
+
+    def __init__(self, user_auth):
+        self._user_auth = user_auth
+
+    def authenticate(self, login, password):
+        return False
+
+LoginAuth.HANDLERS += (OpenIDLoginAuth,)
