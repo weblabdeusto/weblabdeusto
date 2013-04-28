@@ -97,7 +97,7 @@
     },
 
 
-    "onLoaded" : 
+    "onLoad" : 
         function() {
             console.log("[WORLDLOADER]: FINISHED");
         }

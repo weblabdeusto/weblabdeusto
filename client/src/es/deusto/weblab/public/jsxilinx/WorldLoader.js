@@ -47,7 +47,19 @@ WorldLoader = function () {
         this.objects = {};
         this.pointlights = {};
         this.ambientlight = undefined;
+
+        this.onLoadCB = undefined;
+
         this.jsonLoader = new THREE.JSONLoader();
+
+        this._promises = []; // So that we can track async callbacks.
+    }
+
+
+    //! Sets an onLoad callback. This is called *after* the JS file onLoad callback.
+    //!
+    this.setOnLoad = function (onLoadCB) {
+        this.onLoadCB = onLoadCB;
     }
 
 
@@ -101,6 +113,15 @@ WorldLoader = function () {
         if (ambientlight != undefined) {
             this._loadAmbientlight(ambientlight);
         }
+
+        $.when.apply(this, this._promises).done(function () {
+            var onLoad = this.world["onLoad"];
+            if (onLoad != undefined) {
+                onLoad();
+            }
+            if(this.onLoadCB != undefined)
+                this.onLoadCB();
+        }.bind(this));
     }
 
     //! Loads the objects into the scene manager.
@@ -192,13 +213,26 @@ WorldLoader = function () {
                 this.scene.add(mesh);
 
                 this.objects[name] = mesh;
+
             }.bind(this, obj);
 
 
             // If the model is a string, we assume it points to a JSON object.
             // If it is a function, then it is a custom geometry. We build it ourselves.
-            if (typeof (model) == "string")
-                this.jsonLoader.load(model, loadingCallback);
+            if (typeof (model) == "string") {
+                // In this case, we load the JS model dynamically. This involves a callback, which means
+                // we will have certain trouble knowing when the World actually finishes loading. To work 
+                // around this issue, we will use JQuery's Deferreds.
+
+                var dfd = $.Deferred();
+                this.jsonLoader.load(model,
+                    function (lc, d, geom, mat) {
+                        lc(geom, mat);
+                        d.resolve();
+                    }.bind(this, loadingCallback, dfd));
+                this._promises.push(dfd.promise());
+
+            }
             else if (typeof (model) == "function") {
                 var geom = model();
                 loadingCallback(geom, undefined);
