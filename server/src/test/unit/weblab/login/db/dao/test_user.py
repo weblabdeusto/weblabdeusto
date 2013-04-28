@@ -24,7 +24,8 @@ class DbUserAuthTestCase(unittest.TestCase):
             DbErrors.DbUnsupportedUserAuth,
             UserAuth.UserAuth.create_user_auth,
             'whatever that does not exist',
-            'the configuration'
+            'the configuration',
+            None
         )
 
     def test_invalid_ldap_configuration(self):
@@ -32,7 +33,8 @@ class DbUserAuthTestCase(unittest.TestCase):
             DbErrors.DbInvalidUserAuthConfigurationError,
             UserAuth.UserAuth.create_user_auth,
             UserAuth.LdapUserAuth.NAME,
-            'the configuration'
+            'the configuration',
+            None
         )
 
     def test_create_user_auth_right(self):
@@ -41,7 +43,8 @@ class DbUserAuthTestCase(unittest.TestCase):
         base     = 'dc=cdk,dc=deusto,dc=es'
         ldap_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.LdapUserAuth.NAME,
-                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base
+                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base,
+                None
             )
         self.assertTrue(
                 isinstance(
@@ -66,7 +69,8 @@ class DbUserAuthTestCase(unittest.TestCase):
         base     = 'dc=cdk,dc=de_us-to,dc=es'
         ldap_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.LdapUserAuth.NAME,
-                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base
+                'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base,
+                None
             )
         self.assertTrue(
                 isinstance(
@@ -92,7 +96,7 @@ class DbUserAuthTestCase(unittest.TestCase):
 
         tia_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.TrustedIpAddressesUserAuth.NAME,
-                single_ip
+                single_ip, None
             )
         self.assertTrue(
                 isinstance(
@@ -108,7 +112,7 @@ class DbUserAuthTestCase(unittest.TestCase):
         two_ips   = '20.0.0.5, 20.0.0.6'
         tia_user_auth = UserAuth.UserAuth.create_user_auth(
                 UserAuth.TrustedIpAddressesUserAuth.NAME,
-                two_ips
+                two_ips, None
             )
         self.assertTrue(
                 isinstance(

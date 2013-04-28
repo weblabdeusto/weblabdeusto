@@ -54,6 +54,20 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @logged()
+    def retrieve_role(self, username):
+        """ Retrieve the role for a given username."""
+        session = self.Session()
+        try:
+            try:
+                user = session.query(Model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
+            
+            return user.role.name
+        finally:
+            session.close()
+
     ###########################################################################
     ##################   check_external_credentials   #########################
     ###########################################################################

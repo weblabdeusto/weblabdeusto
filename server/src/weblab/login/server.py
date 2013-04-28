@@ -125,6 +125,7 @@ class LoginServer(object):
         method will only check the SimpleAuthn instances.
         """
         try:
+            role_name  = self._db_gateway.retrieve_role(username)
             user_auths = self._db_gateway.retrieve_auth_types(username)
         except DbErrors.DbUserNotFoundError:
             return self._process_invalid()
@@ -150,7 +151,7 @@ class LoginServer(object):
                 if authenticated:
                     # If authenticated, return that it was correctly authenticated.
                     log.log( LoginServer, log.level.Debug, "Username: %s with user_auth %s: SUCCESS" % (username, user_auth) )
-                    return DbSession.ValidDatabaseSessionId( username, None ) # TODO: role.name
+                    return DbSession.ValidDatabaseSessionId( username, role_name )
 
                 else:
                     # If not authenticated, log it and continue with the next user_auth.
@@ -189,7 +190,8 @@ class LoginServer(object):
 
     def _reserve_session(self, db_session_id):
         """ Contact the Core server and reserve a session there that we will return
-        the user. """
+        to the user. From this point, users will use this session identifier with the
+        core server."""
         ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
         session_id, server_route = ups_server.reserve_session(db_session_id)
         context = RemoteFacadeContext.get_context()
