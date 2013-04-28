@@ -44,12 +44,12 @@
                 "initialTranslation" : [-0.311444, 0, 0],
                 "scale" : [100, 100, 100],
                 "position" : [445, -155, 0],
-                "materialss" : 
+                "material" : 
                     function() {
                         console.log("WATER IS: " + __water);
-                        //var watertexture = THREE.ImageUtils.loadTexture('water.jpg');
-                        var mat = new THREE.MeshPhongMaterial({ map: __water, ambient: 0.9, color: 0xAAAAFF });
-                        var mats = new THREE.MeshFaceMaterial(mat);
+                        var watertexture = THREE.ImageUtils.loadTexture('water.jpg');
+                        var mat = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
+                        var mats = new THREE.MeshFaceMaterial([mat]);
                         return mats;
                     }
             },

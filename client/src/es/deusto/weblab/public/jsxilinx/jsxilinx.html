@@ -594,26 +594,14 @@
 
 
 				wl = new WorldLoader();
-				wl.load("World.js", scene);
 
+				wl.setOnLoad(function () {
 
-				loader = new THREE.JSONLoader();
+				    water = wl.getObject("water");
+				    waterfall = wl.getObject("waterfallRight");
+				    waterfall2 = wl.getObject("waterfallLeft");
+				    waterfallOut = wl.getObject("waterfallOut");
 
-
-                // Old attributes of the water cylinder. To remove, if it proves unnecesary.
-				//material02.transparent = false;
-				//material02.opacity = 1;
-				//material02.depthWrite = true;
-				//cylinder02 = new THREE.Mesh(geometry02, material02);
-			    ////cylinder02.scale.set(100, 100, 100);
-				//cylinder02.position.x = 597;
-				//cylinder02.position.y = -95;
-				//cylinder02.scale.set(.95, .1, .95);
-				//cylinder02.overdraw = true;
-
-				loader.load("WaterTank.js", function (geometry, materials) {
-
-				    cylinder02 = wl.getObject("water");
 
 				    setTimeout(
 
@@ -654,7 +642,7 @@
                                         }
                                     }
 
-                                    cylinder02.scale.set(.95, waterLevel, .95);
+                                    water.scale.set(.95, waterLevel, .95);
 
                                 },
                                     50
@@ -662,53 +650,19 @@
 				        },
                     3000
                     );
-				});
-
-
-
-				loader.load("waterfall.js", function (geometry, materials) {
-
-				    waterfall = wl.getObject("waterfallRight");
-
-				});
-
-
-
-			    // Load the LEFT waterfall.
-
-				loader.load("waterfall.js", function (geometry, materials) {
-				    mesh = wl.getObject("waterfallLeft");
-
-				    waterfall2 = mesh;
-				});
-
-
-
-				loader.load("waterfall.js", function (geometry, materials) {
-
-				    materials = {};
-				    watertexture = THREE.ImageUtils.loadTexture('water.jpg');
-				    materials[0] = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
-				    var mats = new THREE.MeshFaceMaterial(materials);
-				    var mesh = wl.getObject("waterfallOut");
-
-				    console.log("THE MESH: " + mesh);
-				    mesh.material = mats;
-				    exit_waterfall = mesh;
-
-
 
 
 				    wfrange = 5;
 				    wfinc = 25;
 				    wfcurrent = 0;
 				    wftarget = 100;
+
 				    setTimeout(
 				        function () {
 				            setInterval(
                                 function () {
 
-                     
+
 
                                     wfcurrent += wfinc;
 
@@ -719,7 +673,7 @@
                                         wftarget = 100 + Math.random(40) * 20;
                                     }
 
-                      
+
                                     if (wfcurrent < 0) {
                                         wfcurrent = 0;
                                         wfinc *= -1;
@@ -730,7 +684,7 @@
                                     wfscale = 100 + wfcurrent / 100.0 * wfrange;
                                     //console.log("New scale: " + wfscale + " " + wfcurrent + " " + wfinc);
 
-                                    exit_waterfall.scale.set(wfscale, 100, 100);
+                                    waterfallOut.scale.set(wfscale, 100, 100);
 
                                 },
                                     50
@@ -738,9 +692,11 @@
 				        },
                     3000
                     );
-				});
+
+				}); //! OnLoad
 
 
+				wl.load("World.js", scene);
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -789,7 +745,7 @@
 				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
 				camera.lookAt(scene.position);
 
-				camera.lookAt(cylinder02.position);
+				camera.lookAt(water.position);
 
 				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
 
