@@ -30,6 +30,7 @@ else:
 
 import voodoo.log as log
 import weblab.login.exc as LoginErrors
+from weblab.login.auth_web_protocol import WEB_PROTOCOL_AUTHN
 
 class UserAuth(object):
 
@@ -37,18 +38,20 @@ class UserAuth(object):
 
     @staticmethod
     def create_user_auth(name, auth_configuration, user_auth_configuration):
-        if name == LdapUserAuth.NAME:
-            return LdapUserAuth(auth_configuration, user_auth_configuration)
-        elif name == WebLabDbUserAuth.NAME:
+        if name == WebLabDbUserAuth.NAME:
             return WebLabDbUserAuth(auth_configuration, user_auth_configuration)
+
+        elif name == LdapUserAuth.NAME:
+            return LdapUserAuth(auth_configuration, user_auth_configuration)
+
         elif name == TrustedIpAddressesUserAuth.NAME:
             return TrustedIpAddressesUserAuth(auth_configuration, user_auth_configuration)
-        elif name == FacebookUserAuth.NAME:
-            return FacebookUserAuth(auth_configuration, user_auth_configuration)
-        elif name == OpenIDUserAuth.NAME:
-            return OpenIDUserAuth(auth_configuration, user_auth_configuration)
-        else:
-            raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
+
+        # Any of the Web Protocol Auths (Facebook, OpenID...) are not relevant here.
+        elif name in WEB_PROTOCOL_AUTHN.keys():
+            return WebProtocolUserAuth()
+            
+        raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
     @abstractmethod
     def is_simple_authn(self):
@@ -230,48 +233,4 @@ class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
 
     def __repr__(self):
         return "TrustedIpAddressesUserAuth(configuration=%r)" % self.addresses
-
-
-#######################################################################
-# 
-#        Facebook
-# 
-
-
-class FacebookUserAuth(WebProtocolUserAuth):
-
-    NAME = 'FACEBOOK'
-
-    def __init__(self, auth_configuration, user_auth_configuration):
-        self.user_id = user_auth_configuration
-
-    @property
-    def name(self):
-        return FacebookUserAuth.NAME
-
-    def __repr__(self):
-        return "FacebookUserAuth(user_id=%r)" % self.user_id
-
-
-#######################################################################
-# 
-#        OpenID
-# 
-
-class OpenIDUserAuth(WebProtocolUserAuth):
-
-    NAME = 'OPENID'
-
-    def __init__(self, auth_configuration, user_auth_configuration):
-        self.user_auth_configuration = user_auth_configuration
-
-    def __str__(self):
-        return "OpenIDUserAuth(identifier=%r)" % self.user_auth_configuration
-
-    @property
-    def name(self):
-        return OpenIDUserAuth.NAME
-
-    def __repr__(self):
-        return "OpenIDUserAuth(configuration=%r)" % self.user_auth_configuration
 

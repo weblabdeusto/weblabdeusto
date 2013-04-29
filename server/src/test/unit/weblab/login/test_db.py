@@ -21,7 +21,6 @@ import test.unit.configuration as configuration
 import voodoo.configuration as ConfigurationManager
 
 import weblab.login.db as DatabaseGateway
-import weblab.login.user_auth as UserAuth
 
 import weblab.db.exc as DbErrors
 

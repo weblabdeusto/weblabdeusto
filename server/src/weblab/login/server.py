@@ -36,10 +36,9 @@ from voodoo.log import logged
 import time
 import traceback
 
-import weblab.login.delegated_auth as DelegatedLoginAuth
+from weblab.login.auth_web_protocol import WEB_PROTOCOL_AUTHN
 
 from weblab.login.db import create_auth_gateway
-import weblab.login.user_auth as user_auth
 
 import weblab.login.comm.server as LoginFacadeServer
 import weblab.login.comm.web_server as WebFacadeServer
@@ -56,7 +55,6 @@ CREATING_EXTERNAL_USERS = 'login_creating_external_users'
 LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
 # TODO list:
-# - Check if the Facebook and OpenID UserAuths are actually required or not.
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
 
@@ -84,10 +82,7 @@ class LoginServer(object):
         for server in self._facade_servers:
             server.start()
 
-        self._external_id_providers = {
-            user_auth.FacebookUserAuth.NAME : DelegatedLoginAuth.Facebook(),
-            user_auth.OpenIDUserAuth.NAME   : DelegatedLoginAuth.OpenID()
-        }
+        self._web_protocol_auth = WEB_PROTOCOL_AUTHN
 
     def stop(self):
         if hasattr(super(LoginServer, self), 'stop'):
@@ -199,15 +194,15 @@ class LoginServer(object):
 
     def _validate_web_protocol_authn(self, system, credentials):
         system = system.upper()
-        if not system in self._external_id_providers:
+        if not system in self._web_protocol_auth:
             raise LoginErrors.LoginError("Invalid system!")
 
-        external_user_id = self._external_id_providers[system].get_user_id(credentials)
+        external_user_id = self._web_protocol_auth[system].get_user_id(credentials)
         if external_user_id == "":
             raise LoginErrors.InvalidCredentialsError(
                 "Invalid username or password!"
             )
-        external_user = self._external_id_providers[system].get_user(credentials)
+        external_user = self._web_protocol_auth[system].get_user(credentials)
         return external_user_id, external_user
 
 

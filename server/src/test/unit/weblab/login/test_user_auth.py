@@ -25,14 +25,14 @@ except ImportError:
 
 from test.util.optional_modules import OptionalModuleTestCase
 import weblab.login.exc as LoginErrors
-import weblab.login.user_auth as UserAuth
+import weblab.login.auth_simple as auth_simple
 import weblab.db.exc as DbErrors
 
 class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_failed(self):
         self.assertRaises(
             DbErrors.DbUnsupportedUserAuth,
-            UserAuth.UserAuth.create_user_auth,
+            auth_simple.UserAuth.create_user_auth,
             'whatever that does not exist',
             'the configuration',
             None
@@ -41,8 +41,8 @@ class DbUserAuthTestCase(unittest.TestCase):
     def test_invalid_ldap_configuration(self):
         self.assertRaises(
             DbErrors.DbInvalidUserAuthConfigurationError,
-            UserAuth.UserAuth.create_user_auth,
-            UserAuth.LdapUserAuth.NAME,
+            auth_simple.UserAuth.create_user_auth,
+            auth_simple.LdapUserAuth.NAME,
             'the configuration',
             None
         )
@@ -51,15 +51,15 @@ class DbUserAuthTestCase(unittest.TestCase):
         ldap_uri = 'ldaps://castor.cdk.deusto.es'
         domain   = 'cdk.deusto.es'
         base     = 'dc=cdk,dc=deusto,dc=es'
-        ldap_user_auth = UserAuth.UserAuth.create_user_auth(
-                UserAuth.LdapUserAuth.NAME,
+        ldap_user_auth = auth_simple.UserAuth.create_user_auth(
+                auth_simple.LdapUserAuth.NAME,
                 'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base,
                 None
             )
         self.assertTrue(
                 isinstance(
                     ldap_user_auth,
-                    UserAuth.LdapUserAuth
+                    auth_simple.LdapUserAuth
                 )
             )
         self.assertEquals(
@@ -77,15 +77,15 @@ class DbUserAuthTestCase(unittest.TestCase):
         ldap_uri = 'ldaps://castor-4.cdk_4.deusto.es/'
         domain   = 'cdk_4-3.deusto.es'
         base     = 'dc=cdk,dc=de_us-to,dc=es'
-        ldap_user_auth = UserAuth.UserAuth.create_user_auth(
-                UserAuth.LdapUserAuth.NAME,
+        ldap_user_auth = auth_simple.UserAuth.create_user_auth(
+                auth_simple.LdapUserAuth.NAME,
                 'ldap_uri=' + ldap_uri + ';domain=' + domain + ';base=' + base,
                 None
             )
         self.assertTrue(
                 isinstance(
                     ldap_user_auth,
-                    UserAuth.LdapUserAuth
+                    auth_simple.LdapUserAuth
                 )
             )
         self.assertEquals(
@@ -104,14 +104,14 @@ class DbUserAuthTestCase(unittest.TestCase):
     def test_create_trusted_addresses_user_auth_right(self):
         single_ip = '20.0.0.5'
 
-        tia_user_auth = UserAuth.UserAuth.create_user_auth(
-                UserAuth.TrustedIpAddressesUserAuth.NAME,
+        tia_user_auth = auth_simple.UserAuth.create_user_auth(
+                auth_simple.TrustedIpAddressesUserAuth.NAME,
                 single_ip, None
             )
         self.assertTrue(
                 isinstance(
                     tia_user_auth,
-                    UserAuth.TrustedIpAddressesUserAuth
+                    auth_simple.TrustedIpAddressesUserAuth
                 )
             )
         self.assertEquals(
@@ -120,14 +120,14 @@ class DbUserAuthTestCase(unittest.TestCase):
             )
 
         two_ips   = '20.0.0.5, 20.0.0.6'
-        tia_user_auth = UserAuth.UserAuth.create_user_auth(
-                UserAuth.TrustedIpAddressesUserAuth.NAME,
+        tia_user_auth = auth_simple.UserAuth.create_user_auth(
+                auth_simple.TrustedIpAddressesUserAuth.NAME,
                 two_ips, None
             )
         self.assertTrue(
                 isinstance(
                     tia_user_auth,
-                    UserAuth.TrustedIpAddressesUserAuth
+                    auth_simple.TrustedIpAddressesUserAuth
                 )
             )
         self.assertEquals(
@@ -143,11 +143,11 @@ uri_that_will_fail               = 'uri that will fail'
 
 class LoginAuthTestCase(mocker.MockerTestCase):
 
-    if UserAuth.LDAP_AVAILABLE:
+    if auth_simple.LDAP_AVAILABLE:
 
         def _create_user_auth(self):
-            return UserAuth.UserAuth.create_user_auth(
-                    UserAuth.LdapUserAuth.NAME,
+            return auth_simple.UserAuth.create_user_auth(
+                    auth_simple.LdapUserAuth.NAME,
                     'ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es',
                     None,
                 )
@@ -161,7 +161,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             self.mocker.result(ldap_object)
             ldap_object.unbind_s()
-            UserAuth._ldap_provider.ldap_module = ldap_module
+            auth_simple._ldap_provider.ldap_module = ldap_module
 
             self.mocker.replay()
             self.assertTrue(
@@ -177,7 +177,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             ldap_module = self.mocker.mock()
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             self.mocker.result(ldap_object)
-            UserAuth._ldap_provider.ldap_module = ldap_module
+            auth_simple._ldap_provider.ldap_module = ldap_module
 
             self.mocker.replay()
             self.assertFalse(
@@ -193,7 +193,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             ldap_module = self.mocker.mock()
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             self.mocker.result(ldap_object)
-            UserAuth._ldap_provider.ldap_module = ldap_module
+            auth_simple._ldap_provider.ldap_module = ldap_module
 
             self.mocker.replay()
             self.assertRaises(
@@ -210,7 +210,7 @@ class LoginAuthTestCase(mocker.MockerTestCase):
             ldap_module = self.mocker.mock()
             ldap_module.initialize(uri_that_will_fail)
             self.mocker.throw(Exception("fail"))
-            UserAuth._ldap_provider.ldap_module = ldap_module
+            auth_simple._ldap_provider.ldap_module = ldap_module
 
             self.mocker.replay()
             self.assertRaises(
@@ -226,13 +226,13 @@ class LoginAuthTestCase(mocker.MockerTestCase):
 
 class LdapNotAvailableTestCase(OptionalModuleTestCase):
 
-    MODULE    = UserAuth
+    MODULE    = auth_simple
     ATTR_NAME = 'LDAP_AVAILABLE'
 
     def test_ldap_not_available(self):
         def func():
-            user_auth = UserAuth.UserAuth.create_user_auth(
-                    UserAuth.LdapUserAuth.NAME,
+            user_auth = auth_simple.UserAuth.create_user_auth(
+                    auth_simple.LdapUserAuth.NAME,
                     'ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es',
                     None,
                 )

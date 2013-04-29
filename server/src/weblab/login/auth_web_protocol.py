@@ -72,4 +72,8 @@ class OpenID(object):
         import weblab.login.comm.web.openid_web as OpenIDMod
         return OpenIDMod.OpenIdMethod.get_user_id(credentials)
 
+WEB_PROTOCOL_AUTHN = {
+    'FACEBOOK' : Facebook(),
+    'OPENID'   : OpenID(),
+}
 
