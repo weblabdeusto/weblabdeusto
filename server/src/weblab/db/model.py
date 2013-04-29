@@ -25,7 +25,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-import weblab.login.db.dao.user as UserAuth
+import weblab.login.user_auth as UserAuth
 
 from weblab.data.dto.experiments import Experiment
 from weblab.data.dto.experiments import ExperimentCategory

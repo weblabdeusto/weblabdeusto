@@ -25,7 +25,7 @@ except ImportError:
 
 from test.util.optional_modules import OptionalModuleTestCase
 import weblab.login.auth as LoginAuth
-import weblab.login.db.dao.user as UserAuth
+import weblab.login.user_auth as UserAuth
 import weblab.login.exc as LoginErrors
 
 valid_user                       = 'valid_user'

@@ -21,7 +21,7 @@ import weblab.login.auth as LoginAuth
 import weblab.login.delegated_auth as DelegatedLoginAuth
 
 from weblab.login.db.gateway import create_auth_gateway
-import weblab.login.db.dao.user as dao_user
+import weblab.login.user_auth as user_auth
 
 import weblab.login.comm.server as LoginFacadeServer
 import weblab.login.comm.web_server as WebFacadeServer
@@ -86,8 +86,8 @@ class LoginServer(object):
             server.start()
 
         self._external_id_providers = {
-            dao_user.FacebookUserAuth.NAME : DelegatedLoginAuth.Facebook(),
-            dao_user.OpenIDUserAuth.NAME   : DelegatedLoginAuth.OpenID()
+            user_auth.FacebookUserAuth.NAME : DelegatedLoginAuth.Facebook(),
+            user_auth.OpenIDUserAuth.NAME   : DelegatedLoginAuth.OpenID()
         }
 
     def stop(self):

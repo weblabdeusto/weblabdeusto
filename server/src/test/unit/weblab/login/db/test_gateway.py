@@ -21,7 +21,7 @@ import test.unit.configuration as configuration
 import voodoo.configuration as ConfigurationManager
 
 import weblab.login.db.gateway as DatabaseGateway
-import weblab.login.db.dao.user as UserAuth
+import weblab.login.user_auth as UserAuth
 
 import weblab.db.exc as DbErrors
 
@@ -42,6 +42,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
     def test_retrieve_auth_types(self):
         # print self.auth_gateway.retrieve_auth_types('student1')
+        pass
 
 
 # TODO: deprecated tests
