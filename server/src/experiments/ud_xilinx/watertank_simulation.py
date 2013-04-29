@@ -16,6 +16,7 @@
 
 import threading
 import time
+import json
 
 
 class Watertank(object):
@@ -159,6 +160,28 @@ class Watertank(object):
         with self.simlock:
             return self.current_volume / self.tank_capacity
         
+    def get_json_state(self, input_capacities, output_capacities):
+        """
+        Gets a json-encoded description of the simulation's state. 
+        As of now, it takes output and input capacities as arguments because the JSON state
+        is described through relative values. (For instance, first output at 0.3 capacity).
+        
+        @param input_capacities An array containing the maximum capacities of the input.
+        @param output_capacities An array containing the maximum capacities of the output.
+        """
+        if len(self.inputs) != len(input_capacities):
+            return "{}"
+        
+        inputs = []
+        for inp, cap in zip(self.inputs, input_capacities):
+            inputs.append(1.0 * inp/cap)
+        outputs = []
+        for inp, cap in zip(self.outputs, output_capacities):
+            outputs.append(1.0 * inp/cap)
+            
+        state = { "water" : self.get_water_level(), "inputs" : inputs, "outputs" : outputs }
+        
+        return json.dumps(state)
         
         
         
@@ -170,7 +193,7 @@ if __name__ == '__main__':
     
     i = 0
     while(i < 15):
-        print w.get_water_level(), w.get_water_volume();
+        print w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [20])
         time.sleep(0.5);
         i += 1
     

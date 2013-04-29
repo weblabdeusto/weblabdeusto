@@ -341,13 +341,13 @@ class UdXilinxExperiment(Experiment.Experiment):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
                 if vw == "watertank":
-                    self._watertank = watertank_simulation.Watertank(1000, [5, 5], [5], 0.5)
+                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
                     self._watertank.autoupdater_start(1)
                 else:
                     pass
                 
             elif command.startswith('VIRTUALWORLD_STATE'):
-                self._virtual_world_state = str(self._watertank.get_water_level())
+                self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
                 return self._virtual_world_state
             
             elif command == 'SYNTHESIZING_RESULT':
