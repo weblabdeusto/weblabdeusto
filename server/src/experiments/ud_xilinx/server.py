@@ -36,7 +36,6 @@ import json
 import base64
 import time
 
-import sys
 import traceback
 
 import watertank_simulation
@@ -309,6 +308,41 @@ class UdXilinxExperiment(Experiment.Experiment):
         elif self._device_name == "PLD":
             self._led_reader = LedReader(pld, pld_leds, 10, 30)
         
+        
+    def virtualworld_update(self):
+        """
+        Handles virtual world updating. For instance, in the case of the watertank,
+        it will control the virtual sensors (switches) depending on the watertank level.
+        """
+        if self._watertank != None:
+            waterLevel = self._watertank.get_water_level()
+            if waterLevel >= 20:
+                self.change_switch(0, True)
+            elif waterLevel >= 50:
+                self.change_switch(1, True)
+            elif waterLevel >= 80:
+                self.change_switch(2, True)
+                
+    # TODO: Eventually, there should be some way to limit the number of switches that a 
+    # user can explicitly control depending on the VirtualWorld simulation and state.
+    # For instance, if the first switch represents a water level sensor, it makes no 
+    # sense for the user to be able to define its state. For now, it is left as-is
+    # mainly for debugging convenience.
+                
+    def change_switch(self, switch, on):
+        """
+        Changes the state of a switch. This can be used, for instance, for
+        simulating sensors.
+        
+        @param switch Number of the switch to change.
+        @param on True if we wish to turn it on, false to turn it off.
+        """
+        state = "on"
+        if not on:
+            state = "off"
+        self._command_sender.send_command("ChangeSwitch %s %d" % (state, switch))
+        return
+        
 
     @logged("info")
     @Override(Experiment.Experiment)
@@ -347,8 +381,16 @@ class UdXilinxExperiment(Experiment.Experiment):
                     pass
                 
             elif command.startswith('VIRTUALWORLD_STATE'):
-                self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
-                return self._virtual_world_state
+                
+                if(self._watertank != None):
+                    self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
+                    
+                    # TODO: This should not be done here. For now however, it's the easiest place to put it in.
+                    self.virtualworld_update()
+                    
+                    return self._virtual_world_state
+                
+                return "{}";
             
             elif command == 'SYNTHESIZING_RESULT':
                 if(DEBUG):
