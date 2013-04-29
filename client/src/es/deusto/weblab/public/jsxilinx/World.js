@@ -46,7 +46,6 @@
                 "position" : [445, -155, 0],
                 "material" : 
                     function() {
-                        console.log("WATER IS: " + __water);
                         var watertexture = THREE.ImageUtils.loadTexture('water.jpg');
                         var mat = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
                         var mats = new THREE.MeshFaceMaterial([mat]);
@@ -57,7 +56,7 @@
                 "name" : "waterpumpRight",
                 "model" : "waterpump.js",
                 "scale" : [100, 100, 100],
-                "position" : [720, 70, 30],
+                "position" : [732, 78, -2],
                 "material" : function() { return new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 }); }
             },
             {
@@ -99,7 +98,6 @@
 
     "onLoad" : 
         function() {
-            console.log("[WORLDLOADER]: FINISHED");
         }
 
 }

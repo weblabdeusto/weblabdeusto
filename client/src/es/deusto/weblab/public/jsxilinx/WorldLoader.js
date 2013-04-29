@@ -69,6 +69,8 @@ WorldLoader = function () {
     //! @param scene THREE JS scene manager unto which to load the World
     this.load = function (file, scene) {
 
+        this._loadDeferred = $.Deferred();
+
         this.file = file;
         this.scene = scene;
 
@@ -94,6 +96,7 @@ WorldLoader = function () {
                 console.log("[WorldLoader] Request Failed: " + err);
         });
 
+        return this._loadDeferred.promise();
     }
 
     this._onWorldFileLoaded = function (json) {
@@ -121,6 +124,9 @@ WorldLoader = function () {
             }
             if(this.onLoadCB != undefined)
                 this.onLoadCB();
+
+            // Signal that we have finished loading.
+            this._loadDeferred.resolve();
         }.bind(this));
     }
 

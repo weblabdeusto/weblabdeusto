@@ -13,6 +13,8 @@
         <script src="../jslib/jquery-1.9.1.js"></script>
         <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
         <script src="../jslib/detector.js"></script>
+
+        <script src="js/controls/OrbitControls.js"></script>
         
         <script src="widgets.js"></script>
         <script src="WorldLoader.js"></script>
@@ -408,9 +410,6 @@
                 function () {
 
                     init();
-                    setTimeout(function () {
-                        animate();
-                    }.bind(this), 3000);
                 }
             );
 
@@ -497,28 +496,6 @@
 			}
 
 
-			function rnd_bmt() {
-			    var x = 0, y = 0, rds, c;
-
-			    // Get two random numbers from -1 to 1.
-			    // If the radius is zero or greater than 1, throw them out and pick two new ones
-			    // Rejection sampling throws away about 20% of the pairs.
-			    do {
-			        x = Math.random() * 2 - 1;
-			        y = Math.random() * 2 - 1;
-			        rds = x * x + y * y;
-			    }
-			    while (rds == 0 || rds > 1)
-
-			    // This magic is the Box-Muller Transform
-			    c = Math.sqrt(-2 * Math.log(rds) / rds);
-
-			    // It always creates a pair of numbers. I'll return them in an array. 
-			    // This function is quite efficient so don't be afraid to throw one away if you don't need both.
-			    return [x * c, y * c];
-			}
-
-
 			function init() {
 
 			    container = document.createElement('div');
@@ -541,7 +518,9 @@
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
 				camera.position.z = 600;
 
+
 				scene = new THREE.Scene();
+
 
 				video = document.getElementById( 'video' );
 
@@ -556,10 +535,7 @@
 				imageContext.fillRect( 0, 0, 320, 240 );
 
 				texture = new THREE.Texture( image );
-				//texture.minFilter = THREE.LinearFilter;
-				//texture.magFilter = THREE.LinearFilter;
 
-				//var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
 				
 				// mOD: Create bg thing
 				bg = new THREE.Mesh(
@@ -591,112 +567,20 @@
 				container.appendChild(renderer.domElement);
 
 
+				controls = new THREE.OrbitControls(camera);
+				controls.autoRotate = true;
+				controls.autoRotateSpeed = 2;
+				controls.center = new THREE.Vector3(600, 0, 0);
 
 
-				wl = new WorldLoader();
+				simulation = new WaterTankSimulation();
+				var loadPromise = simulation.loadScene(scene, camera);
 
-				wl.setOnLoad(function () {
-
-				    water = wl.getObject("water");
-				    waterfall = wl.getObject("waterfallRight");
-				    waterfall2 = wl.getObject("waterfallLeft");
-				    waterfallOut = wl.getObject("waterfallOut");
+				$.when(loadPromise).done(function (hai) {
+				    animate();
+				});
 
 
-				    setTimeout(
-
-                        function () {
-                            pb.hide();
-                        },
-                        2000
-                        );
-
-				    waterLevel = 0.01;
-				    waterLevelChange = 0.03;
-				    setTimeout(
-				        function () {
-				            setInterval(
-                                function () {
-
-                                    elapsed = 50;
-
-                                    waterLevel += waterLevelChange;
-                                    if (waterLevel > 1)
-                                        waterLevel = 1;
-                                    else if (waterLevel < 0)
-                                        waterLevel = 0;
-
-                                    if (waterLevel >= 1 || waterLevel <= 0) {
-                                        waterLevelChange *= -1;
-
-                                        if (typeof (waterfall) != "undefined") {
-                                            if (waterLevelChange > 0) {
-                                                waterfall.scale.set(150, 100, 100);
-                                                waterfall2.scale.set(150, 100, 100);
-                                            }
-                                            else {
-                                                waterfall.scale.set(50, 100, 100);
-                                                waterfall2.scale.set(50, 100, 100);
-                                            }
-
-                                        }
-                                    }
-
-                                    water.scale.set(.95, waterLevel, .95);
-
-                                },
-                                    50
-                                );
-				        },
-                    3000
-                    );
-
-
-				    wfrange = 5;
-				    wfinc = 25;
-				    wfcurrent = 0;
-				    wftarget = 100;
-
-				    setTimeout(
-				        function () {
-				            setInterval(
-                                function () {
-
-
-
-                                    wfcurrent += wfinc;
-
-                                    if (wfcurrent > wftarget) {
-                                        wfcurrent = wftarget;
-                                        wfinc *= -1;
-
-                                        wftarget = 100 + Math.random(40) * 20;
-                                    }
-
-
-                                    if (wfcurrent < 0) {
-                                        wfcurrent = 0;
-                                        wfinc *= -1;
-
-                                        wftarget = 100 + Math.random(40) * 20;
-                                    }
-
-                                    wfscale = 100 + wfcurrent / 100.0 * wfrange;
-                                    //console.log("New scale: " + wfscale + " " + wfcurrent + " " + wfinc);
-
-                                    waterfallOut.scale.set(wfscale, 100, 100);
-
-                                },
-                                    50
-                                );
-				        },
-                    3000
-                    );
-
-				}); //! OnLoad
-
-
-				wl.load("World.js", scene);
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -728,12 +612,17 @@
 
 			}
 
+
 			function animate() {
 				requestAnimationFrame( animate );
 
 				render();
 				stats.update();
 
+			    // For some reason, controls looks for a dispatchEvent method which apparently only
+                // exists on certain contexts. For now, this will do.
+				controls.dispatchEvent = function (ev) { }
+				controls.update();
 			}
 
 			function render() {
@@ -741,11 +630,11 @@
 				renderer.autoClear = false;
 				renderer.clear();
 
-				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
-				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
-				camera.lookAt(scene.position);
+				//camera.position.x += (mouseX - camera.position.x) * 0.05;
+				//camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+				//camera.lookAt(scene.position);
 
-				camera.lookAt(water.position);
+				//camera.lookAt(water.position);
 
 				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
 
