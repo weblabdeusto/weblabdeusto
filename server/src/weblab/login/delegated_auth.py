@@ -33,9 +33,6 @@ FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 
 # TODO: this could be refactored to be more extensible for other OAuth systems
 class Facebook(object):
-    def __init__(self, db_manager):
-        self._db_manager = db_manager
-
     @logged(log.level.Warning)
     def get_user(self, credentials):
         payload = credentials[credentials.find('.') + 1:]
@@ -67,9 +64,6 @@ class Facebook(object):
         return login.split('@')[0]
 
 class OpenID(object):
-    def __init__(self, db_manager):
-        self._db_manager = db_manager
-
     @logged(log.level.Warning)
     def get_user(self, credentials):
         return None

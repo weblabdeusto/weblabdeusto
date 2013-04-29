@@ -19,6 +19,7 @@ import hashlib
 
 from sqlalchemy.orm.exc import NoResultFound
 
+from weblab.db.session import ValidDatabaseSessionId
 import weblab.db.model as Model
 
 from voodoo.log import logged
@@ -68,9 +69,6 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    ###########################################################################
-    ##################   check_external_credentials   #########################
-    ###########################################################################
     @logged()
     def check_external_credentials(self, external_id, system):
         """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting
@@ -90,7 +88,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
 
             user = user_auth.user
-            return user.login, user.role
+            return ValidDatabaseSessionId( user.login, user.role.name)
         finally:
             session.close()
 

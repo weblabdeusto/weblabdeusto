@@ -61,7 +61,6 @@ The LoginServer manages both interfaces.
 # - Check if the Facebook and OpenID UserAuths are actually required or not.
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
-# - Remove DatabaseManager.
 
 class LoginServer(object):
 
@@ -77,8 +76,6 @@ class LoginServer(object):
 
         self._coord_address = coord_address
         self._db_gateway    = create_auth_gateway(cfg_manager)
-        # TODO: REMOVE db_manager AND USE the gateway
-        self._db_manager    = DatabaseManager.LoginDatabaseManager(cfg_manager)
         self._locator       = locator
         self._cfg_manager   = cfg_manager
 
@@ -90,8 +87,8 @@ class LoginServer(object):
             server.start()
 
         self._external_id_providers = {
-            dao_user.FacebookUserAuth.NAME : DelegatedLoginAuth.Facebook(self._db_manager),
-            dao_user.OpenIDUserAuth.NAME   : DelegatedLoginAuth.OpenID(self._db_manager)
+            dao_user.FacebookUserAuth.NAME : DelegatedLoginAuth.Facebook(),
+            dao_user.OpenIDUserAuth.NAME   : DelegatedLoginAuth.OpenID()
         }
 
     def stop(self):
@@ -204,16 +201,30 @@ class LoginServer(object):
 
     @logged(log.level.Info)
     def extensible_login(self, system, credentials):
-        external_user_id, _ = self._validate_remote_user(system, credentials)
+        """ The extensible login system receives a system (e.g. FACEBOOK, or OPENID), and checks
+        that with that system and certain credentials (in a particular format) identifies the user.
+        For example, for Facebook, the system will be FACEBOOK and the credentials will be a base64
+        string containing the oauth token which WebLab-Deusto will use to contact Facebook and 
+        retrieve the user information. In other systems (such as OpenID), it will be used to 
+        check in there is an existing session in the session database.
+
+        The important point of this method is that we do not know the login when calling it. In the 
+        method "login", the username is provided, the database is accessed to check what authentication
+        mechanisms are used. With these mechanisms, the credentials are validated. Here, it is the 
+        opposite way: the system provides a set of credentials and some external mechanism will check 
+        who is the user, and once validated, it will check in the database who in WebLab-Deusto is that 
+        user.
+        """
+        external_user_id, _ = self._validate_web_protocol_authn(system, credentials)
         # It's a valid external user, book it if there is a user linked
         try:
-            db_session_id = self._db_manager.check_external_credentials(external_user_id, system)
+            db_session_id = self._db_gateway.check_external_credentials(external_user_id, system)
         except DbErrors.DbUserNotFoundError:
             raise LoginErrors.InvalidCredentialsError("%s User ID not found: %s" % (system, external_user_id))
 
         return self._reserve_session(db_session_id)
 
-    def _validate_remote_user(self, system, credentials):
+    def _validate_web_protocol_authn(self, system, credentials):
         system = system.upper()
         if not system in self._external_id_providers:
             raise LoginErrors.LoginError("Invalid system!")
@@ -238,8 +249,8 @@ class LoginServer(object):
             if username == not_linkable_user:
                 raise LoginErrors.LoginError("Username not linkable!")
 
-        local_db_session_id  = self._validate_local_user(username, password)
-        external_user_id, _ = self._validate_remote_user(system, credentials)
+        local_db_session_id  = self._validate_simple_authn(username, password)
+        external_user_id, _  = self._validate_web_protocol_authn(system, credentials)
         # No exception prior to this: the user is the owner of both username and credentials
         self._db_gateway.grant_external_credentials(username, external_user_id, system)
         return self._reserve_session(local_db_session_id)
@@ -250,7 +261,7 @@ class LoginServer(object):
 
         if not self._cfg_manager.get_value(CREATING_EXTERNAL_USERS, True):
             raise LoginErrors.LoginError("Creating external users not enabled!")
-        external_user_id, external_user = self._validate_remote_user(system, credentials)
+        external_user_id, external_user = self._validate_web_protocol_authn(system, credentials)
         if external_user is None:
             raise LoginErrors.LoginError("Creation of external user not supported by delegated login system!")
         group_names = self._cfg_manager.get_value(DEFAULT_GROUPS, [])
