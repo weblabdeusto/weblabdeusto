@@ -95,6 +95,8 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._ucf_file = None
         
+        self._switches_state = "0000000000"
+        
         # These are only for led-state reading. This is an experimental
         # feature.
         self._led_reader = None
@@ -322,12 +324,25 @@ class UdXilinxExperiment(Experiment.Experiment):
                 reply = "STATE="+ self._current_state
                 return reply
             
+            elif command.startswith('ChangeSwitch'):
+                # Intercept the ChangeSwitch command to track the state of the Switches.
+                # This command will in fact be later relied to the Device.
+                cs = command.split(" ");
+                switch_number = cs[2]
+                if(cs[1] == "on"):
+                    self._switches_state[switch_number] = 1
+                else:
+                    self._switches_state[switch_number] = 0
+                    
+            elif command == 'REPORT_SWITCHES':
+                return self._switches_state
+            
             elif command.startswith('VIRTUALWORLD_MODE'):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
                 if vw == "watertank":
                     self._watertank = watertank_simulation.Watertank(1000, [5, 5], [5], 0.5)
-                    self._watertank.autoupdater_start(1000)
+                    self._watertank.autoupdater_start(1)
                 else:
                     pass
                 
@@ -358,11 +373,11 @@ class UdXilinxExperiment(Experiment.Experiment):
                         first_pump = self._led_state[7]
                         second_pump = self._led_state[6]
                         if first_pump:
-                            first_pump = 5
+                            first_pump = 10
                         else:
                             first_pump = 0
                         if second_pump:
-                            second_pump = 5
+                            second_pump = 10
                         else:
                             second_pump = 0
                         self._watertank.set_input(0, first_pump)

@@ -164,7 +164,7 @@ class Watertank(object):
         
 if __name__ == '__main__':
     
-    w = Watertank(10, [0.1, 0.1], [0.1], 0)
+    w = Watertank(1000, [10, 10], [10], 0.5)
     w.autoupdater_start(1)
     
     
