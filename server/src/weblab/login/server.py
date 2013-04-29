@@ -17,7 +17,6 @@ from voodoo.log import logged
 import time
 import traceback
 
-import weblab.login.auth as LoginAuth
 import weblab.login.delegated_auth as DelegatedLoginAuth
 
 from weblab.login.db import create_auth_gateway
@@ -131,11 +130,9 @@ class LoginServer(object):
         for user_auth in user_auths:
             # Take only those auth types that use a simple interface
             if user_auth.is_simple_authn():
-                simple_login_auth = LoginAuth.LoginAuth.create(user_auth)
-    
                 # With each user auth, try to authenticate the user.
                 try:
-                    authenticated = simple_login_auth.authenticate(username, credentials)
+                    authenticated = user_auth.authenticate(username, credentials)
                 except:
                     # If there is an error, the user could not be authenticated.
                     log.log( LoginServer, log.level.Warning, "Username: %s with user_auth %s: ERROR" % (username, user_auth) )
