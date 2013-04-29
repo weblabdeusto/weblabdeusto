@@ -5,7 +5,7 @@ import json
 import random
 import datetime
 
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, redirect
 
 app = Flask(__name__)
 
@@ -17,14 +17,44 @@ app = Flask(__name__)
 DATA = {
 }
 
+##################################
+# 
+# Store in EXPIRED_DATA, expired
+# addresses pointing to their
+# previous URLs
+# 
+EXPIRED_DATA = {
+}
+
+#####################################
+# 
+# Main method. Authorized users
+# come here directly, with a secret
+# which is their identifier. This
+# should be stored in a Redis or 
+# SQL database.
+#
 @app.route('/lab/<session_id>/')
 def index(session_id):
     data = DATA.get(session_id, None)
     if data is None:
-        return "Session identifier not found"
+        back_url = EXPIRED_DATA.get(session_id, None)
+        if back_url is None:
+            return "Session identifier not found"
+        else:
+            return redirect(back_url)
+            
     
     data['last_poll'] = datetime.datetime.now()
-    return "Hi %s. You still have %s seconds" % (data['username'], (data['max_date'] - datetime.datetime.now()).seconds)
+    return """<html>
+    <head>
+        <meta http-equiv="refresh" content="10">
+    </head>
+    <body>
+        Hi %(username)s. You still have %(seconds)s seconds
+    </body>
+    </head>
+    """ % dict(username=data['username'], seconds=(data['max_date'] - datetime.datetime.now()).seconds)
 
 def get_json():
     # Retrieve the submitted JSON
@@ -35,6 +65,14 @@ def get_json():
         data = keys[0]
     return json.loads(data)
 
+
+#############################################################
+# 
+# WebLab-Deusto API:
+# 
+# First, this method creates new sessions. We store the 
+# sessions on memory in this dummy example.
+# 
 
 @app.route("/foo/weblab/sessions/", methods=['POST'])
 def start_experiment():
@@ -56,6 +94,7 @@ def start_experiment():
         'username'  : server_initial_data['request.username'],
         'max_date'  : max_date,
         'last_poll' : datetime.datetime.now(),
+        'back'      : request_data['back']
     }
 
     link = url_for('index', session_id=session_id, _external = True)
@@ -63,6 +102,13 @@ def start_experiment():
     print "See:",link
     return json.dumps({ 'url' : link, 'session_id' : session_id })
 
+#############################################################
+# 
+# WebLab-Deusto API:
+# 
+# This method provides the current status of a particular 
+# user.
+# 
 @app.route('/foo/weblab/sessions/<session_id>/status')
 def status(session_id):
     data = DATA.get(session_id, None)
@@ -70,15 +116,30 @@ def status(session_id):
         print "Did not poll in", datetime.datetime.now() - data['last_poll'], "seconds"
         print "User %s still has %s seconds" % (data['username'], (data['max_date'] - datetime.datetime.now()).seconds)
     print "Ask in 10 seconds..."
+    # 
+    # If the user is considered expired here, we can return -1 instead of 10. 
+    # The WebLab-Deusto scheduler will mark it as finished and will reassign
+    # other user.
+    # 
     return json.dumps({'should_finish' : 10})
 
 
+#############################################################
+# 
+# WebLab-Deusto API:
+# 
+# This method is called to kick one user out. This may happen
+# when an administrator defines so, or when the assigned time
+# is over.
+# 
 @app.route('/foo/weblab/sessions/<session_id>', methods=['POST'])
 def dispose_experiment(session_id):
     request_data = get_json()
     if 'action' in request_data and request_data['action'] == 'delete':
         if session_id in DATA:
-            DATA.pop(session_id, None)
+            data = DATA.pop(session_id, None)
+            if data is not None:
+                EXPIRED_DATA[session_id] = data['back']
             return 'deleted'
         return 'not found'
     return 'unknown op'

@@ -45,22 +45,28 @@ class HttpExperiment(Experiment):
 
         if self.username and self.password:
             request.add_header("Authorization", "Basic %s" % self.encoded)
+            if data is not None:
+                request.add_header('Content-Type', 'application/json')
 
         if data is None:
             return urllib2.urlopen(request).read()
         else:
             return urllib2.urlopen(request, json.dumps(data)).read()
 
-    def do_start_experiment(self, client_initial_data, server_initial_data):
+    def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
         try:
+            back_url = json.loads(serialized_client_initial_data).get('back','')
+
             response_str = self._request('', {
-                'client_initial_data' : client_initial_data,
-                'server_initial_data' : server_initial_data,
+                'client_initial_data' : serialized_client_initial_data,
+                'server_initial_data' : serialized_server_initial_data,
+                'back' : back_url,
             })
             response = json.loads(response_str)
             url = response.get('url','http://server.sent.invalid.address')
+
             config = {
-                'url' : url
+                'url'  : url,
             }
             self.session_id = response.get('session_id','invalid_session_id')
 
