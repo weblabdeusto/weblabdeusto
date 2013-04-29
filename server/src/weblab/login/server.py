@@ -20,7 +20,7 @@ import traceback
 import weblab.login.auth as LoginAuth
 import weblab.login.delegated_auth as DelegatedLoginAuth
 
-from weblab.login.db.gateway import create_auth_gateway
+from weblab.login.db import create_auth_gateway
 import weblab.login.user_auth as user_auth
 
 import weblab.login.comm.server as LoginFacadeServer
