@@ -78,12 +78,13 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             try:
                 auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
-                auth = auth_type.auths[0]
-            except (NoResultFound, KeyError):
+                if len(auth_type.auths) == 0:
+                    raise DbErrors.DbUserNotFoundError("No instance of system '%s' found in database." % system)
+            except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
-                user_auth = session.query(Model.DbUserAuth).filter_by(auth = auth, configuration=external_id).one()
+                user_auth = session.query(Model.DbUserAuth).filter(Model.DbUserAuth.auth.in_(auth_type.auths), configuration==external_id).one()
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
 

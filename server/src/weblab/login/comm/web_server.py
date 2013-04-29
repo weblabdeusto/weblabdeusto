@@ -18,7 +18,6 @@ import weblab.comm.web_server as WebFacadeServer
 from weblab.login.comm.web.login import LoginMethod
 from weblab.login.comm.web.facebook import FacebookMethod
 from weblab.login.comm.web.openid_web import OpenIdMethod
-from weblab.login.comm.web.direct2experiment import Direct2ExperimentMethod
 
 from weblab.login.comm.server import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
 
@@ -33,7 +32,6 @@ class LoginWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRemoteFacade
                 LoginMethod,
                 FacebookMethod,
                 OpenIdMethod,
-                Direct2ExperimentMethod,
             ]
 
 class LoginWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
