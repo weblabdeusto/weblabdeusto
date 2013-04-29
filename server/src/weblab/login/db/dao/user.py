@@ -106,9 +106,6 @@ class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
         return TrustedIpAddressesUserAuth.NAME
 
     def __repr__(self):
-        return "TrustedIpAddressesUserAuth(addresses=%r)" % self.addresses
-
-    def __repr__(self):
         return "TrustedIpAddressesUserAuth(configuration=%r)" % self.addresses
 
 class FacebookUserAuth(WebProtocolUserAuth):

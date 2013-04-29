@@ -20,7 +20,6 @@ import traceback
 import weblab.login.auth as LoginAuth
 import weblab.login.delegated_auth as DelegatedLoginAuth
 
-import weblab.login.db.manager as DatabaseManager
 from weblab.login.db.gateway import create_auth_gateway
 import weblab.login.db.dao.user as dao_user
 
@@ -161,29 +160,6 @@ class LoginServer(object):
             raise LoginErrors.LoginError( "Error checking credentials. Contact administrators!" )
 
         return self._process_invalid()
-
-# TODO: remove me
-#     def _validate_local_user(self, username, password):
-#         db_session_id = self._db_manager.check_credentials(username, str(password))
-# 
-#         if isinstance(db_session_id, DbSession.InvalidDatabaseSessionId):
-#             log.log( LoginServer, log.level.Warning, "Invalid username: %s" % username )
-#             time.sleep(LOGIN_FAILED_DELAY)
-#             raise LoginErrors.InvalidCredentialsError(
-#                         "Invalid username or password!"
-#                     )
-#         elif isinstance(db_session_id, DbSession.NotAuthenticatedSessionId):
-#             for user_auth in db_session_id.user_auths:
-#                 login_auth = LoginAuth.LoginAuth.create(user_auth)
-#                 if login_auth.authenticate(username, password):
-#                     log.log( LoginServer, log.level.Debug, "Username: %s with user_auth %s: SUCCESS" % (username, user_auth) )
-#                     break
-#                 log.log( LoginServer, log.level.Warning, "Username: %s with user_auth %s: FAIL" % (username, user_auth) )
-#             else :
-#                 raise LoginErrors.InvalidCredentialsError(
-#                     "Invalid username or password!"
-#                 )
-#         return db_session_id
 
     def _reserve_session(self, db_session_id):
         """ Contact the Core server and reserve a session there that we will return
