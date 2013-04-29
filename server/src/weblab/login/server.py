@@ -12,6 +12,25 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+
+"""
+This module contains the Login Server. This server will only
+manage the authentication (and not the authorization) of the 
+users. To this end, it defines that there are two interfaces:
+
+ * One for those systems that can be checked with typical credentials (e.g.,
+   using a username a password). Examples of this would be a regular database,
+   a LDAP server, or a set of constraints such as "is the user coming from 
+   this IP address?". This interface is called "SimpleAuthn".
+
+ * The system, which manages that there is an external system that manages
+   the authentication, and some external protocol is required. Examples of this
+   are OAuth, OpenID or similar. They all require using a web interface. This
+   interface is called "WebProtocolAuthn".
+
+The LoginServer manages both interfaces.
+"""
+
 import voodoo.log as log
 from voodoo.log import logged
 import time
@@ -36,26 +55,7 @@ DEFAULT_GROUPS     = 'login_default_groups_for_external_users'
 CREATING_EXTERNAL_USERS = 'login_creating_external_users'
 LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
-"""
-This module contains the Login Server. This server will only
-manage the authentication (and not the authorization) of the 
-users. To this end, it defines that there are two interfaces:
-
- * One for those systems that can be checked with typical credentials (e.g.,
-   using a username a password). Examples of this would be a regular database,
-   a LDAP server, or a set of constraints such as "is the user coming from 
-   this IP address?". This interface is called "SimpleAuthn".
-
- * The system, which manages that there is an external system that manages
-   the authentication, and some external protocol is required. Examples of this
-   are OAuth, OpenID or similar. They all require using a web interface. This
-   interface is called "WebProtocolAuthn".
-
-The LoginServer manages both interfaces.
-"""
-
 # TODO list:
-# - Merge UserAuth and LoginAuth
 # - Check if the Facebook and OpenID UserAuths are actually required or not.
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
