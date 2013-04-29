@@ -122,7 +122,7 @@ class LoginServer(object):
         """
         try:
             role_name  = self._db_gateway.retrieve_role(username)
-            user_auths = self._db_gateway.retrieve_auth_types(username)
+            user_auths = self._db_gateway.retrieve_user_auths(username)
         except DbErrors.DbUserNotFoundError:
             return self._process_invalid()
 

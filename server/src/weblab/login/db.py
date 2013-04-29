@@ -36,8 +36,8 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
 
     @logged()
-    def retrieve_auth_types(self, username):
-        """ Retrieve the auth types for a given username."""
+    def retrieve_user_auths(self, username):
+        """ Retrieve the user auths for a given username."""
         session = self.Session()
         try:
             try:
