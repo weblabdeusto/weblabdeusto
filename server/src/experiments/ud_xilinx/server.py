@@ -370,9 +370,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                 cs = command.split(" ");
                 switch_number = cs[2]
                 if(cs[1] == "on"):
-                    self._switches_state[switch_number] = "1"
+                    self._switches_state[int(switch_number)] = "1"
                 else:
-                    self._switches_state[switch_number] = "0"
+                    self._switches_state[int(switch_number)] = "0"
                     
             elif command == 'REPORT_SWITCHES':
                 return self._switches_state
