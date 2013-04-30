@@ -94,7 +94,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._ucf_file = None
         
-        self._switches_state = "0000000000"
+        self._switches_state = list("0000000000")
         
         # These are only for led-state reading. This is an experimental
         # feature.
@@ -447,3 +447,23 @@ class UdXilinxExperiment(Experiment.Experiment):
             raise ExperimentErrors.SendingCommandFailureError(
                     "Error sending command to device: %s" % e
                 )
+            
+            
+if __name__ == "__main__":
+    from voodoo.configuration import ConfigurationManager
+    from voodoo.sessions.session_id import SessionId
+    cfg_manager = ConfigurationManager()
+    try:
+        cfg_manager.append_path("../../../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+    except:
+        cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+
+    experiment = UdXilinxExperiment(None, None, cfg_manager)
+    
+    lab_session_id = SessionId('my-session-id')
+    experiment.do_start_experiment()
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    print experiment.do_send_command_to_device("ChangeSwitch on 1")
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
