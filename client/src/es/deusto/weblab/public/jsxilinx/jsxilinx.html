@@ -576,7 +576,9 @@
 				simulation = new WaterTankSimulation();
 				var loadPromise = simulation.loadScene(scene, camera);
 
-				$.when(loadPromise).done(function (hai) {
+				$.when(loadPromise).done(function () {
+				    wsu = new WeblabSimulationUpdater(simulation);
+				    wsu.startUpdating();
 				    animate();
 				});
 

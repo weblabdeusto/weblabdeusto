@@ -83,8 +83,12 @@ WorldLoader = function () {
         //        console.log("[WorldLoader] Request Failed: " + err);
         //});
 
-        $.get("World.js",
-            function (script) {
+        
+        // We retrieve the world script. If we do not specify that it is a "text" file,
+        // for some reason on certain circumstances and servers it issues a parsererror.
+        // (Even though the script shouldn't actually be parsed here).
+        $.get("World.js", undefined, undefined, "text")
+            .done( function (script) {
                 // We use a somewhat shady way to load the extended JSON
                 // (That is, JSON plus JS callbacks etc)
                 script = "__worldjson = " + script;
@@ -94,7 +98,7 @@ WorldLoader = function () {
             .fail(function (jqxhr, textStatus, error) {
                 var err = textStatus + ', ' + error;
                 console.log("[WorldLoader] Request Failed: " + err);
-        });
+        }.bind(this));
 
         return this._loadDeferred.promise();
     }
