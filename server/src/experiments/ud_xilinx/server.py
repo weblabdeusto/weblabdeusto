@@ -300,7 +300,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         from ledreader import LedReader
         pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
-        fpga_leds = [ (84, 171), (93, 171), (97, 171), (110, 171), (120, 171), (129, 171), (138, 171), (147, 171) ]
+        fpga_leds = [ (89, 171), (97, 171), (107, 171), (116, 171), (120, 171), (125, 171), (134, 171), (143, 171) ]
         fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
         pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
         if self._device_name == "FPGA":
