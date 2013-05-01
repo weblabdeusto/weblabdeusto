@@ -35,6 +35,7 @@ from experiments.xilinxc.compiler import Compiler
 import json
 import base64
 import time
+import random
 
 import traceback
 
@@ -104,7 +105,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         # These are for virtual-worlds
         self._virtual_world = ""
         self._virtual_world_state = "";
+        self._last_virtualworld_update = time.time()
         self._watertank = None
+        self._watertank_time_without_demand_change = 0
         
 
     def _load_xilinx_device(self):
@@ -309,7 +312,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._led_reader = LedReader(pld, pld_leds, 10, 30)
         
         
-    def virtualworld_update(self):
+    def virtualworld_update(self, delta):
         """
         Handles virtual world updating. For instance, in the case of the watertank,
         it will control the virtual sensors (switches) depending on the watertank level.
@@ -318,10 +321,16 @@ class UdXilinxExperiment(Experiment.Experiment):
             waterLevel = self._watertank.get_water_level()
             if waterLevel >= 0.20:
                 self.change_switch(0, True)
-            elif waterLevel >= 0.50:
+            if waterLevel >= 0.50:
                 self.change_switch(1, True)
-            elif waterLevel >= 0.80:
+            if waterLevel >= 0.80:
                 self.change_switch(2, True)
+                
+        self._watertank_time_without_demand_change += delta
+        
+        if(self._watertank_time_without_demand_change > 5):
+            self._watertank_time_without_demand_change = 0
+            self._watertank.set_outputs([random.randint(0, 20)])
                 
     # TODO: Eventually, there should be some way to limit the number of switches that a 
     # user can explicitly control depending on the VirtualWorld simulation and state.
@@ -382,6 +391,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self._virtual_world = vw
                 if vw == "watertank":
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
+                    self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                 else:
                     pass
@@ -391,8 +401,10 @@ class UdXilinxExperiment(Experiment.Experiment):
                 if(self._watertank != None):
                     self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
                     
+                    now = time.time()
                     # TODO: This should not be done here. For now however, it's the easiest place to put it in.
-                    self.virtualworld_update()
+                    self.virtualworld_update(now - self._last_virtualworld_update)
+                    self._last_virtualworld_update = now
                     
                     return self._virtual_world_state
                 
@@ -466,4 +478,19 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("ChangeSwitch on 1")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    experiment._watertank.current_volume = 0
+    time.sleep(5)
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    experiment._watertank.current_volume = 0
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
