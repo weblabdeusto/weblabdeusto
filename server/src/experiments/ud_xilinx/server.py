@@ -488,9 +488,10 @@ if __name__ == "__main__":
     time.sleep(5)
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     time.sleep(1);
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    experiment._watertank.current_volume = 0
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    while(True):
+        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+        experiment._watertank.current_volume = 0
+        print experiment.do_send_command_to_device("REPORT_SWITCHES")
+        time.sleep(1);
+        print experiment.do_send_command_to_device("REPORT_SWITCHES")
+        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")

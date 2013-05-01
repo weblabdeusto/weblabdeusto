@@ -83,14 +83,16 @@ Weblab = new function () {
 
     parent.wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
-            mCommandsSentMap[id][0](msg);
+            if( mCommandsSentMap[id][0] != undefined )
+                mCommandsSentMap[id][0](msg);
             delete mCommandsSentMap[id];
         }
     };
 
     parent.wl_inst.handleCommandError = function (msg, id) {
         if (id in mCommandsSentMap) {
-            mCommandsSentMap[id][1](msg);
+            if( mCommandsSentMap[id][1] != undefined )
+                mCommandsSentMap[id][1](msg);
             delete mCommandsSentMap[id];
         }
     };
