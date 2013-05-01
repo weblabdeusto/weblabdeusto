@@ -430,8 +430,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                     # the simulation's state automatically. For now, however, it will only
                     # check the state upon the client's request.
                     if self._virtual_world == "watertank":
-                        first_pump = self._led_state[7]
-                        second_pump = self._led_state[6]
+                        first_pump = self._led_state[7] == "1"
+                        second_pump = self._led_state[6] == "1"
                         if first_pump:
                             first_pump = 10
                         else:
