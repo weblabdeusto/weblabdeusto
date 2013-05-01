@@ -474,6 +474,7 @@ if __name__ == "__main__":
     
     lab_session_id = SessionId('my-session-id')
     experiment.do_start_experiment()
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("ChangeSwitch on 1")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
