@@ -316,11 +316,11 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         if self._watertank != None:
             waterLevel = self._watertank.get_water_level()
-            if waterLevel >= 20:
+            if waterLevel >= 0.20:
                 self.change_switch(0, True)
-            elif waterLevel >= 50:
+            elif waterLevel >= 0.50:
                 self.change_switch(1, True)
-            elif waterLevel >= 80:
+            elif waterLevel >= 0.80:
                 self.change_switch(2, True)
                 
     # TODO: Eventually, there should be some way to limit the number of switches that a 
