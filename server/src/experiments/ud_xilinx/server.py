@@ -307,7 +307,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
         pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
         if self._device_name == "FPGA":
-            self._led_reader = LedReader(fpga, fpga_leds, 5, 7)
+            self._led_reader = LedReader(fpga, fpga_leds, 5, 5)
         elif self._device_name == "PLD":
             self._led_reader = LedReader(pld, pld_leds, 10, 30)
         
@@ -346,10 +346,13 @@ class UdXilinxExperiment(Experiment.Experiment):
         @param switch Number of the switch to change.
         @param on True if we wish to turn it on, false to turn it off.
         """
-        state = "on"
-        if not on:
-            state = "off"
-        self._command_sender.send_command("ChangeSwitch %s %d" % (state, switch))
+        if on:
+            if self._switches_state[switch] == "0":
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("on", switch))
+        else:
+            if self._switches_state[switch] == "1":
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("off", switch))
+            
         
         if on:
             self._switches_state[switch] = "1"
