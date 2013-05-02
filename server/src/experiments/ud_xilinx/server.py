@@ -433,8 +433,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                     # the simulation's state automatically. For now, however, it will only
                     # check the state upon the client's request.
                     if self._virtual_world == "watertank":
-                        first_pump = self._led_state[7] == "1"
-                        second_pump = self._led_state[6] == "1"
+                        first_pump = self._led_state[7] == '1'
+                        second_pump = self._led_state[6] == '1'
                         if first_pump:
                             first_pump = 10
                         else:
@@ -495,6 +495,7 @@ if __name__ == "__main__":
     while(True):
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
         experiment._watertank.current_volume = 0
+        print experiment.do_send_command_to_device("READ_LEDS")
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
         time.sleep(1);
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
