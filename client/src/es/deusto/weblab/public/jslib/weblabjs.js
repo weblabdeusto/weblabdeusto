@@ -68,17 +68,20 @@ Weblab = new function () {
     parent.wl_inst.version = "1.1";
 
     parent.wl_inst.setTime = function (time) {
-        mOnTimeCallback();
+        if(mOnTimeCallback != undefined)
+            mOnTimeCallback();
     }
 
     parent.wl_inst.startInteraction = function () {
         mIsExperimentActive = true;
-        mOnStartInteractionCallback();
+        if(mOnStartInteractionCallback != undefined)
+            mOnStartInteractionCallback();
     }
 
     parent.wl_inst.end = function () {
         mIsExperimentActive = false;
-        mOnEndCallback();
+        if(mOnEndCallback != undefined)
+            mOnEndCallback();
     }
 
     parent.wl_inst.handleCommandResponse = function (msg, id) {

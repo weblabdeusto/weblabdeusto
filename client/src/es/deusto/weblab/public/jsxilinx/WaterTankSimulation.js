@@ -175,15 +175,30 @@ WeblabSimulationUpdater = function ( simulation ) {
     this._init = function () {
         this._interval = undefined;
         this._simulation = simulation;
+        this._initialized = false
     }
 
     this.startUpdating = function () {
-        this._interval = setInterval( this._requestUpdate.bind(this), 3000 );
+        this._interval = setInterval( this._requestUpdate.bind(this), 4000 );
+    }
+
+    this._initialize_watertank = function () {
+        Weblab.dbgSetOfflineSendCommandResponse("");
+
+        if (Weblab.isExperimentActive() && Weblab.checkOnline())
+            Weblab.sendCommand("VIRTUALWORLD_MODE watertank", function (msg) { this._initialized = true; }.bind(this));
     }
 
     this._requestUpdate = function () {
-        Weblab.dbgSetOfflineSendCommandResponse("{\"water\": 0.56, \"inputs\": [0.5, 0.5], \"outputs\": [0.5]}");
+        if (!this._initialized)
+            this._initialize_watertank()
 
+        // Note: These commands are actually sent asynchronously, so the second one might actually get called before
+        // the first one finishes. Shouldn't matter in this instance, however. Though it's not tidy.
+        // Maybe we could consider adding Promises support to the Weblab class (though it would add a dependency on
+        // jquery.
+
+        Weblab.dbgSetOfflineSendCommandResponse("{\"water\": 0.56, \"inputs\": [0.5, 0.5], \"outputs\": [0.5]}");
         if( Weblab.isExperimentActive() && Weblab.checkOnline() )
             Weblab.sendCommand("VIRTUALWORLD_STATE", this._onStateReceived.bind(this), this._onStateReceivedError.bind(this));
     }
@@ -194,8 +209,12 @@ WeblabSimulationUpdater = function ( simulation ) {
         }
     }
 
-    this._onStateReceived = function ( state_json ) {
+    this._onStateReceived = function (state_json) {
         state = $.parseJSON(state_json);
+
+        if ($.isEmptyObject(state))
+            return;
+
         this._simulation.setWaterLevel(state["water"]);
         this._simulation.setLeftPumpLevel(state["inputs"][0]);
         this._simulation.setRightPumpLevel(state["inputs"][1]);

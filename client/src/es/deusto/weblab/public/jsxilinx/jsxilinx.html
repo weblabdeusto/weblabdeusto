@@ -206,8 +206,8 @@
 			    //! Creates the specified number of switches.
 			    //!
 			    this._createSwitches = function (container) {
-			        for (var i = 0; i < 8; i++) {
-			            var swit = new SwitchWidget(i, "" + (15+i*8) + "%", "85%", "Switch " + i);
+			        for (var i = 9; i >= 0; i--) {
+			            var swit = new SwitchWidget(i, "" + (15+i*8) + "%", "85%", "Sw" + i);
 			            mSwitches[i] = swit;
 
 			            container.appendChild(swit.getElement());
@@ -227,7 +227,7 @@
                 //!
                 //! @return The LED img.
                 this._createLed = function (number, pos_x, pos_y) {
-                    led = new LEDWidget(pos_x, pos_y, "LED " + number);
+                    led = new LEDWidget(pos_x, pos_y, "" + number);
                     mLEDs[number] = led;
                     return led;
                 }
@@ -279,7 +279,7 @@
                     catch (err) {
                         console.log('Error');
                     }
-                    setTimeout(this.startRefreshingLeds.bind(this), 1000);
+                    setTimeout(this.startRefreshingLeds.bind(this), 3000);
                 }
 
                 this.getLEDs = function () {
@@ -392,7 +392,7 @@
                 }
 
                 this.startCheckingState = function () {
-                    mCheckerInterval = setInterval(this._checkState.bind(this), 1000);
+                    mCheckerInterval = setInterval(this._checkState.bind(this), 3000);
                 }
 
                 this.stopCheckingState = function () {

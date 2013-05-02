@@ -64,7 +64,7 @@ RefreshingCameraWidget = function (targetid, imgsrc) {
             mImage.src = mImgSrc + "?" + mReload;
         }
 
-        setTimeout(this.startRefreshing.bind(this), 1000);
+        setTimeout(this.startRefreshing.bind(this), 3000);
     }
 
 
@@ -135,6 +135,7 @@ ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
 
         mWidContainer = document.createElement('div');
         mWidContainer.style.position = 'absolute';
+        mWidContainer.style.textAlign = "center";
 
         if (typeof pos_x == "number")
             mWidContainer.style.left = "" + pos_x + "px";
@@ -146,7 +147,6 @@ ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
         else
             mWidContainer.style.top = pos_y;
 
-        mWidContainer.style.width = "100%";
         mWidContainer.appendChild(mWidImg);
         mWidContainer.appendChild(mTextSpan);
 
@@ -154,7 +154,8 @@ ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
     }
 
     this.changeImage = function (imgsrc) {
-        mWidImg.src = imgsrc;
+        if(imgsrc != mWidImg.src)
+            mWidImg.src = imgsrc;
     }
 
     this.setText = function (text) {
