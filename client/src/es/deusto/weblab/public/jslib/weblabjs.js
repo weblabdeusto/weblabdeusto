@@ -65,17 +65,17 @@ Weblab = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    parent.wl_inst.version = "1.1";
+    parent.wl_inst.version = "1.2";
 
     parent.wl_inst.setTime = function (time) {
         if(mOnTimeCallback != undefined)
-            mOnTimeCallback();
+            mOnTimeCallback(time);
     }
 
-    parent.wl_inst.startInteraction = function () {
+    parent.wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
         if(mOnStartInteractionCallback != undefined)
-            mOnStartInteractionCallback();
+            mOnStartInteractionCallback(initial_config);
     }
 
     parent.wl_inst.end = function () {
