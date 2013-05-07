@@ -5,19 +5,21 @@
 		<title>three.js CUSTOM TEST</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<script src="../jslib/weblabjs.js"></script>
 
-        <script src="../jslib/three.min.js"></script>
-		<script src="../jslib/stats.min.js"></script>
-		<script src="../jslib/THREEx.FullScreen.js"></script>
-        <script src="../jslib/jquery-1.9.1.js"></script>
-        <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
-        <script src="../jslib/detector.js"></script>
+		<script src="../../jslib/weblabjs.js"></script>
 
-        <script src="js/controls/OrbitControls.js"></script>
+        <script src="../../jslib/three.min.js"></script>
+		<script src="../../jslib/stats.min.js"></script>
+		<script src="../../jslib/THREEx.FullScreen.js"></script>
+        <script src="../../jslib/jquery-1.9.1.js"></script>
+        <script src="../../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
+        <script src="../../jslib/detector.js"></script>
+
+        <script src="../../jslib/threejs/controls/OrbitControls.js"></script>
         
-        <script src="widgets.js"></script>
-        <script src="WorldLoader.js"></script>
+        <script src="../libs/Widgets.js"></script>
+        <script src="../libs/WorldLoader.js"></script>
+
         <script src="WaterTankSimulation.js"></script>
 
 
@@ -25,7 +27,7 @@
 
         </script>
 
-        <link rel="stylesheet" href="../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
+        <link rel="stylesheet" href="../../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
 				font-family: Monospace;
@@ -78,12 +80,12 @@
 		<script>
 
             /// The following references are for VisualStudio, so that Intellisense recognizes every library.
-		    /// <reference path="../jslib/weblabjs.js" />
-		    /// <reference path="../jslib/three.min.js" />
-		    /// <reference path="../jslib/stats.min.js" />
-		    /// <reference path="../jslib/THREEx.FullScreen.js" />
-		    /// <reference path="../jslib/jquery-1.9.1.js" />
-		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
+		    /// <reference path="../../jslib/weblabjs.js" />
+		    /// <reference path="../../jslib/three.min.js" />
+		    /// <reference path="../../jslib/stats.min.js" />
+		    /// <reference path="../../jslib/THREEx.FullScreen.js" />
+		    /// <reference path="../../jslib/jquery-1.9.1.js" />
+		    /// <reference path="../../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
 
 
@@ -96,7 +98,7 @@
 		    });
 
 
-		    window.__water = THREE.ImageUtils.loadTexture('water.jpg', new THREE.UVMapping());
+		    window.__water = THREE.ImageUtils.loadTexture('../models/water.jpg', new THREE.UVMapping());
 
 
 		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
@@ -116,8 +118,8 @@
 		        var mState;
 		        var mID;
 
-		        var mOnImg = "../img/switch_on.png";
-		        var mOffImg = "../img/switch_off.png";
+		        var mOnImg = "../../img/switch_on.png";
+		        var mOffImg = "../../img/switch_off.png";
 
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 

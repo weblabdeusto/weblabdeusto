@@ -9,7 +9,7 @@
         [
             {
                 "name" : "watertank",
-                "model" : "WaterTank.js",
+                "model" : "models/watertank.js",
                 "scale" : [100, 100, 100],
                 "position" : [600, 0, 0]
             },
@@ -23,7 +23,7 @@
             },
             {
                 "name" : "waterfallRight",
-                "model" : "waterfall.js",
+                "model" : "models/waterfall.js",
                 "initialTranslation" : [-0.311444, 0, 0],
                 "scale": [100, 100, 100],
                 "position": [700, 0, 0],
@@ -31,7 +31,7 @@
             },
             {
                 "name" : "waterfallLeft",
-                "model" : "waterfall.js",
+                "model" : "models/waterfall.js",
                 "initialTranslation" : [-0.311444, 0, 0],
                 "scale": [100, 100, 100],
                 "position": [495, 0, 0],
@@ -40,13 +40,13 @@
             },
             {
                 "name" : "waterfallOut",
-                "model" : "waterfall.js",
+                "model" : "models/waterfall.js",
                 "initialTranslation" : [-0.311444, 0, 0],
                 "scale" : [100, 100, 100],
                 "position" : [445, -155, 0],
                 "material" : 
                     function() {
-                        var watertexture = THREE.ImageUtils.loadTexture('water.jpg');
+                        var watertexture = THREE.ImageUtils.loadTexture('../models/water.jpg');
                         var mat = new THREE.MeshPhongMaterial({ map: watertexture, ambient: 0.9, color: 0xAAAAFF });
                         var mats = new THREE.MeshFaceMaterial([mat]);
                         return mats;
@@ -54,14 +54,14 @@
             },
             {
                 "name" : "waterpumpRight",
-                "model" : "waterpump.js",
+                "model" : "models/waterpump.js",
                 "scale" : [100, 100, 100],
                 "position" : [732, 78, -2],
                 "material" : function() { return new THREE.MeshLambertMaterial({ color: 0x0000FF, ambient: 0x00 }); }
             },
             {
                 "name" : "waterpumpLeft",
-                "model" : "waterpump.js",
+                "model" : "models/waterpump.js",
                 "scale" : [100, 100, 100],
                 "position" : [470, 78, 0],
                 "rotations": [ { "axis" : [0, 1, 0], "deg" : 180 } ],
@@ -69,7 +69,7 @@
             },
             {
                 "name" : "pipe",
-                "model" : "pipe.js",
+                "model" : "models/pipe.js",
                 "scale" : [100, 100, 100],
                 "position": [470, -80, 0]
             },
