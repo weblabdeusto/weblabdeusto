@@ -56,6 +56,7 @@ RefreshingCameraWidget = function (targetid, imgsrc) {
             mImage = new Image();
             mReload = (new Date()).getTime();
             mImage.src = mImgSrc + "?" + mReload;
+
         }
         if (mRestart) {
             mTick = 0;

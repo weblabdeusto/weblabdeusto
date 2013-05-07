@@ -69,7 +69,7 @@
 	</head>
 	<body>
 
-        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
+        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?123123123123" />
 
         <div id="progressbar" class="progress-bar"><div class="progress-label">Loading...</div></div>
 
@@ -84,6 +84,16 @@
 		    /// <reference path="../jslib/THREEx.FullScreen.js" />
 		    /// <reference path="../jslib/jquery-1.9.1.js" />
 		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
+
+
+
+		    Weblab.setOnTimeCallback(function (time) {
+		        console.log("[DBG]: Time left: " + time);
+		    });
+
+		    Weblab.setOnStartInteractionCallback(function () {
+		        console.log("[DBG]: On start interaction");
+		    });
 
 
 		    window.__water = THREE.ImageUtils.loadTexture('water.jpg', new THREE.UVMapping());
@@ -207,7 +217,7 @@
 			    //!
 			    this._createSwitches = function (container) {
 			        for (var i = 9; i >= 0; i--) {
-			            var swit = new SwitchWidget(i, "" + (15+i*8) + "%", "85%", "Sw" + i);
+			            var swit = new SwitchWidget(9-i, "" + (15+i*8) + "%", "85%", "Sw" + (9-i));
 			            mSwitches[i] = swit;
 
 			            container.appendChild(swit.getElement());
@@ -459,6 +469,9 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.hide();
+                        wsu = new WeblabSimulationUpdater(simulation);
+                        wsu.startUpdating();
+                        console.log("[DBG]: Out of handler: Ready");
                     }
                 );
 			    sc.setOnStateReachedCallback("failed",
@@ -492,6 +505,7 @@
 			    Weblab.setOnEndCallback(function () {
 			        sc.stopCheckingState();
 			    });
+
 
 			}
 
@@ -527,12 +541,12 @@
 				//
 
 				image = document.createElement( 'canvas' );
-				image.width = 320;
-				image.height = 240;
+				image.width = 640;
+				image.height = 480;
 
 				imageContext = image.getContext( '2d' );
 				imageContext.fillStyle = '#000000';
-				imageContext.fillRect( 0, 0, 320, 240 );
+				imageContext.fillRect( 0, 0, 640, 480 );
 
 				texture = new THREE.Texture( image );
 
@@ -557,7 +571,7 @@
 
 				var PI2 = Math.PI * 2;
                 
-                if(!Detector.webgl)
+                if(!Detector.webgl )
                     renderer = new THREE.CanvasRenderer();
                 else
 				    renderer = new THREE.WebGLRenderer( { antialias: false } );
@@ -577,8 +591,6 @@
 				var loadPromise = simulation.loadScene(scene, camera);
 
 				$.when(loadPromise).done(function () {
-				    wsu = new WeblabSimulationUpdater(simulation);
-				    wsu.startUpdating();
 				    animate();
 				});
 
