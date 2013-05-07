@@ -74,11 +74,42 @@
                 "position": [470, -80, 0]
             },
             {
-                "name" : "marker",
+                "name" : "lowMarker",
                 "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
                 "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
-                "position" : [600, 0, 0]
+                "position" : [600, -60, 94]
+            },
+            {
+                "name" : "mediumMarker",
+                "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
+                "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
+                "position" : [600, 0, 94]
+            },
+            {
+                "name" : "highMarker",
+                "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
+                "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
+                "position" : [600, 60, 94]
+            },
+            {
+                "name" : "lowMarkerFront",
+                "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
+                "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
+                "position" : [600, -60, -94]
+            },
+            {
+                "name" : "mediumMarkerFront",
+                "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
+                "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
+                "position" : [600, 0, -94]
+            },
+            {
+                "name" : "highMarkerFront",
+                "model" : function() { return new THREE.SphereGeometry(5, 10, 10); },
+                "material" : function() { return new THREE.MeshBasicMaterial({ color: 0xFF0000 }); },
+                "position" : [600, 60, -94]
             }
+
     ],
 
     "pointlights":

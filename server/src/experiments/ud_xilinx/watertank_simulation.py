@@ -67,7 +67,7 @@ class Watertank(object):
             if self.current_volume >= self.tank_capacity:
                 self.current_volume = self.tank_capacity
             elif self.current_volume < 0:
-                self.current_volume = 0;
+                self.current_volume = 0.0;
                 
     def t_updater(self):
         """
@@ -158,7 +158,7 @@ class Watertank(object):
         according to the simulation's state.
         """
         with self.simlock:
-            return self.current_volume / self.tank_capacity
+            return 1.0 * self.current_volume / self.tank_capacity
         
     def get_json_state(self, input_capacities, output_capacities):
         """
@@ -187,13 +187,22 @@ class Watertank(object):
         
 if __name__ == '__main__':
     
-    w = Watertank(1000, [10, 10], [10], 0.5)
+    w = Watertank(1000, [100, 100], [100], 0.5)
     w.autoupdater_start(1)
     
     
     i = 0
     while(i < 15):
-        print w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [20])
+        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+        time.sleep(0.5);
+        i += 1
+        
+    print "...."
+    i = 0
+    w.set_outputs([100])
+    w.set_inputs([10, 10]) 
+    while(i < 15):
+        print w.tank_capacity,  w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
         time.sleep(0.5);
         i += 1
     

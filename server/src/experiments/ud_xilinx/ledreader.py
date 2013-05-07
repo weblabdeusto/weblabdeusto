@@ -158,7 +158,7 @@ class LedReader(object):
 
 if __name__ == '__main__':
     pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
-    fpga_leds = [ (93, 179), (101, 179), (111, 179), (120, 179), (124, 179), (129, 179), (137, 179), (147, 179) ]
+    fpga_leds = [ (168, 357), (185, 357), (203, 357), (221, 357), (239, 357), (260, 357), (277, 357), (295, 357) ]
     fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
     pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
     lr = LedReader(fpga, fpga_leds, 5, 7)

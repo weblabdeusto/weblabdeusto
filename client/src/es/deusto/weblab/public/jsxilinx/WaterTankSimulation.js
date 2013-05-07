@@ -63,23 +63,56 @@ WaterTankSimulation = function () {
     }
 
     this.setWaterOutputLevel = function (level) {
-        this.world.getObject("waterfallOut").scale.set(50 + 100 * level, 100, 100);
+        var wo = this.world.getObject("waterfallOut");
         this.waterOutputLevel = level;
+
+        if (this.waterOutputLevel == 0 || this.waterLevel == 0) {
+            wo.visible = false;
+        } else {
+            wo.scale.set(50 + 100 * level, 100, 100);
+            wo.visible = true;
+        }
     }
 
     this.setWaterLevel = function (level) {
-        this.world.getObject("water").scale.set(.95, level, .95);
+        var water = this.world.getObject("water");
         this.waterLevel = level;
+
+        if (this.waterLevel == 0) {
+            water.visible = false;
+
+            // Invoke this so that it can hide the output waterflow if there
+            // isn't actually any water left on the deposit.
+            this.setWaterOutputLevel(this.waterOutputLevel);
+        } else {
+            water.scale.set(.95, level, .95);
+            water.visible = true;
+        }
+
     }
 
     this.setRightPumpLevel = function (level) {
-        this.world.getObject("waterfallRight").scale.set(50+100*level, 100, 100);
+        var wr = this.world.getObject("waterfallRight");
         this.rightPumpLevel = level;
+
+        if (this.rightPumpLevel == 0) {
+            wr.visible = false;
+        } else {
+            wr.scale.set(50 + 100 * level, 100, 100);
+            wr.visible = true;
+        }
     }
 
     this.setLeftPumpLevel = function (level) {
-        this.world.getObject("waterfallLeft").scale.set(50 + 100 * level, 100, 100);
+        var wl = this.world.getObject("waterfallLeft");
         this.leftPumpLevel = level;
+
+        if (this.leftPumpLevel == 0) {
+            wl.visible = false;
+        } else {
+            wl.scale.set(50 + 100 * level, 100, 100);
+            wl.visible = true;
+        }
     }
 
     this.loadScene = function (scene, camera) {
@@ -90,13 +123,6 @@ WaterTankSimulation = function () {
             waterfall2 = this.world.getObject("waterfallLeft");
             waterfallOut = this.world.getObject("waterfallOut");
 
-            setTimeout(
-
-                function () {
-                    pb.hide();
-                },
-                2000
-                );
 
             this._animate_water(waterfall);
             this._animate_water(waterfall2);
@@ -173,37 +199,62 @@ WaterTankSimulation = function () {
 WeblabSimulationUpdater = function ( simulation ) {
 
     this._init = function () {
-        this._interval = undefined;
+        this._active = undefined;
         this._simulation = simulation;
+        this._initialized = false
     }
 
     this.startUpdating = function () {
-        this._interval = setInterval( this._requestUpdate.bind(this), 3000 );
+        this._active = true;
+        // Not using an Interval lets us respond more appropriately to network limitations. (Several requests won't queue up when the network is slow).
+        setTimeout( this._requestUpdate.bind(this), 1500 );
+    }
+
+    this._initialize_watertank = function () {
+        Weblab.dbgSetOfflineSendCommandResponse("");
+
+        if (Weblab.isExperimentActive() && Weblab.checkOnline())
+            Weblab.sendCommand("VIRTUALWORLD_MODE watertank", function (msg) { this._initialized = true; }.bind(this));
     }
 
     this._requestUpdate = function () {
-        Weblab.dbgSetOfflineSendCommandResponse("{\"water\": 0.56, \"inputs\": [0.5, 0.5], \"outputs\": [0.5]}");
+        if (!this._initialized)
+            this._initialize_watertank()
 
+        // Note: These commands are actually sent asynchronously, so the second one might actually get called before
+        // the first one finishes. Shouldn't matter in this instance, however. Though it's not tidy.
+        // Maybe we could consider adding Promises support to the Weblab class (though it would add a dependency on
+        // jquery.
+
+        Weblab.dbgSetOfflineSendCommandResponse("{\"water\": 0.56, \"inputs\": [0.5, 0.5], \"outputs\": [0.5]}");
         if( Weblab.isExperimentActive() && Weblab.checkOnline() )
             Weblab.sendCommand("VIRTUALWORLD_STATE", this._onStateReceived.bind(this), this._onStateReceivedError.bind(this));
     }
 
     this.stopUpdating = function () {
-        if(this._interval != undefined) {
-            clearInterval(this._interval);
-        }
+        this._active = false;
     }
 
-    this._onStateReceived = function ( state_json ) {
+    this._onStateReceived = function (state_json) {
         state = $.parseJSON(state_json);
+
+        if ($.isEmptyObject(state))
+            return;
+
         this._simulation.setWaterLevel(state["water"]);
         this._simulation.setLeftPumpLevel(state["inputs"][0]);
         this._simulation.setRightPumpLevel(state["inputs"][1]);
         this._simulation.setWaterOutputLevel(state["outputs"][0]);
+
+        if( this._active )
+            this.startUpdating(); // Does actually *continue* updating.
     }
 
     this._onStateReceivedError = function (state_json) {
-        state = $.parse
+        state = $.parseJSON(state_json);
+
+        if( this._active )
+            this.startUpdating(); // Does actually *continue* updating.
     }
 
     this._init();
