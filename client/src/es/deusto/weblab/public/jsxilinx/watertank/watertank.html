@@ -381,7 +381,7 @@
                         return;
 
                     // Create a fake STATE response, for testing offline.
-                    var fakeResponse = "STATE=programming";
+                    var fakeResponse = "STATE=not_ready";
                     Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
                     
                     // Send the state-checking command.
@@ -449,7 +449,8 @@
 
 			    pb = new ProgressBarWidget("25%", "55%");
 
-			    pb.setText("Waiting");
+			    pb.setText("Not yet reserved");
+			    pb.setDetermination(100);
 			    pb.show();
 
                 // Set up the logic for each state.
@@ -457,6 +458,7 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.setText("Programming");
+                        pb.setDetermination(false);
                         pb.show();
                     }
                 );
@@ -464,6 +466,7 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.setText("Synthesizing");
+                        pb.setDetermination(false);
                         pb.show();
                     }
                 );
@@ -480,14 +483,18 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         console.error("State: Failed");
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("An error occurred");
+                        pb.show();
                     }
 			    );
 			    sc.setOnStateReachedCallback("synthesizing_error",
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         console.error("State: Synthesizing error");
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("Synthesization Error");
+                        pb.show();
                     }
                 );
 			    sc.setOnStateReachedCallback("not_ready",
@@ -500,7 +507,9 @@
 			    sc.setOnStateReachedCallback("awaiting_code",
                     function (state, previous) {
                         console.log("Reached state: " + state);
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("Awaiting code");
+                        pb.show();
                     }
                 );
 
