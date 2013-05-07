@@ -276,8 +276,8 @@ LEDWidget = function (pos_x, pos_y, text) {
 
     var mState;
 
-    var mOffImg = "../img/led_gray.png";
-    var mOnImg = "../img/led_red.png";
+    var mOffImg = "../../img/led_gray.png";
+    var mOnImg = "../../img/led_red.png";
 
     ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 
