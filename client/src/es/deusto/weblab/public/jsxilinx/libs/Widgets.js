@@ -1,5 +1,7 @@
 //! This script contains several stand-alone widgets (not directly
-//! dependant on Weblab) and some general-purpose utility functions.
+//! dependant on Weblab) and some general-purpose utility functions,
+//! which can probably be used for several different JSXILINX-based
+//! experiments.
 
 
 
@@ -213,6 +215,24 @@ ProgressBarWidget = function (posx, posy) {
         mProgressBar.show();
     }
 
+    //! Note: It is not clear whether the JQUERY-UI method that this depends on
+    //! behaves as intended or not.
+    //!
+    //! Either way, it seems that it works the following way:
+    //!
+    //! If it is determined to "false", then the progress bar is indeterminate.
+    //! That is, a continuous but not finite progress animation appears.
+    //!
+    //! However, if the determination is set to a specific value, currently configured
+    //! to be between 0 and 100, then the progress bar does not have an animation, but
+    //! a background progress indication set to the specified value.
+    //!
+    //! Common use cases hence are:
+    //! - Setting determined to false and a text, to indicate that the page is working on something,
+    //! but that the progress of that activity is not known.
+    //! - Setting determined to a specific integer value, to indicate the actual, known, percentual progress.
+    //! - Setting determined to 100 and a text, to use the progress bar a status box, indicating that no progress is
+    //! being made but showing text in the bar nonetheless.
     this.setDetermination = function (determined) {
         mProgressBar.progressbar("value", determined);
     }
