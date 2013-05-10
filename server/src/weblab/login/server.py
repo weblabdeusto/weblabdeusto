@@ -42,6 +42,8 @@ from weblab.login.db import create_auth_gateway
 
 import weblab.login.comm.server as LoginFacadeServer
 import weblab.login.comm.web_server as WebFacadeServer
+import weblab.login.comm.wsgi_server as wsgi_server
+
 import weblab.data.server_type as ServerType
 import weblab.login.exc as LoginErrors
 import weblab.db.exc as DbErrors
@@ -54,6 +56,8 @@ DEFAULT_GROUPS     = 'login_default_groups_for_external_users'
 CREATING_EXTERNAL_USERS = 'login_creating_external_users'
 LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
+USE_NEW_LOGIN_SYSTEM = True
+
 # TODO list:
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
@@ -61,12 +65,14 @@ LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
 class LoginServer(object):
 
-    FACADE_SERVERS = (
-                LoginFacadeServer.LoginRemoteFacadeServer,
-                WebFacadeServer.LoginWebRemoteFacadeServer
-            )
+    FACADE_SERVERS = ( LoginFacadeServer.LoginRemoteFacadeServer,)
 
-    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+    if USE_NEW_LOGIN_SYSTEM:
+        FACADE_SERVERS += (wsgi_server.LoginWsgiRemoteFacadeServer,)
+    else:
+        FACADE_SERVERS += (WebFacadeServer.LoginWebRemoteFacadeServer,)
+
+    def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)
 
         log.log( LoginServer, log.level.Info, "Starting Login Server")
@@ -77,11 +83,13 @@ class LoginServer(object):
         self._cfg_manager   = cfg_manager
 
         self._facade_servers       = []
-        for ServerClass in self.FACADE_SERVERS:
-            self._facade_servers.append(ServerClass( self, cfg_manager ))
 
-        for server in self._facade_servers:
-            server.start()
+        if not dont_start:
+            for ServerClass in self.FACADE_SERVERS:
+                self._facade_servers.append(ServerClass( self, cfg_manager ))
+
+            for server in self._facade_servers:
+                server.start()
 
         self._web_protocol_auth = WEB_PROTOCOL_AUTHN
 
