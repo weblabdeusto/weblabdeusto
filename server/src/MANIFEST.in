@@ -6,6 +6,8 @@ recursive-include weblab/admin *
 recursive-include weblab/admin/web/templates *
 recursive-include weblab/admin/config_templates *
 recursive-include weblab/core/comm *
+recursive-include weblab/db/upgrade/scheduling *
+recursive-include weblab/db/upgrade/regular *
 recursive-include experiments *
 recursive-include experiments/xilinxc/files *
 recursive-include experiments/xilinxc/files/xst/projnav.tmp *
