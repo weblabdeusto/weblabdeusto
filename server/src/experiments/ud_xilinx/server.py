@@ -35,9 +35,11 @@ from experiments.xilinxc.compiler import Compiler
 import json
 import base64
 import time
+import random
 
-import sys
 import traceback
+
+import watertank_simulation
 
 from voodoo.threaded import threaded
 
@@ -93,10 +95,19 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         self._ucf_file = None
         
+        self._switches_state = list("0000000000")
+        
         # These are only for led-state reading. This is an experimental
         # feature.
         self._led_reader = None
         self._led_state = None
+        
+        # These are for virtual-worlds
+        self._virtual_world = ""
+        self._virtual_world_state = "";
+        self._last_virtualworld_update = time.time()
+        self._watertank = None
+        self._watertank_time_without_demand_change = 0
         
 
     def _load_xilinx_device(self):
@@ -265,6 +276,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             self._programming_thread.join()
             # Cleaning references
             self._programming_thread = None
+            
+        if self._watertank is not None:
+            # In case it is running.
+            self._watertank.autoupdater_stop()
+            
         return "ok"
 
 
@@ -287,13 +303,63 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         from ledreader import LedReader
         pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
-        fpga_leds = [ (84, 171), (93, 171), (97, 171), (110, 171), (120, 171), (129, 171), (138, 171), (147, 171) ]
+        fpga_leds = [ (168, 357), (185, 357), (203, 357), (221, 357), (239, 357), (260, 357), (277, 357), (295, 357) ]
         fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
         pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
         if self._device_name == "FPGA":
-            self._led_reader = LedReader(fpga, fpga_leds, 5, 7)
+            self._led_reader = LedReader(fpga, fpga_leds, 5, 5)
         elif self._device_name == "PLD":
             self._led_reader = LedReader(pld, pld_leds, 10, 30)
+        
+        
+    def virtualworld_update(self, delta):
+        """
+        Handles virtual world updating. For instance, in the case of the watertank,
+        it will control the virtual sensors (switches) depending on the watertank level.
+        """
+        if self._watertank != None:
+            waterLevel = self._watertank.get_water_level()
+            if waterLevel >= 0.20:
+                self.change_switch(0, True)
+            if waterLevel >= 0.50:
+                self.change_switch(1, True)
+            if waterLevel >= 0.80:
+                self.change_switch(2, True)
+                
+        self._watertank_time_without_demand_change += delta
+        
+        if(self._watertank_time_without_demand_change > 5):
+            self._watertank_time_without_demand_change = 0
+            self._watertank.set_outputs([random.randint(0, 20)])
+                
+    # TODO: Eventually, there should be some way to limit the number of switches that a 
+    # user can explicitly control depending on the VirtualWorld simulation and state.
+    # For instance, if the first switch represents a water level sensor, it makes no 
+    # sense for the user to be able to define its state. For now, it is left as-is
+    # mainly for debugging convenience.
+                
+    def change_switch(self, switch, on):
+        """
+        Changes the state of a switch. This can be used, for instance, for
+        simulating sensors.
+        
+        @param switch Number of the switch to change.
+        @param on True if we wish to turn it on, false to turn it off.
+        """
+        if on:
+            if self._switches_state[switch] == "0":
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("on", switch))
+        else:
+            if self._switches_state[switch] == "1":
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("off", switch))
+            
+        
+        if on:
+            self._switches_state[switch] = "1"
+        else:
+            self._switches_state[switch] = "0"
+            
+        return
         
 
     @logged("info")
@@ -310,6 +376,43 @@ class UdXilinxExperiment(Experiment.Experiment):
                 reply = "STATE="+ self._current_state
                 return reply
             
+            elif command.startswith('ChangeSwitch'):
+                # Intercept the ChangeSwitch command to track the state of the Switches.
+                # This command will in fact be later relied to the Device.
+                cs = command.split(" ");
+                switch_number = cs[2]
+                if(cs[1] == "on"):
+                    self._switches_state[int(switch_number)] = "1"
+                else:
+                    self._switches_state[int(switch_number)] = "0"
+                    
+            elif command == 'REPORT_SWITCHES':
+                return self._switches_state
+            
+            elif command.startswith('VIRTUALWORLD_MODE'):
+                vw = command.split(" ")[1]
+                self._virtual_world = vw
+                if vw == "watertank":
+                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
+                    self._last_virtualworld_update = time.time()
+                    self._watertank.autoupdater_start(1)
+                else:
+                    pass
+                
+            elif command.startswith('VIRTUALWORLD_STATE'):
+                
+                if(self._watertank != None):
+                    self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
+                    
+                    now = time.time()
+                    # TODO: This should not be done here. For now however, it's the easiest place to put it in.
+                    self.virtualworld_update(now - self._last_virtualworld_update)
+                    self._last_virtualworld_update = now
+                    
+                    return self._virtual_world_state
+                
+                return "{}";
+            
             elif command == 'SYNTHESIZING_RESULT':
                 if(DEBUG):
                     print "[DBG]: SYNTHESIZING_RESULT: " + self._compiling_result
@@ -324,6 +427,25 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._led_state = self._led_reader.read_times(5)
                     if(DEBUG):
                         print "[DBG]: READ_LEDS: " + "".join(self._led_state)
+                        
+                    # This probably shouldn't be here. Ideally, the server by itself
+                    # would every once in a while check the state of the LEDs and update
+                    # the simulation's state automatically. For now, however, it will only
+                    # check the state upon the client's request.
+                    if self._virtual_world == "watertank":
+                        first_pump = self._led_state[7] == '1'
+                        second_pump = self._led_state[6] == '1'
+                        if first_pump:
+                            first_pump = 10
+                        else:
+                            first_pump = 0
+                        if second_pump:
+                            second_pump = 10
+                        else:
+                            second_pump = 0
+                        self._watertank.set_input(0, first_pump)
+                        self._watertank.set_input(1, second_pump)
+                        
                     return "".join(self._led_state)
                 except Exception as e:
                     traceback.print_exc()
@@ -340,3 +462,41 @@ class UdXilinxExperiment(Experiment.Experiment):
             raise ExperimentErrors.SendingCommandFailureError(
                     "Error sending command to device: %s" % e
                 )
+            
+            
+if __name__ == "__main__":
+    from voodoo.configuration import ConfigurationManager
+    from voodoo.sessions.session_id import SessionId
+    cfg_manager = ConfigurationManager()
+    try:
+        cfg_manager.append_path("../../../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+    except:
+        cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+
+    experiment = UdXilinxExperiment(None, None, cfg_manager)
+    
+    lab_session_id = SessionId('my-session-id')
+    experiment.do_start_experiment()
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    print experiment.do_send_command_to_device("ChangeSwitch on 1")
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    time.sleep(1);
+    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+    experiment._watertank.current_volume = 0
+    time.sleep(5)
+    print experiment.do_send_command_to_device("REPORT_SWITCHES")
+    time.sleep(1);
+    while(True):
+        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
+        experiment._watertank.current_volume = 0
+        print experiment.do_send_command_to_device("READ_LEDS")
+        print experiment.do_send_command_to_device("REPORT_SWITCHES")
+        time.sleep(1);
+        print experiment.do_send_command_to_device("REPORT_SWITCHES")
+        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")

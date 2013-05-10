@@ -5,8 +5,29 @@
 		<title>three.js CUSTOM TEST</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<script src="../jslib/weblabjs.js"></script>
-        <link rel="stylesheet" href="../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
+
+		<script src="../../jslib/weblabjs.js"></script>
+
+        <script src="../../jslib/three.min.js"></script>
+		<script src="../../jslib/stats.min.js"></script>
+		<script src="../../jslib/THREEx.FullScreen.js"></script>
+        <script src="../../jslib/jquery-1.9.1.js"></script>
+        <script src="../../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
+        <script src="../../jslib/detector.js"></script>
+
+        <script src="../../jslib/threejs/controls/OrbitControls.js"></script>
+        
+        <script src="../libs/Widgets.js"></script>
+        <script src="../libs/WorldLoader.js"></script>
+
+        <script src="WaterTankSimulation.js"></script>
+
+
+        <script>
+
+        </script>
+
+        <link rel="stylesheet" href="../../jslib/jquery-ui-1.10.2.custom/css/ui-lightness/jquery-ui-1.10.2.custom.min.css" /> <!-- Just for the progress bar. TODO: Localize -->
 		<style>
 			body {
 				font-family: Monospace;
@@ -50,13 +71,7 @@
 	</head>
 	<body>
 
-		<script src="../jslib/three.min.js"></script>
-		<script src="../jslib/stats.min.js"></script>
-		<script src="../jslib/THREEx.FullScreen.js"></script>
-        <script src="../jslib/jquery-1.9.1.js"></script>
-        <script src="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js"></script>
-
-        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?1194580072" />
+        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?123123123123" />
 
         <div id="progressbar" class="progress-bar"><div class="progress-label">Loading...</div></div>
 
@@ -65,250 +80,30 @@
 		<script>
 
             /// The following references are for VisualStudio, so that Intellisense recognizes every library.
-		    /// <reference path="../jslib/weblabjs.js" />
-		    /// <reference path="../jslib/three.min.js" />
-		    /// <reference path="../jslib/stats.min.js" />
-		    /// <reference path="../jslib/THREEx.FullScreen.js" />
-		    /// <reference path="../jslib/jquery-1.9.1.js" />
-		    /// <reference path="../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
-		    
-		    _page_dim = false;
-
-		    function dim_page() {
-
-		        if (_page_dim != undefined && _page_dim == true)
-		            return;
-
-		        var dimmingElement = document.createElement('div');
-		        dimmingElement.id = "dim";
-		        dimmingElement.className = "dim";
-		        document.body.appendChild(dimmingElement);
-
-		        _page_dim = true;
-		    }
-
-		    function light_page() {
-		        var dimmingElement = document.getElementById('dim');
-		        document.body.removeChild(dimmingElement);
-		        _page_dim = false;
-		    }
-
-		    dim_page();
-		    light_page();
+		    /// <reference path="../../jslib/weblabjs.js" />
+		    /// <reference path="../../jslib/three.min.js" />
+		    /// <reference path="../../jslib/stats.min.js" />
+		    /// <reference path="../../jslib/THREEx.FullScreen.js" />
+		    /// <reference path="../../jslib/jquery-1.9.1.js" />
+		    /// <reference path="../../jslib/jquery-ui-1.10.2.custom/js/jquery-ui-1.10.2.custom.js" />
 
 
-		    //! To easily control the progress bar. It depends
-		    //! on a previously placed progress bar, and on 
-            //! CSS styles on the page.
-            //!
-		    ProgressBarWidget = function (posx, posy) {
 
-		        var mProgressBar = $("#progressbar");
-		        var mProgressLabel = $(".progress-label");
+		    Weblab.setOnTimeCallback(function (time) {
+		        console.log("[DBG]: Time left: " + time);
+		    });
 
-		        this._init = function () {
-		            mProgressBar.position = "absolute";
-		            mProgressBar.css("left", posx);
-		            mProgressBar.css("top", posy);
-
-		            mProgressBar.progressbar({
-		                value: false,
-		                change: function () { },
-		                complete: function () { }
-		            });
-		        }
-
-		        this.hide = function () {
-		            mProgressBar.hide();
-		            light_page();
-		        }
-
-		        this.show = function () {
-		            dim_page();
-		            mProgressBar.show();
-		        }
-
-		        this.setDetermination = function (determined) {
-		            mProgressBar.progressbar("value", determined);
-		        }
-
-		        this.setText = function (text) {
-		            mProgressLabel.text(text);
-		        }
+		    Weblab.setOnStartInteractionCallback(function () {
+		        console.log("[DBG]: On start interaction");
+		    });
 
 
-		        //progressbar.progressbar({
-		        //    value: false,
-		        //    change: function () {
-		        //        progressLabel.text(progressbar.progressbar("value") + "%");
-		        //    },
-		        //    complete: function () {
-		        //        progressLabel.text("Complete!");
-		        //    }
-		        //});
-
-		        this._init();
-		    }
-
-		    //pb = new ProgressBarWidget("25%", "55%");
-		    //pb.show();
-		    //setTimeout(function () { pb.hide(); }, 2000);
-          
-
-		    //! The following code is used to refresh the webcam 
-		    //! It is refreshed frame-by-frame every second.
-		    RefreshingCameraWidget = function (targetid, imgsrc) {
-
-		        var mTick = 0;
-		        var mImage = new Image();
-		        var mReload = (new Date()).getTime();
-
-		        var mTargetId;
-		        var mImgSrc;
-
-		        var mRestart = 0;
-
-		        this._init = function () {
-		            mTargetId = targetid;
-		            mImgSrc = imgsrc;
-		        }
-
-		        mImage = mImgSrc + "?" + mReload;
-
-		        this.startRefreshing = function () {
-		            mTick++;
-		            if (mTick > 3) { mRestart = 1; } else { mRestart = 0; }
-		            if (mImage.complete) {
-		                mTick = 0;
-		                //console.log("Changing: " + mImage.src);
-		                //console.log(document[mTargetId]);
-		                document.images[mTargetId].src = mImage.src;
-		                mImage = new Image();
-		                mReload = (new Date()).getTime();
-		                mImage.src = mImgSrc + "?" + mReload;
-		            }
-		            if (mRestart) {
-		                mTick = 0;
-		                mImage = new Image();
-		                mReload = (new Date()).getTime();
-		                mImage.src = mImgSrc + "?" + mReload;
-		            }
-
-		            setTimeout(this.startRefreshing.bind(this), 1000);
-		        }
-
-
-		        this._init();
-		    };
+		    window.__water = THREE.ImageUtils.loadTexture('../models/water.jpg', new THREE.UVMapping());
 
 
 		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
 		    rc.startRefreshing();
 
-
-
-
-
-
-
-		    //! Base Image widget
-		    //!
-		    //! @param pos_x X position of the image (left top corner). 
-		    //! As a CSS string or a pixel-integer.
-		    //! @param pos_y Y position of the image (left top corner). 
-		    //! As a CSS string or a pixel-integer.
-		    //! @param text Text beneath the image
-		    //! @param imgwidth CSS string describing the image width
-            //! @param imgheight CSS string describing the image height
-            //! @param imgsrc Src URL for the image
-		    ImageWidget = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
-
-		        var mWidImg;
-		        var mWidContainer;
-		        var mTextSpan;
-		        var mOnClickCB;
-
-		        this._init = function () {
-		            this._createElement(pos_x, pos_y, text, imgwidth, imgheight, imgsrc);
-		        }
-
-		        this._getTextSpan = function () {
-		            return mTextSpan;
-		        }
-
-		        this._getImageElement = function () {
-		            return mWidImg;
-		        }
-
-		        this._getContainerElement = function () {
-		            return mWidContainer;
-		        }
-
-		        this._getOnClickCB = function () {
-		            return mOnClickCB;
-		        }
-
-		        this._createElement = function (pos_x, pos_y, text, imgwidth, imgheight, imgsrc) {
-		            mWidImg = document.createElement('img');
-                    if(imgwidth != undefined)
-		                mWidImg.style.width = imgwidth;
-                    if(imgheight != undefined)
-		                mWidImg.style.height = imgheight;
-                    mWidImg.onclick = this.onClick.bind(this);
-
-                    if(imgsrc != undefined)
-                        mWidImg.src = imgsrc;
-
-		            mTextSpan = document.createElement('span');
-		            mTextSpan.style.color = "white";
-		            mTextSpan.style.fontWeight = "bold";
-		            mTextSpan.style.fontSize = "large";
-		            mTextSpan.style.textAlign = "center";
-		            mTextSpan.innerHTML = "<br>" + text;
-
-		            mWidContainer = document.createElement('div');
-		            mWidContainer.style.position = 'absolute';
-
-		            if (typeof pos_x == "number")
-		                mWidContainer.style.left = "" + pos_x + "px";
-		            else
-		                mWidContainer.style.left = pos_x;
-
-		            if (typeof pos_y == "number")
-		                mWidContainer.style.top = "" + pos_y + "px";
-		            else
-		                mWidContainer.style.top = pos_y;
-
-		            mWidContainer.style.width = "100%";
-		            mWidContainer.appendChild(mWidImg);
-		            mWidContainer.appendChild(mTextSpan);
-
-		            return mWidContainer;
-		        }
-
-		        this.changeImage = function (imgsrc) {
-		            mWidImg.src = imgsrc;
-		        }
-
-		        this.setText = function (text) {
-		            mTextSpan.innerHTML = "<br>" + text;
-		        }
-
-		        this.onClick = function () {
-		            if (mOnClickCB != undefined)
-		                mOnClickCB();
-		        }
-
-		        this.setOnClick = function (func) {
-		            mOnClickCB = func;
-		        }
-
-		        this.getElement = function () {
-		            return mWidContainer;
-		        }
-
-		        this._init();
-		    };
 
 
 		    //! Switch Widget. Switches between two different states when clicked.
@@ -323,8 +118,8 @@
 		        var mState;
 		        var mID;
 
-		        var mOnImg = "../img/switch_on.png";
-		        var mOffImg = "../img/switch_off.png";
+		        var mOnImg = "../../img/switch_on.png";
+		        var mOffImg = "../../img/switch_off.png";
 
 		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
 
@@ -388,79 +183,7 @@
 		        this._init();
 		    };
 
-		    //! FullScreen Widget. Switches between windowed mode and full screen.
-		    //!
-		    FullScreenWidget = function (pos_x, pos_y, text) {
 
-		        var mFullScreenImg = "http://cdn1.iconfinder.com/data/icons/bloggers-1-to-7-vol-PNG/512/full_screen.png";
-
-		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px", mFullScreenImg);
-
-		        this._init = function () {
-		            this.setOnClick(this.onClick.bind(this));
-		            this.getElement().style.zIndex = 2;
-		        }
-
-
-		        this.onClick = function () {
-
-		            console.log("Fullscreen request received");
-
-		            if (THREEx.FullScreen.available() == false) {
-		                console.error("FullScreen is not available in your system");
-		                this.setText("[Unavailable]");
-		            }
-
-		            if (THREEx.FullScreen.activated() == false) {
-		                THREEx.FullScreen.request();
-		            }
-		            else
-		                THREEx.FullScreen.cancel();
-		        }
-
-
-		        this._init();
-
-		    };
-
-
-
-
-		    //! LED Widget. Simply used to display the state of the LEDs. 
-            //! Which can either be on or off.
-		    //!
-		    //! @param pos_x X position of the image (left top corner). 
-		    //! As a CSS string or a pixel-integer.
-		    //! @param pos_y Y position of the image (left top corner). 
-		    //! As a CSS string or a pixel-integer.
-		    //! @param text Text beneath the image
-		    LEDWidget = function (pos_x, pos_y, text) {
-
-		        var mState;
-
-		        var mOffImg = "../img/led_gray.png";
-		        var mOnImg = "../img/led_red.png";
-
-		        ImageWidget.call(this, pos_x, pos_y, text, "50px", "50px");
-
-		        this._init = function () {
-		            this.setState(false);
-		        }
-
-		        this.setState = function setState(state) {
-		            mState = state;
-		            if (state)
-		                this.changeImage(mOnImg);
-		            else
-		                this.changeImage(mOffImg);
-		        }
-
-		        this.getState = function getState() {
-		            return mState;
-		        }
-
-		        this._init();
-		    };
 
 
 			var AMOUNT = 100;
@@ -483,11 +206,7 @@
 			var bgScene;
 			var bgCam;
 			
-			
-			//document.body.addEventListener("keydown", function() {
-			//  THREEx.FullScreen.request();
-			//  alert('FS now');
-			//}, false);
+
 			
 
 		    //! Helper pseudo-singleton class to manage
@@ -499,8 +218,8 @@
 			    //! Creates the specified number of switches.
 			    //!
 			    this._createSwitches = function (container) {
-			        for (var i = 0; i < 8; i++) {
-			            var swit = new SwitchWidget(i, "" + (15+i*8) + "%", "85%", "Switch " + i);
+			        for (var i = 9; i >= 0; i--) {
+			            var swit = new SwitchWidget(9-i, "" + (15+i*8) + "%", "85%", "Sw" + (9-i));
 			            mSwitches[i] = swit;
 
 			            container.appendChild(swit.getElement());
@@ -520,7 +239,7 @@
                 //!
                 //! @return The LED img.
                 this._createLed = function (number, pos_x, pos_y) {
-                    led = new LEDWidget(pos_x, pos_y, "LED " + number);
+                    led = new LEDWidget(pos_x, pos_y, "" + number);
                     mLEDs[number] = led;
                     return led;
                 }
@@ -543,7 +262,7 @@
 
                 this._onReadLedsSuccess = function (response) {
                     var cur_led = 7;
-                    console.log("LEDs: " + response);
+                    //console.log("LEDs: " + response);
                     for (var i = 0; i < 8; i++, cur_led--) {
                         var led_state = response[i];
                         LedsManager._updateLed(cur_led, led_state);
@@ -572,7 +291,7 @@
                     catch (err) {
                         console.log('Error');
                     }
-                    setTimeout(this.startRefreshingLeds.bind(this), 1000);
+                    setTimeout(this.startRefreshingLeds.bind(this), 3000);
                 }
 
                 this.getLEDs = function () {
@@ -662,7 +381,7 @@
                         return;
 
                     // Create a fake STATE response, for testing offline.
-                    var fakeResponse = "STATE=programming";
+                    var fakeResponse = "STATE=not_ready";
                     Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
                     
                     // Send the state-checking command.
@@ -685,7 +404,7 @@
                 }
 
                 this.startCheckingState = function () {
-                    mCheckerInterval = setInterval(this._checkState.bind(this), 1000);
+                    mCheckerInterval = setInterval(this._checkState.bind(this), 3000);
                 }
 
                 this.stopCheckingState = function () {
@@ -699,8 +418,12 @@
             }
 
 
-			init();
-			animate();
+            $(
+                function () {
+
+                    init();
+                }
+            );
 
 			function main() {
 
@@ -726,7 +449,8 @@
 
 			    pb = new ProgressBarWidget("25%", "55%");
 
-			    pb.setText("Waiting");
+			    pb.setText("Not yet reserved");
+			    pb.setDetermination(100);
 			    pb.show();
 
                 // Set up the logic for each state.
@@ -734,6 +458,7 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.setText("Programming");
+                        pb.setDetermination(false);
                         pb.show();
                     }
                 );
@@ -741,6 +466,7 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.setText("Synthesizing");
+                        pb.setDetermination(false);
                         pb.show();
                     }
                 );
@@ -748,20 +474,27 @@
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         pb.hide();
+                        wsu = new WeblabSimulationUpdater(simulation);
+                        wsu.startUpdating();
+                        console.log("[DBG]: Out of handler: Ready");
                     }
                 );
 			    sc.setOnStateReachedCallback("failed",
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         console.error("State: Failed");
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("An error occurred");
+                        pb.show();
                     }
 			    );
 			    sc.setOnStateReachedCallback("synthesizing_error",
                     function (state, previous) {
                         console.log("Reached state: " + state);
                         console.error("State: Synthesizing error");
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("Synthesization Error");
+                        pb.show();
                     }
                 );
 			    sc.setOnStateReachedCallback("not_ready",
@@ -774,13 +507,16 @@
 			    sc.setOnStateReachedCallback("awaiting_code",
                     function (state, previous) {
                         console.log("Reached state: " + state);
-                        pb.hide();
+                        pb.setDetermination(100);
+                        pb.setText("Awaiting code");
+                        pb.show();
                     }
                 );
 
 			    Weblab.setOnEndCallback(function () {
 			        sc.stopCheckingState();
 			    });
+
 
 			}
 
@@ -805,33 +541,32 @@
 
 
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.z = 1000;
+				camera.position.z = 600;
+
 
 				scene = new THREE.Scene();
+
 
 				video = document.getElementById( 'video' );
 
 				//
 
 				image = document.createElement( 'canvas' );
-				image.width = 320;
-				image.height = 240;
+				image.width = 640;
+				image.height = 480;
 
 				imageContext = image.getContext( '2d' );
 				imageContext.fillStyle = '#000000';
-				imageContext.fillRect( 0, 0, 320, 240 );
+				imageContext.fillRect( 0, 0, 640, 480 );
 
 				texture = new THREE.Texture( image );
-				//texture.minFilter = THREE.LinearFilter;
-				//texture.magFilter = THREE.LinearFilter;
 
-				//var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
 				
 				// mOD: Create bg thing
 				bg = new THREE.Mesh(
 				  new THREE.PlaneGeometry(2, 2, 0),
 				  //new THREE.MeshBasicMaterial({map: texture})
-                    new THREE.MeshBasicMaterial({ map: texture, color: 0xff5500, wireframe: false })
+                    new THREE.MeshBasicMaterial({ map: texture, color: 0xFFFFFF, wireframe: false })
 				);
 				bg.material.depthTest = false;
 				bg.material.depthWrite = false;
@@ -846,13 +581,31 @@
 				var amounty = 10;
 
 				var PI2 = Math.PI * 2;
-
-				renderer = new THREE.CanvasRenderer();
-				//renderer = new THREE.WebGLRenderer( { antialias: false } );
+                
+                if(!Detector.webgl )
+                    renderer = new THREE.CanvasRenderer();
+                else
+				    renderer = new THREE.WebGLRenderer( { antialias: false } );
 				
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
-				container.appendChild( renderer.domElement );
+				container.appendChild(renderer.domElement);
+
+
+				controls = new THREE.OrbitControls(camera);
+				controls.autoRotate = true;
+				controls.autoRotateSpeed = 2;
+				controls.center = new THREE.Vector3(600, 0, 0);
+
+
+				simulation = new WaterTankSimulation();
+				var loadPromise = simulation.loadScene(scene, camera);
+
+				$.when(loadPromise).done(function () {
+				    animate();
+				});
+
+
 
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
@@ -884,12 +637,17 @@
 
 			}
 
+
 			function animate() {
 				requestAnimationFrame( animate );
 
 				render();
 				stats.update();
 
+			    // For some reason, controls looks for a dispatchEvent method which apparently only
+                // exists on certain contexts. For now, this will do.
+				controls.dispatchEvent = function (ev) { }
+				controls.update();
 			}
 
 			function render() {
@@ -897,9 +655,11 @@
 				renderer.autoClear = false;
 				renderer.clear();
 
-				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
-				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
-				camera.lookAt( scene.position );
+				//camera.position.x += (mouseX - camera.position.x) * 0.05;
+				//camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+				//camera.lookAt(scene.position);
+
+				//camera.lookAt(water.position);
 
 				if ( video.readyState === video.HAVE_ENOUGH_DATA ) {
 

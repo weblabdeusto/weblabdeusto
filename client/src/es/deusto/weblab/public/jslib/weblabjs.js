@@ -65,32 +65,37 @@ Weblab = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    parent.wl_inst.version = "1.1";
+    parent.wl_inst.version = "1.2";
 
     parent.wl_inst.setTime = function (time) {
-        mOnTimeCallback();
+        if(mOnTimeCallback != undefined)
+            mOnTimeCallback(time);
     }
 
-    parent.wl_inst.startInteraction = function () {
+    parent.wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
-        mOnStartInteractionCallback();
+        if(mOnStartInteractionCallback != undefined)
+            mOnStartInteractionCallback(initial_config);
     }
 
     parent.wl_inst.end = function () {
         mIsExperimentActive = false;
-        mOnEndCallback();
+        if(mOnEndCallback != undefined)
+            mOnEndCallback();
     }
 
     parent.wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
-            mCommandsSentMap[id][0](msg);
+            if( mCommandsSentMap[id][0] != undefined )
+                mCommandsSentMap[id][0](msg);
             delete mCommandsSentMap[id];
         }
     };
 
     parent.wl_inst.handleCommandError = function (msg, id) {
         if (id in mCommandsSentMap) {
-            mCommandsSentMap[id][1](msg);
+            if( mCommandsSentMap[id][1] != undefined )
+                mCommandsSentMap[id][1](msg);
             delete mCommandsSentMap[id];
         }
     };
