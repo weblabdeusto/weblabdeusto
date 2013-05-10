@@ -156,6 +156,7 @@ def generate_proxy_handler(paths):
 
         def send_head_proxy(self, data, path, proxy_url):
             request_headers = dict(self.headers)
+            request_headers['X-Forwarded-For'] = self.client_address[0]
             request = urllib2.Request("%s%s" % (proxy_url, path), data, headers = request_headers)
             try:
                 urlobj = urllib2.urlopen(request)
