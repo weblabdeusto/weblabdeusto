@@ -20,7 +20,7 @@ import hashlib
 from sqlalchemy.orm.exc import NoResultFound
 
 from weblab.db.session import ValidDatabaseSessionId
-import weblab.db.model as Model
+from weblab.db.model import DbUser, DbGroup, DbAuthType, DbRole, DbUserAuth
 
 from voodoo.log import logged
 import voodoo.log as log
@@ -36,36 +36,25 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         super(AuthDatabaseGateway, self).__init__(cfg_manager)
 
     @logged()
-    def retrieve_user_auths(self, username):
-        """ Retrieve the user auths for a given username."""
+    def retrieve_role_and_user_auths(self, username):
+        """ Retrieve the role and user auths for a given username."""
         session = self.Session()
         try:
             try:
-                user = session.query(Model.DbUser).filter_by(login=username).one()
+                user = session.query(DbUser).filter_by(login=username).one()
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
 
-            user_auths = sorted(session.query(Model.DbUserAuth).filter_by(user=user).all(), lambda x, y: cmp(x.auth.priority, y.auth.priority))
-            if len(user_auths) > 0:
-                return [ user_auth.to_business() for user_auth in user_auths ]
+            all_user_auths = session.query(DbUserAuth).filter_by(user=user).all()
+            
+            # 
+            sorted_user_auths = sorted(all_user_auths, lambda x, y: cmp(x.auth.priority, y.auth.priority))
+            if len(sorted_user_auths) > 0:
+                return user.role.name, [ user_auth.to_business() for user_auth in sorted_user_auths ]
             else:
                 raise DbErrors.DbNoUserAuthNorPasswordFoundError(
                         "No UserAuth found"
                     )
-        finally:
-            session.close()
-
-    @logged()
-    def retrieve_role(self, username):
-        """ Retrieve the role for a given username."""
-        session = self.Session()
-        try:
-            try:
-                user = session.query(Model.DbUser).filter_by(login=username).one()
-            except NoResultFound:
-                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
-            
-            return user.role.name
         finally:
             session.close()
 
@@ -77,14 +66,14 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             try:
-                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth_type = session.query(DbAuthType).filter_by(name=system).one()
                 if len(auth_type.auths) == 0:
                     raise DbErrors.DbUserNotFoundError("No instance of system '%s' found in database." % system)
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
-                user_auth = session.query(Model.DbUserAuth).filter(Model.DbUserAuth.auth.in_(auth_type.auths), configuration==external_id).one()
+                user_auth = session.query(DbUserAuth).filter(DbUserAuth.auth.in_(auth_type.auths), configuration==external_id).one()
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
 
@@ -103,13 +92,13 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             try:
-                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth_type = session.query(DbAuthType).filter_by(name=system).one()
                 auth = auth_type.auths[0]
             except (NoResultFound, KeyError):
                 raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
-                user = session.query(Model.DbUser).filter_by(login=username).one()
+                user = session.query(DbUser).filter_by(login=username).one()
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % user)
 
@@ -117,7 +106,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 if user_auth.auth == auth:
                     raise DbErrors.DbUserNotFoundError("User '%s' already has credentials in system %s" % (username, system))
 
-            user_auth = Model.DbUserAuth(user = user, auth = auth, configuration=str(external_id))
+            user_auth = DbUserAuth(user = user, auth = auth, configuration=str(external_id))
             session.add(user_auth)
             session.commit()
         finally:
@@ -131,7 +120,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             try:
-                auth_type = session.query(Model.DbAuthType).filter_by(name=system).one()
+                auth_type = session.query(DbAuthType).filter_by(name=system).one()
                 auth = auth_type.auths[0]
             except (NoResultFound, KeyError):
                 raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
@@ -139,15 +128,15 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
             groups = []
             for group_name in group_names:
                 try:
-                    group = session.query(Model.DbGroup).filter_by(name=group_name).one()
+                    group = session.query(DbGroup).filter_by(name=group_name).one()
                 except NoResultFound:
                     raise DbErrors.DbUserNotFoundError("Group '%s' not found in database" % group_name)
                 groups.append(group)
 
             try:
-                role = session.query(Model.DbRole).filter_by(name=external_user.role.name).one()
-                user = Model.DbUser(external_user.login, external_user.full_name, external_user.email, role = role)
-                user_auth = Model.DbUserAuth(user, auth, configuration = external_id)
+                role = session.query(DbRole).filter_by(name=external_user.role.name).one()
+                user = DbUser(external_user.login, external_user.full_name, external_user.email, role = role)
+                user_auth = DbUserAuth(user, auth, configuration = external_id)
                 for group in groups:
                     group.users.append(user)
                 session.add(user)

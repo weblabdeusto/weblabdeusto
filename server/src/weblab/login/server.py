@@ -57,6 +57,7 @@ LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 # TODO list:
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
+# - Check that the IP based authentication does not represent a huge security issue (e.g., malicious user providing the IP address as a password)
 
 class LoginServer(object):
 
@@ -115,8 +116,7 @@ class LoginServer(object):
         method will only check the SimpleAuthn instances.
         """
         try:
-            role_name  = self._db_gateway.retrieve_role(username)
-            user_auths = self._db_gateway.retrieve_user_auths(username)
+            role_name, user_auths  = self._db_gateway.retrieve_role_and_user_auths(username)
         except DbErrors.DbUserNotFoundError:
             return self._process_invalid()
 
