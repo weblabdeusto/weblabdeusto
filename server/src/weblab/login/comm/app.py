@@ -13,17 +13,26 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import urlparse
+
 from weblab.login.comm.webs import PLUGINS
 from werkzeug import Request
 
 from weblab.comm.context import create_context, delete_context
+from weblab.configuration_doc import CORE_FACADE_SERVER_ROUTE, CORE_SERVER_URL
 
 class LoginApp(object):
 
     def __init__(self, cfg_manager, server):
-        self.cfg_manager = cfg_manager
-        self.server      = server
-
+        self.cfg_manager  = cfg_manager
+        self.server       = server
+        self.server_route = cfg_manager[CORE_FACADE_SERVER_ROUTE]
+        url               = cfg_manager.get(CORE_SERVER_URL)
+        if url is not None:
+            path              = urlparse.urlparse(url).path
+            self.location     = path[:path.rfind('/weblab/') + 1]
+        else:
+            self.location     = '/weblab/'
 
     def __call__(self, environ, start_response):
 
@@ -37,7 +46,7 @@ class LoginApp(object):
         try:
             for PluginClass in PLUGINS:
                 if relative_path.startswith(PluginClass.path or 'url.not.provided'):
-                    plugin = PluginClass(self.cfg_manager, self.server, environ)
+                    plugin = PluginClass(self.cfg_manager, self.server, environ, self.server_route, self.location)
                     return plugin(environ, start_response)
         finally:
             delete_context()

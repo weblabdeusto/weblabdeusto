@@ -44,6 +44,7 @@ class LoginPlugin(WebPlugin):
             start_response("500 Server error", [('Content-Type','text/plain')])
             return [ "There was an unexpected error while logging in." ]
         else:
-            start_response("200 OK", [('Content-Type','text/plain')])
+            self.replace_session(session_id.id)
+            start_response("200 OK", [('Content-Type','text/plain'), self.weblab_cookies])
             return [ "%s;%s" % (session_id.id, self.weblab_cookie) ]
 

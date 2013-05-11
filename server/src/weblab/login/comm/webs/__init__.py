@@ -20,14 +20,50 @@ class WebPlugin(object):
 
     path = None # To be defined by the subclasses
 
-    def __init__(self, cfg_manager, server, environ):
+    def __init__(self, cfg_manager, server, environ, server_route, location):
         self.cfg_manager = cfg_manager
         self.server      = server
         self.environ     = environ
         self._contents   = None
 
-        # TODO: 
-        self.weblab_cookie = 'testing...'
+        self.server_route  = server_route
+        self.location      = location
+
+        self.weblab_cookie = None
+        self.login_weblab_cookie = None
+
+        for current_cookie in environ.get('HTTP_COOKIE','').split('; '):
+            if current_cookie.startswith('weblabsessionid'):
+                self.weblab_cookie = current_cookie
+            if current_cookie.startswith('loginweblabsessionid'):
+                self.login_weblab_cookie = current_cookie
+
+        if self.weblab_cookie is None:
+            if self.server_route is not None:
+                self.weblab_cookie = "weblabsessionid=sessidnotfound.%s" % self.server_route
+            else:
+                self.weblab_cookie = "weblabsessionid=sessidnotfound"
+
+        self.weblab_session = self.weblab_cookie.split('=')[1]
+
+        if self.login_weblab_cookie is None:
+            if self.server_route is not None:
+                self.login_weblab_cookie = "loginweblabsessionid=loginsessid.not.found.%s" % self.server_route
+            else:
+                self.login_weblab_cookie = "loginweblabsessionid=sessidnotfound"
+
+    def replace_session(self, session_id):
+        old_weblab_session = self.weblab_session
+        if self.server_route is not None:
+            self.weblab_session = '%s.%s' % (session_id, self.server_route)
+        else:
+            self.weblab_session = session_id
+
+        self.weblab_cookie  = self.weblab_cookie.replace(old_weblab_session, self.weblab_session)
+
+    @property
+    def weblab_cookies(self):
+        return ('Set-Cookie', 'weblabsessionid=%s; path=%s' % (self.weblab_session, self.location))
 
     @property
     def context(self):
