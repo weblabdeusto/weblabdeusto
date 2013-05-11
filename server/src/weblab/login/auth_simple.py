@@ -215,17 +215,17 @@ class LdapUserAuth(SimpleAuthnUserAuth):
 #        Trusted Ip addresses
 # 
 
+from weblab.comm.context import get_context
 
 class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
+
     NAME = 'TRUSTED-IP-ADDRESSES'
+
     def __init__(self, auth_configuration, user_auth_configuration):
         self.addresses = [ ip.strip() for ip in auth_configuration.split(',') ]
 
     def authenticate(self, login, password):
-        if not isinstance(password, ClientAddress.ClientAddress):
-            return False
-        client_address = password.client_address
-        return client_address in self.addresses
+        return get_context().ip_address in self.addresses
 
     @property
     def name(self):
