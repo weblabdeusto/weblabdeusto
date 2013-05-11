@@ -14,6 +14,7 @@
 #
 
 import urlparse
+from weblab.comm.context import get_context
 
 class WebPlugin(object):
 
@@ -27,6 +28,10 @@ class WebPlugin(object):
 
         # TODO: 
         self.weblab_cookie = 'testing...'
+
+    @property
+    def context(self):
+        return get_context()
 
     @property
     def contents(self):

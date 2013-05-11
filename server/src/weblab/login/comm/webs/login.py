@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import traceback
+
 from weblab.login.comm.webs import WebPlugin 
 from weblab.login.exc import InvalidCredentialsError
 
@@ -31,19 +33,14 @@ class LoginPlugin(WebPlugin):
             start_response("200 OK", [('Content-Type','text/plain')])
             return "%s argument not provided!" % USERNAME
 
-        password = self.get_argument(PASSWORD)
-        if password is None:
-            # TODO: get_context not implemented
-            ip_address = self.get_context().get_ip_address()
-            session_id = self.server.login_based_on_client_address(username, ip_address)
-            return "%s;%s" % (session_id.id, self.weblab_cookie)
-
+        password = self.get_argument(PASSWORD) or 'not provided'
         try:
             session_id = self.server.login(username, password)
         except InvalidCredentialsError:
             start_response("403 Forbidden", [('Content-Type','text/plain')])
             return [ "Invalid username or password" ]
         except:
+            traceback.print_exc()
             start_response("500 Server error", [('Content-Type','text/plain')])
             return [ "There was an unexpected error while logging in." ]
         else:

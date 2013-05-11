@@ -14,6 +14,9 @@
 #
 
 from weblab.login.comm.webs import PLUGINS
+from werkzeug import Request
+
+from weblab.comm.context import create_context, delete_context
 
 class LoginApp(object):
 
@@ -29,10 +32,15 @@ class LoginApp(object):
         path = environ['PATH_INFO']
         relative_path = path[path.find(TOKEN) + len(TOKEN):]
 
-        for PluginClass in PLUGINS:
-            if relative_path.startswith(PluginClass.path or 'url.not.provided'):
-                plugin = PluginClass(self.cfg_manager, self.server, environ)
-                return plugin(environ, start_response)
+        request = Request(environ)
+        create_context(self.server, environ['REMOTE_ADDR'], request.headers)
+        try:
+            for PluginClass in PLUGINS:
+                if relative_path.startswith(PluginClass.path or 'url.not.provided'):
+                    plugin = PluginClass(self.cfg_manager, self.server, environ)
+                    return plugin(environ, start_response)
+        finally:
+            delete_context()
 
         # Otherwise
         start_response("404 Not Found", [('Content-Type','text/plain')])
