@@ -1,0 +1,23 @@
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+{{ super() }}
+<script>
+    function flipInputVisibility(nextInput) {
+        var show = nextInput.checked;
+        var lastElement = null;
+        $("input").each(function(pos, element) {
+            if (element == nextInput) {
+                if (show) {
+                    lastElement.type = "text";
+                } else {
+                    lastElement.type = "password";
+                }
+            }
+
+            lastElement = element;
+        });
+    }
+</script>
+{% endblock %}
+

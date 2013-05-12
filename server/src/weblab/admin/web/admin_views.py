@@ -26,7 +26,7 @@ import weblab.db.model as model
 import weblab.permissions as permissions
 
 from weblab.admin.web.filters import get_filter_number, generate_filter_any
-from weblab.admin.web.fields import DisabledTextField
+from weblab.admin.web.fields import DisabledTextField, VisiblePasswordField
 
 try:
     from weblab.admin.ldap_gateway import LdapGateway
@@ -129,7 +129,8 @@ def show_link(klass, filter_name, field, name, view = 'View'):
    
 class UserAuthForm(InlineFormAdmin):
     def postprocess_form(self, form_class):
-        form_class.configuration = PasswordField('configuration', description = 'Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
+        # form_class.configuration = PasswordField('configuration', description = 'Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
+        form_class.configuration = UnboundField(VisiblePasswordField, description = 'Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
         return form_class
 
 LOGIN_REGEX = '^[A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-]*$'
