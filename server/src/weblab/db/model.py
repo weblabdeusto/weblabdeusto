@@ -25,7 +25,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
-from weblab.login.auth_simple import UserAuth
+from weblab.login.simple import create_user_auth
 
 from weblab.data.dto.experiments import Experiment
 from weblab.data.dto.experiments import ExperimentCategory
@@ -226,7 +226,7 @@ class DbUserAuth(Base):
         return user_auth_repr
 
     def to_business(self):
-        return UserAuth.create_user_auth(self.auth.auth_type.name, self.auth.configuration, self.configuration)
+        return create_user_auth(self.auth.auth_type.name, self.auth.configuration, self.configuration)
 
 
 class DbGroup(Base):
