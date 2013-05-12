@@ -27,7 +27,11 @@ class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
     NAME = 'TRUSTED-IP-ADDRESSES'
 
     def __init__(self, auth_configuration, user_auth_configuration):
-        self.addresses = [ ip.strip() for ip in auth_configuration.split(',') ]
+        self.addresses = []
+        if auth_configuration:
+            self.addresses += [ ip.strip() for ip in auth_configuration.split(',') ]
+        if user_auth_configuration:
+            self.addresses += [ ip.strip() for ip in user_auth_configuration.split(',') ]
 
     def authenticate(self, login, password):
         return get_context().ip_address in self.addresses
