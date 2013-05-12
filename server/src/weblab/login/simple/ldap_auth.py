@@ -99,11 +99,6 @@ class LdapUserAuth(SimpleAuthnUserAuth):
             ldapobj.unbind_s()
             return True
 
-
-    @property
-    def name(self):
-        return LdapUserAuth.NAME
-
     def __str__(self):
         return "LdapUserAuth(domain=%r, ldap_uri=%r, base=%r)" % (self.domain, self.ldap_uri, self.base)
 

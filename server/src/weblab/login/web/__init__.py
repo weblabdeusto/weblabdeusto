@@ -16,6 +16,8 @@
 import urlparse
 from weblab.comm.context import get_context
 
+from werkzeug import HTTP_STATUS_CODES
+
 from abc import ABCMeta, abstractmethod
 
 class ExternalSystemManager(object):
@@ -132,14 +134,8 @@ class WebPlugin(object):
         return None
 
     def build_response(self, text, content_type = 'text/plain', code = 200, headers = []):
-        codes = {
-            200 : '200 OK',
-            302 : '302 Found',
-            403 : '403 Forbidden',
-            404 : '404 Not found',
-            500 : '500 Server Internal Error',
-        }
-        self.start_response(codes.get(code), [('Content-Type', content_type), self.weblab_cookies] + list(headers))
+        full_code = '%s %s' % (code, HTTP_STATUS_CODES.get(code, ''))
+        self.start_response(full_code, [('Content-Type', content_type), self.weblab_cookies] + list(headers))
         return [ text ]
 
 #########################################################
@@ -149,15 +145,17 @@ class WebPlugin(object):
 
 from weblab.login.web.login      import LoginPlugin
 from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
-from weblab.login.web.openid_web import OpenIdPlugin, OpenIDManager
+from weblab.login.web.openid_web import OpenIdPlugin, OpenIdManager
 
 WEB_PLUGINS = [
     LoginPlugin,
     FacebookPlugin,
     OpenIdPlugin,
+    # Your plug-in here
 ]
 
 EXTERNAL_MANAGERS = {
-    'FACEBOOK' : FacebookManager(),
-    'OPENID'   : OpenIDManager(),
+    FacebookManager.NAME : FacebookManager(),
+    OpenIdManager.NAME   : OpenIdManager(),
+    # Your plug-in here
 }

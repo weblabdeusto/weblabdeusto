@@ -56,7 +56,10 @@ DEFAULT_CLIENT_URL       = '/weblab/client/'
 BASE_OPENID_URL          = 'login_openid_base_openid'
 DEFAULT_BASE_OPENID_URL  = '/weblab/login/web/openid/'
 
-class OpenIDManager(ExternalSystemManager):
+class OpenIdManager(ExternalSystemManager):
+
+    NAME = 'OPENID'
+
     @logged(log.level.Warning)
     def get_user(self, credentials):
         return None
@@ -156,7 +159,7 @@ class OpenIdPlugin(WebPlugin):
             if info.status == consumer.SUCCESS:
                 self.get_session()['validated'] = info.identity_url
                 try:
-                    session_id = self.server.extensible_login('OPENID','%s' % self.get_session()['id'])
+                    session_id = self.server.extensible_login(OpenIdManager.NAME,'%s' % self.get_session()['id'])
                 except LoginErrors.LoginError:
                     return self.build_response("Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators")
                 full_client_url = "%s?session_id=%s;%s" % (self.client_url, session_id.id, self.weblab_cookie)

@@ -32,10 +32,6 @@ class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
     def authenticate(self, login, password):
         return get_context().ip_address in self.addresses
 
-    @property
-    def name(self):
-        return TrustedIpAddressesUserAuth.NAME
-
     def __repr__(self):
         return "TrustedIpAddressesUserAuth(configuration=%r)" % self.addresses
 

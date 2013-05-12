@@ -33,10 +33,6 @@ class WebLabDbUserAuth(SimpleAuthnUserAuth):
     def __init__(self, auth_configuration, user_auth_configuration):
         self.hashed_password = user_auth_configuration
 
-    @property
-    def name(self):
-        return WebLabDbUserAuth.NAME
-
     def authenticate(self, login, password):
         #Now, user_password is the value stored in the database
         #

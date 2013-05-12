@@ -40,6 +40,9 @@ FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 
 # TODO: this could be refactored to be more extensible for other OAuth systems
 class FacebookManager(ExternalSystemManager):
+
+    NAME = 'FACEBOOK'
+
     @logged(log.level.Warning)
     def get_user(self, credentials):
         payload = credentials[credentials.find('.') + 1:]
@@ -97,7 +100,7 @@ class FacebookPlugin(WebPlugin):
             return self.build_response("<html><body><script>top.location.href='%s';</script></body></html>" % auth_url)
 
         try:
-            session_id = self.server.extensible_login('FACEBOOK', signed_request)
+            session_id = self.server.extensible_login(FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
             return self._handle_unauthenticated_clients(signed_request)
 
@@ -152,7 +155,7 @@ class FacebookPlugin(WebPlugin):
         username = self.get_argument('username')
         password = self.get_argument('password')
         try:
-            session_id = self.server.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
+            session_id = self.server.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
             return self.build_response("Invalid username or password!", code = 403)
         else:
@@ -160,7 +163,7 @@ class FacebookPlugin(WebPlugin):
 
     def _handle_creating_accounts(self, signed_request):
         try:
-            session_id = self.server.create_external_user('FACEBOOK', signed_request)
+            session_id = self.server.create_external_user(FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
             return self.build_response("Invalid username or password!", code = 403)
         else:

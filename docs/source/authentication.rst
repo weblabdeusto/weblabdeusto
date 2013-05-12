@@ -154,3 +154,183 @@ if you still don't trust it and prefer other solutions, check other systems.
 .. note::
 
    How to use LDAP has not been yet documented.
+
+Extending the system
+--------------------
+
+The authentication system is based on plug-ins. It can be extended by
+implementing a proper plug-in in Python. This section covers how to implement
+one system.
+
+WebLab-Deusto differentiates among two different types of authentication
+systems:
+
+* *Simple:* those systems which receive the username and password, and check if
+  the user is who claims to be. Examples of these systems are LDAP, password
+  stored in the database, or checking that it comes from a particular IP
+  address.
+
+* *Web protocol systems:* those systems which do not receive simply a username
+  and password, but which require an external web protocol. For example,
+  using OAuth 2.0, the user will be forwarded to a particular page that must
+  exist. Or in OpenID, the foreign system will redirect users to a particular
+  page that also must exist.
+
+So basically: if the system you are trying to design requires that WebLab-Deusto
+provides a new web service or anything to a third system, you should use the
+second approach. However, if you receive a certain username and password, you
+may use the first approach.
+
+Simple
+^^^^^^
+
+All the protocols implemented using the *Simple* approach are located in the
+`weblab.login.simple
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/simple>`_
+package. On it, you will see different modules, one per each system. The most
+simple plug-in would be the following:
+
+.. code-block:: python
+
+    from weblab.login.simple import SimpleAuthnUserAuth
+
+    class MyPluginUserAuth(SimpleAuthnUserAuth):
+
+        NAME = 'MY-PLUGIN'
+
+        def __init__(self, auth_configuration, user_auth_configuration):
+            """ auth_configuration is how the particular system is configured in an
+            instance. For instance, 30 students may use a LDAP repository, while other
+            30 students are using other LDAP repository. Therefore a plug-in for LDAP
+            is implemented, and later with the administration panel you may establish
+            that the first 30 students use an instance of the LDAP plug-in, and other
+            30 students other instance. The details of the repository would come in the
+            auth_configuration (common for many users).
+
+            However, in the case of the hashed passwords in the database, the 
+            auth_configuration is empty, and user_auth_configuration contains the 
+            particular hashed pasword.
+
+            Both arguments are strings.
+            """
+            pass
+
+        def authenticate(self, login, password):
+            # Do something with auth_configuration, user_auth_configuration and
+            # then return True or False if the login and password match proper 
+            # credentials.
+            return True
+
+Once this class is created and is located in the proper module, the last lines of
+the `weblab/login/simple/__init__.py
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/simple/__init__.py>`_
+to register the plug-in. In this example:
+
+.. code-block:: python
+
+    from weblab.login.simple.db_auth import WebLabDbUserAuth
+    from weblab.login.simple.ldap_auth import LdapUserAuth
+    from weblab.login.simple.ip_auth import TrustedIpAddressesUserAuth
+    # Just added
+    from weblab.login.simple.my_plugin import MyPluginUserAuth
+
+    SIMPLE_PLUGINS = {
+        WebLabDbUserAuth.NAME           : WebLabDbUserAuth,
+        LdapUserAuth.NAME               : LdapUserAuth,
+        TrustedIpAddressesUserAuth.NAME : TrustedIpAddressesUserAuth,
+        # Put your plug-in here.
+        MyPluginUserAuth.NAME           : MyPluginUserAuth
+    }
+
+From this point, those user with this authentication mechanism would be
+validated by it.
+
+
+Web protocol systems
+^^^^^^^^^^^^^^^^^^^^
+
+So as to support those systems using a login subsystem that requires an external
+protocol, a slightly more complicated process is required. You may find examples
+in the `weblab.login.web
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/web>`_
+package. As you will notice, two classes are required, so the most simple
+system that you can implement is the following:
+
+.. code-block:: python
+
+    from weblab.login.web import WebPlugin, ExternalSystemManager
+
+    from weblab.data.dto.users import User
+    from weblab.data.dto.users import StudentRole
+
+    class MyManager(ExternalSystemManager):
+
+        NAME = 'MYPLUGIN'
+
+        @logged(log.level.Warning)
+        def get_user(self, credentials):
+            """Use credentials to validate in the remote system."""
+            
+            # credentials might be a token to retrieve information
+            # such as the full name, the email or the login.            
+
+            login     = "user2132@myplugin"
+            full_name = "John Doe"
+            email     = "john.doe@deusto.es"
+
+            user = User(login, full_name, email, StudentRole())
+            return user
+
+        def get_user_id(self, credentials):
+            login = self.get_user(credentials).login
+            # login is "13122142321@myplugin"
+            return login.split('@')[0]
+
+    class MyPlugin(WebPlugin):
+        path = '/my/'
+
+        def __call__(self, environ, start_response):
+            """ This is a complete WSGI-compliant system, although 
+            some methods are inherited from WebPlugin that make it 
+            easier to work with. """
+
+            # Here you can contact other URLs or provide multiple 
+            # different methods.
+
+            # Once you have something to check credentials with
+            # such as tokens or whatever, you may call the following 
+            # method:
+            session_id = self.server.extensible_login(MyManager.NAME, whatever_token)
+
+            # And you may pass it however you want to the final user:
+            return self.build_response("<html><body><b>This HTML content will be "
+                "displayed %s</b></html>" % session_id.id, content_type = "text/html", 
+                code = 200)
+
+Once you write the WSGI-compliant web application, you can register it in the last lines of
+the `weblab/login/web/__init__.py
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/web/__init__.py>`_
+as follows:
+
+.. code-block:: python
+
+    from weblab.login.web.login      import LoginPlugin
+    from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
+    from weblab.login.web.openid_web import OpenIdPlugin,   OpenIDManager
+    from weblab.login.web.myplugin   import MyPlugin,       MyManager
+
+    WEB_PLUGINS = [
+        LoginPlugin,
+        FacebookPlugin,
+        OpenIdPlugin,
+        # Your plug-in here
+        MyPlugin,
+    ]
+
+    EXTERNAL_MANAGERS = {
+        FacebookManager.NAME : FacebookManager(),
+        OpenIdManager.NAME   : OpenIDManager(),
+        # Your plug-in here
+        MyManager.NAME       : MyManager(),
+    }
+
