@@ -62,8 +62,7 @@ class OpenIDManager(ExternalSystemManager):
         return None
 
     def get_user_id(self, credentials):
-        import weblab.login.comm.web.openid_web as OpenIDMod
-        return OpenIDMod.OpenIdMethod.get_user_id(credentials)
+        return OpenIdPlugin.get_user_id(credentials)
 
 class OpenIdPlugin(WebPlugin):
 
