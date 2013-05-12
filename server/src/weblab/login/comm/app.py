@@ -34,6 +34,9 @@ class LoginApp(object):
         else:
             self.location     = '/weblab/'
 
+        for PluginClass in PLUGINS:
+            PluginClass.initialize(cfg_manager, self.server_route)
+
     def __call__(self, environ, start_response):
 
         TOKEN = 'login/web'

@@ -53,6 +53,10 @@ class WebPlugin(object):
             else:
                 self.login_weblab_cookie = "loginweblabsessionid=sessidnotfound"
 
+    @classmethod
+    def initialize(klass, cfg_manager, route):
+        pass
+
     def replace_session(self, session_id):
         old_weblab_session = self.weblab_session
         if self.server_route is not None:
@@ -69,6 +73,10 @@ class WebPlugin(object):
     @property
     def context(self):
         return get_context()
+
+    @property
+    def headers(self):
+        return get_context().headers
 
     @property
     def uri(self):
@@ -94,7 +102,7 @@ class WebPlugin(object):
     @property
     def relative_path(self):
         full_path = self.environ['PATH_INFO']
-        return full_path[full_path.find(self.path) + len(self.path) + 1:]
+        return full_path[full_path.find(self.path) + len(self.path):]
 
     def get_argument(self, name):
         qs = self.environ['QUERY_STRING']
@@ -109,22 +117,25 @@ class WebPlugin(object):
 
         return None
 
-    def build_response(self, text, content_type = 'text/plain', code = 200):
+    def build_response(self, text, content_type = 'text/plain', code = 200, headers = []):
         codes = {
             200 : '200 OK',
+            302 : '302 Found',
             403 : '403 Forbidden',
             404 : '404 Not found',
             500 : '500 Server Internal Error',
         }
-        self.start_response(codes.get(code), [('Content-Type', content_type), self.weblab_cookies])
+        self.start_response(codes.get(code), [('Content-Type', content_type), self.weblab_cookies] + list(headers))
         return [ text ]
 
 
 
-from weblab.login.comm.webs.login     import LoginPlugin
-from weblab.login.comm.webs.facebook  import FacebookPlugin
+from weblab.login.comm.webs.login      import LoginPlugin
+from weblab.login.comm.webs.facebook   import FacebookPlugin
+from weblab.login.comm.webs.openid_web import OpenIdPlugin
 
 PLUGINS = [
     LoginPlugin,
     FacebookPlugin,
+    OpenIdPlugin,
 ]
