@@ -13,8 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.login.comm.webs import WebPlugin
-
 try:
     from urlparse import parse_qsl as url_parse_qsl
     parse_qsl = url_parse_qsl
@@ -36,8 +34,12 @@ import urlparse
 import traceback
 from Cookie import SimpleCookie
 
+import voodoo.log as log
+from voodoo.log import logged
+
 import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginErrors
+from weblab.login.web import WebPlugin, ExternalSystemManager
 
 USERNAME = "username"
 DOMAIN   = "domain"
@@ -54,6 +56,15 @@ CLIENT_URL_PROPERTY      = 'login_openid_client_url'
 DEFAULT_CLIENT_URL       = '/weblab/client/'
 BASE_OPENID_URL          = 'login_openid_base_openid'
 DEFAULT_BASE_OPENID_URL  = '/weblab/login/web/openid/'
+
+class OpenIDManager(ExternalSystemManager):
+    @logged(log.level.Warning)
+    def get_user(self, credentials):
+        return None
+
+    def get_user_id(self, credentials):
+        import weblab.login.comm.web.openid_web as OpenIDMod
+        return OpenIDMod.OpenIdMethod.get_user_id(credentials)
 
 class OpenIdPlugin(WebPlugin):
 

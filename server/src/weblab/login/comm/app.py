@@ -15,7 +15,7 @@
 
 import urlparse
 
-from weblab.login.comm.webs import PLUGINS
+from weblab.login.web import WEB_PLUGINS
 from werkzeug import Request
 
 from weblab.comm.context import create_context, delete_context
@@ -34,7 +34,7 @@ class LoginApp(object):
         else:
             self.location     = '/weblab/'
 
-        for PluginClass in PLUGINS:
+        for PluginClass in WEB_PLUGINS:
             PluginClass.initialize(cfg_manager, self.server_route)
 
     def __call__(self, environ, start_response):
@@ -47,7 +47,7 @@ class LoginApp(object):
         request = Request(environ)
         create_context(self.server, environ['REMOTE_ADDR'], request.headers)
         try:
-            for PluginClass in PLUGINS:
+            for PluginClass in WEB_PLUGINS:
                 if relative_path.startswith(PluginClass.path or 'url.not.provided'):
                     plugin = PluginClass(self.cfg_manager, self.server, environ, start_response, self.server_route, self.location)
                     return plugin(environ, start_response)

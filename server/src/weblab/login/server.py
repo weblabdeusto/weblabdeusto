@@ -36,7 +36,7 @@ from voodoo.log import logged
 import time
 import traceback
 
-from weblab.login.auth_web_protocol import WEB_PROTOCOL_AUTHN
+from weblab.login.web import EXTERNAL_MANAGERS
 
 from weblab.login.db import create_auth_gateway
 
@@ -91,7 +91,7 @@ class LoginServer(object):
             for server in self._facade_servers:
                 server.start()
 
-        self._web_protocol_auth = WEB_PROTOCOL_AUTHN
+        self._web_protocol_auth = EXTERNAL_MANAGERS
 
     def stop(self):
         if hasattr(super(LoginServer, self), 'stop'):

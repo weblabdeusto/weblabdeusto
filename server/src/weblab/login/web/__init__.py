@@ -16,6 +16,18 @@
 import urlparse
 from weblab.comm.context import get_context
 
+from abc import ABCMeta, abstractmethod
+
+class ExternalSystemManager(object):
+
+    @abstractmethod
+    def get_user(self, credentials):
+        """Create a User instance with the data of this user."""
+
+    @abstractmethod
+    def get_user_id(self, credentials):
+        """Create a string which is a unique identifier for this user in the foreign system"""
+
 class WebPlugin(object):
 
     path = None # To be defined by the subclasses
@@ -128,14 +140,22 @@ class WebPlugin(object):
         self.start_response(codes.get(code), [('Content-Type', content_type), self.weblab_cookies] + list(headers))
         return [ text ]
 
+#########################################################
+# 
+#     Registry of the web plug-ins and User Auths
+# 
 
+from weblab.login.web.login      import LoginPlugin
+from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
+from weblab.login.web.openid_web import OpenIdPlugin, OpenIDManager
 
-from weblab.login.comm.webs.login      import LoginPlugin
-from weblab.login.comm.webs.facebook   import FacebookPlugin
-from weblab.login.comm.webs.openid_web import OpenIdPlugin
-
-PLUGINS = [
+WEB_PLUGINS = [
     LoginPlugin,
     FacebookPlugin,
     OpenIdPlugin,
 ]
+
+EXTERNAL_MANAGERS = {
+    'FACEBOOK' : FacebookManager(),
+    'OPENID'   : OpenIDManager(),
+}

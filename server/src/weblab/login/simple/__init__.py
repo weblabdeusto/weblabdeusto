@@ -52,7 +52,7 @@ from weblab.login.simple.db_auth import WebLabDbUserAuth
 from weblab.login.simple.ldap_auth import LdapUserAuth
 from weblab.login.simple.ip_auth import TrustedIpAddressesUserAuth
 
-from weblab.login.auth_web_protocol import WEB_PROTOCOL_AUTHN
+from weblab.login.web import EXTERNAL_MANAGERS
 
 
 def create_user_auth(name, auth_configuration, user_auth_configuration):
@@ -66,7 +66,7 @@ def create_user_auth(name, auth_configuration, user_auth_configuration):
         return TrustedIpAddressesUserAuth(auth_configuration, user_auth_configuration)
 
     # Any of the Web Protocol Auths (Facebook, OpenID...) are not relevant here.
-    elif name in WEB_PROTOCOL_AUTHN.keys():
+    elif name in EXTERNAL_MANAGERS.keys():
         return WebProtocolUserAuth()
         
     raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
