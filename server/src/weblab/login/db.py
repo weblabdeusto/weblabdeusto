@@ -14,9 +14,6 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
-import re
-import hashlib
-
 from sqlalchemy.orm.exc import NoResultFound
 
 from weblab.db.session import ValidDatabaseSessionId
@@ -73,7 +70,7 @@ class AuthDatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
 
             try:
-                user_auth = session.query(DbUserAuth).filter(DbUserAuth.auth.in_(auth_type.auths), configuration==external_id).one()
+                user_auth = session.query(DbUserAuth).filter(DbUserAuth.auth.in_(auth_type.auths), DbUserAuth.configuration==external_id).one()
             except NoResultFound:
                 raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
 

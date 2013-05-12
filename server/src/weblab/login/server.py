@@ -36,12 +36,13 @@ from voodoo.log import logged
 import time
 import traceback
 
-from weblab.login.auth_web_protocol import WEB_PROTOCOL_AUTHN
+from weblab.login.web import EXTERNAL_MANAGERS
 
 from weblab.login.db import create_auth_gateway
 
 import weblab.login.comm.server as LoginFacadeServer
-import weblab.login.comm.web_server as WebFacadeServer
+import weblab.login.comm.wsgi_server as wsgi_server
+
 import weblab.data.server_type as ServerType
 import weblab.login.exc as LoginErrors
 import weblab.db.exc as DbErrors
@@ -61,12 +62,9 @@ LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
 class LoginServer(object):
 
-    FACADE_SERVERS = (
-                LoginFacadeServer.LoginRemoteFacadeServer,
-                WebFacadeServer.LoginWebRemoteFacadeServer
-            )
+    FACADE_SERVERS = ( LoginFacadeServer.LoginRemoteFacadeServer, wsgi_server.LoginWsgiRemoteFacadeServer )
 
-    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+    def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)
 
         log.log( LoginServer, log.level.Info, "Starting Login Server")
@@ -77,13 +75,15 @@ class LoginServer(object):
         self._cfg_manager   = cfg_manager
 
         self._facade_servers       = []
-        for ServerClass in self.FACADE_SERVERS:
-            self._facade_servers.append(ServerClass( self, cfg_manager ))
 
-        for server in self._facade_servers:
-            server.start()
+        if not dont_start:
+            for ServerClass in self.FACADE_SERVERS:
+                self._facade_servers.append(ServerClass( self, cfg_manager ))
 
-        self._web_protocol_auth = WEB_PROTOCOL_AUTHN
+            for server in self._facade_servers:
+                server.start()
+
+        self._web_protocol_auth = EXTERNAL_MANAGERS
 
     def stop(self):
         if hasattr(super(LoginServer, self), 'stop'):

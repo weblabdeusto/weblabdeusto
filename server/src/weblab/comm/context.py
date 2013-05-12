@@ -46,11 +46,19 @@ class RemoteFacadeContext(object):
         except KeyError:
             return '<unknown client. retrieved from %s>' % self._client_address[0]
 
+    @property
+    def ip_address(self):
+        return self.get_ip_address()
+
     def get_user_agent(self):
         try:
             return self.headers.get('User-Agent') or '<unknown>'
         except KeyError:
             return '<unknown>'
+
+    @property
+    def user_agent(self):
+        return self.get_user_agent()
 
     def get_referer(self):
         try:
@@ -58,11 +66,18 @@ class RemoteFacadeContext(object):
         except KeyError:
             return ''
 
+    @property
+    def referer(self):
+        return self.get_referer()
+
     def get_locale(self):
         try:
             return self.headers.get('weblabdeusto-locale') or ''
         except KeyError:
             return ''
+    @property
+    def locale(self):
+        return self.get_locale()
 
     def is_mobile(self):
         if self.headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
