@@ -120,7 +120,7 @@ class WebPlugin(object):
         full_path = self.environ['PATH_INFO']
         return full_path[full_path.find(self.path) + len(self.path):]
 
-    def get_argument(self, name):
+    def get_argument(self, name, default = None):
         qs = self.environ['QUERY_STRING']
         get_args = urlparse.parse_qs(qs)
         if name in get_args:
@@ -131,7 +131,7 @@ class WebPlugin(object):
             if name in post_args:
                 return post_args[name][0]
 
-        return None
+        return default
 
     def build_response(self, text, content_type = 'text/plain', code = 200, headers = []):
         full_code = '%s %s' % (code, HTTP_STATUS_CODES.get(code, ''))
