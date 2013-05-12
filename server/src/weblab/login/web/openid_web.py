@@ -37,7 +37,6 @@ from Cookie import SimpleCookie
 import voodoo.log as log
 from voodoo.log import logged
 
-import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginErrors
 from weblab.login.web import WebPlugin, ExternalSystemManager
 

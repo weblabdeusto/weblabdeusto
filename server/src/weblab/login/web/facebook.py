@@ -22,7 +22,6 @@ from voodoo.log import logged
 
 
 from weblab.login.web import WebPlugin, ExternalSystemManager
-import weblab.comm.web_server as WebFacadeServer
 import weblab.login.exc as LoginErrors
 
 from weblab.data.dto.users import User
@@ -62,8 +61,8 @@ class FacebookManager(ExternalSystemManager):
             user = User(login, full_name, email, StudentRole())
             return user
         except Exception as e:
-            log.log( Facebook, log.level.Warning, "Error: %s" % e )
-            log.log_exc( Facebook, log.level.Info )
+            log.log( FacebookManager, log.level.Warning, "Error: %s" % e )
+            log.log_exc( FacebookManager, log.level.Info )
             return ""
 
     def get_user_id(self, credentials):

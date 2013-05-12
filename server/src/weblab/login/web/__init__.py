@@ -20,6 +20,8 @@ from abc import ABCMeta, abstractmethod
 
 class ExternalSystemManager(object):
 
+    __metaclass__ = ABCMeta
+
     @abstractmethod
     def get_user(self, credentials):
         """Create a User instance with the data of this user."""
@@ -107,7 +109,7 @@ class WebPlugin(object):
         except ValueError:
             length = 0
 
-        contents = environ['wsgi.input'].read(length)
+        contents = self.environ['wsgi.input'].read(length)
         self._contents = contents
         return contents
 

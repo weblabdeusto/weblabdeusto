@@ -41,7 +41,6 @@ from weblab.login.web import EXTERNAL_MANAGERS
 from weblab.login.db import create_auth_gateway
 
 import weblab.login.comm.server as LoginFacadeServer
-import weblab.login.comm.web_server as WebFacadeServer
 import weblab.login.comm.wsgi_server as wsgi_server
 
 import weblab.data.server_type as ServerType
@@ -56,8 +55,6 @@ DEFAULT_GROUPS     = 'login_default_groups_for_external_users'
 CREATING_EXTERNAL_USERS = 'login_creating_external_users'
 LINKING_EXTERNAL_USERS  = 'login_linking_external_users'
 
-USE_NEW_LOGIN_SYSTEM = True
-
 # TODO list:
 # - Remove priority constraint (right now it is a UNIQUE. Use balsamic to avoid being so strict)
 # - Check and delete those methods and structures unused after the cleanup.
@@ -65,12 +62,7 @@ USE_NEW_LOGIN_SYSTEM = True
 
 class LoginServer(object):
 
-    FACADE_SERVERS = ( LoginFacadeServer.LoginRemoteFacadeServer,)
-
-    if USE_NEW_LOGIN_SYSTEM:
-        FACADE_SERVERS += (wsgi_server.LoginWsgiRemoteFacadeServer,)
-    else:
-        FACADE_SERVERS += (WebFacadeServer.LoginWebRemoteFacadeServer,)
+    FACADE_SERVERS = ( LoginFacadeServer.LoginRemoteFacadeServer, wsgi_server.LoginWsgiRemoteFacadeServer )
 
     def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)

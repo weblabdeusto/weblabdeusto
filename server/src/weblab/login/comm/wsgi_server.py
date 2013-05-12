@@ -3,8 +3,6 @@ import urlparse
 import SocketServer
 import wsgiref.simple_server
 
-from flask import redirect
-
 if __name__ == '__main__':
     import sys
     sys.path.insert(0, '.')
