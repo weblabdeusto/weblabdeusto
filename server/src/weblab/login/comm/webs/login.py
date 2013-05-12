@@ -30,21 +30,17 @@ class LoginPlugin(WebPlugin):
         username = self.get_argument(USERNAME)
 
         if username is None:
-            start_response("200 OK", [('Content-Type','text/plain')])
-            return "%s argument not provided!" % USERNAME
+            return self.build_response("%s argument not provided!" % USERNAME)
 
         password = self.get_argument(PASSWORD) or 'not provided'
         try:
             session_id = self.server.login(username, password)
         except InvalidCredentialsError:
-            start_response("403 Forbidden", [('Content-Type','text/plain')])
-            return [ "Invalid username or password" ]
+            return self.build_response("Invalid username or password", code = 403)
         except:
             traceback.print_exc()
-            start_response("500 Server error", [('Content-Type','text/plain')])
-            return [ "There was an unexpected error while logging in." ]
+            return self.build_response("There was an unexpected error while logging in.", code = 500)
         else:
             self.replace_session(session_id.id)
-            start_response("200 OK", [('Content-Type','text/plain'), self.weblab_cookies])
-            return [ "%s;%s" % (session_id.id, self.weblab_cookie) ]
+            return self.build_response("%s;%s" % (session_id.id, self.weblab_cookie))
 

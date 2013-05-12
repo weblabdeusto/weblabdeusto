@@ -46,7 +46,7 @@ class LoginApp(object):
         try:
             for PluginClass in PLUGINS:
                 if relative_path.startswith(PluginClass.path or 'url.not.provided'):
-                    plugin = PluginClass(self.cfg_manager, self.server, environ, self.server_route, self.location)
+                    plugin = PluginClass(self.cfg_manager, self.server, environ, start_response, self.server_route, self.location)
                     return plugin(environ, start_response)
         finally:
             delete_context()

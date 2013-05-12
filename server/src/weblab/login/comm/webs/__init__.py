@@ -20,10 +20,11 @@ class WebPlugin(object):
 
     path = None # To be defined by the subclasses
 
-    def __init__(self, cfg_manager, server, environ, server_route, location):
+    def __init__(self, cfg_manager, server, environ, start_response, server_route, location):
         self.cfg_manager = cfg_manager
         self.server      = server
         self.environ     = environ
+        self.start_response = start_response
         self._contents   = None
 
         self.server_route  = server_route
@@ -70,6 +71,10 @@ class WebPlugin(object):
         return get_context()
 
     @property
+    def uri(self):
+        return self.environ['PATH_INFO']
+
+    @property
     def contents(self):
         if self.environ.get('REQUEST_METHOD','GET') not in ('POST', 'PUT'):
             return None
@@ -86,6 +91,11 @@ class WebPlugin(object):
         self._contents = contents
         return contents
 
+    @property
+    def relative_path(self):
+        full_path = self.environ['PATH_INFO']
+        return full_path[full_path.find(self.path) + len(self.path) + 1:]
+
     def get_argument(self, name):
         qs = self.environ['QUERY_STRING']
         get_args = urlparse.parse_qs(qs)
@@ -99,10 +109,22 @@ class WebPlugin(object):
 
         return None
 
+    def build_response(self, text, content_type = 'text/plain', code = 200):
+        codes = {
+            200 : '200 OK',
+            403 : '403 Forbidden',
+            404 : '404 Not found',
+            500 : '500 Server Internal Error',
+        }
+        self.start_response(codes.get(code), [('Content-Type', content_type), self.weblab_cookies])
+        return [ text ]
 
 
-from weblab.login.comm.webs.login import LoginPlugin
+
+from weblab.login.comm.webs.login     import LoginPlugin
+from weblab.login.comm.webs.facebook  import FacebookPlugin
 
 PLUGINS = [
     LoginPlugin,
+    FacebookPlugin,
 ]
