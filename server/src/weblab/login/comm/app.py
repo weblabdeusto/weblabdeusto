@@ -19,18 +19,18 @@ from weblab.login.web import WEB_PLUGINS
 from werkzeug import Request
 
 from weblab.comm.context import create_context, delete_context
-from weblab.configuration_doc import CORE_FACADE_SERVER_ROUTE, CORE_SERVER_URL
+from weblab.configuration_doc import LOGIN_FACADE_SERVER_ROUTE, CORE_SERVER_URL
 
 class LoginApp(object):
 
     def __init__(self, cfg_manager, server):
         self.cfg_manager  = cfg_manager
         self.server       = server
-        self.server_route = cfg_manager[CORE_FACADE_SERVER_ROUTE]
+        self.server_route = cfg_manager[LOGIN_FACADE_SERVER_ROUTE]
         url               = cfg_manager.get(CORE_SERVER_URL)
         if url is not None:
             path              = urlparse.urlparse(url).path
-            self.location     = path[:path.rfind('/weblab/') + 1]
+            self.location     = path[:path.rfind('/weblab/') + len('/weblab/')]
         else:
             self.location     = '/weblab/'
 
