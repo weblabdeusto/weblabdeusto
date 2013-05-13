@@ -165,7 +165,7 @@ class OpenIdPlugin(WebPlugin):
                 full_client_url = "%s?session_id=%s;%s" % (self.client_url, session_id.id, self.weblab_cookie)
                 return self.build_response("<html><body><script>top.location.href='%s';</script><a href='%s'>Continue</a></body></html>" % (full_client_url, full_client_url), content_type = 'text/html')
             else:
-                return self.build_response("failed to authenticate! %s" % info.status)
+                return self.build_response("failed to authenticate! %s; %s" % (info.status, info.message if hasattr(info, 'message') else ''))
 
         @classmethod
         def get_user_id(klass, credentials):
