@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2005 onwards University of Deusto
+# Copyright (C) 2013 onwards University of Deusto
 # All rights reserved.
 #
 # This software is licensed as described in the file COPYING, which
@@ -13,11 +13,20 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import json
 import urllib2
 import base64
 
-import weblab.comm.web_server as WebFacadeServer
+import voodoo.log as log
+from voodoo.log import logged
+
+
+from weblab.login.web import WebPlugin, ExternalSystemManager
 import weblab.login.exc as LoginErrors
+
+from weblab.data.dto.users import User
+from weblab.data.dto.users import StudentRole
+
 
 REQUEST_FIELD           = 'signed_request'
 FACEBOOK_APP_PROPERTY   = "login_facebook_url"
@@ -27,21 +36,54 @@ DEFAULT_AUTH_URL        = "http://www.facebook.com/dialog/oauth?client_id=%s&red
 APP_ID_PROPERTY         = "login_facebook_app_id"
 CANVAS_URL_PROPERTY     = "login_facebook_canvas_url"
 
-import json
+FACEBOOK_TOKEN_VALIDATOR = "https://graph.facebook.com/me?access_token=%s"
 
-class FacebookMethod(WebFacadeServer.Method):
+# TODO: this could be refactored to be more extensible for other OAuth systems
+class FacebookManager(ExternalSystemManager):
+
+    NAME = 'FACEBOOK'
+
+    @logged(log.level.Warning)
+    def get_user(self, credentials):
+        payload = credentials[credentials.find('.') + 1:]
+        payload = payload.replace('-','+').replace('_','/')
+        payload = payload + "=="
+        try:
+            json_content = base64.decodestring(payload)
+            data = json.loads(json_content)
+            oauth_token = data['oauth_token']
+            req = urllib2.urlopen(FACEBOOK_TOKEN_VALIDATOR % oauth_token)
+            encoding = req.headers['content-type'].split('charset=')[-1]
+            ucontent = unicode(req.read(),encoding)
+            user_data = json.loads(ucontent)
+            if not user_data['verified']:
+                raise Exception("Not verified user!!!")
+            login = '%s@facebook' % user_data['id']
+            full_name = user_data['name']
+            email = user_data.get('email','<not provided>')
+            user = User(login, full_name, email, StudentRole())
+            return user
+        except Exception as e:
+            log.log( FacebookManager, log.level.Warning, "Error: %s" % e )
+            log.log_exc( FacebookManager, log.level.Info )
+            return ""
+
+    def get_user_id(self, credentials):
+        login = self.get_user(credentials).login
+        # login is "13122142321@facebook"
+        return login.split('@')[0]
+
+
+class FacebookPlugin(WebPlugin):
     path = '/facebook/'
 
-    def get_local_relative_path(self):
-        return self.relative_path[len(self.path)+1:]
-
-    def run(self):
+    def __call__(self, environ, start_response):
         signed_request = self.get_argument(REQUEST_FIELD)
         if signed_request is None:
             facebook_app = self.cfg_manager.get_value(FACEBOOK_APP_PROPERTY, None)
             if facebook_app is None:
-                return "<html><body>%s not set. Contact administrator</body></html>" % FACEBOOK_APP_PROPERTY
-            return "<html><body><script>top.location.href='%s';</script></body></html>" % facebook_app
+                return self.build_response("<html><body>%s not set. Contact administrator</body></html>" % FACEBOOK_APP_PROPERTY, content_type = 'text/html')
+            return self.build_response("<html><body><script>top.location.href='%s';</script></body></html>" % facebook_app, content_type = 'text/html')
 
         payload = signed_request[signed_request.find('.') + 1:]
         payload = payload.replace('-','+').replace('_','/')
@@ -55,10 +97,10 @@ class FacebookMethod(WebFacadeServer.Method):
 
             auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
 
-            return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
+            return self.build_response("<html><body><script>top.location.href='%s';</script></body></html>" % auth_url)
 
         try:
-            session_id = self.server.extensible_login('FACEBOOK', signed_request)
+            session_id = self.server.extensible_login(FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
             return self._handle_unauthenticated_clients(signed_request)
 
@@ -78,7 +120,7 @@ class FacebookMethod(WebFacadeServer.Method):
         client_address = self.cfg_manager.get_value(CLIENT_ADDRESS_PROPERTY, "%s NOT SET" % CLIENT_ADDRESS_PROPERTY)
         facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
 
-        return """<html>
+        return self.build_response("""<html>
                        <head>
                             <script>
                                 function recalculate_height(){
@@ -107,23 +149,23 @@ class FacebookMethod(WebFacadeServer.Method):
 
                     </body>
                 </html>
-            """ % (client_address, '%s;%s' % (session_id.id, self.weblab_cookie), locale, facebook_app_id)
+            """ % (client_address, '%s;%s' % (session_id.id, self.weblab_cookie), locale, facebook_app_id), content_type = 'text/html')
 
     def _handle_linking_accounts(self, signed_request):
         username = self.get_argument('username')
         password = self.get_argument('password')
         try:
-            session_id = self.server.grant_external_credentials(username, password, 'FACEBOOK', signed_request)
+            session_id = self.server.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
-            return "Invalid username or password!"
+            return self.build_response("Invalid username or password!", code = 403)
         else:
             return self._show_weblab(session_id, signed_request)
 
     def _handle_creating_accounts(self, signed_request):
         try:
-            session_id = self.server.create_external_user('FACEBOOK', signed_request)
+            session_id = self.server.create_external_user(FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
-            return "Invalid username or password!"
+            return self.build_response("Invalid username or password!", code = 403)
         else:
             return self._show_weblab(session_id, signed_request)
 
@@ -137,7 +179,7 @@ class FacebookMethod(WebFacadeServer.Method):
         link_uri = self.uri + '?op=link'
         create_uri = self.uri + '?op=create'
 
-        return """<html>
+        return self.build_response("""<html>
                 <head>
                     <style>
                         body{
@@ -169,4 +211,4 @@ class FacebookMethod(WebFacadeServer.Method):
                         'LINK_URI' : link_uri,
                         'CREATE_URI' : create_uri,
                         'SIGNED_REQUEST' : signed_request,
-                    }
+                    }, content_type = 'text/html')

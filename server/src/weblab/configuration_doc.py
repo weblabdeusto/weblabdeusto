@@ -258,6 +258,7 @@ LOGIN_FACADE = (LOGIN_SERVER, 'Facade')
 DESCRIPTIONS[LOGIN_FACADE] = """The login facade configuration variables are used by the web services interface. You can change the ports, etc., but take into account the final web server (e.g. Apache) configuration."""
 
 LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
+LOGIN_FACADE_SERVER_ROUTE            = 'login_facade_server_route'
 LOGIN_FACADE_SOAP_BIND               = 'login_facade_soap_bind'
 LOGIN_FACADE_SOAP_PORT               = 'login_facade_soap_port'
 LOGIN_FACADE_SOAP_SERVICE_NAME       = 'login_facade_soap_service_name'
@@ -270,6 +271,7 @@ LOGIN_FACADE_XMLRPC_PORT             = 'login_facade_xmlrpc_port'
 
 _sorted_variables.extend([
     (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
+    (LOGIN_FACADE_SERVER_ROUTE,            _Argument(LOGIN_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
     (LOGIN_FACADE_SOAP_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the SOAP facade at Login Server""")), 
     (LOGIN_FACADE_SOAP_SERVICE_NAME,       _Argument(LOGIN_FACADE, basestring, "/weblab/login/soap/", """Service name for the SOAP facade at Login Server""")), 

@@ -170,7 +170,7 @@ class Heartbeater(threading.Thread):
         @see start
         """
         
-        if DEBUG: print "[DBG] HB INIT"
+        if DEBUG: dbg("[DBG] HB INIT")
         
         while(True):
             try:
@@ -207,9 +207,9 @@ class Heartbeater(threading.Thread):
                     
                     # If time_left is zero or negative, a heartbeat IS due.
                     if(time_left <= 0):
-                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB FORWARDING"             
+                        if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] HB FORWARDING")
                         ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
-                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Heartbeat response: ", ret
+                        if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] Heartbeat response: %s" % ret)
                         
                     else:
                         # Otherwise, we will just sleep. 
@@ -239,6 +239,9 @@ class Heartbeater(threading.Thread):
 DEBUG_MESSAGES = DEBUG and False
 DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES and False
 
+def dbg(message):
+    print message
+    sys.stdout.flush()
 
 class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
     
@@ -323,15 +326,15 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 self.heartbeater.setName('Heartbeater')
                 self.heartbeater.start()
     
-        if DEBUG: print "[DBG] Current number of users: ", len(self._session_manager.list_sessions())
-        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
-        if DEBUG: print "[DBG] Measure server address: ", self.measure_server_addr
-        if DEBUG: print "[DBG] Measure server target: ", self.measure_server_target
+        if DEBUG: dbg("[DBG] Current number of users: %s" % len(self._session_manager.list_sessions()))
+        if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
+        if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
+        if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
         
         # We need to provide the client with the cookie. We do so here, using weblab API 2,
         # which supports this kind of initialization data.
         if self.use_visir_php:
-            if(DEBUG): print "[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password)
+            if(DEBUG): dbg("[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password))
             try:
                 cookie, electro_lab_cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
             except:
@@ -351,7 +354,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         with self._users_counter_lock:
             self.users_counter += 1
         
-        if(DEBUG): print "[VisirTestExperiment][Start]: Current users: ", self.users_counter
+        if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
 
         return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
 
@@ -363,7 +366,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         @param command Command sent by the client, as a string.
         """
         
-        if DEBUG: print "[DBG] Lab Session Id: ", lab_session_id
+        if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
                 
         # This command is currently not used.
         if command == "GIVE_ME_CIRCUIT_LIST":
@@ -380,7 +383,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             circuit_data = self.get_circuits()[circuit_name]
             return circuit_data
         elif command == 'GIVE_ME_LIBRARY':
-            if DEBUG: print "[DBG] GOT GIVE_ME_LIBRARY"
+            if DEBUG: dbg("[DBG] GOT GIVE_ME_LIBRARY")
             return self.library_xml
         
         # Otherwise, it's a VISIR XML command, and should just be forwarded
@@ -390,7 +393,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         # Find out the request type
         request_type = self.parse_request_type(command)
                
-        if DEBUG: print "[DBG] REQUEST TYPE: " + request_type
+        if DEBUG: dbg("[DBG] REQUEST TYPE: " + request_type)
         
         
         # If it was a login request, we will extract the session key from the response.
@@ -401,7 +404,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             try:
                 # Store the session for the user
                 user['sessionkey'] = self.extract_sessionkey(data)
-                if DEBUG: print "[DBG] Extracted sessionkey: " + user['sessionkey']
+                if DEBUG: dbg("[DBG] Extracted sessionkey: " + user['sessionkey'])
             finally:
                 self._session_manager.modify_session_unlocking(lab_session_id, user)
             
@@ -467,7 +470,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         @param request String containing the request to be forwarded
         """
         if DEBUG_MESSAGES:
-            print "[VisirTestExperiment] Forwarding request: ", request
+            dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
@@ -488,7 +491,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             self._session_manager.modify_session_unlocking(lab_session_id, session_obj)
         
         if DEBUG_MESSAGES:
-            print "[VisirTestExperiment] Received response: ", data
+            dbg("[VisirTestExperiment] Received response: %s" % data)
             
         return data
 

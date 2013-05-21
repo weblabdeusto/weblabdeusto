@@ -49,6 +49,13 @@ Now you need to deploy both the client code and the server code, by running::
  $ cd /opt/weblabdeusto/
  $ python setup.py install
 
+.. warning::
+
+    Before running the ``setup.py install`` process, you may need to delete the directory
+    called ``build`` in the ``server/src`` directory. The reason is that sometimes, some
+    old files are left there. Most of the times this step is not mandatory, but from time
+    to time, it is required.
+
 This will install all the new requirements, will copy the client code and the
 server files to the deployment directory. From this point, you may create new
 WebLab-Deusto instances using the new deployment, by running::

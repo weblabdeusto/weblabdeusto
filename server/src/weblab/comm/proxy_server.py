@@ -51,6 +51,13 @@ def generate_proxy_handler(paths):
                 break
         previous_paths.append(_path)
 
+    class AvoidHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
+        """ Do not follow any redirection """
+        def http_error_302(self, req, fp, code, msg, headers):
+            raise urllib2.HTTPError(req.get_full_url(), code, msg, headers, fp)
+
+        http_error_301 = http_error_303 = http_error_307 = http_error_302
+
     class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if not mimetypes.inited:
@@ -156,9 +163,11 @@ def generate_proxy_handler(paths):
 
         def send_head_proxy(self, data, path, proxy_url):
             request_headers = dict(self.headers)
+            request_headers['X-Forwarded-For'] = self.client_address[0]
             request = urllib2.Request("%s%s" % (proxy_url, path), data, headers = request_headers)
+            opener = urllib2.build_opener(AvoidHTTPRedirectHandler)
             try:
-                urlobj = urllib2.urlopen(request)
+                urlobj = opener.open(request)
             except urllib2.HTTPError as e:
                 self.send_response(e.code, e.msg) # TODO
                 for response_header in e.hdrs:

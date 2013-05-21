@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import traceback
 import xml.dom.minidom as minidom
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
 
@@ -94,16 +95,20 @@ def obtain_from_python_path(name):
 
     sequence_name_without = name[len(str(the_module).split("'")[1]) + 1:]
     current_block = the_module
+    last_exc = "(No exception raised)"
     for i in sequence_name_without.split('.'):
         module_name = current_block.__name__ + '.' + i
+
         try:
             __import__(module_name, globals(), locals())
         except ImportError:
-            pass # foo.bar.MyClass will fail, but foo.bar will work
+            # foo.bar.MyClass will fail, but foo.bar will work
+            last_exc = traceback.format_exc()
 
         try:
             current_block = getattr(current_block,i)
         except AttributeError:
-            raise LoaderErrors.InvalidConfigurationError( """Couldn't find %s in module: %s""" % (i, name))
+            raise LoaderErrors.InvalidConfigurationError( """Couldn't find %s in module: %s. Last error: %s""" % (i, name, last_exc))
+
     return current_block
 

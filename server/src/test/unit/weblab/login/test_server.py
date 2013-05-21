@@ -38,7 +38,7 @@ import voodoo.configuration      as ConfigurationManager
 import weblab.methods as weblab_methods
 
 import weblab.login.server as LoginServer
-import weblab.login.auth as LoginAuth
+import weblab.login.simple.ldap_auth as ldap_auth
 import weblab.login.exc as LoginErrors
 
 import test.unit.configuration as configuration_module
@@ -94,23 +94,17 @@ class LoginServerTestCase(unittest.TestCase):
 
     def setUp(self):
         coord_address = CoordAddress.CoordAddress.translate_address(
-                "server0:instance0@machine0"
-            )
+                "server0:instance0@machine0")
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
         self.real_locator = FakeLocator()
         self.locator      = EasyLocator.EasyLocator(
-                coord_address,
-                self.real_locator
-            )
+                coord_address, self.real_locator)
 
         self.login_server = LoginServer.LoginServer(
-                    coord_address,
-                    self.locator,
-                    self.cfg_manager
-                )
+                    coord_address, self.locator, self.cfg_manager)
 
     def tearDown(self):
         self.login_server.stop()
@@ -136,7 +130,7 @@ class LoginServerTestCase(unittest.TestCase):
     if LDAP_AVAILABLE:
         def test_ldap_user_right(self):
             mockr = mocker.Mocker()
-            LoginAuth._ldap_provider.ldap_module = mockr.mock()
+            ldap_auth._ldap_provider.ldap_module = mockr.mock()
             session_id = self.login_server.login(fake_ldap_user, fake_ldap_passwd)
 
             self.assertEquals(
@@ -152,7 +146,7 @@ class LoginServerTestCase(unittest.TestCase):
             ldap_module = mockr.mock()
             ldap_module.initialize('ldaps://castor.cdk.deusto.es')
             mockr.result(ldap_object)
-            LoginAuth._ldap_provider.ldap_module = ldap_module
+            ldap_auth._ldap_provider.ldap_module = ldap_module
 
             with mockr:
                 self.assertRaises(

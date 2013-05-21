@@ -29,6 +29,7 @@ import sys
 import glob
 import test
 import time
+import getpass
 import unittest
 import urllib2
 import logging
@@ -282,7 +283,10 @@ def deploy_testdb(options):
     weblab_db_username       = options.testdb_user
     weblab_db_password       = options.testdb_passwd
     weblab_admin_db_username = options.testdb_admin_user
-    weblab_admin_db_password = options.testdb_admin_passwd
+    if options.testdb_ask_admin_passwd:
+        weblab_admin_db_password = getpass.getpass("Database password:")
+    else:
+        weblab_admin_db_password = options.testdb_admin_passwd
 
     if db_engine == 'mysql':
         weblab_test_db_str = 'mysql://%s:%s@localhost/WebLabTests%s'         % (weblab_db_username, weblab_db_password,'%s')
@@ -467,6 +471,10 @@ if __name__ == '__main__':
 
     testdb_options.add_option('--db-admin-passwd',  dest='testdb_admin_passwd', default='', metavar="ADMIN_DB_PASSWORD",
                                                     help = "Database admin password for the creating the testing database.")
+
+    testdb_options.add_option('--db-ask-admin-passwd',  dest='testdb_ask_admin_passwd', default=False, action='store_true',
+                                                    help = "Instead of providing the admin password, ask for it from the standard input.")
+
 
     testdb_options.add_option('--db-user',          dest='testdb_user',  default='weblab', metavar="DB_USER",
                                                     help = "Database user for populating the database (default: weblab)")
