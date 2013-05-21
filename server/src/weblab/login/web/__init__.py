@@ -146,16 +146,19 @@ class WebPlugin(object):
 from weblab.login.web.login      import LoginPlugin
 from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
 from weblab.login.web.openid_web import OpenIdPlugin, OpenIdManager
+from weblab.login.web.uned_sso   import UnedSSOPlugin, UnedSSOManager
 
 WEB_PLUGINS = [
     LoginPlugin,
     FacebookPlugin,
     OpenIdPlugin,
+    UnedSSOPlugin,
     # Your plug-in here
 ]
 
 EXTERNAL_MANAGERS = {
     FacebookManager.NAME : FacebookManager(),
     OpenIdManager.NAME   : OpenIdManager(),
+    UnedSSOManager.NAME  : UnedSSOManager(),
     # Your plug-in here
 }
