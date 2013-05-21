@@ -319,12 +319,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         if self._watertank != None:
             waterLevel = self._watertank.get_water_level()
-            if waterLevel >= 0.20:
-                self.change_switch(0, True)
-            if waterLevel >= 0.50:
-                self.change_switch(1, True)
-            if waterLevel >= 0.80:
-                self.change_switch(2, True)
+            self.change_switch(0, waterLevel >= 0.20)
+            self.change_switch(1, waterLevel >= 0.50)
+            self.change_switch(2, waterLevel >= 0.80)
                 
         self._watertank_time_without_demand_change += delta
         
