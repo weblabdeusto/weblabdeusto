@@ -82,7 +82,7 @@ class UnedSSOManager(ExternalSystemManager):
         if not M2CRYPTO_AVAILABLE:
             raise Exception("M2Crypto module not available")
        
-        user_id, email = process_cookie(original_message) 
+        user_id, email = process_cookie(credentials) 
 
         login = '%s@uned' % user_id
         full_name = user_id # We don't know the full name
