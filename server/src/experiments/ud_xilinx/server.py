@@ -347,17 +347,17 @@ class UdXilinxExperiment(Experiment.Experiment):
         @param on True if we wish to turn it on, false to turn it off.
         """
         if on:
-            if self._switches_state[switch] == "0":
+            if self._switches_state[9-switch] == "0":
                 self._command_sender.send_command("ChangeSwitch %s %d" % ("on", 9-switch))
         else:
-            if self._switches_state[switch] == "1":
+            if self._switches_state[9-switch] == "1":
                 self._command_sender.send_command("ChangeSwitch %s %d" % ("off", 9-switch))
             
         
         if on:
-            self._switches_state[switch] = "1"
+            self._switches_state[9-switch] = "1"
         else:
-            self._switches_state[switch] = "0"
+            self._switches_state[9-switch] = "0"
             
         return
         
@@ -385,9 +385,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                 # TODO: Make sure that switches are being properly used,
                 # and that reversion issues are taken into account.
                 if(cs[1] == "on"):
-                    self._switches_state[9-int(switch_number)] = "1"
+                    self._switches_state[int(switch_number)] = "1"
                 else:
-                    self._switches_state[9-int(switch_number)] = "0"
+                    self._switches_state[int(switch_number)] = "0"
                     
             elif command == 'REPORT_SWITCHES':
                 return self._switches_state
