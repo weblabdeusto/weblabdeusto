@@ -13,3 +13,5 @@ login_web_facade_port    = 18745
 
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
+
+uned_sso = True
