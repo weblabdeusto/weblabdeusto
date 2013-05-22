@@ -142,6 +142,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         provided file.
         """
         
+        # Reset the tracked state
+        self._switches_state = list("0000000000")
+        
         # TODO:
         # We will distinguish the file type according to its size.
         # This is an extremely bad method, which should be changed in the
@@ -345,10 +348,10 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         if on:
             if self._switches_state[switch] == "0":
-                self._command_sender.send_command("ChangeSwitch %s %d" % ("on", switch))
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("on", 9-switch))
         else:
             if self._switches_state[switch] == "1":
-                self._command_sender.send_command("ChangeSwitch %s %d" % ("off", switch))
+                self._command_sender.send_command("ChangeSwitch %s %d" % ("off", 9-switch))
             
         
         if on:
@@ -378,10 +381,13 @@ class UdXilinxExperiment(Experiment.Experiment):
                 # This command will in fact be later relied to the Device.
                 cs = command.split(" ");
                 switch_number = cs[2]
+                
+                # TODO: Make sure that switches are being properly used,
+                # and that reversion issues are taken into account.
                 if(cs[1] == "on"):
-                    self._switches_state[int(switch_number)] = "1"
+                    self._switches_state[9-int(switch_number)] = "1"
                 else:
-                    self._switches_state[int(switch_number)] = "0"
+                    self._switches_state[9-int(switch_number)] = "0"
                     
             elif command == 'REPORT_SWITCHES':
                 return self._switches_state
