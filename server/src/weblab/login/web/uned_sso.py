@@ -125,11 +125,11 @@ class UnedSSOPlugin(WebPlugin):
                 session_id = self.server.extensible_login(UnedSSOManager.NAME, payload)
             except LoginErrors.InvalidCredentialsError:
                 try:
-                    user_id, _ = process_cookie(payload)
+                    _, email = process_cookie(payload)
                 except:
                     return self.build_response("Invalid cookie found!")
                 else:
-                    return self.build_response("%s: you were verified, but you are not registered in this WebLab-Deusto instance. Contact the administrator." % user_id)
+                    return self.build_response("%s: you were verified, but you are not registered in this WebLab-Deusto instance. Contact the administrator." % email)
             else:
                 return self._show_weblab(session_id)
         else:
