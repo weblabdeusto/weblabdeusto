@@ -19,14 +19,14 @@
 				<xs:element name="user" maxOccurs="1" minOccurs="0">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
-							<xs:pattern value="([a-zA-Z0-9_])+"/>
+							<xs:pattern value="([a-zA-Z0-9_-])+"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>				
 				<xs:element name="server" maxOccurs="unbounded" minOccurs="0">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
-							<xs:pattern value="([a-zA-Z0-9_])+"/>
+							<xs:pattern value="([a-zA-Z0-9_-])+"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
