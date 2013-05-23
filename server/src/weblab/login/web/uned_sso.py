@@ -84,7 +84,7 @@ class UnedSSOManager(ExternalSystemManager):
        
         user_id, email = process_cookie(credentials) 
 
-        login = '%s@uned' % user_id
+        login = '%s@uned' % email
         full_name = user_id # We don't know the full name
         return User(login, full_name, email, StudentRole())
 
@@ -93,9 +93,7 @@ class UnedSSOManager(ExternalSystemManager):
         if not M2CRYPTO_AVAILABLE:
             raise Exception("M2Crypto module not available")
 
-        login = self.get_user(credentials).login
-        # login is "porduna5@uned"
-        return login.split('@')[0]
+        return self.get_user(credentials).email
 
 
 class UnedSSOPlugin(WebPlugin):
