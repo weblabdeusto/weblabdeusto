@@ -133,14 +133,14 @@ class UnedSSOPlugin(WebPlugin):
             else:
                 return self._show_weblab(session_id)
         else:
-            current_url = 'http://weblab.ieec.uned.es/weblab/login/web/unedsso/'
-            # TODO: use parameters for weblab.ieec.uned.es and the path
+            url = self.cfg_manager.get_value('core_server_url', 'core_server_url NOT SET')
+            current_url = url + 'login/web/unedsso/'
             return self.build_response("Redirecting to sso.uned.es...", code = 302, headers = [('Location', 'https://sso.uned.es/sso/index.aspx?URL=' + current_url)])
 
     def _show_weblab(self, session_id):
-        url = 'http://weblab.ieec.uned.es/weblab/web/client/?reservation_id=%s' % session_id.id
-        # TODO: use parameters for weblab.ieec.uned.es
-        # TODO: pass the route
+        base_url = self.cfg_manager.get_value('core_server_url', 'core_server_url NOT SET')
+        base_client_url = base_url + "client/"
+        url = '%s#session_id=%s;%s.%s' % (base_client_url, session_id.id, session_id.id, self.server_route)
         return self.build_response("Redirecting to WebLab-Deusto...", code = 302, headers = [('Location', url)])
 
 
