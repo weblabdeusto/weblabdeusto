@@ -108,6 +108,10 @@ public class AquariumExperiment extends UIExperimentBase {
 	}
 
 	public void setMessage(String msg) {
+		if (msg.contains("Current user")) { // Fail since other widget failed
+			this.boardController.clean();
+			return;
+		}
 		Window.alert(msg);
 	}
 }
