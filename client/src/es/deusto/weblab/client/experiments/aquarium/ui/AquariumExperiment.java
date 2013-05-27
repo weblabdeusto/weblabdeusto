@@ -64,6 +64,14 @@ public class AquariumExperiment extends UIExperimentBase {
 				final WebcamPanel webcam = new WebcamPanel(this.configurationRetriever, initialConfiguration);
 				webcam.start();
 				widget = webcam;
+			} else if (widgetName.equals("camera1")) {
+				final SingleWebcamPanel webcam = new SingleWebcamPanel(this.configurationRetriever, initialConfiguration, 1);
+				webcam.start();
+				widget = webcam;
+			} else if (widgetName.equals("camera2")) {
+				final SingleWebcamPanel webcam = new SingleWebcamPanel(this.configurationRetriever, initialConfiguration, 2);
+				webcam.start();
+				widget = webcam;
 			}
 			
 			System.out.println("Widget is: " + widget);
