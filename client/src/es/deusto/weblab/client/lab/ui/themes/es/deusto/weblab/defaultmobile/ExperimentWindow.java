@@ -92,12 +92,18 @@ class ExperimentWindow extends BaseWindow {
 		
 		this.loadWidgets();
 		
-		this.loggedPanel = new LoggedPanel(this.user, this.callback, configurationManager);
-		this.mainPanel.add(this.loggedPanel);
-
+		final String widgetMode = HistoryProperties.getValue(HistoryProperties.WIDGET, "");
 		final Widget wid = this.uiBinder.createAndBindUi(this);
-		this.loggedPanel.contentPanel.clear();
-		this.loggedPanel.contentPanel.add(wid);
+		
+		if (widgetMode.isEmpty()) {
+			this.loggedPanel = new LoggedPanel(this.user, this.callback, configurationManager);
+			this.mainPanel.add(this.loggedPanel);
+	
+			this.loggedPanel.contentPanel.clear();
+			this.loggedPanel.contentPanel.add(wid);
+		} else {
+			this.mainPanel.add(wid);
+		}
 	}
 
 	void loadExperimentReservationPanels(boolean reserved) {	    
