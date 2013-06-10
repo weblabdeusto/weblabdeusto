@@ -5,6 +5,7 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns('',
+    url(r'^weblab/', include('weblab_django.urls')),
     # Examples:
     # url(r'^$', 'django_project.views.home', name='home'),
     # url(r'^django_project/', include('django_project.foo.urls')),
