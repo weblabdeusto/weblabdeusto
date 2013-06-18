@@ -72,10 +72,10 @@ class Proxy(object):
             content = json.loads(content_str)
             white, yellow, blue, red = content['Balls']
             return {
-                'white'  : white  != 0,
-                'yellow' : yellow != 0,
-                'blue'   : blue   != 0,
-                'red'    : red    != 0,
+                'white'  : white  == 0,
+                'yellow' : yellow == 0,
+                'blue'   : blue   == 0,
+                'red'    : red    == 0,
             }
         except:
             traceback.print_exc()
@@ -103,26 +103,17 @@ class StatusManager(object):
     def __init__(self, proxy):
         self._proxy = proxy
 
-        self._ops_locks    = {}
-        self._status       = {}
-        self._status_locks = {}
-
-        initial = self._proxy.get_status()
+        self._ops_locks = {}
 
         for color in COLORS:
-            self._status[color]       = initial[color]
-            self._status_locks[color] = threading.Lock()
-            self._ops_locks[color]    = threading.Lock()
+            self._ops_locks[color] = threading.Lock()
 
     def move(self, ball, on):
-        with self._status_locks[ball]:
-            self._status[ball] = on
-        
         with self._ops_locks[ball]:
             self._proxy.move_ball(ball, on)
 
     def get_status(self):
-        return self._status.copy()
+        return self._proxy.get_status()
 
 
 class Aquarium(ConcurrentExperiment):
