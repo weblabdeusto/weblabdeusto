@@ -30,6 +30,7 @@ LOG_FILE = "compiler.log"
 
 DEFAULT_UCF = UCF_INTERNAL_CLOCK
 
+LAST_RESULT = None
 
 class Compiler(object):
     
@@ -52,9 +53,6 @@ class Compiler(object):
         # The following will be used to measure compileit's time.
         self._synt_start = None
         self._synt_elapsed = None
-        
-        # To store the last compileit result
-        self.last_result = None
             
         # By default, we will use this UCF.
         self.ucf = DEFAULT_UCF
@@ -124,7 +122,7 @@ class Compiler(object):
         """
         Retrieves the last result.
         """
-        return self.last_result
+        return LAST_RESULT
     
     
     def synthesize(self):
@@ -296,7 +294,7 @@ class Compiler(object):
         self._synt_elapsed = time.time() - self._synt_start
         
         # Remember the result
-        self.last_result = result
+        LAST_RESULT = result
     
         return result
     
