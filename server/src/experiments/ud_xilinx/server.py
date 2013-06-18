@@ -185,9 +185,18 @@ class UdXilinxExperiment(Experiment.Experiment):
         c = Compiler(self._compiling_files_path, self._compiling_tools_path)
         #c.DEBUG = True
         content = base64.b64decode(file_content)
-        c.feed_vhdl(content)
-        if DEBUG: print "[DBG]: VHDL fed. Now compiling."
-        success = c.compileit()
+        
+        done_already = c.is_same_as_last(content)
+        
+        if not done_already:
+            c.feed_vhdl(content)
+            if DEBUG: print "[DBG]: VHDL fed. Now compiling."
+            success = c.compileit()
+            
+        else:
+            if DEBUG: print "[DBG]: VHDL is already available. Reusing."
+            success = c.get_last_result()
+            
         if(not success):
             self._current_state = STATE_SYNTHESIZING_ERROR
             self._compiling_result = c.errors()
@@ -306,7 +315,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         from ledreader import LedReader
         pld_leds = [ (111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139) ]
-        fpga_leds = [ (168, 363), (185, 361), (203, 363), (221, 363), (239, 363), (260, 363), (277, 363), (295, 363) ]
+        fpga_leds = [ (130, 411), (147, 414), (163, 417), (182, 420), (201, 422), (219, 426), (236, 431), (255, 433) ]
         fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
         pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
         if self._device_name == "FPGA":
