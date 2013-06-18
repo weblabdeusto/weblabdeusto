@@ -188,7 +188,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         done_already = c.is_same_as_last(content)
         
-        if not done_already:
+        if not done_already or c.get_last_result() is None:
             c.feed_vhdl(content)
             if DEBUG: print "[DBG]: VHDL fed. Now compiling."
             success = c.compileit()
