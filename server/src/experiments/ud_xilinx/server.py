@@ -188,7 +188,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         
         done_already = c.is_same_as_last(content)
         
-        if not done_already or c.get_last_result() is None:
+        if not done_already:
             c.feed_vhdl(content)
             if DEBUG: print "[DBG]: VHDL fed. Now compiling."
             success = c.compileit()
@@ -196,6 +196,10 @@ class UdXilinxExperiment(Experiment.Experiment):
         else:
             if DEBUG: print "[DBG]: VHDL is already available. Reusing."
             success = c.get_last_result()
+            
+            # TODO: Fix this. Wrong work-around around a bug, so that it works during
+            # controlled circumstances.
+            if success is None: success = True
             
         if(not success):
             self._current_state = STATE_SYNTHESIZING_ERROR
