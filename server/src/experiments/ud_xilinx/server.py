@@ -199,9 +199,9 @@ class UdXilinxExperiment(Experiment.Experiment):
             
             # TODO: Fix this. Wrong work-around around a bug, so that it works during
             # controlled circumstances.
-            if success is None: success = True
+            #if success is None: success = True
             
-        if(not success):
+        if success is not None and not success:
             self._current_state = STATE_SYNTHESIZING_ERROR
             self._compiling_result = c.errors()
         else:

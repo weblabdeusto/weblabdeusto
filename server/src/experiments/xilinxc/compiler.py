@@ -30,12 +30,12 @@ LOG_FILE = "compiler.log"
 
 DEFAULT_UCF = UCF_INTERNAL_CLOCK
 
-LAST_RESULT = None
-
 class Compiler(object):
     
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
     DEBUG = False
+    
+    sLastResult = None
     
     def __init__(self, filespath = BASE_PATH, toolspath = ""):
         """
@@ -122,7 +122,7 @@ class Compiler(object):
         """
         Retrieves the last result.
         """
-        return LAST_RESULT
+        return Compiler.sLastResult
     
     
     def synthesize(self):
@@ -294,7 +294,7 @@ class Compiler(object):
         self._synt_elapsed = time.time() - self._synt_start
         
         # Remember the result
-        LAST_RESULT = result
+        Compiler.sLastResult = result
     
         return result
     
