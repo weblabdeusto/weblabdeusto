@@ -58,7 +58,7 @@ def weblab_start(directory):
         return upgrader.check_updated()
 
     if not run_with_config(directory, on_dir):
-        print "Error: WebLab-Deusto instance outdated! You may have updated WebLab-Deusto recently. Run: weblab-admin upgrade %s" % directory
+        print >> sys.stderr, "Error: WebLab-Deusto instance outdated! You may have updated WebLab-Deusto recently. Run: weblab-admin.py upgrade %s" % directory
         sys.exit(-1)
 
 
