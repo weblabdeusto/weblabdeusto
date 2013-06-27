@@ -30,11 +30,12 @@ LOG_FILE = "compiler.log"
 
 DEFAULT_UCF = UCF_INTERNAL_CLOCK
 
-
 class Compiler(object):
     
     BASE_PATH = ".." + os.sep + ".." + os.sep + "experiments" + os.sep + "xilinxc" + os.sep + "files"
     DEBUG = False
+    
+    sLastResult = None
     
     def __init__(self, filespath = BASE_PATH, toolspath = ""):
         """
@@ -104,6 +105,25 @@ class Compiler(object):
             f = file(vhdlpath, "w")
             f.write(vhdl)
             f.close()
+            
+    def is_same_as_last(self, vhdl):
+        """
+        Checks whether the VHDL that is going to be synthesized now was already synthesized last time.
+        """
+        # Read VHDL code to compile
+        f = open(self.filespath + os.sep + "base.vhd", "r")
+        lastvhdl = f.read()
+        f.close()
+        
+        return lastvhdl == vhdl
+    
+
+    def get_last_result(self):
+        """
+        Retrieves the last result.
+        """
+        return Compiler.sLastResult
+    
     
     def synthesize(self):
         process = subprocess.Popen([self.toolspath + "xst", "-intstyle", "ise", "-ifn", "base.xst", 
@@ -272,6 +292,9 @@ class Compiler(object):
     
         # Track time elapsed
         self._synt_elapsed = time.time() - self._synt_start
+        
+        # Remember the result
+        Compiler.sLastResult = result
     
         return result
     
