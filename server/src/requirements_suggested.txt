@@ -9,7 +9,7 @@ pillow
 # if you are going to use SOAP as a client.
 # 
 
-ZSI
+#ZSI
 
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 
