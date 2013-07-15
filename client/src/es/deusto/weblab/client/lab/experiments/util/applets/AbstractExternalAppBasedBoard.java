@@ -243,9 +243,12 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}-*/;
 	
 	protected static native void startInteractionImpl() /*-{
-		setTimeout( function() {
+		if($wnd.wl_inst.startInteraction != undefined)
 			$wnd.wl_inst.startInteraction();
-		}, 1000);
+		else
+			setTimeout( function() {
+				$wnd.wl_inst.startInteraction();
+			}, 1000);
 	}-*/;
 	
 	protected static native void endImpl() /*-{
