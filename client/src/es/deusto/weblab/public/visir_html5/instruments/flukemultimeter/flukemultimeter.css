@@ -1,0 +1,38 @@
+.dmm_value {
+	/*border: 1px solid #000;*/
+	top: 70px;
+	left: 45px;
+	width: 210px;
+	position: absolute;
+	font-size: 40pt;
+	font-family: sans-serif;
+	font-weight: bold;
+	text-align: right;
+}
+
+.vred {
+	transform-origin: 16px 102px;
+	-moz-transform-origin: 16px 102px;
+	-webkit-transform-origin: 16px 102px;
+}
+
+.rot {
+	position:absolute;
+	top: 207px;
+	left: 82px;
+}
+
+.rot .top { /* , .rot .base */
+	top: 0; left: 0;
+	position:absolute;
+}
+
+.flukedmm {
+	position: relative;
+}
+
+/*
+.rot .base {
+	display: none;
+}
+*/
