@@ -15,13 +15,17 @@
 package es.deusto.weblab.client.lab.experiments.util.applets.js;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Button;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
@@ -33,6 +37,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	private String file;
 	private boolean isJSFile;
 	private boolean provideFileUpload;
+	private Button uploadButton;
 	
 	private final UploadStructure uploadStructure;
 	
@@ -46,6 +51,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	{
 		super(configurationRetriever, boardController, width, height);
 		
+		this.uploadButton = new Button(ExperimentBase.i18n.upload());
 		this.file = file;
 		this.isJSFile = isJSFile;
 		this.provideFileUpload = provideFileUpload;
@@ -59,10 +65,26 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		
 		this.uploadStructure = new UploadStructure();
 		
+		
+		this.uploadButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				@SuppressWarnings("unused")
+				final boolean success = JSExperiment.this.tryUpload();
+				
+				// Originally, the ud-fpga experiment only lets the user upload once.
+				// For now however, in this experiment we will let the user upload
+				// several times.
+				//if(success)
+				//	this.uploadButton.setVisible(false);
+			}});
+		
+		
 		if(this.provideFileUpload) {
 			GWT.log("Creating upload structure");
 			this.uploadStructure.setFileInfo("program");
 			this.fileUploadPanel.add(this.uploadStructure.getFormPanel());
+			this.fileUploadPanel.add(this.uploadButton);
 		} else {
 			GWT.log("NOT creating upload structure");
 		}
@@ -186,6 +208,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	public void start(int time, String initialConfiguration) {
 		if(this.provideFileUpload)
 			tryUpload();
+		
 		AbstractExternalAppBasedBoard.startInteractionImpl();
 	}
 	
