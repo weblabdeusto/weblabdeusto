@@ -84,7 +84,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
                 self.cfg_manager
             )
 
-        self.ups._db_manager._gateway._delete_all_uses()
+        self.ups._db_manager._delete_all_uses()
 
     def tearDown(self):
         self.ups.stop()
@@ -416,9 +416,9 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.append_file(file1)
         initial_usage2.append_file(file2)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student1', initial_usage1)
+        self.ups._db_manager.store_experiment_usage('student1', initial_usage1)
 
-        self.ups._db_manager._gateway.store_experiment_usage('student2', initial_usage2)
+        self.ups._db_manager.store_experiment_usage('student2', initial_usage2)
 
         return (reservation_id1, reservation_id2), (initial_usage1, initial_usage2)
 
@@ -428,8 +428,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
         # the same experiment.
         #
-        experiment_id = self.ups._db_manager._gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", '5', time.time() - 1000)
-        self.ups._db_manager._gateway._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
+        experiment_id = self.ups._db_manager._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time() - 3600, "192.168.1.1", "fpga:process1@scabb", '5', time.time() - 1000)
+        self.ups._db_manager._insert_user_used_experiment("any", "ud-fpga", "FPGA experiments", time.time() - 1800, "127.0.0.1", "fpga:process1@scabb", '6', time.time() - 1700)
         if not use_experiment_id:
             experiment_id = None
         elif use_experiment_id == 'other':
@@ -438,7 +438,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         #
         # student4 uses a different experiment, after both student2 and any
         #
-        self.ups._db_manager._gateway._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
+        self.ups._db_manager._insert_user_used_experiment("student4", "ud-dummy", "Dummy experiments", time.time() - 60, "unknown", "fpga:process1@scabb", '7', time.time() - 60)
         db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)

@@ -40,7 +40,7 @@ from weblab.core.reservation_processor import ReservationProcessor
 import weblab.core.alive_users as AliveUsersCollection
 from weblab.core.coordinator.gateway import create as coordinator_create
 import weblab.core.coordinator.store as TemporalInformationStore
-import weblab.core.db.manager as DatabaseManager
+from weblab.core.db import DatabaseGateway
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
@@ -176,7 +176,7 @@ class UserProcessingServer(object):
         # Database and information storage managers
         #
 
-        self._db_manager     = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
+        self._db_manager     = DatabaseGateway(cfg_manager)
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
