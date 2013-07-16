@@ -27,7 +27,7 @@ from weblab.data.command import Command
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.coordinator.store as TemporalInformationStore
 
-import weblab.core.db.manager as DatabaseManager
+from weblab.core.db import DatabaseGateway
 import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
@@ -63,7 +63,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
         cfg_manager = ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
-        self.dbmanager = DatabaseManager.UserProcessingDatabaseManager(cfg_manager)
+        self.dbmanager = DatabaseGateway(cfg_manager)
         self.dbmanager._delete_all_uses()
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
@@ -97,7 +97,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def test_initial_finish(self):
         self.retriever.start()
         try:
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             self.assertEquals(0, len(usages))
 
             self.initial_store.put(self.entry1)
@@ -108,12 +108,12 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             # Wait and then populate the RESERVATION3 (the last one in the queue)
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             # There are 3, and RESERVATION4 is waiting
             self.assertEquals(3, len(usages))
 
             # Check that it has been stored
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
 
             self.assertEquals("@@@initial::request@@@", full_usage1.commands[-2].command.commandstring)
             self.assertEquals(DATA_REQUEST1, full_usage1.commands[-2].response.commandstring)
@@ -121,10 +121,10 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage1.end_date)
 
-            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            full_usage2 = self.dbmanager.retrieve_usage(usages[1].experiment_use_id)
             self.assertEquals(DATA2, full_usage2.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage2.end_date)
-            full_usage3 = self.dbmanager._gateway.retrieve_usage(usages[2].experiment_use_id)
+            full_usage3 = self.dbmanager.retrieve_usage(usages[2].experiment_use_id)
             self.assertEquals(DATA3, full_usage3.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage3.end_date)
 
@@ -134,26 +134,26 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             # RESERVATION4 achieved
             self.assertEquals(4, len(usages))
 
             # And end_date is filled for 4
-            full_usage4 = self.dbmanager._gateway.retrieve_usage(usages[3].experiment_use_id)
+            full_usage4 = self.dbmanager.retrieve_usage(usages[3].experiment_use_id)
             self.assertEquals(DATA4, full_usage4.commands[-1].response.commandstring)
             self.assertNotEqual(None, full_usage4.end_date)
 
             # While in the rest it's not yet filled
 
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage1.end_date)
 
-            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            full_usage2 = self.dbmanager.retrieve_usage(usages[1].experiment_use_id)
             self.assertEquals(DATA2, full_usage2.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage2.end_date)
 
-            full_usage3 = self.dbmanager._gateway.retrieve_usage(usages[2].experiment_use_id)
+            full_usage3 = self.dbmanager.retrieve_usage(usages[2].experiment_use_id)
             self.assertEquals(DATA3, full_usage3.commands[-1].response.commandstring)
             self.assertEquals(None, full_usage3.end_date)
 
@@ -163,7 +163,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
             wait_for(self.retriever)
 
             # Then it is filled
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
             self.assertNotEqual(None, full_usage1.end_date)
 
@@ -176,14 +176,14 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def test_commands(self):
         self.retriever.start()
         try:
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             self.assertEquals(0, len(usages))
 
             self.initial_store.put(self.entry1)
 
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
 
             self.assertEquals(1, len(usages))
 
@@ -214,10 +214,10 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             self.assertEquals(1, len(usages))
 
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
             self.assertEquals(None, full_usage1.commands[-1].response.commandstring)
 
@@ -231,14 +231,14 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             self.assertEquals(2, len(usages))
 
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
 
-            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            full_usage2 = self.dbmanager.retrieve_usage(usages[1].experiment_use_id)
             self.assertEquals(DATA_REQUEST2, full_usage2.commands[-1].command.commandstring)
             self.assertEquals(None, full_usage2.commands[-1].response.commandstring)
 
@@ -249,18 +249,18 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
 
             wait_for(self.retriever)
 
-            usages = self.dbmanager._gateway.list_usages_per_user('student1')
+            usages = self.dbmanager.list_usages_per_user('student1')
             self.assertEquals(3, len(usages))
 
-            full_usage1 = self.dbmanager._gateway.retrieve_usage(usages[0].experiment_use_id)
+            full_usage1 = self.dbmanager.retrieve_usage(usages[0].experiment_use_id)
             self.assertEquals(DATA_REQUEST1, full_usage1.commands[-1].command.commandstring)
             self.assertEquals(DATA1, full_usage1.commands[-1].response.commandstring)
 
-            full_usage2 = self.dbmanager._gateway.retrieve_usage(usages[1].experiment_use_id)
+            full_usage2 = self.dbmanager.retrieve_usage(usages[1].experiment_use_id)
             self.assertEquals(DATA_REQUEST2, full_usage2.commands[-1].command.commandstring)
             self.assertEquals(DATA2, full_usage2.commands[-1].response.commandstring)
 
-            full_usage3 = self.dbmanager._gateway.retrieve_usage(usages[2].experiment_use_id)
+            full_usage3 = self.dbmanager.retrieve_usage(usages[2].experiment_use_id)
             self.assertEquals(DATA_REQUEST3, full_usage3.commands[-1].command.commandstring)
             self.assertEquals(DATA3, full_usage3.commands[-1].response.commandstring)
 
