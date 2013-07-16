@@ -346,7 +346,7 @@ public class XilinxExperiment extends ExperimentBase{
 		} catch(Exception e) {	
 			//this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter. Using the default. ", null);
-    		XilinxExperiment.this.expectedSynthesizingTime = DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+    		XilinxExperiment.this.expectedSynthesizingTime = this.DEFAULT_EXPECTED_SYNTHESIZING_TIME;
     		//return;
 		}
 	

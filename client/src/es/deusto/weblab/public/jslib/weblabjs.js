@@ -262,6 +262,19 @@ Weblab = new function () {
     this.checkOnline = function () {
         return parent.wl_sendCommand != undefined;
     }
+    
+    
+    //! The GWT client will not function properly until the user's script has 
+    //! finished loading, because until then, callbacks might not have been set.
+    //! The GWT client will know it has when the onReady()
+    //! event on the iframe fires. However, sometimes, due to errors on the experiment
+    //! or network, it might not fire at all. 
+    //! Though it is NOT required, it is possible to tell the GWT client that it has finished 
+    //! by using this method. Can be invoked more than once, or even if the iframe has 
+    //! been loaded successfully.
+    this.nowLoaded = function () {
+    	parent.onFrameLoad();
+    }
 
     //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
     //! offline from the real Weblab client, then the response to SendCommand will be as specified.
