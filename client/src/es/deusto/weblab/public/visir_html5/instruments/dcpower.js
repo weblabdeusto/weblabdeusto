@@ -6,9 +6,9 @@ visir.DCPower = function(id)
 {
 	this._id = id;
 	this._channels = {
-		"6V+": { voltage: 0.0, current: 0.5 },
-		"25V+": { voltage: 0.0, current: 0.5 },
-		"25V-": { voltage: 0.0, current: 0.5}
+		"6V+": { voltage: 0.0, current: 0.5, measured_voltage: 0, measured_current: 0, limited: 0, enabled: 0 },
+		"25V+": { voltage: 0.0, current: 0.5, measured_voltage: 0, measured_current: 0, limited: 0, enabled: 0 },
+		"25V-": { voltage: 0.0, current: 0.5, measured_voltage: 0, measured_current: 0, limited: 0, enabled: 0 }
 	 }
 }
 
@@ -38,4 +38,24 @@ visir.DCPower.prototype.WriteRequest = function()
 },
 
 visir.DCPower.prototype.ReadResponse = function(response) {
+	var me = this;
+	var $xml = $(response);
+	var $dcpower = $xml.find("dcpower"); // add id match later, when server supports it
+	if ($dcpower.length == 0) return;
+	//trace("xml: " + $dcpower.html());
+	
+	$dcpower.find("dc_output").each(function() {
+		var $channel = $(this);
+		var chname = $channel.attr("channel");
+		var actual_voltage = parseFloat($channel.find("dc_voltage_actual").attr("value"));
+		var actual_current = parseFloat($channel.find("dc_current_actual").attr("value"));
+		var enabled = parseInt($channel.find("dc_output_enabled").attr("value"));
+		var limited = parseInt($channel.find("dc_output_limited").attr("value"));
+		if (me._channels[chname]) {
+			me._channels[chname].measured_voltage = actual_voltage;
+			me._channels[chname].measured_current = actual_current;
+			me._channels[chname].limited = limited;
+			me._channels[chname].enabled = enabled;
+		}
+	});
 }

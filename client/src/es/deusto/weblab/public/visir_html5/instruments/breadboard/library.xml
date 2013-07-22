@@ -21,6 +21,50 @@
 		</rotations>
 	</component>
 	
+	<component type="R" value="82" pins="2" free="1">
+		<rotations>
+			<rotation ox="-27" oy ="-7" image="r_82.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-8" oy ="-27" image="r_82.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
+	<component type="R" value="100" pins="2" free="1">
+		<rotations>
+			<rotation ox="-26" oy ="-9" image="r_100.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-8" oy ="-26" image="r_100.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
+	<component type="R" value="120" pins="2" free="1">
+		<rotations>
+			<rotation ox="-26" oy ="-8" image="r_120.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-8" oy ="-27" image="r_120.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
+	<component type="R" value="150" pins="2" free="1">
+		<rotations>
+			<rotation ox="-26" oy ="-8" image="r_150.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-9" oy ="-27" image="r_150.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
 	<component type="R" value="1k" pins="2">
 		<rotations>
 			<rotation ox="-26" oy ="-6" image="r_1k.png" rot="0">
@@ -240,6 +284,39 @@
 			</rotation>
 		</rotations>
 	</component>
+	
+	<!-- TEMP TEST COMPONENTS -->
+	<component type="R" value="56k" pins="2">
+		<rotations>
+			<rotation ox="-27" oy ="-6" image="r_220k.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-7" oy ="-27" image="r_220k.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	<component type="R" value="27k" pins="2">
+		<rotations>
+			<rotation ox="-27" oy ="-6" image="r_120k.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-7" oy ="-27" image="r_120k.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	<component type="R" value="33k" pins="2">
+		<rotations>
+			<rotation ox="-27" oy ="-6" image="r_86.6k.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-7" oy ="-27" image="r_86.6k.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	<!-- TEMP TEST COMPONENTS -->
 	
 	<component type="D" value="1N4002" pins="2">
 		<rotations>

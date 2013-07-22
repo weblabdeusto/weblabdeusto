@@ -23,6 +23,7 @@ visir.FlukeMultimeter = function(id, elem)
 			<img src="' + imgbase + 'fluke23_vred.png" alt="handle" />\
 		</div>\
 	</div>\
+	<div class="manual_link"><a href="" target="_blank">Download Manual</a></div>\
 	</div>';
 		
 	elem.append(tpl);
@@ -69,10 +70,13 @@ visir.FlukeMultimeter.prototype.UpdateDisplay = function() {
 		$value.text("");
 	} else {
 		var out = this.GetResult();
-		
 		trace("DMM RESULT: " + out);
 		
 		if (typeof out == "number") {
+			if (isNaN(out)) {
+				$value.text("OL");
+				return;
+			}
 			var unit = this._GetUnit(out);
 			out = out / Math.pow(10, unit.pow);
 

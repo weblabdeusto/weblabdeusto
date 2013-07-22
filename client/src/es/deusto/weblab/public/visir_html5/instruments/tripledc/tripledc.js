@@ -103,14 +103,30 @@ visir.TripleDC = function(id, elem)
 
 extend(visir.TripleDC, visir.DCPower)
 
-visir.TripleDC.prototype._UpdateDisplay = function(ch) {
+visir.TripleDC.prototype._UpdateDisplay = function(showMeasured) {
+	showMeasured = showMeasured || false;
 	var aCh = this._GetActiveChannel();
 	var digitoffset = 0;
 	if (aCh.voltage >= 10000) {
 		digitoffset = 1;
-	} 
+	}
+	
+	var value = 0;
+	if (showMeasured) {
+		var responseData = this._channels[this._activeChannel];
+		if (!responseData.enabled) return;
+		value = responseData.measured_voltage;
+		if (value == 0.0) return;
+	} else {
+		value = (aCh.voltage / 1000);
+	}
+	
+	//var value = (showMeasured) ? this._channels[this._activeChannel].measured_voltage : (aCh.voltage / 1000);
+	trace("value: " + value);
+	
 	//var fixed = (aCh.voltage >= 10000) ? 2 : 3;
-	var num = (aCh.voltage / 1000).toFixed(3 - digitoffset);
+	//var num = (aCh.voltage / 1000).toFixed(3 - digitoffset);
+	var num = value.toFixed(3 - digitoffset);
 	this._elem.find(".voltage").html(visir.LightNum(num, aCh.digit - digitoffset) + "V" );
 }
 
@@ -155,4 +171,11 @@ visir.TripleDC.prototype._DecDigit = function() {
 visir.TripleDC.prototype._IncDigit = function() {
 	var aCh = this._GetActiveChannel();
 	this._SetActiveValue(aCh.voltage + Math.pow(10, aCh.digit), aCh.digit);
+}
+
+visir.TripleDC.prototype.ReadResponse = function(response) {
+	var me = this;
+	visir.TripleDC.parent.ReadResponse.apply(this, arguments);
+	
+	this._UpdateDisplay(true);
 }

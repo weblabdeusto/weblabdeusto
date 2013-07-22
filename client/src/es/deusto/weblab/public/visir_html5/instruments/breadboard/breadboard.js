@@ -421,12 +421,20 @@ visir.Component.prototype._AddCircle = function()
     // Drag and drop button
 	this._breadboard._$elem.find("#comp_circle").append(this._$circle);
 
+	if ($.browser.msie)
+	{
+		if (parseInt($.browser.version, 10) >= 9) {
+			this._breadboard._$elem.find("#comp_circle").find("*").css("z-index", "15");
+		}
+	}
+
+
     var handler = this.generateHandler(this._$circle, function() {
         // On clicked
 				me._breadboard.SelectComponent(null);
     }, this._$elem, function() {
     }, function () {
-    })
+    });
 
     $circleImg.on("mousedown touchstart", handler);
 }
@@ -499,6 +507,7 @@ visir.Breadboard = function(id, $elem)
 	</div>\
 	<div class="indicator"></div>\
 	<div class="delete"></div>\
+	<div class="help">?</div>\
 	<div class="components"></div>\
 	<div class="instruments">\
 		<div class="left"></div>\
@@ -534,6 +543,8 @@ visir.Breadboard = function(id, $elem)
 	this._$wires = $wires;
 	var $click = $elem.find(".clickarea");
 
+	$wires.click( function() { trace("Clicked wires"); });
+
 	// create offsceen canvas for wire picking
 	var offscreen_canvas = document.createElement('canvas');
 	if (typeof G_vmlCanvasManager !== "undefined")
@@ -551,26 +562,26 @@ visir.Breadboard = function(id, $elem)
 	if(!teacher_mode) $elem.find(".teacher").hide();
 
     $elem.find(".teacher").click(function(e) {
-        $elem.find(".componentbox").show();
-				$elem.find(".componentlist-table").empty();
-        var $components = me._$library.find("component").each(function() {
-            var img   = $(this).find("rotation").attr("image");
-            var type  = $(this).attr("type");
-            var value = $(this).attr("value");
-						var img_html = '<tr class="component-list-row">\
-							<td>\
-								<img src="' + me.IMAGE_URL + img + '"/>\
-							</td>\
-							<td>' + type + '</td>\
-							<td>' + value + '</td>\
-							</tr>';
-            $elem.find(".componentlist-table").append(img_html);
+			$elem.find(".componentbox").show();
+			$elem.find(".componentlist-table").empty();
+			var $components = me._$library.find("component").each(function() {
+				var img   = $(this).find("rotation").attr("image");
+				var type  = $(this).attr("type");
+				var value = $(this).attr("value");
+				var img_html = '<tr class="component-list-row">\
+				<td>\
+				<img src="' + me.IMAGE_URL + img + '"/>\
+				</td>\
+				<td>' + type + '</td>\
+				<td>' + value + '</td>\
+				</tr>';
+				$elem.find(".componentlist-table").append(img_html);
 
-            $($elem.find('.component-list-row').get(-1)).click(function(e){
-                var comp_obj = me.CreateComponent(type, value);
-                comp_obj._PlaceInBin();
-            });
-        });
+				$($elem.find('.component-list-row').get(-1)).click(function(e){
+					var comp_obj = me.CreateComponent(type, value);
+					comp_obj._PlaceInBin();
+				});
+			});
     });
 
 		$elem.find(".reset").click( function(e) {
@@ -594,6 +605,7 @@ visir.Breadboard = function(id, $elem)
 
 
 	$click.on("mousedown touchstart", function(e) {
+		trace("touch");
 		var wires_offset = $wires.offset();
 		var offset = { x: wires_offset.left, y: wires_offset.top };
 
@@ -657,10 +669,12 @@ visir.Breadboard = function(id, $elem)
 	});
 
 	$elem.find(".color").click( function() {
-		me._color = $(this).css("background-color");
-		me._$elem.find('.color.selected').removeClass('selected');
-		$(this).addClass('selected');
 		me.SelectWire(null);
+		me.SelectComponent(null);
+
+		me._color = $(this).css("background-color");
+		me._$elem.find(".color").removeClass("selected");
+		$(this).addClass("selected");
 	});
 
 	$elem.find(".delete").click( function() {
@@ -674,6 +688,9 @@ visir.Breadboard = function(id, $elem)
 		}
 	});
 
+	$elem.find(".help").click( function() {
+		me.ShowHelp(true);
+	});
 
 	function GenWirePointMove(snap, assign)
 	{
@@ -707,12 +724,11 @@ visir.Breadboard = function(id, $elem)
 	var libraryxml = "instruments/breadboard/library.xml";
 	if (visir.BaseLocation) libraryxml = visir.BaseLocation + libraryxml;
 	me._ReadLibrary(libraryxml);
+	me._AddInstrumentConnections();
 
-	me._AddMultimeters(1 + 13*45,8 + 13*21,2);
-	me._AddOSC(1 + 13*45, 8 + 13 * 16, 1);
-	me._AddGND(1 + 13*45, 8 + 13 * 30);
-	me._AddDCPower(0, 6+13*5, 2);
-	me._AddFGEN(0, 6+13*16, 2);
+	$("body").on("configChanged", function(e) {
+		me._AddInstrumentConnections();
+	});
 }
 
 visir.Breadboard.prototype.Clear = function()
@@ -806,6 +822,15 @@ visir.Breadboard.prototype.SelectWire = function(idx)
 	UpdatePoint(this._$elem.find("#wire_end"), w._end);
 }
 
+visir.Breadboard.prototype.ShowComponentIndicator = function(comp)
+{
+	var value = "";
+	if (comp) {
+		value = comp._type + " " + comp._value;
+	}
+	this._$elem.find(".indicator").text(value);
+}
+
 visir.Breadboard.prototype.SelectComponent = function(comp)
 {
 	var prev = this._selectedCompnent;
@@ -815,6 +840,10 @@ visir.Breadboard.prototype.SelectComponent = function(comp)
 	if (comp) {
 		comp._AddCircle();
 		this._$elem.find(".indicator").text(comp._type + " " + comp._value);
+		// deselect wire color
+		// XXX: Refactor into function?
+		this._color = null;
+		this._$elem.find(".color").removeClass("selected");
 	} else {
 		this._$elem.find(".indicator").text("");
 	}
@@ -845,7 +874,8 @@ visir.Breadboard.prototype._ReadLibrary = function(url)
 			me._$library = $(xml);
 			if (me._onLibraryLoaded) me._onLibraryLoaded();
 		}
-	});
+	}).fail(function() { alert("error"); })
+	;
 }
 
 visir.Breadboard.prototype.CreateComponent = function(type, value)
@@ -1004,14 +1034,26 @@ visir.Breadboard.prototype._AddComponentEvents = function(comp_obj, $comp)
 			});
 		};
 	};
+
 	$comp.on("mousedown touchstart", generateHandler($comp, function() {
 		// On clicked, add circle
 		me.SelectComponent(comp_obj);
 		me.SelectWire(null);
-		}));
-		// XXX: this is hackish, we should do something better..
-		comp_obj.generateHandler = generateHandler;
-	}
+	}));
+
+	$comp.hover(
+		function() {
+			// in
+			if (!me._selectedCompnent) me.ShowComponentIndicator(comp_obj);
+		},
+		function() {
+			if (!me._selectedCompnent) me.ShowComponentIndicator(null);
+		}
+	);
+
+	// XXX: this is hackish, we should do something better..
+	comp_obj.generateHandler = generateHandler;
+}
 
 visir.Breadboard.prototype._RemoveWire = function(wire)
 {
@@ -1041,6 +1083,74 @@ visir.Breadboard.prototype._BuildOccupationGrid = function()
 visir.Breadboard.prototype._GetBin = function()
 {
     return this._$elem.find(".bin");
+}
+
+visir.Breadboard.prototype._DrawHelpOverlay = function(ctx)
+{
+	var color = 'rgba(0,0,0,0.7)';
+	var radius = 3;
+
+	ctx.save();
+	ctx.lineCap = 'round';
+	ctx.strokeStyle = color;
+	ctx.fillStyle = color;
+	ctx.lineWidth   = 2;
+
+	var bx = 152;
+	var by = 146;
+
+	function drawHorz(x, y) {
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+		ctx.lineTo(x + 13*28,y);
+		ctx.stroke();
+		ctx.closePath();
+
+		for(var i=0;i<29;i++) {
+			if (i % 6 == 5) continue;
+			ctx.beginPath();
+			ctx.arc(x+i*13, y, radius, 0, 2 * Math.PI, false);
+			ctx.fill();
+			ctx.closePath();
+		}
+	}
+
+	function drawVert(x,y) {
+		ctx.beginPath();
+		ctx.moveTo(x, y);
+		ctx.lineTo(x, y+ 13*4);
+		ctx.stroke();
+		ctx.closePath();
+		for(var i=0;i<5; i++) {
+			ctx.beginPath();
+			ctx.arc(x, y + 13*i, radius, 0, 2 * Math.PI, false);
+			ctx.fill();
+			ctx.closePath();
+		}
+	}
+
+	drawHorz(bx+13*2, by);
+	drawHorz(bx+13*2, by+13);
+	drawHorz(bx+13*2, by+13*20);
+	drawHorz(bx+13*2, by+13*21);
+
+	for(var i=0;i<32;i++) {
+		// draw vertical bars
+		var x = bx + i*13;
+		var y = by + 13*5;
+		drawVert(x, y);
+		drawVert(x, y + 13*7);
+	}
+
+	ctx.restore();
+}
+
+visir.Breadboard.prototype.ShowHelp = function(show)
+{
+	this._showHelp = show;
+	if (show) {
+		this._DrawHelpOverlay(this._wireCtx);
+	}
 }
 
 visir.Breadboard.prototype.CreateInstr = function(instr_type, instr_name)
@@ -1284,8 +1394,19 @@ visir.Breadboard.prototype.SaveCircuit = function(circuit)
 //////////////////////////////////////////////////////////////////////////////
 // Breadboard Instruments handling
 
+visir.Breadboard.prototype._AddInstrumentConnections = function()
+{
+	this._$elem.find(".instruments .instrument").remove();
+	this._AddMultimeters(1 + 13*45,8 + 13*21, (visir.Config) ? visir.Config.GetNrInstrOfType("multimeter") : 2);
+	this._AddOSC(1 + 13*45, 8 + 13 * 16,      (visir.Config) ? visir.Config.GetNrInstrOfType("oscilloscope") : 1);
+	this._AddDCPower(0, 6+13*5,               (visir.Config) ? visir.Config.GetNrInstrOfType("dcpower") : 2);
+	this._AddFGEN(0, 6+13*16,                 (visir.Config) ? visir.Config.GetNrInstrOfType("functiongenerator") : 2);
+	this._AddGND(1 + 13*45, 8 + 13 * 30);
+}
+
 visir.Breadboard.prototype._AddMultimeters = function(x, y, num)
 {
+	if (num <= 0) return;
 	var i = 0;
 	var $dmm = $(
 	'<div class="instrument dmm">\
@@ -1340,6 +1461,7 @@ visir.Breadboard.prototype._AddMultimeters = function(x, y, num)
 
 visir.Breadboard.prototype._AddOSC = function(x, y, num)
 {
+	if (num <= 0) return;
 	var $osc = $(
 	'<div class="instrument osc">\
 		<div class="connectionimages">\
@@ -1386,14 +1508,15 @@ visir.Breadboard.prototype._AddGND = function(x, y)
 
 visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 {
+	if (num <= 0) return;
 	var $dcpower = $(
 	'<div class="instrument dcpower">\
 		<div class="title">DC Power Supply</div>\
 			<div class="texts">\
 				<div class="connectiontext"></div>\
-				<div class="connectiontext">+25V</div>\
+				<div class="connectiontext">+20V</div>\
 				<div class="connectiontext">COM</div>\
-				<div class="connectiontext">-25V</div>\
+				<div class="connectiontext">-20V</div>\
 				<div class="connectiontext"></div>\
 				<div class="connectiontext">+6V</div>\
 				<div class="connectiontext">GND</div>\
@@ -1423,15 +1546,7 @@ visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 
 visir.Breadboard.prototype._AddFGEN = function(x, y, num)
 {
-	var $fgen = $(
-	'<div class="instrument fgen">\
-		<table border="0" cellspacing="0" cellpadding="0">\
-			<tr class="top"></tr>\
-			<tr class="FGEN"></tr>\
-			<tr class="GND"></tr>\
-		</table>\
-	</div>');
-
+	if (num <= 0) return;
 	var $fgen = $(
 	'<div class="instrument fgen">\
 		<div class="texts">\

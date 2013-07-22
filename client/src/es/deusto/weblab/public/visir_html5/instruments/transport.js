@@ -1,4 +1,3 @@
-//var visir = visir || { Transport:null};
 "use strict";
 
 var visir = visir || {};
@@ -35,6 +34,12 @@ visir.JSTransport = function(workingCallback)
 visir.JSTransport.prototype.Request = function(request, callback)
 {
 	trace("Send request");
+	
+	if (!navigator.onLine) {
+		alert("Check your internet connection and try again.");
+		return;
+	}
+	
 	this._error = null;
 	if (this._isWorking) return;
 	this.SetWorking(true);
@@ -64,7 +69,10 @@ visir.JSTransport.prototype.Connect = function(url, cookie)
 
 visir.JSTransport.prototype.SetWorking = function(isWorking, shouldContinue)
 {
+	shouldContinue = (shouldContinue == undefined) ? true : shouldContinue;
 	this._isWorking = isWorking;
+	if (typeof this._workCall == "function") this._workCall(isWorking, shouldContinue);
+	$("body").trigger( { type:"working", isWorking: isWorking, shouldContinue: shouldContinue });
 }
 
 /*
@@ -82,12 +90,14 @@ visir.JSTransport.prototype._SendRequest = function(xmlstring, callback)
 	var tprt = this;
 	this._SendXML(data, function(response) {
 		//trace("reponse: " + response);
-		tprt.SetWorking(false, false);
+		tprt.SetWorking(false);
 		if (typeof callback == "function") {
 			// this will check for errors in the request
 			var ret = tprt._ReadResponseProtocolHeader(response);
 			// and we only want to do the callback if there is no errors
-			if (!tprt._error) callback(ret);
+			if (!tprt._error) {
+				callback(ret);
+			}
 		}
 	});
 }
@@ -131,6 +141,8 @@ visir.JSTransport.prototype._SendAuthentication = function(request, cookie, call
 
 visir.JSTransport.prototype._CreateRequest = function()
 {
+	//return new XMLHttpRequest();
+	
 	if (window.XDomainRequest) {
 		// ie.. untested..
 		var req = new window.XDomainRequest();
@@ -151,14 +163,29 @@ visir.JSTransport.prototype._SendXML = function(data, callback)
 	if (window.XDomainRequest) {
 		// ie.. untested
 		var req = this._request; //new window.XDomainRequest();
-		req.onload = function() { trace("xdomain: " + req.responseText); };
+		req.onload = function() {
+			trace("xdomain: " + req.responseText);
+			callback(req.responseText);
+			req = me._CreateRequest();
+	 	};
+
+		req.onerror = function(e) {
+			trace("xdomain error: " + e);
+		};
 		req.open('POST', this._url, true);
-		req.send(data);
+		//req.send(data);
+		setTimeout( function() { req.send(data);}, 100);
 
 	} else {
 		var req = this._request; //new XMLHttpRequest();
 		req.open('POST', this._url, true);
-		req.onerror = function(e) { trace("XMLHttpRequest error: " + e); me.Error(e); }
+		req.timeout = 5000;
+		req.onerror = function(e) {
+			trace("XMLHttpRequest error: " + e);
+			var errtext = "XMLHttpRequest error, webservice is not responding to requests.";
+			me.Error(errtext);
+		}
+		req.ontimeout = function() { trace("XMLHttpRequest timeout"); me.Error("Webservice not responding. Contact the system administrator."); }
 		req.onreadystatechange = function(response)
 		{
 			if (me._shuttingDown) return;

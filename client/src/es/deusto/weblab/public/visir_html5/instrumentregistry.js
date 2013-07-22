@@ -1,6 +1,6 @@
 var visir = visir || {};
 
-visir.InstrumentRegistry = function()
+visir.InstrumentRegistry = function(extService)
 {
 	this._instruments = [];
 	this._registeredTypes = {
@@ -21,6 +21,10 @@ visir.InstrumentRegistry = function()
 		, NationalInstrumentOscilloscope: InstrInfo("oscilloscope", "Oscilloscope", "")
 		, TripleDC: InstrInfo("dcpower", "Triple DC", "tripledc/tripledc.swf")
 	}
+	
+	this._extServices = extService || null;
+	
+	if (visir.Config) visir.Config.SetInstrRegistry(this); // XXX: maybe this need to be more configurable..
 }
 
 visir.InstrumentRegistry.prototype._Reset = function()
@@ -54,6 +58,11 @@ visir.InstrumentRegistry.prototype.CreateInstrument = function()
 	
 	var entry = { instrument: newinstr, id: id, domnode: arguments[1], instrInfo: this._instrumentInfo[name], name: name };
 	this._instruments.push(entry);
+	
+	if (this._extServices && typeof newinstr.UseExteralService == "function") {
+		newinstr.UseExteralService(this._extServices);
+	}
+	
 	return newinstr;
 }
 
@@ -143,6 +152,14 @@ visir.InstrumentRegistry.prototype.LoadExperimentFromURL = function(url, $loc)
 	});
 }
 
+visir.InstrumentRegistry.prototype.CreateInstrFromJSClass = function(classname, $loc)
+{
+	trace("creating instrument from js name: " + classname);
+	var $ctnr = this._CreateInstrContainer(this._instrumentInfo[classname].type);
+	this.CreateInstrument(classname, $ctnr);
+	$loc.append($ctnr);
+}
+
 visir.InstrumentRegistry.prototype.LoadExperiment = function(xmldata, $loc)
 {
 	$loc.find(".instrument").remove();
@@ -161,14 +178,12 @@ visir.InstrumentRegistry.prototype.LoadExperiment = function(xmldata, $loc)
 	var htmlinstr = $instr.attr("htmlinstruments");
 	var htmlarr = htmlinstr ? htmlinstr.split("|") : [];
 	for(var i=0;i<htmlarr.length; i++) {
-		trace("creating instrument from js name: " + htmlarr[i]);
-		var $ctnr = this._CreateInstrContainer(this._instrumentInfo[htmlarr[i]].type);
-		this.CreateInstrument(htmlarr[i], $ctnr);
-		$loc.append($ctnr);
+		this.CreateInstrFromJSClass(htmlarr[i], $loc);
 	}
 	
 	this.ReadSave($xml);
 	this.Notify("onExperimentLoaded");
+	$("body").trigger("configChanged");
 }
 
 visir.InstrumentRegistry.prototype.AddListener = function(listenTo)
@@ -182,4 +197,22 @@ visir.InstrumentRegistry.prototype.Notify = function(func)
 	for(var i=0;i<this._listeners.length; i++) {
 		if (typeof this._listeners[i][func] == "function") this._listeners[i][func]();
 	}
+}
+
+visir.InstrumentRegistry.prototype.RemoveInstrument = function(instrument)
+{
+	for(var i in this._instruments) {
+		if (this._instruments[i] === instrument) {
+			// XXX: what should we do with the registeredTypes? This is not really correct
+			--this._registeredTypes[this._instrumentInfo[this._instruments[i].name].type];
+			this._instruments[i].domnode.remove();
+			this._instruments.splice(i, 1);
+		}
+	}
+}
+
+visir.InstrumentRegistry.prototype.GetNrInstrOfType = function(type)
+{
+	trace("reg: " + this._registeredTypes[type] + " " + type);
+	return this._registeredTypes[type];
 }

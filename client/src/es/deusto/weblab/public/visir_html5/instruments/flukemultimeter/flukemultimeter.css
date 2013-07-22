@@ -29,7 +29,34 @@
 
 .flukedmm {
 	position: relative;
+	overflow: hidden;
+	height: 460px;
 }
+
+.flukedmm A:visited , .flukedmm A:link
+{
+	color: black;
+	text-decoration: none;
+	font-weight: normal;
+	font-size: 12px;
+	font-family: serif;
+}
+
+.flukedmm .manual_link
+{
+	color: black;
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	margin: 2px;
+	border-radius: 5px;
+	border: 1px solid black;
+	display: inline-block;
+	background: #bbbbbb;
+	font-size: 12px;
+	padding: 1px 3px 1px 3px;
+}
+
 
 /*
 .rot .base {

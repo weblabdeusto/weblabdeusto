@@ -3,7 +3,7 @@
 		init : function( props ) {
 			var options = $.extend({
 				offset: 0,
-				move: function(elem, x, y){ }
+				move: function(elem, x, y, newtouch){ }
 				}, props || {});
 			
 			return this.each(function(){
@@ -39,7 +39,7 @@
 						
 						//trace("dx/dy: " + dx + " " + dy);
 						
-						var p = options.move(handle, dx, dy);
+						var p = options.move(handle, dx, dy, newTouch);
 						//trace("p: " + p.x + " " + p.y);
 						if (p.x != undefined) handle.css("left", p.x + "px");
 						if (p.y != undefined) handle.css("top", p.y + "px");

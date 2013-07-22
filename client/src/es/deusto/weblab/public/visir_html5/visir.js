@@ -16,10 +16,12 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 
 	var stage1_scripts = [
 		"utils.js"
+		, "services.js"
 		, "jquery-turnable.js"
 		, "jquery-draggable.js"
 		, "jquery-updownbutton.js"
 		, "instrumentregistry.js"
+		, "config.js"
 		, "instruments/multimeter.js"
 		, "instruments/oscilloscope.js"
 		, "instruments/functiongenerator.js"

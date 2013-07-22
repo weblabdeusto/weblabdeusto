@@ -113,6 +113,7 @@
 			<div class="graph">
 				<canvas class="grid" width="330" height="208"></canvas>
 				<canvas class="plot" width="330" height="208"></canvas>
+				<canvas class="cursors" width="330" height="208"></canvas>
 			</div>
 			<div class="infobar">
 				<div class="measurements">

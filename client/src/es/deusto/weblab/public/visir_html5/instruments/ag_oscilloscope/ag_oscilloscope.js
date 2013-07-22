@@ -6,11 +6,17 @@ var visir = visir || {};
 
 visir.AgilentOscilloscope = function(id, elem, props)
 {
+	var me = this;
 	visir.AgilentOscilloscope.parent.constructor.apply(this, arguments);
 
 	var options = $.extend({
-		MeasureCalling: function() {}
-		,CheckToContinueCalling: function() { return false; }
+		MeasureCalling: function() {
+			if (me._extService) me._extService.MakeMeasurement();
+		}
+		,CheckToContinueCalling: function() {
+			//if (me._extService) return me._extService.CanContinueMeasuring();
+			return me._canContinueMeasuring;
+		}
 	}, props || {});
 	this._options = options;
 
@@ -34,6 +40,18 @@ visir.AgilentOscilloscope = function(id, elem, props)
 	this._channels[1].visible = true;
 	this._channels[1].display_offset = 0.0;
 
+	this._extService = null;
+	this._canContinueMeasuring = false;
+
+	$("body").on("working", function(e) {
+		if (!e.isWorking) {
+			me._canContinueMeasuring =  e.shouldContinue;
+			if (!e.shouldContinue) {
+				me._isMeasuringContinuous = false;
+				me._UpdateRunStopSingleButtons("stopped");
+			}
+		}
+	});
 
 	function NewMeasInfo(display, str, unit, proto) {
 		return { display: display, str: str, unit: unit, proto: proto };
@@ -153,6 +171,10 @@ visir.AgilentOscilloscope = function(id, elem, props)
 			me._ShowMenu("menu_edge");
 		});
 
+		elem.find(".button.cursors").click( function() {
+			me._ToggleCursors();
+		});
+
 		elem.find(".button.measure").click( function() {
 			me._ToggleMeasurements();
 		});
@@ -192,7 +214,12 @@ visir.AgilentOscilloscope = function(id, elem, props)
 			, 'menu_edge': CreateEdgeMenu(me, me._$elem.find(".menu_edge"))
 			, 'menu_modecoupling': CreateTriggerModeCouplingMenu(me, me._$elem.find(".menu_modecoupling"))
 			, 'menu_measure': CreateMeasurementMenu(me, me._$elem.find(".menu_measure"))
+			, 'menu_cursors': CreateCursorsMenu(me, me._$elem.find(".menu_cursors"))
 		};
+
+		me._UpdateRunStopSingleButtons("stopped");
+
+		me._ShowCursors(false);
 
 	});
 };
@@ -676,6 +703,24 @@ visir.AgilentOscilloscope.prototype._UpdateDisplay = function()
 	this._DrawPlot(this._$elem.find(".plot"));
 };
 
+visir.AgilentOscilloscope.prototype._ToggleCursors = function()
+{
+
+}
+
+visir.AgilentOscilloscope.prototype._ShowCursors = function(show)
+{
+	this._$elem.find(".graph .cursors").toggle(show);
+
+	var $infobar = this._$elem.find(".infobar");
+	var $box1 = $infobar.find(".box1");
+	var $box2 = $infobar.find(".box2");
+	var $box3 = $infobar.find(".box3");
+	$box1.toggle(show);
+	$box2.toggle(show);
+	$box3.toggle(show);
+}
+
 visir.AgilentOscilloscope.prototype.ReadResponse = function(response) {
 	var me = this;
 	visir.AgilentOscilloscope.parent.ReadResponse.apply(this, arguments);
@@ -707,50 +752,46 @@ visir.AgilentOscilloscope.prototype.ReadResponse = function(response) {
 	if (this._measurements.length > 2) UpdateResult($measurements.find(".box3"), this._measurements[2]);
 };
 
-visir.AgilentOscilloscope.prototype._MakeMeasurement = function(button) {
-	/*
-	var me = this;
-	function callback(status)
-	{
-		trace("callback: " + status);
-		switch(status)
-		{
-			case "continue":
-			break;
-
-			default: // "stopped", "cancelled"
-				me._$elem.find(".button.runstop .state").removeClass("visible");
-				me._$elem.find(".button.runstop .state.red").addClass("visible");
-				me._$elem.find(".button.single .state").removeClass("visible");
-				me._$elem.find(".button.single .state.dark").addClass("visible");
-
-				this._isMeasuring = false;
-			break;
-		}
-	}
-	*/
-
-	switch(button) {
+visir.AgilentOscilloscope.prototype._UpdateRunStopSingleButtons = function(state)
+{
+	switch(state) {
 		case "single":
 			this._$elem.find(".button.runstop .state").removeClass("visible");
 			this._$elem.find(".button.runstop .state.dark").addClass("visible");
 			this._$elem.find(".button.single .state").removeClass("visible");
 			this._$elem.find(".button.single .state.light").addClass("visible");
+		break;
 
+		case "run":
+			this._$elem.find(".button.single .state").removeClass("visible");
+			this._$elem.find(".button.single .state.dark").addClass("visible");
+			this._$elem.find(".button.runstop .state").removeClass("visible");
+			this._$elem.find(".button.runstop .state.green").addClass("visible");
+		break;
+
+		case "stopped":
+		default:
+			this._$elem.find(".button.runstop .state").removeClass("visible");
+			this._$elem.find(".button.runstop .state.red").addClass("visible");
+			this._$elem.find(".button.single .state").removeClass("visible");
+			this._$elem.find(".button.single .state.dark").addClass("visible");
+		break;
+	}
+}
+
+visir.AgilentOscilloscope.prototype._MakeMeasurement = function(button) {
+	switch(button) {
+		case "single":
+			this._UpdateRunStopSingleButtons("single");
 			this._isMeasuringContinuous = false;
 			this._options.MeasureCalling();
 
 		break;
 		case "runstop":
-			this._$elem.find(".button.single .state").removeClass("visible");
-			this._$elem.find(".button.single .state.dark").addClass("visible");
-			this._$elem.find(".button.runstop .state").removeClass("visible");
-			this._$elem.find(".button.runstop .state.green").addClass("visible");
-
+			this._UpdateRunStopSingleButtons("run");
 			if (this._isMeasuringContinuous) {
 				this._isMeasuringContinuous = false;
-				this._$elem.find(".button.runstop .state").removeClass("visible");
-				this._$elem.find(".button.runstop .state.red").addClass("visible");
+				this._UpdateRunStopSingleButtons("stopped");
 			} else {
 				this._isMeasuringContinuous = true;
 				this._options.MeasureCalling();
@@ -758,6 +799,11 @@ visir.AgilentOscilloscope.prototype._MakeMeasurement = function(button) {
 		break;
 	}
 };
+
+visir.AgilentOscilloscope.prototype.UseExteralService = function(service) {
+	trace("AgilentOscilloscope::UseExteralService");
+	this._extService = service;
+}
 
 function CreateChannelMenu(osc, ch, $menu)
 {
@@ -937,6 +983,50 @@ function CreateMeasurementMenu(osc, $menu)
 		},
 		ShowMenu: function(name) {
 			this.Redraw();
+			this.HideMenu();
+			$menu.find(".menu_selection." + name).addClass("visible");
+			var menu = this;
+			if (!timer) {
+				timer = setTimeout(function() { timer=null; menu.HideMenu(); }, 1000);
+				return false;
+			} else {
+				clearInterval(timer);
+				timer = setTimeout(function() { timer=null; menu.HideMenu(); }, 1000);
+				return true;
+			}
+		},
+		HideMenu: function() {
+			$menu.find(".menu_selection").removeClass("visible");
+		}
+	};
+}
+
+function CreateCursorsMenu(osc, $menu)
+{
+	var timer = null;
+	return {
+		GetName: function() { this.Redraw(); return "Cursor Menu"; },
+		ButtonPressed: function(nr) {
+			this.Redraw();
+			switch(nr) {
+				case 1:
+				break;
+				case 2:
+				break;
+				case 3:
+				break;
+				case 4:
+				break;
+				case 5:
+				break;
+				case 6:
+				break;
+			}
+			this.Redraw();
+		},
+		Redraw: function() {
+		},
+		ShowMenu: function(name) {
 			this.HideMenu();
 			$menu.find(".menu_selection." + name).addClass("visible");
 			var menu = this;

@@ -4,6 +4,7 @@
 	height: 450px;
 	position:relative;
 	font-family: Times, serif;
+	font-size: 16px;
 	-webkit-user-select: none;
 	text-align: left;
 }
@@ -224,6 +225,18 @@
 	bottom: 0; right: 0;
 	opacity: 0.4;
 }
+
+.breadboard .help {
+	font-weight: bold;
+	font-size: 30px;
+	color: #666666;
+	text-shadow: 2px 2px #aaaaaa;
+	text-align: center;
+	width: 30px; height: 37px;
+	position: absolute;
+	bottom: 0; left: 5px;
+}
+
 
 .breadboard .delete.enabled {
 	opacity: 1.0;
