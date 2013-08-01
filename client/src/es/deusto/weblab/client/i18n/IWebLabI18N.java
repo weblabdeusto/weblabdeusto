@@ -115,6 +115,7 @@ public interface IWebLabI18N extends Messages {
 	public String fileSent();
 	public String deviceReady();
 	public String deviceProgrammingFailed();
+	public String fileNotAllowed();
 	public String sendingFile();
 	public String finishingProgramming();
 	

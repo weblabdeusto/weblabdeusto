@@ -53,10 +53,13 @@ STATE_SYNTHESIZING_ERROR = "synthesizing_error"
 STATE_PROGRAMMING = "programming"
 STATE_READY = "ready"
 STATE_FAILED = "failed"
+STATE_NOT_ALLOWED = "not_allowed"
 
 # Names for the configuration variables.
 CFG_XILINX_COMPILING_FILES_PATH = "xilinx_compiling_files_path"
 CFG_XILINX_COMPILING_TOOLS_PATH = "xilinx_compiling_tools_path"
+CFG_XILINX_VHD_ALLOWED = "xilinx_vhd_allowed"
+CFG_XILINX_BIT_ALLOWED = "xilinx_bit_allowed"
 
 DEBUG = False
 
@@ -92,6 +95,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
         self._synthesizing_result = ""
+        
+        self._vhd_allowed = self._cfg_manager.get_value(CFG_XILINX_VHD_ALLOWED, True)
+        self._bit_allowed = self._cfg_manager.get_value(CFG_XILINX_BIT_ALLOWED, True)
         
         self._ucf_file = None
         
@@ -154,13 +160,17 @@ class UdXilinxExperiment(Experiment.Experiment):
         extension = file_info
         if extension == "vhd":
             try:
+                if self._vhd_allowed == False:
+                    return "STATE=" + STATE_NOT_ALLOWED
                 if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
                 return "STATE=" + STATE_SYNTHESIZING
             except Exception as ex:
                 if DEBUG: print "EXCEPTION: " + ex
                 raise ex
-        else:
+        else: # We assume, a .bit file.
+            if self._bit_allowed == False:
+                return "STATE=" + STATE_NOT_ALLOWED
             self._programming_thread = self._program_file_t(file_content)
             return "STATE=" + STATE_PROGRAMMING
         
