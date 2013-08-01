@@ -86,7 +86,7 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
-	private static final String STATE_NOT_ALLOWED = "not_allowed"
+	private static final String STATE_NOT_ALLOWED = "not_allowed";
 	
 	// The state the experiment is currently in. Must be a string within the states list.
 	private String currentState;
