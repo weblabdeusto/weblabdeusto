@@ -13,9 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import json
 import urllib
-import urllib2
 import base64
 
 import voodoo.log as log
