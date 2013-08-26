@@ -423,7 +423,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @admin_panel_operation
     @logged()
-    def get_users(self, user_login):
+    def get_users(self):
         """ Retrieves every user from the database """
 
         session = self.Session()
@@ -437,7 +437,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @admin_panel_operation
     @logged()
-    def get_roles(self, user_login):
+    def get_roles(self):
         """ Retrieves every role from the database """
         session = self.Session()
         try:

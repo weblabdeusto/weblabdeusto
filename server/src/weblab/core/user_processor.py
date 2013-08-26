@@ -61,16 +61,18 @@ class UserProcessor(object):
         self._server_route    = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
         self.time_module      = time_module
 
+    @property
+    def username(self):
+        return self._session['db_session_id'].username
+
     def list_experiments(self):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.list_experiments(db_session_id.username)
+        return self._db_manager.list_experiments(self.username)
 
     def get_user_information(self):
         if 'user_information' in self._session:
             return self._session['user_information']
 
-        db_session_id               = self._session['db_session_id']
-        user_information            = self._db_manager.get_user_information(db_session_id.username)
+        user_information            = self._db_manager.get_user_information(self.username)
         self._session['user_information'] = user_information
         return user_information
 
@@ -81,12 +83,10 @@ class UserProcessor(object):
         return self._session['session_id']
 
     def is_access_forward_enabled(self):
-        db_session_id               = self._session['db_session_id']
-        return self._db_manager.is_access_forward(db_session_id.username)
+        return self._db_manager.is_access_forward(self.username)
 
     def is_admin(self):
-        db_session_id               = self._session['db_session_id']
-        return self._db_manager.is_admin(db_session_id.username)
+        return self._db_manager.is_admin(self.username)
 
     #
     # Experiments
@@ -110,7 +110,7 @@ class UserProcessor(object):
         reservation_info['route']          = self._server_route or 'no-route-found'
         reservation_info['from_ip']        = client_address.client_address
         reservation_info['from_direct_ip'] = client_address.client_address
-        reservation_info['username']       = self._session['db_session_id'].username
+        reservation_info['username']       = self.username
 #        reservation_info['full_name']      = self._session['user_information'].full_name
         reservation_info['role']           = self._session['db_session_id'].role
 
@@ -200,15 +200,13 @@ class UserProcessor(object):
 
     @typecheck(SessionId)
     def get_experiment_use_by_id(self, reservation_id):
-        db_session_id   = self._session['db_session_id']
-        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0])])
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0])])
         experiment_use  = experiment_uses[0]
         return self._process_use(experiment_use, reservation_id)
 
     @typecheck(typecheck.ITERATION(SessionId))
     def get_experiment_uses_by_id(self, reservation_ids):
-        db_session_id   = self._session['db_session_id']
-        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0]) for reservation_id in reservation_ids])
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0]) for reservation_id in reservation_ids])
 
         results = []
         cancelled_results = []
@@ -223,7 +221,7 @@ class UserProcessor(object):
             # between the moment we asked for results and the moment we stored the results.
             # Just in case, we check again those results
 
-            tentatively_cancelled_experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0]) for pos, reservation_id in cancelled_results])
+            tentatively_cancelled_experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0]) for pos, reservation_id in cancelled_results])
             for (pos, reservation_id), tentatively_cancelled_use in zip(cancelled_results, tentatively_cancelled_experiment_uses):
                 # Only process the use if the use is now not None
                 if tentatively_cancelled_use is not None:
@@ -269,30 +267,23 @@ class UserProcessor(object):
         """
         Retrieves the users from the database itself.
         """
-        db_session_id        = self._session['db_session_id']
-        return get_users(self._db_manager, db_session_id)
+        return self._db_manager.get_users()
 
     def get_groups(self, parent_id=None):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_groups(db_session_id.username, parent_id)
+        return self._db_manager.get_groups(self.username, parent_id)
 
     def get_roles(self):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_roles(db_session_id)
+        return self._db_manager.get_roles()
 
     def get_experiments(self):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_experiments(db_session_id.username)
+        return self._db_manager.get_experiments(self.username)
 
     def get_experiment_uses(self, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_experiment_uses(db_session_id.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
+        return self._db_manager.get_experiment_uses(self.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
 
     def get_user_permissions(self):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_user_permissions(db_session_id.username)
+        return self._db_manager.get_user_permissions(self.username)
 
     def get_permission_types(self):
-        db_session_id         = self._session['db_session_id']
-        return self._db_manager.get_permission_types(db_session_id.username)
+        return self._db_manager.get_permission_types(self.username)
 
