@@ -98,8 +98,8 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
 
         def _generate_experiments_allowed(self):
             experimentA, experimentB = self._generate_two_experiments()
-            exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True, 'expA::user')
-            exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True, 'expB::user')
+            exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True, 'expA::user', 1, 'user')
+            exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True, 'expB::user', 1, 'user')
             return exp_allowedA, exp_allowedB
 
         @uses_module(RemoteFacadeServer)
@@ -411,8 +411,8 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
     def _generate_experiments_allowed(self):
         experimentA, experimentB = self._generate_two_experiments()
-        exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True, 'expA::user')
-        exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True, 'expB::user')
+        exp_allowedA = ExperimentAllowed.ExperimentAllowed( experimentA, 100, 5, True, 'expA::user', 1, 'user')
+        exp_allowedB = ExperimentAllowed.ExperimentAllowed( experimentB, 100, 5, True, 'expB::user', 1, 'user')
         return exp_allowedA, exp_allowedB
 
     @uses_module(RemoteFacadeServer)

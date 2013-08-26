@@ -139,11 +139,7 @@ class UserProcessor(object):
             consumer_data = {}
 
 
-        experiments = [
-                exp for exp in self.list_experiments()
-                if exp.experiment.name           == experiment_id.exp_name
-                and exp.experiment.category.name == experiment_id.cat_name
-            ]
+        experiments = self._db_manager.list_experiments(self.username, experiment_id.exp_name, experiment_id.cat_name)
 
         if len(experiments) == 0:
             raise core_exc.UnknownExperimentIdError( "User can't access that experiment (or that experiment type does not exist)" )

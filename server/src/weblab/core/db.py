@@ -73,7 +73,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @typecheck(basestring)
     @logged()
-    def list_experiments(self, user_login):
+    def list_experiments(self, user_login, exp_name = None, cat_name = None):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
@@ -86,12 +86,25 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 p_time_allowed                 = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
                 p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
+                
+                # If a filter is passed, ignore those permissions on other experiments
+                if cat_name is not None and exp_name is not None:
+                    if p_category_id != cat_name or p_permanent_id != exp_name:
+                        continue
 
                 experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).first()
                 if experiment is None:
                     continue
 
-                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id)
+                if isinstance(permission, model.DbUserPermission):
+                    permission_scope = 'user'
+                elif isinstance(permission, model.DbGroupPermission):
+                    permission_scope = 'group'
+                elif isinstance(permission, model.DbRolePermission):
+                    permission_scope = 'role'
+                else:
+                    permission_scope = 'unknown'
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id, permission.id, permission_scope)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if experiment_unique_id in grouped_experiments:
