@@ -72,7 +72,7 @@ class UserProcessor(object):
         if 'user_information' in self._session:
             return self._session['user_information']
 
-        user_information            = self._db_manager.get_user_information(self.username)
+        user_information            = self._db_manager.get_user_by_name(self.username)
         self._session['user_information'] = user_information
         return user_information
 
@@ -160,6 +160,8 @@ class UserProcessor(object):
             #
             # Don't take into account initialization unless both agree
             initialization_in_accounting = experiment_allowed.initialization_in_accounting and consumer_data.get('initialization_in_accounting', experiment_allowed.initialization_in_accounting)
+            reservation_info['permission_scope'] = experiment_allowed.permission_scope
+            reservation_info['permission_id']    = experiment_allowed.permission_id
 
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(),
@@ -263,13 +265,13 @@ class UserProcessor(object):
         """
         Retrieves the users from the database itself.
         """
-        return self._db_manager.get_users()
+        return self._db_manager.get_users(self.username)
 
     def get_groups(self, parent_id=None):
         return self._db_manager.get_groups(self.username, parent_id)
 
     def get_roles(self):
-        return self._db_manager.get_roles()
+        return self._db_manager.get_roles(self.username)
 
     def get_experiments(self):
         return self._db_manager.get_experiments(self.username)

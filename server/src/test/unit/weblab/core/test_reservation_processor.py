@@ -585,7 +585,7 @@ class FakeDatabase(object):
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
-    def list_experiments(self, db_session_id):
+    def list_experiments(self, db_session_id, exp_name = None, cat_name = None):
         return self.experiments_allowed
 
     def get_user_by_name(self, db_session_id):

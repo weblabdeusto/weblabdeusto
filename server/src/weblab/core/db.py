@@ -71,7 +71,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             session.close()
 
 
-    @typecheck(basestring)
+    # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()
     def list_experiments(self, user_login, exp_name = None, cat_name = None):
         session = self.Session()
@@ -436,7 +436,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @admin_panel_operation
     @logged()
-    def get_users(self):
+    def get_users(self, user_login):
         """ Retrieves every user from the database """
 
         session = self.Session()
@@ -450,7 +450,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
 
     @admin_panel_operation
     @logged()
-    def get_roles(self):
+    def get_roles(self, user_login):
         """ Retrieves every role from the database """
         session = self.Session()
         try:

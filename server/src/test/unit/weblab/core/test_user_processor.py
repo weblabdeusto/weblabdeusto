@@ -161,8 +161,8 @@ class FakeDatabase(object):
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
-    def list_experiments(self, db_session_id):
-        return self.experiments_allowed
+    def list_experiments(self, db_session_id, exp_name = None, cat_name = None):
+        return [ exp for exp in self.experiments_allowed if exp.experiment.name == exp_name and exp.experiment.category.name == cat_name ]
 
     def get_user_by_name(self, db_session_id):
         return self.users[0]
@@ -170,10 +170,10 @@ class FakeDatabase(object):
     def get_groups(self, db_session_id):
         return self.groups
 
-    def get_roles(self, db_session_id):
+    def get_roles(self, user_login):
         return self.roles
 
-    def get_users(self, db_session_id):
+    def get_users(self, user_login):
         return self.users
 
     def get_experiments(self, db_session_id):

@@ -356,14 +356,21 @@ class DbUserUsedExperiment(Base):
     max_error_in_millis     = Column(Integer, nullable = True)
     finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
     permission_permanent_id = Column(String(255), nullable = True)
+    group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
+    user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
+    role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
     origin                  = Column(String(255), nullable = False)
     coord_address           = Column(String(255), nullable = False)
     reservation_id          = Column(String(50), index = True)
 
-    user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
-    experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
+    user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
+    experiment              = relation("DbExperiment", backref=backref("user_uses", order_by=id))
 
-    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None):
+    group_permission        = relation("DbGroupPermission", backref=backref("uses", order_by=id))
+    user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
+    role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
+
+    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None):
         super(DbUserUsedExperiment, self).__init__()
         self.user = user
         self.experiment = experiment
@@ -375,6 +382,9 @@ class DbUserUsedExperiment(Base):
         self.max_error_in_millis = max_error_in_millis
         self.finish_reason       = finish_reason
         self.permission_permanent_id = permission_permanent_id
+        self.group_permission = group_permission
+        self.user_permission = user_permission
+        self.role_permission = role_permission
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
