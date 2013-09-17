@@ -161,6 +161,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         if extension == "vhd":
             try:
                 if self._vhd_allowed == False:
+                    self._current_state = STATE_NOT_ALLOWED
                     return "STATE=" + STATE_NOT_ALLOWED
                 if DEBUG: print "[DBG]: File received: Info: " + file_info
                 self._handle_vhd_file(file_content, file_info)
@@ -170,6 +171,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 raise ex
         else: # We assume, a .bit file.
             if self._bit_allowed == False:
+                self._current_state = STATE_NOT_ALLOWED
                 return "STATE=" + STATE_NOT_ALLOWED
             self._programming_thread = self._program_file_t(file_content)
             return "STATE=" + STATE_PROGRAMMING
