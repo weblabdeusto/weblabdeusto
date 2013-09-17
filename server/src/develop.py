@@ -270,7 +270,7 @@ def deploy_testdb(options):
         try:
             import pymysql_sa
         except ImportError:
-            raise Exception("Neither MySQLdb nor pymysql have been installed. First install them by running 'pip install pymysql' or 'pip install python-mysql'")
+            raise Exception("Neither MySQLdb nor pymysql_sa have been installed. First install them by running 'pip install pymysql_sa' or 'pip install python-mysql'")
         pymysql_sa.make_default_mysql_dialect()
 
     t_initial = time.time()
