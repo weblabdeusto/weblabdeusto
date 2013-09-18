@@ -26,9 +26,48 @@ class ResourcesChecker(object):
         self.locator     = coordinator.locator
 
     def check(self):
-        experiments_per_laboratory = self.coordinator.list_laboratories_addresses()
-        for laboratory_address_str in experiments_per_laboratory:
-            self.check_laboratory(laboratory_address_str, experiments_per_laboratory[laboratory_address_str])
+        try:
+            experiments_per_laboratory = self.coordinator.list_laboratories_addresses()
+
+            # Use a common broken_resources to avoid endless loops if a resource is registered
+            # in labs in more than one laboratory server (and one might state that it works while
+            # other might state that it doesn't).
+            broken_resources = {}
+            for laboratory_address_str in experiments_per_laboratory:
+                new_broken_resources = self.check_laboratory(laboratory_address_str, experiments_per_laboratory[laboratory_address_str])
+                for broken_resource in new_broken_resources:
+                    if broken_resource in broken_resources:
+                        broken_resources[broken_resource] += ';' + new_broken_resources[broken_resource]
+                    else:
+                        broken_resources[broken_resource] = new_broken_resources[broken_resource]
+
+            all_notifications = {
+                # (recipient1, recipient2) : [message1, message2, message3],
+                # (recipient1, ) : [message4, message5],
+                # (recipient3, ) : [message6, message7],
+            }
+
+            for laboratory_address_str in experiments_per_laboratory:
+                experiments = experiments_per_laboratory[laboratory_address_str]
+                for experiment in experiments:
+                    laboratory_resource = experiments[experiment]
+                    if laboratory_resource in broken_resources:
+                        notifications = self.coordinator.mark_resource_as_broken(laboratory_resource, broken_resources[laboratory_resource])
+                    else:
+                        notifications = self.coordinator.mark_resource_as_fixed(laboratory_resource)
+
+                    # for recipients in notifications:
+                    #     if recipients in all_notifications:
+                    #         all_notifications[recipients].extend(notifications[recipients])
+                    #     else:
+                    #         all_notifications[recipients] = list(notifications[recipients])
+
+            # TODO: call the coordinator to notify all those notifications.
+        except:
+            traceback.print_exc()
+            log.log( ResourcesChecker, log.level.Critical,
+                    "Error checking resources.")
+            log.log_exc(ResourcesChecker, log.level.Critical)
 
     def check_laboratory(self, address_str, experiments):
         """ Checks in that laboratory address which experiments are broken and which ones are working.
@@ -36,12 +75,11 @@ class ResourcesChecker(object):
         :param address_str: laboratory address, e.g. "laboratory:general_laboratory@server1"
         :param experiments: dictionary of experiments: resources, e.g. { "exp1|ud-fpga|FPGA experiments" : "fpga1@fpga boards"}
         """
-        try:
-            laboratory_resources = set()
-            for experiment in experiments:
-                laboratory_resources.add(experiments[experiment])
+        broken_resources = {
+            # resource_id : error_message
+        }
 
-            broken_resources = {}
+        try:
             address = CoordAddress.CoordAddress.translate_address(address_str)
             server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
             failing_experiments = server.check_experiments_resources()
@@ -67,15 +105,11 @@ class ResourcesChecker(object):
                 else:
                     broken_resources[broken_resource] = error_message
 
-            for laboratory_resource in laboratory_resources:
-                if laboratory_resource in broken_resources:
-                    self.coordinator.mark_resource_as_broken(laboratory_resource, broken_resources[laboratory_resource])
-                else:
-                    self.coordinator.mark_resource_as_fixed(laboratory_resource)
-
         except:
             traceback.print_exc()
             log.log( ResourcesChecker, log.level.Critical,
                     "Error checking resources of laboratory %s " % address_str)
             log.log_exc(ResourcesChecker, log.level.Critical)
+        
+        return broken_resources
 
