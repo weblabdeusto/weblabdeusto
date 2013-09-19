@@ -324,18 +324,29 @@ class AbstractCoordinator(object):
         recipients = self._retrieve_recipients(experiment_instance_ids)
 
         if len(recipients):
-            return { tuple(sorted(recipients)) : [body] }
+            return { tuple(sorted(recipients)) : [(body, resource_instance)] }
         else:
             return {}
 
 
     def notify_status(self, notifications):
-        """ :param: recipients: dictionary with a tuple of recipients as key and a list of bodies as value. """
+        """ :param: recipients: dictionary with a tuple of recipients as key and a list of tuples (body, resource_instance) as value. """
 
         for recipients in notifications:
-            subject = "[WebLab] Status changes"
-            body = "%s notifications\n\n"
-            body += '\n\n'.join(notifications[recipients])
+            resources = map(lambda (body, resource_instance) : resource_instance, notifications[recipients])
+            bodies    = map(lambda (body, resource_instance) : body, notifications[recipients])
+
+            subject = "[WebLab] %s Status changes. " % len(resources)
+            shown = 2
+            subject += ', '.join(resources[:shown])
+            if len(resources) > shown:
+                subject += '...'
+            
+            if len(bodies) > 1:
+                body = "%s notifications\n\n" % len(bodies)
+            else:
+                body = "1 notification\n\n"
+            body += '\n\n*****************************\n\n'.join(bodies)
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
 
 
