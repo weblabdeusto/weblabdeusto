@@ -302,7 +302,9 @@ class AbstractCoordinator(object):
                     "Resource %s marked as fixed" % resource_instance )
 
             if self.notifications_enabled:
-                self._notify_experiment_status('fixed', resource_instance)
+                return self._notify_experiment_status('fixed', resource_instance)
+
+        return {}
 
     @typecheck(basestring, Resource, ITERATION(basestring))
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
@@ -320,9 +322,20 @@ class AbstractCoordinator(object):
         if len(messages) > 0:
             body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, self.core_server_url)
         recipients = self._retrieve_recipients(experiment_instance_ids)
-        subject = "[WebLab] Experiment %s: %s" % (resource_instance, new_status)
 
-        if len(recipients) > 0:
+        if len(recipients):
+            return { tuple(sorted(recipients)) : [body] }
+        else:
+            return {}
+
+
+    def notify_status(self, notifications):
+        """ :param: recipients: dictionary with a tuple of recipients as key and a list of bodies as value. """
+
+        for recipients in notifications:
+            subject = "[WebLab] Status changes"
+            body = "%s notifications\n\n"
+            body += '\n\n'.join(notifications[recipients])
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
 
 

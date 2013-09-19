@@ -56,13 +56,14 @@ class ResourcesChecker(object):
                     else:
                         notifications = self.coordinator.mark_resource_as_fixed(laboratory_resource)
 
-                    # for recipients in notifications:
-                    #     if recipients in all_notifications:
-                    #         all_notifications[recipients].extend(notifications[recipients])
-                    #     else:
-                    #         all_notifications[recipients] = list(notifications[recipients])
+                    for recipients in notifications:
+                        if recipients in all_notifications:
+                            all_notifications[recipients].extend(notifications[recipients])
+                        else:
+                            all_notifications[recipients] = list(notifications[recipients])
 
-            # TODO: call the coordinator to notify all those notifications.
+            if all_notifications:
+                self.coordinator.notify_status(all_notifications)
         except:
             traceback.print_exc()
             log.log( ResourcesChecker, log.level.Critical,
