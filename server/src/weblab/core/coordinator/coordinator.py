@@ -340,7 +340,7 @@ class AbstractCoordinator(object):
             shown = 2
             resource_types = list(set(map(lambda resource : unicode(resource.resource_type), resources)))
             subject += ', '.join(resource_types[:shown])
-            if len(resources) > shown:
+            if len(resource_types) > shown:
                 subject += '...'
             
             if len(bodies) > 1:
