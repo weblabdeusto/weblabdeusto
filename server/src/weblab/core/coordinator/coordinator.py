@@ -333,8 +333,11 @@ class AbstractCoordinator(object):
         """ :param: recipients: dictionary with a tuple of recipients as key and a list of tuples (body, resource_instance) as value. """
 
         for recipients in notifications:
-            resources = map(lambda (body, resource_instance) : resource_instance, notifications[recipients])
-            bodies    = map(lambda (body, resource_instance) : body, notifications[recipients])
+            current_notifications = list(notifications[recipients])
+            current_notifications.sort(lambda (body1, resource_instance1), (body2, resource_instance2) : cmp(unicode(resource_instance1), unicode(resource_instance2)))
+
+            resources = map(lambda (body, resource_instance) : resource_instance, current_notifications)
+            bodies    = map(lambda (body, resource_instance) : body, current_notifications)
 
             subject = "[WebLab] %s Status changes. " % len(resources)
             shown = 2
