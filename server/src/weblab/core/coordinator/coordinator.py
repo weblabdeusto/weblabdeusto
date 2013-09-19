@@ -338,7 +338,8 @@ class AbstractCoordinator(object):
 
             subject = "[WebLab] %s Status changes. " % len(resources)
             shown = 2
-            subject += ', '.join(resources[:shown])
+            resource_types = list(set(map(lambda resource : unicode(resource.resource_type), resources)))
+            subject += ', '.join(resource_types[:shown])
             if len(resources) > shown:
                 subject += '...'
             
