@@ -37,18 +37,22 @@ class Compiler(object):
     
     sLastResult = None
     
-    def __init__(self, filespath = BASE_PATH, toolspath = ""):
+    def __init__(self, filespath = BASE_PATH, toolspath = "", device = "fpga"):
         """
         Constructs a new Compiler object.
         @param filespath Path to the Xilinx base project and VHD/UCF files.
         @param toolspath Path to the Xilinx command line tools (xst, par, etc). If those are in the 
         path, this may be blank.
+        @param device The device can either be "fpga" or "pld".
         """
         self.filespath = filespath
         self.toolspath = toolspath
         if self.toolspath != "":
             self.toolspath += os.sep
         self.errorlines = []
+        
+        # Store device type. Depending on it, the commands to synthesize etc will be different.
+        self.device = device
         
         # The following will be used to measure compileit's time.
         self._synt_start = None
@@ -126,6 +130,8 @@ class Compiler(object):
     
     
     def synthesize(self):
+        
+        # Note: This command is FPGA/PLD.
         process = subprocess.Popen([self.toolspath + "xst", "-intstyle", "ise", "-ifn", "base.xst", 
                                     "-ofn", "base.syr"], 
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -157,9 +163,18 @@ class Compiler(object):
         
         return True
     
+    
     def ngdbuild(self):
-        process = subprocess.Popen([self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", self.ucf, 
-                                    "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"],
+        
+        fpga_command = [self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", self.ucf, 
+                                    "-p", "xc3s1000-ft256-4", "base.ngc", "base.ngd"]
+        pld_command = [self.toolspath + "ngdbuild", "-intstyle", "ise", "-dd", "_ngo", "-nt", "timestamp", "-uc", self.ucf, 
+                                    "-p", "xc9572-PC84-7", "base.ngc", "base.ngd"]
+        
+        if(self.device == "fpga"): command = fpga_command
+        else: command = pld_command
+        
+        process = subprocess.Popen(command,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
 
