@@ -132,7 +132,7 @@ class LaboratoryServer(object):
 
                 # CheckingHandlers
                 checkers = data.get('checkers', ())
-                checking_handlers = []
+                checking_handlers = {}
                 for checker in checkers:
                     klazz = checker[0]
                     if klazz in IsUpAndRunningHandler.HANDLERS:
@@ -141,7 +141,7 @@ class LaboratoryServer(object):
                             kargss = checker[2]
                         if len(checker) >= 2:
                             argss = checker[1]
-                        checking_handlers.append(eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss))
+                        checking_handlers[repr(checker)] = eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
                     else:
                         raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
 
@@ -381,28 +381,50 @@ class LaboratoryServer(object):
 
         exclude_checking = self._cfg_manager.get_value(WEBLAB_LABORATORY_EXCLUDE_CHECKING, DEFAULT_WEBLAB_LABORATORY_EXCLUDE_CHECKING)
 
+        all_handlers = {
+            # checker_repr : ( checker, [ experiment_instance_id1, experiment_instance_id2, ... ])
+        }
+
         for experiment_instance_id in experiment_instance_ids:
             if experiment_instance_id.to_weblab_str() in exclude_checking:
                 continue # Exclude experiment
 
             handlers = self._assigned_experiments.get_is_up_and_running_handlers(experiment_instance_id)
-            error_messages = []
-            for h in handlers:
-                handler_messages = h.run_times()
-                error_messages.extend(handler_messages)
+            # handlers is a dict as:
+            # {
+            #    checker_repr : checker
+            # }
+            # 
+            for handler_repr in handlers:
+                if handler_repr in all_handlers:
+                    checker, experiment_instances = all_handlers[handler_repr]
+                    experiment_instances.append(experiment_instance_id)
+                else:
+                    all_handlers[handler_repr] = (handlers[handler_repr], [ experiment_instance_id ])
 
-            if len(error_messages) > 0:
-                error_message = '; '.join(error_messages)
-                failing_experiment_instance_ids[experiment_instance_id] = error_message
-                self.log_error(experiment_instance_id, error_message)
-            else:
-                # No error yet, so probably the host is up and running; try to call the WebLab service
-                experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-                try:
-                    self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
-                except Exception as e:
-                    failing_experiment_instance_ids[experiment_instance_id] = str(e)
-                    self.log_error(experiment_instance_id, str(e))
+            # Try to call the WebLab service
+            experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            try:
+                self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
+            except Exception as e:
+                failing_experiment_instance_ids[experiment_instance_id] = str(e)
+                self.log_error(experiment_instance_id, str(e))
+
+        # In VISIR, for instance, there might be 60 or 80 handlers pointing to the same server. There
+        # is no need to contact that server so many times. So we collect all the checkers and run only
+        # once each unique checker.
+        for checker, experiment_instance_ids in all_handlers.values():
+            handler_messages = checker.run_times()
+
+            if len(handler_messages) > 0:
+                error_message = '; '.join(handler_messages)
+                for experiment_instance_id in experiment_instance_ids:
+                    current_error_message = error_message
+                    if experiment_instance_id in failing_experiment_instance_ids:
+                        current_error_message += '; ' + failing_experiment_instance_ids[experiment_instance_id]
+                    failing_experiment_instance_ids[experiment_instance_id] = current_error_message
+                    self.log_error(experiment_instance_id, current_error_message)
+
 
         return failing_experiment_instance_ids
 

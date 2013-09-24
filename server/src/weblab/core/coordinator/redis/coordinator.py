@@ -105,7 +105,8 @@ class Coordinator(AbstractCoordinator):
                     "Resource %s marked as broken: %r" % (resource_instance, messages) )
 
             if self.notifications_enabled:
-                self._notify_experiment_status('broken', resource_instance, messages)
+                return self._notify_experiment_status('broken', resource_instance, messages)
+        return {}
 
     def _release_resource_instance(self, experiment_instance_id):
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
