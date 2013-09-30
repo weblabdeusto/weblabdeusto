@@ -2535,9 +2535,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     print >> stdout, "     %s and %s" % (logo_path, logo_mobile_path)
     print >> stdout, ""
-    print >> stdout, "You can also add users, permissions, etc. from the admin CLI by typing:"
-    print >> stdout, ""
-    print >> stdout, "    %s admin %s" % (os.path.basename(sys.argv[0]), directory)
+    print >> stdout, "You can also add users, permissions, etc. from the web interface."
     print >> stdout, ""
     print >> stdout, "Enjoy!"
     print >> stdout, ""
