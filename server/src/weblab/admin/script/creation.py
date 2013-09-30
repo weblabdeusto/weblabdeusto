@@ -2199,7 +2199,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
-        """<Location %(root)s>\n"""
+        """<Location %(root)s/weblab/>\n"""
         """    Order allow,deny\n"""
         """    Allow from all\n"""
         """</Location>\n"""
