@@ -331,28 +331,63 @@ class Compiler(object):
     
     def reset_errors(self):
         self.errorlines = []
+        
+        
+    def build_pld(self):
+        
+        batfile = os.path.abspath(self.filespath + os.sep + "build.bat")
+        
+        process = subprocess.Popen([batfile],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   cwd = self.filespath)
+        
+        # We use process.wait rather than process.communicate because
+        # when bitgen is executed, WebTalk stays running in the background,
+        # which causes an error. And there seems to be no way to disable it.
+        
+        outr, oute = process.communicate()
+        
+        if ENABLE_LOG_FILE:
+            self.logfile.write(outr + "\n");
+            self.logfile.write(oute + "\n");
+        
+#         if(self.DEBUG):
+#             print outr
+#             print oute
+        
+        if(process.returncode == 0):
+            return True
+        
+        return False
     
 
 if __name__ == "__main__":
 
-    c = Compiler()
+    print "We are at: " + os.getcwd()
+    
+    PLD_PATH = "files_cpld"
+    
+    c = Compiler(PLD_PATH)
     
     c.DEBUG = True
     Compiler.DEBUG = True
     
-    synt =  c.synthesize()
-    if synt == False:
-        print "REPORTING: "
-        print c.errors()
-        print "END OF REPORTING"
+    result = c.build_pld()
+    print "RESULT: " + str(result)
     
-    else:
-        imp = c.implement()
-        if imp == False:
-            print "REPORTING: "
-            print c.errors()
-            print "END OF REPORTING"
-        print c.generate()
-        #    print c.retrieve_bitfile()
+#     synt =  c.synthesize()
+#     if synt == False:
+#         print "REPORTING: "
+#         print c.errors()
+#         print "END OF REPORTING"
+#     
+#     else:
+#         imp = c.implement()
+#         if imp == False:
+#             print "REPORTING: "
+#             print c.errors()
+#             print "END OF REPORTING"
+#         print c.generate()
+#         #    print c.retrieve_bitfile()
     
     print "Good bye"

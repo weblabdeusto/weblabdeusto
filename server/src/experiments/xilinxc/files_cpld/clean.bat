@@ -22,5 +22,6 @@ del *.csv
 del *.xml
 del *.syr
 del *.vm6
+del *.log
 
 del cpld_weblab_vhdl.prj
