@@ -102,7 +102,13 @@ class Compiler(object):
         Warning: It will replace the file contents.
         @param vhdl String containing the new VHDL code.
         """
+        
+        # For FPGA
         vhdlpath = self.filespath + os.sep + "base.vhd"
+        
+        if "pld" in self.device:
+            vhdlpath = self.filespath + os.sep + "cpld_weblab.vhd"
+        
         if(debugging):
             print "[DBG]: Feed_vhdl pretending to replace %s with: " % (vhdlpath)
             print vhdl
@@ -343,6 +349,11 @@ class Compiler(object):
         
         
     def build_pld(self):
+        """
+        Runs a script that will do the complete PLD build, from VHD to JED.
+        Depending on the platform (Linux or Windows), a different script will be called 
+        (.sh or .bat script).
+        """
     
         partialscriptfile = "build.bat"
         if "nix" in platform.system():
