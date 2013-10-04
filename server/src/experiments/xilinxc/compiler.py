@@ -295,18 +295,26 @@ class Compiler(object):
         # Track the time
         self._synt_start = time.time()
         
-        # Read VHDL code to compile
-        f = open(self.filespath + os.sep + "base.vhd", "r")
-        vhdl = f.read()
-        f.close()
+        if(self.device == "fpga"):
+            
+            # Read VHDL code to compile
+            f = open(self.filespath + os.sep + "base.vhd", "r")
+            vhdl = f.read()
+            f.close()
+            
+            # Choose the right clock
+            self.choose_clock(vhdl)
+            
+            result = self.synthesize() and self.implement() and self.generate()
         
-        # Choose the right clock
-        self.choose_clock(vhdl)
-        
-        result = self.synthesize() and self.implement() and self.generate()
-    
-        # Track time elapsed
-        self._synt_elapsed = time.time() - self._synt_start
+            # Track time elapsed
+            self._synt_elapsed = time.time() - self._synt_start
+            
+        else:
+            
+            # CPLD device
+            
+            result = self.build_pld()
         
         # Remember the result
         Compiler.sLastResult = result
@@ -372,7 +380,9 @@ if __name__ == "__main__":
     c.DEBUG = True
     Compiler.DEBUG = True
     
-    result = c.build_pld()
+    c.device = "pld"
+    
+    result = c.compileit()
     print "RESULT: " + str(result)
     
 #     synt =  c.synthesize()
