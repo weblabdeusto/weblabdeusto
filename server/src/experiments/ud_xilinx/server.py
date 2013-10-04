@@ -194,7 +194,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         VHDL code and then program the board if the result is successful.
         """
         self._current_state = STATE_SYNTHESIZING
-        c = Compiler(self._compiling_files_path, self._compiling_tools_path)
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device.tolower())
         #c.DEBUG = True
         content = base64.b64decode(file_content)
         
@@ -223,10 +223,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             if(self._adaptive_time):
                 self._programmer_time = elapsed
             
-            bitfile = c.retrieve_bitfile()
-            if DEBUG: print "[DBG]: .BIT retrieved after successful compile. Now programming."
+            targetfile = c.retrieve_targetfile()
+            if DEBUG: print "[DBG]: Target file retrieved after successful compile. Now programming."
             c._compiling_result = "Synthesizing done."
-            self._program_file_t(bitfile)
+            self._program_file_t(targetfile)
         
 
     @threaded()

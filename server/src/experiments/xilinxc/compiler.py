@@ -263,7 +263,10 @@ class Compiler(object):
         tried to generate a bitstream file but it failed, then the wrong bitfile will most
         likely be returned.
         """
-        f = file(self.filespath + os.sep + "base.bit")
+        if "pld" in self.device:
+            f = file(self.filespath + os.sep + "cpld_weblab.jed")
+        else:
+            f = file(self.filespath + os.sep + "base.bit")
         contents = f.read()
         f.close()
         b64contents = base64.b64encode(contents)
