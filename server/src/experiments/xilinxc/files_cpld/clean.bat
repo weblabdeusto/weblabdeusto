@@ -16,7 +16,6 @@ del *.ngr
 del *.pad
 del *.pnx
 del *.rpt
-del *.prj
 del *.err
 del *.csv
 del *.xml

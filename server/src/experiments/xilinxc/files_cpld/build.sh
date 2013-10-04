@@ -1,3 +1,7 @@
+﻿#!/bin/bash
+# Force an exit if any command returns non-zero (error code).
+set -e 
+
 xst -intstyle ise -ifn cpld_weblab.xst -ofn cpld_weblab.syr
 
 ngdbuild -intstyle ise -dd _ngo -uc cpld_weblab_res.ucf -p xc9572-PC84-7 cpld_weblab.ngc cpld_weblab.ngd
