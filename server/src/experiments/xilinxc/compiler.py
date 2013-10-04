@@ -18,6 +18,7 @@ import subprocess
 import os
 import base64
 import time
+import platform
 
 
 UCF_INTERNAL_CLOCK = "fpga_clock_internal.ucf"
@@ -342,10 +343,14 @@ class Compiler(object):
         
         
     def build_pld(self):
+    
+        partialscriptfile = "build.bat"
+        if "nix" in platform.system():
+            partialscriptfile = "build.sh"
+            
+        fullscriptfile = os.path.abspath(self.filespath + os.sep + partialscriptfile)
         
-        batfile = os.path.abspath(self.filespath + os.sep + "build.bat")
-        
-        process = subprocess.Popen([batfile],
+        process = subprocess.Popen([fullscriptfile],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    cwd = self.filespath)
         
