@@ -21,6 +21,7 @@ From this Python console, the user will be able to interact with any structure r
 
 """
 
+import re
 import sys
 import socket
 import code
@@ -63,6 +64,41 @@ class RtDebugger(object):
     def flush(self):
         pass
 
+regex = re.compile("__server__([^:]*):([^@]*)@(.*)")
+
+def servers(all = False):
+    import voodoo.gen.registry.server_registry as reg
+    all_servers = []
+    machines = set()
+    instances = set()
+    for key in reg._registry._servers.keys():
+        matches = regex.match(key)
+        if matches:
+            server, instance, machine = matches.groups()
+            if not (server.startswith('__') and server.endswith('coordinator__')):
+                all_servers.append(server)
+                instances.add(instance)
+                machines.add(machine)
+
+    if all:
+        return all_servers, instances, machines
+    
+    return all_servers
+
+
+def get_server(server = None):
+    local_servers, instances, machines = servers(all=True)
+    if not server:
+        return local_servers
+
+    if server not in local_servers:
+        print "Error: %s not in %s" % (server, local_servers)
+        return local_servers
+
+    import voodoo.gen.registry.server_registry as reg
+    server = reg._registry._servers.get('__server__%s:%s@%s' % (server, list(instances)[0], list(machines)[0]))
+    return server
+
 class Debugger(threading.Thread):
     def __init__(self, banner, port):
         threading.Thread.__init__(self)
@@ -90,7 +126,9 @@ class Debugger(threading.Thread):
 
             try:
                 try:
-                    code.interact(banner=self.banner)
+                    code.interact(banner=self.banner, local = {
+                        'list' : servers, 'servers' : servers, 'get_server' : get_server, 'get' : get_server
+                    })
                 finally:
                     sys.stdout, sys.stdin, sys.stderr = realio
             except Exception as e:
@@ -110,7 +148,12 @@ _dbg = None
 _dbg_lock = threading.Lock()
 
 def launch_debugger(port = 31337):
-    banner = "Welcome to WebLab.\nFrom this interactive shell you can access the internal structures directly.\n%s" % sys.version
+    banner = (  "Welcome to WebLab.\n"
+                "From this interactive shell you can access the internal structures directly.\n"
+                "Use: \n"
+                " - servers()\n"
+                " - get(server)\n"
+                "%s" % sys.version )
     # Launch only one
     global _dbg_lock
     global _dbg
