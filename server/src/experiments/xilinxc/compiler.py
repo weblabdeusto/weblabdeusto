@@ -358,15 +358,17 @@ class Compiler(object):
         (.sh or .bat script).
         """
     
+        shell = False
         partialscriptfile = "build.bat"
-        if "nix" in platform.system():
+        if "nux" in platform.system():
             partialscriptfile = "build.sh"
+            shell = True
             
         fullscriptfile = os.path.abspath(self.filespath + os.sep + partialscriptfile)
         
         process = subprocess.Popen([fullscriptfile],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   cwd = self.filespath)
+                                   cwd = self.filespath, shell = shell)
         
         # We use process.wait rather than process.communicate because
         # when bitgen is executed, WebTalk stays running in the background,
