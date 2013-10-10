@@ -194,7 +194,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         VHDL code and then program the board if the result is successful.
         """
         self._current_state = STATE_SYNTHESIZING
-        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device.tolower())
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device_name.lower())
         #c.DEBUG = True
         content = base64.b64decode(file_content)
         

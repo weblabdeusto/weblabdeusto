@@ -257,6 +257,11 @@ class Compiler(object):
                 return result
         return False
     
+    
+    # TODO: Refactor this, urgently. They should have a single name. 
+    def retrieve_targetfile(self):
+        return self.retrieve_bitfile()
+    
     def retrieve_bitfile(self):
         """
         Retrieves the last bitfile generated, as a b64 string. Note that if you previously
