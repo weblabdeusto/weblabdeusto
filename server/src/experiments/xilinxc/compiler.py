@@ -128,7 +128,7 @@ class Compiler(object):
             file = "cpld_weblab.vhd" 
         
         # Read VHDL code to compile
-        f = open(self.filespath + os.sep + "base.vhd", "r")
+        f = open(self.filespath + os.sep + file, "r")
         lastvhdl = f.read()
         f.close()
         
