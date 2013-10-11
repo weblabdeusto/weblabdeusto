@@ -121,6 +121,12 @@ class Compiler(object):
         """
         Checks whether the VHDL that is going to be synthesized now was already synthesized last time.
         """
+        
+        # This is one of the many things to refactor
+        file = "base.vhd"
+        if "pld" in self.device.lower():
+            file = "cpld_weblab.vhd" 
+        
         # Read VHDL code to compile
         f = open(self.filespath + os.sep + "base.vhd", "r")
         lastvhdl = f.read()
