@@ -410,7 +410,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             print "[DBG]: We're on should_finish."
         # Check here that we still have use time left. When the refactor takes place,
         # this should maybe be moved somewhere else.
-        if self._max_use_time != 0 and self._use_time_starts is not None:
+        if self._max_use_time != 0 and self._use_time_start is not None:
             elapsed = time.time() - self._use_time_start
             if elapsed >= self._max_use_time:
                 # We are overtime. We should make the user finish.
