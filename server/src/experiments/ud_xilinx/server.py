@@ -466,6 +466,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                 return time_left
 
             elif command == 'REPORT_SWITCHES':
+                # TODO: Currently this returns a list. It is somewhat weird for this to return a list.
+                # This should be fixed, after making sure it will not break anything.
                 return self._switches_state
 
             elif command.startswith('VIRTUALWORLD_MODE'):
@@ -475,8 +477,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
+                    return "ok"
                 else:
-                    pass
+                    return "unknown_virtualworld"
 
             elif command.startswith('VIRTUALWORLD_STATE'):
 
