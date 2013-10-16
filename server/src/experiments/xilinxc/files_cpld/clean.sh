@@ -23,4 +23,4 @@ rm *.syr
 rm *.vm6
 rm *.log
 
-rm cpld_weblab_vhdl.prj
+rm base_vhdl.prj

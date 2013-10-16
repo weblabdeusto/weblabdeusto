@@ -1,12 +1,12 @@
 set -tmpdir "xst/projnav.tmp"
 set -xsthdpdir "xst"
 run
--ifn cpld_weblab.prj
+-ifn base.prj
 -ifmt mixed
--ofn cpld_weblab
+-ofn base
 -ofmt NGC
 -p xc9500
--top cpld_weblab
+-top base
 -opt_mode Speed
 -opt_level 1
 -iuc NO

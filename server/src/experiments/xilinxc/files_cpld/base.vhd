@@ -1,36 +1,13 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    09:09:46 09/20/2013 
--- Design Name: 
--- Module Name:    cpld_weblab - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
-entity cpld_weblab is
-port(
+entity base is
+	Port (
+		
+		inicio : in std_logic;
 		clk : in std_logic;
 
 		led0 : inout std_logic;
@@ -72,12 +49,15 @@ port(
 		swi7 : in std_logic;
 		swi8 : in std_logic;
 		swi9 : in std_logic
+		);
+end base;
 
-);
-end cpld_weblab;
+architecture behavioral of base is
 
-architecture Behavioral of cpld_weblab is
 begin
-	led0 <= swi0;
-end Behavioral;
+led0 <= swi6;
+led1 <= swi5;
+led2 <= swi4;
+led3 <= swi3;
 
+end behavioral;
