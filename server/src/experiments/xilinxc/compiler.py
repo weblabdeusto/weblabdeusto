@@ -106,9 +106,6 @@ class Compiler(object):
         # For FPGA
         vhdlpath = self.filespath + os.sep + "base.vhd"
         
-        if "pld" in self.device:
-            vhdlpath = self.filespath + os.sep + "cpld_weblab.vhd"
-        
         if(debugging):
             print "[DBG]: Feed_vhdl pretending to replace %s with: " % (vhdlpath)
             print vhdl
@@ -124,8 +121,6 @@ class Compiler(object):
         
         # This is one of the many things to refactor
         file = "base.vhd"
-        if "pld" in self.device.lower():
-            file = "cpld_weblab.vhd" 
         
         # Read VHDL code to compile
         f = open(self.filespath + os.sep + file, "r")
@@ -275,7 +270,7 @@ class Compiler(object):
         likely be returned.
         """
         if "pld" in self.device:
-            f = file(self.filespath + os.sep + "cpld_weblab.jed")
+            f = file(self.filespath + os.sep + "base.jed")
         else:
             f = file(self.filespath + os.sep + "base.bit")
         contents = f.read()

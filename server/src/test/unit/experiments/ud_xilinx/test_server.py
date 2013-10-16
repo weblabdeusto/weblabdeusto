@@ -17,9 +17,13 @@
 from mock import patch
 import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx import command_senders as UdXilinxCommandSenders
-import test.unit.configuration as configuration_module
 import unittest
 import voodoo.configuration as ConfigurationManager
+
+import sys
+print sys.path
+
+import test.unit.configuration as configuration_module
 import weblab.experiment.util as ExperimentUtil
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import time
