@@ -86,13 +86,13 @@
 								   "html.file"				: "jsxilinx/jsxilinx.html"
 							   },
 							   {
-								   "experiment.name"		: "Visir HTML5",
-								   "experiment.category"	: "Visir Experiments",
+								   "experiment.name"		: "visir-html5",
+								   "experiment.category"	: "Visir experiments",
 								   "experiment.picture"		: "/img/experiments/visir.jpg",
 								   "width"					: 800,
 								   "height"					: 600,
 								   "provide.file.upload"	: false,
-								   "html.file"				: "visir_html5/visir.html"
+								   "html.file"				: "visir-html5/visir.html"
 							   }
 						   ],
 					"vm"    : [
