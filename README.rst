@@ -20,10 +20,15 @@ If you want to see examples of running laboratories, try the demo version at:
 
    http://www.weblab.deusto.es/weblab/
 
+License
+=======
+
+WebLab-Deusto is `Open Source <http://opensource.org/osd>`_ and `Free Software <http://www.gnu.org/philosophy/free-sw.html>`_. It is distributed under the `BSD 2-clause license <http://opensource.org/licenses/BSD-2-Clause>`_ (`more info <http://en.wikipedia.org/wiki/BSD_License#2-clause_license_.28.22Simplified_BSD_License.22_or_.22FreeBSD_License.22.29>`_), as you may find in the `COPYING <https://github.com/weblabdeusto/weblabdeusto/blob/master/COPYING>`_ file which is distributed with the software.
+
 Documentation
 =============
 
-We are documenting the new release here:
+Check the docs at:
 
    https://weblabdeusto.readthedocs.org/en/latest/
 
