@@ -194,8 +194,62 @@ class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
         resp = self.experiment.do_send_command_to_device("VIRTUALWORLD_MODE thisdoesntexist")
         self.assertEquals("unknown_virtualworld", resp)
 
+
+    class FakeOpen(object):
+        def read(self):
+            return """
+                {
+                    "inputs" : [
+                        {
+                            "inputNumber": "0",
+                            "value": "0"
+                        },
+                        {
+                            "inputNumber": "1",
+                            "value": "1"
+                        },
+                        {
+                            "inputNumber": "2",
+                            "value": "1"
+                        },
+                        {
+                            "inputNumber": "3",
+                            "value": "0"
+                        },
+                        {
+                            "inputNumber": "4",
+                            "value": "1"
+                        },
+                        {
+                            "inputNumber": "5",
+                            "value": "1"
+                        },
+                        {
+                            "inputNumber": "6",
+                            "value": "0"
+                        },
+                        {
+                            "inputNumber": "7",
+                            "value": "1"
+                        }
+                    ]
+                }
+            """
+
+    def _ret_fake(self):
+        return VirtualWorldXilinxExperimentTestCase.FakeOpen()
+
+    @patch("urllib2.urlopen", new=_ret_fake)
+    def test_read_leds(self):
+        resp = self.experiment.query_leds_from_json()
+        self.assertEquals(["0", "1", "1", "0", "1", "1", "0", "1"], resp)
+
+        resp = self.experiment.do_send_command_to_device("READ_LEDS")
+        self.assertEquals("01101101", resp)
+
+
         # TODO: Currently we do not test for this because it requires PIL and some mocking.
-        #def test_read_leds(self):
+    #def test_read_leds(self):
         #    resp = self.experiment.do_send_command_to_device("READ_LEDS")
         #    self.assertEquals("000000000", resp)
 

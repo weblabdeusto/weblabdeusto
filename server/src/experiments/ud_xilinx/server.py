@@ -567,8 +567,8 @@ class UdXilinxExperiment(Experiment.Experiment):
 
     def query_leds_from_json(self):
         # TODO: Currently hard-coded. Softcode it when there's time.
-        jsonurl = "192.168.0.73/values.json"
-        o = urllib2.urllib(jsonurl)
+        jsonurl = "http://192.168.0.73/values.json"
+        o = urllib2.urlopen(jsonurl)
         jsonstr = o.read()
         js = json.loads(jsonstr)
         inputsMap = {}
