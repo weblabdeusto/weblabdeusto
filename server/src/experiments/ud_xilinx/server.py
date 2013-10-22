@@ -30,6 +30,7 @@ import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
 import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
+import urllib2
 from experiments.xilinxc.compiler import Compiler
 
 import json
@@ -502,6 +503,25 @@ class UdXilinxExperiment(Experiment.Experiment):
 
             elif command == 'READ_LEDS':
                 try:
+                    self._led_state = self.query_leds_from_json()
+                    if DEBUG:
+                        print "[DBG]: LED state queried. It is: " + self._led_state
+
+                    if self._virtual_world == "watertank":
+                        # Note: The following needs a somewhat major redesign.
+                        self._update_watertank(self._led_state)
+
+                    return "".join(self._led_state)
+                except Exception as e:
+                    traceback.print_exc()
+                    return "ERROR: " + traceback.format_exc()
+
+
+            # This command was previously named just READ_LEDS. We include the CLASSIC version just in case,
+            # from when the LED state could only be obtained by processing the LEDs image.
+            # The new command obtains it by querying a JSON provided by the PIC that controls the experiment.
+            elif command == 'READ_LEDS_CLASSIC':
+                try:
                     if self._led_reader == None:
                         if (DEBUG):
                             print "[DBG]: Initializing led reading."
@@ -544,6 +564,41 @@ class UdXilinxExperiment(Experiment.Experiment):
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
             )
+
+    def query_leds_from_json(self):
+        # TODO: Currently hard-coded. Softcode it when there's time.
+        jsonurl = "192.168.0.73/values.json"
+        o = urllib2.urllib(jsonurl)
+        jsonstr = o.read()
+        js = json.loads(jsonstr)
+        inputsMap = {}
+        inputs = js["inputs"]
+        inputsList = []
+        for input in inputs:
+            number = input["inputNumber"]
+            value = input["value"]
+            inputsMap[int(number)] = value
+        for i in range(8):
+            inputsList.append(inputsMap[i])
+        return inputsList
+
+    def _update_watertank(self, led_state):
+        """
+        This function should probably be moved somewhere, and made generic. Ideally, we would want
+        watertank to be some kind of plugin.
+        """
+        first_pump = led_state[7] == '1'
+        second_pump = led_state[6] == '1'
+        if first_pump:
+            first_pump = 10
+        else:
+            first_pump = 0
+        if second_pump:
+            second_pump = 10
+        else:
+            second_pump = 0
+        self._watertank.set_input(0, first_pump)
+        self._watertank.set_input(1, second_pump)
 
 
 if __name__ == "__main__":
