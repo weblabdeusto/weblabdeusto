@@ -120,17 +120,19 @@ class Compiler(object):
                                         vleds : out std_logic_vector (7 downto 0)
                                 """, 1)
 
+            # TODO: The LEDs are reversed. Not sure if it's the PINs, or the LEDs, or what.
+            # Eventually it might be a good idea to check it.
             vhdl = vhdl.replace("end behavioral",
                                 """
-                                        vleds(0) <= led0;
-                                        vleds(1) <= led1;
-                                        vleds(2) <= led2;
-                                        vleds(3) <= led3;
-                                        vleds(4) <= led4;
-                                        vleds(5) <= led5;
-                                        vleds(6) <= led6;
-                                        vleds(7) <= led7;
-
+                                        vleds(0) <= led7;
+                                        vleds(1) <= led6;
+                                        vleds(2) <= led5;
+                                        vleds(3) <= led4;
+                                        vleds(4) <= led3;
+                                        vleds(5) <= led2;
+                                        vleds(6) <= led1;
+                                        vleds(7) <= led0;
+                                        
                                 end behavioral
                                 """, 1)
 
