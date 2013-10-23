@@ -120,7 +120,7 @@ class Compiler(object):
                                         vleds : out std_logic_vector (7 downto 0)
                                 """, 1)
 
-            vhdl = vhdl.replace("end behavorial",
+            vhdl = vhdl.replace("end behavioral",
                                 """
                                         vleds(0) <= led0;
                                         vleds(1) <= led1;
