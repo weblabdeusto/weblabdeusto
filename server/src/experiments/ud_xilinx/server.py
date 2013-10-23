@@ -211,7 +211,12 @@ class UdXilinxExperiment(Experiment.Experiment):
         done_already = c.is_same_as_last(content)
 
         if not done_already:
-            c.feed_vhdl(content)
+            if self._device_name.lower() == "fpga":
+                # TODO: This is quite ugly. We make sure the Compilar class replaces some string to make the
+                # UCF / augmented reality works.
+                c.feed_vhdl(content, True, False)
+            else:
+                c.feed_vhdl(content, False, False)
             if DEBUG: print "[DBG]: VHDL fed. Now compiling."
             success = c.compileit()
 
@@ -409,7 +414,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     def do_should_finish(self):
         if DEBUG:
             print "[DBG]: We're on should_finish."
-        # Check here that we still have use time left. When the refactor takes place,
+            # Check here that we still have use time left. When the refactor takes place,
         # this should maybe be moved somewhere else.
         if self._max_use_time != 0 and self._use_time_start is not None:
             elapsed = time.time() - self._use_time_start

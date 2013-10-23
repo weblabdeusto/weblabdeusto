@@ -43,3 +43,11 @@ NET "swi2"  LOC = "G15"  ;
 NET "swi1"  LOC = "G16"  ; 
 NET "swi0"  LOC = "H15"  ; // Interruptor de la derecha
 
+NET "vleds<0>"  LOC = "N7"  ; // Right LED
+NET "vleds<1>"  LOC = "T8"  ;
+NET "vleds<2>"  LOC = "R6"  ;
+NET "vleds<3>"  LOC = "T5"  ;
+NET "vleds<4>"  LOC = "R5"  ;
+NET "vleds<5>"  LOC = "C2"  ;
+NET "vleds<6>"  LOC = "C1"  ;
+NET "vleds<7>"  LOC = "B1"  ; // Left LED
