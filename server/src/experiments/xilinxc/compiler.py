@@ -131,7 +131,7 @@ class Compiler(object):
                                         vleds(6) <= led6;
                                         vleds(7) <= led7;
 
-                                end behavorial
+                                end behavioral
                                 """, 1)
 
         if debugging:
