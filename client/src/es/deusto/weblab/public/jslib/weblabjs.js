@@ -23,7 +23,7 @@ Weblab = new function () {
     //
     // PRIVATE ATTRIBUTES AND FUNCTIONS
     // The API uses these internally to provide an easier to use,
-    // higher level API. Users of this class do not need to be 
+    // higher level API. Users of this class do not need to be
     // aware of them.
     //
     ///////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ Weblab = new function () {
             delete mFilesSentMap[id];
         }
     }
-    
+
 
 
     ///////////////////////////////////////////////////////////////
@@ -121,14 +121,14 @@ Weblab = new function () {
     // PUBLIC INTERFACE
     // The following methods are part of the public interface of this
     // class. They can be used freely. Several of them rely on callbacks.
-    // They might not work properly if they are run stand-alone, on a 
+    // They might not work properly if they are run stand-alone, on a
     // context different than Weblab-Deusto.
     //
     ///////////////////////////////////////////////////////////////
 
     //! Sends a command to the experiment server.
     //!
-    //! @param text Text of the command. 
+    //! @param text Text of the command.
     //! @param successHandler Callback that will receive the response for the command.
     //! Takes a single string as argument.
     //! @param errorHandler Callback that will receive the response for the command.
@@ -151,7 +151,7 @@ Weblab = new function () {
 
 
     //! Sets the callback that will be invoked when the experiment finishes. Generally,
-    //! an experiment finishes when it runs out of allocated time, but it may also 
+    //! an experiment finishes when it runs out of allocated time, but it may also
     //! be finished explicitly by the user or the experiment code, or by errors and
     //! and disconnections.
     //!
@@ -160,7 +160,7 @@ Weblab = new function () {
     }
 
     //! Sets the callbacks that will be invoked by default when a sendfile request
-    //! finishes. The appropriate callback specified here will be invoked if no 
+    //! finishes. The appropriate callback specified here will be invoked if no
     //! callback was specified in the sendFile call, or if the sendFile was done
     //! from GWT itself and not through this API.
     //!
@@ -175,7 +175,7 @@ Weblab = new function () {
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
-    //! interacting with the experiment. 
+    //! interacting with the experiment.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
     }
@@ -186,7 +186,7 @@ Weblab = new function () {
     //! can take for granted that that is indeed the time it has left. Unless, of course,
     //! the experiment itself chooses to finish, or the user finishes early.
     //!
-    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
+    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for
     //! the experiment.
     //!
     this.setOnTimeCallback = function (onTimeCallback) {
@@ -194,11 +194,11 @@ Weblab = new function () {
     }
 
     //! Sets the three Weblab callbacks at once.
-    //! 
+    //!
     //! @param onStartInteraction Start Interaction callback.
     //! @param onTime On Time callback.
     //! @param onEnd On End callback.
-    //! 
+    //!
     //! @see setOnStartInteraction
     //! @see setOnTimeCallback
     //! @see setOnEndCallback
@@ -254,9 +254,9 @@ Weblab = new function () {
     this.isExperimentActive = function () {
         return mIsExperimentActive;
     }
-    
+
     //! Checks whether this interface is actually connected to the real
-    //! WebLab client. 
+    //! WebLab client.
     //!
     //! @return True, if connected to the real WL client. False otherwise.
     this.checkOnline = function () {

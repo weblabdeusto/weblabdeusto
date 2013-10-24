@@ -33,7 +33,7 @@
 			MakeMeasurement();
 		});
 	}
-	$( function() {	visir.Load(init); });
+	Weblab.setOnStartInteractionCallback(function(){ visir.Load(init); });
 </script>
 </head>
 <body>
