@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Aquarium laboratory</title>
+
+<link  href="slider/css/slider.css" rel="stylesheet">
+<link  href="bootstrap3/css/bootstrap.min.css" rel="stylesheet">
+<link  href="bootstrap3/css/bootstrap-theme.min.css" rel="stylesheet">
+<script src="jquery-1.8.3.min.js"></script>
+<script src="slider/js/bootstrap-slider.js"></script>
+<style>
+  .slider.slider-vertical {
+    height: 70px;
+    margin-top: 5px;
+    margin-left: 20px;
+  }
+  .slider-handle {
+    height: 50px;
+    width: 50px;
+    border: 2px solid black;
+  }
+  .slider.slider-vertical .slider-handle {
+    margin-left: -20px;
+  }
+
+  #redball .slider-selection {
+    background: #FF8282;
+  }
+  #redball .slider-handle {
+    background: red;
+  }
+  #whiteball .slider-selection {
+    background: #F5F5F5;
+  }
+  #whiteball .slider-handle {
+    background: white;
+  }
+  #yellowball .slider-selection {
+    background: #FFFF82;
+  }
+  #yellowball .slider-handle {
+    background: yellow;
+  }
+  #blueball .slider-selection {
+    background: #8282FF;
+  }
+  #blueball .slider-handle {
+    background: blue;
+  }
+
+  .slider-handle.round {
+     -webkit-border-radius: 50px;
+     -moz-border-radius: 50px;
+     border-radius: 50px;
+  }
+
+  .sliderballs {
+    margin-top: 7px;
+    margin-bottom: 50px;
+  }
+</style>
+<script>
+    var sliders = {};
+    $(document).ready(function() { 
+        var colors = ['redball', 'blueball', 'yellowball', 'whiteball'];
+        for (var color_id in colors) {
+            var color = colors[color_id];
+            console.log(color);
+            var identifier = $('#' + color);
+            sliders[color] = $('#' + color).slider();
+            sliders[color].on('slide', function(ev){
+                //      $('#bar').val(ev.value);
+            });
+            
+//            $("#" + color + " .slider-handle").click(function(){   
+//
+////                identifier.slider('setValue', Math.abs(identifier.slider('getValue') - 1));
+//                identifier.slider('setValue', 0);
+//            });
+        }
+    });
+</script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                02:20
+            </div>
+            <div class="col-md-2">
+                <span class="glyphicon glyphicon-log-out"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-4 col-md-2 text-center">
+                <span class="glyphicon glyphicon-facetime-video"></span> 1
+            </div>
+            <div class="col-md-2 text-center" style="color: white; background: black">
+                <span class="glyphicon glyphicon-facetime-video"></span> 2
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-4 col-md-4 text-center">
+                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fishtank1"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sliderballs col-md-3 col-xs-5 text-center">
+                <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="whiteball"/>
+            </div>
+            <div class="sliderballs col-md-3 col-xs-4 text-center">
+                <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="yellowball"/>
+            </div>
+            <div class="sliderballs col-md-3 col-xs-5 text-center">
+                <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="blueball"/>
+            </div>
+            <div class="sliderballs col-md-3 col-xs-4 text-center">
+                <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="redball"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <span class="glyphicon glyphicon-refresh"></span>
+            </div>
+            <div class="col-md-6 text-center">
+                <span class="glyphicon glyphicon-eye-open"></span>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
