@@ -55,5 +55,10 @@
 	{
 		"message" : "Reset",
 		"description" : "Reset"
+	},
+	"osc_not_runnable" :
+	{
+		"message" : "The oscilloscope is not configured for continuous running",
+		"description" : "The oscilloscope is not configured for continuous running"
 	}
 }

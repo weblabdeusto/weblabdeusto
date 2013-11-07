@@ -55,5 +55,10 @@
 	{
 		"message" : "Restablecer",
 		"description" : "Restablecer"
+	},
+	"osc_not_runnable" :
+	{
+		"message" : "El osciloscopio no está configurado para un acceso contínuo",
+		"description" : "El osciloscopio no está configurado para un acceso contínuo"
 	}
 }

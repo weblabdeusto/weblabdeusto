@@ -1,8 +1,11 @@
 {
 	"teacherMode": true,
 	"instrReg": null,
-	"locale": "es_ES",
+	"locale": "en_UK",
 	"mesServer": "http://194.47.134.182:8080/measureserver",
 	"readOnly": false,
-	"transMethod": "http"
+	"transMethod": "http",
+	"loadURL": "http://dev.openlabs.bth.se/~zeta/dav/git/loadsave/load.php",
+	"saveURL": "http://dev.openlabs.bth.se/~zeta/dav/git/loadsave/save.php",
+	"oscRunnable": true
 }

@@ -15,7 +15,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		}
 		,CheckToContinueCalling: function() {
 			//if (me._extService) return me._extService.CanContinueMeasuring();
-			return me._canContinueMeasuring;
+			return visir.Config.Get("oscRunnable") && me._canContinueMeasuring;
 		}
 	}, props || {});
 	this._options = options;
@@ -792,9 +792,12 @@ visir.AgilentOscilloscope.prototype._MakeMeasurement = function(button) {
 		break;
 		case "runstop":
 			this._UpdateRunStopSingleButtons("run");
-			if (this._isMeasuringContinuous) {
+			if ( ! visir.Config.Get("oscRunnable") || this._isMeasuringContinuous) {
 				this._isMeasuringContinuous = false;
 				this._UpdateRunStopSingleButtons("stopped");
+
+				if ( ! visir.Config.Get("oscRunnable"))
+					alert(visir.Lang.GetMessage("osc_not_runnable"));
 			} else {
 				this._isMeasuringContinuous = true;
 				this._options.MeasureCalling();

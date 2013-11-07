@@ -10,10 +10,9 @@ visir.InstrumentFrame = function(instreg, $container)
 	var frame = this;
 
 	this._showingInstrumentDialog = false;
-
-	var protocol = window.location.protocol;
-	var load_url = protocol + "//dev.openlabs.bth.se/~zeta/dav/git/loadsave/load.php";
-	var save_url = protocol + "//dev.openlabs.bth.se/~zeta/dav/git/loadsave/save.php";
+	
+	var load_url = visir.Config.Get("loadurl") || "load.php";
+	var save_url = visir.Config.Get("saveurl") || "save.php";
 
 	var imgbase = "instrumentframe";
 	if (visir.BaseLocation) imgbase = visir.BaseLocation + imgbase;
@@ -42,7 +41,7 @@ visir.InstrumentFrame = function(instreg, $container)
 			<button id="savebutton" class="">'+visir.Lang.GetMessage('save')+'</button>\
 		</div>\
 		<div class="shelf"><button id="shelfbutton"><img src="%img%/images/shelf.png" /></button></div>\
-		' : '') +
+		' : '') + // XXX: hard to read this maybe insert after instead
 		'<div class="instrumentbuttons"></div>\
 		<div class="measurework">\
 			<button id="measurebutton" class="measure">Perform Measurement</button>\

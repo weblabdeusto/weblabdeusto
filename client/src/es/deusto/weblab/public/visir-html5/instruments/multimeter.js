@@ -7,15 +7,21 @@ visir.Multimeter = function(id)
 	this._id = id;
 	this._mode = "off";
 	this._resolution = "3.5";
-	this._range = 10;
+	this._range = -1;
 	this._autozero = 1;
 	this._result = 0.0;
 }
 
-visir.Multimeter.prototype.SetMode = function(mode) { this._mode = mode; },
-visir.Multimeter.prototype.GetMode = function() { return this._mode; },
+visir.Multimeter.prototype.SetMode = function(mode) { this._mode = mode; }
+visir.Multimeter.prototype.GetMode = function() { return this._mode; }
 
-visir.Multimeter.prototype.GetResult = function() { return this._result },
+visir.Multimeter.prototype.SetRange = function(range) { this._range = range; }
+visir.Multimeter.prototype.GetRange = function() { return this._range; }
+
+visir.Multimeter.prototype.SetResolution = function(res) { this._resolution = res; }
+visir.Multimeter.prototype.GetResolution = function() { return this._resolution; }
+
+visir.Multimeter.prototype.GetResult = function() { return this._result }
 	
 visir.Multimeter.prototype.WriteRequest = function()
 {

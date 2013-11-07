@@ -160,11 +160,24 @@ visir.InstrumentRegistry.prototype.CreateInstrFromJSClass = function(classname, 
 	$loc.append($ctnr);
 }
 
+visir.InstrumentRegistry.prototype.LooksLikeSaveXML = function($xml)
+{
+	if ($xml.prop("tagName") != "SAVE") return false;
+	var versionNr = parseInt($xml.attr("version"), 10);
+	if (versionNr < 2) return false;
+	return true;
+}
+
 visir.InstrumentRegistry.prototype.LoadExperiment = function(xmldata, $loc)
 {
+	var $xml = $(xmldata);
+	if (!this.LooksLikeSaveXML($xml)) {
+		alert("Failed to load experiment, invalid save data");
+		return;
+	}
+	
 	$loc.find(".instrument").remove();
 	this._Reset();
-	var $xml = $(xmldata);
 	var $instr = $xml.find("instruments");
 
 	var flashlocs = $instr.attr("list");

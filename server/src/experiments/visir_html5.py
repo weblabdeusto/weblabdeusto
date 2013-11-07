@@ -44,6 +44,8 @@ from voodoo.sessions.exc import SessionNotFoundError
 from voodoo.typechecker import typecheck, ANY
 
 
+cookie = "GLOBALCOOKIE"
+
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
 
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
@@ -84,6 +86,9 @@ HEARTBEAT_MAX_SLEEP = 5
 # Actually defined through the configuration.
 DEBUG = None
 
+
+
+#cookie = "THIS SHOULDNT BE ACCESSED"
 
 class Heartbeater(threading.Thread):
     """
@@ -310,68 +315,84 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             traceback.print_exc()
         return all_circuits
 
+    # #@Override(ConcurrentExperiment.ConcurrentExperiment)
+    # @logged()
+    # def do_start_experiment_new(self, lab_session_id, *args, **kwargs):
+    # 	data = {
+    #             "cookie"   : cookie,
+    #             "savedata" : urllib.quote(self.savedata, ''),
+    #             "url"      : "",
+    #             "teacher"  : self.teacher,
+    #             "experiments" : self.teacher,
+
+    #             "circuits" : ""
+    #             }
+    #     setup_data =  json.dumps(data)
+    # 	return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
+
+
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
     def do_start_experiment(self, lab_session_id, *args, **kwargs):
-    	data = {
-                "cookie"   : cookie,
-                "savedata" : urllib.quote(self.savedata, ''),
-                "url"      : "",
-                "teacher"  : self.teacher,
-                "experiments" : self.teacher,
-
-                "circuits" : ""
-                }
-        setup_data =  json.dumps(data)
-    	return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
-
-    #@Override(ConcurrentExperiment.ConcurrentExperiment)
-    @logged()
-    def do_start_experiment_old(self, lab_session_id, *args, **kwargs):
         """
         Callback run when the experiment is started
         """
 
-        # Consider whether we should initialize the heartbeater now. If we are the first
-        # user, the heartbeater will not have started yet.
-        with self.heartbeater_lock:
-            if self.heartbeater is None:
-                self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
-                self.heartbeater.setDaemon(True)
-                self.heartbeater.setName('Heartbeater')
-                self.heartbeater.start()
+        print "[DBG] Now on start experiment"
 
-        if DEBUG: dbg("[DBG] Current number of users: %s" % len(self._session_manager.list_sessions()))
-        if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
-        if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
-        if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
+        setup_data = self.build_setup_data("FAKECOOKIE", self.client_url, self.get_circuits().keys())
 
-        # We need to provide the client with the cookie. We do so here, using weblab API 2,
-        # which supports this kind of initialization data.
-        if self.use_visir_php:
-            if(DEBUG): dbg("[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password))
-            try:
-                cookie, electro_lab_cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
-            except:
-                traceback.print_exc()
-                raise
-        else:
-            cookie       = ""
-            electro_lab_cookie = ""
-
-
-        setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
-
-        self._session_manager.create_session(lab_session_id.id)
-        self._session_manager.modify_session(lab_session_id, {'cookie' : cookie, 'electro_lab_cookie' : electro_lab_cookie})
-
-        # Increment the user's counter, which indicates how many users are using the experiment.
-        with self._users_counter_lock:
-            self.users_counter += 1
-
-        if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
+        # if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
 
         return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
+
+
+    # @Override(ConcurrentExperiment.ConcurrentExperiment)
+    # @logged()
+    # def do_start_experiment(self, lab_session_id, *args, **kwargs):
+    #     """
+    #     Callback run when the experiment is started
+    #     """
+
+    #     # Consider whether we should initialize the heartbeater now. If we are the first
+    #     # user, the heartbeater will not have started yet.
+    #     with self.heartbeater_lock:
+    #         if self.heartbeater is None:
+    #             self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
+    #             self.heartbeater.setDaemon(True)
+    #             self.heartbeater.setName('Heartbeater')
+    #             self.heartbeater.start()
+
+    #     if DEBUG: dbg("[DBG] Current number of users: %s" % len(self._session_manager.list_sessions()))
+    #     if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
+    #     if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
+    #     if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
+
+    #     # We need to provide the client with the cookie. We do so here, using weblab API 2,
+    #     # which supports this kind of initialization data.
+    #     if self.use_visir_php:
+    #         if(DEBUG): dbg("[VisirTestExperiment] Performing login with %s / %s"  % (self.login_email, self.login_password))
+    #         try:
+    #             cookie, electro_lab_cookie = self.perform_visir_web_login(self.loginurl, self.login_email, self.login_password)
+    #         except:
+    #             traceback.print_exc()
+    #             raise
+    #     else:
+    #         cookie       = ""
+    #         electro_lab_cookie = ""
+
+    #     setup_data = self.build_setup_data(cookie, self.client_url, self.get_circuits().keys())
+
+    #     self._session_manager.create_session(lab_session_id.id)
+    #     self._session_manager.modify_session(lab_session_id, {'cookie' : cookie, 'electro_lab_cookie' : electro_lab_cookie})
+
+    #     # Increment the user's counter, which indicates how many users are using the experiment.
+    #     with self._users_counter_lock:
+    #         self.users_counter += 1
+
+    #     if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
+
+    #     return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
@@ -737,4 +758,3 @@ if __name__ == '__main__':
     sessionkey = experiment.extract_sessionkey(login_response)
     request = regular_request % sessionkey
     print experiment.do_send_command_to_device(lab_session_id, request)
-
