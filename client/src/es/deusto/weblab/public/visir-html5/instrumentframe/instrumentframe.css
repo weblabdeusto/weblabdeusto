@@ -1,18 +1,29 @@
-.frame .container {
-	width: 800px;
-	/*height: 500px;*/
-	height: 460px;
-	border: 1px solid black;
+.frame .bottomaligner {
 	position: relative;
-	text-align: center;
+	width: 800px;
+	height: 460px;
+	/*position: relative;
 	overflow: hidden;
+	display: inline-block;
+	*/
 	margin: 0px auto;
+	padding: 0px;
+	border: 1px solid black;
+}
+
+.frame .container {
+	/*height: 800px;*/
+	position: absolute;
+	bottom: 0;
+	text-align: center;
+	width: 100%;
 }
 
 .frame .container > div.instrument {
-	margin: 0px auto;
 	position: relative;
+	margin: 0px auto;
 	display: inline-block;
+	vertical-align: bottom;
 }
 
 .frame .buttonrow {
@@ -90,7 +101,7 @@
 	margin-top: -2px;
 }
 
-.breadboard
+.frame .breadboard
 {
 	border: none;
 }

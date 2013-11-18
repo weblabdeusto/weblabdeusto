@@ -29,9 +29,11 @@ visir.InstrumentFrame = function(instreg, $container)
 			<input type="hidden" id="download_data" name="data" />\
 		</form>\
 	</div>\
-	<div class="container">\
-		<div class="instrumentdialog">\
-			<div class="instrumentlist"></div>\
+	<div class="bottomaligner">\
+		<div class="container">\
+			<div class="instrumentdialog">\
+				<div class="instrumentlist"></div>\
+			</div>\
 		</div>\
 	</div>\
 	<div class="buttonrow">\

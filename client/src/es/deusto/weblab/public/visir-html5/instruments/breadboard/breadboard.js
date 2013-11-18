@@ -497,13 +497,15 @@ visir.Breadboard = function(id, $elem)
 	</div>\
 	<div class="colorpicker">\
 		<p class="title">'+visir.Lang.GetMessage('wire_sel')+'</p>\
-		<div class="color red"></div>\
-		<div class="color black"></div>\
-		<div class="color green"></div>\
-		<div class="color yellow"></div>\
-		<div class="color blue"></div>\
-		<div class="color brown"></div>\
-		<div class="currentcolor"></div>\
+		<div class="border">\
+			<div class="color red"></div>\
+			<div class="color black"></div>\
+			<div class="color green"></div>\
+			<div class="color yellow"></div>\
+			<div class="color blue"></div>\
+			<div class="color brown"></div>\
+			<div class="currentcolor"></div>\
+		</div>\
 	</div>\
 	<div class="indicator"></div>\
 	<div class="delete"></div>\

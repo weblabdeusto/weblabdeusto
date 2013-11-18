@@ -115,6 +115,10 @@
 				<canvas class="plot" width="330" height="208"></canvas>
 				<canvas class="cursors" width="330" height="208"></canvas>
 			</div>
+			<div class="timedelay_markers">
+				<div class="default"><img class="trig_delay_marker_default" src="%img%/trig_delay_marker_default.png" alt="trigger delay marker default" /></div>
+				<div class="marker"><img class="trig_delay_marker" src="%img%/trig_delay_marker.png" alt="trigger delay marker" /></div>
+			</div>
 			<div class="infobar">
 				<div class="measurements">
 					<div class="box box1">Some text 1</div>
@@ -128,7 +132,7 @@
 				<!-- menu_channel_1 -->
 				<div class="menu menu_channel_1">
 					<div class="menubox">
-						<div class="menubox_icon arrowup" />
+						<!--div class="menubox_icon arrowup" /-->
 						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Coupling</span>
 						<span class="value coupling">DC</span>
 					</div>
@@ -143,7 +147,7 @@
 				<!-- menu_channel_2 -->
 				<div class="menu menu_channel_2">
 					<div class="menubox">
-						<div class="menubox_icon arrowup" />
+						<!--div class="menubox_icon arrowup" /-->
 						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Coupling</span>
 						<span class="value coupling">DC</span>
 					</div>
@@ -174,12 +178,12 @@
 				<!-- mode coupling menu -->
 				<div class="menu menu_modecoupling">
 					<div class="menubox">
-						<div class="menubox_icon arrowup" />
+						<!--div class="menubox_icon arrowup" /-->
 						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Mode</span>
 						<span class="value mode">Auto Level</span>
 					</div>
 					<div class="menubox">
-						<div class="menubox_icon arrowup" />
+						<!--div class="menubox_icon arrowup" /-->
 						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Coupling</span>
 						<span class="value coupling">DC</span>
 					</div>
@@ -233,5 +237,5 @@
 			</div>
 		</div>
 	</div>
-	<div class="manual_link"><a href="http://cp.literature.agilent.com/litweb/pdf/54622-97036.pdf" target="_blank">Download Manual</a></div>\
+	<div class="manual_link"><a href="http://cp.literature.agilent.com/litweb/pdf/54622-97036.pdf" target="_blank">Download Manual</a></div>
 </div>

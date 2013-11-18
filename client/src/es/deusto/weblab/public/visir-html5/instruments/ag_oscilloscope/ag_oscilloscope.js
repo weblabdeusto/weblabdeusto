@@ -145,13 +145,12 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		if(!visir.Config.Get("readOnly"))
 		{
 			// abuses the turnable to get events, but not turning the component at all
-			elem.find(".horz_offset").turnable({turn: newHandleFunc(function() { trace("up");}, function() {trace("down");}) });
-
 			elem.find(".offset_ch1").turnable({turn: newHandleFunc(function() { me._StepDisplayOffset(0, true); }, function() { me._StepDisplayOffset(0, false); }) });
 			elem.find(".offset_ch2").turnable({turn: newHandleFunc(function() { me._StepDisplayOffset(1, true); }, function() { me._StepDisplayOffset(1, false); }) });
 
 			elem.find(".offset_trg").turnable({turn: newHandleFunc(function() { me._StepTriggerLevel(true); }, function() { me._StepTriggerLevel(false); }) });
 			elem.find(".horz").turnable({turn: newHandleFunc(function() { me._SetTimedivIdx(me._timeIdx+1); }, function() { me._SetTimedivIdx(me._timeIdx-1); }) });
+			elem.find(".horz_offset").turnable({turn: newHandleFunc(function() { me._StepTriggerDelay(true); }, function() { me._StepTriggerDelay(false); }) });
 			elem.find(".selection_knob").turnable({turn: newHandleFunc(function() { me._StepSelection(true); }, function() { me._StepSelection(false); }) });
 			elem.find(".vert_ch1").turnable({turn: newHandleFunc(function() { me._SetVoltIdx(0, me._voltIdx[0]+1); }, function() { me._SetVoltIdx(0, me._voltIdx[0]-1);}) });
 			elem.find(".vert_ch2").turnable({turn: newHandleFunc(function() { me._SetVoltIdx(1, me._voltIdx[1]+1); }, function() { me._SetVoltIdx(1, me._voltIdx[1]-1);}) });
@@ -349,6 +348,7 @@ visir.AgilentOscilloscope.prototype._SetTimedivIdx = function(idx)
 
 	var $indicator = this._$elem.find(".timediv");
 	this._LightIndicator($indicator);
+	this._UpdateTriggerDelay();
 	this._UpdateDisplay();
 };
 
@@ -464,6 +464,44 @@ visir.AgilentOscilloscope.prototype._UpdateTriggerLevel = function()
 	//SetText(this._$elem.find(".triglevel .lighttext"), this._FormatValue(level));
 	//this._$elem.find(".triglevel .lighttext").text(this._FormatValue(level));
 };
+
+/* Trigger delay */
+
+visir.AgilentOscilloscope.prototype._ClampTriggerDelay = function(val)
+{
+	var timediv = this._timedivs[this._timeIdx];
+	var stepsize = timediv / 10;
+	val = Math.round(val / stepsize) * stepsize;
+	var max = timediv * 10; //-trigch.offset + (6*trigch.range);
+	var min = 0; //-trigch.offset - (6*trigch.range);
+	if (val > max) { val = max; }
+	if (val < min) { val = min; }
+	return val;
+}
+
+visir.AgilentOscilloscope.prototype._StepTriggerDelay = function(up)
+{	
+	var timediv = this._timedivs[this._timeIdx];
+	var stepsize = timediv / 10;
+	var val = this._trigger.delay + (up ? -stepsize : stepsize);
+	val = this._ClampTriggerDelay(val);
+	this._trigger.delay = val;
+	this._UpdateTriggerDelay();
+	
+	//trace("_StepTriggerDelay: " + val);
+}
+
+visir.AgilentOscilloscope.prototype._UpdateTriggerDelay = function()
+{
+	trace("_UpdateTriggerDelay");
+	var timediv = this._timedivs[this._timeIdx];
+	var markerPos = ((-this._trigger.delay / timediv) ) * (this._plotWidth / 10.0) + (this._plotWidth / 2.0) - 3;
+	markerPos = Math.round(markerPos);
+	this._$elem.find(".timedelay_markers .marker").css("left", markerPos + "px");
+	//trace("mX: " + markerPos);
+}
+
+/* */
 
 // XXX: maybe rename to ChButtonPressed or something..
 visir.AgilentOscilloscope.prototype._ToggleChEnabled = function(ch)

@@ -5,6 +5,7 @@
 	width: 800px;
 	height: 449px;
 	font-family: serif;
+	vertical-align: baseline;
 }
 
 .ag_osc .button, .ag_osc .button img, .ag_osc .stepwheel, .ag_osc .stepwheel img {
@@ -281,6 +282,7 @@
 	width: 50px;
 	padding-top: 2px;
 	padding-bottom: 2px;
+	display: block;
 }
 
 .ag_osc .display .menubar .menubox .title.bigfont
@@ -293,6 +295,7 @@
 	/*position: absolute;*/
 	/*top: 15px;*/
 	width: 50px;
+	display: block;
 }
 
 .ag_osc .display .menubar .menubox .edgeselect
@@ -498,3 +501,28 @@
 	font-size: 12px;
 	padding: 1px 3px 1px 3px;
 }
+
+.ag_osc .display .timedelay_markers
+{
+	position: absolute;
+	overflow: hidden;
+
+	width: 330px; height: 20px;
+	top: 20px; left: 14px;
+}
+
+.ag_osc .display .timedelay_markers img
+{
+	vertical-align: top;
+}
+
+.ag_osc .display .timedelay_markers .marker {
+	position: absolute;
+	left: 162px;
+}
+
+.ag_osc .display .timedelay_markers .default {
+	position: absolute;
+	left: 162px;
+}
+

@@ -10,11 +10,13 @@ visir.Language = function()
 	}
 
 	strings = {};
+	
+	var baseurl = visir.BaseLocation || "";
 
 	$.ajax({
 		async: false,
 		dataType: "json",
-		url: '_locales/'+locale+'/messages.json'
+		url: baseurl + '_locales/'+locale+'/messages.json'
 	}).done(function(data)
 	{
 		strings = data;
