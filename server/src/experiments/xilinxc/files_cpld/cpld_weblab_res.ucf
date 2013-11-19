@@ -1,0 +1,47 @@
+# This is the WEBLAB UCF file for PLD devices. It is meant to be
+# compatible with Boole-Deusto.
+
+# Switches. At the moment of writing this, switch 8 does not seem to work.
+NET "swi0"  LOC = "P70"  ; 
+NET "swi1"  LOC = "P71"  ; 
+NET "swi2"  LOC = "P69"  ; 
+NET "swi3"  LOC = "P68"  ; 
+NET "swi4"  LOC = "P67"  ; 
+NET "swi5"  LOC = "P66"  ; 
+NET "swi6"  LOC = "P65"  ; 
+NET "swi7"  LOC = "P63"  ; 
+NET "swi8"  LOC = "P62"  ; 
+NET "swi9"  LOC = "P61"  ; 
+
+# 7-Segments
+NET "seg0"  LOC = "P20"  ;  
+NET "seg1"  LOC = "P19"  ;  
+NET "seg2"  LOC = "P18"  ;  
+NET "seg3"  LOC = "P17"  ;  
+NET "seg4"  LOC = "P15"  ;  
+NET "seg5"  LOC = "P14"  ;  
+NET "seg6"  LOC = "P13"  ;  
+
+# 7-Segment display selection.
+NET "ena0"  LOC = "P31"  ; 
+NET "ena1"  LOC = "P32"  ; 
+NET "ena2"  LOC = "P33"  ; 
+NET "ena3"  LOC = "P34"  ; 
+
+# Buttons
+NET "but0"  LOC = "P50"  ; 
+NET "but1"  LOC = "P51"  ; 
+NET "but2"  LOC = "P52"  ; 
+NET "but3"  LOC = "P53"  ; 
+
+# Leds
+NET "led0"  LOC = "P1"  ; 
+NET "led1"  LOC = "P2"  ; 
+NET "led2"  LOC = "P3"  ; 
+NET "led3"  LOC = "P4"  ; 
+NET "led4"  LOC = "P5"  ; 
+NET "led5"  LOC = "P6"  ; 
+
+# Clock
+NET "clk"  LOC = "P9"  ;
+

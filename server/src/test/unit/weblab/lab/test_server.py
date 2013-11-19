@@ -309,11 +309,13 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         FakeUrllib2.reset()
         FakeSocket.reset()
         exp_handler = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id)
-        exp_handler.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler.is_up_and_running_handlers[1]._socket = FakeSocket
+        for handler in exp_handler.is_up_and_running_handlers.values():
+            handler._urllib2 = FakeUrllib2
+            handler._socket = FakeSocket
         exp_handler2 = self.lab._assigned_experiments._retrieve_experiment_handler(self.experiment_instance_id_old)
-        exp_handler2.is_up_and_running_handlers[0]._urllib2 = FakeUrllib2
-        exp_handler2.is_up_and_running_handlers[1]._socket = FakeSocket
+        for handler in exp_handler2.is_up_and_running_handlers.values():
+            handler._urllib2 = FakeUrllib2
+            handler._socket = FakeSocket
 
     def test_check_experiments_resources(self):
         self._fake_is_up_and_running_handlers()

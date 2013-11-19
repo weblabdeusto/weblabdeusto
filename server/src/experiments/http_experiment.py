@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import traceback
 import base64
 import urllib2
@@ -62,7 +63,16 @@ class HttpExperiment(Experiment):
                 'server_initial_data' : serialized_server_initial_data,
                 'back' : back_url,
             })
-            response = json.loads(response_str)
+            try:
+                response = json.loads(response_str)
+            except:
+                print 
+                print "Got invalid JSON response from the HTTP server:"
+                print "*" * 20
+                print response_str
+                print "*" * 20
+                sys.stdout.flush()
+                raise
             url = response.get('url','http://server.sent.invalid.address')
 
             config = {

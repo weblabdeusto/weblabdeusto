@@ -58,3 +58,9 @@ xilinx_compiling_files_path = "main_machine/main_instance/experiment_fpga/files"
 # Path to the Xilinx tools used for compiling (par, xst, etc). This is not required if those
 # command line tools are available from the path.
 xilinx_compiling_tools_path = ""
+
+# If true, the xilinx experiment will accept VHD files as input, and synthesize them upon request. True by default.
+xilinx_vhd_allowed = True
+
+# If true, the xilinx experiment will accept BIT files as input. True by default.
+xilinx_bit_allowed = True

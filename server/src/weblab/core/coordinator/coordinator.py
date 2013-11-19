@@ -302,7 +302,9 @@ class AbstractCoordinator(object):
                     "Resource %s marked as fixed" % resource_instance )
 
             if self.notifications_enabled:
-                self._notify_experiment_status('fixed', resource_instance)
+                return self._notify_experiment_status('fixed', resource_instance)
+
+        return {}
 
     @typecheck(basestring, Resource, ITERATION(basestring))
     def _notify_experiment_status(self, new_status, resource_instance, messages = []):
@@ -320,9 +322,35 @@ class AbstractCoordinator(object):
         if len(messages) > 0:
             body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, self.core_server_url)
         recipients = self._retrieve_recipients(experiment_instance_ids)
-        subject = "[WebLab] Experiment %s: %s" % (resource_instance, new_status)
 
-        if len(recipients) > 0:
+        if len(recipients):
+            return { tuple(sorted(recipients)) : [(body, resource_instance)] }
+        else:
+            return {}
+
+
+    def notify_status(self, notifications):
+        """ :param: recipients: dictionary with a tuple of recipients as key and a list of tuples (body, resource_instance) as value. """
+
+        for recipients in notifications:
+            current_notifications = list(notifications[recipients])
+            current_notifications.sort(lambda (body1, resource_instance1), (body2, resource_instance2) : cmp(unicode(resource_instance1), unicode(resource_instance2)))
+
+            resources = map(lambda (body, resource_instance) : resource_instance, current_notifications)
+            bodies    = map(lambda (body, resource_instance) : body, current_notifications)
+
+            subject = "[WebLab] %s Status changes. " % len(resources)
+            shown = 2
+            resource_types = list(set(map(lambda resource : unicode(resource.resource_type), resources)))
+            subject += ', '.join(resource_types[:shown])
+            if len(resource_types) > shown:
+                subject += '...'
+            
+            if len(bodies) > 1:
+                body = "%s notifications\n\n" % len(bodies)
+            else:
+                body = "1 notification\n\n"
+            body += '\n\n*****************************\n\n'.join(bodies)
             self.notifier.notify( recipients = recipients, body = body, subject = subject)
 
 

@@ -107,13 +107,13 @@ class TemporalInformationRetriever(threading.Thread):
             usage.append_command(command_request)
             usage.append_command(command_response)
 
-            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, role), usage)
+            self.db_manager.store_experiment_usage(username, usage)
 
     def iterate_completed(self):
         completed_information = self.completed_store.get(timeout=self.timeout)
         if completed_information is not None:
             username, usage, callback = completed_information
-            self.db_manager.store_experiment_usage(DbSession.ValidDatabaseSessionId(username, ''), usage)
+            self.db_manager.store_experiment_usage(username, usage)
             callback()
 
 

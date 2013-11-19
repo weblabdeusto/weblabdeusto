@@ -2199,6 +2199,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
+        """<Location %(root)s/weblab/>\n"""
+        """    Order allow,deny\n"""
+        """    Allow from all\n"""
+        """</Location>\n"""
+        """\n"""
         """<Directory "%(directory)s">\n"""
         """        Options Indexes\n"""
         """        Order allow,deny\n"""
@@ -2535,9 +2540,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     print >> stdout, "     %s and %s" % (logo_path, logo_mobile_path)
     print >> stdout, ""
-    print >> stdout, "You can also add users, permissions, etc. from the admin CLI by typing:"
-    print >> stdout, ""
-    print >> stdout, "    %s admin %s" % (os.path.basename(sys.argv[0]), directory)
+    print >> stdout, "You can also add users, permissions, etc. from the web interface."
     print >> stdout, ""
     print >> stdout, "Enjoy!"
     print >> stdout, ""

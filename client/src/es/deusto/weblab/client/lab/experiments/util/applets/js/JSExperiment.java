@@ -15,13 +15,17 @@
 package es.deusto.weblab.client.lab.experiments.util.applets.js;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Button;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
+import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
 
@@ -29,12 +33,34 @@ import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppB
 
 public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
-	
+	//! To store the file name and to identify whether it's an HTML or a JS script.
 	private String file;
 	private boolean isJSFile;
+	
+	//! To handle file uploading, in case it is enabled in the config.
 	private boolean provideFileUpload;
+	private Button uploadButton;
 	
 	private final UploadStructure uploadStructure;
+	
+	//! This is used to keep a static reference to the last created instance of this class. 
+	//! It is particularly ugly, but should work as expected because there shouldn't be more
+	//! than a single active JSExperiment class at once. 
+	//! It is needed because apparently only static GWT methods can be invoked from JavaScript.
+	//! If a way to invoke non-static methods from JavaScript is ever found, it could probably
+	//! be removed.
+	private static JSExperiment staticSelf;
+	
+	//! These are used to track the experiment state. Particularly, to know what is its loading
+	//! state so that start() can be invoked appropriately.
+	private boolean frameLoaded = false; // The frame has finished loading.
+	private boolean startRequested = false; // Start requested but should only be carried out if the frame has finished loading.
+	
+	//! The following two variables are used to temporarily store the data to pass to start()
+	//! when the real start() execution (through doStart) is deferred because the iframe
+	//! has not yet finished loading.
+	int startTime;
+	String startInitialConfiguration;
 	
 	/**
 	 * Constructs a JSExperiment.
@@ -46,6 +72,13 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	{
 		super(configurationRetriever, boardController, width, height);
 		
+		System.out.println("[DBG]: Creating JSExperiment: " + this);
+		
+		JSExperiment.staticSelf = this;
+		
+		exportIframeLoadListener();
+		
+		this.uploadButton = new Button(ExperimentBase.i18n.upload());
 		this.file = file;
 		this.isJSFile = isJSFile;
 		this.provideFileUpload = provideFileUpload;
@@ -59,16 +92,68 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		
 		this.uploadStructure = new UploadStructure();
 		
+		
+		this.uploadButton.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				@SuppressWarnings("unused")
+				final boolean success = JSExperiment.this.tryUpload();
+				
+				// Originally, the ud-fpga experiment only lets the user upload once.
+				// For now however, in this experiment we will let the user upload
+				// several times.
+				//if(success)
+				//	this.uploadButton.setVisible(false);
+			}});
+		
+		
 		if(this.provideFileUpload) {
 			GWT.log("Creating upload structure");
 			this.uploadStructure.setFileInfo("program");
 			this.fileUploadPanel.add(this.uploadStructure.getFormPanel());
+			this.fileUploadPanel.add(this.uploadButton);
 		} else {
 			GWT.log("NOT creating upload structure");
 		}
 		
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
 	}
+	
+	
+
+	/** This callback will be invoked when the Iframe finished loading.
+	 * It is invoked indirectly from JavaScript. To do so, it relies
+	 * on the static reference to the active object of this class 
+	 * that is always kept.
+	 */
+	public static void onIframeLoaded() {
+		
+		System.out.println("[DBG] The iframe finished loading. " + staticSelf);
+		
+		staticSelf.frameLoaded = true;
+	
+		// If startRequested is true, then the start() method has already
+		// been invoked, but we weren't able to really() start because the
+		// frame hadn't been loaded yet. We will do it now.
+		if(staticSelf.startRequested) {
+			System.out.println("[DBG]: Start had been requested. We will doStart next.");
+			staticSelf.doStart(staticSelf.startTime, staticSelf.startInitialConfiguration);
+			
+			// Important to set startRequested to false, so that this method can be freely
+			// invoked more than once without ill-effect. (A fake load can be forced from
+			// the JavaScript library, for convenience).
+			staticSelf.startRequested = false;
+		}
+	}
+	
+	
+	/**
+	 * Exports the IframeLoadListener to JavaScript. That is, the JS 
+	 * method through which JavaScript will tell GWT that the Iframe finished loading.
+	 */
+	private static native void exportIframeLoadListener() /*-{
+		$wnd.onFrameLoad = $entry(@es.deusto.weblab.client.lab.experiments.util.applets.js.JSExperiment::onIframeLoaded());
+	}-*/;
 	
 	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, int width, int height) /*-{
 		
@@ -80,12 +165,14 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		{	
 			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+										"onLoad=\"onFrameLoad();\"" +
 									"></iframe>";
 		}
 		else
 		{
 			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  allowfullscreen webkitallowfullscreen mozallowfullscreen vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
 										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+										"onLoad=\"onFrameLoad();\"" +
 									"src=\"" + file + "\"" + "></iframe>"; 
 		}
 		
@@ -145,7 +232,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	/**
 	 * Called by the WebLab server to tell the experiment
-	 * how much time it has available.¡
+	 * how much time it has available.
 	 * 
 	 * @param time Time available, in seconds.
 	 */
@@ -177,16 +264,47 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	}
 	
 	/**
+	 * This method is the one that carries the real start. It will invoke
+	 * the startInteraction JavaScript callback internally. It is 
+	 * REQUIRED that the startInteraction be registered before invoking
+	 * this method.
+	 * @param time
+	 * @param initialConfiguration
+	 */
+	public void doStart(int time, String initialConfiguration) {
+		
+		System.out.println("[DBG]: Carrying out doStart() [This is the real start]");
+		
+		if(this.provideFileUpload)
+			tryUpload();
+		
+		AbstractExternalAppBasedBoard.startInteractionImpl();
+	}
+	
+	/**
 	 * Called by the WebLab server to tell the experiment that it is
-	 * meant to start.
-	 * Internally, it calls the base classes' startInteractionImpl to 
-	 * refer the call to the JS file.
+	 * meant to start. It will however only start for real if the frame has already loaded.
+	 * Otherwise, it would fail, because the code executed within the frame is the one that
+	 * registers the startInteraction callback.
 	 */
 	@Override
 	public void start(int time, String initialConfiguration) {
-		if(this.provideFileUpload)
-			tryUpload();
-		AbstractExternalAppBasedBoard.startInteractionImpl();
+		
+		System.out.println("[DBG]: Carrying out start() [Maybe we will really start, or defer it]" + this);
+		
+		// If the frame has been loaded, we're ready to start.
+		if(this.frameLoaded)
+			this.doStart(time, initialConfiguration);
+		
+		// If the frame has not been loaded, we're not yet ready.
+		// We store the arguments, and wait for the onReady callback, 
+		// which will in this case call us.
+		else {
+			System.out.println("[DBG]: Storing start data for later.");
+			this.startTime = time;
+			this.startInitialConfiguration = initialConfiguration;
+			this.startRequested = true;
+		}
 	}
 	
 	
