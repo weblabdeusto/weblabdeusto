@@ -147,14 +147,23 @@
 	left: 67px;
 }
 
-.ag_osc .display .timedelay {
+.ag_osc .display .topbar .timedelay_arrow {
 	position: absolute;
 	left: 173px;
 }
 
-.ag_osc .display .timedelay .arrow {
-	position: relative;
-	top: 4px;
+.ag_osc .display .topbar .timedelay_arrow img.arrow {
+	position: absolute;
+	bottom: 1px;
+}
+
+.ag_osc .display .topbar .timedelay {
+	position: absolute;
+	left: 176px;
+}
+
+.ag_osc .display .topbar .timedelay .unitstring {
+	margin-right: -4px; /* workaround the problem with rounded borders without a '/' at the end */
 }
 
 .ag_osc .display .timescale {

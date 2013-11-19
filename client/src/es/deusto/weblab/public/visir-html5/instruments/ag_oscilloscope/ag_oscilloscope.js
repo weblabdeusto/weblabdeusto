@@ -118,6 +118,8 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		var unitstring_tpl = '<div class="large strings visible">V</div><div class="small strings"><div class="top">m</div><div class="bottom">v</div></div>';
 		elem.find(".unitstring").append(unitstring_tpl);
 		elem.find(".timescale .bottom").text("s");
+		elem.find(".trig_delay .bottom").text("s");
+		elem.find(".trig_delay .large").text("s");
 
 		var prev = 0;
 
@@ -486,7 +488,12 @@ visir.AgilentOscilloscope.prototype._StepTriggerDelay = function(up)
 	var val = this._trigger.delay + (up ? -stepsize : stepsize);
 	val = this._ClampTriggerDelay(val);
 	this._trigger.delay = val;
+	
+	var $indicator = this._$elem.find(".trig_delay");
+	this._LightIndicator($indicator);
+	
 	this._UpdateTriggerDelay();
+	this._UpdateDisplay();
 	
 	//trace("_StepTriggerDelay: " + val);
 }
@@ -737,6 +744,7 @@ visir.AgilentOscilloscope.prototype._UpdateDisplay = function()
 	this._SetIndicatorValue(this._$elem.find(".voltage_ch1"), this._voltages[this._voltIdx[0]]);
 	this._SetIndicatorValue(this._$elem.find(".voltage_ch2"), this._voltages[this._voltIdx[1]]);
 	this._SetIndicatorValue(this._$elem.find(".timediv"), this._timedivs[this._timeIdx]);
+	this._SetIndicatorValue(this._$elem.find(".topbar .trig_delay"), this._trigger.delay);
 	//this._$elem.find(".voltage_ch1").text(this._FormatValue(this._voltages[this._voltIdx[0]]) + "V");
 	//this._$elem.find(".voltage_ch2").text(this._FormatValue(this._voltages[this._voltIdx[1]]) + "V");
 	//this._$elem.find(".timediv").text(this._FormatValue(this._timedivs[this._timeIdx]) + "s");

@@ -82,13 +82,8 @@ DEFAULT_DEBUG_PRINTS = False
 HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
 HEARTBEAT_MAX_SLEEP = 5
 
-
 # Actually defined through the configuration.
-DEBUG = None
-
-
-
-#cookie = "THIS SHOULDNT BE ACCESSED"
+DEBUG = True # None
 
 class Heartbeater(threading.Thread):
     """
@@ -287,7 +282,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.library_xml  = self._cfg_manager.get_value(CFG_LIBRARY_XML, "failed")
 
         global DEBUG
-        DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
+        # DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
 
         #
         # There are two ways of deploying VISIR:
@@ -338,7 +333,19 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         Callback run when the experiment is started
         """
 
-        print "[DBG] Now on start experiment"
+        # Consider whether we should initialize the heartbeater now. If we are the first
+        # user, the heartbeater will not have started yet.
+        with self.heartbeater_lock:
+            if self.heartbeater is None:
+                self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
+                self.heartbeater.setDaemon(True)
+                self.heartbeater.setName('Heartbeater')
+                self.heartbeater.start()
+
+        if DEBUG: dbg("[DBG] Current number of users: %s" % len(self._session_manager.list_sessions()))
+        if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
+        if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
+        if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
 
         setup_data = self.build_setup_data("FAKECOOKIE", self.client_url, self.get_circuits().keys())
 
@@ -404,33 +411,15 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
 
-        # This command is currently not used.
-        if command == "GIVE_ME_CIRCUIT_LIST":
-            circuit_list = self.get_circuits().keys()
-            circuit_list_string = ""
-            for c in circuit_list:
-                circuit_list_string += c
-                circuit_list_string += ','
-            return circuit_list_string
-
-        elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
-            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
-            circuit_name = command.split(' ', 1)[1]
-            circuit_data = self.get_circuits()[circuit_name]
-            return circuit_data
-        elif command == 'GIVE_ME_LIBRARY':
-            if DEBUG: dbg("[DBG] GOT GIVE_ME_LIBRARY")
-            return self.library_xml
-
-        # Otherwise, it's a VISIR XML command, and should just be forwarded
-        # to the VISIR measurement server
-        data = self.forward_request(lab_session_id, command)
+        if command == "CONFIGURE":
+            print "CONFIGURE"
+            data = json.dump({"teacher": self.teacher})
+        else:
+            if DEBUG: dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
+            data = self.forward_request(lab_session_id, command)
 
         # Find out the request type
         request_type = self.parse_request_type(command)
-
-        if DEBUG: dbg("[DBG] REQUEST TYPE: " + request_type)
-
 
         # If it was a login request, we will extract the session key from the response.
         # Once the session is in a logged in state, it will need to start receiving
@@ -444,8 +433,25 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             finally:
                 self._session_manager.modify_session_unlocking(lab_session_id, user)
 
-        return data
+        # # This command is currently not used.
+        # if command == "GIVE_ME_CIRCUIT_LIST":
+        #     circuit_list = self.get_circuits().keys()
+        #     circuit_list_string = ""
+        #     for c in circuit_list:
+        #         circuit_list_string += c
+        #         circuit_list_string += ','
+        #     return circuit_list_string
 
+        # elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
+        #     print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
+        #     circuit_name = command.split(' ', 1)[1]
+        #     circuit_data = self.get_circuits()[circuit_name]
+        #     return circuit_data
+        # elif command == 'GIVE_ME_LIBRARY':
+        #     if DEBUG: dbg("[DBG] GOT GIVE_ME_LIBRARY")
+        #     return self.library_xml
+
+		return data
 
     def extract_sessionkey(self, command):
         """
