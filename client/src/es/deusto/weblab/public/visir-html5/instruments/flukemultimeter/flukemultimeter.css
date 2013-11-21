@@ -1,28 +1,49 @@
-.dmm_value {
-	/*border: 1px solid #000;*/
-	top: 70px;
-	left: 45px;
-	width: 210px;
-	position: absolute;
-	font-size: 40pt;
-	font-family: sans-serif;
-	font-weight: bold;
-	text-align: right;
+
+@font-face {
+	font-family: 'DigitalNum';
+	src: url('font/DigitalNum-Italic.ttf');
 }
 
-.vred {
+.flukedmm .display {
+	font-family: sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	position: absolute;
+	top: 62px;
+	left: 41px;
+	width: 218px;	
+	height: 78px;
+}
+
+.flukedmm .display .AC { position: absolute; right: 0; top: 0; }
+.flukedmm .display .DC {	position: absolute;	right: 0;	top: 15px; }
+.flukedmm .display .Ohm {	position: absolute;	right: 0;	top: 30px; }
+
+.flukedmm .dmm_value {
+	position: absolute;
+	right: 53px;
+	height: 60px;
+	
+	font-size: 44pt;
+	font-family: 'DigitalNum', Sans-Serif;
+	text-align: right;
+	font-weight: normal;
+}
+
+
+.flukedmm .vred {
 	transform-origin: 16px 102px;
 	-moz-transform-origin: 16px 102px;
 	-webkit-transform-origin: 16px 102px;
 }
 
-.rot {
+.flukedmm .rot {
 	position:absolute;
 	top: 207px;
 	left: 82px;
 }
 
-.rot .top { /* , .rot .base */
+.flukedmm .rot .top { /* , .rot .base */
 	top: 0; left: 0;
 	position:absolute;
 }
@@ -56,10 +77,3 @@
 	font-size: 12px;
 	padding: 1px 3px 1px 3px;
 }
-
-
-/*
-.rot .base {
-	display: none;
-}
-*/

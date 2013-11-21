@@ -10,7 +10,7 @@ visir.InstrumentFrame = function(instreg, $container)
 	var frame = this;
 
 	this._showingInstrumentDialog = false;
-	
+
 	var load_url = visir.Config.Get("loadurl") || "load.php";
 	var save_url = visir.Config.Get("saveurl") || "save.php";
 
@@ -46,7 +46,7 @@ visir.InstrumentFrame = function(instreg, $container)
 		' : '') + // XXX: hard to read this maybe insert after instead
 		'<div class="instrumentbuttons"></div>\
 		<div class="measurework">\
-			<button id="measurebutton" class="measure">Perform Measurement</button>\
+			<button id="measurebutton" class="measure">'+visir.Lang.GetMessage('perf_measure')+'</button>\
 			<div class="work_indicator"><span><img src="%img%/images/work_indicator.png" alt="work indicator"/></span></div>\
 		</div>\
 	</div>\

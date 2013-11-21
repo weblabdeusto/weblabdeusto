@@ -3,6 +3,8 @@
 var visir = visir || {};
 visir.WLTransport = function(workingCallback)
 {
+	this._isWorking = false;
+	this._workCall = workingCallback;
 }
 
 visir.JSTransport.prototype.Request = function(request, callback)

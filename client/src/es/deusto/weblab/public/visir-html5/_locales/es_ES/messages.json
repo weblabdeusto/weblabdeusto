@@ -60,5 +60,10 @@
 	{
 		"message" : "El osciloscopio no está configurado para un acceso contínuo",
 		"description" : "El osciloscopio no está configurado para un acceso contínuo"
+	},
+	"down_man" :
+	{
+		"message" : "Descargar manual",
+		"description" : "Descargar el manual de usuario"
 	}
 }

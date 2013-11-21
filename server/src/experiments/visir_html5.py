@@ -504,7 +504,6 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 }
         return json.dumps(data)
 
-
     def forward_request(self, lab_session_id, request):
         """
         Forwards a request to the VISIR Measurement Server through an

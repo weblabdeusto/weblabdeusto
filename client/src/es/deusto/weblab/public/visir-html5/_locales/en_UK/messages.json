@@ -60,5 +60,10 @@
 	{
 		"message" : "The oscilloscope is not configured for continuous running",
 		"description" : "The oscilloscope is not configured for continuous running"
+	},
+	"down_man" :
+	{
+		"message" : "Download Manual",
+		"description" : "Download user manual"
 	}
 }
