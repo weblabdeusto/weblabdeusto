@@ -81,7 +81,6 @@ HEARTBEAT_MAX_SLEEP = 5
 
 # Actually defined through the configuration.
 DEBUG = True # None
-DEBUG_MESSAGES = True
 
 class Heartbeater(threading.Thread):
     """

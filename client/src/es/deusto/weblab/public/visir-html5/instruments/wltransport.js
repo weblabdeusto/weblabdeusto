@@ -7,14 +7,12 @@ visir.WLTransport = function(workingCallback)
 	this._workCall = workingCallback;
 	this._error = null;
 	this.onerror = function(err) {};
-
-//	Weblab.sendCommand("CONFIGURE", function(data){trace(data);}, null);
 }
 
 visir.WLTransport.prototype.Request = function(request, callback)
 {
 		trace("_SendRequest");
-	var xmlstring = '<root><protocol version="1.3"><request>' + xmlstring + '</request></protocol></root>';
+	var xmlstring = '<root><protocol version="1.3"><request>' + request + '</request></protocol></root>';
 
 	trace(Weblab.sendCommand(xmlstring, callback, null));
 }
