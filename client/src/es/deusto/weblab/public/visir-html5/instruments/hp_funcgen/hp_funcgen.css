@@ -1,3 +1,9 @@
+@font-face {
+	font-family: 'DigitalSegmented';
+	src: url('font/DigitalSegmented-Italic.ttf');
+}
+
+
 .hp_funcgen
 {
 	position: relative;
@@ -74,12 +80,13 @@
 
 .hp_funcgen .bigtext
 {
-	font-size: 42pt;
-	font-family: monospace;
-	font-weight: bold;
+	font-size: 44pt;
+	/*font-family: monospace;
+	font-weight: bold;*/
 	color: #008000;	
 	position: absolute;
 	text-align: right;
+	font-family: 'DigitalSegmented', monospace;
 }
 
 .hp_funcgen .num_display

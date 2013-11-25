@@ -18,10 +18,8 @@
 
 		trace("starting up..");
 
-		var transport = new visir.JSTransport(visir.SetWorking);
+		var transport = new visir.WLTransport(visir.SetWorking);
 		transport.onerror = function(err) { alert("Error: " + err); }
-
-		transport.Connect(visir.Config.Get("mesServer"), "fnord");
 
 		var reg = new visir.InstrumentRegistry();
 		var frame = new visir.InstrumentFrame(reg, $("#instrumentframe"));

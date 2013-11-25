@@ -43,9 +43,6 @@ from voodoo.sessions.exc import SessionNotFoundError
 
 from voodoo.typechecker import typecheck, ANY
 
-
-cookie = "GLOBALCOOKIE"
-
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
 
 CFG_MEASURE_SERVER_ADDRESS = "vt_measure_server_addr"
@@ -84,6 +81,7 @@ HEARTBEAT_MAX_SLEEP = 5
 
 # Actually defined through the configuration.
 DEBUG = True # None
+DEBUG_MESSAGES = True
 
 class Heartbeater(threading.Thread):
     """
@@ -347,7 +345,14 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
         if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
 
-        setup_data = self.build_setup_data("FAKECOOKIE", self.client_url, self.get_circuits().keys())
+        setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys())
+
+        self._session_manager.create_session(lab_session_id.id)
+        self._session_manager.modify_session(lab_session_id, {'cookie' : "", 'electro_lab_cookie' : ""})
+
+        # Increment the user's counter, which indicates how many users are using the experiment.
+        with self._users_counter_lock:
+            self.users_counter += 1
 
         # if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
 
@@ -418,40 +423,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if DEBUG: dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
             data = self.forward_request(lab_session_id, command)
 
-        # Find out the request type
-        request_type = self.parse_request_type(command)
-
-        # If it was a login request, we will extract the session key from the response.
-        # Once the session is in a logged in state, it will need to start receiving
-        # heartbeats.
-        if request_type == "login":
-            user = self._session_manager.get_session_locking(lab_session_id)
-            try:
-                # Store the session for the user
-                user['sessionkey'] = self.extract_sessionkey(data)
-                if DEBUG: dbg("[DBG] Extracted sessionkey: " + user['sessionkey'])
-            finally:
-                self._session_manager.modify_session_unlocking(lab_session_id, user)
-
-        # # This command is currently not used.
-        # if command == "GIVE_ME_CIRCUIT_LIST":
-        #     circuit_list = self.get_circuits().keys()
-        #     circuit_list_string = ""
-        #     for c in circuit_list:
-        #         circuit_list_string += c
-        #         circuit_list_string += ','
-        #     return circuit_list_string
-
-        # elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
-        #     print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
-        #     circuit_name = command.split(' ', 1)[1]
-        #     circuit_data = self.get_circuits()[circuit_name]
-        #     return circuit_data
-        # elif command == 'GIVE_ME_LIBRARY':
-        #     if DEBUG: dbg("[DBG] GOT GIVE_ME_LIBRARY")
-        #     return self.library_xml
-
-		return data
+        return data
 
     def extract_sessionkey(self, command):
         """
@@ -510,8 +482,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         HTTP POST.
         @param request String containing the request to be forwarded
         """
-        if DEBUG_MESSAGES:
-            dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
+       # if DEBUG_MESSAGES:
+        dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
