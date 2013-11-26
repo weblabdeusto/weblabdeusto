@@ -11,10 +11,9 @@ visir.WLTransport = function(workingCallback)
 
 visir.WLTransport.prototype.Request = function(request, callback)
 {
-		trace("_SendRequest");
-	var xmlstring = '<root><protocol version="1.3"><request>' + request + '</request></protocol></root>';
+	trace("_SendRequest");
 
-	trace(Weblab.sendCommand(xmlstring, callback, null));
+	Weblab.sendCommand(request, function(resp){trace("CORRECTO: "+resp);}, function(resp){trace("ERROR: "+resp);});
 }
 
 /*

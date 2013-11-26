@@ -76,7 +76,7 @@ DEFAULT_CIRCUITS = {}
 DEFAULT_DEBUG_PRINTS = False
 
 
-HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
+HEARTBEAT_REQUEST = """<protocol version="1.3"><request "%s"/></protocol>"""
 HEARTBEAT_MAX_SLEEP = 5
 
 # Actually defined through the configuration.
@@ -310,7 +310,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
     # #@Override(ConcurrentExperiment.ConcurrentExperiment)
     # @logged()
     # def do_start_experiment_new(self, lab_session_id, *args, **kwargs):
-    # 	data = {
+    #   data = {
     #             "cookie"   : cookie,
     #             "savedata" : urllib.quote(self.savedata, ''),
     #             "url"      : "",
@@ -320,7 +320,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
     #             "circuits" : ""
     #             }
     #     setup_data =  json.dumps(data)
-    # 	return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
+    #   return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
 
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
@@ -416,11 +416,16 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
 
         if command == "CONFIGURE":
-            print "CONFIGURE"
+            if DEBUG: dbg("[DBG] CONFIGURE")
             data = json.dump({"teacher": self.teacher})
         else:
-            if DEBUG: dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
-            data = self.forward_request(lab_session_id, command)
+            request = '<protocol version="1.3"><request sessionkey="%(sessionkey)s">%(command)s</request></protocol>' % {'sessionkey': lab_session_id.id, 'command': command}
+
+            if DEBUG:
+                dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(request))
+                dbg("[DBG] SESSION ID: %s" % lab_session_id)
+
+            data = self.forward_request(lab_session_id, request)
 
         return data
 
