@@ -52,6 +52,7 @@
 	position: relative;
 	overflow: hidden;
 	height: 460px;
+	width: 300px;
 }
 
 .flukedmm A:visited , .flukedmm A:link

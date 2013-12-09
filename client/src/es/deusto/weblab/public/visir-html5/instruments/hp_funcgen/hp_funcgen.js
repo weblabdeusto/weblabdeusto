@@ -27,10 +27,10 @@ visir.HPFunctionGenerator = function(id, elem)
 	<div class="bigtext num_display">1.00<span class="green">0</span>0000</div>\
 	<div class="bigtext num_unit">KHz</div>\
 	<div class="funcselect">\
-		<img class="sine active" src="%img%/sine.png" alt="sine" />\
-		<img class="square" src="%img%/square.png" alt="square" />\
-		<img class="triangle" src="%img%/tri.png" alt="triangle" />\
-		<img class="rampup" src="%img%/saw.png" alt="sawtooth" />\
+		<img class="sine active" src="%img%/sine.svg" alt="sine" />\
+		<img class="square" src="%img%/square.svg" alt="square" />\
+		<img class="triangle" src="%img%/tri.svg" alt="triangle" />\
+		<img class="rampup" src="%img%/saw.svg" alt="sawtooth" />\
 	</div>\
 	<div class="button button_sine"><img class="up active" src="%img%/reflad_sin_up.png" alt="sine button" /><img class="down" src="%img%/reflad_sin_down.png" alt="sine button" /></div>\
 	<div class="button button_square"><img class="up active" src="%img%/reflad_square_up.png" alt="square button" /><img class="down" src="%img%/reflad_square_down.png" alt="square button" /></div>\

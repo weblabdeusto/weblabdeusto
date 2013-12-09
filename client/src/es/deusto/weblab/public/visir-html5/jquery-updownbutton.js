@@ -20,7 +20,7 @@
 	function _setButtonState($button, down) {
 		if (down) {
 			$button.find("img.up").removeClass("active");
-			$button.find("img.down").addClass("active");		
+			$button.find("img.down").addClass("active");
 		} else {
 			$button.find("img.down").removeClass("active");
 			$button.find("img.up").addClass("active");
@@ -36,9 +36,20 @@
 					var $doc = $(document);
 					var $button = $(this);
 					var isTouched = false;
-	
+					var hasSentClick = false;
+										
+					$button.on("click", function(e) {
+						//trace("click sent")
+						hasSentClick = true;
+						return false;
+					});
+						
 					$button.on("mousedown touchstart", function(e) {
+						//trace("mousedown: " + e.type + " " + e.target.nodeName + " " + e.target.getAttribute("class") + " " + e.target.getAttribute("src"));
 						e.preventDefault();
+						
+						hasSentClick = false;
+						
 						_setButtonState($button, BUTTON_DOWN);
 		
 						isTouched = true;
@@ -53,7 +64,7 @@
 							isTouched = false;
 						});
 		
-						$doc.on("touchmove.rem", function(e) {
+						$doc.on("mousemove.rem touchmove.rem", function(e) {							
 							e = (e.originalEvent.touches) ? e.originalEvent.touches[0] : e;
 							// check if the finger is still inside
 			
@@ -64,19 +75,37 @@
 								_setButtonState($button, BUTTON_UP);
 							}
 						});
-		
-						$doc.on("mouseup.rem touchend.rem", function(e) {
+						
+						$doc.on("mouseup.rem", function(e) {
+							//trace("mouseup.rem: " + e.type + " " + e.target.nodeName + " " + e.target.getAttribute("class") + " " + e.target.getAttribute("src"));
 							_setButtonState($button, BUTTON_UP);
-		
 							$button.off(".rem");
 							$doc.off(".rem");
-			
-							if (isTouched) {
+							
+							setTimeout( function() {
+								if (isTouched && !hasSentClick) {
+									trace("delayed click");
+									$button.click();
+								}
+							}, 10);
+							
+							return false;
+						});
+
+						$doc.on("touchend.rem", function(e) {
+							//trace("touchend.rem: " + e.type);
+							_setButtonState($button, BUTTON_UP);
+							$button.off(".rem");
+							$doc.off(".rem");
+
+								// Generate event if mouse or touch is inside the component
+							if (isTouched && e.type != "mouseup") {
 								$button.click();
+								// guarantee that just one event will be sent, even if a browser handles both mouseup and touchend
+								isTouched = false;
 							}
 						});
 					});
-
 			});
 		},
 		destroy : function( ) {

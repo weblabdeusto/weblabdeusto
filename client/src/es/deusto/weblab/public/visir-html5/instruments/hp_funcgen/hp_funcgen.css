@@ -1,6 +1,6 @@
 @font-face {
 	font-family: 'DigitalSegmented';
-	src: url('font/DigitalSegmented-Italic.ttf');
+	src: url('../../fonts/DigitalSegmented-Italic.ttf');
 }
 
 
@@ -59,10 +59,16 @@
 .hp_funcgen .button_left { top: 282px; left: 569px; width: 38px; height: 29px; }
 
 /* function images */
-.hp_funcgen .funcselect , .hp_funcgen .funcselect img {
+.hp_funcgen .funcselect img {
 	position:absolute;
 	top: 0px;
 	left: 0px;
+}
+
+.hp_funcgen .funcselect {
+	position: absolute;
+	top: 77px;
+	left: 548px;
 }
 
 .hp_funcgen .funcselect img {
@@ -73,17 +79,17 @@
 	display: inline;
 }
 
-.hp_funcgen .funcselect .sine { top: 77px; left: 549px; }
-.hp_funcgen .funcselect .square { top: 92px; left: 548px; }
-.hp_funcgen .funcselect .triangle { top: 106px; left: 548px; }
-.hp_funcgen .funcselect .rampup { top: 120px; left: 550px; }
+.hp_funcgen .funcselect .sine { top: 0px; left: 0px; }
+.hp_funcgen .funcselect .square { top: 15px; left: 0px; }
+.hp_funcgen .funcselect .triangle { top: 29px; left: 0px; }
+.hp_funcgen .funcselect .rampup { top: 43px; left: 0px; }
 
 .hp_funcgen .bigtext
 {
 	font-size: 44pt;
 	/*font-family: monospace;
 	font-weight: bold;*/
-	color: #008000;	
+	color: rgb(0,240,240);	
 	position: absolute;
 	text-align: right;
 	font-family: 'DigitalSegmented', monospace;
@@ -106,7 +112,7 @@
 
 .hp_funcgen .on .green
 {
-	color: #00FF00;	
+	color: #00AAAA;
 }
 
 .hp_funcgen A:visited , .hp_funcgen A:link

@@ -7,6 +7,8 @@
 	font-size: 16px;
 	-webkit-user-select: none;
 	text-align: left;
+	
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 /* canvas for drawing wires, should be drawn in the forground above components */
