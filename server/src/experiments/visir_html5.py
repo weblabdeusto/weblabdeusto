@@ -351,18 +351,18 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
 
-        if command == "INIT":
-            if DEBUG: dbg("[DBG] INIT")
-            #TODO login
-            data = json.dump({"teacher": self.teacher})
+        if command == "login":
+            if DEBUG: dbg("[DBG] LOGIN")
+            session_key = self.extract_sessionkey(self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>"))
+
+            data = json.dumps({"teacher": self.teacher, "sessionkey": session_key})
         else:
-            request = '<protocol version="1.3"><request sessionkey="%(sessionkey)s">%(command)s</request></protocol>' % {'sessionkey': lab_session_id.id, 'command': command}
 
             if DEBUG:
-                dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(request))
+                dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
                 dbg("[DBG] SESSION ID: %s" % lab_session_id)
 
-            data = self.forward_request(lab_session_id, request)
+            data = self.forward_request(lab_session_id, command)
 
         return data
 

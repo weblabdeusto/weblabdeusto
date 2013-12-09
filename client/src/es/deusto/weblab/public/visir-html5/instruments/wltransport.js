@@ -1,19 +1,40 @@
 "use strict";
-
 var visir = visir || {};
+
 visir.WLTransport = function(workingCallback)
 {
 	this._isWorking = false;
 	this._workCall = workingCallback;
 	this._error = null;
-	this.onerror = function(err) {};
+	this.onerror = function(err){};
+	this._session = null;
+
+	var me = this;
+
+	this.Request("login", function(response){
+		response = $.parseJSON(response);
+
+		if (visir.Config !== undefined)
+		{
+			visir.Config.Set("teacher", response.teacher);
+		}
+
+		console.log(response.sessionkey);
+
+		visir._session = response.sessionkey;
+	});
 }
 
 visir.WLTransport.prototype.Request = function(request, callback)
 {
 	trace("_SendRequest");
 
-	Weblab.sendCommand(request, function(resp){trace("CORRECTO: "+resp);}, function(resp){trace("ERROR: "+resp);});
+	if (request !== "login")
+	{
+		request = '<protocol version="1.3"><request sessionkey="'+visir._session+'">'+request+'</request></protocol>';
+	}
+
+	Weblab.sendCommand(request, callback, callback);
 }
 
 /*

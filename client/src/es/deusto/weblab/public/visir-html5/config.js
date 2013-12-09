@@ -2,7 +2,7 @@ var visir = visir || {};
 
 visir.ConfigClass = function()
 {
-	this._teacherMode = true;
+	this._teacherMode = null;
 	this._instrReg = null;
 	this._manualInstConfig = null;
 
@@ -36,7 +36,7 @@ visir.ConfigClass.prototype.GetDeferredConfigLoader = function(baseurl)
 
 visir.ConfigClass.prototype.ReadConfig = function(config)
 {
-	this._teacherMode = config.teacherMode;
+	this._teacherMode = this._teacherMode == null ? config.teacherMode : this._teacherMode;
 	this._instrReg = config.instrReg;
 	this._locale = config.locale;
 	this._mesServer = config.mesServer;

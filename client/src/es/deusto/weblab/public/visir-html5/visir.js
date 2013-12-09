@@ -35,7 +35,7 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		, "instruments/oscilloscope.js"
 		, "instruments/functiongenerator.js"
 		, "instruments/dcpower.js"
-		, "instruments/transport.js"
+		, "instruments/wltransport.js"
 	];
 
 	var stage4_scripts = [
@@ -47,7 +47,7 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		, "instruments/ni_oscilloscope/ni_oscilloscope.js"
 		, "instrumentframe/instrumentframe.js"
 	];
-	
+
 	function InjectCSS(src)
 	{
 		var def = $.Deferred();
@@ -106,10 +106,10 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		for(var i=0;i<stage2_scripts.length; i++) {
 			defs.push( InjectScript(stage2_scripts[i]) );
 		}
-		
+
 		// workaround for chrome timeline bug on async requests
 		defs.push(visir.Config.GetDeferredConfigLoader(baseurl));
-		
+
 		return defs;
 	}
 
@@ -132,28 +132,28 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		}
 		return defs;
 	}
-	
+
 	/*
 	function Failed()
 	{
 		alert("VISIR Environment failed to load");
 	}
-	
+
 	function WaitForStage1() {
 			var deferred_1 = GetStage1();
 			$.when.apply(null, deferred_1).done( WaitForSetup );
 	}
-	
+
 	function WaitForSetup() {
 		var deferred = visir.Config.GetDeferredLoader(baseurl);
 		deferred.done( WaitForStage2 );
 	}
-	
+
 	function WaitForStage2() {
 		var deferred_2 = GetStage2();
 		$.when.apply(null, deferred_2).done(onSuccess);
 	}
-	
+
 	WaitForStage1();
 }
 	*/
