@@ -9,17 +9,14 @@ visir.WLTransport = function(workingCallback)
 	this.onerror = function(err){};
 	this._session = null;
 
-	var me = this;
-
-	this.Request("login", function(response){
+	this.Request("login", function(response)
+	{
 		response = $.parseJSON(response);
 
 		if (visir.Config !== undefined)
 		{
 			visir.Config.Set("teacher", response.teacher);
 		}
-
-		console.log(response.sessionkey);
 
 		visir._session = response.sessionkey;
 	});
