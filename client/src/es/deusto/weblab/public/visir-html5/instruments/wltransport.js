@@ -31,7 +31,7 @@ visir.WLTransport.prototype.Request = function(request, callback)
 		request = '<protocol version="1.3"><request sessionkey="'+visir._session+'">'+request+'</request></protocol>';
 	}
 
-	Weblab.sendCommand(request, callback, callback);
+	Weblab.sendCommand(request, callback, callback); //TODO errors to Error
 }
 
 /*
