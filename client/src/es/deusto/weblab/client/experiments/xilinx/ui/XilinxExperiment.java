@@ -86,6 +86,7 @@ public class XilinxExperiment extends ExperimentBase{
 	private static final String STATE_PROGRAMMING = "programming";
 	private static final String STATE_READY = "ready";
 	private static final String STATE_FAILED = "failed";
+	private static final String STATE_NOT_ALLOWED = "not_allowed";
 	
 	// The state the experiment is currently in. Must be a string within the states list.
 	private String currentState;
@@ -346,7 +347,7 @@ public class XilinxExperiment extends ExperimentBase{
 		} catch(Exception e) {	
 			//this.messages.setText("[Xilinx] Did not receive the expected_synthesizing_time parameter.");
     		GWT.log("[Xilinx] Did not receive the expected_synthesizing_time parameter. Using the default. ", null);
-    		XilinxExperiment.this.expectedSynthesizingTime = DEFAULT_EXPECTED_SYNTHESIZING_TIME;
+    		XilinxExperiment.this.expectedSynthesizingTime = this.DEFAULT_EXPECTED_SYNTHESIZING_TIME;
     		//return;
 		}
 	
@@ -456,6 +457,9 @@ public class XilinxExperiment extends ExperimentBase{
 						} else if(state.equals(STATE_SYNTHESIZING_ERROR)) {
 							// Compiling failed. 
 							XilinxExperiment.this.onDeviceSynthesizingError();
+						} else if(state.equals(STATE_NOT_ALLOWED)) {
+							// That filetype is not allowed.
+							XilinxExperiment.this.onFileNotAllowed();
 						} else if(state.equals(STATE_AWAITING_CODE)) {
 							// Awaiting for VHDL code.
 							// TODO: Implement this. THIS IS NOT YET SUPPORTED.
@@ -520,6 +524,26 @@ public class XilinxExperiment extends ExperimentBase{
 		this.enableInteractiveWidgets();
 		this.messages.setText(i18n.deviceReady());
 		this.messages.stop();
+	}
+	
+	
+	/**
+	 * Called when the STATE query tells us that the filetype we uploaded is
+	 * not allowed.
+	 */
+	private void onFileNotAllowed() {
+		this.deviceReady = true;
+		
+		if(XilinxExperiment.this.progressBar.isWaiting()){
+			this.progressBar.stop();
+			this.progressBar.setVisible(false);
+		}else
+	    	// Make the bar finish in a few seconds, it will make itself
+	    	// invisible once it is full.
+			this.progressBar.finish(300);
+    	
+		this.messages.setText(i18n.fileNotAllowed());
+		this.messages.stop();	
 	}
 	
 	

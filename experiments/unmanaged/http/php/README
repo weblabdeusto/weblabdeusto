@@ -1,0 +1,3 @@
+1. Copy this directory to /var/www/phplab or htdocs\phplab
+2. Create the database as defined in initial.sql
+

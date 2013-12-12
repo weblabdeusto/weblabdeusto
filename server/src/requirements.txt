@@ -27,10 +27,20 @@ SQLAlchemy<0.7.100
 
 SOAPpy<0.13
 
+#
+# Limit the version of Flask-WTF to lower than 0.9. There are some
+# WebLab incompatibility issues with higher versions.
+#
+Flask-WTF<0.9
+
 # 
 # Flask_admin is used for the new administration panel
 # 
-Flask-Admin<1.1
+# Flask-Admin>=1.0.4,<1.1
+Flask-Admin==1.0.6
+
+# Flask 0.9 is used
+Flask==0.9
 
 # 
 # alembic is used for upgrading the database from version to version

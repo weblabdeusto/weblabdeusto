@@ -1,4 +1,4 @@
-
+import sys
 import urlparse
 import SocketServer
 import wsgiref.simple_server
@@ -112,6 +112,14 @@ class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
 
     def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
         self.application = AdministrationApplication(configuration_manager, server)
+        flask_debug = self._configuration_manager.get_value('flask_debug', False)
+        if flask_debug:
+            print >> sys.stderr, "*" * 50
+            print >> sys.stderr, "WARNING " * 5
+            print >> sys.stderr, "flask_admin is set to True. This is an important security bug. Do not use it in production mode, only for bugfixing!!!"
+            print >> sys.stderr, "WARNING " * 5
+            print >> sys.stderr, "*" * 50
+        self.application.app.config['DEBUG'] = flask_debug
         return self.application.app
 
 #############################################
