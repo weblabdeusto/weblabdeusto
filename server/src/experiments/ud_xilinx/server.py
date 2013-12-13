@@ -211,7 +211,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         done_already = c.is_same_as_last(content)
 
         if not done_already:
-            if self._device_name.lower() == "fpga":
+            if self._device_name.lower() == "fpga" and not "@@@CLOCK:" in content:
                 # TODO: This is quite ugly. We make sure the Compilar class replaces some string to make the
                 # UCF / augmented reality works.
                 c.feed_vhdl(content, True, False)
