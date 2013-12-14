@@ -170,10 +170,10 @@ class UsersPanel(AdministratorModelView):
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-        role=lambda c, u, p: show_link(UsersPanel, 'role', u, 'role.name', SAME_DATA),
-        groups=lambda c, u, p: show_link(GroupsPanel, 'user', u, 'login'),
-        logs=lambda c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
-        permissions=lambda c, u, p: show_link(UserPermissionPanel, 'user', u, 'login'),
+        role=lambda v, c, u, p: show_link(UsersPanel, 'role', u, 'role.name', SAME_DATA),
+        groups=lambda v, c, u, p: show_link(GroupsPanel, 'user', u, 'login'),
+        logs=lambda v, c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
+        permissions=lambda v, c, u, p: show_link(UserPermissionPanel, 'user', u, 'login'),
     )
 
     INSTANCE = None
@@ -505,8 +505,8 @@ class GroupsPanel(AdministratorModelView):
     )
 
     column_formatters = dict(
-        users=lambda c, g, p: show_link(UsersPanel, 'group', g, 'name'),
-        permissions=lambda c, g, p: show_link(GroupPermissionPanel, 'group', g, 'name'),
+        users=lambda v, c, g, p: show_link(UsersPanel, 'group', g, 'name'),
+        permissions=lambda v, c, g, p: show_link(GroupPermissionPanel, 'group', g, 'name'),
     )
 
     INSTANCE = None
@@ -534,10 +534,10 @@ class UserUsedExperimentPanel(AdministratorModelView):
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
     column_formatters = dict(
-        user=lambda c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
-        experiment=lambda c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue,
+        user=lambda v, c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
+        experiment=lambda v, c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue,
                                                ('experiment.name', 'experiment.category.name'), uue.experiment),
-        details=lambda c, uue, p: Markup('<a href="%s">Details</a>' % (url_for('.detail', id=uue.id))),
+        details=lambda v, c, uue, p: Markup('<a href="%s">Details</a>' % (url_for('.detail', id=uue.id))),
     )
 
     action_disallowed_list = ['create', 'edit', 'delete']
@@ -644,7 +644,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     column_filters = ( 'name', )
 
     column_formatters = dict(
-        experiments=lambda co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
+        experiments=lambda v, co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
     )
 
     INSTANCE = None
@@ -664,8 +664,8 @@ class ExperimentPanel(AdministratorModelView):
     column_filters = ('name', 'category')
 
     column_formatters = dict(
-        category=lambda c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
-        uses=lambda c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
+        category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
+        uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
     )
 
     INSTANCE = None
@@ -678,7 +678,7 @@ class ExperimentPanel(AdministratorModelView):
         ExperimentPanel.INSTANCE = self
 
 
-def display_parameters(context, permission, p):
+def display_parameters(view, context, permission, p):
     parameters = u''
     for parameter in permission.parameters:
         parameters += u'%s = %s, ' % (parameter.permission_type_parameter, parameter.value)
