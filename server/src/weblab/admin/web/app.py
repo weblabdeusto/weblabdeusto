@@ -45,6 +45,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.app.config['SECRET_KEY'] = os.urandom(32)
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
+        self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
 
         if os.path.exists('logs'):
             f = os.path.join('logs','admin_app.log')
