@@ -8,30 +8,58 @@ visir.WLTransport = function(workingCallback)
 	this._error = null;
 	this.onerror = function(err){};
 	this._session = null;
+}
 
-	this.Request("login", function(response)
+visir.WLTransport.prototype.Connect = function()
+{
+	trace("Login");
+
+	Weblab.sendCommand("login", function(response)
 	{
 		response = $.parseJSON(response);
 
-		if (visir.Config !== undefined)
-		{
-			visir.Config.Set("teacher", response.teacher);
-		}
-
-		visir._session = response.sessionkey;
-	});
+		visir._wlsession = response.sessionkey;
+	}, this.Error);
 }
 
 visir.WLTransport.prototype.Request = function(request, callback)
 {
-	trace("_SendRequest");
+	trace("Send request");
 
-	if (request !== "login")
-	{
-		request = '<protocol version="1.3"><request sessionkey="'+visir._session+'">'+request+'</request></protocol>';
+	this._error = null;
+	if (this._isWorking) return;
+	this.SetWorking(true);
+
+	request = '<protocol version="1.3"><request sessionkey="'+visir._wlsession+'">'+request+'</request></protocol>';
+
+	var tprt = this;
+	Weblab.sendCommand(request, function(response) {
+			if (typeof callback == "function")
+			{
+				// this will check for errors in the request
+				var ret = tprt._ReadResponseProtocolHeader(response);
+				// and we only want to do the callback if there is no errors
+				if ( ! tprt._error)
+				{
+					callback(ret);
+				}
+			}
+		}, this.Error);
+}
+
+visir.WLTransport.prototype._ReadResponseProtocolHeader = function(response)
+{
+	var $xml = $(response);
+	if ($xml.find("response").length > 0) {
+		return $xml.html(); // this will strip of the outer protocol tags
 	}
-
-	Weblab.sendCommand(request, callback, callback); //TODO errors to Error
+	var $error = $xml.find("error");
+	if ($error.length > 0)
+	{
+		this.Error($error.text());
+		return;
+	}
+	this.Error("Unable to parse response");
 }
 
 /*
