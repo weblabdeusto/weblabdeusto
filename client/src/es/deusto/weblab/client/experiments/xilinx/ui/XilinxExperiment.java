@@ -34,6 +34,7 @@ import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.xilinx.XilinxCreatorFactory;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -63,12 +64,6 @@ public class XilinxExperiment extends ExperimentBase{
 	}
 
 	private static final WlDeustoXilinxBasedBoardUiBinder uiBinder = GWT.create(WlDeustoXilinxBasedBoardUiBinder.class);
-	
-	private static final String XILINX_DEMO_PROPERTY                  = "is.demo";
-	private static final boolean DEFAULT_XILINX_DEMO                  = false;
-	
-	private static final String XILINX_MULTIRESOURCE_DEMO_PROPERTY   = "is.multiresource.demo";
-	private static final boolean DEFAULT_MULTIRESOURCE_XILINX_DEMO   = false;
 	
 	private static final String DEFAULT_XILINX_WEBCAM_IMAGE_URL       = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	
@@ -160,17 +155,11 @@ public class XilinxExperiment extends ExperimentBase{
 	}
 	
 	private boolean isDemo(){
-		return this.configurationRetriever.getBoolProperty(
-				XilinxExperiment.XILINX_DEMO_PROPERTY, 
-				XilinxExperiment.DEFAULT_XILINX_DEMO
-			);
+		return this.configurationRetriever.getBoolProperty(XilinxCreatorFactory.IS_DEMO);
 	}
 	
 	private boolean isMultiresourceDemo(){
-		return this.configurationRetriever.getBoolProperty(
-				XilinxExperiment.XILINX_MULTIRESOURCE_DEMO_PROPERTY, 
-				XilinxExperiment.DEFAULT_MULTIRESOURCE_XILINX_DEMO
-			);
+		return this.configurationRetriever.getBoolProperty(XilinxCreatorFactory.IS_MULTIRESOURCE_DEMO);
 	}
 
 	private int getWebcamRefreshingTime() {

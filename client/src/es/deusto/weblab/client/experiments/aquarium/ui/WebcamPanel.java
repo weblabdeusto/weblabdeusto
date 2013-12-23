@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.IDisposableWidgetsContainer;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
@@ -35,9 +36,6 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 
 	@UiField(provided=true) WlWebcam webcam1;
 	@UiField(provided=true) WlWebcam webcam2;
-	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
 	
 	private IConfigurationRetriever configurationRetriever;
 	
@@ -63,7 +61,7 @@ public class WebcamPanel extends Composite implements IDisposableWidgetsContaine
 	}
 	
 	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(WEBCAM_REFRESH_TIME_PROPERTY, DEFAULT_WEBCAM_REFRESH_TIME);
+		return this.configurationRetriever.getIntProperty(AquariumCreatorFactory.WEBCAM_REFRESH);
 	}	
 	
 

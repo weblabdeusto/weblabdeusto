@@ -23,12 +23,20 @@ import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
+import es.deusto.weblab.client.lab.experiments.util.applets.AbstractCreatorFactory;
 
-public class JSAppCreatorFactory implements IExperimentCreatorFactory {
+public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameterDefault JS_FILE = new ExperimentParameterDefault("js.file", "JavaScript file", "");
+	public static final ExperimentParameterDefault HTML_FILE = new ExperimentParameterDefault("html.file", "HTML file", "");
+	public static final ExperimentParameterDefault PROVIDE_FILE_UPLOAD = new ExperimentParameterDefault("provide.file.upload", "Provide upload file", false);
+	
 	@Override
 	public String getCodeName() {
 		return "js";
@@ -46,11 +54,11 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 		//final String message;
 		
 		try{
-			width   = configurationRetriever.getIntProperty("width");
-			height  = configurationRetriever.getIntProperty("height");
-			jsfile = configurationRetriever.getProperty("js.file", "");
-			htmlfile = configurationRetriever.getProperty("html.file", "");
-			provideFileUpload = configurationRetriever.getBoolProperty("provide.file.upload", false);
+			width   = configurationRetriever.getIntProperty(AbstractCreatorFactory.WIDTH);
+			height  = configurationRetriever.getIntProperty(AbstractCreatorFactory.HEIGHT);
+			jsfile = configurationRetriever.getProperty(JS_FILE);
+			htmlfile = configurationRetriever.getProperty(HTML_FILE);
+			provideFileUpload = configurationRetriever.getBoolProperty(PROVIDE_FILE_UPLOAD);
 			
 			// Throw an exception if no file was specified. The configuration needs to specify either
 			// an HTML or a JS script as base files.
@@ -93,6 +101,12 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+	
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter [] { AbstractCreatorFactory.WIDTH, AbstractCreatorFactory.HEIGHT, AbstractCreatorFactory.MESSAGE, AbstractCreatorFactory.PAGE_FOOTER,
+											JS_FILE, HTML_FILE, PROVIDE_FILE_UPLOAD };
 	}
 
 }

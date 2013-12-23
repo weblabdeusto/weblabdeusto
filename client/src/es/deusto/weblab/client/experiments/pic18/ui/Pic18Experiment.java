@@ -36,6 +36,7 @@ import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -68,9 +69,6 @@ public class Pic18Experiment extends ExperimentBase{
 	}
 
 	private static final PIC18UiBinder uiBinder = GWT.create(PIC18UiBinder.class);
-	
-	private static final String DEMO_PROPERTY                         = "is.demo";
-	private static final boolean DEFAULT_DEMO                         = false;
 	
 	private static final String WEBCAM_REFRESH_TIME_PROPERTY          = "webcam.refresh.millis";
 	private static final int    DEFAULT_WEBCAM_REFRESH_TIME           = 400;
@@ -164,10 +162,7 @@ public class Pic18Experiment extends ExperimentBase{
 	}
 	
 	private boolean isDemo(){
-		return this.configurationRetriever.getBoolProperty(
-				Pic18Experiment.DEMO_PROPERTY, 
-				Pic18Experiment.DEFAULT_DEMO
-			);
+		return this.configurationRetriever.getBoolProperty(Pic18CreatorFactory.IS_DEMO);
 	}
 	
 	private int getWebcamRefreshingTime() {

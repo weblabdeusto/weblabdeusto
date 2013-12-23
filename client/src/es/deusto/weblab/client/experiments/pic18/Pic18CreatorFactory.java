@@ -22,11 +22,16 @@ import es.deusto.weblab.client.experiments.pic18.ui.Pic18Experiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
-public class Pic18CreatorFactory implements IExperimentCreatorFactory {
+public class Pic18CreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameterDefault IS_DEMO = new ExperimentParameterDefault("is.demo", "Is a demo?", false);
+	
 	@Override
 	public String getCodeName() {
 		return "pic18";
@@ -53,6 +58,11 @@ public class Pic18CreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter[] { IS_DEMO };
 	}
 
 }

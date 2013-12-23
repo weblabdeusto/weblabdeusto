@@ -5,9 +5,17 @@
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "html": {
+                "type": "string", 
+                "description": "HTML contents"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -21,9 +29,17 @@
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "html": {
+                "type": "string", 
+                "description": "HTML contents"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -37,9 +53,17 @@
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "html": {
+                "type": "string", 
+                "description": "HTML contents"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -57,6 +81,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -65,13 +93,41 @@
     }, 
     "flash": {
         "parameters": {
+            "swf.file": {
+                "type": "string", 
+                "description": "SWF file"
+            }, 
+            "flash.timeout": {
+                "type": "integer", 
+                "description": "Time given for Flash to load"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "height": {
+                "type": "integer", 
+                "description": "Application height"
+            }, 
+            "width": {
+                "type": "integer", 
+                "description": "Application width"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "message": {
+                "type": "string", 
+                "description": "Message to be displayed"
+            }, 
+            "page.footer": {
+                "type": "string", 
+                "description": "Footer of the application (below the application loaded, defaultValue)"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -81,13 +137,41 @@
     }, 
     "java": {
         "parameters": {
+            "code": {
+                "type": "string", 
+                "description": "The applet class"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "jar.file": {
+                "type": "string", 
+                "description": "The jar file URL"
+            }, 
+            "height": {
+                "type": "integer", 
+                "description": "Application height"
+            }, 
+            "width": {
+                "type": "integer", 
+                "description": "Application width"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "message": {
+                "type": "string", 
+                "description": "Message to be displayed"
+            }, 
+            "page.footer": {
+                "type": "string", 
+                "description": "Footer of the application (below the application loaded, defaultValue)"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -97,13 +181,45 @@
     }, 
     "js": {
         "parameters": {
+            "js.file": {
+                "type": "string", 
+                "description": "JavaScript file"
+            }, 
+            "html.file": {
+                "type": "string", 
+                "description": "HTML file"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
+            "provide.file.upload": {
+                "type": "bool", 
+                "description": "Provide upload file"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "height": {
+                "type": "integer", 
+                "description": "Application height"
+            }, 
+            "width": {
+                "type": "integer", 
+                "description": "Application width"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "message": {
+                "type": "string", 
+                "description": "Message to be displayed"
+            }, 
+            "page.footer": {
+                "type": "string", 
+                "description": "Footer of the application (below the application loaded, defaultValue)"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -113,13 +229,25 @@
     }, 
     "xilinx": {
         "parameters": {
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "is.demo": {
+                "type": "bool", 
+                "description": "Is a demo?"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "is.multiresource.demo": {
+                "type": "bool", 
+                "description": "Is a multiresource demo?"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -137,6 +265,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -152,6 +284,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -169,6 +305,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -181,9 +321,17 @@
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "send.file": {
+                "type": "bool", 
+                "description": "Send file or not"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -201,6 +349,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -216,6 +368,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -233,6 +389,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -248,6 +408,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -265,6 +429,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -273,6 +441,10 @@
     }, 
     "pic18": {
         "parameters": {
+            "is.demo": {
+                "type": "bool", 
+                "description": "Is a demo?"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -280,6 +452,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -297,6 +473,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -312,6 +492,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -329,6 +513,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -344,6 +532,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -361,6 +553,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -369,6 +565,18 @@
     }, 
     "ilab-batch": {
         "parameters": {
+            "code": {
+                "type": "string", 
+                "description": "iLab class file"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
+            "service_broker": {
+                "type": "string", 
+                "description": "iLab Service Broker relative URL"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -376,6 +584,14 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "archive": {
+                "type": "string", 
+                "description": "iLab archive file"
+            }, 
+            "lab_server_id": {
+                "type": "string", 
+                "description": "iLab lab server id"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -393,6 +609,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -408,6 +628,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -425,6 +649,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -433,6 +661,10 @@
     }, 
     "aquarium": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Webcam refreshing time"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -440,6 +672,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -457,6 +693,10 @@
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
@@ -472,6 +712,10 @@
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 

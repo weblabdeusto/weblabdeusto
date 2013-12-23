@@ -122,13 +122,9 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 		this.deferred = deferFlashApp;
 		
 
-		this.flashTimeout = configurationRetriever.getIntProperty("flash.timeout", getDefaultFlashTimeout());
+		this.flashTimeout = configurationRetriever.getIntProperty(FlashAppCreatorFactory.FLASH_TIMEOUT);
 		
 		FlashExperiment.createJavaScriptCode(this.html.getElement(), this.width+10, 0);
-	}
-	
-	protected int getDefaultFlashTimeout() {
-		return 10;
 	}
 	
 	protected String getDefaultFlashTimeoutMessage(String errorMessage) {

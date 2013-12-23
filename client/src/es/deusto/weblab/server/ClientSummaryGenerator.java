@@ -27,7 +27,8 @@ public class ClientSummaryGenerator {
 		ExperimentParameter []  defaultExperimentParameters = new ExperimentParameter[] {
 			new ExperimentParameter("experiment.picture", ExperimentParameter.Type.string, "Path to the experiment pictures"),	
 			new ExperimentParameter("experiment.info.link", ExperimentParameter.Type.string, "Link to point in the information"),
-			new ExperimentParameter("experiment.info.description", ExperimentParameter.Type.string, "Description message"),	
+			new ExperimentParameter("experiment.info.description", ExperimentParameter.Type.string, "Description message"),
+			new ExperimentParameter("experiment.reserve.button.shown", ExperimentParameter.Type.bool, "Show the reserve button or not"),
 		};
 
 		final PrintStream ps = new PrintStream("clients_summary.txt");

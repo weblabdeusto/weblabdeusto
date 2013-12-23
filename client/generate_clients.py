@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import glob
 import json
 from collections import OrderedDict
 
-BIN_DIR = 'war/WEB-INF/classes/'
+jar_files = ':'.join(glob.glob("external/gwt/*.jar"))
+
+BIN_DIR = 'war/WEB-INF/classes/:%s' % jar_files
 SUMMARY_TXT = 'clients_summary.txt'
 JSON_FILE = '../server/src/weblab/clients.json'
 
