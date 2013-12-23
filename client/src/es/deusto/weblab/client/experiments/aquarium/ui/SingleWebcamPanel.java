@@ -35,7 +35,7 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 
 	@UiField(provided=true) WlWebcam webcam;
 	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
+	public static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
 	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
 	
 	private IConfigurationRetriever configurationRetriever;

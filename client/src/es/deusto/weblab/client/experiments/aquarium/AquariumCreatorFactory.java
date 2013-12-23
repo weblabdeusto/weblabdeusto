@@ -20,12 +20,14 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.experiments.aquarium.ui.AquariumExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 
-public class AquariumCreatorFactory implements IExperimentCreatorFactory {
+public class AquariumCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
 	@Override
 	public String getCodeName() {
@@ -53,5 +55,10 @@ public class AquariumCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return null;
 	}
 }

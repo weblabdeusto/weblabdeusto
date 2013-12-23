@@ -1,0 +1,482 @@
+{
+    "blank": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "blank-limited-mobile": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "blank-no-mobile": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "visir": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "flash": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "java": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "js": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "xilinx": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "dummy": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "dummybatch": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "vm": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "labview": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "logic": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "binary": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "gpib": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "gpib1": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "gpib2": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "pic18": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "robot-standard": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "robot-movement": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "robot-proglist": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "robotarm": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "submarine": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "ilab-batch": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "unr-physics": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "control-app": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "incubator": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "aquarium": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "robot-maze": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "redirect": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }
+}

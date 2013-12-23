@@ -52,9 +52,9 @@ import es.deusto.weblab.client.lab.experiments.util.applets.js.JSAppCreatorFacto
  * This class acts as a registry of all the available entries for the currently known experiments.
  * In order to add a new experiment, just add another element to the list as the sample one (the one commented)
  */
-class EntryRegistry {
+public class EntryRegistry {
 	
-	static final IExperimentCreatorFactory [] creatorFactories = new IExperimentCreatorFactory[]{
+	public static final IExperimentCreatorFactory [] creatorFactories = new IExperimentCreatorFactory[]{
 		new BlankCreatorFactory(),
 		new BlankLimitedMobileCreatorFactory(),
 		new BlankNoMobileCreatorFactory(),
