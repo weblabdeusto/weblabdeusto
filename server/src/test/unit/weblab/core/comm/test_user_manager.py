@@ -471,17 +471,20 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         return role1, role2, role3
 
     def _generate_experiments(self):
+        client = Experiment.ExperimentClient("client", {})
         experimentA = Experiment.Experiment(
                 'weblab-pld',
                 Category.ExperimentCategory('WebLab-PLD experiments'),
                 'start_date',
-                'end_date'
+                'end_date',
+                client
             )
         experimentB = Experiment.Experiment(
                 'weblab-pld',
                 Category.ExperimentCategory('WebLab-PLD experiments'),
                 'start_date',
-                'end_date'
+                'end_date',
+                client
             )
         return experimentA, experimentB
 
@@ -704,17 +707,20 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
 
 def _generate_two_experiments():
+    client = Experiment.ExperimentClient("client", {})
     experimentA = Experiment.Experiment(
             'weblab-pld',
             Category.ExperimentCategory('WebLab-PLD experiments'),
             'start_date',
-            'end_date'
+            'end_date',
+            client
         )
     experimentB = Experiment.Experiment(
             'weblab-pld',
             Category.ExperimentCategory('WebLab-PLD experiments'),
             'start_date',
-            'end_date'
+            'end_date',
+            client
         )
     return experimentA, experimentB
 

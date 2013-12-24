@@ -70,6 +70,18 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @logged()
+    def list_clients(self):
+        """Lists the ExperimentClients """
+        session = self.Session()
+        try:
+            clients = {}
+            for experiment in session.query(model.DbExperiment).all():
+                exp = experiment.to_business()
+                clients[exp.name, exp.category.name] = exp.client
+            return clients
+        finally:
+            session.close()
 
     # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()

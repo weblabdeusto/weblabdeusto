@@ -27,8 +27,7 @@ import voodoo.gen.coordinator.CoordAddress as CoordAddress
 
 from weblab.login.simple import create_user_auth
 
-from weblab.data.dto.experiments import Experiment
-from weblab.data.dto.experiments import ExperimentCategory
+from weblab.data.dto.experiments import Experiment, ExperimentClient, ExperimentCategory
 from weblab.data.dto.permissions import Permission, PermissionParameter
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.command import Command, NullCommand
@@ -327,11 +326,29 @@ class DbExperiment(Base):
         return u'%s@%s' % (self.name, self.category.name if self.category is not None else '')
 
     def to_business(self):
+        configuration = []
+        for param in self.client_parameters:
+            try:
+                if param.parameter_type == 'string':
+                    configuration[param.parameter_name] = param.value
+                elif param.parameter_type == 'integer':
+                    configuration[param.parameter_name] = int(param.value)
+                elif param.parameter_type == 'floating':
+                    configuration[param.parameter_name] = float(param.value)
+                elif param.parameter_type == 'bool':
+                    configuration[param.parameter_name] = bool(param.value)
+                else:
+                    print "Unknown Experiment Client Parameter type %s" % param.parameter_type
+            except (ValueError, TypeError) as e:
+                continue
+                
+        client = ExperimentClient(self.client, configuration)
         return Experiment(
             self.name,
             self.category.to_business(),
             self.start_date,
             self.end_date,
+            client,
             self.id
             )
 
@@ -345,8 +362,8 @@ class DbExperimentClientParameter(Base):
     id               = Column(Integer, primary_key = True)
     experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
     parameter_name   = Column(String(255), nullable = False, index = True)
-    parameter_type   = Column(String(255), nullable = False, index = True)
-    value            = Column(String(255), nullable = False)
+    parameter_type   = Column(String(15), nullable = False, index = True)
+    value            = Column(String(600), nullable = False)
 
     experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
 

@@ -284,6 +284,9 @@ class UserProcessingServer(object):
             self._check_other_sessions_finished()
             time.sleep(checking_time)
 
+    def list_clients(self):
+        return self._db_manager.list_clients()
+
     # # # # # # # # # # # #
     # Session operations  #
     # # # # # # # # # # # #

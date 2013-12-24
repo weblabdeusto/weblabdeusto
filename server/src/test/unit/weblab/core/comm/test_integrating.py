@@ -82,17 +82,20 @@ class UserProcessingIntegratingRemoteFacadeManagerZSI(unittest.TestCase):
             self.rfs = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer(self.mock_server, self.configurationManager)
 
         def _generate_two_experiments(self):
+            client = Experiment.ExperimentClient("client", {})
             experimentA = Experiment.Experiment(
                     'weblab-pld',
                     Category.ExperimentCategory('WebLab-PLD experiments'),
                     datetime.datetime(2007,1,1),
-                    datetime.datetime(2008,1,1)
+                    datetime.datetime(2008,1,1),
+                    client
                 )
             experimentB = Experiment.Experiment(
                     'weblab-fpga',
                     Category.ExperimentCategory('WebLab-FPGA experiments'),
                     datetime.datetime(2005,1,1),
-                    datetime.datetime(2006,1,1)
+                    datetime.datetime(2006,1,1),
+                    client
                 )
             return experimentA, experimentB
 
@@ -395,17 +398,20 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
         self.rfs = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer(self.mock_server, self.configurationManager)
 
     def _generate_two_experiments(self):
+        client = Experiment.ExperimentClient("client", {})
         experimentA = Experiment.Experiment(
                 'weblab-pld',
                 Category.ExperimentCategory('WebLab-PLD experiments'),
                 datetime.datetime(2007,1,1),
-                datetime.datetime(2008,1,1)
+                datetime.datetime(2008,1,1),
+                client
             )
         experimentB = Experiment.Experiment(
                 'weblab-fpga',
                 Category.ExperimentCategory('WebLab-FPGA experiments'),
                 datetime.datetime(2005,1,1),
-                datetime.datetime(2006,1,1)
+                datetime.datetime(2006,1,1),
+                client
             )
         return experimentA, experimentB
 

@@ -381,13 +381,13 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
     if upgrader_class is not None:
         if 'alembic_version' in metadata.tables:
             upgrader = upgrader_class(db_str)
-            Session = sessionmaker(bind=engine)
-            session = Session()
-            session.execute(
-                metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
-            )
-            session.commit()
-            session.close()
+            # Session = sessionmaker(bind=engine)
+            # session = Session()
+            # session.execute(
+            #     metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+            # )
+            # session.commit()
+            # session.close()
 
     if verbose: print >> stdout, "[done]"
     return engine

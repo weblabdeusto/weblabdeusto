@@ -20,8 +20,8 @@ def upgrade():
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('experiment_id', sa.Integer(), nullable=False),
         sa.Column('parameter_name', sa.String(length=255), nullable=False),
-        sa.Column('parameter_type', sa.String(length=255), nullable=False),
-        sa.Column('value', sa.String(length=255), nullable=False),
+        sa.Column('parameter_type', sa.String(length=15), nullable=False),
+        sa.Column('value', sa.String(length=600), nullable=False),
         sa.ForeignKeyConstraint(['experiment_id'], ['Experiment.id'], ),
         sa.PrimaryKeyConstraint('id'),
         mysql_engine='InnoDB'

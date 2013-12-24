@@ -16,14 +16,15 @@
 import unittest
 import datetime
 
-from weblab.data.dto.experiments import Experiment, ExperimentCategory, ExperimentUse, ExperimentAllowed
+from weblab.data.dto.experiments import Experiment, ExperimentCategory, ExperimentUse, ExperimentAllowed, ExperimentClient
 
 
 class ExperimentsTestCase(unittest.TestCase):
 
     def setUp(self):
         self.category   = ExperimentCategory("Dummy experiments")
-        self.experiment = Experiment("ud-dummy", self.category, datetime.datetime.now(), datetime.datetime.now(), 5L)
+        self.client     = ExperimentClient("client", {})
+        self.experiment = Experiment("ud-dummy", self.category, datetime.datetime.now(), datetime.datetime.now(), self.client, 5L)
         self.use        = ExperimentUse(datetime.datetime.now(), datetime.datetime.now(), self.experiment, 'student1', '127.0.0.1', 5L)
         self.allowed    = ExperimentAllowed(self.experiment, 150, 5, True, 'exp::user', 1, 'user')
 

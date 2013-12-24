@@ -23,6 +23,7 @@ from weblab.core.comm.web.ilab              import ILabMethod
 from weblab.core.comm.web.visir             import VisirMethod
 from weblab.core.comm.web.language          import LanguageMethod
 from weblab.core.comm.web.direct2experiment import Direct2ExperimentMethod
+from weblab.core.comm.web.configuration     import ConfigurationMethod
 
 from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
 
@@ -41,6 +42,7 @@ class UserProcessingWebProtocolRemoteFacadeServer(WebFacadeServer.WebProtocolRem
                 VisirMethod,
                 LanguageMethod,
                 Direct2ExperimentMethod,
+                ConfigurationMethod,
             ]
 
 class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer):
