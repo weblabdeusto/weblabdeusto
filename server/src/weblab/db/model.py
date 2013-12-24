@@ -302,15 +302,17 @@ class DbExperiment(Base):
     category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
     start_date  = Column(DateTime, nullable = False)
     end_date    = Column(DateTime, nullable = False)
+    client      = Column(String(255), index = True)
 
     category = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
 
-    def __init__(self, name = None, category = None, start_date = None, end_date = None):
+    def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
         self.name = name
         self.category = category
         self.start_date = start_date
         self.end_date = end_date
+        self.client = client
 
     def __repr__(self):
         return "DbExperiment(id = %r, name = %r, category = %r, start_date = %r, end_date = %r)" % (
@@ -335,6 +337,25 @@ class DbExperiment(Base):
 
     def to_dto(self):
         return self.to_business() # Temporal
+
+class DbExperimentClientParameter(Base):
+    __tablename__  = 'ExperimentClientParameter'
+    __table_args__ = (TABLE_KWARGS)
+    
+    id               = Column(Integer, primary_key = True)
+    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    parameter_name   = Column(String(255), nullable = False, index = True)
+    parameter_type   = Column(String(255), nullable = False, index = True)
+    value            = Column(String(255), nullable = False)
+
+    experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
+
+    def __init__(self, experiment, parameter_name, parameter_type, value):
+        self.experiment     = experiment
+        self.parameter_name = parameter_name
+        self.parameter_type = parameter_type
+        self.value          = value
+
 
 
 ##############################################################################

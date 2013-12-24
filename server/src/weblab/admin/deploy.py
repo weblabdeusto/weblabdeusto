@@ -83,6 +83,9 @@ def insert_required_initial_data(engine):
     administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(administrator_admin_panel_access_p1)
 
+    alembic_version = Model.AlembicVersion("4c23f9943036") # TODO
+    session.add(alembic_version)
+
     session.commit()
 
 
