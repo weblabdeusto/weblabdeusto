@@ -15,13 +15,17 @@
 
 package es.deusto.weblab.client.lab.comm;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONException;
 import com.google.gwt.json.client.JSONNull;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -39,6 +43,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
+import es.deusto.weblab.client.dto.experiments.ExperimentClient;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
@@ -166,6 +171,30 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    final Experiment experiment = new Experiment();
 		    experiment.setCategory(category);
 		    experiment.setName(this.json2string(jsonExperiment.get("name")));
+		    
+		    if(jsonExperiment.get("client") != null) {
+			    final JSONObject client = jsonExperiment.get("client").isObject();
+	
+			    final Map<String, Object> clientConfiguration = new HashMap<String, Object>(); 
+			    final ExperimentClient experimentClient = new ExperimentClient(this.json2string(client.get("client_id")), clientConfiguration);
+			    experiment.setClient(experimentClient);
+			    
+			    final JSONObject clientConfigurationObject = client.get("configuration").isObject();
+			    for(final String key : clientConfigurationObject.keySet()) {
+			    	final JSONValue confValue = clientConfigurationObject.get(key);
+			    	final JSONBoolean booleanValue = confValue.isBoolean();
+			    	final JSONNumber numberValue = confValue.isNumber();
+			    	final JSONString stringValue = confValue.isString();
+			    	
+			    	if(booleanValue != null) {
+			    		clientConfiguration.put(key, Boolean.valueOf(booleanValue.booleanValue()));
+			    	} else if (stringValue != null) {
+			    		clientConfiguration.put(key, stringValue.stringValue());
+			    	} else if (numberValue != null) {
+			    		clientConfiguration.put(key, Double.valueOf(numberValue.doubleValue()));
+			    	}
+			    }
+		    }
 		    
 		    final String startDateString = this.json2string(jsonExperiment.get("start_date"));
 		    final String endDateString   = this.json2string(jsonExperiment.get("end_date"));
