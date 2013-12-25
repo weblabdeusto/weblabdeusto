@@ -381,13 +381,13 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
     if upgrader_class is not None:
         if 'alembic_version' in metadata.tables:
             upgrader = upgrader_class(db_str)
-            # Session = sessionmaker(bind=engine)
-            # session = Session()
-            # session.execute(
-            #     metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
-            # )
-            # session.commit()
-            # session.close()
+            Session = sessionmaker(bind=engine)
+            session = Session()
+            session.execute(
+                metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+            )
+            session.commit()
+            session.close()
 
     if verbose: print >> stdout, "[done]"
     return engine
@@ -868,7 +868,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, DbRegularUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
