@@ -168,12 +168,12 @@ class ConfigurationExperiments2db(Upgrader):
                         value = experiment[key]
                         if isinstance(value, basestring):
                             param_type = 'string'
+                        elif isinstance(value, bool):
+                            param_type = 'bool'
                         elif isinstance(value, float):
                             param_type = 'floating'
                         elif isinstance(value, int):
                             param_type = 'integer'
-                        elif isinstance(value, bool):
-                            param_type = 'bool'
                         else:
                             print "Error: invalid parameter type %s for key %s of experiment %s" % (type(value), key, experiment_name)
                             continue

@@ -16,6 +16,7 @@
 
 import datetime
 import calendar
+import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
@@ -326,7 +327,7 @@ class DbExperiment(Base):
         return u'%s@%s' % (self.name, self.category.name if self.category is not None else '')
 
     def to_business(self):
-        configuration = []
+        configuration = {}
         for param in self.client_parameters:
             try:
                 if param.parameter_type == 'string':
@@ -336,10 +337,11 @@ class DbExperiment(Base):
                 elif param.parameter_type == 'floating':
                     configuration[param.parameter_name] = float(param.value)
                 elif param.parameter_type == 'bool':
-                    configuration[param.parameter_name] = bool(param.value)
+                    configuration[param.parameter_name] = param.value.lower() == 'true'
                 else:
                     print "Unknown Experiment Client Parameter type %s" % param.parameter_type
             except (ValueError, TypeError) as e:
+                traceback.print_exc()
                 continue
                 
         client = ExperimentClient(self.client, configuration)

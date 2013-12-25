@@ -42,10 +42,10 @@ def _add_params(session, experiment):
         if key in ("experiment.name", "experiment.category"):
             continue
 
-        if isinstance(value, int):
-            key_type = 'integer'
-        elif isinstance(value, bool):
+        if isinstance(value, bool):
             key_type = 'bool'
+        elif isinstance(value, int):
+            key_type = 'integer'
         elif isinstance(value, float):
             key_type = 'floating'
         else:
