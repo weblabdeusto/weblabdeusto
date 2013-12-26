@@ -1,6 +1,7 @@
-from flask.ext.wtf import TextField, PasswordField, HTMLString, PasswordInput, Select
+from wtforms import TextField, PasswordField
+from wtforms.widgets import HTMLString, PasswordInput, Select
 
-from flask.ext.admin.contrib.sqlamodel.fields import QuerySelectField
+from flask.ext.admin.contrib.sqla.fields import QuerySelectField
 
 import threading
 

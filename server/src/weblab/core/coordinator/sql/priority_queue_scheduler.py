@@ -24,8 +24,8 @@ import voodoo.log as log
 import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
+from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId

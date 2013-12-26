@@ -7,7 +7,9 @@ from flask.ext.admin import expose, AdminIndexView, BaseView
 import weblab.db.model as model
 import weblab.admin.web.admin_views as admin_views
 
-from flask.ext.wtf import TextField, Form, PasswordField, NumberRange
+from wtforms import TextField, PasswordField
+from wtforms.validators import NumberRange
+from flask.ext.wtf import Form
 from weblab.admin.web.fields import DisabledTextField
 
 import weblab.permissions as permissions

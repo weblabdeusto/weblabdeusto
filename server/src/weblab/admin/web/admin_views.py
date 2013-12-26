@@ -2,21 +2,31 @@ import os
 import re
 import sha
 import time
+import json
 import random
 import datetime
 import traceback
 import threading
 
+from weblab.util import data_filename
+
+try:
+    CLIENTS = json.load(open(data_filename(os.path.join('weblab', 'clients.json'))))
+except:
+    print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
+    raise
+
+from wtforms import TextField, TextAreaField, PasswordField, SelectField
 from wtforms.fields.core import UnboundField
-from wtforms.validators import Email, Regexp
+from wtforms.validators import Email, Regexp, Required, NumberRange
 
 from sqlalchemy.sql.expression import desc
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-from flask.ext.wtf import Form, TextField, TextAreaField, Required, PasswordField, NumberRange, SelectField
+from flask.ext.wtf import Form
 
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
@@ -656,10 +666,12 @@ class ExperimentCategoryPanel(AdministratorModelView):
 
         ExperimentCategoryPanel.INSTANCE = self
 
+class ExperimentClientParameter(InlineFormAdmin):
+    pass
 
 class ExperimentPanel(AdministratorModelView):
     column_searchable_list = ('name',)
-    column_list = ('category', 'name', 'start_date', 'end_date', 'uses')
+    column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
 
     column_filters = ('name', 'category')
 
@@ -667,6 +679,8 @@ class ExperimentPanel(AdministratorModelView):
         category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
         uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
     )
+
+    inline_models = (ExperimentClientParameter(model.DbExperimentClientParameter),)
 
     INSTANCE = None
 
