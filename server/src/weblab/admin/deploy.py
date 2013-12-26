@@ -1839,7 +1839,7 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
     session.commit()
     session.close()
 
-def add_experiment(sessionmaker, category_name, experiment_name):
+def add_experiment(sessionmaker, category_name, experiment_name, client):
     session = sessionmaker()
     existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
     if existing_category is None:
@@ -1852,7 +1852,8 @@ def add_experiment(sessionmaker, category_name, experiment_name):
     # So leap years are not a problem
     end_date = start_date.replace(year=start_date.year+12)
 
-    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date)
+    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date, client)
+    _add_params(session, experiment)
     session.add(experiment)
     session.commit()
     session.close()
@@ -1909,8 +1910,8 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     session.close()
 
 
-def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
-    add_experiment(sessionmaker, category_name, experiment_name)
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, client, group_name, time_allowed):
+    add_experiment(sessionmaker, category_name, experiment_name, client)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
 
 def _password2sha(password, randomstuff = None):

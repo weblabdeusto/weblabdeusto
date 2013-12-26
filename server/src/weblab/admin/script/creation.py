@@ -886,25 +886,25 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
     # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'dummy', group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
-    deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', 'blank', group_name, 200)
 
     if options[Creation.ADD_FEDERATED_SUBMARINE]:
-        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', 'blank', group_name, 200)
 
     # visir@Visir experiments (optional)
     if options[Creation.VISIR_SERVER] or options[Creation.ADD_FEDERATED_VISIR]:
-        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 1800)
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], 'visir', group_name, 1800)
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], 'vm', group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER] or options[Creation.ADD_FEDERATED_LOGIC]:
-        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
+        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'logic', group_name, 1800)
 
     ###########################################
     # 
@@ -2431,16 +2431,17 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
     new_lines = uncomment_json(lines)
     configuration_js_data = json.loads(''.join(new_lines))
-    configuration_js['experiments']                    = configuration_js_data['experiments']
 
-    dummy_list = list(configuration_js['experiments']['dummy'])
-    found      = False
-    for element in dummy_list:
-        if element['experiment.name'] == options[Creation.DUMMY_NAME]:
-            found = True
-    if not found:
-        dummy_list.append({'experiment.name' : options[Creation.DUMMY_NAME], 'experiment.category' : options[Creation.DUMMY_CATEGORY_NAME] })
-    configuration_js['experiments']['dummy']           = dummy_list
+#     TODO: move this to the database
+#     configuration_js['experiments'] = configuration_js_data['experiments']
+#     dummy_list = list(configuration_js['experiments']['dummy'])
+#     found      = False
+#     for element in dummy_list:
+#         if element['experiment.name'] == options[Creation.DUMMY_NAME]:
+#             found = True
+#     if not found:
+#         dummy_list.append({'experiment.name' : options[Creation.DUMMY_NAME], 'experiment.category' : options[Creation.DUMMY_CATEGORY_NAME] })
+#     configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
     configuration_js['sound.enabled']                  = False
