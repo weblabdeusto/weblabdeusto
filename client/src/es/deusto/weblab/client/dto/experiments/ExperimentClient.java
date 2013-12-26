@@ -17,11 +17,13 @@ package es.deusto.weblab.client.dto.experiments;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gwt.json.client.JSONValue;
+
 public class ExperimentClient {
 	private final String clientId;
-	private final Map<String, Object> configuration;
+	private final Map<String, JSONValue> configuration;
 	
-	public ExperimentClient(String clientId, Map<String, Object> configuration) {
+	public ExperimentClient(String clientId, Map<String, JSONValue> configuration) {
 		this.clientId = clientId;
 		this.configuration = configuration;
 	}
@@ -34,7 +36,7 @@ public class ExperimentClient {
 		return this.configuration.keySet();
 	}
 	
-	public Object get(String key) {
+	public JSONValue get(String key) {
 		return this.configuration.get(key);
 	}
 }

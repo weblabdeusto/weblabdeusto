@@ -223,6 +223,7 @@ public class ExperimentFactoryTest extends GWTTestCase {
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
 		
 		factory.experimentFactory(new ExperimentID(new Category("PLD experiments"), "ud-pld"), callback, false);
+		System.out.println(callback.lastExperiment);
 		Assert.assertTrue(callback.lastExperiment instanceof XilinxExperiment);
 		
 		factory.experimentFactory(new ExperimentID(new Category("FPGA experiments"), "ud-fpga"), callback, false);

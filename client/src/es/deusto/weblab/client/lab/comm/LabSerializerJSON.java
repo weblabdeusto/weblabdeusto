@@ -22,10 +22,8 @@ import java.util.Set;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONException;
 import com.google.gwt.json.client.JSONNull;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -175,24 +173,14 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    if(jsonExperiment.get("client") != null) {
 			    final JSONObject client = jsonExperiment.get("client").isObject();
 	
-			    final Map<String, Object> clientConfiguration = new HashMap<String, Object>(); 
+			    final Map<String, JSONValue> clientConfiguration = new HashMap<String, JSONValue>(); 
 			    final ExperimentClient experimentClient = new ExperimentClient(this.json2string(client.get("client_id")), clientConfiguration);
 			    experiment.setClient(experimentClient);
 			    
 			    final JSONObject clientConfigurationObject = client.get("configuration").isObject();
 			    for(final String key : clientConfigurationObject.keySet()) {
 			    	final JSONValue confValue = clientConfigurationObject.get(key);
-			    	final JSONBoolean booleanValue = confValue.isBoolean();
-			    	final JSONNumber numberValue = confValue.isNumber();
-			    	final JSONString stringValue = confValue.isString();
-			    	
-			    	if(booleanValue != null) {
-			    		clientConfiguration.put(key, Boolean.valueOf(booleanValue.booleanValue()));
-			    	} else if (stringValue != null) {
-			    		clientConfiguration.put(key, stringValue.stringValue());
-			    	} else if (numberValue != null) {
-			    		clientConfiguration.put(key, Double.valueOf(numberValue.doubleValue()));
-			    	}
+			    	clientConfiguration.put(key, confValue);
 			    }
 		    }
 		    

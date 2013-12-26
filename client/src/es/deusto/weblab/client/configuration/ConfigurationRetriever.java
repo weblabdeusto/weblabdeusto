@@ -46,7 +46,7 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	 * @param parent Parant retriever that this retriever belongs to. If items
 	 * are not found on this retriever's dictionary, the parents' will be checked.
 	 */
-	ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
+	public ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
 		this.configurationMap = configurationMap;
 		this.parent = parent;
 		

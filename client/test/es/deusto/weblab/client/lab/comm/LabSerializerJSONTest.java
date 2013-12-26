@@ -17,7 +17,11 @@ package es.deusto.weblab.client.lab.comm;
 import junit.framework.Assert;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
@@ -748,11 +752,11 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
 		Assert.assertEquals("dummy",                         experiments[0].getExperiment().getClient().getClientId());
-		Assert.assertEquals("hi",                            experiments[0].getExperiment().getClient().get("mystring"));
-		Assert.assertEquals(Boolean.TRUE,                    experiments[0].getExperiment().getClient().get("myboolean.true"));
-		Assert.assertEquals(Boolean.FALSE,                   experiments[0].getExperiment().getClient().get("myboolean.false"));
-		Assert.assertEquals(Double.valueOf(5.0),             experiments[0].getExperiment().getClient().get("myint"));
-		Assert.assertEquals(Double.valueOf(10.5f),           experiments[0].getExperiment().getClient().get("myfloat"));
+		Assert.assertEquals(new JSONString("hi"),            experiments[0].getExperiment().getClient().get("mystring"));
+		Assert.assertEquals(JSONBoolean.getInstance(true),   experiments[0].getExperiment().getClient().get("myboolean.true"));
+		Assert.assertEquals(JSONBoolean.getInstance(false),  experiments[0].getExperiment().getClient().get("myboolean.false"));
+		Assert.assertEquals(new JSONNumber(5.0),             experiments[0].getExperiment().getClient().get("myint"));
+		Assert.assertEquals(new JSONNumber(10.5f),           experiments[0].getExperiment().getClient().get("myfloat"));
 		
 		final long timezoneOffset = DateTimeFormat.getFormat("yyyy-MM-dd").parse("1970-01-01").getTime();
 		
