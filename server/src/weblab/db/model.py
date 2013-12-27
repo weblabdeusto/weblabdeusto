@@ -369,7 +369,7 @@ class DbExperimentClientParameter(Base):
 
     experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
 
-    def __init__(self, experiment, parameter_name, parameter_type, value):
+    def __init__(self, experiment = None, parameter_name = None, parameter_type = None, value = None):
         self.experiment     = experiment
         self.parameter_name = parameter_name
         self.parameter_type = parameter_type
@@ -882,3 +882,4 @@ def _timestamp_to_splitted_utc_datetime(timestamp):
         return dt, dt.microsecond
     else:
         return None, None
+

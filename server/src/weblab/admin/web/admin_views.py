@@ -28,7 +28,7 @@ from flask.ext.wtf import Form
 
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
-from flask.ext.admin.form import Select2Field
+from flask.ext.admin.form import Select2Field, rules
 from flask.ext.admin.model.form import InlineFormAdmin
 
 import weblab.configuration_doc as configuration_doc
@@ -166,10 +166,10 @@ def _password2sha(password):
 class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
     column_searchable_list = ('full_name', 'login')
-    column_filters = ( 'full_name', 'login', 'role', 'email'
+    column_filters = ( 'full_name', 'login', 'role', 'email', 
                      ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
 
-    form_excluded_columns = 'avatar',
+    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
 
     column_descriptions = dict(login='Username (all letters, dots and numbers)',
@@ -667,13 +667,92 @@ class ExperimentCategoryPanel(AdministratorModelView):
         ExperimentCategoryPanel.INSTANCE = self
 
 class ExperimentClientParameter(InlineFormAdmin):
-    pass
+    
+    _all_possible_parameters = set()
+    for _params in [ c['parameters'] for c in CLIENTS.values() ]:
+        _all_possible_parameters.update(_params)
+
+    _parameter_types = 'bool', 'string', 'integer', 'floating'
+
+    parameter_name_choices = zip(sorted(_all_possible_parameters), sorted(_all_possible_parameters))
+    parameter_type_choices = zip(sorted(_parameter_types), sorted(_parameter_types))
+
+    form_overrides = dict(parameter_name = Select2Field, parameter_type = Select2Field)
+    form_args = dict(parameter_name = dict(choices = parameter_name_choices, default = 'experiment.picture'), 
+                     parameter_type = dict(choices = parameter_type_choices, default = 'string'))
+
+
+    def postprocess_form(self, form_class):
+        original_validate = form_class.validate
+        def validate_wrapper(self):
+            if ExperimentClientParameter.validate_parameters(self):
+                return original_validate(self)
+            return False
+        form_class.validate = validate_wrapper
+        return form_class
+
+    @staticmethod
+    def validate_parameters(form):
+        parameter_type = form.parameter_type.data
+        parameter_value = form.value.data
+        parameter_name = form.parameter_name.data
+
+        valid = True
+
+        if parameter_type == 'bool':
+            if parameter_value.lower() not in ('true', 'false'):
+                form.value.errors = ["Invalid value for a boolean type: %s. Only true or false are permitted." % parameter_value ]
+                valid = False
+        elif parameter_type == 'integer':
+            try:
+                int(parameter_value)
+            except:
+                form.value.errors = ["Invalid value for an integer type: %s" % parameter_value ]
+                valid = False
+        elif parameter_type == 'floating':
+            try:
+                float(parameter_value)
+            except:
+                form.value.errors = [ "Invalid value for a float type: %s" % parameter_value ]
+                valid = False
+        # else: Strings are always fine :-)
+
+        potential_types = set()
+        for client in CLIENTS:
+            for parameter, parameter_value in CLIENTS[client]['parameters'].iteritems():
+                if parameter == parameter_name:
+                    potential_types.add(parameter_value['type'])
+        if parameter_type not in potential_types:
+            form.parameter_type.errors = ["Invalid type. Expected %s" % ', '.join(potential_types)]
+            valid = False
+
+        return valid
+
+
 
 class ExperimentPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
-
+    form_excluded_columns = 'user_uses',
     column_filters = ('name', 'category')
+    form_overrides = dict( client = Select2Field )
+
+    description_html = "<br><p>Parameters per client:</p><ul>"
+    default_parameters = "experiment.info.description", "experiment.picture", "experiment.info.link", "experiment.reserve.button.shown"
+    description_html += "<li><b>All:</b> %s</li>" % (', '.join(default_parameters))
+    description_html += "</ul><ul>"
+    for c in CLIENTS:
+        client_parameters = [ p for p in CLIENTS[c]['parameters'] if p not in default_parameters]
+        if len(client_parameters):
+            description_html += "<li><b>%s:</b> " % c
+            description_html += ', '.join(client_parameters)
+            description_html += "</li>"
+    description_html += "</ul>"
+
+    client_choices = [ (c, c) for c in CLIENTS ]
+    form_args = dict(
+            client = dict(choices = client_choices, validators=[Required()], default = 'blank', description = Markup(description_html))
+        )
 
     column_formatters = dict(
         category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
@@ -690,6 +769,17 @@ class ExperimentPanel(AdministratorModelView):
         self.name_filter_number = get_filter_number(self, u'Experiment.name')
         self.category_filter_number = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
+
+    def create_form(self, obj = None):
+        form = super(ExperimentPanel, self).create_form(obj)
+        if obj is None:
+            now = datetime.datetime.now()
+            if form.start_date.data is None:
+                form.start_date.data = now
+            if form.end_date.data is None:
+                # For 10 years (for example)
+                form.end_date.data = now.replace(year = now.year + 10)
+        return form
 
 
 def display_parameters(view, context, permission, p):
