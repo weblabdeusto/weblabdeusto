@@ -20,7 +20,7 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
+from sqlalchemy import Column, Boolean, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -264,6 +264,87 @@ class DbGroup(Base):
 
     def to_dto(self):
         return self.to_business_light() # Temporal
+
+##############################################################################
+# SCHEDULERS DEFINITION
+#
+
+class DbScheduler(Base):
+    """ A DbScheduler represents a Queue, an external WebLab-Deusto, iLab batch, or whatever. 
+    """
+    __tablename__ = 'Scheduler'
+    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    name           = Column(String(255), nullable = False, index = True)
+    summary        = Column(String(255), nullable = False, index = True)
+    scheduler_type = Column(String(255), nullable = False, index = True)
+    config         = Column(String(4096), nullable = False)
+    is_external    = Column(Boolean, nullable = False, index = True)
+
+    def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
+        super(DbScheduler, self).__init__()
+        self.name           = name
+        self.summary        = summary
+        self.scheduler_type = scheduler_type
+        self.config         = config
+        self.is_external    = is_external
+
+    def __unicode__(self):
+        return self.summary
+
+class DbSchedulerResource(Base):
+    """ A DbScheduler will have one or multiple resources, as long as 
+    it is not external. If it is external, then it must have zero (since
+    they're managed by the external system). """
+
+    __tablename__  = 'SchedulerResource'
+    __table_args__ = (UniqueConstraint('name', 'scheduler_id'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    name           = Column(String(255), nullable = False, index = True)
+    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
+    slots          = Column(Integer, nullable = False)
+
+    scheduler = relation("DbScheduler", backref=backref("resources", order_by=id, cascade='all,delete'))
+
+    def __init__(self, name = None, scheduler = None, slots = None):
+        super(DbSchedulerResource, self).__init__()
+        self.name = name
+        self.scheduler = scheduler
+        self.slots = slots
+   
+class DbExperimentInstance(Base):
+    """ A Experiment Instance is managed by the Laboratory Server. So basically
+    it is an identification used between the Laboratory Server and the Core server to
+    identify a particular experiment server. Each ExperimentInstance must be linked to
+    a DbschedulerResource. This table can't be created through the admin panel directly, 
+    but by registering it.
+    """
+
+    __tablename__  = 'ExperimentInstance'
+    __table_args__ = (UniqueConstraint('name', 'scheduler_resource_id'), TABLE_KWARGS)
+
+    id                      = Column(Integer, primary_key = True)
+    name                    = Column(String(255), nullable = False, index = True)
+    min_slot                = Column(Integer, nullable = False, index = True)
+    max_slot                = Column(Integer, nullable = False, index = True)
+    scheduler_resource_id   = Column(Integer, ForeignKey("SchedulerResource.id"), nullable = False, index = True)
+    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+
+    scheduler_resource = relation("DbSchedulerResource", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    experiment = relation("DbExperiment", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    
+    def __init__(self, name, slots, scheduler_resource):
+        super(DbExperimentInstance, self).__init__()
+        self.name = name
+        self.slots = slots
+        self.scheduler_resource = scheduler_resource
+    
+t_external_schedulers = Table('ExperimentExternalScheduler', Base.metadata,
+    Column('experiment_id', Integer, ForeignKey('Experiment.id'), primary_key=True),
+    Column('scheduler_id', Integer, ForeignKey('Scheduler.id'), primary_key=True)
+    )
 
 ##############################################################################
 # EXPERIMENTS DEFINITION

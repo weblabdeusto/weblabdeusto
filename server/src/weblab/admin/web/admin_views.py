@@ -4,6 +4,7 @@ import sha
 import time
 import json
 import random
+import urlparse
 import datetime
 import traceback
 import threading
@@ -18,7 +19,7 @@ except:
 
 from wtforms import TextField, TextAreaField, PasswordField, SelectField
 from wtforms.fields.core import UnboundField
-from wtforms.validators import Email, Regexp, Required, NumberRange
+from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
 
@@ -781,6 +782,67 @@ class ExperimentPanel(AdministratorModelView):
                 form.end_date.data = now.replace(year = now.year + 10)
         return form
 
+class ExternalWebLabForm(Form):
+    name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])
+    base_url = TextField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
+    username = TextField("Username", description = "Username of the remote system", validators = [Required()])
+    password = PasswordField("Password", description = "Password of the remote system", validators = [Required()])
+
+class SchedulerPanel(AdministratorModelView):
+    
+    column_list = ('name', 'summary', 'scheduler_type', 'is_external')
+
+    def __init__(self, session, **kwargs):
+        super(SchedulerPanel, self).__init__(model.DbScheduler, session, **kwargs)
+
+    @expose('/create/')
+    def create_view(self):
+        return self.render("admin-scheduler-create.html")
+
+    @expose('/create/pqueue/', ['GET', 'POST'])
+    def create_pqueue_view(self):
+        return self.render("admin-scheduler-create-pqueue.html")
+
+    @expose('/create/weblab/', ['GET', 'POST'])
+    def create_weblab_view(self):
+        form = ExternalWebLabForm()
+        if form.validate_on_submit():
+
+            if self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                config = {
+                    'base_url' : form.base_url.data,
+                    'username' : form.username.data,
+                    'password' : form.password.data,
+                    'experiments_map' : {}
+                }
+                parsed = urlparse.urlparse(form.base_url.data)
+                scheduler = model.DbScheduler(name = form.name.data, summary = "WebLab-Deusto at %s" % parsed.hostname, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Error adding resource", "error")
+                else:
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+        return self.render("admin-scheduler-create-weblab.html", form=form)
+
+    @expose('/create/ilab/', ['GET', 'POST'])
+    def create_ilab_view(self):
+        return self.render("admin-scheduler-create-ilab.html")
+
+    @expose('/edit/')
+    def edit_view(self):
+        return ":-O Editing"
+
+    @expose('/resources/')
+    def resources(self):
+        return ":-)"
+
+    @expose('/experiment/resources/')
+    def experiment_resources(self):
+        return ":-)"
 
 def display_parameters(view, context, permission, p):
     parameters = u''
