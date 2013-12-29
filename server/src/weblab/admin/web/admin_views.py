@@ -8,6 +8,7 @@ import urlparse
 import datetime
 import traceback
 import threading
+import collections
 
 from weblab.util import data_filename
 
@@ -17,8 +18,9 @@ except:
     print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
     raise
 
-from wtforms import TextField, TextAreaField, PasswordField, SelectField
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField
 from wtforms.fields.core import UnboundField
+from wtforms.fields.html5 import URLField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
@@ -782,11 +784,27 @@ class ExperimentPanel(AdministratorModelView):
                 form.end_date.data = now.replace(year = now.year + 10)
         return form
 
-class ExternalWebLabForm(Form):
+class SchedulerForm(Form):
     name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])
-    base_url = TextField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
+
+class PQueueForm(SchedulerForm):
+    randomize_instances = BooleanField("Randomize experiments", description = "First available slot is always the same or there is an internal random process")
+
+PQueueObject = collections.namedtuple('PQueueObject', ['name', 'randomize_instances'])
+
+class ExternalWebLabForm(SchedulerForm):
+    base_url = URLField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
     username = TextField("Username", description = "Username of the remote system", validators = [Required()])
-    password = PasswordField("Password", description = "Password of the remote system", validators = [Required()])
+    password = PasswordField("Password", description = "Password of the remote system", validators = [])
+
+ExternalWebLabObject = collections.namedtuple('ExternalWebLabObject', ['name', 'base_url', 'username', 'password'])
+
+class ILabBatchForm(SchedulerForm):
+    lab_server_url = URLField("Web service URL", description = "Example: http://weblab2.mit.edu/services/WebLabService.asmx", validators = [Required(), URL()])
+    identifier     = TextField("Identifier", description = "Fake Service Broker identifier", validators = [Required()])
+    passkey        = TextField("Passkey", description = "Remote Service broker passkey", validators = [Required()])
+
+ILabBatchObject = collections.namedtuple('ILabBatchObject', ['name', 'lab_server_url', 'identifier', 'passkey'])
 
 class SchedulerPanel(AdministratorModelView):
     
@@ -801,39 +819,141 @@ class SchedulerPanel(AdministratorModelView):
 
     @expose('/create/pqueue/', ['GET', 'POST'])
     def create_pqueue_view(self):
-        return self.render("admin-scheduler-create-pqueue.html")
+        return self._edit_pqueue_view(url_for('.create_view'))
 
-    @expose('/create/weblab/', ['GET', 'POST'])
-    def create_weblab_view(self):
-        form = ExternalWebLabForm()
+    def _edit_pqueue_view(self, back, obj = None, scheduler = None):
+        form = PQueueForm(formdata = request.form, obj = obj)
         if form.validate_on_submit():
-
-            if self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
                 form.name.errors = ["Repeated name"]
             else:
-                config = {
-                    'base_url' : form.base_url.data,
-                    'username' : form.username.data,
-                    'password' : form.password.data,
-                    'experiments_map' : {}
-                }
-                parsed = urlparse.urlparse(form.base_url.data)
-                scheduler = model.DbScheduler(name = form.name.data, summary = "WebLab-Deusto at %s" % parsed.hostname, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
+                # Populate config
+                if scheduler is None:
+                    config = {}
+                else:
+                    config = json.loads(scheduler.config)
+                config['randomize_instances'] = form.randomize_instances.data
+                summary = "Queue for %s" % form.name.data
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'PRIORITY_QUEUE', config = json.dumps(config), is_external = False)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
                 self.session.add(scheduler)
                 try:
                     self.session.commit()
                 except:
                     flash("Error adding resource", "error")
                 else:
+                    flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
-        return self.render("admin-scheduler-create-weblab.html", form=form)
+
+        return self.render("admin-scheduler-create-pqueue.html", form = form, back = back)
+        
+
+    @expose('/create/weblab/', ['GET', 'POST'])
+    def create_weblab_view(self):
+        return self._edit_weblab_view(url_for('.create_view'))
+
+    def _edit_weblab_view(self, back, obj = None, scheduler = None):
+        form = ExternalWebLabForm(formdata = request.form, obj = obj)
+        if form.validate_on_submit():
+            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                # Populate config
+                if scheduler is None:
+                    config = { 'experiments_map' : {}}
+                else:
+                    config = json.loads(scheduler.config)
+                config['base_url'] = form.base_url.data
+                config['username'] = form.username.data
+                if form.password.data or 'password' not in config:
+                    config['password'] = form.password.data
+
+                parsed = urlparse.urlparse(form.base_url.data)
+                summary = "WebLab-Deusto at %s" % parsed.hostname
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Error adding resource", "error")
+                else:
+                    flash("Scheduler saved", "success")
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+        return self.render("admin-scheduler-create-weblab.html", form=form, back = back)
 
     @expose('/create/ilab/', ['GET', 'POST'])
     def create_ilab_view(self):
-        return self.render("admin-scheduler-create-ilab.html")
+        return self._edit_ilab_view(url_for('.create_view'))
 
-    @expose('/edit/')
+    def _edit_ilab_view(self, back, obj = None, scheduler = None):
+        form = ILabBatchForm(formdata = request.form, obj = obj)
+        if form.validate_on_submit():
+            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                # Populate config
+                if scheduler is None:
+                    config = {}
+                else:
+                    config = json.loads(scheduler.config)
+                config['lab_server_url'] = form.lab_server_url.data
+                config['identifier'] = form.identifier.data
+                config['passkey'] = form.passkey.data
+
+                parsed = urlparse.urlparse(form.lab_server_url.data)
+                summary = "iLab batch at %s" % parsed.hostname
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'ILAB_BATCH_QUEUE', config = json.dumps(config), is_external = True)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    flash("Error adding resource", "error")
+                else:
+                    flash("Scheduler saved", "success")
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+        return self.render("admin-scheduler-create-ilab.html", form = form, back = back)
+
+
+    @expose('/edit/', ['GET', 'POST'])
     def edit_view(self):
+        id = request.args.get('id')
+        if id is None:
+            flash("No id provided", "error")
+            return redirect(url_for('.index_view'))
+        scheduler = self.session.query(model.DbScheduler).filter_by(id = id).first()
+        if scheduler is None:
+            flash("Id provided does not exist", "error")
+            return redirect(url_for('.index_view'))
+
+        back = url_for('.index_view')
+        config = json.loads(scheduler.config)
+        if scheduler.scheduler_type == 'EXTERNAL_WEBLAB_DEUSTO':
+            obj = ExternalWebLabObject(name = scheduler.name, base_url = config['base_url'], username = config['username'], password = config['password'])
+            return self._edit_weblab_view(back, obj, scheduler)
+        elif scheduler.scheduler_type == 'PRIORITY_QUEUE':
+            obj = PQueueObject(name = scheduler.name, randomize_instances = config['randomize_instances'])
+            return self._edit_pqueue_view(back, obj, scheduler)
+        elif scheduler.scheduler_type == 'ILAB_BATCH_QUEUE':
+            obj = ILabBatchObject(name = scheduler.name, lab_server_url = config['lab_server_url'], identifier = config['identifier'], passkey = config['passkey'])
+            return self._edit_ilab_view(back, obj, scheduler)
+
         return ":-O Editing"
 
     @expose('/resources/')
