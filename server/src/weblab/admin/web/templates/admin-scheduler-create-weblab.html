@@ -8,7 +8,8 @@
 {% block body %}
 
 <div class="row">
-    <div class="span7 offset2">
+    <div class="span4 offset2">
+        <h3>General</h3>
         {% from "_form_helpers.html" import render_field %}
         <form method="POST" action="{{ request.url }}" class="form-horizontal">
             {{ form.hidden_tag() }}
@@ -19,7 +20,7 @@
                 {{ render_field(form.username) }}
                 {{ render_field(form.password) }}
 
-                <div class="form-actions">
+                <div class="text-center">
                     <a class="btn" href="{{ back }}">Back</a>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
@@ -27,6 +28,40 @@
         </form>
     </div>
 </div>
+
+{% if experiments %}
+<div class="row">
+    <div class="span7 offset2">
+        <h3>Associations</h3>
+
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>Remote system</th>
+                    <th>Local mapping</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for exp in experiments %}
+                <tr>
+                    <td>{{ exp['experiment'].name }}@{{ exp['experiment'].category.name }}</td>
+                    <td>
+                    <select>
+                        <option name="foo" value="what">None</option>
+                        <option>------</option>
+                        <option name="foo" value="whaz">Create {{ exp['experiment'].name }}@{{ exp['experiment'].category.name }}</option>
+                        <option>------</option>
+                        <!-- and then, existing -->
+                    </select>
+                    </td>
+                    <td>Add new mapping</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 
 {% endblock %}
 

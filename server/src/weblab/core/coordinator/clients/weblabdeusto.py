@@ -15,6 +15,7 @@
 
 import json
 import urllib2
+import datetime
 import cookielib
 
 from voodoo.gen.coordinator.CoordAddress import CoordAddress
@@ -22,6 +23,7 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
 from weblab.data.command import Command, NullCommand
 from weblab.data.experiments import ReservationResult, RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId, ForbiddenReservationResult
+from weblab.data.dto.experiments import ExperimentCategory, Experiment, ExperimentClient, ExperimentAllowed
 
 class WebLabDeustoClient(object):
 
@@ -84,6 +86,32 @@ class WebLabDeustoClient(object):
                         consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
+
+    def list_experiments(self, session_id):
+        serialized_session_id     = {'id' : session_id.id}
+        experiment_list = self._core_call('list_experiments', session_id = serialized_session_id)
+        experiments = []
+        for external_experiment in experiment_list:
+            category = ExperimentCategory(external_experiment['experiment']['category']['name'])
+            # 2012-04-10T15:22:38
+            fmt = "%Y-%m-%dT%H:%M:%S"
+            start_date = datetime.datetime.strptime(external_experiment['experiment']['start_date'], "%Y-%m-%dT%H:%M:%S")
+            end_date   = datetime.datetime.strptime(external_experiment['experiment']['end_date'], "%Y-%m-%dT%H:%M:%S")
+            if 'client' in external_experiment['experiment']:
+                client = ExperimentClient(external_experiment['experiment']['client'], {})
+            else:
+                client = None
+            if 'permission_id' in external_experiment:
+                permission_id = external_experiment['permission_id']
+                permission_scope = external_experiment['permission_scope']
+            else:
+                permission_id = None
+                permission_scope = None
+
+            exp = Experiment(name = external_experiment['experiment']['name'], category = category, start_date = start_date, end_date = end_date, client = client)
+            exp_allowed = ExperimentAllowed(exp, time_allowed = external_experiment['time_allowed'], priority = external_experiment['priority'], initialization_in_accounting = external_experiment['initialization_in_accounting'], permanent_id = external_experiment['permanent_id'], permission_id = permission_id, permission_scope = permission_scope)
+            experiments.append(exp_allowed)
+        return experiments
 
     def get_experiment_use_by_id(self, session_id, reservation_id):
         serialized_session_id     = {'id' : session_id.id}

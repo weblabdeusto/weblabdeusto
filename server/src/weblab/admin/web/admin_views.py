@@ -48,6 +48,7 @@ try:
 except ImportError:
     LdapGatewayClass = None
 
+from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
@@ -857,7 +858,7 @@ class SchedulerPanel(AdministratorModelView):
     def create_weblab_view(self):
         return self._edit_weblab_view(url_for('.create_view'))
 
-    def _edit_weblab_view(self, back, obj = None, scheduler = None):
+    def _edit_weblab_view(self, back, obj = None, scheduler = None, experiments = None):
         form = ExternalWebLabForm(formdata = request.form, obj = obj)
         if form.validate_on_submit():
             if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
@@ -890,7 +891,25 @@ class SchedulerPanel(AdministratorModelView):
                 else:
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
-        return self.render("admin-scheduler-create-weblab.html", form=form, back = back)
+
+        if scheduler:
+            reverse_experiments_map = {}
+            config = json.loads(scheduler.config)
+            for local, remote in config['experiments_map'].iteritems():
+                if remote in reverse_experiments_map:
+                    reverse_experiments_map[remote].append(local)
+                else:
+                    reverse_experiments_map[remote] = [local]
+
+            all_experiments = []
+            for exp_allowed in experiments:
+                exp_data = {
+                    'experiment' : exp_allowed.experiment,
+                }
+                all_experiments.append(exp_data)
+        else:
+            all_experiments = []
+        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments)
 
     @expose('/create/ilab/', ['GET', 'POST'])
     def create_ilab_view(self):
@@ -945,8 +964,16 @@ class SchedulerPanel(AdministratorModelView):
         back = url_for('.index_view')
         config = json.loads(scheduler.config)
         if scheduler.scheduler_type == 'EXTERNAL_WEBLAB_DEUSTO':
+            try:
+                client = WebLabDeustoClient(config['base_url'])
+                session_id = client.login(config['username'], config['password'])
+                experiments = client.list_experiments(session_id)
+            except:
+                flash("Invalid configuration (or server down)", "error")
+                traceback.print_exc()
+                experiments = []
             obj = ExternalWebLabObject(name = scheduler.name, base_url = config['base_url'], username = config['username'], password = config['password'])
-            return self._edit_weblab_view(back, obj, scheduler)
+            return self._edit_weblab_view(back, obj, scheduler, experiments)
         elif scheduler.scheduler_type == 'PRIORITY_QUEUE':
             obj = PQueueObject(name = scheduler.name, randomize_instances = config['randomize_instances'])
             return self._edit_pqueue_view(back, obj, scheduler)
