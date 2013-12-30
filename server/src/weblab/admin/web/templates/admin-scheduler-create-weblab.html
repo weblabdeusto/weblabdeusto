@@ -13,6 +13,7 @@
         {% from "_form_helpers.html" import render_field %}
         <form method="POST" action="{{ request.url }}" class="form-horizontal">
             {{ form.hidden_tag() }}
+            <input type="hidden" name="action" value="weblab-create" />
 
             <fieldset>
                 {{ render_field(form.name) }}

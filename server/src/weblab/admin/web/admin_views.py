@@ -798,14 +798,10 @@ class ExternalWebLabForm(SchedulerForm):
     username = TextField("Username", description = "Username of the remote system", validators = [Required()])
     password = PasswordField("Password", description = "Password of the remote system", validators = [])
 
-ExternalWebLabObject = collections.namedtuple('ExternalWebLabObject', ['name', 'base_url', 'username', 'password'])
-
 class ILabBatchForm(SchedulerForm):
     lab_server_url = URLField("Web service URL", description = "Example: http://weblab2.mit.edu/services/WebLabService.asmx", validators = [Required(), URL()])
     identifier     = TextField("Identifier", description = "Fake Service Broker identifier", validators = [Required()])
     passkey        = TextField("Passkey", description = "Remote Service broker passkey", validators = [Required()])
-
-ILabBatchObject = collections.namedtuple('ILabBatchObject', ['name', 'lab_server_url', 'identifier', 'passkey'])
 
 class RemoveForm(Form):
     identifier = HiddenField()
@@ -864,10 +860,15 @@ class SchedulerPanel(AdministratorModelView):
     def create_weblab_view(self):
         return self._edit_weblab_view(url_for('.create_view'))
 
-    def _edit_weblab_view(self, back, obj = None, scheduler = None, experiments = None):
-        form = ExternalWebLabForm(formdata = request.form, obj = obj)
-        if form.validate_on_submit():
-            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+    def _edit_weblab_view(self, back, form_kwargs = None, scheduler = None):
+
+        if self.is_action('weblab-create'):
+            form = ExternalWebLabForm(prefix='weblab_create', **form_kwargs)
+        else:
+            form = ExternalWebLabForm(formdata = None, prefix='weblab_create', **form_kwargs)
+
+        if self.is_action('weblab-create') and form.validate_on_submit():
+            if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
                 form.name.errors = ["Repeated name"]
             else:
                 # Populate config
@@ -899,18 +900,94 @@ class SchedulerPanel(AdministratorModelView):
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
-            reverse_experiments_map = {}
             config = json.loads(scheduler.config)
+            try:
+                client = WebLabDeustoClient(config['base_url'])
+                session_id = client.login(config['username'], config['password'])
+                experiments = client.list_experiments(session_id)
+            except:
+                flash("Invalid configuration (or server down)", "error")
+                traceback.print_exc()
+                experiments = []
+            else:
+                flash("List of experiments retrieved", "success")
+            
+            # 
+            # One foreign experiment can be mapped to multiple local experiments,
+            # and one local experiment can be mapped to multiple foreign experiments
+            # but in different schedulers.
+            # 
+            reverse_experiments_map = {
+                # remote : [ local1, local2, local3 ]
+            }
+
             for local, remote in config['experiments_map'].iteritems():
                 if remote in reverse_experiments_map:
                     reverse_experiments_map[remote].append(local)
                 else:
                     reverse_experiments_map[remote] = [local]
-
+           
+            # 
+            # XXX TODO
+            # Consider if all this makes sense. Rather than having 
+            # experiments_map, it would make sense that every 
+            # relation between an experiment and a scheduler would
+            # have some configuration. So instead of doing:
+            # 
+            #    scheduler.experiments.append(experiment)
+            # / 
+            #    experiment.external_schedulers.append(scheduler)
+            # 
+            # It would make more sense to have something like:
+            # 
+            #    scheduler.experiments.append(ExperimentScheduleEntry(exp, config))
+            # 
+            # And
+            #    
+            #    experiment.external_schedulers.append(ExperimentScheduleEntry(exp, config))
+            # 
+            # In WebLab-Deusto, this config would contain the experiment name (so experiments_map wouldn't be required anymore).
+            # 
+            # In iLab, it makes things more complicated without need. But it's not
+            # such a bad idea after all.
+            # 
+            # 
             all_experiments = []
             for exp_allowed in experiments:
+                experiment = exp_allowed.experiment
+
+                # Show existing experiments with other names
+                if unicode(experiment) in reverse_experiments_map:
+                    for local in reverse_experiments_map[unicode(experiment)]:
+                        # TODO: check that it's in scheduler.experiments
+                        exp_data = {
+                            'experiment' : experiment,
+                        }
+                        all_experiments.append(exp_data)
+
+                # Then, show existing experiments with the same name if it
+                # was added.
+                for registered_experiment in scheduler.experiments:
+                    if unicode(experiment) == unicode(registered_experiment):
+                        exp_data = {
+                            'experiment' : experiment,
+                        }
+                        all_experiments.append(exp_data)
+                        break
+
+                # Then, show experiments to be added.
+                prefix = 'add_%s' % experiment
+                if self.is_action(prefix):
+                    add_form = AddExperimentForm(prefix = prefix)
+                else:
+                    add_form = AddExperimentForm(formdata = None, prefix = prefix)
+                
+                choices = [ unicode(exp) for exp in experiments if exp not in scheduler.experiments]
+
+                add_form.experiment_identifier.choices = zip(choices, choices)
+
                 exp_data = {
-                    'experiment' : exp_allowed.experiment,
+                    'experiment' : experiment,
                 }
                 all_experiments.append(exp_data)
         else:
@@ -933,7 +1010,7 @@ class SchedulerPanel(AdministratorModelView):
             form = ILabBatchForm(formdata = None, prefix = "ilab_create", **form_kwargs)
         
         if self.is_action('form-add') and form.validate_on_submit():
-            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+            if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
                 form.name.errors = ["Repeated name"]
             else:
                 # Populate config
@@ -1024,16 +1101,8 @@ class SchedulerPanel(AdministratorModelView):
         back = url_for('.index_view')
         config = json.loads(scheduler.config)
         if scheduler.scheduler_type == 'EXTERNAL_WEBLAB_DEUSTO':
-            try:
-                client = WebLabDeustoClient(config['base_url'])
-                session_id = client.login(config['username'], config['password'])
-                experiments = client.list_experiments(session_id)
-            except:
-                flash("Invalid configuration (or server down)", "error")
-                traceback.print_exc()
-                experiments = []
-            obj = ExternalWebLabObject(name = scheduler.name, base_url = config['base_url'], username = config['username'], password = config['password'])
-            return self._edit_weblab_view(back, obj, scheduler, experiments)
+            form_kwargs = dict(name = scheduler.name, base_url = config['base_url'], username = config['username'], password = config['password'])
+            return self._edit_weblab_view(back, form_kwargs, scheduler)
         elif scheduler.scheduler_type == 'PRIORITY_QUEUE':
             obj = PQueueObject(name = scheduler.name, randomize_instances = config['randomize_instances'])
             return self._edit_pqueue_view(back, obj, scheduler)
