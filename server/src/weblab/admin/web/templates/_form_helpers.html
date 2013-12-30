@@ -12,3 +12,10 @@
     </div>
 {% endmacro %}
 
+{% macro render_simple_field(field) %}
+    {{ field(id=field.name,**kwargs)|safe }}
+    {% for error in field.errors %}
+    <span class="help-inline">{{ error }}</span>
+    {% endfor %}
+{% endmacro %}
+

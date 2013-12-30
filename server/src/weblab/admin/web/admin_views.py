@@ -18,7 +18,7 @@ except:
     print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
     raise
 
-from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField
 from wtforms.fields.core import UnboundField
 from wtforms.fields.html5 import URLField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
@@ -807,6 +807,12 @@ class ILabBatchForm(SchedulerForm):
 
 ILabBatchObject = collections.namedtuple('ILabBatchObject', ['name', 'lab_server_url', 'identifier', 'passkey'])
 
+class RemoveForm(Form):
+    identifier = HiddenField()
+
+class AddExperimentForm(Form):
+    experiment_identifier = Select2Field("Experiment to add")
+
 class SchedulerPanel(AdministratorModelView):
     
     column_list = ('name', 'summary', 'scheduler_type', 'is_external')
@@ -912,12 +918,21 @@ class SchedulerPanel(AdministratorModelView):
         return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments)
 
     @expose('/create/ilab/', ['GET', 'POST'])
-    def create_ilab_view(self):
+    def create_ilab_view(self):    
         return self._edit_ilab_view(url_for('.create_view'))
 
-    def _edit_ilab_view(self, back, obj = None, scheduler = None):
-        form = ILabBatchForm(formdata = request.form, obj = obj)
-        if form.validate_on_submit():
+    def is_action(self, name):
+        return request.form and request.form.get('action') == name
+
+    def _edit_ilab_view(self, back, form_kwargs = None, scheduler = None):
+        experiments = self.session.query(model.DbExperiment).all()
+
+        if self.is_action('form-add'):
+            form = ILabBatchForm(prefix = "ilab_create", **form_kwargs)
+        else:
+            form = ILabBatchForm(formdata = None, prefix = "ilab_create", **form_kwargs)
+        
+        if self.is_action('form-add') and form.validate_on_submit():
             if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
                 form.name.errors = ["Repeated name"]
             else:
@@ -947,7 +962,52 @@ class SchedulerPanel(AdministratorModelView):
                 else:
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
-        return self.render("admin-scheduler-create-ilab.html", form = form, back = back)
+
+        if scheduler:
+            choices = [ unicode(exp) for exp in experiments if exp not in scheduler.experiments]
+        else:
+            choices = [ unicode(exp) for exp in experiments ]
+
+        if self.is_action('form-register'):
+            add_form = AddExperimentForm(prefix = 'add_ilab')
+        else:
+            add_form = AddExperimentForm(formdata = None, prefix = 'add_ilab')
+        add_form.experiment_identifier.choices = zip(choices, choices)
+        if self.is_action('form-register') and add_form.validate_on_submit():
+            experiment_to_register = add_form.experiment_identifier.data
+            for experiment in experiments:
+                if experiment_to_register == unicode(experiment) and experiment not in scheduler.experiments:
+                    scheduler.experiments.append(experiment)
+                    choices.remove(unicode(experiment))
+                    self.session.commit()
+                    add_form.experiment_identifier.choices = zip(choices, choices)
+                    break
+
+        registered_experiments = []
+        if scheduler and experiments:
+
+            for registered_experiment in scheduler.experiments[:]:
+                prefix = 'remove_ilab_%s' % registered_experiment.id
+
+                if self.is_action(prefix):
+                    remove_form = RemoveForm(identifier = registered_experiment.id, prefix = prefix)
+                else:
+                    remove_form = RemoveForm(formdata = None, identifier = registered_experiment.id, prefix = prefix)
+
+                if self.is_action(prefix) and remove_form.validate_on_submit():
+                    print remove_form.identifier.data
+                    experiment_id = int(remove_form.identifier.data)
+                    scheduler.experiments.remove(registered_experiment)
+                    self.session.commit()
+                else:
+                    registered_experiments.append({
+                        'name'   : unicode(registered_experiment),
+                        'form'   : remove_form,
+                        'prefix' : prefix
+                    })
+
+
+        return self.render("admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
 
 
     @expose('/edit/', ['GET', 'POST'])
@@ -978,8 +1038,8 @@ class SchedulerPanel(AdministratorModelView):
             obj = PQueueObject(name = scheduler.name, randomize_instances = config['randomize_instances'])
             return self._edit_pqueue_view(back, obj, scheduler)
         elif scheduler.scheduler_type == 'ILAB_BATCH_QUEUE':
-            obj = ILabBatchObject(name = scheduler.name, lab_server_url = config['lab_server_url'], identifier = config['identifier'], passkey = config['passkey'])
-            return self._edit_ilab_view(back, obj, scheduler)
+            form_kwargs = dict(name = scheduler.name, lab_server_url = config['lab_server_url'], identifier = config['identifier'], passkey = config['passkey'])
+            return self._edit_ilab_view(back, form_kwargs, scheduler)
 
         return ":-O Editing"
 

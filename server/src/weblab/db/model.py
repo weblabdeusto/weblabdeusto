@@ -269,6 +269,11 @@ class DbGroup(Base):
 # SCHEDULERS DEFINITION
 #
 
+t_external_schedulers = Table('ExperimentExternalScheduler', Base.metadata,
+    Column('experiment_id', Integer, ForeignKey('Experiment.id'), primary_key=True),
+    Column('scheduler_id', Integer, ForeignKey('Scheduler.id'), primary_key=True)
+    )
+
 class DbScheduler(Base):
     """ A DbScheduler represents a Queue, an external WebLab-Deusto, iLab batch, or whatever. 
     """
@@ -281,6 +286,8 @@ class DbScheduler(Base):
     scheduler_type = Column(String(255), nullable = False, index = True)
     config         = Column(String(4096), nullable = False)
     is_external    = Column(Boolean, nullable = False, index = True)
+
+    experiments    = relation("DbExperiment", secondary = t_external_schedulers)
 
     def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
         super(DbScheduler, self).__init__()
@@ -341,11 +348,6 @@ class DbExperimentInstance(Base):
         self.slots = slots
         self.scheduler_resource = scheduler_resource
     
-t_external_schedulers = Table('ExperimentExternalScheduler', Base.metadata,
-    Column('experiment_id', Integer, ForeignKey('Experiment.id'), primary_key=True),
-    Column('scheduler_id', Integer, ForeignKey('Scheduler.id'), primary_key=True)
-    )
-
 ##############################################################################
 # EXPERIMENTS DEFINITION
 #
@@ -385,7 +387,8 @@ class DbExperiment(Base):
     end_date    = Column(DateTime, nullable = False)
     client      = Column(String(255), index = True)
 
-    category = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
+    category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
+    external_schedulers = relation("DbScheduler", secondary = t_external_schedulers)
 
     def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
