@@ -584,7 +584,7 @@ class PriorityQueueScheduler(Scheduler):
             if reservations_removed:
                 try:
                     session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError as e:
+                except ConcurrentModificationError as e:
                     log.log(
                         PriorityQueueScheduler, log.level.Warning,
                         "IntegrityError: %s" % e )
@@ -616,7 +616,7 @@ class PriorityQueueScheduler(Scheduler):
                 session.delete(current_resource_slot)
 
             session.commit()
-        except sqlalchemy.exceptions.ConcurrentModificationError:
+        except ConcurrentModificationError:
             pass # Another process is cleaning concurrently
         finally:
             session.close()

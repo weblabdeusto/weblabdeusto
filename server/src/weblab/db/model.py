@@ -20,7 +20,7 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
+from sqlalchemy import Column, Boolean, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, PrimaryKeyConstraint, Table
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -269,10 +269,6 @@ class DbGroup(Base):
 # SCHEDULERS DEFINITION
 #
 
-t_external_schedulers = Table('ExperimentExternalScheduler', Base.metadata,
-    Column('experiment_id', Integer, ForeignKey('Experiment.id'), primary_key=True),
-    Column('scheduler_id', Integer, ForeignKey('Scheduler.id'), primary_key=True)
-    )
 
 class DbScheduler(Base):
     """ A DbScheduler represents a Queue, an external WebLab-Deusto, iLab batch, or whatever. 
@@ -286,8 +282,6 @@ class DbScheduler(Base):
     scheduler_type = Column(String(255), nullable = False, index = True)
     config         = Column(String(4096), nullable = False)
     is_external    = Column(Boolean, nullable = False, index = True)
-
-    experiments    = relation("DbExperiment", secondary = t_external_schedulers)
 
     def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
         super(DbScheduler, self).__init__()
@@ -388,7 +382,6 @@ class DbExperiment(Base):
     client      = Column(String(255), index = True)
 
     category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
-    external_schedulers = relation("DbScheduler", secondary = t_external_schedulers)
 
     def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
@@ -459,6 +452,28 @@ class DbExperimentClientParameter(Base):
         self.parameter_type = parameter_type
         self.value          = value
 
+class DbSchedulerExternalExperimentEntry(Base):
+    __tablename__ = 'SchedulerExternalExperimentEntry'
+    __table_args__ = (UniqueConstraint('experiment_id', 'scheduler_id'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    experiment_id  = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
+    config         = Column(String(1024))
+    
+    experiment = relation("DbExperiment", backref=backref("external_schedulers", order_by=id))
+    scheduler  = relation("DbScheduler", backref=backref("external_experiments", order_by=id))
+
+    def __init__(self, experiment = None, scheduler = None, config = None):
+        self.experiment = experiment
+        self.scheduler = scheduler
+        self.config = config
+
+    def __repr__(self):
+        return "DbSchedulerExternalExperimentEntry(%r, %r, %r)" % (self.experiment, self.scheduler, self.config)
+
+    def __unicode__(self):
+        return u"Entry for experiment %s on scheduler %s with config = %r" % (self.experiment, self.scheduler, self.config)
 
 
 ##############################################################################

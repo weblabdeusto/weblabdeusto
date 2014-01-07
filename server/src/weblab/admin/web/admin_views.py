@@ -449,7 +449,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -477,7 +479,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -500,7 +504,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -848,7 +854,9 @@ class SchedulerPanel(AdministratorModelView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Error adding resource", "error")
+                    self.session.rollback()
                 else:
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
@@ -861,7 +869,8 @@ class SchedulerPanel(AdministratorModelView):
         return self._edit_weblab_view(url_for('.create_view'))
 
     def _edit_weblab_view(self, back, form_kwargs = None, scheduler = None):
-
+        if form_kwargs is None:
+            form_kwargs = {}
         if self.is_action('weblab-create'):
             form = ExternalWebLabForm(prefix='weblab_create', **form_kwargs)
         else:
@@ -873,7 +882,7 @@ class SchedulerPanel(AdministratorModelView):
             else:
                 # Populate config
                 if scheduler is None:
-                    config = { 'experiments_map' : {}}
+                    config = {}
                 else:
                     config = json.loads(scheduler.config)
                 config['base_url'] = form.base_url.data
@@ -894,7 +903,9 @@ class SchedulerPanel(AdministratorModelView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Error adding resource", "error")
+                    self.session.rollback()
                 else:
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
@@ -904,95 +915,155 @@ class SchedulerPanel(AdministratorModelView):
             try:
                 client = WebLabDeustoClient(config['base_url'])
                 session_id = client.login(config['username'], config['password'])
-                experiments = client.list_experiments(session_id)
+                experiments_allowed = client.list_experiments(session_id)
             except:
                 flash("Invalid configuration (or server down)", "error")
                 traceback.print_exc()
-                experiments = []
-            else:
-                flash("List of experiments retrieved", "success")
+                experiments_allowed = []
             
             # 
-            # One foreign experiment can be mapped to multiple local experiments,
-            # and one local experiment can be mapped to multiple foreign experiments
-            # but in different schedulers.
+            # WebLab-Deusto returns a list of available experiments.
             # 
+            # Each experiment can be either:
+            # a) Mapped to one or multiple existing experiments (in which case, there
+            #    will be an entry where the config is the code)
+            # b) Not mapped to any one
+            # 
+            # If the experiment has the same name or not is irrelevant. This way, if
+            # the user changes the experiment in the admin in the local system, there
+            # is no issue. And in every case (even if there is an experiment), it 
+            # must be possible to add new experiments (except for if all are assigned 
+            # to the laboratory, which would be weird).
+            # 
+
+            existing_experiment_ids = set()
             reverse_experiments_map = {
-                # remote : [ local1, local2, local3 ]
+                # config : [ scheduler_experiment_entry1, scheduler_experiment_entry2 ]
             }
-
-            for local, remote in config['experiments_map'].iteritems():
-                if remote in reverse_experiments_map:
-                    reverse_experiments_map[remote].append(local)
+            for entry in scheduler.external_experiments:
+                existing_experiment_ids.add(unicode(entry.experiment))
+                if entry.config in reverse_experiments_map:
+                    reverse_experiments_map[entry.config].append(entry)
                 else:
-                    reverse_experiments_map[remote] = [local]
-           
-            # 
-            # XXX TODO
-            # Consider if all this makes sense. Rather than having 
-            # experiments_map, it would make sense that every 
-            # relation between an experiment and a scheduler would
-            # have some configuration. So instead of doing:
-            # 
-            #    scheduler.experiments.append(experiment)
-            # / 
-            #    experiment.external_schedulers.append(scheduler)
-            # 
-            # It would make more sense to have something like:
-            # 
-            #    scheduler.experiments.append(ExperimentScheduleEntry(exp, config))
-            # 
-            # And
-            #    
-            #    experiment.external_schedulers.append(ExperimentScheduleEntry(exp, config))
-            # 
-            # In WebLab-Deusto, this config would contain the experiment name (so experiments_map wouldn't be required anymore).
-            # 
-            # In iLab, it makes things more complicated without need. But it's not
-            # such a bad idea after all.
-            # 
-            # 
+                    reverse_experiments_map[entry.config] = [entry]
+    
+            experiments = self.session.query(model.DbExperiment).all()
+            choices = [ unicode(exp) for exp in experiments if unicode(exp) not in existing_experiment_ids]
+            if request.form:
+                experiment_to_be_added = request.form.get(u'%s-experiment_identifier' % self.get_action())
+            else:
+                experiment_to_be_added = None
+            
+            retrieved_experiment_ids = set()
             all_experiments = []
-            for exp_allowed in experiments:
-                experiment = exp_allowed.experiment
+            for exp_allowed in experiments_allowed:
+                experiment_id = unicode(exp_allowed.experiment.get_unique_name())
+                retrieved_experiment_ids.add(experiment_id)
 
-                # Show existing experiments with other names
-                if unicode(experiment) in reverse_experiments_map:
-                    for local in reverse_experiments_map[unicode(experiment)]:
-                        # TODO: check that it's in scheduler.experiments
+                # Show all the already mapped experiments
+                for entry in reverse_experiments_map.get(experiment_id, []):
+                    prefix = 'remove_%s' % entry.id
+                    if self.is_action(prefix):
+                        remove_form = RemoveForm(identifier = unicode(entry.id), prefix = prefix)
+                    else:
+                        remove_form = RemoveForm(formdata = None, identifier = unicode(entry.id), prefix = prefix)
+                    
+                    if self.is_action(prefix) and remove_form.validate_on_submit():
+                        self.session.delete(entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error removing experiment", "error")
+                            self.session.rollback()
+                            break
+                        else:
+                            return redirect(request.url)
+                    else:
                         exp_data = {
-                            'experiment' : experiment,
+                            'experiment' : experiment_id,
+                            'local_name' : unicode(entry.experiment),
+                            'action'     : 'remove',
+                            'form'       : remove_form,
+                            'prefix'     : prefix,
                         }
                         all_experiments.append(exp_data)
-
-                # Then, show existing experiments with the same name if it
-                # was added.
-                for registered_experiment in scheduler.experiments:
-                    if unicode(experiment) == unicode(registered_experiment):
-                        exp_data = {
-                            'experiment' : experiment,
-                        }
-                        all_experiments.append(exp_data)
-                        break
 
                 # Then, show experiments to be added.
-                prefix = 'add_%s' % experiment
+                if choices:
+                    prefix = 'add_%s' % experiment_id
+                    if self.is_action(prefix):
+                        add_form = AddExperimentForm(prefix = prefix)
+                    else:
+                        add_form = AddExperimentForm(formdata = None, prefix = prefix)
+
+                    updated_choices = choices[:]
+                    add_form.experiment_identifier.choices = zip(updated_choices, updated_choices)
+                    
+                    if self.is_action(prefix) and add_form.validate_on_submit():
+                        experiment_to_register = add_form.experiment_identifier.data
+                        for experiment in experiments:
+                            if experiment_to_register == unicode(experiment):
+                                entry = model.DbSchedulerExternalExperimentEntry(experiment = experiment, scheduler = scheduler, config = experiment_id)
+                                self.session.add(entry)
+                                try:
+                                    self.session.commit()
+                                except:
+                                    traceback.print_exc()
+                                    flash("Error registering weblab experiment", "error")
+                                    self.session.rollback()
+                                    break
+                                else:
+                                    return redirect(request.url)
+
+                    exp_data = {
+                        'experiment' : experiment_id,
+                        'action'     : 'add',
+                        'form'       : add_form,
+                        'prefix'     : prefix,
+                    }
+                    all_experiments.append(exp_data)
+            
+            # 
+            # It may happen that some experiments existed in the past in the
+            # foreign system and not anymore. Here we list them, and enable
+            # the administrator to remove them.
+            # 
+            misconfigured_experiments = self.session.query(model.DbSchedulerExternalExperimentEntry).filter(model.DbSchedulerExternalExperimentEntry.config.notin_(retrieved_experiment_ids)).all()
+
+            all_misconfigured_experiments = []
+            for entry in misconfigured_experiments:
+                prefix = 'remove_%s' % entry.id
                 if self.is_action(prefix):
-                    add_form = AddExperimentForm(prefix = prefix)
+                    remove_form = RemoveForm(identifier = unicode(entry.id), prefix = prefix)
                 else:
-                    add_form = AddExperimentForm(formdata = None, prefix = prefix)
+                    remove_form = RemoveForm(formdata = None, identifier = unicode(entry.id), prefix = prefix)
                 
-                choices = [ unicode(exp) for exp in experiments if exp not in scheduler.experiments]
+                if self.is_action(prefix) and remove_form.validate_on_submit():
+                    self.session.delete(entry)
+                    try:
+                        self.session.commit()
+                    except:
+                        traceback.print_exc()
+                        flash("Error removing experiment", "error")
+                        self.session.rollback()
+                        break
+                    else:
+                        return redirect(request.url)
+                else:
+                    exp_data = {
+                        'experiment' : unicode(entry.config),
+                        'local_name' : unicode(entry.experiment),
+                        'action'     : 'remove',
+                        'form'       : remove_form,
+                        'prefix'     : prefix,
+                    }
+                    all_misconfigured_experiments.append(exp_data)
 
-                add_form.experiment_identifier.choices = zip(choices, choices)
-
-                exp_data = {
-                    'experiment' : experiment,
-                }
-                all_experiments.append(exp_data)
         else:
             all_experiments = []
-        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments)
+            all_misconfigured_experiments = []
+        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
 
     @expose('/create/ilab/', ['GET', 'POST'])
     def create_ilab_view(self):    
@@ -1001,7 +1072,15 @@ class SchedulerPanel(AdministratorModelView):
     def is_action(self, name):
         return request.form and request.form.get('action') == name
 
+    def get_action(self):
+        if request.form:
+            return request.form.get('action', '')
+        return ''
+
     def _edit_ilab_view(self, back, form_kwargs = None, scheduler = None):
+        if form_kwargs is None:
+            form_kwargs = {}
+
         experiments = self.session.query(model.DbExperiment).all()
 
         if self.is_action('form-add'):
@@ -1035,54 +1114,69 @@ class SchedulerPanel(AdministratorModelView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Error adding resource", "error")
+                    self.session.rollback()
                 else:
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
-            choices = [ unicode(exp) for exp in experiments if exp not in scheduler.experiments]
+            external_experiments = [ unicode(exp.experiment) for exp in scheduler.external_experiments ]
+            external_experiments_objects = [ exp.experiment for exp in scheduler.external_experiments ]
+            choices = [ unicode(exp) for exp in experiments if exp not in external_experiments_objects ]
+
+            if self.is_action('form-register'):
+                add_form = AddExperimentForm(prefix = 'add_ilab')
+            else:
+                add_form = AddExperimentForm(formdata = None, prefix = 'add_ilab')
+            add_form.experiment_identifier.choices = zip(choices, choices)
+            if self.is_action('form-register') and add_form.validate_on_submit():
+                experiment_to_register = add_form.experiment_identifier.data
+                for experiment in experiments:
+                    if experiment_to_register == unicode(experiment) and unicode(experiment) not in external_experiments:
+                        entry = model.DbSchedulerExternalExperimentEntry(experiment = experiment, scheduler = scheduler, config = "")
+                        self.session.add(entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error registering ilab experiment", "error")
+                            self.session.rollback()
+                            break
+                        choices.remove(unicode(experiment))
+                        add_form.experiment_identifier.choices = zip(choices, choices)
+                        break
+
+            registered_experiments = []
+            if experiments:
+
+                for registered_experiment_entry in scheduler.external_experiments[:]:
+                    prefix = 'remove_ilab_%s' % unicode(registered_experiment_entry.experiment)
+
+                    if self.is_action(prefix):
+                        remove_form = RemoveForm(identifier = unicode(registered_experiment_entry.experiment), prefix = prefix)
+                    else:
+                        remove_form = RemoveForm(formdata = None, identifier = unicode(registered_experiment_entry.experiment), prefix = prefix)
+
+                    if self.is_action(prefix) and remove_form.validate_on_submit():
+                        self.session.delete(registered_experiment_entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error removing experiment", "error")
+                            self.session.rollback()
+                            break
+                    else:
+                        registered_experiments.append({
+                            'name'   : unicode(registered_experiment_entry.experiment),
+                            'form'   : remove_form,
+                            'prefix' : prefix
+                        })
         else:
-            choices = [ unicode(exp) for exp in experiments ]
-
-        if self.is_action('form-register'):
-            add_form = AddExperimentForm(prefix = 'add_ilab')
-        else:
-            add_form = AddExperimentForm(formdata = None, prefix = 'add_ilab')
-        add_form.experiment_identifier.choices = zip(choices, choices)
-        if self.is_action('form-register') and add_form.validate_on_submit():
-            experiment_to_register = add_form.experiment_identifier.data
-            for experiment in experiments:
-                if experiment_to_register == unicode(experiment) and experiment not in scheduler.experiments:
-                    scheduler.experiments.append(experiment)
-                    choices.remove(unicode(experiment))
-                    self.session.commit()
-                    add_form.experiment_identifier.choices = zip(choices, choices)
-                    break
-
-        registered_experiments = []
-        if scheduler and experiments:
-
-            for registered_experiment in scheduler.experiments[:]:
-                prefix = 'remove_ilab_%s' % registered_experiment.id
-
-                if self.is_action(prefix):
-                    remove_form = RemoveForm(identifier = registered_experiment.id, prefix = prefix)
-                else:
-                    remove_form = RemoveForm(formdata = None, identifier = registered_experiment.id, prefix = prefix)
-
-                if self.is_action(prefix) and remove_form.validate_on_submit():
-                    print remove_form.identifier.data
-                    experiment_id = int(remove_form.identifier.data)
-                    scheduler.experiments.remove(registered_experiment)
-                    self.session.commit()
-                else:
-                    registered_experiments.append({
-                        'name'   : unicode(registered_experiment),
-                        'form'   : remove_form,
-                        'prefix' : prefix
-                    })
-
+            add_form = None
+            registered_experiments = []
 
         return self.render("admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
 
