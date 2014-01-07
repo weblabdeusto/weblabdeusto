@@ -58,6 +58,16 @@
     margin-top: 7px;
     margin-bottom: 50px;
   }
+
+
+
+  .centered {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
 </style>
 <script>
     var sliders = {};
@@ -84,15 +94,18 @@
 <body>
     <div class="container">
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-md-2 col-md-offset-5 text-center" style="color:red">
+                <h3>
                 02:20
+                </h3>
             </div>
-            <div class="col-md-2">
-                <span class="glyphicon glyphicon-log-out"></span>
+            <div class="col-md-2 col-md-offset-3" style="height:100%">
+                <span class="glyphicon glyphicon-log-out text-center" style="font-size: 2em; padding-top:10px"></span>
             </div>
         </div>
+
         <div class="row">
-            <div class="col-md-offset-4 col-md-2 text-center">
+            <div class="col-md-offset-4 col-md-2 text-center" style="background: lightgray">
                 <span class="glyphicon glyphicon-facetime-video"></span> 1
             </div>
             <div class="col-md-2 text-center" style="color: white; background: black">
@@ -100,8 +113,8 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-offset-4 col-md-4 text-center">
-                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fishtank1"/>
+            <div class="col-md-12 centered">
+                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
             </div>
         </div>
         <div class="row">
@@ -118,12 +131,19 @@
                 <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="redball"/>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 text-center">
-                <span class="glyphicon glyphicon-refresh"></span>
+
+         <div class="row">
+            <div class="col-md-6 text-center" style="">
+                <span class="glyphicon glyphicon-refresh" style="top:40px;  font-size:2em; z-index: 10; color:white"></span>
             </div>
             <div class="col-md-6 text-center">
-                <span class="glyphicon glyphicon-eye-open"></span>
+                <span class="glyphicon glyphicon-eye-open" style="top:40px; font-size:2em; z-index:10; color:white"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 centered">
+                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
             </div>
         </div>
 
