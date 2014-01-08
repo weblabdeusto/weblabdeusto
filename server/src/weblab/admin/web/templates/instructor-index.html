@@ -1,0 +1,20 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="span7 offset2">
+
+        <br/>
+        <h1>Welcome, {{ user_information.full_name }}!</h1>
+        <br/>
+
+        <p>Here you will be able to see what your students did.</p>
+
+        {% if is_admin %}
+        <p>Additionally, since you're an administrator, you can go the <a href="{{ admin_url }}">the administration panel</a>.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

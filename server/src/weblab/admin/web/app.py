@@ -19,6 +19,7 @@ from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
+import weblab.admin.web.instructor_views as instructor_views
 
 class BackView(BaseView):
     @expose()
@@ -120,6 +121,13 @@ class AdministrationApplication(AbstractDatabaseGateway):
         # f) Manage the permissions on these courses
         # g) See the logs of their own students
         # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
+
+        instructor_url = '/weblab/administration/instructor'
+        self.instructor = Admin(index_view = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor'), name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
+        
+        # TODO
+
+        self.instructor.init_app(self.app)
 
         ################################################
         # 
