@@ -40,6 +40,7 @@ Laboratory = [
         'check_experiments_resources',
         'experiment_is_up_and_running',
         'should_experiment_finish',
+        'list_experiments',
     ]
 
 Translator = [

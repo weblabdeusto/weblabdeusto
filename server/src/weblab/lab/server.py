@@ -116,42 +116,49 @@ class LaboratoryServer(object):
                 raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid configuration entry. Expected format: %s; found: %s" %
                     (LaboratoryServer.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id))
             else:
-                # ExperimentInstanceId
-                groups = mo.groups()
-                (   exp_inst_name,
-                    exp_name,
-                    exp_cat_name
-                ) = groups
-                experiment_instance_id = ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
+                number = data.get('number', 1)
 
-                # CoordAddress
-                try:
-                    coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
-                except GeneratorErrors.GeneratorError:
-                    raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid coordination address: %s" % data['coord_address'])
+                for n in range(1, number + 1):
+                    # ExperimentInstanceId
+                    groups = mo.groups()
+                    (   exp_inst_name,
+                        exp_name,
+                        exp_cat_name
+                    ) = groups
 
-                # CheckingHandlers
-                checkers = data.get('checkers', ())
-                checking_handlers = {}
-                for checker in checkers:
-                    klazz = checker[0]
-                    if klazz in IsUpAndRunningHandler.HANDLERS:
-                        argss, kargss = (), {}
-                        if len(checker) >= 3:
-                            kargss = checker[2]
-                        if len(checker) >= 2:
-                            argss = checker[1]
-                        checking_handlers[repr(checker)] = eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
-                    else:
-                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
+                    if number > 1:
+                        exp_inst_name += '__%s' % n
 
-                # API
-                api = data.get('api', None)
-                
-                # Polling: if it manages its own polling, the client does not need to manage it
-                manages_polling = data.get('manages_polling', False)
+                    experiment_instance_id = ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
 
-                parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling }) )
+                    # CoordAddress
+                    try:
+                        coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
+                    except GeneratorErrors.GeneratorError:
+                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid coordination address: %s" % data['coord_address'])
+
+                    # CheckingHandlers
+                    checkers = data.get('checkers', ())
+                    checking_handlers = {}
+                    for checker in checkers:
+                        klazz = checker[0]
+                        if klazz in IsUpAndRunningHandler.HANDLERS:
+                            argss, kargss = (), {}
+                            if len(checker) >= 3:
+                                kargss = checker[2]
+                            if len(checker) >= 2:
+                                argss = checker[1]
+                            checking_handlers[repr(checker)] = eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
+                        else:
+                            raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
+
+                    # API
+                    api = data.get('api', None)
+                    
+                    # Polling: if it manages its own polling, the client does not need to manage it
+                    manages_polling = data.get('manages_polling', False)
+
+                    parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling, 'number' : number }) )
         return parsed_experiments
 
     def _load_assigned_experiments(self):
@@ -203,6 +210,17 @@ class LaboratoryServer(object):
             
         return api
     
+    @logged(log.level.Info)
+    @caller_check(ServerType.UserProcessing)
+    def do_list_experiments(self):
+        # TODO: this should return a list of elements such as:
+        # [
+        #      {
+        #           'id'     : 'experiment_id1',
+        #           'number' : 60,
+        #      }
+        # ]
+        return []
 
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
