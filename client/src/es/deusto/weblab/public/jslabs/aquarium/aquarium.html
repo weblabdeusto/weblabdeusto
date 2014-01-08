@@ -1,202 +1,432 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Aquarium laboratory</title>
+    <title>Aquarium laboratory</title>
 
-<link  href="slider/css/slider.css" rel="stylesheet">
-<link  href="bootstrap3/css/bootstrap.min.css" rel="stylesheet">
-<link  href="bootstrap3/css/bootstrap-theme.min.css" rel="stylesheet">
-<script src="jquery-1.8.3.min.js"></script>
-<script src="slider/js/bootstrap-slider.js"></script>
-<style>
-  .slider.slider-vertical {
-    height: 70px;
-    margin-top: 5px;
-    margin-left: 20px;
-  }
-  .slider-handle {
-    height: 50px;
-    width: 50px;
-    border: 2px solid black;
-  }
-  .slider.slider-vertical .slider-handle {
-    margin-left: -20px;
-  }
+    <link href="slider/css/slider.css" rel="stylesheet">
+    <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap3/css/bootstrap-theme.min.css" rel="stylesheet">
+    <script src="jquery-1.8.3.min.js"></script>
+    <script src="slider/js/bootstrap-slider.js"></script>
+    <style>
+        .slider.slider-vertical {
+            height: 70px;
+            margin-top: 5px;
+            margin-left: 20px;
+        }
 
-  #redball .slider-selection {
-    background: #FF8282;
-  }
-  #redball .slider-handle {
-    background: red;
-  }
-  #whiteball .slider-selection {
-    background: #F5F5F5;
-  }
-  #whiteball .slider-handle {
-    background: white;
-  }
-  #yellowball .slider-selection {
-    background: #FFFF82;
-  }
-  #yellowball .slider-handle {
-    background: yellow;
-  }
-  #blueball .slider-selection {
-    background: #8282FF;
-  }
-  #blueball .slider-handle {
-    background: blue;
-  }
+        .slider-handle {
+            height: 50px;
+            width: 50px;
+            border: 2px solid black;
+        }
 
-  .slider-handle.round {
-     -webkit-border-radius: 50px;
-     -moz-border-radius: 50px;
-     border-radius: 50px;
-  }
+        .slider.slider-vertical .slider-handle {
+            margin-left: -20px;
+        }
 
-  .sliderballs {
-    margin-top: 7px;
-    margin-bottom: 50px;
-  }
+        #redball .slider-selection {
+            background: #FF8282;
+        }
+
+        #redball .slider-handle {
+            background: red;
+        }
+
+        #whiteball .slider-selection {
+            background: #F5F5F5;
+        }
+
+        #whiteball .slider-handle {
+            background: white;
+        }
+
+        #yellowball .slider-selection {
+            background: #FFFF82;
+        }
+
+        #yellowball .slider-handle {
+            background: yellow;
+        }
+
+        #blueball .slider-selection {
+            background: #8282FF;
+        }
+
+        #blueball .slider-handle {
+            background: blue;
+        }
+
+        .slider-handle.round {
+            -webkit-border-radius: 50px;
+            -moz-border-radius: 50px;
+            border-radius: 50px;
+        }
+
+        .sliderballs {
+            margin-top: 7px;
+            margin-bottom: 50px;
+        }
+
+        .centered {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        .cambtn-active {
+            color: white;
+            background: black;
+        }
+
+        .cambtn-inactive {
+            color: black;
+            background: lightgray;
+        }
+
+        .clickable:hover {
+            cursor: pointer;
+        }
 
 
+    </style>
+    <script>
 
-  .centered {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-  }
-
-  .cambtn-active {
-      color: white;
-      background: black;
-  }
-
-  .cambtn-inactive {
-      color: black;
-      background: lightgray;
-  }
+        // ****************
+        // CONFIGURATION
+        // ****************
+        var FIRST_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/fpga1"
+        var SECOND_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/pld1"
 
 
-  .clickable:hover {
-      cursor:pointer;
-  }
+//        var sliders = {};
+//        $(document).ready(function () {
+//            var colors = ['redball', 'blueball', 'yellowball', 'whiteball'];
+//            for (var color_id in colors) {
+//                var color = colors[color_id];
+//                console.log(color);
+//                var identifier = $('#' + color);
+//                sliders[color] = $('#' + color).slider();
+//                sliders[color].on('slide', function (ev) {
+//                    //      $('#bar').val(ev.value);
+//                });
 
-</style>
-<script>
-    var sliders = {};
-    $(document).ready(function() { 
-        var colors = ['redball', 'blueball', 'yellowball', 'whiteball'];
-        for (var color_id in colors) {
-            var color = colors[color_id];
-            console.log(color);
-            var identifier = $('#' + color);
-            sliders[color] = $('#' + color).slider();
-            sliders[color].on('slide', function(ev){
-                //      $('#bar').val(ev.value);
-            });
-            
 //            $("#" + color + " .slider-handle").click(function(){   
 //
 ////                identifier.slider('setValue', Math.abs(identifier.slider('getValue') - 1));
 //                identifier.slider('setValue', 0);
 //            });
+//            }
+//        });
+
+
+        // Camera refresher. It takes the id of the image to refresh as an argument.
+        // When you want to start refreshing, just call start(). To stop refreshing, just call
+        // stop().
+        CameraRefresher = function(img_id) {
+
+            var INTERVAL = 1000; // Seconds to wait between image changes.
+
+            var $img = $("#" + img_id);
+            var _url;
+            var _refreshingTimeout = null;
+
+
+            //! Carry out initialization.
+            //!
+            this._init = function() {
+                // Ensure that the specified image exists.
+                if($img.length != 1) {
+                    console.error("[CameraRefresher]: The element with the tag " + img_id + " could not be found in the DOM");
+                    throw "Element not found";
+                }
+
+                // Register the image loaded listener.
+                $img.load(function() {
+                   this._onLoad();
+                }.bind(this));
+            }
+
+
+            this._refresh = function() {
+                $img.attr("src", this._get_timestamped_url(_url));
+            };
+
+            this._get_timestamped_url = function(url) {
+                if(url.search("\\?") != -1) {
+                    return url + "&__ts=" + new Date().getTime();
+                } else {
+                    return url + "?__ts=" + new Date().getTime();
+                }
+            };
+
+            this._onLoad = function() {
+                _refreshingTimeout = setTimeout(this._refresh.bind(this), INTERVAL);
+            };
+
+            //! Sets the number of milliseconds to wait after each image load.
+            //!
+            this.setInterval = function(interval) {
+                INTERVAL = interval;
+            }
+
+            //! Gets the number of milliseconds to wait after each image load.
+            //!
+            this.getInterval = function() {
+                return INTERVAL;
+            }
+
+
+            //! Initialization.
+            this.showPlaceholder = function() {
+                $img.attr("src", "img/video_placeholder.png");
+            };
+
+            //! Starts refreshing the specified URL.
+            //!
+            //! @param url URL to refresh. A timestamp will be appended to each request to avoid caching issues.
+            //! Can be undefined or null. If undefined or null, the current image source will be used as the URL
+            //! to refresh.
+            this.start = function(url) {
+
+                // If null or empty we will use the previous URL.
+                if( url == undefined || url == null || url.length == 0 )
+                {
+                    url = $img.attr("src");
+                }
+
+                // Stop the previous refresher if it's active.
+                this.stop();
+
+                _url = url;
+
+                this._refresh();
+            };
+
+            //! Stops refreshing.
+            //!
+            this.stop = function() {
+                if(_refreshingTimeout != null) {
+                    clearTimeout(_refreshingTimeout);
+                    _refreshingTimeout = null;
+                }
+            };
+
+
+            // Call the ctor
+            this._init();
+        };
+
+
+        // Register basic UI callbacks
+
+        var augmentedViewEnabled = true; // To indicate in which mode we are.
+        var cameraRefresher; // To help refresh the cameras.
+
+        $(document).ready(function () {
+
+            // Create the CameraRefresher.
+            cameraRefresher = new CameraRefresher("cam_img");
+            cameraRefresher.start(FIRST_CAMERA_URL);
+
+            $("#logout").click(function () {
+                onLogout();
+            });
+
+            $("#cam1").click(function () {
+                $("#cam1").addClass("cambtn-active").removeClass("cambtn-inactive")
+                $("#cam2").addClass("cambtn-inactive").removeClass("cambtn-active")
+                onFirstCameraActivated();
+            });
+
+            $("#cam2").click(function () {
+                $("#cam2").addClass("cambtn-active").removeClass("cambtn-inactive")
+                $("#cam1").addClass("cambtn-inactive").removeClass("cambtn-active")
+                onSecondCameraActivated();
+            });
+
+            $("#cam_refresh").click(function () {
+                alert("Refreshing camera");
+                onRefreshCamera();
+            });
+
+            $("#cam_view").click(function () {
+
+                augmentedViewEnabled = !augmentedViewEnabled;
+
+                $("#cam_view").css("color", (augmentedViewEnabled ? "white" : "lightgray"));
+
+                onViewModeChanged(augmentedViewEnabled);
+            });
+
+
+            // Listen for ball events and report them.
+
+            var sliderChanged = function() {
+                onSlidersChanged(w.getValue() == 1, y.getValue() == 1, b.getValue() == 1, r.getValue() == 1);
+            }
+
+            var w = $("#whiteball").slider()
+                    .on("slideStop", sliderChanged)
+                    .data("slider");
+
+            var y = $("#yellowball").slider()
+                    .on("slideStop", sliderChanged)
+                    .data("slider");
+
+            var b = $("#blueball").slider()
+                    .on("slideStop", sliderChanged)
+                    .data("slider");
+
+            var r = $("#redball").slider()
+                    .on("slideStop", sliderChanged)
+                    .data("slider");
+
+        });
+
+
+
+        // ****************
+        // Basic UI actions
+        // ****************
+
+        //! Animates (or not) the refreshing icon.
+        //! NOTE: As of now, the class doesn't do anything graphically-wise.
+        function setRefreshingIcon(isRefreshing) {
+            var ref = $("#cam_refresh");
+            if(isRefreshing) {
+                if(!ref.hasClass("icon-refresh-animate"))
+                    ref.addClass("icon-refresh-animate");
+            } else {
+                if(ref.hasClass("icon-refresh-animate"))
+                    ref.removeClass("icon-refresh-animate");
+            }
         }
-    });
+
+        //! Returns true if the refreshing icon is activated.
+        function isRefreshingIcon() {
+            return $("#cam_refresh").hasClass("icon-refresh-animate");
+        }
 
 
-    // Register basic UI callbacks
+        // ***************
+        // Basic UI events
+        // ***************
 
-    var augmentedViewEnabled = true;
+        // TODO: For extra responsiveness, maybe we should change the opacity of the
+        // old image when we do a start(), until the first image of the new URL is displayed.
 
-    $(document).ready( function(){
-        $("#logout").click(function(){
-            alert("Logging out");
-        });
+        //! Invoked when the first camera is activated.
+        //!
+        function onFirstCameraActivated() {
+            cameraRefresher.start(FIRST_CAMERA_URL);
+        }
 
-        $("#cam1").click(function(){
-            $("#cam1").addClass("cambtn-active").removeClass("cambtn-inactive")
-            $("#cam2").addClass("cambtn-inactive").removeClass("cambtn-active")
-        });
+        //! Invoked when the second camera is activated.
+        //!
+        function onSecondCameraActivated() {
+            cameraRefresher.start(SECOND_CAMERA_URL);
+        }
 
-        $("#cam2").click(function(){
-           $("#cam2").addClass("cambtn-active").removeClass("cambtn-inactive")
-           $("#cam1").addClass("cambtn-inactive").removeClass("cambtn-active")
-        });
+        //! Invoked with the augmented-reality camera refresh button has been clicked.
+        //!
+        function onRefreshCamera() {
 
-        $("#cam_refresh").click(function(){
-           alert("Refreshing camera");
-        });
+        }
 
-        $("#cam_view").click(function(){
+        //! Invoked when the view mode changes.
+        //!
+        //! @param viewEnabled Whether the augmented-view is enabled or not.
+        function onViewModeChanged(viewEnabled) {
+        }
 
-            augmentedViewEnabled = !augmentedViewEnabled;
+        //! Invoked when a slider might have changed.
+        //!
+        //! @param white White set or not.
+        //! @param yellow Yellow set or not.
+        //! @param blue Blue set or not.
+        //! @param red Red set or not.
+        function onSlidersChanged(white, yellow, blue, red) {
+        }
 
-            $("#cam_view").css("color", (augmentedViewEnabled ? "white" : "lightgray"));
-        });
-    });
+        //! Invoked when we should log out.
+        function onLogout() {
+            console.log("Logging out");
+            cameraRefresher.stop();
+        }
 
 
-</script>
+    </script>
 
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-2 col-md-offset-5 text-center" style="color:red">
-                <h3>
+<div class="container">
+    <div class="row">
+        <div class="col-md-2 col-md-offset-5 text-center" style="color:red">
+            <h3>
                 02:20
-                </h3>
-            </div>
-            <div class="col-md-2 col-md-offset-3" style="height:100%">
-                <span id="logout" class="glyphicon glyphicon-log-out text-center clickable" style="font-size: 2em; padding-top:10px"></span>
-            </div>
+            </h3>
         </div>
-
-        <div class="row">
-            <div id="cam1" class="col-md-offset-4 col-md-2 text-center clickable cambtn-active">
-                <span class="glyphicon glyphicon-facetime-video"></span> 1
-            </div>
-            <div id="cam2" class="col-md-2 text-center clickable cambtn-inactive">
-                <span class="glyphicon glyphicon-facetime-video"></span> 2
-            </div>
+        <div class="col-md-2 col-md-offset-3" style="height:100%">
+            <span id="logout" class="glyphicon glyphicon-log-out text-center clickable"
+                  style="font-size: 2em; padding-top:10px"></span>
         </div>
-        <div class="row">
-            <div class="col-md-12 centered">
-                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
-            </div>
-        </div>
-        <div class="row">
-            <div class="sliderballs col-md-3 col-xs-5 text-center">
-                <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="whiteball"/>
-            </div>
-            <div class="sliderballs col-md-3 col-xs-4 text-center">
-                <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="yellowball"/>
-            </div>
-            <div class="sliderballs col-md-3 col-xs-5 text-center">
-                <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="blueball"/>
-            </div>
-            <div class="sliderballs col-md-3 col-xs-4 text-center">
-                <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after" data-slider-tooltip="hide" data-slider-id="redball"/>
-            </div>
-        </div>
-
-         <div class="row">
-            <div class="col-md-6 text-center" style="">
-                <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable" style="top:40px;  font-size:2em; z-index: 10; color:white"></span>
-            </div>
-            <div class="col-md-6 text-center">
-                <span id="cam_view" class="glyphicon glyphicon-eye-open clickable" style="top:40px; font-size:2em; z-index:10; color:white"></span>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 centered">
-                <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
-            </div>
-        </div>
-
     </div>
+
+    <div class="row">
+        <div id="cam1" class="col-md-offset-4 col-md-2 text-center clickable cambtn-active">
+            <span class="glyphicon glyphicon-facetime-video"></span> 1
+        </div>
+        <div id="cam2" class="col-md-2 text-center clickable cambtn-inactive">
+            <span class="glyphicon glyphicon-facetime-video"></span> 2
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 centered">
+            <img id="cam_img" src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="sliderballs col-md-3 col-xs-5 text-center">
+            <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                   data-slider-tooltip="hide" data-slider-id="whiteball"/>
+        </div>
+        <div class="sliderballs col-md-3 col-xs-4 text-center">
+            <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                   data-slider-tooltip="hide" data-slider-id="yellowball"/>
+        </div>
+        <div class="sliderballs col-md-3 col-xs-5 text-center">
+            <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                   data-slider-tooltip="hide" data-slider-id="blueball"/>
+        </div>
+        <div class="sliderballs col-md-3 col-xs-4 text-center">
+            <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                   data-slider-tooltip="hide" data-slider-id="redball"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 text-center" style="">
+            <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
+                  style="top:40px;  font-size:2em; z-index: 10; color:white"></span>
+        </div>
+        <div class="col-md-6 text-center">
+            <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
+                  style="top:40px; font-size:2em; z-index:10; color:white"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 centered">
+            <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>
