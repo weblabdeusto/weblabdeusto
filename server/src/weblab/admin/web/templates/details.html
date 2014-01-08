@@ -96,6 +96,22 @@
             <td><strong>Reservation identifier</strong></td>
             <td>{{ uue.reservation_id }} </td>
         </tr>
+        {% if 'permission_scope' in properties and 'permission_id' in properties %}
+        <tr>
+            <td><strong>Permission</strong></td>
+            <td>
+            {% if properties['permission_scope'] == 'user' %}
+                <a href="{{ url_for('permissions/user.edit_view', id = properties['permission_id']) }}">View</a>
+            {% elif properties['permission_scope'] == 'group' %}
+                <a href="{{ url_for('permissions/group.edit_view', id = properties['permission_id']) }}">View</a>
+            {% elif properties['permission_scope'] == 'role' %}
+                <a href="{{ url_for('permissions/role.edit_view', id = properties['permission_id']) }}">View</a>
+            {% else %}
+                <i>Not available</i>
+            {% endif %}
+            </td>
+        </tr>
+        {% endif %}
     </tbody>
 </table>
 
