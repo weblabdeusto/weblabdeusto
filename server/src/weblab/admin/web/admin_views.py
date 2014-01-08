@@ -1381,7 +1381,7 @@ class PermissionsAddingView(AdministratorView):
             elif form.recipients.data == 'group':
                 return redirect(url_for('.groups', permission_type=form.permission_types.data))
 
-        return self.render("admin-permissions.html", form=form)
+        return self.render("admin-permissions.html", form=form, permission_types = permissions.permission_types)
 
     def _get_permission_form(self, permission_type, recipient_type, recipient_resolver, DbPermissionClass,
                              DbPermissionParameterClass):
@@ -1483,6 +1483,29 @@ class PermissionsAddingView(AdministratorView):
                     db_permission.parameters.append(db_parameter)
                     session.add(db_parameter)
 
+        elif permission_type == permissions.INSTRUCTOR_OF_GROUP:
+
+            class ParticularPermissionForm(ParentPermissionForm):
+                parameter_list = ['target_group']
+
+                target_group = Select2Field(u'Target group', description="Group to be instructed")
+
+                def __init__(self, *args, **kwargs):
+                    super(ParticularPermissionForm, self).__init__(*args, **kwargs)
+                    self.target_group.choices = [
+                                (unicode(group.id), group.name)
+                                for group in session.query(model.DbGroup).all() ]
+
+                def get_permanent_id(self):
+                    recipient = recipient_resolver(self.recipients.data)
+                    name = self.target_group.data
+                    return u'%s::group-%s::%s' % (permission_type, name, recipient)
+
+                def add_parameters(self, db_permission):
+                    db_parameter = DbPermissionParameterClass(db_permission, permissions.TARGET_GROUP,
+                                                              self.target_group.data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
 
         ###################################################################################
         # 

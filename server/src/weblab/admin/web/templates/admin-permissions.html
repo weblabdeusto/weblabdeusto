@@ -18,6 +18,12 @@
                 {{ render_field(form.permission_types) }}
                 {{ render_field(form.recipients) }}
 
+                <ul>
+                {% for permission_type in permission_types %}
+                    <li><b>{{ permission_type }}:</b> {{ permission_types[permission_type].description }}</li>
+                {% endfor %}
+                </ul>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Continue</button>
                 </div>
