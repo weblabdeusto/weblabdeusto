@@ -9,6 +9,7 @@
     <script src="jquery-1.8.3.min.js"></script>
     <script src="slider/js/bootstrap-slider.js"></script>
     <style>
+
         .slider.slider-vertical {
             height: 70px;
             margin-top: 5px;
@@ -121,6 +122,7 @@
 //        });
 
 
+
         //! Constructs a TimerManager.
         //! @param timer_id: ID of the HTML tag for the timer.
         TimerDisplayer = function(timer_id) {
@@ -211,22 +213,27 @@
 
 
             //! Carry out initialization.
-            //!
+            //
             this._init = function() {
                 // Ensure that the specified image exists.
                 if($img.length != 1) {
                     console.error("[CameraRefresher]: The element with the tag " + img_id + " could not be found in the DOM");
                     throw "Element not found";
                 }
-
-                // Register the image loaded listener.
-                $img.load(function() {
-                   this._onLoad();
-                }.bind(this));
             }
 
+            //! Sets the URL to load.
+            //!
+            this.setURL = function(url) {
+                _url = url;
+            }
 
-            this._refresh = function() {
+            //! Refreshes the camera. If the automatic refresher has been
+            //! started through start(), then this method is invoked
+            //! periodically.
+            this.refresh = function() {
+                if(_url == undefined || _url == null)
+                    _url = $img.attr("src");
                 $img.attr("src", this._get_timestamped_url(_url));
             };
 
@@ -239,7 +246,7 @@
             };
 
             this._onLoad = function() {
-                _refreshingTimeout = setTimeout(this._refresh.bind(this), INTERVAL);
+                _refreshingTimeout = setTimeout(this.refresh.bind(this), INTERVAL);
             };
 
             //! Sets the number of milliseconds to wait after each image load.
@@ -276,14 +283,24 @@
                 // Stop the previous refresher if it's active.
                 this.stop();
 
+
+                // Register the image loaded listener.
+                $img.on("load", function() {
+                   this._onLoad();
+                }.bind(this));
+
                 _url = url;
 
-                this._refresh();
+                this.refresh();
             };
 
             //! Stops refreshing.
             //!
             this.stop = function() {
+
+                // Remove the load listener.
+                $img.off("load");
+
                 if(_refreshingTimeout != null) {
                     clearTimeout(_refreshingTimeout);
                     _refreshingTimeout = null;
@@ -299,36 +316,45 @@
         // Register basic UI callbacks
 
         var augmentedViewEnabled = true; // To indicate in which mode we are.
-        var cameraRefresher; // To help refresh the cameras.
+        var cameraRefresher; // To help refresh the main cameras.
+        var arRefresher; // To help refresh the AR image.
 
+        // Equivalent of a main() function. Will initialize everything and register
+        // the main callbacks.
         $(document).ready(function () {
 
-            // Create the CameraRefresher.
+            // Create the main CameraRefresher.
             cameraRefresher = new CameraRefresher("cam_img");
             cameraRefresher.start(FIRST_CAMERA_URL);
+
+            // Create the arRefresher CameraRefresher.
+            // That is, the refresher for the AR image.
+            // We do not start it because it is not meant to refresh automatically.
+            arRefresher = new CameraRefresher("ar_img");
+
 
             // Create the Timer.
             timerDisplayer = new TimerDisplayer("timer");
             timerDisplayer.setTimeLeft(200);
+            timerDisplayer.startCountDown();
 
             $("#logout").click(function () {
                 onLogout();
             });
 
             $("#cam1").click(function () {
-                $("#cam1").addClass("cambtn-active").removeClass("cambtn-inactive")
-                $("#cam2").addClass("cambtn-inactive").removeClass("cambtn-active")
+                $("#cam1").addClass("cambtn-active").removeClass("cambtn-inactive");
+                $("#cam2").addClass("cambtn-inactive").removeClass("cambtn-active");
                 onFirstCameraActivated();
             });
 
             $("#cam2").click(function () {
-                $("#cam2").addClass("cambtn-active").removeClass("cambtn-inactive")
-                $("#cam1").addClass("cambtn-inactive").removeClass("cambtn-active")
+                $("#cam2").addClass("cambtn-active").removeClass("cambtn-inactive");
+                $("#cam1").addClass("cambtn-inactive").removeClass("cambtn-active");
                 onSecondCameraActivated();
             });
 
             $("#cam_refresh").click(function () {
-                alert("Refreshing camera");
                 onRefreshCamera();
             });
 
@@ -373,21 +399,19 @@
         // ****************
 
         //! Animates (or not) the refreshing icon.
-        //! NOTE: As of now, the class doesn't do anything graphically-wise.
         function setRefreshingIcon(isRefreshing) {
-            var ref = $("#cam_refresh");
             if(isRefreshing) {
-                if(!ref.hasClass("icon-refresh-animate"))
-                    ref.addClass("icon-refresh-animate");
+                $("#cam_refresh").hide();
+                $("#cam_refresh_active").show();
             } else {
-                if(ref.hasClass("icon-refresh-animate"))
-                    ref.removeClass("icon-refresh-animate");
+                $("#cam_refresh").show();
+                $("#cam_refresh_active").hide();
             }
         }
 
         //! Returns true if the refreshing icon is activated.
         function isRefreshingIcon() {
-            return $("#cam_refresh").hasClass("icon-refresh-animate");
+            return $("#cam_refresh").hidden();
         }
 
 
@@ -413,7 +437,9 @@
         //! Invoked with the augmented-reality camera refresh button has been clicked.
         //!
         function onRefreshCamera() {
-
+            setRefreshingIcon(true);
+            arRefresher.refresh();
+            window.setTimeout(function() {setRefreshingIcon(false);}, 1500);
         }
 
         //! Invoked when the view mode changes.
@@ -442,6 +468,7 @@
 
 </head>
 <body>
+
 <div class="container">
     <div class="row">
         <div class="col-md-2 col-md-offset-5 text-center" style="color:red">
@@ -493,18 +520,24 @@
 
     <div class="row">
         <div class="col-md-6 text-center" style="">
-            <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
-                  style="top:40px;  font-size:2em; z-index: 10; color:white"></span>
+
         </div>
         <div class="col-md-6 text-center">
-            <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
-                  style="top:40px; font-size:2em; z-index:10; color:white"></span>
+
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12 centered">
-            <img src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
+            <div style="position:relative; display:inline-block">
+                <img id="cam_refresh_active" src="img/refresh.gif" style="display:inline-block; position:absolute;
+                left: 29px; top:9px; z-index: 10; color:white; display:none"/>
+                <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
+                    style="position: absolute; right:30px; top:5px; font-size:2em; z-index:10; color:white"></span>
+            <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
+                  style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 10; color:white;"></span>
+                <img id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
+            </div>
         </div>
     </div>
 
