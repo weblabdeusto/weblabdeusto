@@ -2,11 +2,15 @@ from flask import redirect, request, flash
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
+import weblab.permissions as permissions
+import weblab.db.model as model
+
 def get_app_instance():
     import weblab.admin.web.app as admin_app
     return admin_app.AdministrationApplication.INSTANCE
 
 def is_instructor():
+    # TODO: XXX
     return get_app_instance().get_user_information() is not None
 
 class InstructorView(BaseView):
@@ -48,6 +52,58 @@ class InstructorHomeView(AdminIndexView):
 
         return super(InstructorHomeView, self)._handle_view(name, **kwargs)
 
+def get_assigned_group_ids():
+    # TODO: if is_admin, show all the groups
+    group_ids = set()
+
+    for permission in get_app_instance().get_permissions():
+        if permission.name == permissions.INSTRUCTOR_OF_GROUP:
+            group_id = permission.get_parameter_value(permissions.TARGET_GROUP)
+            if group_id is not None:
+                group_ids.add(int(group_id))
+
+    return group_ids
+
+def get_assigned_groups(session):
+    group_ids = get_assigned_group_ids()
+
+    return session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids))
+
+
 class UsersPanel(InstructorModelView):
-    pass
+
+    can_edit = can_delete = can_create = False
+
+    def __init__(self, session, **kwargs):
+        super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
+
+    def get_query(self):
+        query = super(UsersPanel, self).get_query()
+        groups = get_assigned_groups(self.session).subquery()
+        query = query.join(groups, model.DbUser.groups)
+        return query
+
+    def get_count_query(self):
+        query = super(UsersPanel, self).get_count_query()
+        groups = get_assigned_groups(self.session).subquery()
+        query = query.join(groups, model.DbUser.groups)
+        return query
+
+class GroupsPanel(InstructorModelView):
+
+    can_edit = can_delete = can_create = False
+
+    def __init__(self, session, **kwargs):
+        super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
+
+    def get_query(self):
+        query = super(GroupsPanel, self).get_query()
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids()))
+        return query
+
+    def get_count_query(self):
+        query = super(GroupsPanel, self).get_count_query()
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids()))
+        return query
+
 

@@ -125,7 +125,10 @@ class AdministrationApplication(AbstractDatabaseGateway):
         instructor_url = '/weblab/administration/instructor'
         self.instructor = Admin(index_view = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor'), name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
         
-        # TODO
+        self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
+        self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
+
+        self.instructor.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/instructor'))
 
         self.instructor.init_app(self.app)
 
