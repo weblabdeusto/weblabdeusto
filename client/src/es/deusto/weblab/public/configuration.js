@@ -77,6 +77,16 @@
 	                    		   "html.file"				: "jstest.html"
 	                    	   },
 	                    	   {
+	                    		   "experiment.name"		: "aquariumjs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/aquarium.png",
+	                    		   "width"					: 800,
+	                    		   "height"					: 600,
+	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+								   "experiment.info.description" : "description"
+	                    	   },
+	                    	   {
 	                    		   "experiment.name"		: "jsfpga",
 	                    		   "experiment.category"	: "FPGA experiments",
 	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",

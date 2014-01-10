@@ -12,6 +12,7 @@
     <script src="jquery-1.8.3.min.js"></script>
     <script src="slider/js/bootstrap-slider.js"></script>
     <script src="widgets.js"></script>
+    <script src="../../jslib/weblabjs.js"></script>
 
     <style>
 
@@ -138,6 +139,10 @@
         // the main callbacks.
         $(document).ready(function () {
 
+            // Declare the WebLab callbacks.
+            Weblab.setOnStartInteractionCallback(onStartInteraction);
+            Weblab.setOnTimeCallback(onTimeCallback);
+
             // Create the main CameraRefresher.
             cameraRefresher = new CameraRefresher("cam_img");
             cameraRefresher.start(FIRST_CAMERA_URL);
@@ -146,7 +151,6 @@
             // That is, the refresher for the AR image.
             // We do not start it because it is not meant to refresh automatically.
             arRefresher = new CameraRefresher("ar_img");
-
 
             // Create the Timer.
             timerDisplayer = new TimerDisplayer("timer");
@@ -204,6 +208,7 @@
             var r = $("#redball").slider()
                     .on("slideStop", sliderChanged)
                     .data("slider");
+
 
         });
 
