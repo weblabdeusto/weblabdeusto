@@ -18,6 +18,7 @@ package es.deusto.weblab.client.experiments.incubator.ui;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -34,6 +35,9 @@ public class IncubatorExperiment extends UIExperimentBase {
 	
 	public IncubatorExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(configurationRetriever, boardController);
+		
+		final String htmlCode = configurationRetriever.getProperty("html", "");
+		putWidget(new HTML(htmlCode));
 	}
 
 	@Override

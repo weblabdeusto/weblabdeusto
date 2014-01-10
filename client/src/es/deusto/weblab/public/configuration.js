@@ -523,7 +523,9 @@
                                 {
 	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
                                 	"experiment.name"                 : "incubator",
-                                	"experiment.category"             : "Farm experiments"
+                                	"experiment.category"             : "Farm experiments",
+                                    "experiment.reserve.button.shown" : false,
+                                	"html"                            : "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results."
                                 }
                             ]
 		}
