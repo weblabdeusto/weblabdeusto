@@ -98,8 +98,8 @@ class DbUser(Base):
 
     id        = Column(Integer, primary_key = True)
     login     = Column(String(32), nullable = False, index = True)
-    full_name = Column(String(200), nullable = False)
-    email     = Column(String(255), nullable = False)
+    full_name = Column(String(200), nullable = False, index = True)
+    email     = Column(String(255), nullable = False, index = True)
     avatar    = Column(String(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
@@ -487,9 +487,9 @@ class DbUserUsedExperiment(Base):
     id                      = Column(Integer, primary_key = True)
     user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
     experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    start_date              = Column(DateTime, nullable = False)
+    start_date              = Column(DateTime, nullable = False, index = True)
     start_date_micro        = Column(Integer, nullable = False)
-    end_date                = Column(DateTime)
+    end_date                = Column(DateTime, index = True)
     end_date_micro          = Column(Integer)
     # TODO: use these new two fields
     max_error_in_millis     = Column(Integer, nullable = True)
@@ -498,8 +498,8 @@ class DbUserUsedExperiment(Base):
     group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
     user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
     role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
-    origin                  = Column(String(255), nullable = False)
-    coord_address           = Column(String(255), nullable = False)
+    origin                  = Column(String(255), nullable = False, index = True)
+    coord_address           = Column(String(255), nullable = False, index = True)
     reservation_id          = Column(String(50), index = True)
 
     user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
@@ -628,7 +628,7 @@ class DbUserFile(Base):
     id                     = Column(Integer, primary_key = True)
     experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
     file_sent              = Column(String(255), nullable = False)
-    file_hash              = Column(String(255), nullable = False)
+    file_hash              = Column(String(255), nullable = False, index = True)
     file_info              = Column(Text)
     response               = Column(Text)
     timestamp_before       = Column(DateTime, nullable = False)
@@ -734,7 +734,7 @@ class DbUserPermission(Base):
     id                 = Column(Integer, primary_key = True)
     user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
     permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False)
+    permanent_id       = Column(String(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
@@ -813,8 +813,8 @@ class DbRolePermission(Base):
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id                  = Column(String(255), nullable = False)
+    permission_type               = Column(String(255), nullable = False, index = True)
+    permanent_id                  = Column(String(255), nullable = False, index = True)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
@@ -896,7 +896,7 @@ class DbGroupPermission(Base):
     id                 = Column(Integer, primary_key = True)
     group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
     permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False)
+    permanent_id       = Column(String(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
