@@ -127,6 +127,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         
         self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
         self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
+        self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = 'General', name = 'Raw accesses', endpoint = 'logs'))
 
         self.instructor.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/instructor'))
 
@@ -162,6 +163,23 @@ class AdministrationApplication(AbstractDatabaseGateway):
         except:
             traceback.print_exc()
             return False
+
+    def get_user_role(self):
+        if self.bypass_authz:
+            return 'admin'
+
+        try:
+            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+            try:
+                user_info = self.ups.get_user_information(session_id)
+            except SessionNotFoundError:
+                # Gotcha
+                return None
+            else:
+                user_info.role.name
+        except:
+            traceback.print_exc()
+            return None
 
     def get_permissions(self):
         if self.bypass_authz:

@@ -10,8 +10,11 @@ def get_app_instance():
     return admin_app.AdministrationApplication.INSTANCE
 
 def is_instructor():
-    # TODO: XXX
-    return get_app_instance().get_user_information() is not None
+    is_admin = get_app_instance().is_admin()
+    if is_admin:
+        return True
+    
+    return get_app_instance().get_user_role() in ('admin', 'instructor')
 
 class InstructorView(BaseView):
     def is_accessible(self):
@@ -52,8 +55,13 @@ class InstructorHomeView(AdminIndexView):
 
         return super(InstructorHomeView, self)._handle_view(name, **kwargs)
 
-def get_assigned_group_ids():
-    # TODO: if is_admin, show all the groups
+def get_assigned_group_ids(session):
+    # If the user is an administrator, permissions are not relevant.
+    if get_app_instance().is_admin():
+        return [ group.id for group in session.query(model.DbGroup).all() ]
+
+    # Otherwise, check the permissions and only return those groups
+    # where the user has a specific permission
     group_ids = set()
 
     for permission in get_app_instance().get_permissions():
@@ -65,9 +73,23 @@ def get_assigned_group_ids():
     return group_ids
 
 def get_assigned_groups(session):
-    group_ids = get_assigned_group_ids()
+    group_ids = get_assigned_group_ids(session)
 
     return session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids))
+
+def apply_instrutor_filters_to_logs(session, logs_query):
+    """ logs_query is a sqlalchemy query. Here we filter that 
+    the teacher only sees those permissions for a group.
+    """
+    group_ids = get_assigned_group_ids(session)
+
+    permission_ids = set()
+
+    for permission in session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group_id.in_(group_ids), model.DbGroupPermission.permission_type == permissions.EXPERIMENT_ALLOWED).all():
+        permission_ids.add(permission.id)
+
+    logs_query.filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids))
+    return logs_query
 
 
 class UsersPanel(InstructorModelView):
@@ -98,12 +120,31 @@ class GroupsPanel(InstructorModelView):
 
     def get_query(self):
         query = super(GroupsPanel, self).get_query()
-        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids()))
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self.session)))
         return query
 
     def get_count_query(self):
         query = super(GroupsPanel, self).get_count_query()
-        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids()))
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self.session)))
         return query
 
 
+class UserUsedExperimentPanel(InstructorModelView):
+
+    can_edit = can_delete = can_create = False
+
+    list_columns = ['user', 'experiment', 'start_date', 'end_date', 'origin']
+
+    def __init__(self, session, **kwargs):
+        super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
+
+    def get_query(self):
+        query = super(UserUsedExperimentPanel, self).get_query()
+        query = apply_instrutor_filters_to_logs(self.session, query)
+        return query
+
+
+    def get_count_query(self):
+        query = super(UserUsedExperimentPanel, self).get_count_query()
+        query = apply_instrutor_filters_to_logs(self.session, query)
+        return query
