@@ -1,0 +1,26 @@
+
+/* Provides a DIV that covers everything and can be faded-in over almost everything
+through jQuery's fadeIn() */
+.overlay-back {
+    position   : fixed;
+    top        : 0;
+    left       : 0;
+    width      : 100%;
+    height     : 100%;
+    background : #000;
+    opacity    : 0.6;
+    filter     : alpha(opacity=60);
+    z-index    : 5;
+    display    : none;
+}
+
+/* Elements with this class will appear over the overlay-back and will not be dimmed */
+.overlay-front {
+    position : fixed;
+    top      : 0;
+    left     : 0;
+    width    : 100%;
+    height   : 100%;
+    z-index  : 10;
+    display  : none;
+}
