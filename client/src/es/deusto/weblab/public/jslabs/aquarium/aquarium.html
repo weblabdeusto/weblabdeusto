@@ -140,8 +140,13 @@
         $(document).ready(function () {
 
             // Declare the WebLab callbacks.
-            Weblab.setOnStartInteractionCallback(onStartInteraction);
-            Weblab.setOnTimeCallback(onTimeCallback);
+            // Do it only if we are running within the Weblab context.
+            if(Weblab.checkOnline())
+            {
+                Weblab.setOnStartInteractionCallback(onStartInteraction);
+                Weblab.setOnTimeCallback(onTimeCallback);
+                Weblab.setOnEndCallback(onEndCallback);
+            }
 
             // Create the main CameraRefresher.
             cameraRefresher = new CameraRefresher("cam_img");
@@ -154,8 +159,14 @@
 
             // Create the Timer.
             timerDisplayer = new TimerDisplayer("timer");
-            timerDisplayer.setTimeLeft(200);
-            timerDisplayer.startCountDown();
+
+            // If we are NOT in a Weblab context we won't really receive the setTime callback,
+            // so we start the countdown ourselves, for debugging or cosmetic purposes.
+            if(!Weblab.checkOnline())
+            {
+                timerDisplayer.setTimeLeft(200);
+                timerDisplayer.startCountDown();
+            }
 
             $("#logout").click(function () {
                 onLogout();
@@ -281,6 +292,25 @@
         function onLogout() {
             console.log("Logging out");
             cameraRefresher.stop();
+        }
+
+
+
+        function onStartCallback()
+        {
+            console.log("[WEBLAB]: Experiment started");
+        }
+
+        function onEndCallback()
+        {
+            console.log("[WEBLAB]: Experiment ended");
+        }
+
+        function onTimeCallback(time)
+        {
+            console.log("[WEBLAB]: Experiment's time set")
+            timerDisplayer.setTimeLeft(time);
+            timerDisplayer.startCountDown();
         }
 
 

@@ -175,7 +175,11 @@ Weblab = new function () {
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
-    //! interacting with the experiment. 
+    //! interacting with the experiment.
+    //!
+    //! @param onStartInteractionCallback: This callback has the prototype:
+    //! onStartInteraction(initial_config). It is passed the initial configuration
+    //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
     }
