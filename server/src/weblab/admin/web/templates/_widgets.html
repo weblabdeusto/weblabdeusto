@@ -1,0 +1,134 @@
+{% macro timetable(data, show_empty = False, first_letter = True) %}
+     <table class="table table-bordered" style="table-layout: fixed">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="text-center">{% if first_letter %}M{% else %}Monday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}Tuesday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}W{% else %}Wednesday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}Thursday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}F{% else %}Friday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}Saturday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}Sunday{% endif %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set days = 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' %}
+            {% for hour_number in range(24) %}
+                {% set hour = ('%s' % hour_number).zfill(2) %}
+
+                {% if show_empty or hour not in data.get('empty_hours', []) %}
+                <tr>
+                    <th>{{ hour }}:00</th>
+                    {% for day in days %}
+                        {% if hour in data['hours'] and day in data['hours'][hour] %}
+                            <td class="text-center" style="background-color: #{{ data['hours'][hour][day]['color'] }}">{{ data.get('format', '%.2f') % data['hours'][hour][day]['value'] }}</td>
+                        {% else %}
+                            <td class="text-center" style="background-color: #ffffff"></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+   
+
+{% endmacro %}
+
+{% macro timeline(headers, data, table_id, format = '%.2f') %}
+    {% if data|length == 0 %}
+        <div class="alert alert-danger text-center">
+            <h1>No data available</h1>
+            <p>The timeline is empty</p>
+        </div>
+    {% endif %}
+    <table id="{{ table_id }}">
+        <tfoot>
+            <tr>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr>
+                {% for col in data %}
+                    <td>{{ format % col }}</td>
+                {% endfor %} 
+            </tr>
+        </tbody>
+    </table>
+    <div id="holder_{{ table_id }}"></div>
+
+{% endmacro %}
+
+{% macro timeline_scripts(skip_raphael = False) %}
+    {% if not skip_raphael %}
+        <script src="{{ url_for('static', filename='js/raphael-min.js') }}"></script>
+    {% endif %}
+    <script src="{{ url_for('static', filename='js/raphael-analytics.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/raphael-popup.js') }}"></script>
+{% endmacro %}
+
+{% macro timeline_load(table_id, name = None) %}
+    <script>
+        {% if name %}
+            loadTimetable("{{ table_id }}", "{{ name }}");
+        {% else %}
+            loadTimetable("{{ table_id }}");
+        {% endif %}
+    </script>
+{% endmacro %}
+
+{% macro calendar(month) %}
+        <div class="col-lg-4 text-center">
+            <h4><a href="{{ month['link'] }}">{{ month['name'] }} {{ month['year'] }}</a></h4>
+            <table class="table table-border table-hover">
+                <tr>
+                    <td></td>
+                    <td class="weekday">S</td>
+                    <td class="weekday">M</td>
+                    <td class="weekday">T</td>
+                    <td class="weekday">W</td>
+                    <td class="weekday">T</td>
+                    <td class="weekday">F</td>
+                    <td class="weekday">S</td>
+                </tr>
+                {% for week in month['weeks'] %}
+                    <tr style="{% if week['selected'] %}background: #afa{% endif %}">
+                        <td class="week_number"><a href="{{ week['link'] }}">{{ week['number'] }}</a></td>
+                        <td class="{% if week['sunday']['active'] %}dayon{% else %}dayoff{% endif %} sunday">{{ week['sunday']['day'] }}</td>
+                        <td class="{% if week['monday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['monday']['day'] }}</td>
+                        <td class="{% if week['tuesday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['tuesday']['day'] }}</td>
+                        <td class="{% if week['wednesday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['wednesday']['day'] }}</td>
+                        <td class="{% if week['thursday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['thursday']['day'] }}</td>
+                        <td class="{% if week['friday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['friday']['day'] }}</td>
+                        <td class="{% if week['saturday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['saturday']['day'] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+{% endmacro %}
+
+
+{% macro calendar_scripts() %}
+    <style>
+        .week_number {
+            font-weight: bold;
+        }
+        .dayoff {
+            color: #aaa;
+        }
+        .sunday {
+            color: #f00;
+        }
+        .dayoff.sunday {
+            color: #faa;
+        }
+        .weekday {
+            font-weight: bold;
+        }
+    </style>
+
+{% endmacro %}

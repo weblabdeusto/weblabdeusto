@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from flask import redirect, request, flash
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
@@ -44,7 +46,8 @@ class InstructorHomeView(AdminIndexView):
     @expose()
     def index(self):
         user_information = get_app_instance().get_user_information()
-        return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information)
+        groups = get_assigned_groups(self._db_session)
+        return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups)
 
     def is_accessible(self):
         return is_instructor()
@@ -133,7 +136,7 @@ class UserUsedExperimentPanel(InstructorModelView):
 
     can_edit = can_delete = can_create = False
 
-    list_columns = ['user', 'experiment', 'start_date', 'end_date', 'origin']
+    column_list = ['user', 'experiment', 'start_date', 'end_date', 'origin']
 
     def __init__(self, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
@@ -148,3 +151,124 @@ class UserUsedExperimentPanel(InstructorModelView):
         query = super(UserUsedExperimentPanel, self).get_count_query()
         query = apply_instrutor_filters_to_logs(self.session, query)
         return query
+
+def generate_color_code(value, max_value):
+    # white to red
+    percent = 1.0 * value / max_value
+    blue  = hex(int(256 - 256 * percent)).split('x')[1].zfill(2)
+    green = hex(int(256 - 256 * percent)).split('x')[1].zfill(2)
+    return 'ff%s%s' % (green, blue)
+
+def generate_timetable(days_data):
+    # {
+    #    'saturday' : {
+    #         23 : 1413
+    #    }
+    # }
+    timetables = {}
+    max_values = {}
+    timetable = {
+        'format' : '%i',
+        'hours' : defaultdict(dict),
+        'empty_hours' : set()
+        # hours:{
+        #    hour : { 
+        #        day : {
+        #            value : 513,
+        #            color : 'ffffff',
+        #        }
+        #    },
+        # },
+        # empty_hours : set(['01', '02', '03'])
+    }
+    max_value = 0
+
+    for day in days_data:
+        day_data = days_data[day]
+        for hour in day_data:
+            value = day_data[hour]
+
+            timetable['hours'][str(hour).zfill(2)][day] = dict(value = value, color = '000000')
+            if value > max_value:
+                max_value = value
+
+    # Fill empty_hours
+    for hour_number in range(24):
+        hour = str(hour_number).zfill(2)
+        if not hour in timetable['hours']:
+            timetable['empty_hours'].add(hour)
+
+
+    for hour in timetable['hours']:
+        for day in timetable['hours'][hour]:
+            cur_data = timetable['hours'][hour][day]
+            cur_data['color'] = generate_color_code(cur_data['value'], max_value)
+
+    return timetable
+
+
+class GroupStats(InstructorView):
+    def __init__(self, session, **kwargs):
+        self.session = session
+        super(GroupStats, self).__init__(**kwargs)
+
+    @expose('/')
+    def index(self):
+        return "TODO" # TODO
+
+    @expose('/groups/<int:group_id>/')
+    def group_stats(self, group_id):
+        if group_id in get_assigned_group_ids(self.session):
+            
+            group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
+
+            permission_ids = set()
+            experiments = defaultdict(list)
+            # {
+            #     'foo@Category' : [
+            #          ( time_in_seconds, permission_id )
+            #     ]
+            # }
+            for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                permission_ids.add(permission.id)
+                exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+                cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+                time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+            # Get something different per experiment
+            # TODO
+            # if len(permission_ids) > 1:
+            #     pass
+
+            # Get the totals
+            users = defaultdict(int)
+            # {
+            #     login : uses
+            # }
+            per_day = defaultdict(int)
+            # {
+            #     '2013-01-01' : 5
+            # }
+            per_hour = defaultdict(lambda : defaultdict(int))
+            # {
+            #     'saturday' : {
+            #         23 : 5,
+            #     }
+            # }
+            for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
+                users[use.user.login] += 1
+                per_day[use.start_date.strftime('%Y-%m-%d')] += 1
+                per_hour[use.start_date.stftime('%A').lower()][use.start_date.hour] += 1
+
+            if per_day:
+                timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+            else:
+                timeline_headers = timeline_values = []
+            users = sorted(users.items(), lambda (l1, v1), (l2, v2) : cmp(v2, v1))
+            timetable = generate_timetable(per_hour)
+
+            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, users = users, usage_timetable = timetable, group = group)
+
+        return "Error: you don't have permission to see that group" # TODO
+

@@ -1,0 +1,52 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+{% from "_widgets.html" import timeline, timetable %}
+
+<div class="row">
+    <div class="span12">
+        <h1>{{ group.name }}</h1>
+        <h3>Experiments available</h3>
+        <ul>
+            {% for experiment in experiments %}
+                <li>{{ experiment }}</li>
+            {% endfor %}
+        </ul>
+        {% if timeline_value %}
+        <h3>Usage patterns</h3>
+        {{ timeline(timeline_headers, timeline_values, "timeline") }}
+        
+        {{ timetable(usage_timetable) }}
+        <h3>Users</h3>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Login</th>
+                    <th>Uses</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for login, uses in users %}
+                <tr>
+                    <td>{{ login }}</td>
+                    <td>{{ uses }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-error">
+            <h3>Sorry, there has been no activity in this group</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    {% from "_widgets.html" import timeline_scripts, timeline_load %}
+    {{ timeline_scripts() }}
+    {{ timeline_load('timeline', 'use') }}
+{% endblock %}
+

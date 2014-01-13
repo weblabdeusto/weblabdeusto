@@ -129,6 +129,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
         self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = 'General', name = 'Raw accesses', endpoint = 'logs'))
 
+        self.instructor.add_view(instructor_views.GroupStats(db_session, category = 'Stats', name = 'Group', endpoint = 'stats/groups'))
+
         self.instructor.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/instructor'))
 
         self.instructor.init_app(self.app)

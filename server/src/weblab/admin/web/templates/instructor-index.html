@@ -8,12 +8,23 @@
         <h1>Welcome, {{ user_information.full_name }}!</h1>
         <br/>
 
-        <p>Here you will be able to see what your students did.</p>
+        <p>Here you will be able to see what your students did. 
 
         {% if is_admin %}
-        <p>Additionally, since you're an administrator, you can go the <a href="{{ admin_url }}">the administration panel</a>.</p>
+        Additionally, since you're an administrator, you can go the <a href="{{ admin_url }}">the administration panel</a>.
         {% endif %}
+        </p>
 
+        {% if groups %}
+        <p>You're in charge of the following groups:</p>
+        <ul>
+            {% for group in groups %}
+                <li><a href="{{ url_for('stats/groups.group_stats', group_id = group.id) }}">{{ group.name }}</a></li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>However, it seems that you don't have permission of teacher on any group (or there is no group in the system)</p>
+        {% endif %}
     </div>
 </div>
 
