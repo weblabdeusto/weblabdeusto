@@ -161,7 +161,7 @@ $(document).ready(function () {
         onRefreshCamera();
     });
 
-    
+
     $("#cam_view").click(function () {
 
         augmentedViewEnabled = !augmentedViewEnabled;
@@ -240,22 +240,28 @@ function onSecondCameraActivated() {
     cameraRefresher.start(SECOND_CAMERA_URL);
 }
 
+
+
+
+
 //! Invoked with the augmented-reality camera refresh button has been clicked.
 //!
 function onRefreshCamera() {
     setRefreshingIcon(true);
-    arRefresher.refresh();
-    window.setTimeout(function () {
-        setRefreshingIcon(false);
-    }, 1500);
+
+    doProcessImage(
+        function(success) {
+            arRefresher.refresh();
+            setRefreshingIcon(false);
+        },
+        function(error) {
+            // TODO: Error
+            console.error("Could not refresh");
+            setRefreshingIcon(false);
+        }
+    );
 }
 
-
-
-function loadWeblabProtocolFunctions() {
-
-
-}
 
 
 //! Handles experiment initialization. This includes registering callbacks, etc.
@@ -368,6 +374,24 @@ function doSendButton(color, status) {
 }
 
 
+// TODO: Check whether the server-side command needs changes.
+function doProcessImage(onSuccess, onError) {
+    Weblab.sendCommand("process",
+            function (success) {
+                console.log("Image processed. Response: " + success);
+                if(success.search("error") != -1)
+                    console.error("Apparently the image couldn't be processed");
+                if(onSuccess != undefined)
+                    onSuccess(success);
+            },
+            function (error) {
+                console.error("[WEBLAB COMMAND]: Error while trying to process image. Response was: " + error);
+                if(onError != undefined)
+                    onError(error);
+            });
+}
+
+
 </script>
 
 </head>
@@ -438,9 +462,9 @@ function doSendButton(color, status) {
         <div class="col-md-12 centered">
             <div style="position:relative; display:inline-block">
                 <img id="cam_refresh_active" src="img/refresh.gif" style="display:inline-block; position:absolute;
-                left: 29px; top:9px; z-index: 10; color:white; display:none"/>
+                left: 29px; top:0px; z-index: 10; color:white; display:none"/>
                 <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
-                      style="position: absolute; right:30px; top:5px; font-size:2em; z-index:10; color:white"></span>
+                      style="position: absolute; right:30px; top:10px; font-size:2em; z-index:10; color:white"></span>
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
                   style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 10; color:white;"></span>
                 <img id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
