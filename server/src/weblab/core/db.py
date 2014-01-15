@@ -103,10 +103,11 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                 if cat_name is not None and exp_name is not None:
                     if p_category_id != cat_name or p_permanent_id != exp_name:
                         continue
-
-                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).first()
-                if experiment is None:
+                experiments = [ exp for exp in session.query(model.DbExperiment).filter_by(name=p_permanent_id).all() if exp.category.name == p_category_id ]
+                if len(experiments) == 0:
                     continue
+
+                experiment = experiments[0]
 
                 if isinstance(permission, model.DbUserPermission):
                     permission_scope = 'user'
