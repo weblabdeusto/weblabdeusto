@@ -278,7 +278,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		if(this.provideFileUpload)
 			tryUpload();
 		
-		AbstractExternalAppBasedBoard.startInteractionImpl();
+		AbstractExternalAppBasedBoard.startInteractionImpl(initialConfiguration);
 	}
 	
 	/**
