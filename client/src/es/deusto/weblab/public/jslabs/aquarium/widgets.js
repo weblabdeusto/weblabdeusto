@@ -1,3 +1,18 @@
+
+function displayErrorMessage(msg) {
+
+    // set the message to display: none to fade it in later.
+    var message = $('<div class="alert alert-error alert-dismissable errormessage" style="display: none;">');
+    // a close button
+    var close = $('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times</button>');
+    message.append(close); // adding the close button to the message
+    message.append(msg); // adding the error response to the message
+    // add the message element to the body, fadein, wait 3secs, fadeout
+    message.appendTo($('body')).fadeIn(300).delay(3000).fadeOut(500);
+
+}
+
+
 //! Constructs a TimerManager.
 //! @param timer_id: ID of the HTML tag for the timer.
 TimerDisplayer = function (timer_id) {

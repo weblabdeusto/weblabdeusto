@@ -24,3 +24,21 @@ through jQuery's fadeIn() */
     z-index  : 10;
     display  : none;
 }
+
+
+.errormessage {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    width: 50%;
+
+    text-align: center;
+
+    color: white;
+    margin: 0 0 0 -25%;
+
+    padding: 20px 50px 20px 50px;
+    background-color: indianred;
+    opacity: 0.8;
+    z-index: 50;
+}
