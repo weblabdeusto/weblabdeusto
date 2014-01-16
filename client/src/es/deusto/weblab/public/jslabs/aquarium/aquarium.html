@@ -136,7 +136,9 @@ $(document).ready(function () {
 
     // If we are NOT in a Weblab context we won't really receive the setTime callback,
     // so we start the countdown ourselves, for debugging or cosmetic purposes.
-    if (!Weblab.checkOnline()) {
+    if (Weblab.checkOnline()) {
+        timerDisplayer.hide();
+    } else {
         timerDisplayer.setTimeLeft(200);
         timerDisplayer.startCountDown();
     }
@@ -274,6 +276,9 @@ initializeExperiment = function()
         Weblab.setOnStartInteractionCallback(onStartCallback);
         Weblab.setOnTimeCallback(onTimeCallback);
         Weblab.setOnEndCallback(onEndCallback);
+
+        // Set up an overlay covering it all.
+        $(".overlay-back").fadeIn(1000);
     }
 }
 
@@ -299,18 +304,24 @@ function onSliderChanged(color, newValue) {
 function onLogout() {
     console.log("Logging out");
     cameraRefresher.stop();
+
+    // Set up the overlay again.
+    $(".overlay-back").fadeIn(1000);
 }
 
 function onStartCallback(start_info) {
     console.log("[WEBLAB]: Experiment started with info: " + start_info);
+    $(".overlay-back").fadeOut(1000);
 }
 
 function onEndCallback() {
-    console.log("[WEBLAB]: Experiment ended");
+    console.log("[WEBLAB]: Experiment ended")
+    $(".overlay-back").fadeIn(1000);
 }
 
 function onTimeCallback(time) {
     console.log("[WEBLAB]: Experiment's time set: " + time);
+    timerDisplayer.show();
     timerDisplayer.setTimeLeft(time);
     timerDisplayer.startCountDown();
 }
@@ -462,11 +473,11 @@ function doProcessImage(onSuccess, onError) {
         <div class="col-md-12 centered">
             <div style="position:relative; display:inline-block">
                 <img id="cam_refresh_active" src="img/refresh.gif" style="display:inline-block; position:absolute;
-                left: 29px; top:0px; z-index: 10; color:white; display:none"/>
+                left: 29px; top:0px; z-index: 2; color:white; display:none"/>
                 <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
-                      style="position: absolute; right:30px; top:10px; font-size:2em; z-index:10; color:white"></span>
+                      style="position: absolute; right:30px; top:10px; font-size:2em; z-index:2; color:white"></span>
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
-                  style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 10; color:white;"></span>
+                  style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 2; color:white;"></span>
                 <img id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
             </div>
         </div>

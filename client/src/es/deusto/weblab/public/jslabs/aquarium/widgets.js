@@ -9,6 +9,18 @@ TimerDisplayer = function (timer_id) {
     var _value = 0; // Value of the timer in seconds.
     var _countdownInterval = null;
 
+    //! Hides the timer.
+    //!
+    this.hide = function () {
+        $timer.hide();
+    }
+
+    //! Shows the timer.
+    //!
+    this.show = function () {
+        $timer.show();
+    }
+
     //! Starts counting down to zero automatically.
     //! @param timeChangedCallback: Callback that receives the time left as a parameter. It is called frequently
     //! but not necessarily every second. May be null.
