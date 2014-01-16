@@ -370,7 +370,9 @@ function updateBallsStatus(statusJson) {
             var value = statusData[key];
 
             // Set the slider's value. The name of the sliders will/should match the color.
-            sliders[key].setValue(!value);
+            sliders[key].setValue(!
+
+                    lsvalue);
 
             console.log("Key: " + key + ", Value: " + value);
         }
