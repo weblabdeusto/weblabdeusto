@@ -164,14 +164,14 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		if(isJSFile)
 		{	
 			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
-										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+										"width=\"" + width + "\"  scrolling=\"auto\"  height=\"" + height +  "\" " +
 										"onLoad=\"onFrameLoad();\"" +
 									"></iframe>";
 		}
 		else
 		{
 			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  allowfullscreen webkitallowfullscreen mozallowfullscreen vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
-										"width=\"" + width + "\"  scrolling=\"no\"  height=\"" + height +  "\" " +
+										"width=\"" + width + "\"  scrolling=\"auto\"  height=\"" + height +  "\" " +
 										"onLoad=\"onFrameLoad();\"" +
 									"src=\"" + file + "\"" + "></iframe>"; 
 		}
@@ -278,7 +278,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		if(this.provideFileUpload)
 			tryUpload();
 		
-		AbstractExternalAppBasedBoard.startInteractionImpl();
+		AbstractExternalAppBasedBoard.startInteractionImpl(initialConfiguration);
 	}
 	
 	/**

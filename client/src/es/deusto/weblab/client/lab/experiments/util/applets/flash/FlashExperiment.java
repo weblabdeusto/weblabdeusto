@@ -285,8 +285,9 @@ public class FlashExperiment extends AbstractExternalAppBasedBoard {
 				
 				// If we are here, we managed to find the flash reference and it
 				// seems to be working. We are ready to "talk" with the flash app.
-				
-				AbstractExternalAppBasedBoard.startInteractionImpl();
+
+				// TODO: Update API.
+				AbstractExternalAppBasedBoard.startInteractionImpl("");
 				
 				// If the application is running on deferred mode, the time has been stored but
 				// not sent to the flash app yet. If, however, we are running on non-deferred mode,

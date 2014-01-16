@@ -61,7 +61,9 @@ public class JavaAppletsExperiment extends AbstractExternalAppBasedBoard{
 
     @Override
     public void start(int time, String initialConfiguration) {
-    	AbstractExternalAppBasedBoard.startInteractionImpl();
+
+        // TODO: Update API.
+    	AbstractExternalAppBasedBoard.startInteractionImpl("");
     }
 
     @Override
