@@ -17,6 +17,7 @@ import weblab.configuration_doc as configuration_doc
 import weblab.db.session as DbSession
 from weblab.db.gateway import AbstractDatabaseGateway
 
+import weblab.admin.web as web
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
 import weblab.admin.web.instructor_views as instructor_views
@@ -64,6 +65,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
         file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
         file_handler.setLevel(logging.WARNING)
         self.app.logger.addHandler(file_handler)
+
+        static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
         ################################################
         # 
@@ -134,7 +137,9 @@ class AdministrationApplication(AbstractDatabaseGateway):
         # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
 
         instructor_url = '/weblab/administration/instructor'
-        self.instructor = Admin(index_view = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor'), name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
+        instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
+        instructor_home.static_folder = static_folder
+        self.instructor = Admin(index_view = instructor_home, name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
         
         self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
         self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))

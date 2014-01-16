@@ -5,14 +5,48 @@
 
 <div class="row">
     <div class="span12">
+        <a name="top"></a>
         <h1>{{ group.name }}</h1>
+
+        <h3>Table of contents</h3>
+        <ul>
+            <li><a href="#summary">Summary</a>
+            <ul>
+                <li><a href="#experiments_available">Experiments available</a></li>
+                <li><a href="#uses">Uses</a></li>
+            </ul>
+            </li>
+            {% if timeline_values %}
+            <li><a href="#usage_patterns">Usage patterns</a>
+            <ul>
+                <li><a href="#uses_per_day">Uses per day</a></li>
+                <li><a href="#avg_per_day">Average time per day</a></li>
+                <li><a href="#session_per_day">Session time frequency</a></li>
+                <li><a href="#uses_per_time_of_day">Uses per time of the day</a></li>
+            </ul>
+            </li>
+            <li><a href="#users">Users</a>
+            <ul>
+                <li><a href="#uses_per_student">Uses per student distribution</a></li>
+                <li><a href="#users_summary">Summary</a></li>
+                {% if links %}
+                <li><a href="#social_network">Social Network</a></li>
+                {% endif %}
+            </ul>
+            {% endif %}
+        </ul>
+
+        <a name="summary"></a>
         <h3>Summary</h3>
+
+        <a name="experiments_available"></a>
         <h4>Experiments available</h4>
         <ul>
             {% for experiment in experiments %}
                 <li>{{ experiment }}</li>
             {% endfor %}
         </ul>
+        <a name="uses"></a>
         <h4>Uses</h4>
         <table class="table table-bordered table-hover">
             <thead>
@@ -39,18 +73,26 @@
             </tbody>
         </table>
         {% if timeline_values %}
+        <a name="usage_patterns"></a>
         <h3>Usage patterns</h3>
+        <a name="uses_per_day"></a>
         <h4>Uses per day</h4>
         {{ timeline(timeline_headers, timeline_values, "timeline", '%i') }}
+        <a name="avg_per_day"></a>
         <h4>Average time per day</h4>
         {{ timeline(time_per_day_headers, time_per_day_values, "per_day", '%i') }}
+        <a name="session_per_day"></a>
         <h4>Session time frequency</h4>
         {{ timeline(per_block_headers, per_block_values, "per_block", '%i') }}
+        <a name="uses_per_time_of_day"></a>
         <h4>Uses per time of the day</h4>
         {{ timetable(usage_timetable) }}
+        <a name="users"></a>
         <h3>Users</h3>
+        <a name="uses_per_student"></a>
         <h4>Uses per student distribution</h4>
         {{ timeline(users_timeline_headers, users_timeline_values, "users_values", '%i') }}
+        <a name="users_summary"></a>
         <h4>Summary</h4>
         <table class="table table-bordered table-hover">
             <thead>
@@ -75,6 +117,8 @@
             </tbody>
         </table>
         {% if links %}
+        <a name="social_network"></a>
+        <h4>Social Network</h4>
         {{ sna() }}
         {% endif %}
         {% else %}

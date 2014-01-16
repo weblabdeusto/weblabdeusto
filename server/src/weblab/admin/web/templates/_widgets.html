@@ -77,10 +77,10 @@
 
 {% macro timeline_scripts(skip_raphael = False) %}
     {% if not skip_raphael %}
-        <script src="{{ url_for('static', filename='js/raphael-min.js') }}"></script>
+        <script src="{{ url_for('instructor.static', filename='js/raphael-min.js') }}"></script>
     {% endif %}
-    <script src="{{ url_for('static', filename='js/raphael-analytics.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/raphael-popup.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/raphael-analytics.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/raphael-popup.js') }}"></script>
 {% endmacro %}
 
 {% macro timeline_load(table_id, name = None) %}
@@ -156,9 +156,9 @@
 {% endmacro %}
 
 {% macro sna_scripts() %}
-    <script src="{{ url_for('static', filename='js/sigma.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/sigma.parseGexf.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/sigma.forceatlas2.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/sigma.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/sigma.parseGexf.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/sigma.forceatlas2.js') }}"></script>
 {% endmacro %}
 
 {% macro sna_load(gefx_file, id = '') %}
