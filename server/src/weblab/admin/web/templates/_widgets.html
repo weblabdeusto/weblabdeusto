@@ -144,3 +144,97 @@
     </style>
 
 {% endmacro %}
+
+{% macro sna(id = '') %}
+
+    <button class="btn" id="stop-layout_{{ id }}">Stop Layout</button>
+
+    <div class="span12 sigma-parent" id="sigma-example-parent_{{ id }}">
+        <div class="sigma-expand" id="sigma-example_{{ id }}">
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro sna_scripts() %}
+    <script src="{{ url_for('static', filename='js/sigma.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sigma.parseGexf.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sigma.forceatlas2.js') }}"></script>
+{% endmacro %}
+
+{% macro sna_load(gefx_file, id = '') %}
+<script type="text/javascript">function init() {
+  // Instanciate sigma.js and customize rendering :
+  var sigInst = sigma.init(document.getElementById('sigma-example_{{ id }}')).drawingProperties({
+    defaultLabelColor: '#000',
+    defaultLabelSize: 14,
+    defaultLabelBGColor: '#000',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 6,
+    defaultEdgeType: 'curve',
+    defaultEdgeArrow: 'target'
+  }).graphProperties({
+    minNodeSize: 10,
+    maxNodeSize: 20,
+    minEdgeSize: 5,
+    maxEdgeSize: 5,
+    sideMargin: 50
+  }).mouseProperties({
+    maxRatio: 32
+  });
+
+  // Parse a GEXF encoded file to fill the graph
+  // (requires "sigma.parseGexf.js" to be included)
+  sigInst.parseGexf("{{ gefx_file }}");
+  
+  // Draw the graph :
+  //sigInst.draw();
+
+  sigInst.startForceAtlas2();
+  
+   var isRunning = true;
+    document.getElementById('stop-layout_{{ id }}').addEventListener('click',function(){
+    if(isRunning){
+    isRunning = false;
+    sigInst.stopForceAtlas2();
+    document.getElementById('stop-layout_{{ id }}').childNodes[0].nodeValue = 'Start Layout';
+    }else{
+    isRunning = true;
+    sigInst.startForceAtlas2();
+    document.getElementById('stop-layout_{{ id }}').childNodes[0].nodeValue = 'Stop Layout';
+    }
+    },true);
+  
+  
+  
+}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+
+<style type="text/css">
+  /* sigma.js context : */
+  .sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #eee;
+    height: 800px;
+  }
+  .sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  .buttons-container{
+    padding-bottom: 8px;
+    padding-top: 12px;
+  }
+</style>
+{% endmacro %}

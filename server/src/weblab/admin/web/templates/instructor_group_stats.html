@@ -1,7 +1,7 @@
 {% extends 'weblab-master.html' %}
 {% block body %}
 
-{% from "_widgets.html" import timeline, timetable %}
+{% from "_widgets.html" import timeline, timetable, sna %}
 
 <div class="row">
     <div class="span12">
@@ -74,6 +74,9 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% if links %}
+        {{ sna() }}
+        {% endif %}
         {% else %}
         <div class="alert alert-error">
             <h3>Sorry, there has been no activity in this group</h3>
@@ -85,11 +88,15 @@
 {% endblock %}
 
 {% block tail %}
-    {% from "_widgets.html" import timeline_scripts, timeline_load %}
+    {% from "_widgets.html" import timeline_scripts, timeline_load, sna_scripts, sna_load %}
     {{ timeline_scripts() }}
     {{ timeline_load('timeline', 'use') }}
     {{ timeline_load('per_day', 'second') }}
     {{ timeline_load('users_values', 'use') }}
     {{ timeline_load('per_block', 'use') }}
+    {% if links %}
+        {{ sna_scripts() }}
+        {{ sna_load(url_for('.gefx', group_id = group.id)) }}
+    {% endif %}
 {% endblock %}
 

@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, url_for
 from flask.ext.admin import Admin, BaseView, expose
 
 from voodoo.sessions.session_id import SessionId
@@ -25,6 +25,15 @@ class BackView(BaseView):
     @expose()
     def index(self):
         return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+
+class RedirectView(BaseView):
+    def __init__(self, url_token, *args, **kwargs):
+        self.url_token = url_token
+        super(RedirectView, self).__init__(*args, **kwargs)
+
+    @expose()
+    def index(self):
+        return redirect(url_for(self.url_token))
 
 class AdministrationApplication(AbstractDatabaseGateway):
 
@@ -80,7 +89,9 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group',  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles',  endpoint = 'permissions/role'))
 
+        self.admin.add_view(RedirectView('instructor.index', url = 'instructor', name = 'Instructor panel',  endpoint = 'instructor/admin'))
         self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = 'My profile',  endpoint = 'myprofile/admin'))
+
 
         self.admin.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/admin'))
 

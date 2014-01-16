@@ -1,12 +1,17 @@
 from collections import defaultdict
+import random
 import datetime
+from StringIO import StringIO
 
-from flask import redirect, request, flash
+import networkx as nx
+
+from flask import redirect, request, flash, Response
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
 import weblab.permissions as permissions
 import weblab.db.model as model
+from .community import best_partition
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
@@ -17,7 +22,7 @@ def is_instructor():
     if is_admin:
         return True
     
-    return get_app_instance().get_user_role() in ('admin', 'instructor')
+    return get_app_instance().get_user_role() in ('administrator', 'professor', 'instructor', 'admin')
 
 class InstructorView(BaseView):
     def is_accessible(self):
@@ -221,6 +226,38 @@ def generate_timetable(days_data):
 
     return timetable
 
+def generate_links(hashes, session, user_id_cache):
+    EMPTY_HASHES = (
+        '',
+        '{sha}f96cea198ad1dd5617ac084a3d92c6107708c0ef', # '{sha}' + hashlib.new("sha", "").hexdigest()
+        '{sha}da39a3ee5e6b4b0d3255bfef95601890afd80709', # '{sha}' + sha.new("").hexdigest()
+        '<file not yet stored>',
+    )
+
+    if not hashes:
+        return {}
+
+    links = defaultdict(list)
+
+    for file_hash in hashes:
+        if file_hash in EMPTY_HASHES:
+            # Those files are irrelevant
+            continue
+
+        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] ])
+        if len(distinct_user_ids) > 1:
+            # One student sending multiple files is not a problem
+            first_element = session.query(model.DbUserFile).filter_by(file_hash = file_hash).first()
+            if first_element and first_element.experiment_use.user.role.name not in ('administrator', 'professor', 'admin', 'instructor'):
+                # It's only a problem when the file has been previously submitted by someone who was not a teacher
+
+                # Get first in course
+                first_use_id, first_user_id = hashes[file_hash][0]
+                for user_id in distinct_user_ids:
+                    if user_id != first_user_id:
+                        links[user_id_cache[first_user_id]].append(user_id_cache[user_id])
+    return links
+
 
 class GroupStats(InstructorView):
     def __init__(self, session, **kwargs):
@@ -231,6 +268,71 @@ class GroupStats(InstructorView):
     def index(self):
         groups = get_assigned_groups(self.session)
         return self.render('instructor_group_stats_index.html', groups = groups)
+
+    @expose('/groups/<int:group_id>/plagiarism.gefx')
+    def gefx(self, group_id):
+        if group_id not in get_assigned_group_ids(self.session):
+            return "You don't have permissions for that group"
+
+        permission_ids = set()
+        for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            permission_ids.add(permission.id)
+
+        hashes = defaultdict(list)
+        # 
+        # {
+        #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
+        # }
+        # 
+        user_id_cache = {}
+
+        for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
+            user = use.user
+            user_id_cache[user.id] = user.login
+
+            for f in use.files:
+                hashes[f.file_hash].append((use.id, user.id))
+
+        links = generate_links(hashes, self.session, user_id_cache)
+        if not links:
+            return "This groups does not have any detected plagiarism"
+
+        G = nx.DiGraph()
+        
+        for source_node in links:
+            for target_node in set(links[source_node]):
+                weight = links[source_node].count(target_node)
+                # G.add_edge(source_node, target_node, weight=weight)
+                G.add_edge(source_node, target_node)
+
+        out_degrees = G.out_degree()
+        in_degrees = G.in_degree()
+
+        for name in G.nodes():
+             G.node[name]['out_degree'] = out_degrees[name]
+             G.node[name]['in_degree'] = in_degrees[name]
+
+        G_undirected = G.to_undirected();
+        partitions = best_partition(G_undirected)
+        colors = {}
+        for member, c in partitions.items():
+            if not colors.has_key(c):
+                r = random.randrange(64,192)
+                g = random.randrange(64,192)
+                b = random.randrange(64,192)
+                colors[c] = (r, g, b)
+            G.node[member]["viz"] = {
+                'color': { 
+                  'r': colors[c][0],
+                  'g': colors[c][1],
+                  'b': colors[c][2],
+                },
+                'size': 5 * G.node[member]['out_degree']
+            }
+
+        output = StringIO()
+        nx.write_gexf(G, output)
+        return Response(output.getvalue(), mimetype='text/xml')
 
     @expose('/groups/<int:group_id>/')
     def group_stats(self, group_id):
@@ -289,11 +391,26 @@ class GroupStats(InstructorView):
             all_times = []
             max_time = 0
 
+            hashes = defaultdict(list)
+            # 
+            # {
+            #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
+            # }
+            # 
+
+            user_id_cache = {}
+
             for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
-                users[use.user.login, use.user.full_name] += 1
+                user = use.user
+                users[user.login, user.full_name] += 1
+                user_id_cache[user.id] = user.login
+
+
                 per_day[use.start_date.strftime('%Y-%m-%d')] += 1
                 per_hour[use.start_date.strftime('%A').lower()][use.start_date.hour] += 1
                 statistics['uses'] += 1
+                for f in use.files:
+                    hashes[f.file_hash].append((use.id, user.id))
                 if use.end_date is not None:
                     td = (use.end_date - use.start_date)
                     session_time_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
@@ -302,8 +419,10 @@ class GroupStats(InstructorView):
                     max_time = max(max_time, session_time_seconds)
                     all_times.append(session_time_seconds)
                     statistics['total_time'] += session_time_seconds
-                    users_time[use.user.login] += session_time_seconds
+                    users_time[user.login] += session_time_seconds
                     time_per_day[use.start_date.strftime('%Y-%m-%d')].append(session_time_seconds)
+   
+            links = generate_links(hashes, self.session, user_id_cache)
 
             statistics['total_time_human'] = datetime.timedelta(seconds=statistics['total_time'])
 
@@ -331,13 +450,18 @@ class GroupStats(InstructorView):
                 time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
             else:
                 timeline_headers = timeline_values = []
-                time_per_day_headers, time_per_day_values = []
+                time_per_day_headers = time_per_day_values = []
             users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
             timetable = generate_timetable(per_hour)
-            users_timeline_headers, users_timeline_values = zip(*users)
+
+            if users:
+                users_timeline_headers, users_timeline_values = zip(*users)
+            else:
+                users_timeline_headers = users_timeline_values = []
+
             users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
 
-            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values)
+            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values, links = links)
 
         return "Error: you don't have permission to see that group" # TODO
 

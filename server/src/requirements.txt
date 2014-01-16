@@ -41,3 +41,5 @@ Flask==0.10
 # alembic is used for upgrading the database from version to version
 # 
 alembic<0.6
+
+networkx==1.8.1
