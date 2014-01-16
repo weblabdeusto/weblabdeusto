@@ -106,8 +106,9 @@
 // CONFIGURATION
 // ****************
 var PROTOCOL = "weblabjs"; // Eventually several protocols may be supported.
-var FIRST_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"
-var SECOND_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank2"
+var FIRST_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1";
+var SECOND_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank2";
+var STATUS_UPDATES_FREQUENCY = 2500;
 
 
 // Register basic UI callbacks
@@ -116,6 +117,8 @@ var augmentedViewEnabled = true; // To indicate in which mode we are.
 var cameraRefresher; // To help refresh the main cameras.
 var arRefresher; // To help refresh the AR image.
 var sliders; // Dictionary of the sliders identified by their color.
+
+var statusUpdaterTimer; //
 
 // Equivalent of a main() function. Will initialize everything and register
 // the main callbacks.
@@ -321,11 +324,21 @@ function onLogout() {
 function onStartCallback(start_info) {
     console.log("[WEBLAB]: Experiment started with info: " + start_info);
     $(".overlay-back").fadeOut(1000);
+
+    // TODO: We should probably consider using a Timeout instead, so that
+    // we make sure we don't make requests too fast.
+
+    // Start updating the status.
+    statusUpdaterTimer = setInterval(function(){
+        doUpdateStatus();
+    }, STATUS_UPDATES_FREQUENCY);
 }
 
 function onEndCallback() {
     console.log("[WEBLAB]: Experiment ended")
     $(".overlay-back").fadeIn(1000);
+
+    clearInterval(statusUpdaterTimer);
 }
 
 function onTimeCallback(time) {
@@ -450,7 +463,7 @@ function doProcessImage(onSuccess, onError) {
     </div>
     <div class="row">
         <div class="col-md-12 centered">
-            <img id="cam_img" src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
+            <img width="640px" height="480px" id="cam_img" src="http://www.weblab.deusto.es/webcam/proxied.py/fpga1"/>
         </div>
     </div>
     <div class="row">
@@ -494,7 +507,7 @@ function doProcessImage(onSuccess, onError) {
                       style="position: absolute; right:30px; top:10px; font-size:2em; z-index:2; color:white"></span>
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
                   style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 2; color:white;"></span>
-                <img id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+                <img width="640px" height="480px" id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
             </div>
         </div>
     </div>
