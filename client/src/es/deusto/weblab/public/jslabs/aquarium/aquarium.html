@@ -251,19 +251,26 @@ function onSecondCameraActivated() {
 //! Invoked with the augmented-reality camera refresh button has been clicked.
 //!
 function onRefreshCamera() {
-    setRefreshingIcon(true);
+    try
+    {
+        setRefreshingIcon(true);
 
-    doProcessImage(
-        function(success) {
-            arRefresher.refresh();
-            setRefreshingIcon(false);
-        },
-        function(error) {
-            // TODO: Error
-            console.error("Could not refresh");
-            setRefreshingIcon(false);
-        }
-    );
+        doProcessImage(
+            function(success) {
+                arRefresher.refresh();
+                setRefreshingIcon(false);
+            },
+            function(error) {
+                console.error("Could not refresh");
+                displayErrorMessage("Could not refresh the processed image");
+                setRefreshingIcon(false);
+            }
+        );
+    } catch(ex) {
+        setRefreshingIcon(false);
+        displayErrorMessage("Something failed while trying to refresh camera. Check console for further info.");
+        throw ex;
+    }
 }
 
 
@@ -366,6 +373,7 @@ function doUpdateStatus() {
                 updateBallsStatus(success);
             },
             function (error) {
+                displayErrorMessage("Could not retrieve experiment status from the server.");
                 console.error("[WEBLAB COMMAND]: Error retrieving status through get-status. Response was: " + error);
             });
 }
@@ -374,14 +382,17 @@ function doUpdateStatus() {
 //! When done, updates the ball slides according to the result.
 function doSendButton(color, status) {
 
-    // TODO: Temporarily disable the switches.
+    // So that it returns something when offline.
+    Weblab.dbgSetOfflineSendCommandResponse(exampleUpdateStatusResponse);
 
-    Weblab.sendCommand("ball:" + color + ":" + status,
+    var command = "ball:" + color + ":" + status;
+    Weblab.sendCommand(command,
             function (success) {
                 console.log("Ball status changed: " + success);
                 updateBallsStatus(success);
             },
             function (error) {
+                displayErrorMessage("Server error while trying to change ball state.");
                 console.error("[WEBLAB COMMAND]: Error while trying to send ball button. Response was: " + error);
             });
 }
@@ -392,12 +403,15 @@ function doProcessImage(onSuccess, onError) {
     Weblab.sendCommand("process",
             function (success) {
                 console.log("Image processed. Response: " + success);
-                if(success.search("error") != -1)
+                if(success.search("error") != -1) {
+                    displayErrorMessage("Server could not process the image.");
                     console.error("Apparently the image couldn't be processed");
+                }
                 if(onSuccess != undefined)
                     onSuccess(success);
             },
             function (error) {
+                displayErrorMessage("Server error while trying to process image.");
                 console.error("[WEBLAB COMMAND]: Error while trying to process image. Response was: " + error);
                 if(onError != undefined)
                     onError(error);
