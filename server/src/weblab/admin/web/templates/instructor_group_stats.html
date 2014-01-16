@@ -6,30 +6,70 @@
 <div class="row">
     <div class="span12">
         <h1>{{ group.name }}</h1>
-        <h3>Experiments available</h3>
+        <h3>Summary</h3>
+        <h4>Experiments available</h4>
         <ul>
             {% for experiment in experiments %}
                 <li>{{ experiment }}</li>
             {% endfor %}
         </ul>
-        {% if timeline_value %}
-        <h3>Usage patterns</h3>
-        {{ timeline(timeline_headers, timeline_values, "timeline") }}
-        
-        {{ timetable(usage_timetable) }}
-        <h3>Users</h3>
+        <h4>Uses</h4>
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
-                    <th>Login</th>
-                    <th>Uses</th>
+                    <th>Property</th>
+                    <th>Value</th>
                 </tr>
             </thead>
             <tbody>
-                {% for login, uses in users %}
                 <tr>
+                    <td>Users:</td>
+                    <td>{{ statistics['users'] }}</td>
+                </tr>
+                {% if timeline_values %}
+                <tr>
+                    <td>Total uses</td>
+                    <td>{{ statistics['uses'] }} uses ({{ '%.2f' % (statistics['uses'] / (statistics['users'] or 1)) }} uses per user)</td>
+                </tr>
+                <tr>
+                    <td>Total time</td>
+                    <td>{{ statistics['total_time'] }} seconds ({% if statistics['total_time_human'].days > 1 %}over {{ statistics['total_time_human'].days }} days; {% endif %}{{ '%.2f' % (statistics['total_time'] / (statistics['users'] or 1))}} seconds per user)</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% if timeline_values %}
+        <h3>Usage patterns</h3>
+        <h4>Uses per day</h4>
+        {{ timeline(timeline_headers, timeline_values, "timeline", '%i') }}
+        <h4>Average time per day</h4>
+        {{ timeline(time_per_day_headers, time_per_day_values, "per_day", '%i') }}
+        <h4>Session time frequency</h4>
+        {{ timeline(per_block_headers, per_block_values, "per_block", '%i') }}
+        <h4>Uses per time of the day</h4>
+        {{ timetable(usage_timetable) }}
+        <h3>Users</h3>
+        <h4>Uses per student distribution</h4>
+        {{ timeline(users_timeline_headers, users_timeline_values, "users_values", '%i') }}
+        <h4>Summary</h4>
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Login</th>
+                    <th>Uses</th>
+                    <th>Time (seconds)</th>
+                    <th>Average time (seconds)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for (login, full_name), uses in users %}
+                <tr>
+                    <td>{{ full_name }}</td>
                     <td>{{ login }}</td>
                     <td>{{ uses }}</td>
+                    <td>{{ users_time[login] }}</td>
+                    <td>{{ '%.2f' % (users_time[login] / ( uses or 1)) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -48,5 +88,8 @@
     {% from "_widgets.html" import timeline_scripts, timeline_load %}
     {{ timeline_scripts() }}
     {{ timeline_load('timeline', 'use') }}
+    {{ timeline_load('per_day', 'second') }}
+    {{ timeline_load('users_values', 'use') }}
+    {{ timeline_load('per_block', 'use') }}
 {% endblock %}
 

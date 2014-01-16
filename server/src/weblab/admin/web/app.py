@@ -185,7 +185,15 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_permissions(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            try:
+                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            except:
+                try:
+                    session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('porduna', 'administrator'))
+                except:
+                    session_id = "foo"
+                if session_id == "foo":
+                    raise
             return self.ups.get_user_permissions(session_id.id)
 
         try:
@@ -197,7 +205,15 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_user_information(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            try:
+                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            except:
+                try:
+                    session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('porduna', 'administrator'))
+                except:
+                    session_id = "foo"
+                if session_id == "foo":
+                    raise
             return self.ups.get_user_information(session_id.id)
 
         session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])

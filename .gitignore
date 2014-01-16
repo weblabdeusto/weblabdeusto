@@ -4,6 +4,7 @@
 # 
 *.pid
 *.swp
+*.swx
 _file_notifier*
 env
 .metadata

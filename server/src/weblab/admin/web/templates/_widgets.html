@@ -1,3 +1,15 @@
+{% macro show_groups(tree, node = None) %}
+    <ul>
+    {% for group in tree[node] %}
+        <li><a href="{{ url_for('stats/groups.group_stats', group_id = group.id) }}">{{ group.name }}</a>
+        {% if group in tree %}
+            {{ show_groups(tree, group) }}
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endmacro %}
+
 {% macro timetable(data, show_empty = False, first_letter = True) %}
      <table class="table table-bordered" style="table-layout: fixed">
         <thead>

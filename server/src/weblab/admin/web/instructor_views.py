@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 
 from flask import redirect, request, flash
 from flask.ext.admin import expose, AdminIndexView, BaseView
@@ -47,7 +48,8 @@ class InstructorHomeView(AdminIndexView):
     def index(self):
         user_information = get_app_instance().get_user_information()
         groups = get_assigned_groups(self._db_session)
-        return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups)
+        tree_groups = get_tree_groups(groups)
+        return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
 
     def is_accessible(self):
         return is_instructor()
@@ -77,8 +79,17 @@ def get_assigned_group_ids(session):
 
 def get_assigned_groups(session):
     group_ids = get_assigned_group_ids(session)
-
     return session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids))
+
+def get_tree_groups(group_list):
+    tree = defaultdict(list)
+
+    for group in group_list:
+        tree[group.parent].append(group)
+    
+    return tree    
+            
+        
 
 def apply_instrutor_filters_to_logs(session, logs_query):
     """ logs_query is a sqlalchemy query. Here we filter that 
@@ -98,6 +109,7 @@ def apply_instrutor_filters_to_logs(session, logs_query):
 class UsersPanel(InstructorModelView):
 
     can_edit = can_delete = can_create = False
+    column_searchable_list = ('full_name', 'login')
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
@@ -117,6 +129,7 @@ class UsersPanel(InstructorModelView):
 class GroupsPanel(InstructorModelView):
 
     can_edit = can_delete = can_create = False
+    column_searchable_list = ('name',)
 
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
@@ -136,7 +149,9 @@ class UserUsedExperimentPanel(InstructorModelView):
 
     can_edit = can_delete = can_create = False
 
+    column_searchable_list = ('origin',)
     column_list = ['user', 'experiment', 'start_date', 'end_date', 'origin']
+    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
     def __init__(self, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
@@ -214,13 +229,20 @@ class GroupStats(InstructorView):
 
     @expose('/')
     def index(self):
-        return "TODO" # TODO
+        groups = get_assigned_groups(self.session)
+        return self.render('instructor_group_stats_index.html', groups = groups)
 
     @expose('/groups/<int:group_id>/')
     def group_stats(self, group_id):
         if group_id in get_assigned_group_ids(self.session):
             
             group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
+
+            statistics = {
+                'users' : len(group.users),
+                'uses' : 0,
+                'total_time' : 0
+            }
 
             permission_ids = set()
             experiments = defaultdict(list)
@@ -246,9 +268,17 @@ class GroupStats(InstructorView):
             # {
             #     login : uses
             # }
+            users_time = defaultdict(int)
+            # {
+            #     login : seconds
+            # }
             per_day = defaultdict(int)
             # {
             #     '2013-01-01' : 5
+            # }
+            time_per_day = defaultdict(list)
+            # {
+            #     '2013-01-01' : [5,3,5]
             # }
             per_hour = defaultdict(lambda : defaultdict(int))
             # {
@@ -256,19 +286,58 @@ class GroupStats(InstructorView):
             #         23 : 5,
             #     }
             # }
+            all_times = []
+            max_time = 0
+
             for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
-                users[use.user.login] += 1
+                users[use.user.login, use.user.full_name] += 1
                 per_day[use.start_date.strftime('%Y-%m-%d')] += 1
-                per_hour[use.start_date.stftime('%A').lower()][use.start_date.hour] += 1
+                per_hour[use.start_date.strftime('%A').lower()][use.start_date.hour] += 1
+                statistics['uses'] += 1
+                if use.end_date is not None:
+                    td = (use.end_date - use.start_date)
+                    session_time_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+                    max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (use.experiment.name, use.experiment.category.name)] ])
+                    session_time_seconds = min(max_time, session_time_seconds)
+                    max_time = max(max_time, session_time_seconds)
+                    all_times.append(session_time_seconds)
+                    statistics['total_time'] += session_time_seconds
+                    users_time[use.user.login] += session_time_seconds
+                    time_per_day[use.start_date.strftime('%Y-%m-%d')].append(session_time_seconds)
+
+            statistics['total_time_human'] = datetime.timedelta(seconds=statistics['total_time'])
+
+            # Times
+            NUM_BLOCKS = 20
+            per_block_size = defaultdict(int)
+            block_size = max_time / NUM_BLOCKS
+            for time in all_times:
+                per_block_size[ int(time / block_size) ] += 1
+
+            per_block_headers = []
+            per_block_values = []
+            for block_num in range(NUM_BLOCKS):
+                per_block_headers.append( '%s-%s' % (block_num * block_size, (block_num + 1) * block_size) )
+                per_block_values.append(per_block_size[block_num])
+            per_block_headers.append('On finish')
+            per_block_values.append(per_block_size[NUM_BLOCKS])
+            
+            statistics['avg_per_user'] = 1.0 * statistics['users'] / ( statistics['uses'] or 1)
 
             if per_day:
                 timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+                for day in time_per_day:
+                    time_per_day[day] = sum(time_per_day[day]) / len(time_per_day[day])
+                time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
             else:
                 timeline_headers = timeline_values = []
-            users = sorted(users.items(), lambda (l1, v1), (l2, v2) : cmp(v2, v1))
+                time_per_day_headers, time_per_day_values = []
+            users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
             timetable = generate_timetable(per_hour)
+            users_timeline_headers, users_timeline_values = zip(*users)
+            users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
 
-            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, users = users, usage_timetable = timetable, group = group)
+            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values)
 
         return "Error: you don't have permission to see that group" # TODO
 

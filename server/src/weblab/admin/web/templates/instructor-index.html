@@ -17,11 +17,8 @@
 
         {% if groups %}
         <p>You're in charge of the following groups:</p>
-        <ul>
-            {% for group in groups %}
-                <li><a href="{{ url_for('stats/groups.group_stats', group_id = group.id) }}">{{ group.name }}</a></li>
-            {% endfor %}
-        </ul>
+        {% from "_widgets.html" import show_groups %}
+        {{ show_groups(tree_groups) }}
         {% else %}
         <p>However, it seems that you don't have permission of teacher on any group (or there is no group in the system)</p>
         {% endif %}
