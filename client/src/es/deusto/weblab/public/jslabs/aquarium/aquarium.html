@@ -182,19 +182,19 @@ $(document).ready(function () {
     // Listen for ball events and report them.
 
     var w = $("#whiteball").slider()
-            .on("slideStop", function(){ onSliderChanged("white", w.getValue() == 1); })
+            .on("slideStop", function(){ onSliderChanged("white", w.getValue() == 0); })
             .data("slider");
 
     var y = $("#yellowball").slider()
-            .on("slideStop", function(){ onSliderChanged("yellow", y.getValue() == 1); })
+            .on("slideStop", function(){ onSliderChanged("yellow", y.getValue() == 0); })
             .data("slider");
 
     var b = $("#blueball").slider()
-            .on("slideStop", function(){ onSliderChanged("blue", b.getValue() == 1); })
+            .on("slideStop", function(){ onSliderChanged("blue", b.getValue() == 0); })
             .data("slider");
 
     var r = $("#redball").slider()
-            .on("slideStop", function(){ onSliderChanged("red", r.getValue() == 1); })
+            .on("slideStop", function(){ onSliderChanged("red", r.getValue() == 0); })
             .data("slider");
 
     sliders = {
@@ -370,7 +370,7 @@ function updateBallsStatus(statusJson) {
             var value = statusData[key];
 
             // Set the slider's value. The name of the sliders will/should match the color.
-            sliders[key].setValue(value);
+            sliders[key].setValue(!value);
 
             console.log("Key: " + key + ", Value: " + value);
         }
