@@ -118,6 +118,8 @@ var cameraRefresher; // To help refresh the main cameras.
 var arRefresher; // To help refresh the AR image.
 var sliders; // Dictionary of the sliders identified by their color.
 
+var processedImages; // Last URLs for the processed and original static images.
+
 var statusUpdaterTimer; //
 
 // Equivalent of a main() function. Will initialize everything and register
@@ -182,26 +184,34 @@ $(document).ready(function () {
     // Listen for ball events and report them.
 
     var w = $("#whiteball").slider()
-            .on("slideStop", function(){ onSliderChanged("white", w.getValue() == 0); })
+            .on("slideStop", function () {
+                onSliderChanged("white", w.getValue() == 0);
+            })
             .data("slider");
 
     var y = $("#yellowball").slider()
-            .on("slideStop", function(){ onSliderChanged("yellow", y.getValue() == 0); })
+            .on("slideStop", function () {
+                onSliderChanged("yellow", y.getValue() == 0);
+            })
             .data("slider");
 
     var b = $("#blueball").slider()
-            .on("slideStop", function(){ onSliderChanged("blue", b.getValue() == 0); })
+            .on("slideStop", function () {
+                onSliderChanged("blue", b.getValue() == 0);
+            })
             .data("slider");
 
     var r = $("#redball").slider()
-            .on("slideStop", function(){ onSliderChanged("red", r.getValue() == 0); })
+            .on("slideStop", function () {
+                onSliderChanged("red", r.getValue() == 0);
+            })
             .data("slider");
 
     sliders = {
-        'white' : w,
-        'yellow' : y,
-        'blue' : b,
-        'red' : r
+        'white': w,
+        'yellow': y,
+        'blue': b,
+        'red': r
     };
 
 });
@@ -248,28 +258,24 @@ function onSecondCameraActivated() {
 }
 
 
-
-
-
 //! Invoked with the augmented-reality camera refresh button has been clicked.
 //!
 function onRefreshCamera() {
-    try
-    {
+    try {
         setRefreshingIcon(true);
 
         doProcessImage(
-            function(success) {
-                arRefresher.refresh();
-                setRefreshingIcon(false);
-            },
-            function(error) {
-                console.error("Could not refresh");
-                displayErrorMessage("Could not refresh the processed image");
-                setRefreshingIcon(false);
-            }
+                function (success) {
+                    arRefresher.refresh();
+                    setRefreshingIcon(false);
+                },
+                function (error) {
+                    console.error("Could not refresh");
+                    displayErrorMessage("Could not refresh the processed image");
+                    setRefreshingIcon(false);
+                }
         );
-    } catch(ex) {
+    } catch (ex) {
         setRefreshingIcon(false);
         displayErrorMessage("Something failed while trying to refresh camera. Check console for further info.");
         throw ex;
@@ -277,11 +283,9 @@ function onRefreshCamera() {
 }
 
 
-
 //! Handles experiment initialization. This includes registering callbacks, etc.
 //!
-initializeExperiment = function()
-{
+initializeExperiment = function () {
     // Declare the WebLab callbacks.
     // Do it only if we are running within the Weblab context.
     if (Weblab.checkOnline()) {
@@ -295,11 +299,12 @@ initializeExperiment = function()
 }
 
 
-
 //! Invoked when the view mode changes.
 //!
 //! @param viewEnabled Whether the augmented-view is enabled or not.
 function onViewModeChanged(viewEnabled) {
+    // We will also refresh the AR view.
+    doProcessImage();
 }
 
 
@@ -329,7 +334,7 @@ function onStartCallback(start_info) {
     // we make sure we don't make requests too fast.
 
     // Start updating the status.
-    statusUpdaterTimer = setInterval(function(){
+    statusUpdaterTimer = setInterval(function () {
         doUpdateStatus();
     }, STATUS_UPDATES_FREQUENCY);
 }
@@ -413,22 +418,48 @@ function doSendButton(color, status) {
 }
 
 
+//! Helper function to refresh the AR view.
+//! Depending on whether processing is active or not,
+//! the original will be shown or not.
+//!
+//! This function will not update the actual URL.
+//! Updating is done through doProcessImage(), which
+//! will also invoke this function on its own.
+function refreshAR() {
+    if (augmentedViewEnabled) {
+        arRefresher.setURL(processedImages[0]);
+    }
+    else {
+        arRefresher.setURL(processedImages[1]);
+    }
+
+    arRefresher.refresh();
+}
+
 // TODO: Check whether the server-side command needs changes.
 function doProcessImage(onSuccess, onError) {
     Weblab.sendCommand("process",
             function (success) {
                 console.log("Image processed. Response: " + success);
-                if(success.search("error") != -1) {
-                    displayErrorMessage("Server could not process the image.");
+                if (success.search("error") != -1) {
+                    displayMessage("The server could not process the image. This is most likely because, due to some " +
+                            "server-side image processing limitations, you must only use either the two balls on the " +
+                            "right or the two on the left. That is, either the two on the left, or the two on the right, " +
+                            "must be raised above the water for processing to function. This will be fixed in the" +
+                            " future.", "alert-danger", 0);
                     console.error("Apparently the image couldn't be processed");
+                } else {
+                    processedImages = JSON.parse(success);
+
+                    refreshAR();
                 }
-                if(onSuccess != undefined)
+                if (onSuccess != undefined)
                     onSuccess(success);
             },
             function (error) {
                 displayErrorMessage("Server error while trying to process image.");
                 console.error("[WEBLAB COMMAND]: Error while trying to process image. Response was: " + error);
-                if(onError != undefined)
+                if (onError != undefined)
                     onError(error);
             });
 }
@@ -509,7 +540,8 @@ function doProcessImage(onSuccess, onError) {
                       style="position: absolute; right:30px; top:10px; font-size:2em; z-index:2; color:white"></span>
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
                   style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 2; color:white;"></span>
-                <img width="640px" height="480px" id="ar_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+                <img width="640px" height="480px" id="ar_img"
+                     src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
             </div>
         </div>
     </div>

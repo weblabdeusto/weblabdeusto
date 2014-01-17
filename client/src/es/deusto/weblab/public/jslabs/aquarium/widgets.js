@@ -13,8 +13,13 @@ function displayErrorMessage(msg) {
 //! @param alertclass Class or classes to place in the alert box style.
 //! It can be, for instance, any bootstrap alert class, such as alert-danger,
 //! alert-success or alert-info.
-function displayMessage(msg, alertclass)
+//! @param time: Time to wait until it automatically fades. Optional. 3000 by default.
+//! If it is 0 it will never fade.
+function displayMessage(msg, alertclass, time)
 {
+    if(time == undefined)
+        time = 3000;
+
     // set the message to display: none to fade it in later.
     var message = $('<div class="alert ' + alertclass + ' alert-dismissable errormessage" style="display: none;">');
     // a close button
@@ -22,7 +27,11 @@ function displayMessage(msg, alertclass)
     message.append(close); // adding the close button to the message
     message.append(msg); // adding the error response to the message
     // add the message element to the body, fadein, wait 3secs, fadeout
-    message.appendTo($('body')).fadeIn(300).delay(3000).fadeOut(500);
+
+    if(time > 0)
+        message.appendTo($('body')).fadeIn(300).delay(3000).fadeOut(500);
+    else
+        message.appendTo($('body')).fadeIn(300);
 }
 
 
