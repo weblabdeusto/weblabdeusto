@@ -61,7 +61,7 @@ def patchZsiPyExpat():
     try:
         import ZSI
     except ImportError:
-        print >> sys.stderr, "patchZsiPyExpat skipped; optional library ZSI (SOAP) not installed"
+        print >> sys.stderr, "patchZsiPyExpat skipped; optional library ZSI (SOAP) not installed. Unless you're developing new services on top of WebLab-Deusto, do not worry about this message."
         return
 
     #
@@ -109,7 +109,7 @@ def patchZsiFaultFromException():
     try:
         import ZSI
     except ImportError:
-        print >> sys.stderr, "patchZsiFaultFromException skipped; optional library ZSI (SOAP) not installed"
+        print >> sys.stderr, "patchZsiFaultFromException skipped; optional library ZSI (SOAP) not installed. Unless you're developing new services on top of WebLab-Deusto, do not worry about this message."
         return
 
     original = ZSI.FaultFromException

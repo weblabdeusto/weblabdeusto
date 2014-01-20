@@ -425,6 +425,9 @@ def populate_weblab_tests(engine, tests):
     aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date)
     session.add(aquarium)
 
+    aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date)
+    session.add(aquariumjs)
+
     rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date)
     session.add(rob_arm)
 
@@ -915,7 +918,7 @@ def populate_weblab_tests(engine, tests):
         experiment_allowed,
         "any::weblab-aquarium",
         datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robot-standard"
+        "Permission for any to use WebLab-aquarium"
     )
 
     session.add(up_any_aquarium_allowed)
@@ -925,6 +928,22 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_aquarium_allowed_p2)
     up_any_aquarium_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p3, "200")
     session.add(up_any_aquarium_allowed_p3)
+
+    up_any_aquariumjs_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::weblab-aquariumjs",
+        datetime.datetime.utcnow(),
+        "Permission for any to use WebLab-aquariumjs"
+    )
+
+    session.add(up_any_aquariumjs_allowed)
+    up_any_aquariumjs_allowed_p1 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p1, "aquariumjs")
+    session.add(up_any_aquariumjs_allowed_p1)
+    up_any_aquariumjs_allowed_p2 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p2, "Aquatic experiments")
+    session.add(up_any_aquariumjs_allowed_p2)
+    up_any_aquariumjs_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p3, "200")
+    session.add(up_any_aquariumjs_allowed_p3)
 
     up_any_rob_maz_allowed = Model.DbUserPermission(
         any,

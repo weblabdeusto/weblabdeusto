@@ -77,6 +77,16 @@
 	                    		   "html.file"				: "jstest.html"
 	                    	   },
 	                    	   {
+	                    		   "experiment.name"		: "aquariumjs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/aquarium.png",
+	                    		   "width"					: 1024,
+	                    		   "height"					: 1000,
+	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+								   "experiment.info.description" : "description"
+	                    	   },
+	                    	   {
 	                    		   "experiment.name"		: "jsfpga",
 	                    		   "experiment.category"	: "FPGA experiments",
 	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
@@ -523,7 +533,9 @@
                                 {
 	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
                                 	"experiment.name"                 : "incubator",
-                                	"experiment.category"             : "Farm experiments"
+                                	"experiment.category"             : "Farm experiments",
+                                    "experiment.reserve.button.shown" : false,
+                                	"html"                            : "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results."
                                 }
                             ]
 		}

@@ -242,7 +242,9 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 		$wnd.wl_inst.setTime(time);
 	}-*/;
 	
-	protected static native void startInteractionImpl() /*-{
+	protected static native void startInteractionImpl(String initialConfig) /*-{
+	    // TODO: For now, no parameters are passed to start interaction because there are issues with
+	    // Flash if we do.
 		$wnd.wl_inst.startInteraction();
 	}-*/;
 	
