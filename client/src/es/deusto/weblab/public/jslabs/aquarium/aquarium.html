@@ -74,6 +74,8 @@
     .sliderballs {
         margin-top: 7px;
         margin-bottom: 50px;
+        width: 24%;
+        display: inline-block;
     }
 
     .centered {
@@ -454,11 +456,7 @@ function doProcessImage(onSuccess, onError) {
                 if(DEBUG)
                     console.log("Image processed. Response: " + success);
                 if (success.search("error") != -1) {
-                    displayMessage("The server could not process the image. This is most likely because, due to some " +
-                            "server-side image processing limitations, you must only use either the two balls on the " +
-                            "right or the two on the left. That is, either the two on the left, or the two on the right, " +
-                            "must be raised above the water for processing to function. This will be fixed in the" +
-                            " future.", "alert-danger", 0);
+                    displayMessage("Please drop one or two balls, and only balls from the left OR from the right (not from both sides at the same time).", "alert-danger", 0);
 
                     arRefresher.setURL(SECOND_CAMERA_FAILURE_URL);
                     arRefresher.refresh();
@@ -499,77 +497,65 @@ function doProcessImage(onSuccess, onError) {
 
 <div class="container">
     <div class="row">
-        <div class="col-md-2 col-md-offset-5 text-center" style="color:red">
-            <h3 id="timer">
-                02:20
-            </h3>
-        </div>
-        <div class="col-md-2 col-md-offset-3" style="height:100%">
-            <span id="logout" class="glyphicon glyphicon-log-out text-center clickable"
-                  style="font-size: 2em; padding-top:10px; visibility: hidden;"></span>
-        </div>
-    </div>
+        <div class="col-md-6">
+            <div class="text-center" style="color:red">
+                <h3 id="timer">
+                    02:20
+                </h3>
+            </div>
+            <div style="height:100%">
+                <span id="logout" class="glyphicon glyphicon-log-out text-center clickable"
+                      style="font-size: 2em; padding-top:10px; visibility: hidden;"></span>
+            </div>
 
-    <div class="row">
-        <div id="cam1" class="col-md-offset-4 col-md-2 text-center clickable cambtn-active">
-            <span class="glyphicon glyphicon-facetime-video"></span> 1
-        </div>
-        <div id="cam2" class="col-md-2 text-center clickable cambtn-inactive">
-            <span class="glyphicon glyphicon-facetime-video"></span> 2
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 centered">
-            <img width="640px" height="480px" id="cam_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
-        </div>
-    </div>
-    <div class="row">
-        <div class="sliderballs col-md-3 col-xs-5 text-center">
-            <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
-                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
-                   data-slider-tooltip="hide" data-slider-id="whiteball"/>
-        </div>
-        <div class="sliderballs col-md-3 col-xs-4 text-center">
-            <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
-                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
-                   data-slider-tooltip="hide" data-slider-id="yellowball"/>
-        </div>
-        <div class="sliderballs col-md-3 col-xs-5 text-center">
-            <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
-                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
-                   data-slider-tooltip="hide" data-slider-id="blueball"/>
-        </div>
-        <div class="sliderballs col-md-3 col-xs-4 text-center">
-            <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
-                   data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
-                   data-slider-tooltip="hide" data-slider-id="redball"/>
-        </div>
-    </div>
+            <div id="cam1" class="text-center clickable cambtn-active">
+                <span class="glyphicon glyphicon-facetime-video"></span> 1
+            </div>
+            <div id="cam2" class="text-center clickable cambtn-inactive">
+                <span class="glyphicon glyphicon-facetime-video"></span> 2
+            </div>
 
-    <div class="row">
-        <div class="col-md-6 text-center" style="">
-
+            <div class="centered">
+                <img width="100%" id="cam_img" src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+            </div>
         </div>
-        <div class="col-md-6 text-center">
 
-        </div>
-    </div>
+        <div class="col-md-6">
+            <div style="width: 100%">
 
-    <div class="row">
-        <div class="col-md-12 centered">
-            <div style="position:relative; display:inline-block">
+                <div class="sliderballs text-center">
+                    <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="whiteball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="yellowball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="blueball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="redball"/>
+                </div>
+            </div>
+            <div style="position:relative; display:inline-block; width: 100%">
                 <img id="cam_refresh_active" src="img/refresh.gif" style="display:inline-block; position:absolute;
                 left: 29px; top:0px; z-index: 2; color:white; display:none"/>
                 <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
                       style="position: absolute; right:30px; top:10px; font-size:2em; z-index:2; color:white"></span>
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
-                  style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 2; color:white;"></span>
-                <img width="640px" height="480px" id="ar_img"
-                     src=""/>
+                  style="position:absolute; width:100%; top:10px; font-size:2em; z-index: 2; color:white;"></span>
+                <img width="100%" id="ar_img"
+                     src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
             </div>
         </div>
     </div>
-
 </div>
 
 <script src="../../jslib/weblabjs.js"></script>
