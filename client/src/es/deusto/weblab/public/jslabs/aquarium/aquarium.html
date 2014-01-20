@@ -337,11 +337,11 @@ function onStartCallback(start_info) {
     // Start updating the status.
     statusUpdaterTimer = setInterval(function () {
         doUpdateStatus();
+    }, STATUS_UPDATES_FREQUENCY);
+
 
     // Initialize the lower cam. Force an update.
     onRefreshCamera();
-
-    }, STATUS_UPDATES_FREQUENCY);
 }
 
 function onEndCallback() {
