@@ -110,6 +110,7 @@ var FIRST_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround
 var SECOND_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank2";
 var SECOND_CAMERA_FAILURE_URL = "img/empty_ball.jpg"
 var STATUS_UPDATES_FREQUENCY = 2500;
+var DEBUG = false;
 
 
 // Register basic UI callbacks
@@ -314,13 +315,15 @@ function onViewModeChanged(viewEnabled) {
 //! @param color: Color of the slider that changed. A string containing either blue, red, white or yellow.
 //! @param newValue: True or false.
 function onSliderChanged(color, newValue) {
-    console.log("Slider [" + color + "] changed to [" + newValue + "]");
+    if(DEBUG)
+        console.log("Slider [" + color + "] changed to [" + newValue + "]");
     doSendButton(color, newValue);
 }
 
 //! Invoked when we should log out.
 function onLogout() {
-    console.log("Logging out");
+    if(DEBUG)
+        console.log("Logging out");
     cameraRefresher.stop();
 
     // Set up the overlay again.
@@ -328,7 +331,8 @@ function onLogout() {
 }
 
 function onStartCallback(start_info) {
-    console.log("[WEBLAB]: Experiment started with info: " + start_info);
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment started with info: " + start_info);
     $(".overlay-back").fadeOut(1000);
 
     // TODO: We should probably consider using a Timeout instead, so that
@@ -345,14 +349,16 @@ function onStartCallback(start_info) {
 }
 
 function onEndCallback() {
-    console.log("[WEBLAB]: Experiment ended")
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment ended")
     $(".overlay-back").fadeIn(1000);
 
     clearInterval(statusUpdaterTimer);
 }
 
 function onTimeCallback(time) {
-    console.log("[WEBLAB]: Experiment's time set: " + time);
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment's time set: " + time);
     timerDisplayer.show();
     timerDisplayer.setTimeLeft(time);
     timerDisplayer.startCountDown();
@@ -382,7 +388,8 @@ function updateBallsStatus(statusJson) {
             // Set the slider's value. The name of the sliders will/should match the color.
             sliders[key].setValue(!value);
 
-            console.log("Key: " + key + ", Value: " + value);
+            if(DEBUG)
+                console.log("Key: " + key + ", Value: " + value);
         }
     }
 }
@@ -392,7 +399,8 @@ function updateBallsStatus(statusJson) {
 function doUpdateStatus() {
     Weblab.sendCommand("get-status",
             function (success) {
-                console.log(success);
+                if(DEBUG)
+                    console.log(success);
                 updateBallsStatus(success);
             },
             function (error) {
@@ -411,7 +419,8 @@ function doSendButton(color, status) {
     var command = "ball:" + color + ":" + status;
     Weblab.sendCommand(command,
             function (success) {
-                console.log("Ball status changed: " + success);
+                if(DEBUG)
+                    console.log("Ball status changed: " + success);
                 updateBallsStatus(success);
             },
             function (error) {
@@ -443,7 +452,8 @@ function refreshAR() {
 function doProcessImage(onSuccess, onError) {
     Weblab.sendCommand("process",
             function (success) {
-                console.log("Image processed. Response: " + success);
+                if(DEBUG)
+                    console.log("Image processed. Response: " + success);
                 if (success.search("error") != -1) {
                     displayMessage("The server could not process the image. This is most likely because, due to some " +
                             "server-side image processing limitations, you must only use either the two balls on the " +
