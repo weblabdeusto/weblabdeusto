@@ -108,6 +108,7 @@
 var PROTOCOL = "weblabjs"; // Eventually several protocols may be supported.
 var FIRST_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1";
 var SECOND_CAMERA_URL = "http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank2";
+var SECOND_CAMERA_FAILURE_URL = "img/empty_ball.jpg"
 var STATUS_UPDATES_FREQUENCY = 2500;
 
 
@@ -336,6 +337,10 @@ function onStartCallback(start_info) {
     // Start updating the status.
     statusUpdaterTimer = setInterval(function () {
         doUpdateStatus();
+
+    // Initialize the lower cam. Force an update.
+    onRefreshCamera();
+
     }, STATUS_UPDATES_FREQUENCY);
 }
 
@@ -445,6 +450,10 @@ function doProcessImage(onSuccess, onError) {
                             "right or the two on the left. That is, either the two on the left, or the two on the right, " +
                             "must be raised above the water for processing to function. This will be fixed in the" +
                             " future.", "alert-danger", 0);
+
+                    arRefresher.setURL(SECOND_CAMERA_FAILURE_URL);
+                    arRefresher.refresh();
+
                     console.error("Apparently the image couldn't be processed");
                 } else {
                     processedImages = JSON.parse(success);
@@ -539,7 +548,7 @@ function doProcessImage(onSuccess, onError) {
             <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
                   style="position:absolute; left:30px; top:10px; font-size:2em; z-index: 2; color:white;"></span>
                 <img width="640px" height="480px" id="ar_img"
-                     src="http://www.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+                     src=""/>
             </div>
         </div>
     </div>
