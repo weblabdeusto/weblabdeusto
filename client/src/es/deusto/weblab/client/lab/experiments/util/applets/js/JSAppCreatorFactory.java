@@ -73,7 +73,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 		final String file = jsfile.length() > 0 ? jsfile : htmlfile;
 		final boolean isJSFile = jsfile.length() > 0;
 		
-		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
+		return new ExperimentCreator(MobileSupport.full, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
