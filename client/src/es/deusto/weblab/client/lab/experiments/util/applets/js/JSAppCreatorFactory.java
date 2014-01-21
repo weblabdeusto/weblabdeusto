@@ -36,35 +36,39 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
-		
+
+        // Currently these widths and heights are fake and kept here
+        // just for compatibility. The ones that are and should be used
+        // are the cssHeight and cssWidth.
 		final int width;
 		final int height;
+
+        final String cssHeight;
+        final String cssWidth;
+
 		final String jsfile;
 		final String htmlfile;
 		final boolean provideFileUpload;
 		
 		//final String message;
 		
-		try{
-			width   = configurationRetriever.getIntProperty("width");
-			height  = configurationRetriever.getIntProperty("height");
-			jsfile = configurationRetriever.getProperty("js.file", "");
-			htmlfile = configurationRetriever.getProperty("html.file", "");
-			provideFileUpload = configurationRetriever.getBoolProperty("provide.file.upload", false);
-			
-			// Throw an exception if no file was specified. The configuration needs to specify either
-			// an HTML or a JS script as base files.
-			if(jsfile.length() == 0 && htmlfile.length() == 0)
-				throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": No base file was specified (either js.file or html.file need to be specified)");
-		
-			// Throw an exception if both a js file and an html were specified. The configuration may only
-			// specify one of them.
-			if(jsfile.length() > 0 && htmlfile.length() > 0)
-				throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": Both an HTML and a JS file were specified. Only one of the two properties may be set (either js.file or html.file)");
-		
-		}catch(ConfigurationException icve){
-			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
-		}
+
+        cssWidth   = configurationRetriever.getProperty("cssWidth", "100%");
+        cssHeight  = configurationRetriever.getProperty("cssHeight", "80%");
+        jsfile = configurationRetriever.getProperty("js.file", "");
+        htmlfile = configurationRetriever.getProperty("html.file", "");
+        provideFileUpload = configurationRetriever.getBoolProperty("provide.file.upload", false);
+
+        // Throw an exception if no file was specified. The configuration needs to specify either
+        // an HTML or a JS script as base files.
+        if(jsfile.length() == 0 && htmlfile.length() == 0)
+            throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": No base file was specified (either js.file or html.file need to be specified)");
+
+        // Throw an exception if both a js file and an html were specified. The configuration may only
+        // specify one of them.
+        if(jsfile.length() > 0 && htmlfile.length() > 0)
+            throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": Both an HTML and a JS file were specified. Only one of the two properties may be set (either js.file or html.file)");
+
 
 		final String file = jsfile.length() > 0 ? jsfile : htmlfile;
 		final boolean isJSFile = jsfile.length() > 0;
@@ -80,8 +84,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 								boardController,
 								file,
 								isJSFile,
-								width, // TODO: Make these configurable. 
-								height,
+								cssWidth,
+								cssHeight,
 								provideFileUpload
 							));
 					}

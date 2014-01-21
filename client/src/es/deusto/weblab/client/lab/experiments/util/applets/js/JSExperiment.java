@@ -61,6 +61,12 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	//! has not yet finished loading.
 	int startTime;
 	String startInitialConfiguration;
+
+    //! The following two variables are used to store the width and height of the iframe. Though most experiments of
+    //! this kind traditionally had an int width and height, the JS case is special because we can (and it is
+    //! useful to) use css-style widths and heights.
+    private String cssWidth;
+    private String cssHeight;
 	
 	/**
 	 * Constructs a JSExperiment.
@@ -68,9 +74,14 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * @param configurationRetriever Reference to the configuration manager.
 	 * @param boardController Reference to the board controller.
 	 */
-	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String file, boolean isJSFile, int width, int height, boolean provideFileUpload) 
+	public JSExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController, String file, boolean isJSFile, String cssWidth, String cssHeight, boolean provideFileUpload)
 	{
-		super(configurationRetriever, boardController, width, height);
+        // Width and height passed to this parent class are actually unused in this case.
+        // This is so that we can support css-style width and height.
+		super(configurationRetriever, boardController, 100, 100);
+
+        this.cssWidth = cssWidth;
+        this.cssHeight = cssHeight;
 		
 		System.out.println("[DBG]: Creating JSExperiment: " + this);
 		
@@ -116,7 +127,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			GWT.log("NOT creating upload structure");
 		}
 		
-		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.width+10, this.height);
+		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.cssWidth, this.cssHeight);
 	}
 	
 	
@@ -155,7 +166,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		$wnd.onFrameLoad = $entry(@es.deusto.weblab.client.lab.experiments.util.applets.js.JSExperiment::onIframeLoaded());
 	}-*/;
 	
-	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, int width, int height) /*-{
+	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, String width, String height) /*-{
 		
 		var divHtml = "<div id=\"div_extra\"></div>";	
 		
@@ -198,7 +209,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * @param iframeWidth 
 	 * @param iframeHeight
 	 */
-	private static native void populateIframe(String file, boolean isJS, int width, int height, int iframeWidth, int iframeHeight) /*-{
+	private static native void populateIframe(String file, String iframeWidth, String iframeHeight) /*-{
 		var doc = $wnd.wl_iframe.contentDocument;
 		if (doc == undefined || doc == null)
 	    	doc = $wnd.wl_iframe.contentWindow.document;
@@ -258,8 +269,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		// the population method uses is hence no longer required.
 		if(this.isJSFile)
 		{
-			JSExperiment.populateIframe(this.file, this.isJSFile, this.width, 
-					this.height, this.width + 10, this.height + 10);
+			JSExperiment.populateIframe(this.file, this.cssWidth, this.cssHeight);
 		}
 	}
 	
