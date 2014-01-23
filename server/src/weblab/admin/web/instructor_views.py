@@ -401,16 +401,42 @@ class GroupStats(InstructorView):
             user_id_cache = {}
 
             for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
+                # TODO: This can be done efficiently in a query with a group by(user.id). Should add that end_date can't be None
                 user = use.user
                 users[user.login, user.full_name] += 1
                 user_id_cache[user.id] = user.login
 
+                # TODO: This can be done efficiently in two queries with a group by(year, month, day) and other for (day, hour).
+                # DBSession.query(model.DbUserUsedExperiment).group_by( sa.func.year(model.DbUserUsedExperiment.start_date), sa.func.month(model.DbUserUsedExperiment.start_date), sa.func.year(model.DbUserUsedExperiment.start_date) ).all()
 
+                # XXX: Maybe not: in sqlite3, month() is not supported
+                # mysql> SELECT MONTH(DATE('2013-03-02'));
+                # +---------------------------+
+                # | MONTH(DATE('2013-03-02')) |
+                # +---------------------------+
+                # |                         3 |
+                # +---------------------------+
+                # 1 row in set (0.00 sec)
+                # 
+                # mysql> SELECT DAYOFWEEK(DATE('2013-03-02'));
+                # +-------------------------------+
+                # | DAYOFWEEK(DATE('2013-03-02')) |
+                # +-------------------------------+
+                # |                             7 |
+                # +-------------------------------+
+                # So maybe we have to implement a default which is slow.
                 per_day[use.start_date.strftime('%Y-%m-%d')] += 1
                 per_hour[use.start_date.strftime('%A').lower()][use.start_date.hour] += 1
                 statistics['uses'] += 1
+
+                # TODO
+                # This part should only be used if there are files, in a special query that takes into account files. If all the code below goes to "group_by"s, this can
+                # be easier moved to a sql-code using the file hashes.
                 for f in use.files:
                     hashes[f.file_hash].append((use.id, user.id))
+                
+                # TODO
+                # Here we can return the diff time in a custom query, instead of the whole thing
                 if use.end_date is not None:
                     td = (use.end_date - use.start_date)
                     session_time_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
