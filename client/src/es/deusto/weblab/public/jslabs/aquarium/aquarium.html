@@ -125,6 +125,35 @@ var processedImages; // Last URLs for the processed and original static images.
 
 var statusUpdaterTimer; //
 
+
+
+//! This function will resize the iframe to fit the full screen.
+//! Should only be invoked when we are running in a WebLab context.
+function doPositioningDarkMagicks()
+{
+
+    magicks = function(){
+        var doc = $(parent.document);
+        var frame = doc.find("iframe[name=wlframe]");
+        var width = parent.document.body.offsetWidth;
+        frame.attr("width", width);
+
+        var frame_left = frame.offset().left;
+        //frame.css("display", "");
+        frame.css("position", "relative");
+        frame.css("left", -frame_left + width*0.00*0.5);
+    }
+
+
+    magicks();
+
+    $(parent.window).on("resize", function(){
+        magicks();
+    });
+}
+
+
+
 // Equivalent of a main() function. Will initialize everything and register
 // the main callbacks.
 $(document).ready(function () {
@@ -148,6 +177,8 @@ $(document).ready(function () {
     // so we start the countdown ourselves, for debugging or cosmetic purposes.
     if (Weblab.checkOnline()) {
         timerDisplayer.hide();
+
+        doPositioningDarkMagicks();
     } else {
         timerDisplayer.setTimeLeft(200);
         timerDisplayer.startCountDown();
