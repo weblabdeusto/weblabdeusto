@@ -33,58 +33,68 @@
 					// those based in Virtual Machines (that will need to handle different experiment names
 					// and categories) can be added here.
 					"flash" : [
-							   {
-								   "experiment.name"     : "flashdummy",
-								   "experiment.category" : "Dummy experiments",
-								   "experiment.picture"	 : "/img/experiments/flash.jpg",
-								   "page.footer"	 : "",
-								   "flash.timeout"       : 20,
-								   "width"               : 500,
-								   "height"              : 350,
-								   "swf.file"            : "WeblabFlashSample.swf",
-								   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
-								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
+					           {
+					        	   "experiment.name"     : "flashdummy",
+					        	   "experiment.category" : "Dummy experiments",
+					        	   "experiment.picture"	 : "/img/experiments/flash.jpg",
+					        	   "page.footer"	 : "",
+					        	   "flash.timeout"       : 20,
+					        	   "width"               : 500,
+					        	   "height"              : 350,
+					        	   "swf.file"            : "WeblabFlashSample.swf",
+					        	   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                       		   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
+	                        	   "experiment.info.description" : "description"
+	                       		}
+	                       		// Other flash experiments could be added here
+	                       ],
+	                "java" : [
+	                          {
+	                        	  "experiment.name"      : "javadummy",
+	                        	  "experiment.category"  : "Dummy experiments",
+	                        	  "experiment.picture"   : "/img/experiments/java.jpg",
+	                        	  "width"                : 500,
+	                        	  "height"               : 350,
+	                        	  "jar.file"             : "WeblabJavaSample.jar",
+	                        	  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                          	  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
+	                        	  "experiment.info.description" : "description"
+	                          }
+	                          // Other java experiments could be added here
+	                       ],
+	                "js"	: [
+	                    	   {
+	                    		   "experiment.name"		: "jsdummy",
+	                    		   "experiment.category"	: "Dummy experiments",
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   //"js.file"				: "test.js",
+	                    		   "provide.file.upload"	: true,
+	                    		   // If we use an html.file as base, we cannot use a js.file.
+	                    		   // (Though of course, we may include that js file from our html file).
+	                    		   "html.file"				: "jstest.html"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "aquariumjs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/aquarium.png",
+	                    		   "width"					: 1024,
+	                    		   "height"					: 1000,
+	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
 								   "experiment.info.description" : "description"
-								}
-								// Other flash experiments could be added here
-						   ],
-					"java" : [
-							  {
-								  "experiment.name"      : "javadummy",
-								  "experiment.category"  : "Dummy experiments",
-								  "experiment.picture"   : "/img/experiments/java.jpg",
-								  "width"                : 500,
-								  "height"               : 350,
-								  "jar.file"             : "WeblabJavaSample.jar",
-								  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
-								  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
-								  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
-								  "experiment.info.description" : "description"
-							  }
-							  // Other java experiments could be added here
-						   ],
-					"js"	: [
-							   {
-								   "experiment.name"		: "jsdummy",
-								   "experiment.category"	: "Dummy experiments",
-								   "experiment.picture"		: "/img/experiments/java.jpg",
-								   "width"					: 500,
-								   "height"					: 350,
-								   //"js.file"				: "test.js",
-								   "provide.file.upload"	: true,
-								   // If we use an html.file as base, we cannot use a js.file.
-								   // (Though of course, we may include that js file from our html file).
-								   "html.file"				: "jstest.html"
-							   },
-							   {
-								   "experiment.name"		: "jsfpga",
-								   "experiment.category"	: "FPGA experiments",
-								   "experiment.picture"		: "/img/experiments/xilinx.jpg",
-								   "width"					: 800,
-								   "height"					: 600,
-								   "provide.file.upload"	: true,
-								   "html.file"				: "jsxilinx/jsxilinx.html"
-							   },
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "jsfpga",
+	                    		   "experiment.category"	: "FPGA experiments",
+	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
+	                    		   "width"					: 800,
+	                    		   "height"					: 600,
+	                    		   "provide.file.upload"	: true,
+	                    		   "html.file"				: "jsxilinx/jsxilinx.html"
+	                    	   },
 							   {
 								   "experiment.name"		: "visir-html5",
 								   "experiment.category"	: "Visir experiments",
@@ -94,70 +104,70 @@
 								   "provide.file.upload"	: false,
 								   "html.file"				: "visir-html5/visir.html"
 							   }
-						   ],
-					"vm"    : [
-							   {
-								   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
-								   "experiment.name"     : "vm",
-								   "experiment.category" : "Dummy experiments"
-							   },
-							   {
-								   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
-								   "experiment.name"     : "vm",
-								   "experiment.category" : "VM experiments"
-							   },
-							   {
-								   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
-								   "experiment.name"     : "ud-linux-vm",
-								   "experiment.category" : "VM experiments",
-								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab",
-								   "experiment.info.description" : "description"
-							   },
-							   {
-								   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
-								   "experiment.name"     : "ud-win-vm",
-								   "experiment.category" : "VM experiments"
-							   },
-							   {
-								   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
-								   "experiment.name"	 : "vm-win",
-								   "experiment.category" : "Dummy experiments"
-							   }
-						   ],
-					"labview": [
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "testone",
-									"experiment.category" : "LabVIEW experiments"
-								},
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "blink-led",
-									"experiment.category" : "LabVIEW experiments"
-								},
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "prototyping-board-01",
-									"experiment.category" : "LabVIEW experiments"
-								},
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "fpga-board-config",
-									"experiment.category" : "LabVIEW experiments"
-								},
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "fpga-board-experiment",
-									"experiment.category" : "LabVIEW experiments",
-									"send.file"           : true
-								},
-								{
-									"experiment.picture"  : "/img/experiments/labview.jpg",
-									"experiment.name"     : "fpga-board-bit",
-									"experiment.category" : "LabVIEW experiments"
-								}
-						   ],
-					"xilinx" : [
+	                       ],
+	                "vm"    : [
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "ud-linux-vm",
+	                        	   "experiment.category" : "VM experiments",
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "ud-win-vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"	 : "vm-win",
+	                               "experiment.category" : "Dummy experiments"
+	                           }
+	                       ],
+	                "labview": [
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "testone",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "blink-led",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "prototyping-board-01",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-config",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-experiment",
+	                            	"experiment.category" : "LabVIEW experiments",
+	                            	"send.file"           : true
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-bit",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            }
+	                       ],
+	                "xilinx" : [
 							  {
 								   "experiment.name"     : "ud-test-pld1",
 								   "experiment.category" : "PLD experiments",
@@ -494,46 +504,48 @@
 								   "experiment.category" : "PIC experiments",
 								   "experiment.picture"  : "/img/experiments/microchip.jpg",
 								   "is.demo"             : true
-								}
-							],
-					"unr-physics" : [
-								{
-									"experiment.name"	 : "unr-physics",
-									"experiment.category" : "Physics experiments",
-									"experiment.picture"  : "/img/experiments/unr.jpg"
-								}
-							],
-					"ilab-batch" : [
-								{
-									"experiment.reserve.button.shown" : false,
-									"experiment.picture"              : "/img/experiments/MIT.jpg",
-									"experiment.name"                 : "microelectronics",
-									"experiment.category"             : "iLab experiments",
-									"archive"                         : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
-									"code"                            : "weblab.client.graphicalUI.GraphicalApplet",
-									"lab_server_id"                   : "microelectronics",
-									"service_broker"                  : "http://www.weblab.deusto.es/weblab/web/ilab/"
-								}
-							],
-					 "control-app" : [
-								{
-									"experiment.picture"              : "/img/experiments/bulb.png",
-									"experiment.name"                 : "control-app",
-									"experiment.category"             : "Control experiments"
-								}
-							],
-					"redirect" : [
-									 {
-										 "experiment.name"                 : "http",
-										 "experiment.category"             : "HTTP experiments"
-									 }
-								 ],
-					 "incubator" : [
-								{
-									"experiment.picture"              : "/img/experiments/incubator.jpg",
-									"experiment.name"                 : "incubator",
-									"experiment.category"             : "Farm experiments"
-								}
-							]
+	                			}
+	                		],
+	                "unr-physics" : [
+	                            {
+		                			"experiment.name"	 : "unr-physics",
+		                			"experiment.category" : "Physics experiments",
+		                			"experiment.picture"  : "/img/experiments/unr.jpg"
+	                            }
+	                        ],
+                    "ilab-batch" : [
+                                {
+                                	"experiment.reserve.button.shown" : false,
+	                        	    "experiment.picture"              : "/img/experiments/MIT.jpg",
+                                    "experiment.name"                 : "microelectronics",
+                                    "experiment.category"             : "iLab experiments",
+                                    "archive"                         : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+                                    "code"                            : "weblab.client.graphicalUI.GraphicalApplet",
+                                    "lab_server_id"                   : "microelectronics",
+                                    "service_broker"                  : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                }
+                            ],
+                     "control-app" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/bulb.png",
+                                    "experiment.name"                 : "control-app",
+                                    "experiment.category"             : "Control experiments"
+                                }
+                            ],
+                    "redirect" : [
+                                     {
+                                         "experiment.name"                 : "http",
+                                         "experiment.category"             : "HTTP experiments"
+                                     }
+                                 ],
+                     "incubator" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
+                                	"experiment.name"                 : "incubator",
+                                	"experiment.category"             : "Farm experiments",
+                                    "experiment.reserve.button.shown" : false,
+                                	"html"                            : "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results."
+                                }
+                            ]
 		}
 }

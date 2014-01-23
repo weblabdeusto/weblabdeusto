@@ -176,6 +176,10 @@ Weblab = new function () {
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
     //! interacting with the experiment.
+    //!
+    //! @param onStartInteractionCallback: This callback has the prototype:
+    //! onStartInteraction(initial_config). It is passed the initial configuration
+    //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
     }
@@ -262,15 +266,15 @@ Weblab = new function () {
     this.checkOnline = function () {
         return parent.wl_sendCommand != undefined;
     }
-    
-    
-    //! The GWT client will not function properly until the user's script has 
+
+
+    //! The GWT client will not function properly until the user's script has
     //! finished loading, because until then, callbacks might not have been set.
     //! The GWT client will know it has when the onReady()
     //! event on the iframe fires. However, sometimes, due to errors on the experiment
-    //! or network, it might not fire at all. 
-    //! Though it is NOT required, it is possible to tell the GWT client that it has finished 
-    //! by using this method. Can be invoked more than once, or even if the iframe has 
+    //! or network, it might not fire at all.
+    //! Though it is NOT required, it is possible to tell the GWT client that it has finished
+    //! by using this method. Can be invoked more than once, or even if the iframe has
     //! been loaded successfully.
     this.nowLoaded = function () {
     	parent.onFrameLoad();
