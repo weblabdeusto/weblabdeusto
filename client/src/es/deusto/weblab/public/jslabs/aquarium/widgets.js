@@ -1,3 +1,40 @@
+
+//! Displays a floating red alert box which will fade out
+//! in a few seconds.
+function displayErrorMessage(msg) {
+    displayMessage(msg, "alert-danger")
+}
+
+
+//! Displays a floating alert box which will fade out
+//! in a few seconds.
+//!
+//! @param msg Message to show in the alert box.
+//! @param alertclass Class or classes to place in the alert box style.
+//! It can be, for instance, any bootstrap alert class, such as alert-danger,
+//! alert-success or alert-info.
+//! @param time: Time to wait until it automatically fades. Optional. 3000 by default.
+//! If it is 0 it will never fade.
+function displayMessage(msg, alertclass, time)
+{
+    if(time == undefined)
+        time = 3000;
+
+    // set the message to display: none to fade it in later.
+    var message = $('<div class="alert ' + alertclass + ' alert-dismissable errormessage" style="display: none;">');
+    // a close button
+    var close = $('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times</button>');
+    message.append(close); // adding the close button to the message
+    message.append(msg); // adding the error response to the message
+    // add the message element to the body, fadein, wait 3secs, fadeout
+
+    if(time > 0)
+        message.appendTo($('body')).fadeIn(300).delay(3000).fadeOut(500);
+    else
+        message.appendTo($('body')).fadeIn(300);
+}
+
+
 //! Constructs a TimerManager.
 //! @param timer_id: ID of the HTML tag for the timer.
 TimerDisplayer = function (timer_id) {
@@ -8,6 +45,18 @@ TimerDisplayer = function (timer_id) {
     var $timer = $("#" + timer_id);
     var _value = 0; // Value of the timer in seconds.
     var _countdownInterval = null;
+
+    //! Hides the timer.
+    //!
+    this.hide = function () {
+        $timer.hide();
+    }
+
+    //! Shows the timer.
+    //!
+    this.show = function () {
+        $timer.show();
+    }
 
     //! Starts counting down to zero automatically.
     //! @param timeChangedCallback: Callback that receives the time left as a parameter. It is called frequently
@@ -86,7 +135,7 @@ TimerDisplayer = function (timer_id) {
 // stop().
 CameraRefresher = function (img_id) {
 
-    var INTERVAL = 1000; // Seconds to wait between image changes.
+    var INTERVAL = 400; // Seconds to wait between image changes.
 
     var $img = $("#" + img_id);
     var _url;

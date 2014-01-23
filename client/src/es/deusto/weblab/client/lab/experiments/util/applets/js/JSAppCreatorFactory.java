@@ -33,6 +33,8 @@ import es.deusto.weblab.client.lab.experiments.util.applets.AbstractCreatorFacto
 
 public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameterDefault CSS_WIDTH  = new ExperimentParameterDefault("cssWidth", "CSS width", "100%");
+	public static final ExperimentParameterDefault CSS_HEIGHT = new ExperimentParameterDefault("cssHeight", "CSS width", "80%");
 	public static final ExperimentParameterDefault JS_FILE = new ExperimentParameterDefault("js.file", "JavaScript file", "");
 	public static final ExperimentParameterDefault HTML_FILE = new ExperimentParameterDefault("html.file", "HTML file", "");
 	public static final ExperimentParameterDefault PROVIDE_FILE_UPLOAD = new ExperimentParameterDefault("provide.file.upload", "Provide upload file", false);
@@ -44,40 +46,40 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExper
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
-		
-		final int width;
-		final int height;
+
+        // Currently these widths and heights are fake and kept here
+        // just for compatibility. The ones that are and should be used
+        // are the cssHeight and cssWidth.
+
+        final String cssHeight;
+        final String cssWidth;
+
 		final String jsfile;
 		final String htmlfile;
 		final boolean provideFileUpload;
 		
 		//final String message;
 		
-		try{
-			width   = configurationRetriever.getIntProperty(AbstractCreatorFactory.WIDTH);
-			height  = configurationRetriever.getIntProperty(AbstractCreatorFactory.HEIGHT);
-			jsfile = configurationRetriever.getProperty(JS_FILE);
-			htmlfile = configurationRetriever.getProperty(HTML_FILE);
-			provideFileUpload = configurationRetriever.getBoolProperty(PROVIDE_FILE_UPLOAD);
-			
-			// Throw an exception if no file was specified. The configuration needs to specify either
-			// an HTML or a JS script as base files.
-			if(jsfile.length() == 0 && htmlfile.length() == 0)
-				throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": No base file was specified (either js.file or html.file need to be specified)");
-		
-			// Throw an exception if both a js file and an html were specified. The configuration may only
-			// specify one of them.
-			if(jsfile.length() > 0 && htmlfile.length() > 0)
-				throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": Both an HTML and a JS file were specified. Only one of the two properties may be set (either js.file or html.file)");
-		
-		}catch(ConfigurationException icve){
-			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
-		}
+        cssWidth   = configurationRetriever.getProperty(CSS_WIDTH);
+        cssHeight  = configurationRetriever.getProperty(CSS_HEIGHT);
+        jsfile = configurationRetriever.getProperty(JS_FILE);
+        htmlfile = configurationRetriever.getProperty(HTML_FILE);
+        provideFileUpload = configurationRetriever.getBoolProperty(PROVIDE_FILE_UPLOAD);
+
+        // Throw an exception if no file was specified. The configuration needs to specify either
+        // an HTML or a JS script as base files.
+        if(jsfile.length() == 0 && htmlfile.length() == 0)
+            throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": No base file was specified (either js.file or html.file need to be specified)");
+
+        // Throw an exception if both a js file and an html were specified. The configuration may only
+        // specify one of them.
+        if(jsfile.length() > 0 && htmlfile.length() > 0)
+            throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": Both an HTML and a JS file were specified. Only one of the two properties may be set (either js.file or html.file)");
 
 		final String file = jsfile.length() > 0 ? jsfile : htmlfile;
 		final boolean isJSFile = jsfile.length() > 0;
 		
-		return new ExperimentCreator(MobileSupport.disabled, getCodeName()){
+		return new ExperimentCreator(MobileSupport.full, getCodeName()){
 			@Override
 			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
 				GWT.runAsync(new RunAsyncCallback() {
@@ -88,8 +90,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExper
 								boardController,
 								file,
 								isJSFile,
-								width, // TODO: Make these configurable. 
-								height,
+								cssWidth,
+								cssHeight,
 								provideFileUpload
 							));
 					}
@@ -105,7 +107,7 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExper
 	
 	@Override
 	public ExperimentParameter[] getParameters() {
-		return new ExperimentParameter [] { AbstractCreatorFactory.WIDTH, AbstractCreatorFactory.HEIGHT, AbstractCreatorFactory.MESSAGE, AbstractCreatorFactory.PAGE_FOOTER,
+		return new ExperimentParameter [] { CSS_WIDTH, CSS_HEIGHT, AbstractCreatorFactory.MESSAGE, AbstractCreatorFactory.PAGE_FOOTER,
 											JS_FILE, HTML_FILE, PROVIDE_FILE_UPLOAD };
 	}
 

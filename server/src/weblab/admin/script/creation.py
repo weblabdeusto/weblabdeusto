@@ -237,6 +237,7 @@ def uncomment_json(lines):
                 previous_slash    = False
                 counter           = 0
                 comment_found     = False
+                last_c = ''
                 for c in line:
                     if c == '/':
                         if previous_slash and not single_quote_open and not double_quote_open:
@@ -245,11 +246,12 @@ def uncomment_json(lines):
                         previous_slash = True
                     else:
                         previous_slash = False
-                    if c == '"':
+                    if c == '"' and last_c != '\\':
                         double_quote_open = not double_quote_open
-                    if c == "'":
+                    if c == "'" and last_c != '\\':
                         single_quote_open = not single_quote_open
-                        
+
+                    last_c = c
                     counter += 1
 
                 if comment_found:

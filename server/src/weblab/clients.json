@@ -185,6 +185,10 @@
                 "type": "string", 
                 "description": "JavaScript file"
             }, 
+            "provide.file.upload": {
+                "type": "bool", 
+                "description": "Provide upload file"
+            }, 
             "html.file": {
                 "type": "string", 
                 "description": "HTML file"
@@ -193,21 +197,17 @@
                 "type": "bool", 
                 "description": "Show the reserve button or not"
             }, 
-            "provide.file.upload": {
-                "type": "bool", 
-                "description": "Provide upload file"
+            "page.footer": {
+                "type": "string", 
+                "description": "Footer of the application (below the application loaded, defaultValue)"
             }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
-            "height": {
-                "type": "integer", 
-                "description": "Application height"
-            }, 
-            "width": {
-                "type": "integer", 
-                "description": "Application width"
+            "cssHeight": {
+                "type": "string", 
+                "description": "CSS width"
             }, 
             "experiment.info.link": {
                 "type": "string", 
@@ -217,9 +217,9 @@
                 "type": "string", 
                 "description": "Message to be displayed"
             }, 
-            "page.footer": {
+            "cssWidth": {
                 "type": "string", 
-                "description": "Footer of the application (below the application loaded, defaultValue)"
+                "description": "CSS width"
             }, 
             "experiment.picture": {
                 "type": "string", 
