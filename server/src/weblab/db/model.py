@@ -20,7 +20,7 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, PrimaryKeyConstraint, Table
+from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, PrimaryKeyConstraint, Table, Index
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -482,19 +482,43 @@ class DbSchedulerExternalExperimentEntry(Base):
 
 class DbUserUsedExperiment(Base):
     __tablename__  = 'UserUsedExperiment'
-    __table_args__ = (TABLE_KWARGS)
+    __table_args__ = ( Index('idx_UserUsedExperiment_timetable', 'start_date_weekday', 'start_date_hour'),
+                       Index('idx_UserUsedExperiment_user_experiment', 'user_id', 'experiment_id'),
+                       Index('idx_UserUsedExperiment_user_origin', 'user_id', 'origin'),
+                       Index('idx_UserUsedExperiment_experiment_id_group_id', 'experiment_id', 'group_permission_id'),
+                       Index('idx_UserUsedExperiment_experiment_id_user_id', 'experiment_id', 'user_permission_id'),
+                       Index('idx_UserUsedExperiment_experiment_id_role_id', 'experiment_id', 'role_permission_id'),
+                       TABLE_KWARGS)
 
     id                      = Column(Integer, primary_key = True)
+
+    # Basic data
+
     user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
     experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
     start_date              = Column(DateTime, nullable = False, index = True)
     start_date_micro        = Column(Integer, nullable = False)
     end_date                = Column(DateTime, index = True)
     end_date_micro          = Column(Integer)
+
     # TODO: use these new two fields
     max_error_in_millis     = Column(Integer, nullable = True)
     finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
-    permission_permanent_id = Column(String(255), nullable = True)
+
+    # 
+    # The following data is used for optimized analytics (optimized queries based on this data).
+    # 
+    start_date_date         = Column(Date, index = True)
+    start_date_weekday      = Column(Integer, index = True) # 0..6, as in datetime.datetime.weekday()
+    start_date_hour         = Column(Integer, index = True) # 0..23
+
+    session_time_micro      = Column(BigInteger, index = True) # This should take into account finish_reason
+
+    # 
+    # Who accessed the experiment?
+    # 
+
+    permission_permanent_id = Column(String(255), nullable = True, index = True)
     group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
     user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
     role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
@@ -623,7 +647,7 @@ class DbUserUsedExperimentPropertyValue(Base):
 
 class DbUserFile(Base):
     __tablename__  = 'UserFile'
-    __table_args__ = (TABLE_KWARGS)
+    __table_args__ = (Index('idx_UserFile_experiment_use_id_file_hash', 'experiment_use_id', 'file_hash'), TABLE_KWARGS)
 
     id                     = Column(Integer, primary_key = True)
     experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
