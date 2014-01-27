@@ -74,8 +74,8 @@ class TemporalInformationRetriever(threading.Thread):
         initial_information = self.initial_store.get(timeout=self.timeout)
         if initial_information is not None:
 
-            initial_timestamp = time.mktime(initial_information.initial_time.timetuple()) + initial_information.initial_time.microsecond / 10e6
-            end_timestamp     = time.mktime(initial_information.end_time.timetuple()) + initial_information.end_time.microsecond / 10e6
+            initial_timestamp = time.mktime(initial_information.initial_time.timetuple()) + initial_information.initial_time.microsecond / 1e6
+            end_timestamp     = time.mktime(initial_information.end_time.timetuple()) + initial_information.end_time.microsecond / 1e6
 
             request_info  = initial_information.request_info
             from_ip       = request_info.pop('from_ip','<address not found>')
@@ -127,8 +127,8 @@ class TemporalInformationRetriever(threading.Thread):
                 self.finished_store.put(reservation_id, obj, initial_time, end_time)
                 return
 
-            initial_timestamp = time.mktime(initial_time.timetuple()) + initial_time.microsecond / 10e6
-            end_timestamp     = time.mktime(end_time.timetuple()) + end_time.microsecond / 10e6
+            initial_timestamp = time.mktime(initial_time.timetuple()) + initial_time.microsecond / 1e6
+            end_timestamp     = time.mktime(end_time.timetuple()) + end_time.microsecond / 1e6
 
             command = CommandSent(
                     Command.Command("@@@finish@@@"), initial_timestamp,
