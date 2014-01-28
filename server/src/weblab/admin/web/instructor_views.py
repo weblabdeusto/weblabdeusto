@@ -236,7 +236,7 @@ EMPTY_HASHES = (
 )
 
 def generate_links(session, condition):
-
+    condition = True
     hashes = defaultdict(list)
     # 
     # {
@@ -251,11 +251,7 @@ def generate_links(session, condition):
                                 model.DbUser.id == model.DbUserUsedExperiment.user_id,
                                 not_(model.DbUserFile.file_hash.in_(EMPTY_HASHES))
                             )
-                        ).group_by(model.DbUserFile.file_hash).having(sa_func.count(distinct(model.DbUserUsedExperiment.user_id)) > 1)
-    # TODO: Could be improved in a single query
-    multihashes = [ fhash for (fhash,) in session.execute(multiuser_file_hashes) ]
-    if not multihashes:
-        return {}
+                        ).group_by(model.DbUserFile.file_hash).having(sa_func.count(distinct(model.DbUserUsedExperiment.user_id)) > 1).correlate(None)
 
     files_query = sql.select(
                             [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
@@ -263,9 +259,10 @@ def generate_links(session, condition):
                                 condition,
                                 model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
                                 model.DbUser.id == model.DbUserUsedExperiment.user_id,
-                                model.DbUserFile.file_hash.in_(multihashes)
+                                model.DbUserFile.file_hash.in_(multiuser_file_hashes)
                             )
                         )
+    print files_query
 
     user_id_cache = {}
     for use in session.execute(files_query):
