@@ -77,6 +77,7 @@ DB_HOST                         = 'db_host'
 DB_PORT                         = 'db_port'
 DB_DATABASE                     = 'db_database'
 DB_ENGINE                       = 'db_engine'
+DB_ECHO                         = 'db_echo'
 WEBLAB_DB_USERNAME              = 'weblab_db_username'
 WEBLAB_DB_PASSWORD              = 'weblab_db_password'
 WEBLAB_DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
@@ -86,6 +87,7 @@ _sorted_variables.extend([
     (DB_PORT,                         _Argument(DATABASE, int,  None,        "Port where the database is listening, if any")),
     (DB_DATABASE,                     _Argument(DATABASE, basestring,  'WebLab',    "Name of the main database")),
     (DB_ENGINE,                       _Argument(DATABASE, basestring,  'mysql',     "Engine used. Example: mysql, sqlite")),
+    (DB_ECHO,                         _Argument(DATABASE, bool,        False,       "Display in stdout all the SQL sentences")),
     (WEBLAB_DB_USERNAME,              _Argument(DATABASE, basestring,  "weblab",    "WebLab database username")),
     (WEBLAB_DB_PASSWORD,              _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
     (WEBLAB_DB_FORCE_ENGINE_CREATION, _Argument(DATABASE, bool, False,       "Force the creation of an engine each time")),

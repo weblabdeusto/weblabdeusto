@@ -44,6 +44,11 @@ def upgrade():
     op.create_index(u'idx_UserUsedExperiment_timetable',       u'UserUsedExperiment', ['start_date_weekday', 'start_date_hour'])
     op.create_index(u'idx_UserUsedExperiment_user_experiment', u'UserUsedExperiment', ['user_id', 'experiment_id'])
     op.create_index(u'idx_UserUsedExperiment_user_origin',     u'UserUsedExperiment', ['user_id', 'origin'])
+
+    op.create_index('idx_UserUsedExperiment_user_group_permission_id', ['user_id', 'group_permission_id'])
+    op.create_index('idx_UserUsedExperiment_user_user_permission_id', ['user_id', 'user_permission_id'])
+    op.create_index('idx_UserUsedExperiment_user_role_permission_id', ['user_id', 'role_permission_id'])
+
     op.create_index(u'idx_UserUsedExperiment_experiment_id_group_id',       u'UserUsedExperiment', ['experiment_id', 'group_permission_id'])
     op.create_index(u'idx_UserUsedExperiment_experiment_id_user_id',        u'UserUsedExperiment', ['experiment_id', 'user_permission_id'])
     op.create_index(u'idx_UserUsedExperiment_experiment_id_permission_id',  u'UserUsedExperiment', ['experiment_id', 'role_permission_id'])
@@ -82,6 +87,10 @@ def downgrade():
     op.drop_index(u'idx_UserUsedExperiment_experiment_id_group_id', 'UserUsedExperiment')
     op.drop_index(u'idx_UserUsedExperiment_experiment_id_user_id', 'UserUsedExperiment')
     op.drop_index(u'idx_UserUsedExperiment_experiment_id_permission_id', 'UserUsedExperiment')
+
+    op.drop_index('idx_UserUsedExperiment_user_group_permission_id','UserUsedExperiment')
+    op.drop_index('idx_UserUsedExperiment_user_user_permission_id', 'UserUsedExperiment')
+    op.drop_index('idx_UserUsedExperiment_user_role_permission_id', 'UserUsedExperiment')
 
     op.drop_index(u'idx_UserUsedExperiment_timetable', 'UserUsedExperiment')
     op.drop_index(u'idx_UserUsedExperiment_start_date_date', 'UserUsedExperiment')

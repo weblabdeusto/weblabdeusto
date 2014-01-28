@@ -174,7 +174,10 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                         experiment_usage.from_ip,
                         experiment_usage.coord_address.address,
                         experiment_usage.reservation_id,
-                        experiment_usage.end_date
+                        experiment_usage.end_date,
+                        start_date_date = experiment_usage.start_date.date(),
+                        start_date_hour = experiment_usage.start_date.hour,
+                        start_date_weekday = experiment_usage.start_date.weekday(),
                 )
             session.add(use)
             # TODO: The c.response of an standard command is an object with
@@ -750,7 +753,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
             experiment_id = experiment.id
-            exp_use = model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
+            exp_use = model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date, start_date_date = start_time.date(), start_date_weekday = start_date.weekday(), start_date_hour = start_date.hour)
             session.add(exp_use)
             session.commit()
             return experiment_id

@@ -9,6 +9,8 @@ from flask import redirect, request, flash, Response
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
+from sqlalchemy import sql, func as sa_func
+
 import weblab.permissions as permissions
 import weblab.db.model as model
 from .community import best_partition
@@ -237,25 +239,52 @@ def generate_links(hashes, session, user_id_cache):
     if not hashes:
         return {}
 
+    # Filter those hashes which are empty
+    for file_hash in EMPTY_HASHES:
+        hashes.pop(file_hash, None)
+
+    # Filter those uses that do not have distinct user_ids
+    hashes_to_remove = set()
+    for file_hash in hashes:
+        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] ])
+        if len(distinct_user_ids) == 1:
+            hashes_to_remove.add(file_hash)
+
+    for file_hash in hashes_to_remove:
+        hashes.pop(file_hash, None)
+
+    # No group by since there is no easy way to order correctly, and the amount of data is not
+    # huge
+    query = sql.select( [model.DbUserFile.file_hash, model.DbRole.name], 
+                        sql.and_(
+                            model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
+                            model.DbUserUsedExperiment.user_id == model.DbUser.id,
+                            model.DbUser.role_id == model.DbRole.id,
+                            model.DbUserFile.file_hash.in_(hashes.keys())
+                        )).order_by(model.DbUserUsedExperiment.start_date)
+
+    correct_file_hashes = set()
+    for file_hash, role_name in session.execute(query):
+        if file_hash in correct_file_hashes:
+            continue
+        
+        if role_name in ('administrator', 'professor', 'admin', 'instructor'):
+            hashes.pop(file_hash, None)
+        else:
+            correct_file_hashes.add(file_hash)
+
+    # Filter those hashes which were first used by users who were instructor, admin, etc.
+    # It's only a problem when the file has been previously submitted by someone who was not a teacher
     links = defaultdict(list)
 
+    # With the remaining, calculate the copies
     for file_hash in hashes:
-        if file_hash in EMPTY_HASHES:
-            # Those files are irrelevant
-            continue
+        # Get first in course
+        first_use_id, first_user_id = hashes[file_hash][0]
+        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] if user_id != first_user_id ])
+        for user_id in distinct_user_ids:
+            links[user_id_cache[first_user_id]].append(user_id_cache[user_id])
 
-        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] ])
-        if len(distinct_user_ids) > 1:
-            # One student sending multiple files is not a problem
-            first_element = session.query(model.DbUserFile).filter_by(file_hash = file_hash).first()
-            if first_element and first_element.experiment_use.user.role.name not in ('administrator', 'professor', 'admin', 'instructor'):
-                # It's only a problem when the file has been previously submitted by someone who was not a teacher
-
-                # Get first in course
-                first_use_id, first_user_id = hashes[file_hash][0]
-                for user_id in distinct_user_ids:
-                    if user_id != first_user_id:
-                        links[user_id_cache[first_user_id]].append(user_id_cache[user_id])
     return links
 
 
@@ -285,13 +314,21 @@ class GroupStats(InstructorView):
         # }
         # 
         user_id_cache = {}
+        # user_id : 'login'
 
-        for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
-            user = use.user
-            user_id_cache[user.id] = user.login
-
-            for f in use.files:
-                hashes[f.file_hash].append((use.id, user.id))
+        files_query = sql.select(
+                                [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
+                                sql.and_( model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
+                                model.DbUser.id == model.DbUserUsedExperiment.user_id)
+                            )
+        for use in self.session.execute(files_query):
+            use_id  = use['id']
+            user_id = use['user_id']
+            file_hash = use['file_hash']
+            login = use['login']
+            user_id_cache[user_id] = login
+            hashes[file_hash].append((use_id, user_id))
 
         links = generate_links(hashes, self.session, user_id_cache)
         if not links:
@@ -302,8 +339,7 @@ class GroupStats(InstructorView):
         for source_node in links:
             for target_node in set(links[source_node]):
                 weight = links[source_node].count(target_node)
-                # G.add_edge(source_node, target_node, weight=weight)
-                G.add_edge(source_node, target_node)
+                G.add_edge(source_node, target_node, weight=weight)
 
         out_degrees = G.out_degree()
         in_degrees = G.in_degree()
@@ -353,6 +389,8 @@ class GroupStats(InstructorView):
             #          ( time_in_seconds, permission_id )
             #     ]
             # }
+            # TODO: just for testing
+            # for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
             for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
                 permission_ids.add(permission.id)
                 exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
@@ -366,87 +404,98 @@ class GroupStats(InstructorView):
             #     pass
 
             # Get the totals
-            users = defaultdict(int)
-            # {
-            #     login : uses
-            # }
             users_time = defaultdict(int)
             # {
             #     login : seconds
-            # }
-            per_day = defaultdict(int)
-            # {
-            #     '2013-01-01' : 5
             # }
             time_per_day = defaultdict(list)
             # {
             #     '2013-01-01' : [5,3,5]
             # }
+            all_times = []
+            max_time = 0
+
+            user_id_cache = {}
+            users = defaultdict(int)
+            for user_id, login, full_name, uses in self.session.execute(sql.select([model.DbUser.id, model.DbUser.login, model.DbUser.full_name, sa_func.count(model.DbUserUsedExperiment.id)], 
+                                                                    sql.and_( model.DbUserUsedExperiment.user_id == model.DbUser.id,
+                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids) )
+                                                            ).group_by(model.DbUserUsedExperiment.user_id)):
+                user_id_cache[user_id] = login
+                users[login, full_name] = uses
+                statistics['uses'] += uses
+
             per_hour = defaultdict(lambda : defaultdict(int))
             # {
             #     'saturday' : {
             #         23 : 5,
             #     }
             # }
-            all_times = []
-            max_time = 0
+            week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+            for hour, week_day, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment.id)],
+                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+                                                            ).group_by(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.start_date_weekday)):
+                print hour, week_day, uses
+                # XXX FIXME
+                # TODO: failing: uses always = 1
+                per_hour[week_days[week_day]][hour] = uses
+
+            per_day = defaultdict(int)
+            # {
+            #     '2013-01-01' : 5
+            # }
+            for start_date_date, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
+                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+                                                            ).group_by(model.DbUserUsedExperiment.start_date_date)):
+                per_day[start_date_date.strftime('%Y-%m-%d')] = uses
+
+            for user_id, microseconds in self.session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
+                                                                    sql.and_(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                                                    model.DbUserUsedExperiment.end_date != None)
+                                                            ).group_by(model.DbUserUsedExperiment.user_id)):
+                users_time[user_id_cache[user_id]] = microseconds / 1000000
+                                                        
+
+            import time
+            before_long = time.time()
+            # TODO: How to optimize this one? We could group by  (session_time, experiment_id)
+            # Being session_time in seconds. There will be many repeated with that granularity.
+            for session_time_micro, start_date_date, exp_name, cat_name, user_id in self.session.execute(sql.select([model.DbUserUsedExperiment.session_time_micro, model.DbUserUsedExperiment.start_date_date, model.DbExperiment.name, model.DbExperimentCategory.name, model.DbUserUsedExperiment.user_id],
+                                                                sql.and_(
+                                                                    model.DbExperiment.category_id == model.DbExperimentCategory.id,
+                                                                    model.DbUserUsedExperiment.experiment_id == model.DbExperiment.id,
+                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                                                    model.DbUserUsedExperiment.end_date != None,
+                                                                ))):
+                session_time_seconds = session_time_micro / 1e6
+                max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (exp_name, cat_name)] ])
+                session_time_seconds = min(max_time, session_time_seconds)
+                max_time = max(max_time, session_time_seconds)
+                all_times.append(session_time_seconds)
+                statistics['total_time'] += session_time_seconds
+                time_per_day[start_date_date.strftime('%Y-%m-%d')].append(session_time_seconds)
+
+            end_long = time.time()
+            print end_long - before_long
 
             hashes = defaultdict(list)
             # 
             # {
             #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
             # }
-            # 
-
-            user_id_cache = {}
-
-            for use in self.session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).all():
-                # TODO: This can be done efficiently in a query with a group by(user.id). Should add that end_date can't be None
-                user = use.user
-                users[user.login, user.full_name] += 1
-                user_id_cache[user.id] = user.login
-
-                # TODO: This can be done efficiently in two queries with a group by(year, month, day) and other for (day, hour).
-                # DBSession.query(model.DbUserUsedExperiment).group_by( sa.func.year(model.DbUserUsedExperiment.start_date), sa.func.month(model.DbUserUsedExperiment.start_date), sa.func.year(model.DbUserUsedExperiment.start_date) ).all()
-
-                # XXX: Maybe not: in sqlite3, month() is not supported
-                # mysql> SELECT MONTH(DATE('2013-03-02'));
-                # +---------------------------+
-                # | MONTH(DATE('2013-03-02')) |
-                # +---------------------------+
-                # |                         3 |
-                # +---------------------------+
-                # 1 row in set (0.00 sec)
-                # 
-                # mysql> SELECT DAYOFWEEK(DATE('2013-03-02'));
-                # +-------------------------------+
-                # | DAYOFWEEK(DATE('2013-03-02')) |
-                # +-------------------------------+
-                # |                             7 |
-                # +-------------------------------+
-                # So maybe we have to implement a default which is slow.
-                per_day[use.start_date.strftime('%Y-%m-%d')] += 1
-                per_hour[use.start_date.strftime('%A').lower()][use.start_date.hour] += 1
-                statistics['uses'] += 1
-
-                # TODO
-                # This part should only be used if there are files, in a special query that takes into account files. If all the code below goes to "group_by"s, this can
-                # be easier moved to a sql-code using the file hashes.
-                for f in use.files:
-                    hashes[f.file_hash].append((use.id, user.id))
-                
-                # TODO
-                # Here we can return the diff time in a custom query, instead of the whole thing
-                if use.end_date is not None:
-                    td = (use.end_date - use.start_date)
-                    session_time_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-                    max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (use.experiment.name, use.experiment.category.name)] ])
-                    session_time_seconds = min(max_time, session_time_seconds)
-                    max_time = max(max_time, session_time_seconds)
-                    all_times.append(session_time_seconds)
-                    statistics['total_time'] += session_time_seconds
-                    users_time[user.login] += session_time_seconds
-                    time_per_day[use.start_date.strftime('%Y-%m-%d')].append(session_time_seconds)
+            #
+            files_query = sql.select(
+                                    [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
+                                    sql.and_( model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                    model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
+                                    model.DbUser.id == model.DbUserUsedExperiment.user_id)
+                                )
+            for use in self.session.execute(files_query):
+                use_id  = use['id']
+                user_id = use['user_id']
+                file_hash = use['file_hash']
+                login = use['login']
+                hashes[file_hash].append((use_id, user_id))
    
             links = generate_links(hashes, self.session, user_id_cache)
 

@@ -64,6 +64,7 @@ db_driver   = "MySQLdb"
 db_host     = "localhost"
 db_database = "WebLabTests"
 db_prefix   = "wl_"
+db_echo     = False
 
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'

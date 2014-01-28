@@ -199,17 +199,21 @@ class AdministrationApplication(AbstractDatabaseGateway):
             traceback.print_exc()
             return None
 
+    def _reserve_fake_session(self):
+        fake_names = ('student1', 'porduna', 'user7', 'admin')
+        exc = None
+        for fake_name in fake_names:
+            try:
+                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId(fake_name, 'administrator'))
+            except Exception as exc:
+                pass
+            else:
+                return session_id, route
+        raise exc
+
     def get_permissions(self):
         if self.bypass_authz:
-            try:
-                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
-            except:
-                try:
-                    session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('porduna', 'administrator'))
-                except:
-                    session_id = "foo"
-                if session_id == "foo":
-                    raise
+            session_id, _ = self._reserve_fake_session()
             return self.ups.get_user_permissions(session_id.id)
 
         try:
@@ -221,15 +225,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_user_information(self):
         if self.bypass_authz:
-            try:
-                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
-            except:
-                try:
-                    session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('porduna', 'administrator'))
-                except:
-                    session_id = "foo"
-                if session_id == "foo":
-                    raise
+            session_id, _ = self._reserve_fake_session()
             return self.ups.get_user_information(session_id.id)
 
         session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])

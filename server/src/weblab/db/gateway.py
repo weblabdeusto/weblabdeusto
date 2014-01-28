@@ -32,6 +32,7 @@ class AbstractDatabaseGateway(object):
             host          = cfg_manager.get_doc_value(configuration_doc.DB_HOST)
             port          = cfg_manager.get_doc_value(configuration_doc.DB_PORT)
             dbname        = cfg_manager.get_doc_value(configuration_doc.DB_DATABASE)
+            db_echo       = cfg_manager.get_doc_value(configuration_doc.DB_ECHO)
             engine        = cfg_manager.get_doc_value(configuration_doc.DB_ENGINE)
             user          = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
             password      = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
@@ -59,7 +60,7 @@ class AbstractDatabaseGateway(object):
 
                 pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
 
-            AbstractDatabaseGateway.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
+            AbstractDatabaseGateway.engine = create_engine(connection_url, echo=db_echo, convert_unicode=True, pool = pool)
 
         self.Session = sessionmaker(bind=self.engine)
 

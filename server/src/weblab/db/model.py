@@ -485,6 +485,11 @@ class DbUserUsedExperiment(Base):
     __table_args__ = ( Index('idx_UserUsedExperiment_timetable', 'start_date_weekday', 'start_date_hour'),
                        Index('idx_UserUsedExperiment_user_experiment', 'user_id', 'experiment_id'),
                        Index('idx_UserUsedExperiment_user_origin', 'user_id', 'origin'),
+
+                       Index('idx_UserUsedExperiment_user_group_permission_id', 'user_id', 'group_permission_id'),
+                       Index('idx_UserUsedExperiment_user_user_permission_id', 'user_id', 'user_permission_id'),
+                       Index('idx_UserUsedExperiment_user_role_permission_id', 'user_id', 'role_permission_id'),
+
                        Index('idx_UserUsedExperiment_experiment_id_group_id', 'experiment_id', 'group_permission_id'),
                        Index('idx_UserUsedExperiment_experiment_id_user_id', 'experiment_id', 'user_permission_id'),
                        Index('idx_UserUsedExperiment_experiment_id_role_id', 'experiment_id', 'role_permission_id'),
@@ -533,7 +538,7 @@ class DbUserUsedExperiment(Base):
     user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
     role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
 
-    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None):
+    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None, start_date_date = None, start_date_week = None, start_date_hour = None, session_time_micro = None):
         super(DbUserUsedExperiment, self).__init__()
         self.user = user
         self.experiment = experiment
@@ -548,9 +553,18 @@ class DbUserUsedExperiment(Base):
         self.group_permission = group_permission
         self.user_permission = user_permission
         self.role_permission = role_permission
+        self.start_date_date = start_date_date
+        self.start_date_weekday = start_date_weekday
+        self.start_date_hour    = start_date_hour
+        if end_date is not None:
+            self.session_micro = (end_date - start_date).seconds * 1e6 + (end_date - start_date).microseconds
+        else:
+            self.session_time_micro = session_time_micro
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        if end_date:
+            self.session_micro = (end_date - self.start_date).seconds * 1e6 + (end_date - self.start_date).microseconds
 
     def __repr__(self):
         return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %r, end_date = %r, end_date_micro = %r, origin = %r, coord_address = %r, reservation_id = %r)" % (
