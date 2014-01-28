@@ -9,7 +9,7 @@ from flask import redirect, request, flash, Response
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
-from sqlalchemy import sql, func as sa_func
+from sqlalchemy import sql, func as sa_func, distinct, not_
 
 import weblab.permissions as permissions
 import weblab.db.model as model
@@ -228,30 +228,56 @@ def generate_timetable(days_data):
 
     return timetable
 
-def generate_links(hashes, session, user_id_cache):
-    EMPTY_HASHES = (
-        '',
-        '{sha}f96cea198ad1dd5617ac084a3d92c6107708c0ef', # '{sha}' + hashlib.new("sha", "").hexdigest()
-        '{sha}da39a3ee5e6b4b0d3255bfef95601890afd80709', # '{sha}' + sha.new("").hexdigest()
-        '<file not yet stored>',
-    )
+EMPTY_HASHES = (
+    '',
+    '{sha}f96cea198ad1dd5617ac084a3d92c6107708c0ef', # '{sha}' + hashlib.new("sha", "").hexdigest()
+    '{sha}da39a3ee5e6b4b0d3255bfef95601890afd80709', # '{sha}' + sha.new("").hexdigest()
+    '<file not yet stored>',
+)
+
+def generate_links(session, condition):
+
+    hashes = defaultdict(list)
+    # 
+    # {
+    #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
+    # }
+    #
+    multiuser_file_hashes = sql.select(
+                            [model.DbUserFile.file_hash],
+                            sql.and_( 
+                                condition,
+                                model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
+                                model.DbUser.id == model.DbUserUsedExperiment.user_id,
+                                not_(model.DbUserFile.file_hash.in_(EMPTY_HASHES))
+                            )
+                        ).group_by(model.DbUserFile.file_hash).having(sa_func.count(distinct(model.DbUserUsedExperiment.user_id)) > 1)
+    # TODO: Could be improved in a single query
+    multihashes = [ fhash for (fhash,) in session.execute(multiuser_file_hashes) ]
+    if not multihashes:
+        return {}
+
+    files_query = sql.select(
+                            [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
+                            sql.and_( 
+                                condition,
+                                model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
+                                model.DbUser.id == model.DbUserUsedExperiment.user_id,
+                                model.DbUserFile.file_hash.in_(multihashes)
+                            )
+                        )
+
+    user_id_cache = {}
+    for use in session.execute(files_query):
+        use_id  = use['id']
+        user_id = use['user_id']
+        file_hash = use['file_hash']
+        login = use['login']
+        user_id_cache[user_id] = login
+        hashes[file_hash].append((use_id, user_id))
 
     if not hashes:
         return {}
-
-    # Filter those hashes which are empty
-    for file_hash in EMPTY_HASHES:
-        hashes.pop(file_hash, None)
-
-    # Filter those uses that do not have distinct user_ids
-    hashes_to_remove = set()
-    for file_hash in hashes:
-        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] ])
-        if len(distinct_user_ids) == 1:
-            hashes_to_remove.add(file_hash)
-
-    for file_hash in hashes_to_remove:
-        hashes.pop(file_hash, None)
 
     # No group by since there is no easy way to order correctly, and the amount of data is not
     # huge
@@ -307,30 +333,8 @@ class GroupStats(InstructorView):
         for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
             permission_ids.add(permission.id)
 
-        hashes = defaultdict(list)
-        # 
-        # {
-        #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
-        # }
-        # 
-        user_id_cache = {}
-        # user_id : 'login'
-
-        files_query = sql.select(
-                                [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
-                                sql.and_( model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
-                                model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
-                                model.DbUser.id == model.DbUserUsedExperiment.user_id)
-                            )
-        for use in self.session.execute(files_query):
-            use_id  = use['id']
-            user_id = use['user_id']
-            file_hash = use['file_hash']
-            login = use['login']
-            user_id_cache[user_id] = login
-            hashes[file_hash].append((use_id, user_id))
-
-        links = generate_links(hashes, self.session, user_id_cache)
+        condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+        links = generate_links(self.session, condition)
         if not links:
             return "This groups does not have any detected plagiarism"
 
@@ -390,8 +394,8 @@ class GroupStats(InstructorView):
             #     ]
             # }
             # TODO: just for testing
-            # for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
-            for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            # for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
                 permission_ids.add(permission.id)
                 exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
                 cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
@@ -478,26 +482,8 @@ class GroupStats(InstructorView):
             end_long = time.time()
             print end_long - before_long
 
-            hashes = defaultdict(list)
-            # 
-            # {
-            #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
-            # }
-            #
-            files_query = sql.select(
-                                    [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
-                                    sql.and_( model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
-                                    model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
-                                    model.DbUser.id == model.DbUserUsedExperiment.user_id)
-                                )
-            for use in self.session.execute(files_query):
-                use_id  = use['id']
-                user_id = use['user_id']
-                file_hash = use['file_hash']
-                login = use['login']
-                hashes[file_hash].append((use_id, user_id))
-   
-            links = generate_links(hashes, self.session, user_id_cache)
+            condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+            links = generate_links(self.session, condition)
 
             statistics['total_time_human'] = datetime.timedelta(seconds=statistics['total_time'])
 
