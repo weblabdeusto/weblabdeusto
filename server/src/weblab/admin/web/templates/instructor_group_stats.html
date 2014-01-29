@@ -20,6 +20,7 @@
             <li><a href="#usage_patterns">Usage patterns</a>
             <ul>
                 <li><a href="#uses_per_day">Uses per day</a></li>
+                <li><a href="#uses_per_week">Uses per week</a></li>
                 <li><a href="#avg_per_day">Average time per day</a></li>
                 <li><a href="#session_per_day">Session time frequency</a></li>
                 <li><a href="#uses_per_time_of_day">Uses per time of the day</a></li>
@@ -78,6 +79,9 @@
         <a name="uses_per_day"></a>
         <h4>Uses per day</h4>
         {{ timeline(timeline_headers, timeline_values, "timeline", '%i') }}
+        <a name="uses_per_week"></a>
+        <h4>Uses per week</h4>
+        {{ timeline(weekly_timeline_headers, weekly_timeline_values, "weekly_timeline", '%i') }}
         <a name="avg_per_day"></a>
         <h4>Average time per day</h4>
         {{ timeline(time_per_day_headers, time_per_day_values, "per_day", '%i') }}
@@ -135,6 +139,7 @@
     {% from "_widgets.html" import timeline_scripts, timeline_load, sna_scripts, sna_load %}
     {{ timeline_scripts() }}
     {{ timeline_load('timeline', 'use') }}
+    {{ timeline_load('weekly_timeline', 'use') }}
     {{ timeline_load('per_day', 'second') }}
     {{ timeline_load('users_values', 'use') }}
     {{ timeline_load('per_block', 'use') }}

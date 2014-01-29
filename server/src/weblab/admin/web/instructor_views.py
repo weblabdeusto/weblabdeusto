@@ -443,10 +443,16 @@ class GroupStats(InstructorView):
             # {
             #     '2013-01-01' : 5
             # }
+            per_week = defaultdict(int)
+            # {
+            #     '2013-01-01' : 5 # being 2013-01-01 that monday
+            # }
             for start_date_date, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
                                                                    condition 
                                                             ).group_by(model.DbUserUsedExperiment.start_date_date)):
                 per_day[start_date_date.strftime('%Y-%m-%d')] = uses
+                week_day = start_date_date.weekday()
+                per_week[start_date_date - datetime.timedelta(days = week_day)] += uses
 
             for user_id, microseconds in self.session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
                                                                     sql.and_(condition,
@@ -507,12 +513,14 @@ class GroupStats(InstructorView):
 
             if per_day:
                 timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+                weekly_timeline_headers, weekly_timeline_values = zip(*sorted(per_week.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
                 for day in time_per_day:
                     time_per_day[day] = sum(time_per_day[day]) / len(time_per_day[day])
                 time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
             else:
                 timeline_headers = timeline_values = []
                 time_per_day_headers = time_per_day_values = []
+                weekly_timeline_headers = weekly_timeline_values = []
             users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
             timetable = generate_timetable(per_hour)
 
@@ -523,7 +531,7 @@ class GroupStats(InstructorView):
 
             users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
 
-            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values, links = links)
+            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, weekly_timeline_headers = weekly_timeline_headers, weekly_timeline_values = weekly_timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values, links = links)
 
         return "Error: you don't have permission to see that group" # TODO
 
