@@ -434,12 +434,9 @@ class GroupStats(InstructorView):
             #     }
             # }
             week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-            for hour, week_day, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment.id)],
+            for hour, week_day, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment)],
                                                                     condition
-                                                            ).group_by(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.start_date_weekday)):
-                print hour, week_day, uses
-                # XXX FIXME
-                # TODO: failing: uses always = 1
+                                                            ).group_by(model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday)):
                 per_hour[week_days[week_day]][hour] = uses
 
             per_day = defaultdict(int)
@@ -462,6 +459,9 @@ class GroupStats(InstructorView):
             before_long = time.time()
             # TODO: How to optimize this one? We could group by  (session_time, experiment_id)
             # Being session_time in seconds. There will be many repeated with that granularity.
+            # In the current dataset (first number = different values; second = collisions)
+            # 1 second:  2849 55307
+            # 10 second: 542 57614
             for session_time_micro, start_date_date, exp_name, cat_name, user_id in self.session.execute(sql.select([model.DbUserUsedExperiment.session_time_micro, model.DbUserUsedExperiment.start_date_date, model.DbExperiment.name, model.DbExperimentCategory.name, model.DbUserUsedExperiment.user_id],
                                                                 sql.and_(
                                                                     model.DbExperiment.category_id == model.DbExperimentCategory.id,
