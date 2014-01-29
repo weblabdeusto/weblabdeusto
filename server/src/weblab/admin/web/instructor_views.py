@@ -9,7 +9,7 @@ from flask import redirect, request, flash, Response
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
-from sqlalchemy import sql, func as sa_func, distinct, not_
+from sqlalchemy import sql, func as sa_func, distinct, not_, outerjoin
 
 import weblab.permissions as permissions
 import weblab.db.model as model
@@ -236,7 +236,6 @@ EMPTY_HASHES = (
 )
 
 def generate_links(session, condition):
-    condition = True
     hashes = defaultdict(list)
     # 
     # {
@@ -250,19 +249,20 @@ def generate_links(session, condition):
                                 model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
                                 model.DbUser.id == model.DbUserUsedExperiment.user_id,
                                 not_(model.DbUserFile.file_hash.in_(EMPTY_HASHES))
-                            )
-                        ).group_by(model.DbUserFile.file_hash).having(sa_func.count(distinct(model.DbUserUsedExperiment.user_id)) > 1).correlate(None)
+                            ),
+                            use_labels = True
+                        ).group_by(model.DbUserFile.file_hash).having(sa_func.count(distinct(model.DbUserUsedExperiment.user_id)) > 1).alias('foo')
+
+    joined = outerjoin(multiuser_file_hashes, model.DbUserFile, model.DbUserFile.file_hash == multiuser_file_hashes.c.UserFile_file_hash)
 
     files_query = sql.select(
                             [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
                             sql.and_( 
                                 condition,
                                 model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
-                                model.DbUser.id == model.DbUserUsedExperiment.user_id,
-                                model.DbUserFile.file_hash.in_(multiuser_file_hashes)
+                                model.DbUser.id == model.DbUserUsedExperiment.user_id
                             )
-                        )
-    print files_query
+                        ).select_from(joined)
 
     user_id_cache = {}
     for use in session.execute(files_query):
@@ -390,14 +390,15 @@ class GroupStats(InstructorView):
             #          ( time_in_seconds, permission_id )
             #     ]
             # }
-            # TODO: just for testing
-            for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
-            # for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
                 permission_ids.add(permission.id)
                 exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
                 cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
                 time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
                 experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+            condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+            # condition = True
 
             # Get something different per experiment
             # TODO
@@ -420,7 +421,7 @@ class GroupStats(InstructorView):
             users = defaultdict(int)
             for user_id, login, full_name, uses in self.session.execute(sql.select([model.DbUser.id, model.DbUser.login, model.DbUser.full_name, sa_func.count(model.DbUserUsedExperiment.id)], 
                                                                     sql.and_( model.DbUserUsedExperiment.user_id == model.DbUser.id,
-                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids) )
+                                                                    condition )
                                                             ).group_by(model.DbUserUsedExperiment.user_id)):
                 user_id_cache[user_id] = login
                 users[login, full_name] = uses
@@ -434,7 +435,7 @@ class GroupStats(InstructorView):
             # }
             week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
             for hour, week_day, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment.id)],
-                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+                                                                    condition
                                                             ).group_by(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.start_date_weekday)):
                 print hour, week_day, uses
                 # XXX FIXME
@@ -446,12 +447,12 @@ class GroupStats(InstructorView):
             #     '2013-01-01' : 5
             # }
             for start_date_date, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
-                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+                                                                   condition 
                                                             ).group_by(model.DbUserUsedExperiment.start_date_date)):
                 per_day[start_date_date.strftime('%Y-%m-%d')] = uses
 
             for user_id, microseconds in self.session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
-                                                                    sql.and_(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                                                    sql.and_(condition,
                                                                     model.DbUserUsedExperiment.end_date != None)
                                                             ).group_by(model.DbUserUsedExperiment.user_id)):
                 users_time[user_id_cache[user_id]] = microseconds / 1000000
@@ -465,11 +466,15 @@ class GroupStats(InstructorView):
                                                                 sql.and_(
                                                                     model.DbExperiment.category_id == model.DbExperimentCategory.id,
                                                                     model.DbUserUsedExperiment.experiment_id == model.DbExperiment.id,
-                                                                    model.DbUserUsedExperiment.group_permission_id.in_(permission_ids),
+                                                                    condition,
                                                                     model.DbUserUsedExperiment.end_date != None,
                                                                 ))):
                 session_time_seconds = session_time_micro / 1e6
-                max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (exp_name, cat_name)] ])
+                try:
+                    max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (exp_name, cat_name)] ])
+                except:
+                    # TODO
+                    continue
                 session_time_seconds = min(max_time, session_time_seconds)
                 max_time = max(max_time, session_time_seconds)
                 all_times.append(session_time_seconds)
@@ -479,7 +484,6 @@ class GroupStats(InstructorView):
             end_long = time.time()
             print end_long - before_long
 
-            condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
             links = generate_links(self.session, condition)
 
             statistics['total_time_human'] = datetime.timedelta(seconds=statistics['total_time'])
