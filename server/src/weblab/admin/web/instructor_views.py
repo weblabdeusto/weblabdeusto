@@ -256,7 +256,7 @@ def generate_links(session, condition):
     joined = outerjoin(multiuser_file_hashes, model.DbUserFile, model.DbUserFile.file_hash == multiuser_file_hashes.c.UserFile_file_hash)
 
     files_query = sql.select(
-                            [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login],
+                            [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login, model.DbUser.full_name],
                             sql.and_( 
                                 condition,
                                 model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
@@ -270,6 +270,8 @@ def generate_links(session, condition):
         user_id = use['user_id']
         file_hash = use['file_hash']
         login = use['login']
+        full_name = use['full_name']
+        # user_id_cache[user_id] = u'%s (%s)' % (full_name, login)
         user_id_cache[user_id] = login
         hashes[file_hash].append((use_id, user_id))
 
@@ -311,6 +313,202 @@ def generate_links(session, condition):
     return links
 
 
+def gefx(session, condition):
+    links = generate_links(session, condition)
+    if not links:
+        return "This groups does not have any detected plagiarism"
+
+    G = nx.DiGraph()
+    
+    for source_node in links:
+        for target_node in set(links[source_node]):
+            weight = links[source_node].count(target_node)
+            G.add_edge(source_node, target_node, weight=weight)
+
+    out_degrees = G.out_degree()
+    in_degrees = G.in_degree()
+
+    for name in G.nodes():
+         G.node[name]['out_degree'] = out_degrees[name]
+         G.node[name]['in_degree'] = in_degrees[name]
+
+    G_undirected = G.to_undirected();
+    partitions = best_partition(G_undirected)
+    colors = {}
+    for member, c in partitions.items():
+        if not colors.has_key(c):
+            r = random.randrange(64,192)
+            g = random.randrange(64,192)
+            b = random.randrange(64,192)
+            colors[c] = (r, g, b)
+        G.node[member]["viz"] = {
+            'color': { 
+              'r': colors[c][0],
+              'g': colors[c][1],
+              'b': colors[c][2],
+            },
+            'size': 5 * G.node[member]['out_degree']
+        }
+
+    output = StringIO()
+    nx.write_gexf(G, output)
+    return Response(output.getvalue(), mimetype='text/xml')
+
+def generate_info(panel, session, condition, experiments, results):
+    results['statistics'].update({
+        'uses' : 0,
+        'total_time' : 0
+    })
+
+    max_time = 0.1
+
+    for exp, values in experiments.iteritems():
+        max_time_allowed = max([ time_allowed for time_allowed, permission_id in values ])
+        max_time = max(max_time, max_time_allowed)            
+
+    # Get something different per experiment
+    # TODO
+    # if len(permission_ids) > 1:
+    #     pass
+
+    # Get the totals
+    users_time = defaultdict(int)
+    # {
+    #     login : seconds
+    # }
+    time_per_day = defaultdict(list)
+    # {
+    #     '2013-01-01' : [5,3,5]
+    # }
+
+    user_id_cache = {}
+    users = defaultdict(int)
+    for user_id, login, full_name, uses in session.execute(sql.select([model.DbUser.id, model.DbUser.login, model.DbUser.full_name, sa_func.count(model.DbUserUsedExperiment.id)], 
+                                                            sql.and_( model.DbUserUsedExperiment.user_id == model.DbUser.id,
+                                                            condition )
+                                                    ).group_by(model.DbUserUsedExperiment.user_id)):
+        user_id_cache[user_id] = login
+        users[login, full_name] = uses
+        results['statistics']['uses'] += uses
+
+    per_hour = defaultdict(lambda : defaultdict(int))
+    # {
+    #     'saturday' : {
+    #         23 : 5,
+    #     }
+    # }
+    week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    for hour, week_day, uses in session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment)],
+                                                            condition
+                                                    ).group_by(model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday)):
+        per_hour[week_days[week_day]][hour] = uses
+
+    per_day = defaultdict(int)
+    # {
+    #     '2013-01-01' : 5
+    # }
+    per_week = defaultdict(int)
+    # {
+    #     '2013-01-01' : 5 # being 2013-01-01 that monday
+    # }
+    for start_date_date, uses in session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
+                                                           condition 
+                                                    ).group_by(model.DbUserUsedExperiment.start_date_date)):
+        per_day[start_date_date.strftime('%Y-%m-%d')] = uses
+        week_day = start_date_date.weekday()
+        per_week[start_date_date - datetime.timedelta(days = week_day)] += uses
+
+    for user_id, microseconds in session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
+                                                            sql.and_(condition,
+                                                            model.DbUserUsedExperiment.session_time_micro != None)
+                                                    ).group_by(model.DbUserUsedExperiment.user_id)):
+        users_time[user_id_cache[user_id]] = microseconds / 1000000
+    results['users_time'] = users_time
+                                                
+    per_block_size = defaultdict(int)
+    NUM_BLOCKS = 20
+    block_size = max_time / NUM_BLOCKS
+    for session_time_seconds, count_cases in session.execute(sql.select([model.DbUserUsedExperiment.session_time_seconds, sa_func.count(model.DbUserUsedExperiment.session_time_seconds)], condition)
+                                                                  .group_by(model.DbUserUsedExperiment.session_time_seconds)):
+        if session_time_seconds is not None:
+            per_block_size[ int(session_time_seconds / block_size) ] += count_cases
+
+
+    for start_date_date, session_time_micro, session_number in session.execute(
+                                                        sql.select(
+                                                            [  model.DbUserUsedExperiment.start_date_date, 
+                                                               sa_func.sum(model.DbUserUsedExperiment.session_time_micro), 
+                                                               sa_func.count(model.DbUserUsedExperiment) ], 
+                                                            sql.and_(condition,
+                                                            model.DbUserUsedExperiment.session_time_micro != None)
+                                                            ).group_by(model.DbUserUsedExperiment.start_date_date)):
+        time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number
+        results['statistics']['total_time'] += session_time_micro / 1000000
+    
+    links = generate_links(session, condition)
+    results['links'] = links
+
+    results['statistics']['total_time_human'] = datetime.timedelta(seconds=int(results['statistics']['total_time']))
+
+    per_block_headers = []
+    per_block_values = []
+    for block_num in range(NUM_BLOCKS):
+        per_block_headers.append( '%s-%s' % (block_num * block_size, (block_num + 1) * block_size) )
+        per_block_values.append(per_block_size[block_num])
+    per_block_headers.append('On finish')
+    per_block_values.append(per_block_size[NUM_BLOCKS])
+    results['per_block_headers'] = per_block_headers
+    results['per_block_values'] = per_block_values
+    
+    results['statistics']['avg_per_user'] = 1.0 * results['statistics']['users'] / ( results['statistics']['uses'] or 1)
+
+    if per_day:
+        timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+        weekly_timeline_headers, weekly_timeline_values = zip(*sorted(per_week.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+        if time_per_day:
+            time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+        else:
+            time_per_day_headers = time_per_day_values = []
+    else:
+        timeline_headers = timeline_values = []
+        time_per_day_headers = time_per_day_values = []
+        weekly_timeline_headers = weekly_timeline_values = []
+
+    results['timeline_headers'] = timeline_headers
+    results['timeline_values']  = timeline_values
+    results['weekly_timeline_headers'] = weekly_timeline_headers
+    results['weekly_timeline_values']  = weekly_timeline_values
+    results['time_per_day_headers'] = time_per_day_headers
+    results['time_per_day_values']  = time_per_day_values
+
+    users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
+    results['users'] = users
+
+    timetable = generate_timetable(per_hour)
+    results['usage_timetable'] = timetable
+
+    if users:
+        users_timeline_headers, users_timeline_values = zip(*users)
+    else:
+        users_timeline_headers = users_timeline_values = []
+
+    users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
+    results['users_timeline_headers'] = users_timeline_headers
+    results['users_timeline_values'] = users_timeline_values
+
+
+def generate_group_info(panel, session, group, condition, experiments):
+    results = dict(
+        statistics = {
+            'users' : len(group.users),
+        },
+        experiments = sorted(experiments),
+    )
+
+    generate_info(panel, session, condition, experiments, results)
+
+    return panel.render('instructor_group_stats.html', results = results, group = group, statistics = results['statistics'])
+
 class GroupStats(InstructorView):
     def __init__(self, session, **kwargs):
         self.session = session
@@ -331,57 +529,13 @@ class GroupStats(InstructorView):
             permission_ids.add(permission.id)
 
         condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
-        links = generate_links(self.session, condition)
-        if not links:
-            return "This groups does not have any detected plagiarism"
-
-        G = nx.DiGraph()
-        
-        for source_node in links:
-            for target_node in set(links[source_node]):
-                weight = links[source_node].count(target_node)
-                G.add_edge(source_node, target_node, weight=weight)
-
-        out_degrees = G.out_degree()
-        in_degrees = G.in_degree()
-
-        for name in G.nodes():
-             G.node[name]['out_degree'] = out_degrees[name]
-             G.node[name]['in_degree'] = in_degrees[name]
-
-        G_undirected = G.to_undirected();
-        partitions = best_partition(G_undirected)
-        colors = {}
-        for member, c in partitions.items():
-            if not colors.has_key(c):
-                r = random.randrange(64,192)
-                g = random.randrange(64,192)
-                b = random.randrange(64,192)
-                colors[c] = (r, g, b)
-            G.node[member]["viz"] = {
-                'color': { 
-                  'r': colors[c][0],
-                  'g': colors[c][1],
-                  'b': colors[c][2],
-                },
-                'size': 5 * G.node[member]['out_degree']
-            }
-
-        output = StringIO()
-        nx.write_gexf(G, output)
-        return Response(output.getvalue(), mimetype='text/xml')
+        return gefx(self.session, condition)
 
     @expose('/groups/<int:group_id>/')
     def group_stats(self, group_id):
         if group_id in get_assigned_group_ids(self.session):
             
             group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
-
-            statistics = {
-                'users' : len(group.users),
-                'uses' : 0,
-                'total_time' : 0
-            }
 
             permission_ids = set()
             experiments = defaultdict(list)
@@ -390,132 +544,16 @@ class GroupStats(InstructorView):
             #          ( time_in_seconds, permission_id )
             #     ]
             # }
-            max_time = 0
             for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
                 permission_ids.add(permission.id)
                 exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
                 cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
                 time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
-                max_time = max(max_time, time_allowed)
                 experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
 
             condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
             # condition = True
-
-            # Get something different per experiment
-            # TODO
-            # if len(permission_ids) > 1:
-            #     pass
-
-            # Get the totals
-            users_time = defaultdict(int)
-            # {
-            #     login : seconds
-            # }
-            time_per_day = defaultdict(list)
-            # {
-            #     '2013-01-01' : [5,3,5]
-            # }
-
-            user_id_cache = {}
-            users = defaultdict(int)
-            for user_id, login, full_name, uses in self.session.execute(sql.select([model.DbUser.id, model.DbUser.login, model.DbUser.full_name, sa_func.count(model.DbUserUsedExperiment.id)], 
-                                                                    sql.and_( model.DbUserUsedExperiment.user_id == model.DbUser.id,
-                                                                    condition )
-                                                            ).group_by(model.DbUserUsedExperiment.user_id)):
-                user_id_cache[user_id] = login
-                users[login, full_name] = uses
-                statistics['uses'] += uses
-
-            per_hour = defaultdict(lambda : defaultdict(int))
-            # {
-            #     'saturday' : {
-            #         23 : 5,
-            #     }
-            # }
-            week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-            for hour, week_day, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment)],
-                                                                    condition
-                                                            ).group_by(model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday)):
-                per_hour[week_days[week_day]][hour] = uses
-
-            per_day = defaultdict(int)
-            # {
-            #     '2013-01-01' : 5
-            # }
-            per_week = defaultdict(int)
-            # {
-            #     '2013-01-01' : 5 # being 2013-01-01 that monday
-            # }
-            for start_date_date, uses in self.session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
-                                                                   condition 
-                                                            ).group_by(model.DbUserUsedExperiment.start_date_date)):
-                per_day[start_date_date.strftime('%Y-%m-%d')] = uses
-                week_day = start_date_date.weekday()
-                per_week[start_date_date - datetime.timedelta(days = week_day)] += uses
-
-            for user_id, microseconds in self.session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
-                                                                    sql.and_(condition,
-                                                                    model.DbUserUsedExperiment.session_time_micro != None)
-                                                            ).group_by(model.DbUserUsedExperiment.user_id)):
-                users_time[user_id_cache[user_id]] = microseconds / 1000000
-                                                        
-            per_block_size = defaultdict(int)
-            NUM_BLOCKS = 20
-            block_size = max_time / NUM_BLOCKS
-            for session_time_seconds, count_cases in self.session.execute(sql.select([model.DbUserUsedExperiment.session_time_seconds, sa_func.count(model.DbUserUsedExperiment.session_time_seconds)], condition)
-                                                                          .group_by(model.DbUserUsedExperiment.session_time_seconds)):
-                if session_time_seconds is not None:
-                    per_block_size[ int(session_time_seconds / block_size) ] += count_cases
-
-
-            for start_date_date, session_time_micro, session_number in self.session.execute(
-                                                                sql.select(
-                                                                    [  model.DbUserUsedExperiment.start_date_date, 
-                                                                       sa_func.sum(model.DbUserUsedExperiment.session_time_micro), 
-                                                                       sa_func.count(model.DbUserUsedExperiment) ], 
-                                                                    sql.and_(condition,
-                                                                    model.DbUserUsedExperiment.session_time_micro != None)
-                                                                    ).group_by(model.DbUserUsedExperiment.start_date_date)):
-                time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number
-                statistics['total_time'] += session_time_micro / 1000000
-            
-            links = generate_links(self.session, condition)
-
-            statistics['total_time_human'] = datetime.timedelta(seconds=int(statistics['total_time']))
-
-            per_block_headers = []
-            per_block_values = []
-            for block_num in range(NUM_BLOCKS):
-                per_block_headers.append( '%s-%s' % (block_num * block_size, (block_num + 1) * block_size) )
-                per_block_values.append(per_block_size[block_num])
-            per_block_headers.append('On finish')
-            per_block_values.append(per_block_size[NUM_BLOCKS])
-            
-            statistics['avg_per_user'] = 1.0 * statistics['users'] / ( statistics['uses'] or 1)
-
-            if per_day:
-                timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
-                weekly_timeline_headers, weekly_timeline_values = zip(*sorted(per_week.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
-                if time_per_day:
-                    time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
-                else:
-                    time_per_day_headers = time_per_day_values = []
-            else:
-                timeline_headers = timeline_values = []
-                time_per_day_headers = time_per_day_values = []
-                weekly_timeline_headers = weekly_timeline_values = []
-            users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
-            timetable = generate_timetable(per_hour)
-
-            if users:
-                users_timeline_headers, users_timeline_values = zip(*users)
-            else:
-                users_timeline_headers = users_timeline_values = []
-
-            users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
-
-            return self.render('instructor_group_stats.html', experiments = sorted(experiments), timeline_headers = timeline_headers, timeline_values = timeline_values, weekly_timeline_headers = weekly_timeline_headers, weekly_timeline_values = weekly_timeline_values, time_per_day_headers = time_per_day_headers, time_per_day_values = time_per_day_values, users = users, usage_timetable = timetable, group = group, statistics = statistics, per_block_size = per_block_size, users_time = users_time, users_timeline_headers = users_timeline_headers, users_timeline_values = users_timeline_values, per_block_headers = per_block_headers, per_block_values = per_block_values, links = links)
+            return generate_group_info(self, self.session, group, condition, experiments)
 
         return "Error: you don't have permission to see that group" # TODO
 

@@ -16,7 +16,7 @@
                 <li><a href="#uses">Uses</a></li>
             </ul>
             </li>
-            {% if timeline_values %}
+            {% if results['timeline_values'] %}
             <li><a href="#usage_patterns">Usage patterns</a>
             <ul>
                 <li><a href="#uses_per_day">Uses per day</a></li>
@@ -30,7 +30,7 @@
             <ul>
                 <li><a href="#uses_per_student">Uses per student distribution</a></li>
                 <li><a href="#users_summary">Summary</a></li>
-                {% if links %}
+                {% if results['links'] %}
                 <li><a href="#social_network">Social Network</a></li>
                 {% endif %}
             </ul>
@@ -43,7 +43,7 @@
         <a name="experiments_available"></a>
         <h4>Experiments available</h4>
         <ul>
-            {% for experiment in experiments %}
+            {% for experiment in results['experiments'] %}
                 <li>{{ experiment }}</li>
             {% endfor %}
         </ul>
@@ -61,7 +61,7 @@
                     <td>Users:</td>
                     <td>{{ statistics['users'] }}</td>
                 </tr>
-                {% if timeline_values %}
+                {% if results['timeline_values'] %}
                 <tr>
                     <td>Total uses</td>
                     <td>{{ statistics['uses'] }} uses ({{ '%.2f' % (statistics['uses'] / (statistics['users'] or 1)) }} uses per user)</td>
@@ -73,29 +73,29 @@
                 {% endif %}
             </tbody>
         </table>
-        {% if timeline_values %}
+        {% if results['timeline_values'] %}
         <a name="usage_patterns"></a>
         <h3>Usage patterns</h3>
         <a name="uses_per_day"></a>
         <h4>Uses per day</h4>
-        {{ timeline(timeline_headers, timeline_values, "timeline", '%i') }}
+        {{ timeline(results['timeline_headers'], results['timeline_values'], "timeline", '%i') }}
         <a name="uses_per_week"></a>
         <h4>Uses per week</h4>
-        {{ timeline(weekly_timeline_headers, weekly_timeline_values, "weekly_timeline", '%i') }}
+        {{ timeline(results['weekly_timeline_headers'], results['weekly_timeline_values'], "weekly_timeline", '%i') }}
         <a name="avg_per_day"></a>
         <h4>Average time per day</h4>
-        {{ timeline(time_per_day_headers, time_per_day_values, "per_day", '%i') }}
+        {{ timeline(results['time_per_day_headers'], results['time_per_day_values'], "per_day", '%i') }}
         <a name="session_per_day"></a>
         <h4>Session time frequency</h4>
-        {{ timeline(per_block_headers, per_block_values, "per_block", '%i') }}
+        {{ timeline(results['per_block_headers'], results['per_block_values'], "per_block", '%i') }}
         <a name="uses_per_time_of_day"></a>
         <h4>Uses per time of the day</h4>
-        {{ timetable(usage_timetable) }}
+        {{ timetable(results['usage_timetable']) }}
         <a name="users"></a>
         <h3>Users</h3>
         <a name="uses_per_student"></a>
         <h4>Uses per student distribution</h4>
-        {{ timeline(users_timeline_headers, users_timeline_values, "users_values", '%i') }}
+        {{ timeline(results['users_timeline_headers'], results['users_timeline_values'], "users_values", '%i') }}
         <a name="users_summary"></a>
         <h4>Summary</h4>
         <table class="table table-bordered table-hover">
@@ -109,18 +109,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for (login, full_name), uses in users %}
+                {% for (login, full_name), uses in results['users'] %}
                 <tr>
                     <td>{{ full_name }}</td>
                     <td>{{ login }}</td>
                     <td>{{ uses }}</td>
-                    <td>{{ users_time[login] }}</td>
-                    <td>{{ '%.2f' % (users_time[login] / ( uses or 1)) }}</td>
+                    <td>{{ results['users_time'][login] }}</td>
+                    <td>{{ '%.2f' % (results['users_time'][login] / ( uses or 1)) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% if links %}
+        {% if results['links'] %}
         <a name="social_network"></a>
         <h4>Social Network</h4>
         {{ sna() }}
@@ -143,7 +143,7 @@
     {{ timeline_load('per_day', 'second') }}
     {{ timeline_load('users_values', 'use') }}
     {{ timeline_load('per_block', 'use') }}
-    {% if links %}
+    {% if results['links'] %}
         {{ sna_scripts() }}
         {{ sna_load(url_for('.gefx', group_id = group.id)) }}
     {% endif %}
