@@ -390,11 +390,13 @@ class GroupStats(InstructorView):
             #          ( time_in_seconds, permission_id )
             #     ]
             # }
+            max_time = 0
             for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
                 permission_ids.add(permission.id)
                 exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
                 cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
                 time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                max_time = max(max_time, time_allowed)
                 experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
 
             condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
@@ -414,8 +416,6 @@ class GroupStats(InstructorView):
             # {
             #     '2013-01-01' : [5,3,5]
             # }
-            all_times = []
-            max_time = 0
 
             user_id_cache = {}
             users = defaultdict(int)
@@ -456,50 +456,33 @@ class GroupStats(InstructorView):
 
             for user_id, microseconds in self.session.execute(sql.select([model.DbUserUsedExperiment.user_id, sa_func.sum(model.DbUserUsedExperiment.session_time_micro)],
                                                                     sql.and_(condition,
-                                                                    model.DbUserUsedExperiment.end_date != None)
+                                                                    model.DbUserUsedExperiment.session_time_micro != None)
                                                             ).group_by(model.DbUserUsedExperiment.user_id)):
                 users_time[user_id_cache[user_id]] = microseconds / 1000000
                                                         
+            per_block_size = defaultdict(int)
+            NUM_BLOCKS = 20
+            block_size = max_time / NUM_BLOCKS
+            for session_time_seconds, count_cases in self.session.execute(sql.select([model.DbUserUsedExperiment.session_time_seconds, sa_func.count(model.DbUserUsedExperiment.session_time_seconds)], condition)
+                                                                          .group_by(model.DbUserUsedExperiment.session_time_seconds)):
+                if session_time_seconds is not None:
+                    per_block_size[ int(session_time_seconds / block_size) ] += count_cases
 
-            import time
-            before_long = time.time()
-            # TODO: How to optimize this one? We could group by  (session_time, experiment_id)
-            # Being session_time in seconds. There will be many repeated with that granularity.
-            # In the current dataset (first number = different values; second = collisions)
-            # 1 second:  2849 55307
-            # 10 second: 542 57614
-            for session_time_micro, start_date_date, exp_name, cat_name, user_id in self.session.execute(sql.select([model.DbUserUsedExperiment.session_time_micro, model.DbUserUsedExperiment.start_date_date, model.DbExperiment.name, model.DbExperimentCategory.name, model.DbUserUsedExperiment.user_id],
-                                                                sql.and_(
-                                                                    model.DbExperiment.category_id == model.DbExperimentCategory.id,
-                                                                    model.DbUserUsedExperiment.experiment_id == model.DbExperiment.id,
-                                                                    condition,
-                                                                    model.DbUserUsedExperiment.end_date != None,
-                                                                ))):
-                session_time_seconds = session_time_micro / 1e6
-                try:
-                    max_time = max([ time_allowed for time_allowed, _ in experiments['%s@%s' % (exp_name, cat_name)] ])
-                except:
-                    # TODO
-                    continue
-                session_time_seconds = min(max_time, session_time_seconds)
-                max_time = max(max_time, session_time_seconds)
-                all_times.append(session_time_seconds)
-                statistics['total_time'] += session_time_seconds
-                time_per_day[start_date_date.strftime('%Y-%m-%d')].append(session_time_seconds)
 
-            end_long = time.time()
-            print end_long - before_long
-
+            for start_date_date, session_time_micro, session_number in self.session.execute(
+                                                                sql.select(
+                                                                    [  model.DbUserUsedExperiment.start_date_date, 
+                                                                       sa_func.sum(model.DbUserUsedExperiment.session_time_micro), 
+                                                                       sa_func.count(model.DbUserUsedExperiment) ], 
+                                                                    sql.and_(condition,
+                                                                    model.DbUserUsedExperiment.session_time_micro != None)
+                                                                    ).group_by(model.DbUserUsedExperiment.start_date_date)):
+                time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number
+                statistics['total_time'] += session_time_micro / 1000000
+            
             links = generate_links(self.session, condition)
 
-            statistics['total_time_human'] = datetime.timedelta(seconds=statistics['total_time'])
-
-            # Times
-            NUM_BLOCKS = 20
-            per_block_size = defaultdict(int)
-            block_size = max_time / NUM_BLOCKS
-            for time in all_times:
-                per_block_size[ int(time / block_size) ] += 1
+            statistics['total_time_human'] = datetime.timedelta(seconds=int(statistics['total_time']))
 
             per_block_headers = []
             per_block_values = []
@@ -514,9 +497,10 @@ class GroupStats(InstructorView):
             if per_day:
                 timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
                 weekly_timeline_headers, weekly_timeline_values = zip(*sorted(per_week.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
-                for day in time_per_day:
-                    time_per_day[day] = sum(time_per_day[day]) / len(time_per_day[day])
-                time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+                if time_per_day:
+                    time_per_day_headers, time_per_day_values = zip(*sorted(time_per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
+                else:
+                    time_per_day_headers = time_per_day_values = []
             else:
                 timeline_headers = timeline_values = []
                 time_per_day_headers = time_per_day_values = []

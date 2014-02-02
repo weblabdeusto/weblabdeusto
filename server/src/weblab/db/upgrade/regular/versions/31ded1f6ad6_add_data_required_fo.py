@@ -26,6 +26,7 @@ uue = sa.Table('UserUsedExperiment', metadata,
     sa.Column('start_date_weekday', sa.Integer()),
     sa.Column('start_date_hour', sa.Integer()),
     sa.Column('session_time_micro', sa.Integer()),
+    sa.Column('session_time_seconds', sa.Integer()),
 )
 
 def upgrade():
@@ -34,6 +35,7 @@ def upgrade():
     op.add_column(u'UserUsedExperiment', sa.Column('start_date_weekday', sa.Integer(), nullable=True))
     op.add_column(u'UserUsedExperiment', sa.Column('start_date_hour', sa.Integer(), nullable=True))
     op.add_column(u'UserUsedExperiment', sa.Column('session_time_micro', sa.BigInteger(), nullable=True))
+    op.add_column(u'UserUsedExperiment', sa.Column('session_time_seconds', sa.Integer(), nullable=True))
     ### end Alembic commands ###
 
     op.create_index(u'idx_UserUsedExperiment_start_date_date', u'UserUsedExperiment', ['start_date_date',   ])
@@ -45,9 +47,9 @@ def upgrade():
     op.create_index(u'idx_UserUsedExperiment_user_experiment', u'UserUsedExperiment', ['user_id', 'experiment_id'])
     op.create_index(u'idx_UserUsedExperiment_user_origin',     u'UserUsedExperiment', ['user_id', 'origin'])
 
-    op.create_index('idx_UserUsedExperiment_user_group_permission_id', ['user_id', 'group_permission_id'])
-    op.create_index('idx_UserUsedExperiment_user_user_permission_id', ['user_id', 'user_permission_id'])
-    op.create_index('idx_UserUsedExperiment_user_role_permission_id', ['user_id', 'role_permission_id'])
+    op.create_index('idx_UserUsedExperiment_user_group_permission_id', u'UserUsedExperiment', ['user_id', 'group_permission_id'])
+    op.create_index('idx_UserUsedExperiment_user_user_permission_id', u'UserUsedExperiment', ['user_id', 'user_permission_id'])
+    op.create_index('idx_UserUsedExperiment_user_role_permission_id', u'UserUsedExperiment', ['user_id', 'role_permission_id'])
 
     op.create_index(u'idx_UserUsedExperiment_experiment_id_group_id',       u'UserUsedExperiment', ['experiment_id', 'group_permission_id'])
     op.create_index(u'idx_UserUsedExperiment_experiment_id_user_id',        u'UserUsedExperiment', ['experiment_id', 'user_permission_id'])
@@ -72,8 +74,10 @@ def upgrade():
         if end_date_col:
             end_date   = end_date_col.replace(microsecond = use[uue.c.end_date_micro])
             session_time_micro = (end_date - start_date).seconds * 1e6 + (end_date - start_date).microseconds
+            session_time_seconds = session_time_micro / 1000000
             kwargs.update(dict(
-                session_time_micro = session_time_micro
+                session_time_micro = session_time_micro,
+                session_time_seconds = session_time_seconds
             ))
 
         update_stmt = uue.update().where(uue.c.id == use_id).values(**kwargs)

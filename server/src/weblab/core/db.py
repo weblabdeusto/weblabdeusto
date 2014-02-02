@@ -175,9 +175,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                         experiment_usage.coord_address.address,
                         experiment_usage.reservation_id,
                         experiment_usage.end_date,
-                        start_date_date = experiment_usage.start_date.date(),
-                        start_date_hour = experiment_usage.start_date.hour,
-                        start_date_weekday = experiment_usage.start_date.weekday(),
                 )
             session.add(use)
             # TODO: The c.response of an standard command is an object with
@@ -222,6 +219,15 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                 saved.response.commandstring,
                                 saved.timestamp_after
                             ))
+            
+            permission_scope = experiment_usage.request_info.pop('permission_scope')
+            permission_id = experiment_usage.request_info.pop('permission_id')
+            if permission_scope == 'group':
+                use.group_permission_id = permission_id
+            elif permission_scope == 'user':
+                use.user_permission_id = permission_id
+            elif permission_scope == 'role':
+                use.role_permission_id = permission_id
 
             for reservation_info_key in experiment_usage.request_info:
                 db_key = session.query(model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
@@ -753,7 +759,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                     filter_by(name=experiment_name). \
                                     filter_by(category=category).one()
             experiment_id = experiment.id
-            exp_use = model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date, start_date_date = start_time.date(), start_date_weekday = start_date.weekday(), start_date_hour = start_date.hour)
+            exp_use = model.DbUserUsedExperiment(user, experiment, start_time, origin, coord_address, reservation_id, end_date)
             session.add(exp_use)
             session.commit()
             return experiment_id

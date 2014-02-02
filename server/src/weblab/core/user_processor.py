@@ -39,7 +39,7 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor"
 DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
-FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip'
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
 SERVER_UUIDS   = 'server_uuid'
 
 class UserProcessor(object):
