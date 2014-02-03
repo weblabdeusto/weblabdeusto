@@ -16,7 +16,8 @@ export ENV_NAME='weblab_env'
 if [ ! -d /home/vagrant/.virtualenvs/$ENV_NAME ]; then
   mkvirtualenv $ENV_NAME
   workon $ENV_NAME
-  pip install $SHARED_DIR
+  cd $SHARED_DIR
+  python setup.py install
   echo 'Finishing provisioning' $ENV_NAME
 else
   echo 'Ignoring existing default environment' $ENV_NAME
