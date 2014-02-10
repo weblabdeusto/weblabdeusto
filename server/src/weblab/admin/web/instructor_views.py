@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import json
 import random
 import datetime
@@ -93,9 +93,21 @@ def get_tree_groups(group_list):
     tree = defaultdict(list)
 
     for group in group_list:
-        tree[group.parent].append(group)
+        if group not in tree[group.parent]:
+            tree[group.parent].append(group)
+
+    for group in group_list:
+        if group.parent is not None:
+            parent_tree = get_tree_groups([ group.parent ])
+            for g2 in parent_tree:
+                if g2 not in tree:
+                    tree[g2] = parent_tree[g2]
+                else:
+                    for g2_child in parent_tree[g2]:
+                        if g2_child not in tree[g2]:
+                            tree[g2].append(g2_child)
     
-    return tree    
+    return tree
             
         
 

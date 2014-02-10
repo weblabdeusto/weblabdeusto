@@ -18,7 +18,7 @@
         {% if groups %}
         <p>You're in charge of the following groups:</p>
         {% from "_widgets.html" import show_groups %}
-        {{ show_groups(tree_groups) }}
+        {{ show_groups(tree_groups, groups) }}
         {% else %}
         <p>However, it seems that you don't have permission of teacher on any group (or there is no group in the system)</p>
         {% endif %}
