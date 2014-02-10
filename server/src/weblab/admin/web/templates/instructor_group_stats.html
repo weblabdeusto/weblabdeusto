@@ -6,7 +6,11 @@
 <div class="row">
     <div class="span12">
         <a name="top"></a>
+        {% if results['mode'] == 'group' %}
         <h1>{{ group.name }}</h1>
+        {% elif results['mode'] == 'user_in_group' %}
+        <h1>{{ user.full_name }} ({{ user.login }}) in {{ group.name }}</h1>
+        {% endif %}
 
         <h3>Table of contents</h3>
         <ul>
@@ -26,6 +30,7 @@
                 <li><a href="#uses_per_time_of_day">Uses per time of the day</a></li>
             </ul>
             </li>
+            {% if results['mode'] == 'group' %}
             <li><a href="#users">Users</a>
             <ul>
                 <li><a href="#uses_per_student">Uses per student distribution</a></li>
@@ -34,6 +39,7 @@
                 <li><a href="#social_network">Social Network</a></li>
                 {% endif %}
             </ul>
+            {% endif %}
             {% endif %}
         </ul>
 
@@ -57,6 +63,7 @@
                 </tr>
             </thead>
             <tbody>
+                {% if results['mode'] == 'group' %}
                 <tr>
                     <td>Users:</td>
                     <td>{{ statistics['users'] }}</td>
@@ -68,8 +75,19 @@
                 </tr>
                 <tr>
                     <td>Total time</td>
-                    <td>{{ statistics['total_time'] }} seconds ({% if statistics['total_time_human'].days > 1 %}over {{ statistics['total_time_human'].days }} days; {% endif %}{{ '%.2f' % (statistics['total_time'] / (statistics['users'] or 1))}} seconds per user)</td>
+                    <td>{{ '%.2f' % statistics['total_time'] }} seconds ({% if statistics['total_time_human'].days > 1 %}over {{ statistics['total_time_human'].days }} days; {% endif %}{{ '%.2f' % (statistics['total_time'] / (statistics['users'] or 1))}} seconds per user)</td>
                 </tr>
+                {% endif %}
+                {% elif results['mode'] == 'user_in_group' %}
+                <tr>
+                    <td>Total uses</td>
+                    <td>{{ statistics['uses'] }} uses</td>
+                </tr>
+                <tr>
+                    <td>Total time</td>
+                    <td>{{ '%.2f' % statistics['total_time'] }} seconds</td>
+                </tr>
+
                 {% endif %}
             </tbody>
         </table>
@@ -93,6 +111,8 @@
         <h4>Uses per time of the day</h4>
         {{ timetable(results['usage_timetable']) }}
         <a name="users"></a>
+
+        {% if results['mode'] == 'group' %}
         <h3>Users</h3>
         <a name="uses_per_student"></a>
         <h4>Uses per student distribution</h4>
@@ -116,8 +136,8 @@
             <tbody>
                 {% for (login, full_name), uses in results['users'] %}
                 <tr>
-                    <td>{{ full_name }}</td>
-                    <td>{{ login }}</td>
+                    <td><a href="{{ url_for('.user_in_group_stats', login = login, group_id = group_id) }}">{{ full_name }}</a></td>
+                    <td><a href="{{ url_for('.user_in_group_stats', login = login, group_id = group_id) }}">{{ login }}</a></td>
                     <td>{{ uses }}</td>
                     <td>{{ results['users_time'][login] }}</td>
                     <td>{{ '%.2f' % (results['users_time'][login] / ( uses or 1)) }}</td>
@@ -129,6 +149,7 @@
         <a name="social_network"></a>
         <h4>Social Network</h4>
         {{ sna() }}
+        {% endif %}
         {% endif %}
         {% else %}
         <div class="alert alert-error">

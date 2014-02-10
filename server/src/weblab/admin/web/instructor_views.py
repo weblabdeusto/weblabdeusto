@@ -461,7 +461,8 @@ def generate_info(panel, session, condition, experiments, results):
     results['per_block_headers'] = per_block_headers
     results['per_block_values'] = per_block_values
     
-    results['statistics']['avg_per_user'] = 1.0 * results['statistics']['users'] / ( results['statistics']['uses'] or 1)
+    if results['mode'] == 'group':
+        results['statistics']['avg_per_user'] = 1.0 * results['statistics']['users'] / ( results['statistics']['uses'] or 1)
 
     if per_day:
         timeline_headers, timeline_values = zip(*sorted(per_day.items(), lambda (d1, v1), (d2, v2) : cmp(d1, d2)))
@@ -533,6 +534,7 @@ def generate_info(panel, session, condition, experiments, results):
 
 def generate_group_info(panel, session, group, condition, experiments):
     results = dict(
+        mode =  'group',
         statistics = {
             'users' : len(group.users),
         },
@@ -541,7 +543,20 @@ def generate_group_info(panel, session, group, condition, experiments):
 
     generate_info(panel, session, condition, experiments, results)
 
-    return panel.render('instructor_group_stats.html', results = results, group = group, statistics = results['statistics'])
+    return panel.render('instructor_group_stats.html', results = results, group = group, group_id = group.id, statistics = results['statistics'])
+
+def generate_user_in_group_info(panel, session, user, group, condition, experiments):
+    results = dict(
+        mode =  'user_in_group',
+        statistics = {
+        },
+        experiments = sorted(experiments),
+    )
+
+    generate_info(panel, session, condition, experiments, results)
+
+    return panel.render('instructor_group_stats.html', results = results, user = user, group = group, group_id = group.id, statistics = results['statistics'])
+
 
 class GroupStats(InstructorView):
     def __init__(self, session, **kwargs):
@@ -591,6 +606,40 @@ class GroupStats(InstructorView):
             # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(2013, 3, 4, 0, 0, 0), model.DbUserUsedExperiment.start_date < datetime.datetime(2013, 6, 2, 0, 0, 0) )
             # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(1971, 1, 1, 0, 0, 0))
             return generate_group_info(self, self.session, group, condition, experiments)
+
+        return "Error: you don't have permission to see that group" # TODO
+
+    @expose('/users/<login>/in_group/<int:group_id>')
+    def user_in_group_stats(self, login, group_id):
+        if group_id in get_assigned_group_ids(self.session):
+            
+            group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
+
+            permission_ids = set()
+            experiments = defaultdict(list)
+            # {
+            #     'foo@Category' : [
+            #          ( time_in_seconds, permission_id )
+            #     ]
+            # }
+            for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                permission_ids.add(permission.id)
+                exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+                cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+                time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+            user = self.session.query(model.DbUser).filter_by(login = login).first()
+            if user:
+                user_id = user.id
+            else:
+                user_id = -1
+
+            condition = sql.and_(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids), model.DbUserUsedExperiment.user_id == user_id)
+            # condition = True
+            # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(2013, 3, 4, 0, 0, 0), model.DbUserUsedExperiment.start_date < datetime.datetime(2013, 6, 2, 0, 0, 0) )
+            # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(1971, 1, 1, 0, 0, 0))
+            return generate_user_in_group_info(self, self.session, user, group, condition, experiments)
 
         return "Error: you don't have permission to see that group" # TODO
 
