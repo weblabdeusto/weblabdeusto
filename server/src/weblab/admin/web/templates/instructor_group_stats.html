@@ -10,6 +10,10 @@
         <h1>{{ group.name }}</h1>
         {% elif results['mode'] == 'user_in_group' %}
         <h1>{{ user.full_name }} ({{ user.login }}) in {{ group.name }}</h1>
+        {% elif results['mode'] == 'total' %}
+        <h1>Global information</h1>
+        {% elif results['mode'] == 'user_in_total' %}
+        <h1>{{ user.full_name }} ({{ user.login }})</h1>
         {% endif %}
 
         <h3>Table of contents</h3>
@@ -30,7 +34,7 @@
                 <li><a href="#uses_per_time_of_day">Uses per time of the day</a></li>
             </ul>
             </li>
-            {% if results['mode'] == 'group' %}
+            {% if results['mode'] in ('group', 'total') %}
             <li><a href="#users">Users</a>
             <ul>
                 <li><a href="#uses_per_student">Uses per student distribution</a></li>
@@ -63,7 +67,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% if results['mode'] == 'group' %}
+                {% if results['mode'] in ('group', 'total') %}
                 <tr>
                     <td>Users:</td>
                     <td>{{ statistics['users'] }}</td>
@@ -112,7 +116,7 @@
         {{ timetable(results['usage_timetable']) }}
         <a name="users"></a>
 
-        {% if results['mode'] == 'group' %}
+        {% if results['mode'] in ('group','total') %}
         <h3>Users</h3>
         <a name="uses_per_student"></a>
         <h4>Uses per student distribution</h4>
@@ -136,8 +140,13 @@
             <tbody>
                 {% for (login, full_name), uses in results['users'] %}
                 <tr>
+                    {% if group_id == 'total' %}
+                    <td><a href="{{ url_for('.user_in_total_stats', login = login) }}">{{ full_name }}</a></td>
+                    <td><a href="{{ url_for('.user_in_total_stats', login = login) }}">{{ login }}</a></td>
+                    {% else %}
                     <td><a href="{{ url_for('.user_in_group_stats', login = login, group_id = group_id) }}">{{ full_name }}</a></td>
                     <td><a href="{{ url_for('.user_in_group_stats', login = login, group_id = group_id) }}">{{ login }}</a></td>
+                    {% endif %}
                     <td>{{ uses }}</td>
                     <td>{{ results['users_time'][login] }}</td>
                     <td>{{ '%.2f' % (results['users_time'][login] / ( uses or 1)) }}</td>
@@ -180,7 +189,7 @@
 
     {% if results['links'] %}
         {{ sna_scripts() }}
-        {{ sna_load(url_for('.gefx', group_id = group.id)) }}
+        {{ sna_load(url_for('.gefx', group_id = group_id)) }}
     {% endif %}
 {% endblock %}
 

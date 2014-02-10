@@ -473,7 +473,7 @@ def generate_info(panel, session, condition, experiments, results):
     results['per_block_headers'] = per_block_headers
     results['per_block_values'] = per_block_values
     
-    if results['mode'] == 'group':
+    if results['mode'] in ('group', 'total'):
         results['statistics']['avg_per_user'] = 1.0 * results['statistics']['users'] / ( results['statistics']['uses'] or 1)
 
     if per_day:
@@ -569,6 +569,32 @@ def generate_user_in_group_info(panel, session, user, group, condition, experime
 
     return panel.render('instructor_group_stats.html', results = results, user = user, group = group, group_id = group.id, statistics = results['statistics'])
 
+def generate_user_in_total_info(panel, session, user, condition, experiments):
+    results = dict(
+        mode =  'user_in_total',
+        statistics = {
+        },
+        experiments = sorted(experiments),
+    )
+
+    generate_info(panel, session, condition, experiments, results)
+
+    return panel.render('instructor_group_stats.html', results = results, user = user, statistics = results['statistics'])
+
+
+def generate_total_info(panel, session, experiments):
+    results = dict(
+        mode =  'total',
+        statistics = {
+            'users' : session.query(model.DbUser).count(),
+        },
+        experiments = sorted(experiments),
+    )
+
+    generate_info(panel, session, True, experiments, results)
+
+    return panel.render('instructor_group_stats.html', results = results, group_id = 'total', statistics = results['statistics'])
+
 
 class GroupStats(InstructorView):
     def __init__(self, session, **kwargs):
@@ -580,17 +606,23 @@ class GroupStats(InstructorView):
         groups = get_assigned_groups(self.session)
         return self.render('instructor_group_stats_index.html', groups = groups)
 
-    @expose('/groups/<int:group_id>/plagiarism.gefx')
+    @expose('/groups/<group_id>/plagiarism.gefx')
     def gefx(self, group_id):
-        if group_id not in get_assigned_group_ids(self.session):
-            return "You don't have permissions for that group"
+        if group_id == 'total' and get_app_instance().is_admin():
+            condition = True
+        else:
+            try:
+                group_id = int(group_id)
+            except:
+                return "Invalid group identifier"
+            if group_id not in get_assigned_group_ids(self.session):
+                return "You don't have permissions for that group"
 
-        permission_ids = set()
-        for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
-            permission_ids.add(permission.id)
+            permission_ids = set()
+            for permission in self.session.query(model.DbGroupPermission).filter_by(group_id = group_id, permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                permission_ids.add(permission.id)
 
-        condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
-        # condition = True
+            condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
         return gefx(self.session, condition)
 
     @expose('/groups/<int:group_id>/')
@@ -620,6 +652,38 @@ class GroupStats(InstructorView):
             return generate_group_info(self, self.session, group, condition, experiments)
 
         return "Error: you don't have permission to see that group" # TODO
+
+    @expose('/total/')
+    def groups_total_stats(self):
+        if not get_app_instance().is_admin():
+            return "Error: you are not an admin" # TODO
+
+        experiments = defaultdict(list)
+        # {
+        #     'foo@Category' : [
+        #          ( time_in_seconds, permission_id )
+        #     ]
+        # }
+        for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+            cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+            time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+            experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+        for permission in self.session.query(model.DbUserPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+            cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+            time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+            experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+        for permission in self.session.query(model.DbRolePermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+            exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+            cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+            time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+            experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+        return generate_total_info(self, self.session, experiments)
+       
 
     @expose('/users/<login>/in_group/<int:group_id>')
     def user_in_group_stats(self, login, group_id):
@@ -652,6 +716,42 @@ class GroupStats(InstructorView):
             # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(2013, 3, 4, 0, 0, 0), model.DbUserUsedExperiment.start_date < datetime.datetime(2013, 6, 2, 0, 0, 0) )
             # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(1971, 1, 1, 0, 0, 0))
             return generate_user_in_group_info(self, self.session, user, group, condition, experiments)
+
+        return "Error: you don't have permission to see that group" # TODO
+
+    @expose('/users/<login>/total/')
+    def user_in_total_stats(self, login):
+        if get_app_instance().is_admin():
+            experiments = defaultdict(list)
+            # {
+            #     'foo@Category' : [
+            #          ( time_in_seconds, permission_id )
+            #     ]
+            # }
+            for permission in self.session.query(model.DbGroupPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+                cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+                time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+            for permission in self.session.query(model.DbUserPermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+                cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+                time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+            for permission in self.session.query(model.DbRolePermission).filter_by(permission_type = permissions.EXPERIMENT_ALLOWED).all():
+                exp_id = permission.get_parameter(permissions.EXPERIMENT_PERMANENT_ID).value
+                cat_id = permission.get_parameter(permissions.EXPERIMENT_CATEGORY_ID).value
+                time_allowed = int(permission.get_parameter(permissions.TIME_ALLOWED).value)
+                experiments['%s@%s' % (exp_id, cat_id)].append((time_allowed, permission.id))
+
+            user = self.session.query(model.DbUser).filter_by(login = login).first()
+            if user:
+                user_id = user.id
+            else:
+                return "User not found"
+
+            condition = model.DbUserUsedExperiment.user_id == user_id
+            return generate_user_in_total_info(self, self.session, user, condition, experiments)
 
         return "Error: you don't have permission to see that group" # TODO
 

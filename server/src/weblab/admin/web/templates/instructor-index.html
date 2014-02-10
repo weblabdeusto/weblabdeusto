@@ -16,7 +16,7 @@
         </p>
 
         {% if groups %}
-        <p>You're in charge of the following groups:</p>
+        <p>You're in charge of the following groups{% if is_admin %} (or <a href="{{ url_for('stats/groups.groups_total_stats') }}">see all uses</a>){% endif %}:</p>
         {% from "_widgets.html" import show_groups %}
         {{ show_groups(tree_groups, groups) }}
         {% else %}
