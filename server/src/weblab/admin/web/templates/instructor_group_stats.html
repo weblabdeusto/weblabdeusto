@@ -1,7 +1,7 @@
 {% extends 'weblab-master.html' %}
 {% block body %}
 
-{% from "_widgets.html" import timeline, timetable, sna %}
+{% from "_widgets.html" import timeline, timetable, sna, calendar_day, timeline_bars %}
 
 <div class="row">
     <div class="span12">
@@ -78,10 +78,11 @@
         <h3>Usage patterns</h3>
         <a name="uses_per_day"></a>
         <h4>Uses per day</h4>
-        {{ timeline(results['timeline_headers'], results['timeline_values'], "timeline", '%i') }}
+        {{ calendar_day('users_calendar_day') }}
+
         <a name="uses_per_week"></a>
         <h4>Uses per week</h4>
-        {{ timeline(results['weekly_timeline_headers'], results['weekly_timeline_values'], "weekly_timeline", '%i') }}
+        {{ calendar_day('users_calendar_week') }}
         <a name="avg_per_day"></a>
         <h4>Average time per day</h4>
         {{ timeline(results['time_per_day_headers'], results['time_per_day_values'], "per_day", '%i') }}
@@ -95,7 +96,11 @@
         <h3>Users</h3>
         <a name="uses_per_student"></a>
         <h4>Uses per student distribution</h4>
-        {{ timeline(results['users_timeline_headers'], results['users_timeline_values'], "users_values", '%i') }}
+        {% if results['users_timeline_values']|length > 100 %}
+            {{ timeline(results['users_timeline_headers'], results['users_timeline_values'], "users_values", '%i') }}
+        {% else %}
+            {{ timeline_bars('users_per_student') }}
+        {% endif %}
         <a name="users_summary"></a>
         <h4>Summary</h4>
         <table class="table table-bordered table-hover">
@@ -136,13 +141,22 @@
 {% endblock %}
 
 {% block tail %}
-    {% from "_widgets.html" import timeline_scripts, timeline_load, sna_scripts, sna_load %}
+    {% from "_widgets.html" import timeline_scripts, timeline_load, sna_scripts, sna_load, calendar_day_scripts, calendar_day_load, timeline_bars_scripts, timeline_bars_load %}
     {{ timeline_scripts() }}
-    {{ timeline_load('timeline', 'use') }}
-    {{ timeline_load('weekly_timeline', 'use') }}
     {{ timeline_load('per_day', 'second') }}
-    {{ timeline_load('users_values', 'use') }}
     {{ timeline_load('per_block', 'use') }}
+    {{ calendar_day_scripts() }}
+    {{ calendar_day_load('users_calendar_day', results['calendar_day_data']) }}
+    {{ calendar_day_load('users_calendar_week', results['calendar_week_data']) }}
+    {{ timeline_bars_scripts(False) }}
+
+    {% if results['users_timeline_values']|length > 100 %}
+        {{ timeline_load('users_values', 'use') }}
+    {% else %}
+        {{ timeline_bars_load('users_per_student', results['users_timeline_bar_data']) }}
+    {% endif %}
+
+
     {% if results['links'] %}
         {{ sna_scripts() }}
         {{ sna_load(url_for('.gefx', group_id = group.id)) }}

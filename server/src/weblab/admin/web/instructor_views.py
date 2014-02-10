@@ -1,4 +1,5 @@
 from collections import defaultdict
+import json
 import random
 import datetime
 from StringIO import StringIO
@@ -481,6 +482,30 @@ def generate_info(panel, session, condition, experiments, results):
     results['time_per_day_headers'] = time_per_day_headers
     results['time_per_day_values']  = time_per_day_values
 
+    calendar_day_data = []
+    for date, value in zip(timeline_headers, timeline_values):
+        year = int(date.split('-')[0])
+        if year > 1970:
+            calendar_day_data.append({
+                'date'  : date,
+                'year'  : year,
+                'value' : value
+            })
+    results['calendar_day_data'] = json.dumps(calendar_day_data)
+
+    calendar_week_data = []
+    for date, value in zip(weekly_timeline_headers, weekly_timeline_values):
+        if date > datetime.date(1971, 1, 1):
+            for x in range(7):
+                current_date = date + datetime.timedelta(days = x)
+                calendar_week_data.append({
+                    'date'  : current_date.strftime("%Y-%m-%d"),
+                    'year'  : current_date.year,
+                    'value' : value
+                })
+    results['calendar_week_data'] = json.dumps(calendar_week_data)
+
+    users.pop((u'boxtester', u'Box Tester'), None)
     users = sorted(users.items(), lambda (n1, v1), (n2, v2) : cmp(v2, v1))
     results['users'] = users
 
@@ -495,6 +520,15 @@ def generate_info(panel, session, condition, experiments, results):
     users_timeline_headers = [ login for login, full_name in users_timeline_headers ]
     results['users_timeline_headers'] = users_timeline_headers
     results['users_timeline_values'] = users_timeline_values
+
+    users_timeline_bar_data = []
+
+    for login, value in zip(users_timeline_headers, users_timeline_values):
+        users_timeline_bar_data.append({
+            'header' : '%s (%s)' % (login, value),
+            'value' : value
+        })
+    results['users_timeline_bar_data'] = json.dumps(users_timeline_bar_data)
 
 
 def generate_group_info(panel, session, group, condition, experiments):
@@ -529,6 +563,7 @@ class GroupStats(InstructorView):
             permission_ids.add(permission.id)
 
         condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
+        # condition = True
         return gefx(self.session, condition)
 
     @expose('/groups/<int:group_id>/')
@@ -553,6 +588,8 @@ class GroupStats(InstructorView):
 
             condition = model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)
             # condition = True
+            # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(2013, 3, 4, 0, 0, 0), model.DbUserUsedExperiment.start_date < datetime.datetime(2013, 6, 2, 0, 0, 0) )
+            # condition = sql.and_( model.DbUserUsedExperiment.start_date >= datetime.datetime(1971, 1, 1, 0, 0, 0))
             return generate_group_info(self, self.session, group, condition, experiments)
 
         return "Error: you don't have permission to see that group" # TODO
