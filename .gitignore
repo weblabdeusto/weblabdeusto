@@ -93,3 +93,10 @@ Thumbs.db
 # Xilinx compiler log file.
 compiler.log
 
+
+######################################################################
+#
+#			   INTELLIJ IDEA (IDE)
+#
+.idea
+

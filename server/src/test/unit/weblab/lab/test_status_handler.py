@@ -17,8 +17,8 @@ import unittest
 
 from weblab.lab.status_handler import WebcamIsUpAndRunningHandler, HostIsUpAndRunningHandler, AbstractLightweightIsUpAndRunningHandler
 import weblab.lab.exc as LaboratoryErrors
-import fake_urllib2 as FakeUrllib2
-import fake_socket as FakeSocket
+import test.unit.weblab.lab.fake_urllib2 as FakeUrllib2
+import test.unit.weblab.lab.fake_socket as FakeSocket
 
 
 class AbstractLightweightIsUpAndRunningHandlerTestCase(unittest.TestCase):
