@@ -521,43 +521,6 @@ class UdXilinxExperiment(Experiment.Experiment):
                     traceback.print_exc()
                     return "ERROR: " + traceback.format_exc()
 
-
-            # This command was previously named just READ_LEDS. We include the CLASSIC version just in case,
-            # from when the LED state could only be obtained by processing the LEDs image.
-            # The new command obtains it by querying a JSON provided by the PIC that controls the experiment.
-            elif command == 'READ_LEDS_CLASSIC':
-                try:
-                    if self._led_reader == None:
-                        if (DEBUG):
-                            print "[DBG]: Initializing led reading."
-                        self._load_led_reading_support()
-                    self._led_state = self._led_reader.read_times(5)
-                    if (DEBUG):
-                        print "[DBG]: READ_LEDS: " + "".join(self._led_state)
-
-                    # This probably shouldn't be here. Ideally, the server by itself
-                    # would every once in a while check the state of the LEDs and update
-                    # the simulation's state automatically. For now, however, it will only
-                    # check the state upon the client's request.
-                    if self._virtual_world == "watertank":
-                        first_pump = self._led_state[7] == '1'
-                        second_pump = self._led_state[6] == '1'
-                        if first_pump:
-                            first_pump = 10
-                        else:
-                            first_pump = 0
-                        if second_pump:
-                            second_pump = 10
-                        else:
-                            second_pump = 0
-                        self._watertank.set_input(0, first_pump)
-                        self._watertank.set_input(1, second_pump)
-
-                    return "".join(self._led_state)
-                except Exception as e:
-                    traceback.print_exc()
-                    return "ERROR: " + traceback.format_exc()
-
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
 
