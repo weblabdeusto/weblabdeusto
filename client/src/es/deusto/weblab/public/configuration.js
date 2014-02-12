@@ -93,7 +93,7 @@
 	                    		   "width"					: 800,
 	                    		   "height"					: 600,
 	                    		   "provide.file.upload"	: true,
-	                    		   "html.file"				: "jsxilinx/jsxilinx.html"
+	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
 	                    	   }
 	                       ],
 	                "vm"    : [

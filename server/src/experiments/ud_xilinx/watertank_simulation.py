@@ -20,13 +20,11 @@ import json
 
 
 class Watertank(object):
-    
-    
     def __init__(self, tank_capacity, inputs, outputs, water_level):
         self.initialize(tank_capacity, inputs, outputs, water_level)
-        
-        
-    def initialize(self, tank_capacity, inputs, outputs, water_level):
+
+
+    def initialize(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=True):
         """
         Initializes the simulation with the specified data.
         @param tank_capacity Capacity of the water tank, in liters.
@@ -34,41 +32,89 @@ class Watertank(object):
         The flow can be modified dynamically, but no inputs can be added. 
         @param Array containing the outputs (such as a water hose or evaporation), in liters per second. 
         The flow can be modified dynamically, but no inputs can be added.
-        @param water_level The starting water level. Value from 0 to 1. 
+        @param water_level The starting water level. Value from 0 to 1.
+        @param temperatures_mode If the temperatures_mode is enabled the Watertank will also feature pump temperatures.
         """
-        self.tank_capacity = tank_capacity;
-        self.inputs = inputs;
-        self.outputs = outputs;
-        self.current_volume = water_level * tank_capacity;
-        
+        self.tank_capacity = tank_capacity
+        self.inputs = inputs
+        self.outputs = outputs
+        self.current_volume = water_level * tank_capacity
+
+        self.temperatures_mode = temperatures_mode
+
+        self.firstPumpTemperature = 20
+        self.secondPumpTemperature = 20
+        self.firstPumpWorkRange = [20, 200]
+        self.secondPumpWorkRange = [20, 200]
+        self.firstPumpOverheated = False  # If we reached the maximum temperature
+        self.secondPumpOverheated = False
+        self.pumpWarningPercent = 0.80  # This marks the point where the warning is set. A pump cannot be started with the warning on.
+        self.pumpTemperatureVariationPerSeconds = 12  # Enough for 15 seconds straight use.
+
         self.simlock = threading.RLock()
         self._thread = None
         self._autoupdating = False
         self._autoupdating_interval = 1000
-    
+
     def update(self, delta):
         """
         Updates the simulation. Can be done automatically if the autoupdater is used.
         @param delta Delta in seconds.
         @see autoupdater_start
         """
-        total_output = 0;
+        total_output = 0
         for out in self.outputs:
-            total_output += out * delta;
-        total_input = 0;
-        for ins in self.inputs:
-            total_input += ins * delta;
-        increment = total_input - total_output;
-        
+            total_output += out * delta
+
+        # Calculates how much the pumps are putting in.
+        total_input = 0
+
+        # Handle inputs in the advanced, temperatures_mode.
+        if self.temperatures_mode:
+            pump1, pump2 = self.inputs
+            if pump1 > 0:
+                # Check overheat
+                if self.firstPumpTemperature > self.firstPumpWorkRange[1]:
+                    self.firstPumpOverheated = True
+                    self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+                elif not self.firstPumpOverheated:
+                    self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+                    total_output += pump1 * delta
+            else:
+                self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+
+            if pump2 > 0:
+                # Check overheat
+                if self.secondPumpTemperature > self.secondPumpWorkRange[1]:
+                    self.secondPumpOverheated = True
+                    self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+                elif not self.secondPumpOverheated:
+                    self.secondPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+                    total_output += pump2 * delta
+
+            # Clear the overheated state if we have to.
+            if self.firstPumpOverheated and self.firstPumpTemperature <= self.firstPumpTemperature * self.pumpWarningPercent:
+                self.firstPumpOverheated = False
+
+            if self.secondPumpOverheated and self.secondPumpTemperature <= self.secondPumpTemperature * self.pumpWarningPercent:
+                self.secondPumpOverheated = False
+
+        # Handle inputs in the standard mode.
+        else:
+            for ins in self.inputs:
+                total_input += ins * delta
+
+        increment = total_input - total_output
+
         with self.simlock:
-            self.current_volume += increment;
-            
+            self.current_volume += increment
+
             # Ensure the volume stays realistic
             if self.current_volume >= self.tank_capacity:
                 self.current_volume = self.tank_capacity
             elif self.current_volume < 0:
-                self.current_volume = 0.0;
-                
+                self.current_volume = 0.0
+
     def t_updater(self):
         """
         This internal method is used by the autoupdating thread to update
@@ -77,8 +123,7 @@ class Watertank(object):
         while self._autoupdating:
             time.sleep(self._autoupdating_interval)
             self.update(self._autoupdating_interval)
-        
-    
+
     def autoupdater_start(self, interval):
         """
         Starts the autoupdating thread. That is, a thread that will call update
@@ -91,7 +136,7 @@ class Watertank(object):
         self._autoupdating_interval = interval
         self._thread = threading.Thread(None, self.t_updater)
         self._thread.start()
-    
+
     def autoupdater_stop(self):
         """
         Stops the autoupdating thread. This method is non-blocking. It will signal
@@ -100,7 +145,7 @@ class Watertank(object):
         @see autoupdater_join
         """
         self._autoupdating = False
-        
+
     def autoupdater_join(self):
         """
         Stops the autoupdating thread, and joins that thread until it really does stop.
@@ -109,7 +154,7 @@ class Watertank(object):
         """
         self._autoupdating = False
         self._thread.join(0)
-                
+
     def set_input(self, input_number, input_flow):
         """
         Sets the value for an input in the simulation. 
@@ -118,7 +163,7 @@ class Watertank(object):
         """
         with self.simlock:
             self.inputs[input_number] = input_flow
-        
+
     def set_output(self, output_number, output_flow):
         """
         Sets the value for an output in the simulation.
@@ -127,7 +172,7 @@ class Watertank(object):
         """
         with self.simlock:
             self.outputs
-        
+
     def set_inputs(self, inputs):
         """
         Redefines the whole array of inputs.
@@ -135,7 +180,7 @@ class Watertank(object):
         """
         with self.simlock:
             self.inputs = inputs
-        
+
     def set_outputs(self, outputs):
         """
         Redefines the whole array of outputs.
@@ -143,7 +188,7 @@ class Watertank(object):
         """
         with self.simlock:
             self.outputs = outputs
-        
+
     def get_water_volume(self):
         """
         Gets the current water volume in liters. It will vary dynamically according to the 
@@ -151,7 +196,7 @@ class Watertank(object):
         """
         with self.simlock:
             return self.current_volume
-    
+
     def get_water_level(self):
         """
         Gets the current water level, as a number from 0 to 1 (empty to full). It will vary dynamically
@@ -159,7 +204,7 @@ class Watertank(object):
         """
         with self.simlock:
             return 1.0 * self.current_volume / self.tank_capacity
-        
+
     def get_json_state(self, input_capacities, output_capacities):
         """
         Gets a json-encoded description of the simulation's state. 
@@ -171,41 +216,64 @@ class Watertank(object):
         """
         if len(self.inputs) != len(input_capacities):
             return "{}"
-        
+
         inputs = []
         for inp, cap in zip(self.inputs, input_capacities):
-            inputs.append(1.0 * inp/cap)
+            inputs.append(1.0 * inp / cap)
+
         outputs = []
         for inp, cap in zip(self.outputs, output_capacities):
-            outputs.append(1.0 * inp/cap)
-            
-        state = { "water" : self.get_water_level(), "inputs" : inputs, "outputs" : outputs }
-        
+            outputs.append(1.0 * inp / cap)
+
+        # If we are in the advanced temperatures mode we have to set the output of a pump to zero if
+        # a bomb is currently overheating.
+        if self.temperatures_mode:
+            if self.firstPumpOverheated:
+                outputs[0] = 0
+            if self.secondPumpOverheated:
+                outputs[1] = 0
+
+        state = {"water": self.get_water_level(), "inputs": inputs, "outputs": outputs}
+
+        # Whether the temp warnings are set or not.
+        if self.temperatures_mode:
+            temp_warnings = []
+
+            if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
+                temp_warnings[0] = 1
+            else:
+                temp_warnings[0] = 0
+
+            if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
+                temp_warnings[1] = 1
+            else:
+                temp_warnings[1] = 0
+
+            state["temp_warnings"] = temp_warnings
+
         return json.dumps(state)
-        
-        
-        
+
+
 if __name__ == '__main__':
-    
+
     w = Watertank(1000, [100, 100], [100], 0.5)
     w.autoupdater_start(1)
-    
-    
+
     i = 0
-    while(i < 15):
+    while (i < 15):
         print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
         time.sleep(0.5);
         i += 1
-        
+
     print "...."
     i = 0
     w.set_outputs([100])
-    w.set_inputs([10, 10]) 
-    while(i < 15):
-        print w.tank_capacity,  w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+    w.set_inputs([10, 10])
+    while (i < 15):
+        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
         time.sleep(0.5);
         i += 1
-    
+
     w.autoupdater_join()
         
         

@@ -578,20 +578,20 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     experiment._watertank.current_volume = 0
     time.sleep(5)
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     while (True):
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
         experiment._watertank.current_volume = 0
         print experiment.do_send_command_to_device("READ_LEDS")
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
-        time.sleep(1);
+        time.sleep(1)
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
