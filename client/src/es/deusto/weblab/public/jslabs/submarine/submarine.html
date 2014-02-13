@@ -214,10 +214,6 @@ function onStartCallback(start_info) {
     statusUpdaterTimer = setInterval(function () {
         doUpdateStatus();
     }, STATUS_UPDATES_FREQUENCY);
-
-
-    // Initialize the lower cam. Force an update.
-    onRefreshCamera();
 }
 
 function onEndCallback() {
@@ -310,6 +306,10 @@ function updateLightStatus(is_on) {
 //! Requests a status report to the server, and updates
 //! the balls accordingly.
 function doUpdateStatus() {
+
+    // Submarine doesnt currently support status.
+    return;
+
     Weblab.sendCommand("get-status",
             function (success) {
                 if (DEBUG)
