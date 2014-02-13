@@ -185,7 +185,21 @@ function onLogout() {
 
 //! Invoked when the button to feed the fishes is clicked.
 function onFeedFishes() {
-    console.log("Should feed the fishes.");
+    console.log("Feeding fishes");
+
+    // So that it returns something when offline.
+    Weblab.dbgSetOfflineSendCommandResponse(""); // Actually it does reply more things.
+
+    var command = "FOOD";
+    Weblab.sendCommand(command,
+            function (success) {
+                if (DEBUG)
+                    console.log("Feeding request response: " + success);
+            },
+            function (error) {
+                displayErrorMessage("Server error while trying to feed the fishes.");
+                console.error("[WEBLAB COMMAND]: Error while trying to feed the fishes. Response was: " + error);
+            });
 }
 
 function onStartCallback(start_info) {
@@ -240,6 +254,21 @@ var exampleUpdateStatusResponse = JSON.stringify({
 //!
 function onLightChange(light_on) {
     console.log("Light changed: " + light_on);
+
+    // So that it returns something when offline.
+    Weblab.dbgSetOfflineSendCommandResponse(""); // It does reply more things but I dont know which yet.
+
+    var command = "LIGHT " + (light_on ? "ON" : "OFF");
+    Weblab.sendCommand(command,
+            function (success) {
+                if (DEBUG)
+                    console.log("Light change request returned: " + success);
+                updateLightStatus(light_on);
+            },
+            function (error) {
+                displayErrorMessage("Server error while trying to change light state.");
+                console.error("[WEBLAB COMMAND]: Error while trying to change ball state. Response was: " + error);
+            });
 }
 
 
@@ -290,26 +319,6 @@ function doUpdateStatus() {
             function (error) {
                 displayErrorMessage("Could not retrieve experiment status from the server.");
                 console.error("[WEBLAB COMMAND]: Error retrieving status through get-status. Response was: " + error);
-            });
-}
-
-//! Requests the server to raise or lower a ball.
-//! When done, updates the ball slides according to the result.
-function doSendButton(color, status) {
-
-    // So that it returns something when offline.
-    Weblab.dbgSetOfflineSendCommandResponse(exampleUpdateStatusResponse);
-
-    var command = "ball:" + color + ":" + status;
-    Weblab.sendCommand(command,
-            function (success) {
-                if (DEBUG)
-                    console.log("Ball status changed: " + success);
-                updateBallsStatus(success);
-            },
-            function (error) {
-                displayErrorMessage("Server error while trying to change ball state.");
-                console.error("[WEBLAB COMMAND]: Error while trying to send ball button. Response was: " + error);
             });
 }
 
