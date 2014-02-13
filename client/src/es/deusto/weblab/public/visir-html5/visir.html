@@ -9,6 +9,8 @@
 	<script type="text/javascript" src="../jslib/weblabjs.js"></script>
 	<script>
 
+	$(parent.document).find('iframe[name=wlframe]').hide();
+
 	function init()
 	{
 		function MakeMeasurement()
@@ -33,6 +35,8 @@
 		$(".measure").click( function() {
 			MakeMeasurement();
 		});
+
+		$(parent.document).find('iframe[name=wlframe]').show();
 	}
 	Weblab.setOnStartInteractionCallback(function(){ visir.Load(init); });
 </script>

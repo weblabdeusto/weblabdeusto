@@ -1,4 +1,5 @@
 "use strict";
+
 var visir = visir || {};
 
 visir.WLTransport = function(workingCallback)
@@ -14,12 +15,9 @@ visir.WLTransport.prototype.Connect = function()
 {
 	trace("Login");
 
-	Weblab.sendCommand("login", function(response)
-	{
-		response = $.parseJSON(response);
-
-		visir._wlsession = response.sessionkey;
-	}, this.Error);
+	Weblab.sendCommand("login",
+		function(response){this._session = $.parseJSON(response).sessionkey;}.bind(this),
+		this.Error.bind(this));
 }
 
 visir.WLTransport.prototype.Request = function(request, callback)
@@ -30,21 +28,20 @@ visir.WLTransport.prototype.Request = function(request, callback)
 	if (this._isWorking) return;
 	this.SetWorking(true);
 
-	request = '<protocol version="1.3"><request sessionkey="'+visir._wlsession+'">'+request+'</request></protocol>';
+	request = '<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>';
 
-	var tprt = this;
 	Weblab.sendCommand(request, function(response) {
 			if (typeof callback == "function")
 			{
 				// this will check for errors in the request
-				var ret = tprt._ReadResponseProtocolHeader(response);
+				var ret = this._ReadResponseProtocolHeader(response);
 				// and we only want to do the callback if there is no errors
-				if ( ! tprt._error)
+				if ( ! this._error)
 				{
 					callback(ret);
 				}
 			}
-		}, this.Error);
+		}.bind(this), this.Error.bind(this));
 }
 
 visir.WLTransport.prototype._ReadResponseProtocolHeader = function(response)
