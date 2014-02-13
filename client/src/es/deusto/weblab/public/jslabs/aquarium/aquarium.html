@@ -98,6 +98,10 @@
     .clickable:hover {
         cursor: pointer;
     }
+    
+    .timer {
+        font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    }
 
 
 </style>
@@ -529,8 +533,8 @@ function doProcessImage(onSuccess, onError) {
 <div class="container">
     <div class="row">
         <div class="col-md-6">
-            <div class="text-center" style="color:red">
-                <h3 id="timer">
+            <div class="text-center timer" style="color:red">
+                <h3 id="timer" style="helvetica Neue ultra thin">
                     02:20
                 </h3>
             </div>
@@ -539,10 +543,10 @@ function doProcessImage(onSuccess, onError) {
                       style="font-size: 2em; padding-top:10px; visibility: hidden;"></span>
             </div>
 
-            <div id="cam1" class="text-center clickable cambtn-active">
+            <div id="cam1" class="text-center clickable cambtn-active" style="width: 50%; float: left">
                 <span class="glyphicon glyphicon-facetime-video"></span> 1
             </div>
-            <div id="cam2" class="text-center clickable cambtn-inactive">
+            <div id="cam2" class="text-center clickable cambtn-inactive" style="width: 50%; float: left">
                 <span class="glyphicon glyphicon-facetime-video"></span> 2
             </div>
 
