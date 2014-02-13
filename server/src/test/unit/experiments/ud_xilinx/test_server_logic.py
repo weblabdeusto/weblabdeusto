@@ -147,7 +147,7 @@ class EarlyKickingXilinxExperimentTestCase(unittest.TestCase):
         self.assertTrue("max_use_time" in config)
 
     def test_cleanup(self):
-        self.experiment.do_start_experiment
+        self.experiment.do_start_experiment()
         self.experiment.do_dispose()
         self.assertIsNone(self.experiment._use_time_start)
 
@@ -157,6 +157,39 @@ class EarlyKickingXilinxExperimentTestCase(unittest.TestCase):
 
         self.assertEquals("unknown", resp)
 
+
+class PermissionsXilinxExperimentTestCase(unittest.TestCase):
+    def setUp(self):
+        from voodoo.configuration import ConfigurationManager
+        from voodoo.sessions.session_id import SessionId
+
+        self.cfg_manager = ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value("webcam", "http://localhost")
+        self.cfg_manager._set_value("weblab_xilinx_experiment_xilinx_device", "FPGA")
+        self.cfg_manager._set_value("xilinx_max_use_time", "3600")
+        self.cfg_manager._set_value("xilinx_bit_allowed", False)
+
+        UdXilinxCommandSenders._SerialPort = FakeSerialPort
+        UdXilinxCommandSenders._HttpDevice = FakeHttpDevice
+
+        self.experiment = UdXilinxExperiment.UdXilinxExperiment(None, None, self.cfg_manager)
+        self.lab_session_id = SessionId('my-session-id')
+
+    def cleanUp(self):
+        self.experiment.do_dispose()
+
+    def test_bit_disallowed(self):
+        new_state = self.experiment.do_send_file_to_device("CONTENTS", "bit")
+        self.assertEquals("STATE=not_allowed", new_state)
+
+    def test_vhd_allowed(self):
+        new_state = self.experiment.do_send_file_to_device("CONTENTS", "vhd")
+        self.assertNotEquals("STATE=not_allowed", new_state)
+
+    def test_all_disallowed(self):
+        new_state = self.experiment.do_send_file_to_device("CONTENTS", "wha");
+        self.assertEquals("STATE=not_allowed", new_state)
 
 class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
     def setUp(self):
@@ -193,6 +226,8 @@ class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
     def test_virtualworld_non_existant(self):
         resp = self.experiment.do_send_command_to_device("VIRTUALWORLD_MODE thisdoesntexist")
         self.assertEquals("unknown_virtualworld", resp)
+
+
 
 
     class FakeOpen(object):
@@ -246,12 +281,6 @@ class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
 
         resp = self.experiment.do_send_command_to_device("READ_LEDS")
         self.assertEquals("01101101", resp)
-
-
-        # TODO: Currently we do not test for this because it requires PIL and some mocking.
-    #def test_read_leds(self):
-        #    resp = self.experiment.do_send_command_to_device("READ_LEDS")
-        #    self.assertEquals("000000000", resp)
 
 
 def suite():
