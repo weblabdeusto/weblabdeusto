@@ -507,6 +507,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                     command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception as e:
+            if DEBUG:
+                traceback.print_exc(e)
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
             )
@@ -570,7 +572,7 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("STATE")
     print experiment.do_should_finish()
 
-    exit(0)
+
 
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")

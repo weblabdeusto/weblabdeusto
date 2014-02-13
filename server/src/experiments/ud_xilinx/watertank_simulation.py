@@ -24,7 +24,7 @@ class Watertank(object):
         self.initialize(tank_capacity, inputs, outputs, water_level)
 
 
-    def initialize(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=True):
+    def initialize(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=False):
         """
         Initializes the simulation with the specified data.
         @param tank_capacity Capacity of the water tank, in liters.
@@ -225,19 +225,19 @@ class Watertank(object):
         for inp, cap in zip(self.outputs, output_capacities):
             outputs.append(1.0 * inp / cap)
 
-        # If we are in the advanced temperatures mode we have to set the output of a pump to zero if
+        # If we are in the advanced temperatures mode we have to set the inputs of a pump to zero if
         # a bomb is currently overheating.
         if self.temperatures_mode:
             if self.firstPumpOverheated:
-                outputs[0] = 0
+                inputs[0] = 0
             if self.secondPumpOverheated:
-                outputs[1] = 0
+                inputs[1] = 0
 
         state = {"water": self.get_water_level(), "inputs": inputs, "outputs": outputs}
 
         # Whether the temp warnings are set or not.
         if self.temperatures_mode:
-            temp_warnings = []
+            temp_warnings = [0, 0]
 
             if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
                 temp_warnings[0] = 1
