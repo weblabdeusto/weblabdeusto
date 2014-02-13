@@ -6,11 +6,12 @@
 <link href="slider/css/slider.css" rel="stylesheet">
 <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet">
 <link href="bootstrap3/css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="bootstrap-switch.min.css" rel="stylesheet">
 <link href="widgets.css" rel="stylesheet">
-
 
 <script src="jquery-1.8.3.min.js"></script>
 <script src="bootstrap3/js/bootstrap.min.js"></script>
+<script src="bootstrap-switch.min.js"></script>
 <script src="widgets.js"></script>
 
 <style>
@@ -83,6 +84,12 @@ function doPositioningDarkMagicks() {
 // Equivalent of a main() function. Will initialize everything and register
 // the main callbacks.
 $(document).ready(function () {
+
+    // Initialize bootstrap-switch and listen for the lightchange commands.
+    $("[name=light-switch]").bootstrapSwitch();
+    $("[name=light-switch]").on("switch-change", function(ev, data) {
+        onLightChange();
+    });
 
     // Initialize the experiment.
     initializeExperiment();
@@ -236,6 +243,14 @@ var exampleUpdateStatusResponse = JSON.stringify({
 });
 
 
+//! The light change button was hit so probably
+//! there was a light change.
+//!
+function onLightChange() {
+    
+}
+
+
 //! Updates the state of every ball slider so that it matches
 //! the specified status description.
 //!
@@ -253,6 +268,21 @@ function updateBallsStatus(statusJson) {
             if (DEBUG)
                 console.log("Key: " + key + ", Value: " + value);
         }
+    }
+}
+
+
+
+//! Easily updates the status of the lightbulb.
+//!
+//! @param is_on: If true, the bulb will be on. Otherwise it will be off.
+function updateLightStatus(is_on) {
+    if(is_on) {
+        $("#bulb_on_img").show();
+        $("#bulb_off_img").hide();
+    } else {
+        $("#bulb_on_img").hide();
+        $("#bulb_off_img").show();
     }
 }
 
@@ -337,6 +367,17 @@ function doSendButton(color, status) {
             </div>
         </div>
     </div>
+
+    <div class="col-md-12">
+
+        <div class="text-center">
+            <img id="bulb_off_img" src="img/bulb_off.png" hidden/>
+            <img id="bulb_on_img" src="img/bulb_on.png"/>
+            <input type="checkbox" name="light-switch" checked>
+        </div>
+
+    </div>
+
 </div>
 </div>
 </div>
