@@ -100,10 +100,10 @@
 	                    		   "experiment.name"		: "jsfpga",
 	                    		   "experiment.category"	: "FPGA experiments",
 	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
-	                    		   "width"					: 800,
-	                    		   "height"					: 600,
+	                    		   "width"					: "800",
+	                    		   "height"					: "600",
 	                    		   "provide.file.upload"	: true,
-	                    		   "html.file"				: "jsxilinx/jsxilinx.html"
+	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
 	                    	   }
 	                       ],
 	                "vm"    : [

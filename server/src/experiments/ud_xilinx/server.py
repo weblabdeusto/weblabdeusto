@@ -343,28 +343,6 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self.webcam_url, self._programmer_time, self._synthesizer_time, self._max_use_time), "batch": False})
 
 
-    def _load_led_reading_support(self):
-        """
-        Will load the modules required to do image processing for reading the led state.
-        For this, PIL is needed as a dependency. 
-        Also, it is currently in a very experimental state, and cannot 
-        really be configured for different boards.
-        """
-        if self._led_reader != None:
-            return
-
-        from ledreader import LedReader
-
-        pld_leds = [(111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139)]
-        fpga_leds = [(130, 411), (147, 414), (163, 417), (182, 420), (201, 422), (219, 426), (236, 431), (255, 433)]
-        fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
-        pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
-        if self._device_name == "FPGA":
-            self._led_reader = LedReader(fpga, fpga_leds, 5, 5)
-        elif self._device_name == "PLD":
-            self._led_reader = LedReader(pld, pld_leds, 10, 30)
-
-
     def virtualworld_update(self, delta):
         """
         Handles virtual world updating. For instance, in the case of the watertank,
@@ -600,20 +578,20 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     experiment._watertank.current_volume = 0
     time.sleep(5)
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     while (True):
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
         experiment._watertank.current_volume = 0
         print experiment.do_send_command_to_device("READ_LEDS")
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
-        time.sleep(1);
+        time.sleep(1)
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
