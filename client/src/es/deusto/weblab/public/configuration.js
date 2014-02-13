@@ -99,8 +99,8 @@
 								   "experiment.name"		: "visir-html5",
 								   "experiment.category"	: "Visir experiments",
 								   "experiment.picture"		: "/img/experiments/visir.jpg",
-								   "width"					: 800,
-								   "height"					: 600,
+								   "cssWidth"				: "805",
+								   "cssHeight"				: "520",
 								   "provide.file.upload"	: false,
 								   "html.file"				: "visir-html5/visir.html"
 							   }
