@@ -86,9 +86,15 @@ function doPositioningDarkMagicks() {
 $(document).ready(function () {
 
     // Initialize bootstrap-switch and listen for the lightchange commands.
-    $("[name=light-switch]").bootstrapSwitch();
-    $("[name=light-switch]").on("switch-change", function(ev, data) {
-        onLightChange();
+    var $switch = $("[name=light-switch]");
+    $switch.bootstrapSwitch();
+    $switch.on("switch-change", function(ev, data) {
+        onLightChange($switch.bootstrapSwitch('state'));
+    });
+
+    // Listen for the feeding button.
+    $("#feed_button").click( function() {
+        onFeedFishes();
     });
 
     // Initialize the experiment.
@@ -129,27 +135,6 @@ $(document).ready(function () {
     });
 
 });
-
-
-// ****************
-// Basic UI actions
-// ****************
-
-//! Animates (or not) the refreshing icon.
-function setRefreshingIcon(isRefreshing) {
-    if (isRefreshing) {
-        $("#cam_refresh").hide();
-        $("#cam_refresh_active").show();
-    } else {
-        $("#cam_refresh").show();
-        $("#cam_refresh_active").hide();
-    }
-}
-
-//! Returns true if the refreshing icon is activated.
-function isRefreshingIcon() {
-    return $("#cam_refresh").hidden();
-}
 
 
 // ***************
@@ -196,6 +181,11 @@ function onLogout() {
 
     // Set up the overlay again.
     $(".overlay-back").fadeIn(1000);
+}
+
+//! Invoked when the button to feed the fishes is clicked.
+function onFeedFishes() {
+    console.log("Should feed the fishes.");
 }
 
 function onStartCallback(start_info) {
@@ -246,8 +236,10 @@ var exampleUpdateStatusResponse = JSON.stringify({
 //! The light change button was hit so probably
 //! there was a light change.
 //!
-function onLightChange() {
-    
+//! @param light_on: If true then the light should now be on. Otherwise, it should be off.
+//!
+function onLightChange(light_on) {
+    console.log("Light changed: " + light_on);
 }
 
 
@@ -368,7 +360,7 @@ function doSendButton(color, status) {
         </div>
     </div>
 
-    <div class="col-md-12">
+    <div class="col-md-offset-2 col-md-4">
 
         <div class="text-center">
             <img id="bulb_off_img" src="img/bulb_off.png" hidden/>
@@ -378,8 +370,13 @@ function doSendButton(color, status) {
 
     </div>
 
-</div>
-</div>
+    <div class="col-md-4">
+        <div class="text-center">
+            <img id="food_img" src="img/feedfish.jpg"/>
+            <button id="feed_button" class="btn btn-warning">Feed</button>
+        </div>
+    </div>
+
 </div>
 
 <script src="../../jslib/weblabjs.js"></script>
