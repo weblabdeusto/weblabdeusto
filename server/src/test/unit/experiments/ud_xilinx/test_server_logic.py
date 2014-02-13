@@ -22,6 +22,7 @@
 from mock import patch
 
 import json
+import mock
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx import command_senders as UdXilinxCommandSenders
@@ -111,6 +112,10 @@ class BasicUdXilinxExperimentTestCase(unittest.TestCase):
         resp = self.experiment.do_send_command_to_device("REPORT_SWITCHES")
         self.assertEquals("1111111111", resp)
 
+    def test_api_version(self):
+        api = self.experiment.do_get_api()
+        self.assertEquals("2", api)
+
 
 class EarlyKickingXilinxExperimentTestCase(unittest.TestCase):
     def setUp(self):
@@ -190,6 +195,40 @@ class PermissionsXilinxExperimentTestCase(unittest.TestCase):
     def test_all_disallowed(self):
         new_state = self.experiment.do_send_file_to_device("CONTENTS", "wha");
         self.assertEquals("STATE=not_allowed", new_state)
+
+
+class CompilerXilinxExperimentTestCase(unittest.TestCase):
+
+    def setUp(self):
+        from voodoo.configuration import ConfigurationManager
+        from voodoo.sessions.session_id import SessionId
+
+        self.cfg_manager = ConfigurationManager()
+        self.cfg_manager.append_module(configuration_module)
+        self.cfg_manager._set_value("webcam", "http://localhost")
+
+        # For later.
+        self.cfg_manager._set_value("weblab_xilinx_experiment_xilinx_device", "FPGA")
+
+        UdXilinxCommandSenders._SerialPort = FakeSerialPort
+        UdXilinxCommandSenders._HttpDevice = FakeHttpDevice
+
+        self.experiment = UdXilinxExperiment.UdXilinxExperiment(None, None, self.cfg_manager)
+
+        self.configjson = self.experiment.do_start_experiment()
+
+        self.lab_session_id = SessionId('my-session-id')
+
+    @mock.patch("experiments.xilinxc.compiler.Compiler")
+    def test_compile(self, compiler_class):
+        pass
+        # TODO: Test isn't working for now.
+        # thr = self.experiment._compile_program_file_t("CONTENTS")
+        # print thr
+
+    def cleanUp(self):
+        self.experiment.do_dispose()
+
 
 class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
     def setUp(self):
@@ -287,6 +326,7 @@ def suite():
     return unittest.TestSuite(
         (
             unittest.makeSuite(BasicUdXilinxExperimentTestCase),
+            unittest.makeSuite(PermissionsXilinxExperimentTestCase),
             unittest.makeSuite(EarlyKickingXilinxExperimentTestCase),
             unittest.makeSuite(VirtualWorldXilinxExperimentTestCase)
         )
