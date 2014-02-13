@@ -86,6 +86,16 @@
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
 								   "experiment.info.description" : "description"
 	                    	   },
+        	                   {
+	                    		   "experiment.name"		: "submarinejs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/submarine.png",
+	                    		   "width"					: 1024,
+	                    		   "height"					: 1000,
+	                    		   "html.file"				: "jslabs/submarine/submarine.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+								   "experiment.info.description" : "description"
+	                    	   },
 	                    	   {
 	                    		   "experiment.name"		: "jsfpga",
 	                    		   "experiment.category"	: "FPGA experiments",
