@@ -468,6 +468,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._watertank.autoupdater_start(1)
                     return "ok"
                 elif vw == "watertank_temperatures":
+                    self._virtual_world = "watertank"  # So that other parts of the code aren't confused. Not very tidy. TODO: Fixme.
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5, True)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
