@@ -171,7 +171,7 @@ class Watertank(object):
         @param output_flow New flow of the output, in liters per second.
         """
         with self.simlock:
-            self.outputs
+            self.outputs[output_number] = output_flow
 
     def set_inputs(self, inputs):
         """
@@ -261,25 +261,56 @@ class Watertank(object):
 
 if __name__ == '__main__':
 
-    w = Watertank(1000, [100, 100], [100], 0.5, True)
-    w.autoupdater_start(1)
+    from mock import patch
 
-    i = 0
-    while (i < 15):
-        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-        time.sleep(0.5);
-        i += 1
+    def fake_sleep(time):
+        pass
 
-    print "...."
-    i = 0
-    w.set_outputs([100])
-    w.set_inputs([10, 10])
-    while (i < 30):
-        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-        time.sleep(0.5);
-        i += 1
+    @patch("time.sleep", fake_sleep)
+    def test():
 
-    w.autoupdater_join()
-        
-        
-        
+        w = Watertank(1000, [100, 100], [100], 0.5, True)
+        w.autoupdater_start(1)
+
+        i = 0
+        while (i < 15):
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            time.sleep(0.5)
+            i += 1
+
+        print "...."
+        i = 0
+        w.set_outputs([100])
+        w.set_inputs([10, 10])
+        while (i < 30):
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            time.sleep(0.5)
+            i += 1
+
+        w.autoupdater_join()
+
+
+    def test2():
+
+        w = Watertank(1000, [100, 100], [100], 0.5, True)
+
+        i = 0
+        while i < 15:
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            w.update(1)
+            i += 1
+
+        print "...."
+        i = 0
+        w.set_outputs([100])
+        w.set_inputs([10, 10])
+        while i < 15:
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            w.update(1)
+            i += 1
+
+
+    print "FIRST TEST: "
+    test()
+    print "SECOND TEST: "
+    test2()
