@@ -354,9 +354,14 @@ class UdXilinxExperiment(Experiment.Experiment):
             self.change_switch(1, waterLevel >= 0.50)
             self.change_switch(2, waterLevel >= 0.80)
 
+            # These only apply for the temperature mode, but they are always valid nonetheless.
+            temp_warnings = self._watertank.get_temperature_warnings()
+            self.change_switch(3, temp_warnings[0])
+            self.change_switch(4, temp_warnings[1])
+
         self._watertank_time_without_demand_change += delta
 
-        if (self._watertank_time_without_demand_change > 5):
+        if self._watertank_time_without_demand_change > 5:
             self._watertank_time_without_demand_change = 0
             self._watertank.set_outputs([random.randint(0, 20)])
 
@@ -459,6 +464,11 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self._virtual_world = vw
                 if vw == "watertank":
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
+                    self._last_virtualworld_update = time.time()
+                    self._watertank.autoupdater_start(1)
+                    return "ok"
+                elif vw == "watertank_temperatures":
+                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5, True)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"

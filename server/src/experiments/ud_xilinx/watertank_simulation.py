@@ -20,8 +20,8 @@ import json
 
 
 class Watertank(object):
-    def __init__(self, tank_capacity, inputs, outputs, water_level):
-        self.initialize(tank_capacity, inputs, outputs, water_level)
+    def __init__(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=False):
+        self.initialize(tank_capacity, inputs, outputs, water_level, temperatures_mode)
 
 
     def initialize(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=False):
@@ -171,7 +171,7 @@ class Watertank(object):
         @param output_flow New flow of the output, in liters per second.
         """
         with self.simlock:
-            self.outputs
+            self.outputs[output_number] = output_flow
 
     def set_inputs(self, inputs):
         """
@@ -205,6 +205,24 @@ class Watertank(object):
         with self.simlock:
             return 1.0 * self.current_volume / self.tank_capacity
 
+    def get_temperature_warnings(self):
+        """
+        Gets the state of the temperature warnings.
+
+        @return: Returns the state of the temperature warning sensors as an array of 2 elements, each element being 1 or 0.
+        """
+        temp_warnings = [0, 0]
+        if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
+            temp_warnings[0] = 1
+        else:
+            temp_warnings[0] = 0
+
+        if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
+            temp_warnings[1] = 1
+        else:
+            temp_warnings[1] = 0
+        return temp_warnings
+
     def get_json_state(self, input_capacities, output_capacities):
         """
         Gets a json-encoded description of the simulation's state. 
@@ -237,44 +255,70 @@ class Watertank(object):
 
         # Whether the temp warnings are set or not.
         if self.temperatures_mode:
-            temp_warnings = [0, 0]
-
-            if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
-                temp_warnings[0] = 1
-            else:
-                temp_warnings[0] = 0
-
-            if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
-                temp_warnings[1] = 1
-            else:
-                temp_warnings[1] = 0
+            temp_warnings = self.get_temperature_warnings()
 
             state["temp_warnings"] = temp_warnings
+
+            temperatures = [0, 0]
+            temperatures[0] = (self.firstPumpTemperature - self.firstPumpWorkRange[0]) * 1.0 / (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0])
+            temperatures[1] = (self.secondPumpTemperature - self.secondPumpWorkRange[0]) * 1.0 / (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0])
+            state["temperatures"] = temperatures
 
         return json.dumps(state)
 
 
 if __name__ == '__main__':
 
-    w = Watertank(1000, [100, 100], [100], 0.5)
-    w.autoupdater_start(1)
+    from mock import patch
 
-    i = 0
-    while (i < 15):
-        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-        time.sleep(0.5);
-        i += 1
+    def fake_sleep(time):
+        pass
 
-    print "...."
-    i = 0
-    w.set_outputs([100])
-    w.set_inputs([10, 10])
-    while (i < 15):
-        print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-        time.sleep(0.5);
-        i += 1
+    @patch("time.sleep", fake_sleep)
+    def test():
 
-    w.autoupdater_join()
-        
-        
-        
+        w = Watertank(1000, [100, 100], [100], 0.5, True)
+        w.autoupdater_start(1)
+
+        i = 0
+        while (i < 15):
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            time.sleep(0.5)
+            i += 1
+
+        print "...."
+        i = 0
+        w.set_outputs([100])
+        w.set_inputs([10, 10])
+        while (i < 30):
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            time.sleep(0.5)
+            i += 1
+
+        w.autoupdater_join()
+
+
+    def test2():
+
+        w = Watertank(1000, [100, 100], [100], 0.5, True)
+
+        i = 0
+        while i < 15:
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            w.update(1)
+            i += 1
+
+        print "...."
+        i = 0
+        w.set_outputs([100])
+        w.set_inputs([10, 10])
+        while i < 15:
+            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            w.update(1)
+            i += 1
+
+
+    print "FIRST TEST: "
+    test()
+    print "SECOND TEST: "
+    test2()

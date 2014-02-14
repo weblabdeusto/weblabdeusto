@@ -440,6 +440,23 @@
 			    var fsw = new FullScreenWidget("1%", "8%", "FULLSCREEN");
 			    container.appendChild(fsw.getElement());
 
+                // Create the thermometer.
+                // When it is pressed we switch to the advanced mode automagically, and we reset the simulation.
+                var thermo = new ImageWidget("1%", "25%", "T. MODE", "34px", "100px", "thermometer.png");
+                container.appendChild(thermo.getElement());
+                thermo.setOnClick(function() {
+                    console.log("Switching to the advanced mode");
+                    Weblab.dbgSetOfflineSendCommandResponse("ok");
+                    Weblab.sendCommand("VIRTUALWORLD_MODE watertank_temperatures",
+                            function(success) {
+
+                            },
+                            function(error) {
+
+                            }
+                    );
+                });
+
 			    // Set up the state checker, which will continuously query WebLab
                 // for state changes, and display the current experiment state.
 			    sc = new StateChecker();
@@ -532,7 +549,7 @@
 				info.style.top = '10px';
 				info.style.width = '100%';
 				info.style.textAlign = 'center';
-				info.innerHTML = '<b>JSFPGA TEST EXPERIMENT</b>';
+				info.innerHTML = '<b>WATERTANK EXPERIMENT</b>';
 				container.appendChild(info);
 
 
