@@ -79,8 +79,8 @@ class Watertank(object):
                     self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
                 elif not self.firstPumpOverheated:
                     self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
-                    total_output += pump1 * delta
-            else:
+                    total_input += pump1 * delta
+            elif self.firstPumpTemperature > self.firstPumpWorkRange[0]:
                 self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
 
             if pump2 > 0:
@@ -90,13 +90,15 @@ class Watertank(object):
                     self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
                 elif not self.secondPumpOverheated:
                     self.secondPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
-                    total_output += pump2 * delta
+                    total_input += pump2 * delta
+            elif self.secondPumpTemperature > self.secondPumpWorkRange[0]:
+                self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
 
             # Clear the overheated state if we have to.
-            if self.firstPumpOverheated and self.firstPumpTemperature <= self.firstPumpTemperature * self.pumpWarningPercent:
+            if self.firstPumpOverheated and self.firstPumpTemperature <= self.firstPumpWorkRange[0] + self.pumpWarningPercent * (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]):
                 self.firstPumpOverheated = False
 
-            if self.secondPumpOverheated and self.secondPumpTemperature <= self.secondPumpTemperature * self.pumpWarningPercent:
+            if self.secondPumpOverheated and self.secondPumpTemperature <= self.secondPumpWorkRange[0] + self.pumpWarningPercent * (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]):
                 self.secondPumpOverheated = False
 
         # Handle inputs in the standard mode.
@@ -212,12 +214,12 @@ class Watertank(object):
         @return: Returns the state of the temperature warning sensors as an array of 2 elements, each element being 1 or 0.
         """
         temp_warnings = [0, 0]
-        if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
+        if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent + self.firstPumpWorkRange[0]:
             temp_warnings[0] = 1
         else:
             temp_warnings[0] = 0
 
-        if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
+        if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent + self.firstPumpWorkRange[0]:
             temp_warnings[1] = 1
         else:
             temp_warnings[1] = 0

@@ -462,6 +462,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             elif command.startswith('VIRTUALWORLD_MODE'):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
+
+                # Stop the watertank if it is running.
+                if self._watertank is not None:
+                    self._watertank.autoupdater_stop()
+
                 if vw == "watertank":
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
                     self._last_virtualworld_update = time.time()
@@ -489,6 +494,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                     return self._virtual_world_state
 
                 return "{}";
+
+            elif command == 'HELP':
+                return "VIRTUALWORLD_MODE | VIRTUALWORLD_STATE | SYNTHESIZING_RESULT | READ_LEDS | REPORT_SWITCHES | REPORT_USE_TIME_LEFT | STATE | ChangeSwitch"
 
             elif command == 'SYNTHESIZING_RESULT':
                 if (DEBUG):

@@ -27,6 +27,7 @@ import experiments.ud_xilinx.server as UdXilinxExperiment
 import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx import command_senders as UdXilinxCommandSenders
 import unittest
+from experiments.ud_xilinx.watertank_simulation import Watertank
 from test.unit.experiments.ud_xilinx.test_server import FakeSerialPort, FakeHttpDevice
 import voodoo.configuration as ConfigurationManager
 
@@ -46,9 +47,11 @@ import time
 
 _time = 100
 
+
 def _sleep_mock_handler(*args, **kwargs):
     global _time
     _time += args[0]
+
 
 def _time_mock_handler(*args, **kwargs):
     global _time
@@ -198,7 +201,6 @@ class PermissionsXilinxExperimentTestCase(unittest.TestCase):
 
 
 class CompilerXilinxExperimentTestCase(unittest.TestCase):
-
     def setUp(self):
         from voodoo.configuration import ConfigurationManager
         from voodoo.sessions.session_id import SessionId
@@ -267,59 +269,227 @@ class VirtualWorldXilinxExperimentTestCase(unittest.TestCase):
         self.assertEquals("unknown_virtualworld", resp)
 
 
+class WatertankSimulationTestCase(unittest.TestCase):
+    def setUp(self):
+        self.watertank = Watertank(1000, [10, 10], [10], 0.5)
+
+    def test_water_raises(self):
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertGreater(sf["water"], so["water"])
+
+    def test_water_lowers(self):
+        self.watertank.set_inputs([0, 0])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertLess(sf["water"], so["water"])
+
+    def cleanUp(self):
+        pass
 
 
-    class FakeOpen(object):
-        def read(self):
-            return """
-                {
-                    "inputs" : [
-                        {
-                            "inputNumber": "0",
-                            "value": "0"
-                        },
-                        {
-                            "inputNumber": "1",
-                            "value": "1"
-                        },
-                        {
-                            "inputNumber": "2",
-                            "value": "1"
-                        },
-                        {
-                            "inputNumber": "3",
-                            "value": "0"
-                        },
-                        {
-                            "inputNumber": "4",
-                            "value": "1"
-                        },
-                        {
-                            "inputNumber": "5",
-                            "value": "1"
-                        },
-                        {
-                            "inputNumber": "6",
-                            "value": "0"
-                        },
-                        {
-                            "inputNumber": "7",
-                            "value": "1"
-                        }
-                    ]
-                }
-            """
+class WatertankSimulationTestCaseTemperatures(unittest.TestCase):
+    def setUp(self):
+        self.watertank = Watertank(1000, [10, 10], [10], 0.5, True)
 
-    def _ret_fake(self):
-        return VirtualWorldXilinxExperimentTestCase.FakeOpen()
+    def test_not_overheat(self):
 
-    @patch("urllib2.urlopen", new=_ret_fake)
-    def test_read_leds(self):
-        resp = self.experiment.query_leds_from_json()
-        self.assertEquals(["0", "1", "1", "0", "1", "1", "0", "1"], resp)
+        self.assertFalse(self.watertank.firstPumpOverheated)
+        self.assertFalse(self.watertank.secondPumpOverheated)
 
-        resp = self.experiment.do_send_command_to_device("READ_LEDS")
-        self.assertEquals("01101101", resp)
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        self.assertFalse(self.watertank.firstPumpOverheated)
+        self.assertFalse(self.watertank.secondPumpOverheated)
+
+    def test_stay_within_temp_work_range(self):
+
+        self.assertTrue(self.watertank.firstPumpWorkRange[1] >= self.watertank.firstPumpTemperature >=
+                        self.watertank.secondPumpWorkRange[0])
+
+        for i in range(3):
+            self.watertank.update(1)
+
+        self.assertTrue(self.watertank.firstPumpWorkRange[1] >= self.watertank.firstPumpTemperature >=
+                        self.watertank.secondPumpWorkRange[0])
+
+    def test_water_raises(self):
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertGreater(sf["water"], so["water"])
+
+    def test_water_lowers(self):
+        self.watertank.set_inputs([0, 0])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertLess(sf["water"], so["water"])
+
+    def test_left_temperature_raises(self):
+        self.watertank.set_inputs([10, 0])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertGreater(sf["temperatures"][0], so["temperatures"][0])
+
+    def test_left_temperature_remains(self):
+        self.watertank.set_inputs([0, 0])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        rso = self.watertank.firstPumpTemperature
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+        rsf = self.watertank.firstPumpTemperature
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertEquals(rsf, rso)
+        self.assertEquals(sf["temperatures"][0], so["temperatures"][0])
+
+    def test_right_temperature_raises(self):
+        self.watertank.set_inputs([0, 10])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertGreater(sf["temperatures"][1], so["temperatures"][1])
+
+    def test_right_temperature_remains(self):
+        self.watertank.set_inputs([0, 0])
+
+        so = self.watertank.get_json_state([20, 20], [20])
+        rso = self.watertank.secondPumpTemperature
+        for i in range(3):
+            self.watertank.update(1)
+        sf = self.watertank.get_json_state([20, 20], [20])
+        rsf = self.watertank.secondPumpTemperature
+
+        so = json.loads(so)
+        sf = json.loads(sf)
+
+        self.assertEquals(rsf, rso)
+        self.assertEquals(sf["temperatures"][1], so["temperatures"][1])
+
+    def test_all_overheat(self):
+        self.watertank.set_inputs([10, 10])
+
+        for i in range(30):
+            self.watertank.update(1)
+
+        self.assertTrue(self.watertank.firstPumpOverheated)
+        self.assertTrue(self.watertank.secondPumpOverheated)
+
+    def test_all_recover_after_overheat(self):
+        self.watertank.set_inputs([10, 10])
+
+        for i in range(30):
+            self.watertank.update(1)
+
+        self.watertank.set_inputs([0, 0])
+
+        for i in range(20):
+            self.watertank.update(1)
+
+        self.assertFalse(self.watertank.firstPumpOverheated)
+        self.assertFalse(self.watertank.secondPumpOverheated)
+
+    def cleanUp(self):
+        pass
+
+
+class FakeOpen(object):
+    def read(self):
+        return """
+            {
+                "inputs" : [
+                    {
+                        "inputNumber": "0",
+                        "value": "0"
+                    },
+                    {
+                        "inputNumber": "1",
+                        "value": "1"
+                    },
+                    {
+                        "inputNumber": "2",
+                        "value": "1"
+                    },
+                    {
+                        "inputNumber": "3",
+                        "value": "0"
+                    },
+                    {
+                        "inputNumber": "4",
+                        "value": "1"
+                    },
+                    {
+                        "inputNumber": "5",
+                        "value": "1"
+                    },
+                    {
+                        "inputNumber": "6",
+                        "value": "0"
+                    },
+                    {
+                        "inputNumber": "7",
+                        "value": "1"
+                    }
+                ]
+            }
+        """
+
+
+def _ret_fake(self):
+    return VirtualWorldXilinxExperimentTestCase.FakeOpen()
+
+
+@patch("urllib2.urlopen", new=_ret_fake)
+def test_read_leds(self):
+    resp = self.experiment.query_leds_from_json()
+    self.assertEquals(["0", "1", "1", "0", "1", "1", "0", "1"], resp)
+
+    resp = self.experiment.do_send_command_to_device("READ_LEDS")
+    self.assertEquals("01101101", resp)
 
 
 def suite():
@@ -328,7 +498,9 @@ def suite():
             unittest.makeSuite(BasicUdXilinxExperimentTestCase),
             unittest.makeSuite(PermissionsXilinxExperimentTestCase),
             unittest.makeSuite(EarlyKickingXilinxExperimentTestCase),
-            unittest.makeSuite(VirtualWorldXilinxExperimentTestCase)
+            unittest.makeSuite(VirtualWorldXilinxExperimentTestCase),
+            unittest.makeSuite(WatertankSimulationTestCase),
+            unittest.makeSuite(WatertankSimulationTestCaseTemperatures)
         )
     )
 
