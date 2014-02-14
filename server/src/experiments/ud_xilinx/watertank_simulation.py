@@ -205,6 +205,24 @@ class Watertank(object):
         with self.simlock:
             return 1.0 * self.current_volume / self.tank_capacity
 
+    def get_temperature_warnings(self):
+        """
+        Gets the state of the temperature warnings.
+
+        @return: Returns the state of the temperature warning sensors as an array of 2 elements, each element being 1 or 0.
+        """
+        temp_warnings = [0, 0]
+        if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
+            temp_warnings[0] = 1
+        else:
+            temp_warnings[0] = 0
+
+        if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
+            temp_warnings[1] = 1
+        else:
+            temp_warnings[1] = 0
+        return temp_warnings
+
     def get_json_state(self, input_capacities, output_capacities):
         """
         Gets a json-encoded description of the simulation's state. 
@@ -237,17 +255,7 @@ class Watertank(object):
 
         # Whether the temp warnings are set or not.
         if self.temperatures_mode:
-            temp_warnings = [0, 0]
-
-            if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent:
-                temp_warnings[0] = 1
-            else:
-                temp_warnings[0] = 0
-
-            if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent:
-                temp_warnings[1] = 1
-            else:
-                temp_warnings[1] = 0
+            temp_warnings = self.get_temperature_warnings()
 
             state["temp_warnings"] = temp_warnings
 

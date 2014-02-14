@@ -15,6 +15,10 @@
 //! accordingly.
 //! SWI0, SWI1, SWI2 are level sensors. They indicate the following:
 //! 20%, 50%, 80%
+//!
+//! If the watertank_temperatures mode is enabled, then:
+//! SWI3 is the warning for the first pump.
+//! SWI4 is the warning for the second pump.
 
 /// The following references are for VisualStudio, so that Intellisense recognizes every library.
 /// <reference path="../jslib/weblabjs.js" />
@@ -245,6 +249,8 @@ WeblabSimulationUpdater = function ( simulation ) {
         this._simulation.setLeftPumpLevel(state["inputs"][0]);
         this._simulation.setRightPumpLevel(state["inputs"][1]);
         this._simulation.setWaterOutputLevel(state["outputs"][0]);
+        this._simulation.setLeftPumpTemperature(state["temperatures"][0]);
+        this._simulation.setRightPumpTemperature(state["temperatures"][1]);
 
         if( this._active )
             this.startUpdating(); // Does actually *continue* updating.
