@@ -249,8 +249,11 @@ WeblabSimulationUpdater = function ( simulation ) {
         this._simulation.setLeftPumpLevel(state["inputs"][0]);
         this._simulation.setRightPumpLevel(state["inputs"][1]);
         this._simulation.setWaterOutputLevel(state["outputs"][0]);
-        this._simulation.setLeftPumpTemperature(state["temperatures"][0]);
-        this._simulation.setRightPumpTemperature(state["temperatures"][1]);
+
+        if("temperatures" in state) {
+            this._simulation.setLeftPumpTemperature(state["temperatures"][0]);
+            this._simulation.setRightPumpTemperature(state["temperatures"][1]);
+        }
 
         if( this._active )
             this.startUpdating(); // Does actually *continue* updating.
