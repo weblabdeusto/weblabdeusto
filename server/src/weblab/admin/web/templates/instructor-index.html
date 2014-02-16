@@ -15,12 +15,14 @@
         {% endif %}
         </p>
 
-        {% if groups %}
+        {% if groups|length > 0 %}
         <p>You're in charge of the following groups{% if is_admin %} (or <a href="{{ url_for('stats/groups.groups_total_stats') }}">see all uses</a>){% endif %}:</p>
         {% from "_widgets.html" import show_groups %}
         {{ show_groups(tree_groups, groups) }}
         {% else %}
-        <p>However, it seems that you don't have permission of teacher on any group (or there is no group in the system)</p>
+        <div class="alert alert-error">
+            <p>You don't have permission of teacher on any group (or there is no group in the system)</p>
+        </div>
         {% endif %}
     </div>
 </div>

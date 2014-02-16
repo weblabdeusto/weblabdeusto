@@ -192,9 +192,10 @@ class AdministrationApplication(AbstractDatabaseGateway):
                 user_info = self.ups.get_user_information(session_id)
             except SessionNotFoundError:
                 # Gotcha
+                traceback.print_exc()
                 return None
             else:
-                user_info.role.name
+                return user_info.role.name
         except:
             traceback.print_exc()
             return None

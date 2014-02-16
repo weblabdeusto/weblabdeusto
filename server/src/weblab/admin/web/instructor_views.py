@@ -25,7 +25,8 @@ def is_instructor():
     if is_admin:
         return True
     
-    return get_app_instance().get_user_role() in ('administrator', 'professor', 'instructor', 'admin')
+    role = get_app_instance().get_user_role()
+    return role in ('administrator', 'professor', 'instructor', 'admin')
 
 class InstructorView(BaseView):
     def is_accessible(self):
@@ -85,9 +86,12 @@ def get_assigned_group_ids(session):
 
     return group_ids
 
-def get_assigned_groups(session):
+def get_assigned_groups_query(session):
     group_ids = get_assigned_group_ids(session)
     return session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids))
+
+def get_assigned_groups(session):
+    return get_assigned_groups_query(session).all()
 
 def get_tree_groups(group_list):
     tree = defaultdict(list)
@@ -111,7 +115,7 @@ def get_tree_groups(group_list):
             
         
 
-def apply_instrutor_filters_to_logs(session, logs_query):
+def apply_instructor_filters_to_logs(session, logs_query):
     """ logs_query is a sqlalchemy query. Here we filter that 
     the teacher only sees those permissions for a group.
     """
@@ -122,7 +126,7 @@ def apply_instrutor_filters_to_logs(session, logs_query):
     for permission in session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group_id.in_(group_ids), model.DbGroupPermission.permission_type == permissions.EXPERIMENT_ALLOWED).all():
         permission_ids.add(permission.id)
 
-    logs_query.filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids))
+    logs_query = logs_query.filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids))
     return logs_query
 
 
@@ -136,13 +140,13 @@ class UsersPanel(InstructorModelView):
 
     def get_query(self):
         query = super(UsersPanel, self).get_query()
-        groups = get_assigned_groups(self.session).subquery()
+        groups = get_assigned_groups_query(self.session).subquery()
         query = query.join(groups, model.DbUser.groups)
         return query
 
     def get_count_query(self):
         query = super(UsersPanel, self).get_count_query()
-        groups = get_assigned_groups(self.session).subquery()
+        groups = get_assigned_groups_query(self.session).subquery()
         query = query.join(groups, model.DbUser.groups)
         return query
 
@@ -178,13 +182,13 @@ class UserUsedExperimentPanel(InstructorModelView):
 
     def get_query(self):
         query = super(UserUsedExperimentPanel, self).get_query()
-        query = apply_instrutor_filters_to_logs(self.session, query)
+        query = apply_instructor_filters_to_logs(self.session, query)
         return query
 
 
     def get_count_query(self):
         query = super(UserUsedExperimentPanel, self).get_count_query()
-        query = apply_instrutor_filters_to_logs(self.session, query)
+        query = apply_instructor_filters_to_logs(self.session, query)
         return query
 
 def generate_color_code(value, max_value):
@@ -455,7 +459,7 @@ def generate_info(panel, session, condition, experiments, results):
                                                             sql.and_(condition,
                                                             model.DbUserUsedExperiment.session_time_micro != None)
                                                             ).group_by(model.DbUserUsedExperiment.start_date_date)):
-        time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number
+        time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number / 1000000
         results['statistics']['total_time'] += session_time_micro / 1000000
     
     links = generate_links(session, condition)
