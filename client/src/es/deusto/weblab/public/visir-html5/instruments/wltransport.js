@@ -31,6 +31,7 @@ visir.WLTransport.prototype.Request = function(request, callback)
 	request = '<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>';
 
 	Weblab.sendCommand(request, function(response) {
+			this.SetWorking(false);
 			if (typeof callback == "function")
 			{
 				// this will check for errors in the request
