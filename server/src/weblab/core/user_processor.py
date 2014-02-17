@@ -88,6 +88,9 @@ class UserProcessor(object):
     def is_admin(self):
         return self._db_manager.is_admin(self.username)
 
+    def is_instructor(self):
+        return self._db_manager.is_instructor(self.username)
+
     #
     # Experiments
     #

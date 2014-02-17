@@ -36,6 +36,12 @@
 						 	
 						 	<g:Label visible="false" ui:field="separatorLabelAdministration" text="|" styleName="web-logged-header-profile-separator"></g:Label>
 					
+						 	<w:WlAHref visible="false" ui:field="instructorLink">
+								<g:Image resource='{res.instructor}' />
+							</w:WlAHref>
+						 	
+						 	<g:Label visible="false" ui:field="separatorLabelInstructor" text="|" styleName="web-logged-header-profile-separator"></g:Label>
+					
 						 	<w:WlAHref ui:field="profileLink">
 								<g:Image resource='{res.profile}' />
 							</w:WlAHref>

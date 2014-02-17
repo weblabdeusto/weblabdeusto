@@ -352,13 +352,20 @@ class UserProcessingServer(object):
         user_information = user_processor.get_user_information()
         if user_processor.is_admin():
             admin_url = self.core_server_url + "administration/admin/"
-
             try:
                 user_information.admin_url = urlparse.urlparse(admin_url).path
             except:
                 user_information.admin_url = admin_url
         else:
             user_information.admin_url = ""
+        if user_processor.is_instructor():
+            instructor_url = self.core_server_url + "administration/instructor/"
+            try:
+                user_information.instructor_url = urlparse.urlparse(admin_url).path
+            except:
+                user_information.instructor_url = instructor_url
+        else:
+            user_information.instructor_url = ""
         return user_information
 
     @logged(log.level.Info)
