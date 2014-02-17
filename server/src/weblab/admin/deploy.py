@@ -572,8 +572,8 @@ def insert_required_initial_data(engine):
     administrator = Model.DbRole("administrator")
     session.add(administrator)
 
-    professor = Model.DbRole("professor")
-    session.add(professor)
+    instructor = Model.DbRole("instructor")
+    session.add(instructor)
 
     student = Model.DbRole("student")
     session.add(student)
@@ -665,7 +665,7 @@ def populate_weblab_tests(engine, tests):
     session.add(auth_facebook)
 
     administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
-    professor     = session.query(Model.DbRole).filter_by(name='professor').one()
+    instructor    = session.query(Model.DbRole).filter_by(name='instructor').one()
     student       = session.query(Model.DbRole).filter_by(name='student').one()
     federated     = session.query(Model.DbRole).filter_by(name='federated').one()
 
@@ -682,13 +682,13 @@ def populate_weblab_tests(engine, tests):
     any = Model.DbUser("any", "Name of any", "weblab@deusto.es", None, student)
     session.add(any) 
 
-    prof1 = Model.DbUser("prof1", "Name of professor 1", "weblab@deusto.es", None, professor)
+    prof1 = Model.DbUser("prof1", "Name of instructor 1", "weblab@deusto.es", None, instructor)
     session.add(prof1)    
 
-    prof2 = Model.DbUser("prof2", "Name of professor 2", "weblab@deusto.es", None, professor)
+    prof2 = Model.DbUser("prof2", "Name of instructor 2", "weblab@deusto.es", None, instructor)
     session.add(prof2)    
 
-    prof3 = Model.DbUser("prof3", "Name of professor 3", "weblab@deusto.es", None, professor)
+    prof3 = Model.DbUser("prof3", "Name of instructor 3", "weblab@deusto.es", None, instructor)
     session.add(prof3)    
 
     student1 = Model.DbUser("student1", "Name of student 1", "weblab@deusto.es", None, student)

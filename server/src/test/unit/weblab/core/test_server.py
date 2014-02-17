@@ -686,7 +686,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertEquals(4, len(roles) )
         role_names = list( role.name for role in roles )
         self.assertTrue( 'student' in role_names )
-        self.assertTrue( 'professor' in role_names )
+        self.assertTrue( 'instructor' in role_names )
         self.assertTrue( 'administrator' in role_names )
         self.assertTrue( 'federated' in role_names )
 

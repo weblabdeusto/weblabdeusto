@@ -466,7 +466,7 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
     def _generate_roles(self):
         role1 = Role("student")
-        role2 = Role("professor")
+        role2 = Role("instructor")
         role3 = Role("administrator")
         return role1, role2, role3
 
