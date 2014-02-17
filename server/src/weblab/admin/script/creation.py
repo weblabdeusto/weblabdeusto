@@ -884,7 +884,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     group_name = 'Administrators'
     deploy.add_group(Session, group_name)
     deploy.grant_admin_panel_on_group(Session, group_name)
-    deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL])
+    deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL], role = 'administrator')
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
     # dummy@Dummy experiments (local)

@@ -1838,13 +1838,13 @@ def generate_create_database(engine_str):
     else:
         return None
 
-def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None, role = 'student'):
     session = sessionmaker()
 
-    student       = session.query(Model.DbRole).filter_by(name='student').one()
+    role = session.query(Model.DbRole).filter_by(name=role).one()
     weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
 
-    user    = Model.DbUser(login, user_name, mail, None, student)
+    user    = Model.DbUser(login, user_name, mail, None, role)
     session.add(user)
 
     user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))

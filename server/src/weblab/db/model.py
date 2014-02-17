@@ -562,7 +562,8 @@ class DbUserUsedExperiment(Base):
             self.session_time_seconds = self.session_time_micro / 1000000
         else:
             self.session_time_micro = session_time_micro
-            self.session_time_seconds = self.session_time_micro / 1000000
+            if self.session_time_micro:
+                self.session_time_seconds = self.session_time_micro / 1000000
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)

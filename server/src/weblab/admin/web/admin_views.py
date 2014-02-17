@@ -517,6 +517,7 @@ class UsersAddingView(AdministratorView):
 class GroupsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'parent', 'users', 'permissions')
+    form_columns = ('name', 'parent', 'users')
 
     column_filters = ( ('name',)
                        + generate_filter_any(model.DbUser.login.property.columns[0], 'User login', model.DbGroup.users)
