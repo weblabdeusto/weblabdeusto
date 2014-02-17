@@ -168,9 +168,8 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         try:
             user = self._get_user(session, user_login)
             admin_permissions = self._gather_permissions(session, user, 'admin_panel_access')
-            instructor_permissions = = self._gather_permissions(session, user, 'instructor_of_group')
-
-            return user.role.name == 'instructor' or len(permissions) > 0 or len(instructor_permissions) > 0
+            instructor_permissions = self._gather_permissions(session, user, 'instructor_of_group')
+            return user.role.name == 'instructor' or len(admin_permissions) > 0 or len(instructor_permissions) > 0
         finally:
             session.close()
 
