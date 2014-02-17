@@ -80,9 +80,10 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
 
         self.wait_for_programming_to_end()
 
-        initial_open  = 1
-        initial_send  = 1
-        initial_close = 1
+        # These were initially 1.
+        initial_open  = 0
+        initial_send  = 0
+        initial_close = 0
 
         # TODO: The following assert fails but probably shouldn't. Fix it.
         self.assertEquals(
@@ -151,7 +152,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
 
         self.wait_for_programming_to_end()
 
-        initial_send  = 1
+        # Initially 1.
+        initial_send  = 0
 
         # TODO: The followign assert fails but probably shouldn't. Fix it.
         #self.assertEquals(
@@ -161,6 +163,7 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
 
         self.uxm.do_send_command_to_device("ClockActivation off, ClockActivation on 1500, SetPulse on 3")
 
+        # Constant was originally 1.
         self.assertEquals(
                 1 + initial_send,
                 len(self.uxm._command_sender._http_device.msgs)

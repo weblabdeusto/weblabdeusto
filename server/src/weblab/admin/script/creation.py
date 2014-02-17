@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 try:
     from PIL import Image
@@ -50,16 +50,16 @@ from voodoo.dbutil import generate_getconn
 
 
 #########################################################################################
-# 
-# 
-# 
+#
+#
+#
 #      W E B L A B     D I R E C T O R Y     C R E A T I O N
-# 
-# 
-# 
+#
+#
+#
 
 class OptionWrapper(object):
-    """ OptionWrapper is a wrapper of an OptionParser options object, 
+    """ OptionWrapper is a wrapper of an OptionParser options object,
     which makes it possible to refer to options['force'] instead of options.force.
     """
     def __init__(self, options):
@@ -85,7 +85,7 @@ class OptionWrapper(object):
 class Creation(object):
 
     """ This class wraps the options for creating a new WebLab-Deusto directory """
-    
+
     FORCE             = 'force'
     VERBOSE           = 'verbose'
 
@@ -130,7 +130,7 @@ class Creation(object):
 
     # Logic experiment
     LOGIC_SERVER       = 'logic_server'
-    
+
     # Virtual Machine experiment
     VM_SERVER                       = 'vm_server'
     VM_EXPERIMENT_NAME              = 'vm_experiment_name'
@@ -140,13 +140,13 @@ class Creation(object):
     VM_URL                          = 'vm_url'
     HTTP_QUERY_USER_MANAGER_URL     = 'http_query_user_manager_url'
     VM_ESTIMATED_LOAD_TIME          = 'vm_estimated_load_time'
-    
+
     # Federated laboratories
     ADD_FEDERATED_LOGIC     = 'federated_logic'
     ADD_FEDERATED_ROBOT     = 'federated_robot'
     ADD_FEDERATED_VISIR     = 'federated_visir'
     ADD_FEDERATED_SUBMARINE = 'federated_submarine'
-    
+
     # Sessions
     SESSION_STORAGE    = 'session_storage'
     SESSION_DB_ENGINE  = 'session_db_engine'
@@ -166,7 +166,7 @@ class Creation(object):
     DB_PORT            = 'db_port'
     DB_USER            = 'db_user'
     DB_PASSWD          = 'db_passwd'
-    
+
     # Coordination
     COORD_ENGINE       = 'coord_engine'
     COORD_DB_ENGINE    = 'coord_db_engine'
@@ -242,7 +242,7 @@ def uncomment_json(lines):
                     if c == '/':
                         if previous_slash and not single_quote_open and not double_quote_open:
                             comment_found = True
-                            break # counter is the previous one 
+                            break # counter is the previous one
                         previous_slash = True
                     else:
                         previous_slash = False
@@ -296,16 +296,16 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
                     pass
                 else:
                     pymysql_sa.make_default_mysql_dialect()
-                    
-        location = "%(user)s:%(password)s@%(host)s%(port)s/%(name)s" % { 
-                        'user'     : db_user, 
-                        'password' : db_passwd, 
+
+        location = "%(user)s:%(password)s@%(host)s%(port)s/%(name)s" % {
+                        'user'     : db_user,
+                        'password' : db_passwd,
                         'host'     : db_host,
                         'name'     : db_name,
                         'port'     : port_str,
                     }
-    
-    db_str = "%(engine)s://%(location)s" % { 
+
+    db_str = "%(engine)s://%(location)s" % {
                         'engine'   : db_engine,
                         'location' : location,
                     }
@@ -398,12 +398,12 @@ def resize_image(image_path, max_width, max_height, final_path):
     img = Image.open(image_path)
 
     width, height = img.size
-    
+
     # Example, (max_width = 200) / (width = 400) = 0.5 (height must be half)
     wpercent   = max_width / float(width)
     # 0.5 * 400 = 200 px is the new height
     new_height = wpercent * height
-    
+
     # If 200 > 200
     if new_height > max_height:
         # Then invert height and width
@@ -462,7 +462,7 @@ def _build_parser():
                                                   help = "Time in seconds that will wait before expiring a user session.")
 
     parser.add_option("--inline-lab-server",      dest = Creation.INLINE_LAB_SERV, action="store_true", default=False,
-                                                  help = "Laboratory server included in the same process as the core server. " 
+                                                  help = "Laboratory server included in the same process as the core server. "
                                                          "Only available if a single core is used." )
 
     parser.add_option("--lab-copies",             dest = Creation.LAB_COPIES, type="int",   default=1,
@@ -489,14 +489,14 @@ def _build_parser():
     # TODO
     experiments = OptionGroup(parser, "Experiments options",
                                 "While most laboratories are specific to a particular equipment, "
-                                "some of them are useful anywhere (such as the VM experiment, as long as " 
+                                "some of them are useful anywhere (such as the VM experiment, as long as "
                                 "you have a VirtualBox virtual machine that you'd like to deploy, or the "
                                 "logic game, which does not require any equipment). Other experiments, "
                                 "such as VISIR, have been deployed in many universities. Finally, for "
                                 "development purposes, the XML-RPC experiment is particularly useful.")
 
     experiments.add_option("--xmlrpc-experiment",      dest = Creation.XMLRPC_EXPERIMENT, action="store_true", default=False,
-                                                       help = "By default, the Experiment Server is located in the same process as the  " 
+                                                       help = "By default, the Experiment Server is located in the same process as the  "
                                                               "Laboratory server. However, it is possible to force that the laboratory  "
                                                               "uses XML-RPC to contact the Experiment Server. If you want to test a "
                                                               "Java, C++, .NET, etc. Experiment Server, you can enable this option, "
@@ -546,7 +546,7 @@ def _build_parser():
     # TODO
     experiments.add_option("--vm", "--virtual-machine", "--vm-server",  dest = Creation.VM_SERVER, action="store_true", default=False,
                                                        help = "Add a VM server to the deployed system. "  )
-    
+
     experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
                                                        help = "Name of the VM experiment. "  )
 
@@ -555,20 +555,20 @@ def _build_parser():
 
     experiments.add_option("--vbox-vm-name",  dest = Creation.VBOX_VM_NAME, default='UbuntuDefVM2', type="string", metavar='VBOX_VM_NAME',
                                                    help = "Name of the Virtual Box machine which this experiment uses. Is often different from the Hard Disk name."  )
-    
+
     experiments.add_option("--vbox-base-snapshot",  dest = Creation.VBOX_BASE_SNAPSHOT, default='Ready', type="string", metavar='VBOX_BASE_SNAPSHOT',
-                                                   help = "Name of the VirtualBox snapshot to which the system will be reset after every usage. It should be an snapshot of an started machine. Otherwise, it will take too long to start."  ) 
+                                                   help = "Name of the VirtualBox snapshot to which the system will be reset after every usage. It should be an snapshot of an started machine. Otherwise, it will take too long to start."  )
 
     experiments.add_option("--vm-url",  dest = Creation.VM_URL, default='vnc://192.168.51.82:5901', type="string", metavar='URL',
                                                    help = "URL which will be provided to users so that they can access the VM through VNC. For instance: vnc://192.168.51.82:5901"  )
-    
+
     experiments.add_option("--http-query-user-manager-url",  dest = Creation.HTTP_QUERY_USER_MANAGER_URL, default='http://192.168.51.82:18080', type="string", metavar='URL',
                                                    help = "URL through which the user manager (which runs on the VM and resets it when needed) can be reached. For instance: http://192.168.51.82:18080"  )
-    
+
     experiments.add_option("--vm-estimated-load-time",  dest = Creation.VM_ESTIMATED_LOAD_TIME, default='20', type="string", metavar='LOAD_TIME',
                                                    help = "Estimated time which is required for restarting the VM. Does not need to be accurate. It is displayed to the user and is essentially for cosmetic purposes. "  )
-    
-    
+
+
 
     parser.add_option_group(experiments)
 
@@ -611,7 +611,7 @@ def _build_parser():
 
     sess.add_option("--session-db-passwd",        dest = Creation.SESSION_DB_PASSWD, type="string", default="",
                                                   help = "Select the password to access the sessions database.")
-                                                  
+
     sess.add_option("--session-redis-db",         dest = Creation.SESSION_REDIS_DB, type="int", default=1,
                                                   help = "Select the redis db on which store the sessions.")
 
@@ -645,7 +645,7 @@ def _build_parser():
     dbopt.add_option("--db-passwd",               dest = Creation.DB_PASSWD,       type="string", default="weblab",
                                                   help = "Core database password.")
 
-    
+
     parser.add_option_group(dbopt)
 
     coord = OptionGroup(parser, "Scheduling options",
@@ -706,13 +706,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     a value is provided. The stdout, stderr and exit_func arguments are sys.stdout, sys.stderr and sys.exit by default, so
     they can be properly managed. More arguments can be passed, such as:
 
-     - MYSQL_ADMIN_USERNAME 
-     - MYSQL_ADMIN_PASSWORD 
+     - MYSQL_ADMIN_USERNAME
+     - MYSQL_ADMIN_PASSWORD
 
     To avoid using the standard input to retrieve usernames and passwords.
     """
     creation_results = CreationResult()
-    
+
     parser = _build_parser()
 
     if options_dict is None:
@@ -727,9 +727,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     verbose = options[Creation.VERBOSE]
 
     ###########################################
-    # 
+    #
     # Validate basic options
-    # 
+    #
 
     if verbose: print >> stdout, "Validating basic operations...",; stdout.flush()
 
@@ -754,7 +754,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 if sqlite_purpose:
                     sqlite_purpose += ', '
                 sqlite_purpose += 'general database'
-                
+
             print >> stderr, "ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose
             exit_func(-1)
 
@@ -793,7 +793,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
         print >> stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
         exit_func(-1)
-        
+
     if verbose: print >> stdout, "[done]"
 
     if os.path.exists(directory) and not options[Creation.FORCE]:
@@ -812,9 +812,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             exit_func(-1)
 
     ###########################################
-    # 
+    #
     # Validate database configurations
-    # 
+    #
 
     if verbose: print >> stdout, "Start building database configuration"; stdout.flush()
 
@@ -843,7 +843,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     else:
         print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
         exit_func(-1)
-        
+
 
     if options[Creation.SESSION_STORAGE] == 'redis':
         redis_passwd = None
@@ -870,8 +870,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
-    
+    engine = _check_database_connection("core database", Model.Base.metadata, DbRegularUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
     if verbose: print >> stdout, "[done]"
@@ -879,7 +879,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if verbose: print >> stdout, "Adding test data...",; stdout.flush()
         deploy.populate_weblab_tests(engine, '1')
         if verbose: print >> stdout, "[done]"
-    
+
     Session = sessionmaker(bind=engine)
     group_name = 'Administrators'
     deploy.add_group(Session, group_name)
@@ -909,15 +909,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'logic', group_name, 1800)
 
     ###########################################
-    # 
+    #
     # Create voodoo infrastructure
-    # 
+    #
 
     if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
 
-    machine_config = ("""<?xml version="1.0" encoding="UTF-8"?>""" 
+    machine_config = ("""<?xml version="1.0" encoding="UTF-8"?>"""
     """<machines
-        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns="http://www.weblab.deusto.es/configuration"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="global_configuration.xsd"
     >
@@ -925,7 +925,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     <machine>core_machine</machine>""")
 
     if options[Creation.XMLRPC_EXPERIMENT]:
-        machine_config += """    <machine>exp_machine</machine>\n""" 
+        machine_config += """    <machine>exp_machine</machine>\n"""
 
     machine_config += "\n\n</machines>\n"
 
@@ -938,7 +938,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         exp_machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
         """<instances
-            xmlns="http://www.weblab.deusto.es/configuration" 
+            xmlns="http://www.weblab.deusto.es/configuration"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="machine_configuration.xsd"
         >
@@ -955,28 +955,28 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             os.mkdir(exp_instance_dir)
 
         exp_instance_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>\n"""
-		"""<servers \n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
-		""">\n"""
-		"""    <user>weblab</user>\n"""
-		"""\n"""
-		"""    <server>experiment1</server>\n"""
-		"""</servers>\n""")
+        """<servers \n"""
+        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+        """    xsi:schemaLocation="instance_configuration.xsd"\n"""
+        """>\n"""
+        """    <user>weblab</user>\n"""
+        """\n"""
+        """    <server>experiment1</server>\n"""
+        """</servers>\n""")
 
         open(os.path.join(exp_instance_dir, 'configuration.xml'), 'w').write(exp_instance_configuration_xml)
 
         xmlrpc_server_dir = os.path.join(exp_instance_dir, 'experiment1')
 
-    
+
     machine_dir = os.path.join(directory, 'core_machine')
     if not os.path.exists(machine_dir):
         os.mkdir(machine_dir)
 
     machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
     """<instances
-        xmlns="http://www.weblab.deusto.es/configuration" 
+        xmlns="http://www.weblab.deusto.es/configuration"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="machine_configuration.xsd"
     >
@@ -1033,7 +1033,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         laboratory_experiment_instances[lab_id]['logic'] = 1
         experiment_counter += 1
         local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
-        
+
     if options[Creation.VM_SERVER]:
         local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VM_EXPERIMENT_NAME] }
         lab_id = experiment_counter % options[Creation.LAB_COPIES]
@@ -1050,7 +1050,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         "    'laboratory%(n)s:%(laboratory_instance_name)s@core_machine' : {\n"
         "%(local_experiments)s"
         "        },\n" % {
-                'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n, 
+                'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
                 'local_experiments' : local_experiments, 'n' : n })
 
     other_core_coordinator_external_servers = ""
@@ -1064,7 +1064,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options[Creation.ADD_FEDERATED_SUBMARINE]:
         other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
         other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
-        
+
 
     machine_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
@@ -1227,18 +1227,18 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         latest_core_server_directory = core_instance_dir
         if not os.path.exists(core_instance_dir):
             os.mkdir(core_instance_dir)
-       
+
         instance_configuration_xml = (
         """<?xml version="1.0" encoding="UTF-8"?>"""
-		"""<servers \n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="instance_configuration.xsd"\n"""
-		""">\n"""
-		"""    <user>weblab</user>\n"""
-		"""\n"""
-		"""    <server>login</server>\n"""
-		"""    <server>core</server>\n""")
+        """<servers \n"""
+        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+        """    xsi:schemaLocation="instance_configuration.xsd"\n"""
+        """>\n"""
+        """    <user>weblab</user>\n"""
+        """\n"""
+        """    <server>login</server>\n"""
+        """    <server>core</server>\n""")
 
         if options[Creation.INLINE_LAB_SERV]:
             for n in range(1, options[Creation.LAB_COPIES] + 1):
@@ -1252,11 +1252,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 instance_configuration_xml += """    <server>logic</server>\n"""
             if options[Creation.VM_SERVER]:
                 instance_configuration_xml += """     <server>vm</server>\n"""
-           
-            
+
+
         instance_configuration_xml += (
         """\n"""
-		"""</servers>\n""")
+        """</servers>\n""")
 
         open(os.path.join(core_instance_dir, 'configuration.xml'), 'w').write(instance_configuration_xml)
 
@@ -1271,28 +1271,28 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         open(os.path.join(login_dir, 'configuration.xml'), 'w').write(
         """<?xml version="1.0" encoding="UTF-8"?>"""
-		"""<server\n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-		""">\n"""
-		"""\n"""
-		"""    <configuration file="server_config.py" />\n"""
-		"""\n"""
-		"""    <type>weblab.data.server_type::Login</type>\n"""
-		"""    <methods>weblab.methods::Login</methods>\n"""
-		"""\n"""
-		"""    <implementation>weblab.login.server.LoginServer</implementation>\n"""
-		"""\n"""
-		"""    <protocols>\n"""
-		"""        <protocol name="Direct">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination></coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation></creation>\n"""
-		"""        </protocol>\n"""
-		"""    </protocols>\n"""
-		"""</server>\n""")
+        """<server\n"""
+        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+        """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+        """>\n"""
+        """\n"""
+        """    <configuration file="server_config.py" />\n"""
+        """\n"""
+        """    <type>weblab.data.server_type::Login</type>\n"""
+        """    <methods>weblab.methods::Login</methods>\n"""
+        """\n"""
+        """    <implementation>weblab.login.server.LoginServer</implementation>\n"""
+        """\n"""
+        """    <protocols>\n"""
+        """        <protocol name="Direct">\n"""
+        """            <coordinations>\n"""
+        """                <coordination></coordination>\n"""
+        """            </coordinations>\n"""
+        """            <creation></creation>\n"""
+        """        </protocol>\n"""
+        """    </protocols>\n"""
+        """</server>\n""")
 
         login_config = {
             'soap'   : current_port + 0,
@@ -1320,57 +1320,57 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         open(os.path.join(login_dir, 'server_config.py'), 'w').write((
         "login_facade_server_route = %(route)r\n"
-		"login_facade_soap_port    = %(soap)r\n"
-		"login_facade_xmlrpc_port  = %(xmlrpc)r\n"
-		"login_facade_json_port    = %(json)r\n"
-		"login_web_facade_port     = %(web)r\n") % login_config)
+        "login_facade_soap_port    = %(soap)r\n"
+        "login_facade_xmlrpc_port  = %(xmlrpc)r\n"
+        "login_facade_json_port    = %(json)r\n"
+        "login_web_facade_port     = %(web)r\n") % login_config)
 
         open(os.path.join(core_dir, 'configuration.xml'), 'w').write(
         """<?xml version="1.0" encoding="UTF-8"?>"""
-		"""<server\n"""
-		"""    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-		"""    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-		"""    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-		""">\n"""
-		"""\n"""
-		"""    <configuration file="server_config.py" />\n"""
-		"""\n"""
-		"""    <type>weblab.data.server_type::UserProcessing</type>\n"""
-		"""    <methods>weblab.methods::UserProcessing</methods>\n"""
-		"""\n"""
-		"""    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
-		"""\n"""
-		"""    <!-- <restriction>something else</restriction> -->\n"""
-		"""\n"""
-		"""    <protocols>\n"""
-		"""        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
-		"""        <protocol name="Direct">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination></coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation></creation>\n"""
-		"""        </protocol>\n"""
-		"""        <protocol name="SOAP">\n"""
-		"""            <coordinations>\n"""
-		"""                <coordination>\n"""
-		"""                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
-		"""                </coordination>\n"""
-		"""            </coordinations>\n"""
-		"""            <creation>\n"""
-		"""                <parameter name="address" value=""     />\n"""
-		"""                <parameter name="port"    value="%(port)s" />\n"""
-		"""            </creation>\n"""
-		"""        </protocol>\n"""
-		"""    </protocols>\n"""
-		"""</server>\n""" % { 'port' : core_port })
+        """<server\n"""
+        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
+        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
+        """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
+        """>\n"""
+        """\n"""
+        """    <configuration file="server_config.py" />\n"""
+        """\n"""
+        """    <type>weblab.data.server_type::UserProcessing</type>\n"""
+        """    <methods>weblab.methods::UserProcessing</methods>\n"""
+        """\n"""
+        """    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
+        """\n"""
+        """    <!-- <restriction>something else</restriction> -->\n"""
+        """\n"""
+        """    <protocols>\n"""
+        """        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
+        """        <protocol name="Direct">\n"""
+        """            <coordinations>\n"""
+        """                <coordination></coordination>\n"""
+        """            </coordinations>\n"""
+        """            <creation></creation>\n"""
+        """        </protocol>\n"""
+        """        <protocol name="SOAP">\n"""
+        """            <coordinations>\n"""
+        """                <coordination>\n"""
+        """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
+        """                </coordination>\n"""
+        """            </coordinations>\n"""
+        """            <creation>\n"""
+        """                <parameter name="address" value=""     />\n"""
+        """                <parameter name="port"    value="%(port)s" />\n"""
+        """            </creation>\n"""
+        """        </protocol>\n"""
+        """    </protocols>\n"""
+        """</server>\n""" % { 'port' : core_port })
 
         open(os.path.join(core_dir, 'server_config.py'), 'w').write((
         "core_coordinator_clean   = %(clean)r\n"
         "core_facade_server_route = %(route)r\n"
-		"core_facade_soap_port    = %(soap)r\n"
-		"core_facade_xmlrpc_port  = %(xmlrpc)r\n"
-		"core_facade_json_port    = %(json)r\n"
-		"core_web_facade_port     = %(web)r\n"
+        "core_facade_soap_port    = %(soap)r\n"
+        "core_facade_xmlrpc_port  = %(xmlrpc)r\n"
+        "core_facade_json_port    = %(json)r\n"
+        "core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
 
     for n in range(1, options[Creation.LAB_COPIES] + 1):
@@ -1405,7 +1405,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
             if 'logic' in experiments_in_lab:
                 lab_instance_configuration_xml += """    <server>logic</server>\n"""
-				
+
             if 'vm' in experiments_in_lab:
                 lab_instance_configuration_xml += """     <server>vm</server>\n"""
 
@@ -1499,9 +1499,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """                'coord_address' : 'visir:%(instance)s@core_machine',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
-            ) % { 'instance' : laboratory_instance_name, 
+            ) % { 'instance' : laboratory_instance_name,
                   'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
-            
+
         if 'vm' in experiments_in_lab:
             laboratory_config_py += (
                 """        'exp1:%(name)s@VM experiments' : {\n"""
@@ -1555,7 +1555,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """                <coordination></coordination>\n"""
                 """            </coordinations>\n"""
                 """            <creation></creation>\n"""
-                """        </protocol>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] } 
+                """        </protocol>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] }
 
             if options[Creation.XMLRPC_EXPERIMENT]:
                 experiment_configuration += (
@@ -1632,7 +1632,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 })
             else:
                 visir_php = """vt_use_visir_php = False\n"""
-               
+
 
             open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
                 """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
@@ -1666,12 +1666,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """# \"\"\"\n"""
                 """#\n"""
                 """\n""") % {'visir_measurement_server' : visir_measurement_server })
-        
+
         if 'vm' in experiments_in_lab:
             vm_dir = os.path.join(lab_instance_dir, 'vm')
             if not os.path.exists(vm_dir):
                 os.mkdir(vm_dir)
-                
+
             open(os.path.join(vm_dir, 'configuration.xml'), 'w').write((
                 """<?xml version="1.0" encoding="UTF-8"?>\n"""
                 """<server\n"""
@@ -1696,16 +1696,16 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """        </protocol>\n"""
                 """    </protocols>\n"""
                 """</server>\n"""))
-            
+
             # Load and fill the config file template
             template = load_template("vm_server_config.py.template")
-            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR], 
-                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME], 
+            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR],
+                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME],
                                   "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
                                   "vm_url" : options[Creation.VM_URL],
                                   "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
                                   "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
-            
+
             open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
                 cfgfile
             )
@@ -1753,9 +1753,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if verbose: print >> stdout, "[done]"
 
     ###########################################
-    # 
+    #
     # Generate logs directory and config
-    # 
+    #
 
     if verbose: print >> stdout, "Creating logs directories and configuration files...",; stdout.flush()
 
@@ -1956,9 +1956,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if verbose: print >> stdout, "[done]"
 
     ###########################################
-    # 
+    #
     # Generate launch script
-    # 
+    #
 
     if verbose: print >> stdout, "Creating launch file...",; stdout.flush()
 
@@ -2013,7 +2013,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         for core_number in range(1, options[Creation.CORES] + 1):
             launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
-    
+
         for n in range(1, options[Creation.LAB_COPIES] + 1):
             launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
 
@@ -2056,7 +2056,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    traceback.print_exc()\n"""
         """    raise\n"""
     )
-    
+
     debugging_config = "# SERVERS is used by the WebLab Monitor to gather information from these ports.\n# If you open them, you'll see a Python shell.\n"
     debugging_config += "SERVERS = [\n"
     for debugging_port in debugging_ports:
@@ -2139,9 +2139,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if verbose: print >> stdout, "[done]"
 
     ###########################################
-    # 
+    #
     # Generate apache configuration file
-    # 
+    #
 
     if verbose: print >> stdout, "Creating apache configuration files...",; stdout.flush()
 
@@ -2197,33 +2197,60 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """\n"""
         """Alias %(root)s/weblab/client/weblabclientlab//img%(root-img)s/         %(directory)s/client/images/\n"""
         """Alias %(root)s/weblab/client/weblabclientadmin//img%(root-img)s/    %(directory)s/client/images/\n"""
-        """\n"""        
+        """\n"""
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
         """<Location %(root)s/weblab/>\n"""
-        """    Order allow,deny\n"""
-        """    Allow from all\n"""
+        """    <IfModule authz_core_module>\n"""
+        """        Require all granted\n"""
+        """    </IfModule>\n"""
+        """\n"""
+        """    <IfModule !authz_core_module>\n"""
+        """        Order allow,deny\n"""
+        """        Allow from All\n"""
+        """    </IfModule>\n"""
         """</Location>\n"""
         """\n"""
         """<Directory "%(directory)s">\n"""
-        """        Options Indexes\n"""
+        """    Options Indexes\n"""
+        """\n"""
+        """    <IfModule authz_core_module>\n"""
+        """        Require all granted\n"""
+        """    </IfModule>\n"""
+        """\n"""
+        """    <IfModule !authz_core_module>\n"""
         """        Order allow,deny\n"""
-        """        Allow from all\n"""
+        """        Allow from All\n"""
+        """    </IfModule>\n"""
         """</Directory>\n"""
-        """\n"""        
+        """\n"""
         """<Directory "%(war_path)s">\n"""
-        """        Options Indexes\n"""
+        """    Options Indexes\n"""
+        """\n"""
+        """    <IfModule authz_core_module>\n"""
+        """        Require all granted\n"""
+        """    </IfModule>\n"""
+        """\n"""
+        """    <IfModule !authz_core_module>\n"""
         """        Order allow,deny\n"""
-        """        Allow from all\n"""
+        """        Allow from All\n"""
+        """    </IfModule>\n"""
         """</Directory>\n"""
-        """\n"""        
+        """\n"""
         """<Directory "%(webserver_path)s">\n"""
-        """        Options Indexes\n"""
+        """    Options Indexes\n"""
+        """\n"""
+        """    <IfModule authz_core_module>\n"""
+        """        Require all granted\n"""
+        """    </IfModule>\n"""
+        """\n"""
+        """    <IfModule !authz_core_module>\n"""
         """        Order allow,deny\n"""
-        """        Allow from all\n"""
+        """        Allow from All\n"""
+        """    </IfModule>\n"""
         """</Directory>\n"""
-        """\n"""        
+        """\n"""
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
         """ProxyVia On\n"""
         """\n"""
@@ -2250,17 +2277,17 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     apache_conf += "\n"
     apache_conf += "<Proxy balancer://%(root-no-slash)s_weblab_cluster_soap>\n"
-    
+
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
         d = { 'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % d 
+        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/soap,' % d
     proxy_paths.append(('%(root)s/weblab/soap/',  proxy_path))
-    
+
     apache_conf += "</Proxy>\n"
     apache_conf += "\n"
-    
+
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
 
     proxy_path = "proxy-sessions:weblabsessionid:"
@@ -2289,7 +2316,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
         d = { 'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d 
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/web/,' % d
     proxy_paths.append(('%(root)s/weblab/web/', proxy_path))
 
@@ -2351,7 +2378,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
-    
+
     proxy_paths.append(('%(root)s/weblab/',            'file:%(webserver_path)s'))
     proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
 
@@ -2359,13 +2386,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         apache_root    = ''
     else:
         apache_root    = base_url
-    
+
     apache_img_dir = '/client/images'
 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
     server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
-                'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'), 
+                'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'),
                 'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
 
     apache_conf = apache_conf % server_conf_dict
@@ -2385,18 +2412,18 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if sys.platform.find('win') == 0:
         apache_windows_conf = """# At least in Debian based distributions as Debian itself
         # or Ubuntu, this can be done with the a2enmod command:
-        # 
+        #
         #   root@plunder:~# a2enmod proxy
         #   root@plunder:~# a2enmod proxy_balancer_module
         #   root@plunder:~# a2enmod proxy_http_module
         #   root@plunder:~# a2enmod headers
         #   root@plunder:~# /etc/init.d/apache2 force-reload
-        #  
-        # However, in Microsoft Windows or other distributions, this 
+        #
+        # However, in Microsoft Windows or other distributions, this
         # might become slightly more difficult. To make it easy, you
         # can uncomment the following lines in Microsoft Windows if
         # using XAMPP as installer, or if you are under Mac OS X:
-        # 
+        #
         <IfModule !mod_headers.c>
             LoadModule headers_module modules/mod_headers.so
         </IfModule>
@@ -2425,7 +2452,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if verbose: print >> stdout, "[done]"
 
     ###########################################
-    # 
+    #
     #     Generate configuration.js files
     #
     configuration_js = {}
@@ -2462,7 +2489,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         configuration_js['base.location']                  = base_url
     else:
         configuration_js['base.location']                  = ''
-    
+
 
     logo_path        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/images',1)[1])
     logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/images',1)[1])
@@ -2500,19 +2527,30 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print >> stdout, ""
     if http_server_port is None:
         apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
-        if os.path.exists("/etc/apache2/conf.d"):
-            apache_httpd_path = 'a new file that you must create called /etc/apache/conf.d/weblab'
-        elif os.path.exists("/etc/apache2/httpd.conf"):
-            apache_httpd_path = '/etc/apache2/httpd.conf'
-        elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
-            apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
-
-        print >> stdout, r"Append the following to", apache_httpd_path
-        print >> stdout, ""
-        print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
-        if sys.platform.find('win') == 0:
-            print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+        if os.path.exists("/etc/apache2/conf-available"):
+            print >> stdout, "Copy the file %s to /etc/apache/conf-available/apache_weblab_generic.conf" % os.path.abspath(apache_conf_path).replace('\\','/')
+            print >> stdout, ""
+            print >> stdout, "Then, enable the configuration file by running this command:"
+            print >> stdout, ""
+            print >> stdout, "    $ sudo a2enconf apache_weblab_generic"
+            print >> stdout, ""
+            print >> stdout, "Then, reload the apache service:"
+            print >> stdout, ""
+            print >> stdout, "    $ sudo service apache2 reload"
         else:
+            if os.path.exists("/etc/apache2/conf.d"):
+                apache_httpd_path = 'a new file that you must create called /etc/apache/conf.d/weblab'
+            elif os.path.exists("/etc/apache2/httpd.conf"):
+                apache_httpd_path = '/etc/apache2/httpd.conf'
+            elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
+                apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
+
+            print >> stdout, r"Append the following to", apache_httpd_path
+            print >> stdout, ""
+            print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
+            if sys.platform.find('win') == 0:
+                print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+        if sys.platform.find('win') == -1:
             print >> stdout, ""
             print >> stdout, "And enable the modules proxy proxy_balancer proxy_http headers."
             print >> stdout, "For instance, in Ubuntu you can run: "

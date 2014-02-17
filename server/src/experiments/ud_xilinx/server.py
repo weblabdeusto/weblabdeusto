@@ -343,28 +343,6 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self.webcam_url, self._programmer_time, self._synthesizer_time, self._max_use_time), "batch": False})
 
 
-    def _load_led_reading_support(self):
-        """
-        Will load the modules required to do image processing for reading the led state.
-        For this, PIL is needed as a dependency. 
-        Also, it is currently in a very experimental state, and cannot 
-        really be configured for different boards.
-        """
-        if self._led_reader != None:
-            return
-
-        from ledreader import LedReader
-
-        pld_leds = [(111, 140), (139, 140), (167, 140), (194, 140), (223, 140), (247, 139)]
-        fpga_leds = [(130, 411), (147, 414), (163, 417), (182, 420), (201, 422), (219, 426), (236, 431), (255, 433)]
-        fpga = "https://www.weblab.deusto.es/webcam/proxied.py/fpga1?-665135651"
-        pld = "https://www.weblab.deusto.es/webcam/proxied/pld1?1696782330"
-        if self._device_name == "FPGA":
-            self._led_reader = LedReader(fpga, fpga_leds, 5, 5)
-        elif self._device_name == "PLD":
-            self._led_reader = LedReader(pld, pld_leds, 10, 30)
-
-
     def virtualworld_update(self, delta):
         """
         Handles virtual world updating. For instance, in the case of the watertank,
@@ -376,9 +354,14 @@ class UdXilinxExperiment(Experiment.Experiment):
             self.change_switch(1, waterLevel >= 0.50)
             self.change_switch(2, waterLevel >= 0.80)
 
+            # These only apply for the temperature mode, but they are always valid nonetheless.
+            temp_warnings = self._watertank.get_temperature_warnings()
+            self.change_switch(3, temp_warnings[0])
+            self.change_switch(4, temp_warnings[1])
+
         self._watertank_time_without_demand_change += delta
 
-        if (self._watertank_time_without_demand_change > 5):
+        if self._watertank_time_without_demand_change > 5:
             self._watertank_time_without_demand_change = 0
             self._watertank.set_outputs([random.randint(0, 20)])
 
@@ -479,8 +462,19 @@ class UdXilinxExperiment(Experiment.Experiment):
             elif command.startswith('VIRTUALWORLD_MODE'):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
+
+                # Stop the watertank if it is running.
+                if self._watertank is not None:
+                    self._watertank.autoupdater_stop()
+
                 if vw == "watertank":
                     self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
+                    self._last_virtualworld_update = time.time()
+                    self._watertank.autoupdater_start(1)
+                    return "ok"
+                elif vw == "watertank_temperatures":
+                    self._virtual_world = "watertank"  # So that other parts of the code aren't confused. Not very tidy. TODO: Fixme.
+                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5, True)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"
@@ -500,6 +494,9 @@ class UdXilinxExperiment(Experiment.Experiment):
                     return self._virtual_world_state
 
                 return "{}";
+
+            elif command == 'HELP':
+                return "VIRTUALWORLD_MODE | VIRTUALWORLD_STATE | SYNTHESIZING_RESULT | READ_LEDS | REPORT_SWITCHES | REPORT_USE_TIME_LEFT | STATE | ChangeSwitch"
 
             elif command == 'SYNTHESIZING_RESULT':
                 if (DEBUG):
@@ -521,43 +518,6 @@ class UdXilinxExperiment(Experiment.Experiment):
                     traceback.print_exc()
                     return "ERROR: " + traceback.format_exc()
 
-
-            # This command was previously named just READ_LEDS. We include the CLASSIC version just in case,
-            # from when the LED state could only be obtained by processing the LEDs image.
-            # The new command obtains it by querying a JSON provided by the PIC that controls the experiment.
-            elif command == 'READ_LEDS_CLASSIC':
-                try:
-                    if self._led_reader == None:
-                        if (DEBUG):
-                            print "[DBG]: Initializing led reading."
-                        self._load_led_reading_support()
-                    self._led_state = self._led_reader.read_times(5)
-                    if (DEBUG):
-                        print "[DBG]: READ_LEDS: " + "".join(self._led_state)
-
-                    # This probably shouldn't be here. Ideally, the server by itself
-                    # would every once in a while check the state of the LEDs and update
-                    # the simulation's state automatically. For now, however, it will only
-                    # check the state upon the client's request.
-                    if self._virtual_world == "watertank":
-                        first_pump = self._led_state[7] == '1'
-                        second_pump = self._led_state[6] == '1'
-                        if first_pump:
-                            first_pump = 10
-                        else:
-                            first_pump = 0
-                        if second_pump:
-                            second_pump = 10
-                        else:
-                            second_pump = 0
-                        self._watertank.set_input(0, first_pump)
-                        self._watertank.set_input(1, second_pump)
-
-                    return "".join(self._led_state)
-                except Exception as e:
-                    traceback.print_exc()
-                    return "ERROR: " + traceback.format_exc()
-
             # Otherwise we assume that the command is intended for the actual device handler
             # If it isn't, it throw an exception itself.
 
@@ -566,6 +526,8 @@ class UdXilinxExperiment(Experiment.Experiment):
                     command = command.replace(command[-1], str(9 - int(command[-1])))
             self._command_sender.send_command(command)
         except Exception as e:
+            if DEBUG:
+                traceback.print_exc(e)
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
             )
@@ -629,7 +591,7 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("STATE")
     print experiment.do_should_finish()
 
-    exit(0)
+
 
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
@@ -637,20 +599,20 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     experiment._watertank.current_volume = 0
     time.sleep(5)
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1);
+    time.sleep(1)
     while (True):
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
         experiment._watertank.current_volume = 0
         print experiment.do_send_command_to_device("READ_LEDS")
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
-        time.sleep(1);
+        time.sleep(1)
         print experiment.do_send_command_to_device("REPORT_SWITCHES")
         print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
