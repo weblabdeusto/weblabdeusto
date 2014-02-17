@@ -415,7 +415,7 @@ def generate_info(panel, session, condition, experiments, results):
     #     }
     # }
     week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-    for hour, week_day, uses in session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment)],
+    for hour, week_day, uses in session.execute(sql.select([model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday, sa_func.count(model.DbUserUsedExperiment.id)],
                                                             condition
                                                     ).group_by(model.DbUserUsedExperiment.start_date_hour, model.DbUserUsedExperiment.start_date_weekday)):
         per_hour[week_days[week_day]][hour] = uses
@@ -455,7 +455,7 @@ def generate_info(panel, session, condition, experiments, results):
                                                         sql.select(
                                                             [  model.DbUserUsedExperiment.start_date_date, 
                                                                sa_func.sum(model.DbUserUsedExperiment.session_time_micro), 
-                                                               sa_func.count(model.DbUserUsedExperiment) ], 
+                                                               sa_func.count(model.DbUserUsedExperiment.id) ], 
                                                             sql.and_(condition,
                                                             model.DbUserUsedExperiment.session_time_micro != None)
                                                             ).group_by(model.DbUserUsedExperiment.start_date_date)):
