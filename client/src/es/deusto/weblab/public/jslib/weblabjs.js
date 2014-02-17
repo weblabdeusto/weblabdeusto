@@ -150,6 +150,15 @@ Weblab = new function () {
     };
 
 
+    //! Sends a command to the experiment server and prints the result to console.
+    //! If the command was successful it is printed to the stdout and otherwise to stderr.
+    //!
+    //! @param text: Command to send.
+    this.testCommand = function (text) {
+        this.sendCommand(text, function(success) { console.log(success); }, function(error) { console.error(error); });
+    }
+
+
     //! Sets the callback that will be invoked when the experiment finishes. Generally,
     //! an experiment finishes when it runs out of allocated time, but it may also
     //! be finished explicitly by the user or the experiment code, or by errors and

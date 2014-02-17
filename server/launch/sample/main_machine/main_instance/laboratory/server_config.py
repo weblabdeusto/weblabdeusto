@@ -148,6 +148,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_submarine:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:submarinejs@Aquatic experiments':
+            {
+                 'coord_address': 'experiment_submarine:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:aquarium@Aquatic experiments':
             {
                  'coord_address': 'experiment_aquarium:main_instance@main_machine',
