@@ -357,12 +357,20 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
             data = json.dumps({"teacher": self.teacher, "sessionkey": session_key})
         else:
-
             if DEBUG:
                 dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
                 dbg("[DBG] SESSION ID: %s" % lab_session_id)
 
             data = self.forward_request(lab_session_id, command)
+
+            dom = xml.parseString(data)
+            multimeter = dom.getElementsByTagName('multimeter')[0]
+            multimeter.setAttribute("id", "1")
+
+            data = dom.toxml().replace("<?xml version=\"1.0\" ?>", "")
+
+            if DEBUG:
+            	dbg("[DBG] DATA: "+data)
 
         return data
 
