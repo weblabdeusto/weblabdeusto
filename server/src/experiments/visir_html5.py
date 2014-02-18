@@ -279,7 +279,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.library_xml  = self._cfg_manager.get_value(CFG_LIBRARY_XML, "failed")
 
         global DEBUG
-        # DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
+        DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
 
         #
         # There are two ways of deploying VISIR:
@@ -370,7 +370,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
             data = dom.toxml().replace("<?xml version=\"1.0\" ?>", "")
 
-            if DEBUG:
+            if DEBUG_MESSAGES:
             	dbg("[DBG] DATA: "+data)
 
         return data
@@ -604,10 +604,34 @@ VDC+6V_1 VDC+6V_1_1
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
 
     experiment = VisirExperiment(None, None, cfg_manager)
-    lab_session_id = SessionId('my-session-id')
+    lab_session_id = SessionId('sess1')
     experiment.do_start_experiment(lab_session_id)
 
     login_response = json.loads(experiment.do_send_command_to_device(lab_session_id, "login"))
     sessionkey = login_response['sessionkey']
     request = regular_request % sessionkey
     experiment.do_send_command_to_device(lab_session_id, request)
+
+    time.sleep(1)
+
+    experiment2 = VisirExperiment(None, None, cfg_manager)
+    lab_session_id2 = SessionId('sess2')
+    experiment2.do_start_experiment(lab_session_id2)
+
+    login_response2 = json.loads(experiment2.do_send_command_to_device(lab_session_id2, "login"))
+    sessionkey2 = login_response2['sessionkey']
+    request2 = regular_request % sessionkey2
+    experiment2.do_send_command_to_device(lab_session_id2, request2)
+
+    time.sleep(1)
+
+    experiment3 = VisirExperiment(None, None, cfg_manager)
+    lab_session_id3 = SessionId('sess3')
+    experiment3.do_start_experiment(lab_session_id3)
+
+    login_response3 = json.loads(experiment3.do_send_command_to_device(lab_session_id3, "login"))
+    sessionkey3 = login_response3['sessionkey']
+    request3 = regular_request % sessionkey3
+    experiment3.do_send_command_to_device(lab_session_id3, request3)
+
+    time.sleep(5)
