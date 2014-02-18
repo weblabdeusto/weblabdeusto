@@ -5,7 +5,7 @@
 	//  {
 	//        'foo' : 'bar',
 	//  }
-	// 
+	//
 	// Due to the last ',' after 'bar'. Same for lists
 	//   [
 	//      1,
@@ -13,8 +13,8 @@
 	//      //3
 	//   ]
 	// Would produce an error since there is a ',' and then a ']'.
-	// 
-	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php", 
+	//
+	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php",
 	"development"                    : true, // To see the latest features, although they might not be working
 	"demo.available"                 : true,
 	"sound.enabled"					 : false,
@@ -26,11 +26,11 @@
 	"host.entity.image.mobile"       : "/img/udeusto-logo-mobile.jpg",
 	"host.entity.link"               : "http://www.deusto.es/",
     "facebook.like.box.visible"      : false,
-	"experiments" : { 
+	"experiments" : {
 					// Experiments not developed in GWT (such as those developed in Flash or Java) don't require
 					// recompiling the client to be loaded. Adding them to this configuration file is enough.
-					// Also those experiments that are inherently reusable for different classes, such as 
-					// those based in Virtual Machines (that will need to handle different experiment names 
+					// Also those experiments that are inherently reusable for different classes, such as
+					// those based in Virtual Machines (that will need to handle different experiment names
 					// and categories) can be added here.
 					"flash" : [
 					           {
@@ -104,6 +104,15 @@
 	                    		   "height"					: "600",
 	                    		   "provide.file.upload"	: true,
 	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "romie",
+	                    		   "experiment.category"	: "Dummy experiments",
+	                    		   "experiment.picture"		: "",
+	                    		   "cssWidth"				: "900",
+	                    		   "cssHeight"				: "700",
+	                    		   "provide.file.upload"	: false,
+	                    		   "html.file"				: "romie/romie.html"
 	                    	   }
 	                       ],
 	                "vm"    : [
@@ -129,12 +138,12 @@
 	                        	   "experiment.name"     : "ud-win-vm",
 	                        	   "experiment.category" : "VM experiments"
 	                           },
-	                           {   
+	                           {
 	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
 	                        	   "experiment.name"	 : "vm-win",
 	                               "experiment.category" : "Dummy experiments"
 	                           }
-	                       ],  
+	                       ],
 	                "labview": [
 	                            {
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
@@ -262,7 +271,7 @@
 		                           }
 		                ],
 	                "robot-standard" : [
-	                			{  
+	                			{
 	                			   "experiment.name" : "robot-standard",
 	                			   "experiment.category" : "Robot experiments",
 					        	   "experiment.picture"	 : "/img/experiments/robot.jpg",
@@ -480,7 +489,7 @@
 	                           {
 	                        	   "experiment.name"     : "ud-gpib2",
 	                        	   "experiment.category" : "GPIB experiments"
-	                           }   
+	                           }
 	                        ],
 	                "pic18"	: [
 	                			{
@@ -506,7 +515,7 @@
 	                			   "experiment.picture"  : "/img/experiments/microchip.jpg",
 								   "is.demo"             : true
 	                			}
-	                		], 
+	                		],
 	                "unr-physics" : [
 	                            {
 		                			"experiment.name"	 : "unr-physics",
@@ -538,7 +547,7 @@
                                          "experiment.name"                 : "http",
                                          "experiment.category"             : "HTTP experiments"
                                      }
-                                 ],                            
+                                 ],
                      "incubator" : [
                                 {
 	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
