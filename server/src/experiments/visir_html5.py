@@ -80,7 +80,7 @@ HEARTBEAT_REQUEST = """<protocol version="1.3"><request "%s"/></protocol>"""
 HEARTBEAT_MAX_SLEEP = 5
 
 # Actually defined through the configuration.
-DEBUG = True # None
+DEBUG = None
 
 class Heartbeater(threading.Thread):
     """
@@ -156,7 +156,7 @@ class Heartbeater(threading.Thread):
         # If the session id is not registered within the sessions map, we will simply
         # return without doing anything. This can happen for the initial login request.
         session_object['last_heartbeat_sent'] = time.time()
-        # if DEBUG: print "[DBG] HB TICK"
+        if DEBUG: print "[DBG] HB TICK"
 
 
     def run(self):
@@ -233,8 +233,8 @@ class Heartbeater(threading.Thread):
                 # TODO: use log
                 traceback.print_exc()
 
-DEBUG_MESSAGES = DEBUG and True
-DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES and True
+DEBUG_MESSAGES = DEBUG
+DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES
 
 def dbg(message):
     print message
@@ -337,7 +337,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         with self._users_counter_lock:
             self.users_counter += 1
 
-        # if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
+        if(DEBUG): dbg("[VisirTestExperiment][Start]: Current users: %s" % self.users_counter)
 
         return json.dumps({ "initial_configuration" : setup_data, "batch" : False })
 
@@ -365,8 +365,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
             dom = xml.parseString(data)
             multimeter = dom.getElementsByTagName('multimeter')
-            if len(multimeter) > 0:
-           	 multimeter[0].setAttribute("id", "1")
+            for i in range(0, len(multimeter)):
+            	multimeter[i].setAttribute("id", str(i+1))
 
             data = dom.toxml().replace("<?xml version=\"1.0\" ?>", "")
 
@@ -432,8 +432,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         HTTP POST.
         @param request String containing the request to be forwarded
         """
-       # if DEBUG_MESSAGES:
-        dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
+        if DEBUG_MESSAGES:
+        	dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:
@@ -608,7 +608,6 @@ VDC+6V_1 VDC+6V_1_1
     experiment.do_start_experiment(lab_session_id)
 
     login_response = json.loads(experiment.do_send_command_to_device(lab_session_id, "login"))
-    print login_response
     sessionkey = login_response['sessionkey']
     request = regular_request % sessionkey
     experiment.do_send_command_to_device(lab_session_id, request)
