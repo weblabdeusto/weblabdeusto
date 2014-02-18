@@ -364,8 +364,9 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             data = self.forward_request(lab_session_id, command)
 
             dom = xml.parseString(data)
-            multimeter = dom.getElementsByTagName('multimeter')[0]
-            multimeter.setAttribute("id", "1")
+            multimeter = dom.getElementsByTagName('multimeter')
+            if len(multimeter) > 0:
+           	 multimeter[0].setAttribute("id", "1")
 
             data = dom.toxml().replace("<?xml version=\"1.0\" ?>", "")
 
@@ -587,84 +588,13 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 VisirTestExperiment = VisirExperiment
 
 if __name__ == '__main__':
-    regular_request = """<protocol version="1.3">
-  <request sessionkey="%s">
-    <circuit>
-      <circuitlist>W_X OSC_1 FGEN_A</circuitlist>
-    </circuit>
-    <multimeter/>
-    <functiongenerator>
-      <fg_waveform value="sine"/>
-      <fg_frequency value="1000"/>
-      <fg_amplitude value="0.5"/>
-      <fg_offset value="0"/>
-    </functiongenerator>
-    <oscilloscope>
-      <osc_autoscale value="0"/>
-      <horizontal>
-        <horz_samplerate value="500"/>
-        <horz_refpos value="50"/>
-        <horz_recordlength value="500"/>
-      </horizontal>
-      <channels>
-        <channel number="1">
-          <chan_enabled value="1"/>
-          <chan_coupling value="dc"/>
-          <chan_range value="1"/>
-          <chan_offset value="0"/>
-          <chan_attenuation value="1.0"/>
-        </channel>
-        <channel number="2">
-          <chan_enabled value="1"/>
-          <chan_coupling value="dc"/>
-          <chan_range value="1"/>
-          <chan_offset value="0"/>
-          <chan_attenuation value="1.0"/>
-        </channel>
-      </channels>
-      <trigger>
-        <trig_source value="channel 1"/>
-        <trig_slope value="positive"/>
-        <trig_coupling value="dc"/>
-        <trig_level value="0"/>
-        <trig_mode value="autolevel"/>
-        <trig_timeout value="1.0"/>
-        <trig_delay value="0"/>
-      </trigger>
-      <measurements>
-        <measurement number="1">
-          <meas_channel value="channel 1"/>
-          <meas_selection value="none"/>
-        </measurement>
-        <measurement number="2">
-          <meas_channel value="channel 1"/>
-          <meas_selection value="none"/>
-        </measurement>
-        <measurement number="3">
-          <meas_channel value="channel 1"/>
-          <meas_selection value="none"/>
-        </measurement>
-      </measurements>
-    </oscilloscope>
-    <dcpower>
-      <dc_outputs>
-        <dc_output channel="6V+">
-          <dc_voltage value="0"/>
-          <dc_current value="0.5"/>
-        </dc_output>
-        <dc_output channel="25V+">
-          <dc_voltage value="0"/>
-          <dc_current value="0.5"/>
-        </dc_output>
-        <dc_output channel="25V-">
-          <dc_voltage value="0"/>
-          <dc_current value="0.5"/>
-        </dc_output>
-      </dc_outputs>
-    </dcpower>
-  </request>
-</protocol>
-"""
+    regular_request = """<protocol version="1.3"><request sessionkey="%s"><circuit><circuitlist>W_X VDC+6V_1_1 A6
+W_X A10 IPROBE_1_1
+W_X IPROBE_1_2 0
+R_X A6 A10 1k
+IPROBE_1 IPROBE_1_1 IPROBE_1_2
+VDC+6V_1 VDC+6V_1_1
+</circuitlist></circuit><multimeter id="1"><dmm_function value="dc current"></dmm_function><dmm_resolution value="3.5"></dmm_resolution><dmm_range value="-1"></dmm_range><dmm_autozero value="1"></dmm_autozero></multimeter><functiongenerator id="1"><fg_waveform value="sine"></fg_waveform><fg_frequency value="1000"></fg_frequency><fg_amplitude value="0.5"></fg_amplitude><fg_offset value="0"></fg_offset></functiongenerator><oscilloscope id="1"><horizontal><horz_samplerate value="500"></horz_samplerate><horz_refpos value="50"></horz_refpos><horz_recordlength value="500"></horz_recordlength></horizontal><channels><channel number="1"><chan_enabled value="1"></chan_enabled><chan_coupling value="dc"></chan_coupling><chan_range value="1"></chan_range><chan_offset value="0"></chan_offset><chan_attenuation value="1"></chan_attenuation></channel><channel number="2"><chan_enabled value="1"></chan_enabled><chan_coupling value="dc"></chan_coupling><chan_range value="1"></chan_range><chan_offset value="0"></chan_offset><chan_attenuation value="1"></chan_attenuation></channel></channels><trigger><trig_source value="channel 1"></trig_source><trig_slope value="positive"></trig_slope><trig_coupling value="dc"></trig_coupling><trig_level value="0"></trig_level><trig_mode value="autolevel"></trig_mode><trig_timeout value="1"></trig_timeout><trig_delay value="0"></trig_delay></trigger><measurements><measurement number="1"><meas_channel value="channel 1"></meas_channel><meas_selection value="none"></meas_selection></measurement><measurement number="2"><meas_channel value="channel 1"></meas_channel><meas_selection value="none"></meas_selection></measurement><measurement number="3"><meas_channel value="channel 1"></meas_channel><meas_selection value="none"></meas_selection></measurement></measurements><osc_autoscale value="0"></osc_autoscale></oscilloscope><dcpower id="1"><dc_outputs><dc_output channel="6V+"><dc_voltage value="2.5"></dc_voltage><dc_current value="0.5"></dc_current></dc_output><dc_output channel="25V+"><dc_voltage value="0"></dc_voltage><dc_current value="0.5"></dc_current></dc_output><dc_output channel="25V-"><dc_voltage value="0"></dc_voltage><dc_current value="0.5"></dc_current></dc_output></dc_outputs></dcpower></request></protocol>"""
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
     cfg_manager = ConfigurationManager()
@@ -673,14 +603,12 @@ if __name__ == '__main__':
     except:
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_testvisir/server_config.py")
 
-    experiment = VisirTestExperiment(None, None, cfg_manager)
+    experiment = VisirExperiment(None, None, cfg_manager)
     lab_session_id = SessionId('my-session-id')
-    cookie = json.loads(json.loads(experiment.do_start_experiment(lab_session_id))['initial_configuration'])['cookie']
+    experiment.do_start_experiment(lab_session_id)
 
-    login_request ="""<protocol version="1.3">
-    <login cookie="%s" keepalive="1"/>
-</protocol>""" % cookie
-    login_response = experiment.do_send_command_to_device(lab_session_id, login_request)
-    sessionkey = experiment.extract_sessionkey(login_response)
+    login_response = json.loads(experiment.do_send_command_to_device(lab_session_id, "login"))
+    print login_response
+    sessionkey = login_response['sessionkey']
     request = regular_request % sessionkey
-    print experiment.do_send_command_to_device(lab_session_id, request)
+    experiment.do_send_command_to_device(lab_session_id, request)
