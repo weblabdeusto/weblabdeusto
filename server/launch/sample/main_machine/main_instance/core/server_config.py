@@ -69,6 +69,7 @@ core_coordinator_laboratory_servers = {
             "exp1|aquarium|Aquatic experiments"      : "submarine@submarine",
             "exp1|aquariumjs|Aquatic experiments"    : "submarine@submarine",
             "exp1|submarinejs|Aquatic experiments"   : "submarine@submarine",
+            "exp1|romie|Dummy experiments"           : "romie@romie",
             "exp1|unr-physics|Physics experiments"   : "unr@unr",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18",
