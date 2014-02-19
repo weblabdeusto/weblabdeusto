@@ -614,24 +614,22 @@ VDC+6V_1 VDC+6V_1_1
 
     time.sleep(1)
 
-    experiment2 = VisirExperiment(None, None, cfg_manager)
     lab_session_id2 = SessionId('sess2')
-    experiment2.do_start_experiment(lab_session_id2)
+    experiment.do_start_experiment(lab_session_id2)
 
-    login_response2 = json.loads(experiment2.do_send_command_to_device(lab_session_id2, "login"))
+    login_response2 = json.loads(experiment.do_send_command_to_device(lab_session_id2, "login"))
     sessionkey2 = login_response2['sessionkey']
     request2 = regular_request % sessionkey2
-    experiment2.do_send_command_to_device(lab_session_id2, request2)
+    experiment.do_send_command_to_device(lab_session_id2, request2)
 
     time.sleep(1)
 
-    experiment3 = VisirExperiment(None, None, cfg_manager)
     lab_session_id3 = SessionId('sess3')
-    experiment3.do_start_experiment(lab_session_id3)
+    experiment.do_start_experiment(lab_session_id3)
 
-    login_response3 = json.loads(experiment3.do_send_command_to_device(lab_session_id3, "login"))
+    login_response3 = json.loads(experiment.do_send_command_to_device(lab_session_id3, "login"))
     sessionkey3 = login_response3['sessionkey']
     request3 = regular_request % sessionkey3
-    experiment3.do_send_command_to_device(lab_session_id3, request3)
+    experiment.do_send_command_to_device(lab_session_id3, request3)
 
     time.sleep(5)
