@@ -90,11 +90,11 @@ visir.WLTransport.prototype.LoadCircuit = function(file, callback) {
 	reader.onload = (function(cirFile) {
 		return function(circuit) {
 			trace("Loaded: " + circuit.target.result);
-			Weblab.sendCommand("load " circuit.target.result, null, this.Error.bind(this));
+			Weblab.sendCommand("load " + circuit.target.result, null, this.Error.bind(this));
 
 			callback(circuit.target.result);
-		};
-	})(file);
+		}.bind(this);
+	}.bind(this))(file);
 
 	reader.readAsText(file);
 }
@@ -102,7 +102,7 @@ visir.WLTransport.prototype.LoadCircuit = function(file, callback) {
 visir.WLTransport.prototype.SaveCircuit = function(circuit) {
 
 	trace("Saved: " + circuit);
-	Weblab.sendCommand("save " circuit, null, this.Error.bind(this));
+	Weblab.sendCommand("save " + circuit, null, this.Error.bind(this));
 
 	var blob = new Blob([circuit], {type: "application/xml;charset=UTF-8"});
 	saveAs(blob, "experiment.cir");

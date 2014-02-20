@@ -35,7 +35,7 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		, "instruments/oscilloscope.js"
 		, "instruments/functiongenerator.js"
 		, "instruments/dcpower.js"
-		, "instruments/transport.js"
+		, "instruments/wltransport.js"
 	];
 
 	var stage4_scripts = [
