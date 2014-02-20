@@ -1,0 +1,164 @@
+@font-face {
+	font-family: 'DigitalSegmented';
+	src: url('../../fonts/DigitalSegmented-Italic.ttf');
+}
+
+.tripledc
+{
+	position: relative;
+	text-align: left;
+	width: 720px;
+	height: 449px;
+	
+	color: rgb(0,240,240);
+}
+
+.tripledc .hide
+{
+	display: none;
+}
+
+.tripledc .bigtext
+{
+	font-size: 38pt;
+	font-family: 'DigitalSegmented', monospace;
+	position: absolute;
+	text-align: right;
+}
+
+.tripledc .on .green
+{
+	color: #00AAAA;
+}
+
+.tripledc .smalltext
+{
+	/* border: 1px solid red; */
+	font-size: 10pt;
+	font-family: monospace;
+	position: absolute;
+	text-align: right;
+}
+
+/* text labels */
+.tripledc > .voltage {
+	top: 65px;
+	left: 45px;
+	width: 210px;
+}
+
+.tripledc > .current {
+	top: 65px;
+	left: 246px;
+	width: 210px;
+}
+
+.tripledc > .channelselect > .p6v {
+	top: 120px;
+	left: 82px;
+	width: 50px;
+}
+
+.tripledc > .channelselect > .p25v {
+	top: 120px;
+	left: 129px;
+	width: 50px;
+}
+
+.tripledc > .channelselect > .m25v {
+	top: 120px;
+	left: 176px;
+	width: 50px;
+}
+
+
+/* knob */
+.tripledc .knob {
+	width: 94px;
+	height: 94px;
+	position:absolute;
+	top: 62px;
+	left: 560px;
+}
+
+.tripledc .top {
+	width: 94px;
+	height: 94px;
+	transform-origin: 47px 47px;
+	-moz-transform-origin: 47px 47px;
+	-webkit-transform-origin: 47px 47px;
+}
+
+/* buttons */
+.tripledc .button, .tripledc .button img {
+	position:absolute;
+}
+
+.tripledc .button img {
+	display: none;
+}
+
+.tripledc .button img.active {
+	display: inline;
+}
+
+
+.tripledc .button_p6v {
+	/*border: 1px solid red;*/
+	top: 179px;
+	left: 139px;
+	width: 47px;
+	height: 34px;
+}
+
+.tripledc .button_p25v {
+	top: 179px;
+	left: 198px;
+	width: 47px;
+	height: 34px;
+}
+
+.tripledc .button_m25v {
+	top: 179px;
+	left: 258px;
+	width: 47px;
+	height: 34px;
+}
+
+.tripledc .button_left {
+	top: 178px;
+	left: 564px;
+	width: 37px;
+	height: 35px;
+}
+
+.tripledc .button_right {
+	top: 179px;
+	left: 606px;
+	width: 37px;
+	height: 35px;
+}
+
+.tripledc A:visited , .tripledc A:link
+{
+	color: black;
+	text-decoration: none;
+	font-weight: normal;
+	font-size: 12px;
+	font-family: serif;
+}
+
+.tripledc .manual_link
+{
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+	margin: 2px;
+	border-radius: 5px;
+	border: 1px solid black;
+	display: inline-block;
+	background: #bbbbbb;
+	font-size: 12px;
+	padding: 1px 3px 1px 3px;
+}
+

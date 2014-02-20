@@ -26,6 +26,7 @@
 	<server>experiment_javadummy</server>
 	<server>experiment_jsdummy</server>
 	<server>experiment_jsfpga</server>
+	<server>experiment_visir_html5</server>
 	<server>experiment_testvisir</server>
 	<server>experiment_vm</server>
 	<server>experiment_vm_win</server>
