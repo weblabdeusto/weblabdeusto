@@ -365,6 +365,9 @@ def populate_weblab_tests(engine, tests):
     jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date)
     session.add(jsfpga)
 
+    romie = Model.DbExperiment("romie", cat_dummy, start_date, end_date)
+    session.add(romie)
+
     visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date)
     session.add(visir_html5)
 
@@ -686,6 +689,21 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_jsfpga_allowed_p2)
     up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p3, "1400")
     session.add(up_any_jsfpga_allowed_p3)
+
+    up_any_romie_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::romie",
+        datetime.datetime.utcnow(),
+        "Permission for any to use romie"
+    )
+    session.add(up_any_romie_allowed)
+    up_any_jsfpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p1, "jsfpga")
+    session.add(up_any_romie_allowed_p1)
+    up_any_jsfpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(up_any_romie_allowed_p2)
+    up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "900")
+    session.add(up_any_romie_allowed_p3)
 
     up_any_visir_html5_allowed = Model.DbUserPermission(
         any,

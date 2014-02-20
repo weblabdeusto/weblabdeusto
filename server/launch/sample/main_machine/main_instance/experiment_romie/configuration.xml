@@ -15,7 +15,6 @@
 	<restriction>romie@Dummy experiments</restriction>
 
 	<protocols>
-		<!-- This server supports both Direct calls, as SOAP calls -->
 		<protocol name="Direct">
 			<coordinations>
 				<coordination></coordination>
