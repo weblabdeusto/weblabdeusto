@@ -10,7 +10,7 @@
 <div class="row">
     <div class="span4 offset2">
         {% from "_form_helpers.html" import render_field, render_simple_field %}
-        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+        <form method="POST" action="" class="form-horizontal">
             {{ form.hidden_tag() }}
             <input type="hidden" name="action" value="form-add"></input>
 
@@ -44,7 +44,7 @@
                 {% for experiment in registered_experiments %}
                     <tr>
                         <td>{{ experiment['name'] }}</td>
-                        <form class="icon" method="POST" action="{{ request.url }}">
+                        <form class="icon" method="POST" action="">
                         <td>
                             {{ experiment['form'].hidden_tag() }}
                             <input type="hidden" name="action" value="{{ experiment['prefix'] }}"></input>
@@ -55,7 +55,7 @@
                 {% endfor %}
                 {% if add_form.experiment_identifier.choices %}
                     <tr>
-                        <form class="icon" method="POST" action="{{ request.url }}">
+                        <form class="icon" method="POST" action="">
                         {{ add_form.hidden_tag() }}
                         <input type="hidden" name="action" value="form-register"></input>
                         <td>{{ render_simple_field(add_form.experiment_identifier) }}</td>

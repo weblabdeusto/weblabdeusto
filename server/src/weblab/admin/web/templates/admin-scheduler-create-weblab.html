@@ -12,7 +12,7 @@
 <div class="row">
     <div class="span4 offset2">
         <h3>General</h3>
-        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+        <form method="POST" action="" class="form-horizontal">
             {{ form.hidden_tag() }}
             <input type="hidden" name="action" value="weblab-create" />
 
@@ -47,7 +47,7 @@
             <tbody>
             {% for exp in experiments %}
                 <tr>
-                    <form class="icon" method="POST" action="{{ request.url }}">
+                    <form class="icon" method="POST" action="">
                     {{ exp['form'].hidden_tag() }}
                     <input type="hidden" name="action" value="{{ exp['prefix'] }}"></input>
                     {# Label #}
@@ -88,7 +88,7 @@
             <tbody>
             {% for exp in misconfigured_experiments %}
                 <tr>
-                    <form class="icon" method="POST" action="{{ request.url }}">
+                    <form class="icon" method="POST" action="">
                     {{ exp['form'].hidden_tag() }}
                     <input type="hidden" name="action" value="{{ exp['prefix'] }}"></input>
                     <td>{{ exp['experiment'] }}</td>
