@@ -2,17 +2,15 @@
 
 var visir = visir || {};
 
-visir.InstrumentFrame = function(instreg, $container)
+visir.InstrumentFrame = function(instreg, transport, $container)
 {
 	this._registry = instreg;
 	this._$container = $container;
+	this._transport = transport;
 
 	var frame = this;
 
 	this._showingInstrumentDialog = false;
-
-	var load_url = visir.Config.Get("loadurl") || "load.php";
-	var save_url = visir.Config.Get("saveurl") || "save.php";
 
 	var imgbase = "instrumentframe";
 	if (visir.BaseLocation) imgbase = visir.BaseLocation + imgbase;
@@ -21,13 +19,8 @@ visir.InstrumentFrame = function(instreg, $container)
 	//XXX: should generate a iframe name with a unique id..
 	var tpl = '<div class="frame">\
 	<div style="display: none">\
-		<iframe name="upload_iframe" id="upload_iframe"></iframe>\
-		<form action="' + load_url + '" id="upload_form" method="post" enctype="multipart/form-data" target="upload_iframe">\
-			<input id="upload" name="filename" type="file" />\
-		</form>\
-		<form action="' + save_url + '" id="download_form" method="post" enctype="multipart/form-data" target="upload_iframe"><!-- use the upload_iframe for now-->\
-			<input type="hidden" id="download_data" name="data" />\
-		</form>\
+		<input id="upload" name="filename" type="file" />\
+		<input type="hidden" id="download_data" name="data" />\
 	</div>\
 	<div class="bottomaligner">\
 		<div class="container">\
@@ -116,14 +109,14 @@ visir.InstrumentFrame = function(instreg, $container)
 		frame.ShowInstrumentSelection(! frame._showingInstrumentDialog);
 	});
 
-	$container.find("#upload").change( function() { $("#upload_form").submit(); })
-	$container.find("#upload_iframe").unbind().load( function() {
-		trace("loaded: '" + $(this).html() + "'");
-		var savedata = $(this).contents().find("body").html();
-		if (savedata.length == 0) return;
-		instreg.LoadExperiment(savedata, $container.find(".container"));
-		$container.find("#upload").val(""); // trick to make sure we get the change request even if the same file was selected
-	});
+	$container.find("#upload").change( function(evt) {
+		circuit = this._transport.LoadCircuit(evt.target.files[0], function(circuit) {
+			trace("loaded: '" + circuit + "'");
+
+			instreg.LoadExperiment(circuit, $container.find(".container"));
+			$container.find("#upload").val(""); // trick to make sure we get the change request even if the same file was selected
+		});
+	}.bind(this));
 
 	this.ShowWorkingIndicator(false);
 
@@ -136,10 +129,7 @@ visir.InstrumentFrame = function(instreg, $container)
 
 visir.InstrumentFrame.prototype._SaveToFileSystem = function()
 {
-	var savedata = this._registry.WriteSave();
-	trace(savedata);
-	this._$container.find("#download_data").val(savedata);
-	this._$container.find("#download_form").submit();
+	this._transport.SaveCircuit(this._registry.WriteSave());
 }
 
 visir.InstrumentFrame.prototype._LoadFromFileSystem = function()

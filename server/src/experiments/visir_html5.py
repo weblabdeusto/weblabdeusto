@@ -353,9 +353,17 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         if command == "login":
             if DEBUG: dbg("[DBG] LOGIN")
-            session_key = self.extract_sessionkey(self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>"))
 
+            session_key = self.extract_sessionkey(self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>"))
             data = json.dumps({"teacher": self.teacher, "sessionkey": session_key})
+        elif command.startswith("load"):
+            if DEBUG: dbg("Circuit loaded: " + command[5:])
+
+            circuit = xml.parseString(command[5:])
+        elif command.startswith("save"):
+            if DEBUG: dbg("Circuit saved: " + command[5:])
+
+            circuit = xml.parseString(command[5:])
         else:
             if DEBUG:
                 dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
@@ -366,12 +374,12 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             dom = xml.parseString(data)
             multimeter = dom.getElementsByTagName('multimeter')
             for i in range(0, len(multimeter)):
-            	multimeter[i].setAttribute("id", str(i+1))
+                multimeter[i].setAttribute("id", str(i+1))
 
             data = dom.toxml().replace("<?xml version=\"1.0\" ?>", "")
 
             if DEBUG_MESSAGES:
-            	dbg("[DBG] DATA: "+data)
+                dbg("[DBG] DATA: "+data)
 
         return data
 
@@ -433,7 +441,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         @param request String containing the request to be forwarded
         """
         if DEBUG_MESSAGES:
-        	dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
+            dbg("[VisirTestExperiment] Forwarding request to %s: %s" % (self.measure_server_addr, request))
 
         session_obj = self._session_manager.get_session_locking(lab_session_id)
         try:

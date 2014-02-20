@@ -167,7 +167,7 @@ visir.JSTransport.prototype._SendXML = function(data, callback)
 			trace("xdomain: " + req.responseText);
 			callback(req.responseText);
 			req = me._CreateRequest();
-	 	};
+		};
 
 		req.onerror = function(e) {
 			trace("xdomain error: " + e);
@@ -213,4 +213,27 @@ visir.JSTransport.prototype.Error = function(errormsg) {
 	this.onerror(errormsg);
 	this._error = errormsg;
 	this._sessionKey = null; // XXX: all errors lead to requthentication
+}
+
+visir.JSTransport.prototype.LoadCircuit = function(file, callback) {
+
+	var reader = new FileReader();
+
+	reader.onload = (function(cirFile) {
+		return function(circuit) {
+			trace("Loaded: " + circuit.target.result);
+
+			callback(circuit.target.result);
+		};
+	})(file);
+
+	reader.readAsText(file);
+}
+
+visir.JSTransport.prototype.SaveCircuit = function(circuit) {
+
+	trace("Saved: " + circuit);
+
+	var blob = new Blob([circuit], {type: "application/xml;charset=UTF-8"});
+	saveAs(blob, "experiment.cir");
 }
