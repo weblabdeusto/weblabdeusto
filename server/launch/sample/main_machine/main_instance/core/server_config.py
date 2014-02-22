@@ -58,6 +58,7 @@ core_coordinator_laboratory_servers = {
             "exp3|visir|Visir experiments"           : "visir3@visir",
             "exp4|visir|Visir experiments"           : "visir4@visir",
             "exp5|visir|Visir experiments"           : "visir5@visir",
+            "exp6|visir-html5|Visir experiments"     : "visir6@visir",
             "exp1|vm|Dummy experiments"              : "vm@vm",
             "exp1|vm-win|Dummy experiments"          : "vm-win@vm-win",
             "exp1|robot-standard|Robot experiments"  : "robot@robot",

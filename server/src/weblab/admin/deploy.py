@@ -11,7 +11,7 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
-# 
+#
 
 import os
 import sys
@@ -26,7 +26,7 @@ import weblab.db.model as Model
 import weblab.permissions as permissions
 
 def insert_required_initial_data(engine):
-    session = sessionmaker(bind=engine)    
+    session = sessionmaker(bind=engine)
     session = session()
 
     # Roles
@@ -87,12 +87,12 @@ def insert_required_initial_data(engine):
 
 
 #####################################################################
-# 
+#
 # Populating tests database
-# 
+#
 
 def populate_weblab_tests(engine, tests):
-    Session = sessionmaker(bind=engine)    
+    Session = sessionmaker(bind=engine)
     session = Session()
 
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
@@ -134,22 +134,22 @@ def populate_weblab_tests(engine, tests):
     session.add(admin1)
 
     admin2 = Model.DbUser("admin2", "Name of administrator 2", "weblab@deusto.es", None, administrator)
-    session.add(admin2)    
+    session.add(admin2)
 
     admin3 = Model.DbUser("admin3", "Name of administrator 3", "weblab@deusto.es", None, administrator)
-    session.add(admin3)   
+    session.add(admin3)
 
     any = Model.DbUser("any", "Name of any", "weblab@deusto.es", None, student)
-    session.add(any) 
+    session.add(any)
 
     prof1 = Model.DbUser("prof1", "Name of professor 1", "weblab@deusto.es", None, professor)
-    session.add(prof1)    
+    session.add(prof1)
 
     prof2 = Model.DbUser("prof2", "Name of professor 2", "weblab@deusto.es", None, professor)
-    session.add(prof2)    
+    session.add(prof2)
 
     prof3 = Model.DbUser("prof3", "Name of professor 3", "weblab@deusto.es", None, professor)
-    session.add(prof3)    
+    session.add(prof3)
 
     student1 = Model.DbUser("student1", "Name of student 1", "weblab@deusto.es", None, student)
     session.add(student1)
@@ -268,11 +268,11 @@ def populate_weblab_tests(engine, tests):
 
     groupCourse0910 = Model.DbGroup("Course 2009/10")
     groupCourse0910.users.append(student1)
-    groupCourse0910.users.append(student2)    
-    groupCourse0910.users.append(student3)   
-    groupCourse0910.users.append(student4)   
-    groupCourse0910.users.append(student5)   
-    groupCourse0910.users.append(student6)   
+    groupCourse0910.users.append(student2)
+    groupCourse0910.users.append(student3)
+    groupCourse0910.users.append(student4)
+    groupCourse0910.users.append(student5)
+    groupCourse0910.users.append(student6)
     session.add(groupCourse0910)
 
     # Experiment Categories
@@ -326,7 +326,7 @@ def populate_weblab_tests(engine, tests):
 
     cat_farm = Model.DbExperimentCategory("Farm experiments")
     session.add(cat_farm)
-    
+
     # Experiments
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
@@ -358,12 +358,15 @@ def populate_weblab_tests(engine, tests):
 
     javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date)
     session.add(javadummy)
-    
+
     jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date)
     session.add(jsdummy)
-    
+
     jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date)
     session.add(jsfpga)
+
+    visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date)
+    session.add(visir_html5)
 
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
     session.add(logic)
@@ -418,7 +421,7 @@ def populate_weblab_tests(engine, tests):
 
     submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
     session.add(submarine)
-    
+
     http = Model.DbExperiment("http", cat_http, start_date, end_date)
     session.add(http)
 
@@ -451,7 +454,7 @@ def populate_weblab_tests(engine, tests):
 
     microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date)
     session.add(microelectronics)
-    
+
     pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date)
     session.add(pic18)
 
@@ -636,7 +639,7 @@ def populate_weblab_tests(engine, tests):
     up_student2_pld_allowed_p2 = Model.DbUserPermissionParameter(up_student2_pld_allowed, experiment_allowed_p2, "PLD experiments")
     session.add(up_student2_pld_allowed_p2)
     up_student2_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student2_pld_allowed, experiment_allowed_p3, "100")
-    session.add(up_student2_pld_allowed_p3)    
+    session.add(up_student2_pld_allowed_p3)
 
     up_student6_pld_allowed = Model.DbUserPermission(
         student6,
@@ -651,9 +654,9 @@ def populate_weblab_tests(engine, tests):
     up_student6_pld_allowed_p2 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p2, "PLD experiments")
     session.add(up_student6_pld_allowed_p2)
     up_student6_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p3, "140")
-    session.add(up_student6_pld_allowed_p3)    
-    
-    
+    session.add(up_student6_pld_allowed_p3)
+
+
     up_any_jsdummy_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -667,8 +670,8 @@ def populate_weblab_tests(engine, tests):
     up_any_jsdummy_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_jsdummy_allowed_p2)
     up_any_jsdummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_jsdummy_allowed_p3)   
-    
+    session.add(up_any_jsdummy_allowed_p3)
+
     up_any_jsfpga_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -682,9 +685,24 @@ def populate_weblab_tests(engine, tests):
     up_any_jsfpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p2, "FPGA experiments")
     session.add(up_any_jsfpga_allowed_p2)
     up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_jsfpga_allowed_p3)   
-    
-    
+    session.add(up_any_jsfpga_allowed_p3)
+
+    up_any_visir_html5_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::visir-html5",
+        datetime.datetime.utcnow(),
+        "Permission for any to use visir-html5"
+    )
+    session.add(up_any_visir_html5_allowed)
+    up_any_visir_html5_allowed_p1 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p1, "visir-html5")
+    session.add(up_any_visir_html5_allowed_p1)
+    up_any_visir_html5_allowed_p2 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p2, "Visir experiments")
+    session.add(up_any_visir_html5_allowed_p2)
+    up_any_visir_html5_allowed_p3 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p3, "3600")
+    session.add(up_any_visir_html5_allowed_p3)
+
+
     up_any_fpga_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -698,8 +716,8 @@ def populate_weblab_tests(engine, tests):
     up_any_fpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(up_any_fpga_allowed_p2)
     up_any_fpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_fpga_allowed_p3)   
-    
+    session.add(up_any_fpga_allowed_p3)
+
 
     up_any_visirtest_allowed = Model.DbUserPermission(
         any,
@@ -707,7 +725,7 @@ def populate_weblab_tests(engine, tests):
         "any::weblab-visirtest",
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-VisirTest"
-    ) 
+    )
 
     session.add(up_any_visirtest_allowed)
     up_any_visirtest_allowed_p1 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p1, "visirtest")
@@ -715,7 +733,7 @@ def populate_weblab_tests(engine, tests):
     up_any_visirtest_allowed_p2 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_visirtest_allowed_p2)
     up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "3600")
-    session.add(up_any_visirtest_allowed_p3)    
+    session.add(up_any_visirtest_allowed_p3)
 
     up_any_visir_allowed = Model.DbUserPermission(
         any,
@@ -731,7 +749,7 @@ def populate_weblab_tests(engine, tests):
     up_any_visir_allowed_p2 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p2, "Visir experiments")
     session.add(up_any_visir_allowed_p2)
     up_any_visir_allowed_p3 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p3, "3600")
-    session.add(up_any_visir_allowed_p3)    
+    session.add(up_any_visir_allowed_p3)
 
     up_any_logic_allowed = Model.DbUserPermission(
         any,
@@ -747,7 +765,7 @@ def populate_weblab_tests(engine, tests):
     up_any_logic_allowed_p2 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p2, "PIC experiments")
     session.add(up_any_logic_allowed_p2)
     up_any_logic_allowed_p3 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_logic_allowed_p3)    
+    session.add(up_any_logic_allowed_p3)
 
     up_any_binary_allowed = Model.DbUserPermission(
         any,
@@ -763,7 +781,7 @@ def populate_weblab_tests(engine, tests):
     up_any_binary_allowed_p2 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p2, "Games")
     session.add(up_any_binary_allowed_p2)
     up_any_binary_allowed_p3 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_binary_allowed_p3)    
+    session.add(up_any_binary_allowed_p3)
 
     up_any_unr_physics_allowed = Model.DbUserPermission(
         any,
@@ -779,7 +797,7 @@ def populate_weblab_tests(engine, tests):
     up_any_unr_physics_allowed_p2 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p2, "Physics experiments")
     session.add(up_any_unr_physics_allowed_p2)
     up_any_unr_physics_allowed_p3 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_unr_physics_allowed_p3)    
+    session.add(up_any_unr_physics_allowed_p3)
 
 
     up_any_controlapp_allowed = Model.DbUserPermission(
@@ -796,7 +814,7 @@ def populate_weblab_tests(engine, tests):
     up_any_controlapp_allowed_p2 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p2, "Control experiments")
     session.add(up_any_controlapp_allowed_p2)
     up_any_controlapp_allowed_p3 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_controlapp_allowed_p3)    
+    session.add(up_any_controlapp_allowed_p3)
 
     up_any_incubator_allowed = Model.DbUserPermission(
         any,
@@ -812,7 +830,7 @@ def populate_weblab_tests(engine, tests):
     up_any_incubator_allowed_p2 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p2, "Farm experiments")
     session.add(up_any_incubator_allowed_p2)
     up_any_incubator_allowed_p3 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_incubator_allowed_p3)    
+    session.add(up_any_incubator_allowed_p3)
 
     up_any_dummy_allowed = Model.DbUserPermission(
         any,
@@ -828,10 +846,10 @@ def populate_weblab_tests(engine, tests):
     up_any_dummy_allowed_p2 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_dummy_allowed_p2)
     up_any_dummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_dummy_allowed_p3)    
-    
-    
-    
+    session.add(up_any_dummy_allowed_p3)
+
+
+
     up_any_pic18_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -846,7 +864,7 @@ def populate_weblab_tests(engine, tests):
     up_any_pic18_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p2, "pic experiments")
     session.add(up_any_pic18_allowed_p2)
     up_any_pic18_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_pic18_allowed_p3)  
+    session.add(up_any_pic18_allowed_p3)
 
 
     up_any_vm_allowed = Model.DbUserPermission(
@@ -863,7 +881,7 @@ def populate_weblab_tests(engine, tests):
     up_any_vm_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_vm_allowed_p2)
     up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_vm_allowed_p3)    
+    session.add(up_any_vm_allowed_p3)
 
 
 
@@ -999,8 +1017,8 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_rob_robotarm_allowed_p2)
     up_any_rob_robotarm_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p3, "200")
     session.add(up_any_rob_robotarm_allowed_p3)
-         
-          
+
+
     up_any_rob_std_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -1017,7 +1035,7 @@ def populate_weblab_tests(engine, tests):
     up_any_rob_std_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p3, "200")
     session.add(up_any_rob_std_allowed_p3)
 
-          
+
     up_any_rob_mov_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -1065,8 +1083,8 @@ def populate_weblab_tests(engine, tests):
     session.add(up_studentILAB_microelectronics_allowed_p2)
     up_studentILAB_microelectronics_allowed_p3 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p3, "200")
     session.add(up_studentILAB_microelectronics_allowed_p3)
-       
-      
+
+
     up_any_blink_led_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -1082,7 +1100,7 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_blink_led_allowed_p2)
     up_any_blink_led_allowed_p3 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p3, "200")
     session.add(up_any_blink_led_allowed_p3)
-               
+
     up_any_rob_proglist_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -1098,10 +1116,10 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_rob_proglist_allowed_p2)
     up_any_rob_proglist_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p3, "200")
     session.add(up_any_rob_proglist_allowed_p3)
-       
-               
-          
-                
+
+
+
+
     up_any_dummy_batch_allowed = Model.DbUserPermission(
         any,
         experiment_allowed,
@@ -1127,15 +1145,15 @@ def populate_weblab_tests(engine, tests):
         datetime.datetime.utcnow(),
         "Permission for any to use WebLab-pld-demo"
     )
-                
-                
+
+
     session.add(up_any_pld_demo_allowed)
     up_any_pld_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p1, "ud-demo-pld")
     session.add(up_any_pld_demo_allowed_p1)
     up_any_pld_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p2, "PLD experiments")
     session.add(up_any_pld_demo_allowed_p2)
     up_any_pld_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_pld_demo_allowed_p3)    
+    session.add(up_any_pld_demo_allowed_p3)
 
     up_any_fpga_demo_allowed = Model.DbUserPermission(
         any,
@@ -1151,7 +1169,7 @@ def populate_weblab_tests(engine, tests):
     up_any_fpga_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p2, cat_fpga.name)
     session.add(up_any_fpga_demo_allowed_p2)
     up_any_fpga_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_fpga_demo_allowed_p3)    
+    session.add(up_any_fpga_demo_allowed_p3)
 
     up_any_xilinx_demo_allowed = Model.DbUserPermission(
         any,
@@ -1167,7 +1185,7 @@ def populate_weblab_tests(engine, tests):
     up_any_xilinx_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p2, "Xilinx experiments")
     session.add(up_any_xilinx_demo_allowed_p2)
     up_any_xilinx_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_xilinx_demo_allowed_p3)    
+    session.add(up_any_xilinx_demo_allowed_p3)
 
     up_student2_gpib_allowed = Model.DbUserPermission(
         student2,
@@ -1182,8 +1200,8 @@ def populate_weblab_tests(engine, tests):
     up_student2_gpib_allowed_p2 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p2, "GPIB experiments")
     session.add(up_student2_gpib_allowed_p2)
     up_student2_gpib_allowed_p3 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p3, "150")
-    session.add(up_student2_gpib_allowed_p3)             
-                
+    session.add(up_student2_gpib_allowed_p3)
+
     up_student1_admin_panel_access = Model.DbUserPermission(
         student1,
         admin_panel_access,
@@ -1204,7 +1222,7 @@ def populate_weblab_tests(engine, tests):
     )
 
     session.add(up_any_access_forward)
-               
+
     session.commit()
 
 def generate_create_database(engine_str):
@@ -1248,7 +1266,7 @@ def generate_create_database(engine_str):
             sentence3 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'%%' IDENTIFIED BY '%(PASSWORD)s';" % args
             sentence4 = "GRANT ALL ON %(DATABASE_NAME)s.* TO '%(USER)s'@'localhost' IDENTIFIED BY '%(PASSWORD)s';" % args
             sentence5 = "FLUSH PRIVILEGES;" % args
-            
+
             try:
                 kwargs = dict(db=database_name, user = admin_username, passwd = admin_password, host = host)
                 if port is not None:
@@ -1319,7 +1337,7 @@ def add_experiment(sessionmaker, category_name, experiment_name):
         session.add(category)
     else:
         category = existing_category
-    
+
     start_date = datetime.datetime.utcnow()
     # So leap years are not a problem
     end_date = start_date.replace(year=start_date.year+12)
@@ -1333,7 +1351,7 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     session = sessionmaker()
 
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
-    
+
     experiment_allowed = permissions.EXPERIMENT_ALLOWED
 
     experiment_allowed_p1 = permissions.EXPERIMENT_PERMANENT_ID
