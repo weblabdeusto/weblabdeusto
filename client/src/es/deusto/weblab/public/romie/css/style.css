@@ -1,0 +1,46 @@
+@font-face
+{
+	font-family: digital;
+	src: url(../fonts/digital-7.ttf);
+}
+
+header
+{
+	font-size: 3em;
+}
+
+.movements
+{
+	text-align: right;
+	font-family: digital;
+	font-weight: bold;
+}
+
+.points
+{
+	text-align: center;
+}
+
+.lives
+{
+	text-align: left;
+	color: #D9534F;
+}
+
+.controls
+{
+	margin-top: 2em;
+}
+
+.camera2 img
+{
+	width: 80%;
+	padding: 25px;
+}
+
+.controls button
+{
+	width: 55px;
+	height: 55px;
+	padding: 0px;
+}
