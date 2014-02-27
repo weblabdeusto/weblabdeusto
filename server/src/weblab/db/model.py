@@ -1025,3 +1025,49 @@ def _timestamp_to_splitted_utc_datetime(timestamp):
     else:
         return None, None
 
+
+class DbExperimentReservation(Base):
+    __tablename__ = 'ExperimentReservation'
+
+    id            = Column(Integer, primary_key = True)
+    experiment_id = Column(Integer, ForeignKey("Experiment.id"), nullable=False)
+    group_id      = Column(Integer, ForeignKey("Group.id"))
+    user_id       = Column(Integer, ForeignKey("User.id"))
+    role_id       = Column(Integer, ForeignKey("Role.id"))
+    start_date    = Column(DateTime, nullable = False)
+    end_date      = Column(DateTime, nullable = False)
+    priority      = Column(Integer, nullable=False)
+    is_exclusive  = Column(Boolean, nullable=False)
+
+    experiment    = relation("DbExperiment", backref=backref("experiment", order_by=id))
+    group         = relation("DbGroup", backref=backref("group", order_by=id))
+    user          = relation("DbUser", backref=backref("user", order_by=id))
+    role          = relation("DbRole", backref=backref("role", order_by=id))
+
+    def __init__(self, experiment=None, group=None, user=None, role=None,
+                 start_date=None, end_date=None, priority=None,
+                 is_exclusive=None):
+        super(DbExperimentReservation, self).__init__()
+        self.experiment = experiment
+        self.group = group
+        self.user = user
+        self.role = role
+        self.start_date = start_date
+        self.end_date = end_date
+        self.priority = priority
+        self.is_exclusive = is_exclusive
+
+    def __repr__(self):
+        repr = "DbExperimentReservation(id = %r, experiment = %r," \
+               "group = %r, user = %r, role = %r, start_date = %r," \
+               "start_date = %r, priority = %r, is_exclusive = %r)" % (
+               self.experiment,
+               self.group,
+               self.user,
+               self.role,
+               self.start_date,
+               self.end_date,
+               self.priority,
+               self.is_exclusive
+               )
+        return repr

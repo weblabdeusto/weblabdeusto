@@ -144,6 +144,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
         self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
         self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = 'General', name = 'Raw accesses', endpoint = 'logs'))
+        self.instructor.add_view(instructor_views.ExperimentReservePanel(db_session, category = 'General', name = 'Reserve Experiment', endpoint = 'reserve'))
 
         self.instructor.add_view(instructor_views.GroupStats(db_session, category = 'Stats', name = 'Group', endpoint = 'stats/groups'))
 
