@@ -14,9 +14,6 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-
-# TODO: Add tests related to the concurrency API and maybe the heartbeater.
-
 import weblab.experiment.concurrent_experiment as ConcurrentExperiment
 
 import os
@@ -30,9 +27,7 @@ import traceback
 import time
 import random
 import xml.dom.minidom as xml
-
 import json
-
 
 from voodoo.log import logged
 from voodoo.override import Override
@@ -40,7 +35,6 @@ from voodoo.override import Override
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType
 from voodoo.sessions.exc import SessionNotFoundError
-
 from voodoo.typechecker import typecheck, ANY
 
 CFG_USE_VISIR_PHP = "vt_use_visir_php"
@@ -59,7 +53,6 @@ CFG_CIRCUITS = "vt_circuits"
 CFG_CIRCUITS_DIR = "vt_circuits_dir"
 CFG_DEBUG_PRINTS = "vt_debug_prints"
 CFG_LIBRARY_XML  = "vt_library"
-
 
 DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
@@ -170,6 +163,8 @@ class Heartbeater(threading.Thread):
         if DEBUG: dbg("[DBG] HB INIT")
 
         while(True):
+            if self.stopped():
+                return
             try:
                 # Sleep at most HEARTBEAT_MAX_SLEEP. We will most likely overwrite this
                 # with a lower value, depending on the pending requests.
@@ -227,11 +222,10 @@ class Heartbeater(threading.Thread):
                     steps -= 1
                 if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Not sleeping anymore"
 
-                if self.stopped():
-                    return
             except:
                 # TODO: use log
                 traceback.print_exc()
+                time.sleep(5)
 
 DEBUG_MESSAGES = DEBUG
 DEBUG_HEARTBEAT_MESSAGES = DEBUG_MESSAGES
