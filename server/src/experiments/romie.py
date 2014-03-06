@@ -18,49 +18,10 @@ import weblab.experiment.experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
-try:
-	import bluetooth
-
-	BT_name = 'linvor'
-	BT_address = '00:12:02:09:05:16'
-	BT_port = 1
-
-	BT_socket = bluetooth.BluetoothSocket(bluetooth_RFCOMM)
-	BT_socket.connect((BT_address, BT_port))
-
-	BT_available = True
-except:
-	BT_available = False
-	print 'No bluetooth device is available'
-
-class RoMIE:
-	def _wait_ack():
-		received = ''
-		while 'ACK' not in received and 'NAK' not in received:
-			received += BT_socket.recv(1024)
-		if 'NAK' in received:
-			# TODO finish experiment
-			pass
-
-		return received
-
-	def forward():
-		BT_socket.send('F')
-		response = wait_ack()
-
-	def turn_left():
-		BT_socket.send('L')
-		response = wait_ack()
-
-	def turn_right():
-		BT_socket.send('F')
-		response = wait_ack()
-
-	def check_wall():
-		BT_socket.send('S')
-		response = wait_ack()
+import urllib2
 
 DEBUG = True
+ROMIE_SERVER = "http://127.0.0.1:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
 
@@ -89,8 +50,6 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
-		self.romie = RoMIE();
-
 		return ""
 
 	@Override(Experiment.Experiment)
@@ -103,14 +62,16 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_send_command_to_device called"
 
+		global ROMIE_SERVER
+
 		if command == 'F':
-			self.romie.forward()
+			urllib2.urlopen("%sf" % ROMIE_SERVER)
 		elif command == 'L':
-			self.romie.turn_left()
+			urllib2.urlopen("%sl" % ROMIE_SERVER)
 		elif command == 'R':
-			self.romie.ruen_right()
+			urllib2.urlopen("%sr" % ROMIE_SERVER)
 		elif command == 'S':
-			self.romie.check_wall()
+			urllib2.urlopen("%ss" % ROMIE_SERVER)
 
 		return "OK"
 

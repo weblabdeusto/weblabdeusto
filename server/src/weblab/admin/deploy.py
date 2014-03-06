@@ -698,11 +698,11 @@ def populate_weblab_tests(engine, tests):
         "Permission for any to use romie"
     )
     session.add(up_any_romie_allowed)
-    up_any_jsfpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p1, "jsfpga")
+    up_any_romie_allowed_p1 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p1, "romie")
     session.add(up_any_romie_allowed_p1)
-    up_any_jsfpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Dummy experiments")
+    up_any_romie_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Dummy experiments")
     session.add(up_any_romie_allowed_p2)
-    up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "900")
+    up_any_romie_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "900")
     session.add(up_any_romie_allowed_p3)
 
     up_any_visir_html5_allowed = Model.DbUserPermission(
