@@ -13,6 +13,8 @@
 # Author: Iban Eguia <iban.eguia@opendeusto.es>
 #
 
+# IF TAG: "Tag: 4F 00 56 87 C4 ACK"
+
 try:
 	import bluetooth
 

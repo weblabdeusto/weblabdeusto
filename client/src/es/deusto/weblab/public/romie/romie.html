@@ -22,6 +22,18 @@
 				$('button.right').click(romie.right);
 
 				$(parent.document).find('iframe[name=wlframe]').show();
+
+				setInterval(function()
+				{
+					d = new Date();
+					$('.camera1 img').attr("src", "http://192.168.0.88/image.jpg?"+d.getTime());
+				}, 100);
+
+				setInterval(function()
+				{
+					d = new Date();
+					$('.camera2 img').attr("src", "http://192.168.0.89/image.jpg?"+d.getTime());
+				}, 500);
 			}
 
 			Weblab.setOnStartInteractionCallback(init);
@@ -38,7 +50,7 @@
 		</header>
 		<section class="container">
 			<div class="row">
-				<section class="col-md-6 col-md-offset-3 camera"><img src="img.png"></section>
+				<section class="col-md-6 col-md-offset-3 camera1"><img src="http://192.168.0.88/image.jpg"></section>
 			</div>
 			<div class="row">
 				<section class="col-md-2 col-md-offset-3 container controls">
@@ -57,7 +69,7 @@
 					</div>
 				</section>
 				<section class="col-md-3 col-md-offset-1 camera2">
-					<img src="img.png">
+					<img src="http://192.168.0.89/image.jpg">
 				</section>
 			</div>
 		</section>
