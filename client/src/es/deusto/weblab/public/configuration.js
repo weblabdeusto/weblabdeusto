@@ -118,7 +118,7 @@
 	                    		   "experiment.name"		: "romie",
 	                    		   "experiment.category"	: "Dummy experiments",
 	                    		   "experiment.picture"		: "",
-	                    		   "cssWidth"				: "900",
+	                    		   "cssWidth"				: "1000",
 	                    		   "cssHeight"				: "700",
 	                    		   "provide.file.upload"	: false,
 	                    		   "html.file"				: "romie/romie.html"

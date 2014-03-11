@@ -11,20 +11,14 @@ header
 
 .movements
 {
-	text-align: right;
+	text-align: left;
 	font-family: digital;
 	font-weight: bold;
 }
 
 .points
 {
-	text-align: center;
-}
-
-.lives
-{
-	text-align: left;
-	color: #D9534F;
+	text-align: right;
 }
 
 .controls
