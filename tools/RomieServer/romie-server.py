@@ -14,6 +14,7 @@
 #
 
 # IF TAG: "Tag: 4F 00 56 87 C4 ACK"
+# TODO check "S"'s return
 
 try:
 	import bluetooth
