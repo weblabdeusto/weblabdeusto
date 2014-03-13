@@ -108,6 +108,7 @@ class Archimedes(Experiment):
         elif command == "LOAD":
             resp = self._send("load")
             num = resp.split("=")[1]
+            return num
         elif command == "IMAGE":
             resp = self._send("image")
             img = base64.b64encode(resp)
@@ -164,5 +165,18 @@ if __name__ == "__main__":
     print up_resp
     down_resp = experiment.do_send_command_to_device("DOWN")
     print down_resp
+    level_resp = experiment.do_send_command_to_device("LEVEL")
+    print level_resp
+    load_resp = experiment.do_send_command_to_device("LOAD")
+    print load_resp
+    image_resp = experiment.do_send_command_to_device("IMAGE")
+    print image_resp
+
+    f = file("/tmp/img.html", "w+")
+    f.write("""
+        <html><body><img alt="embedded" src="data:image/jpg;base64,%s"/></body></html>
+        """ % (image_resp)
+    )
+    f.close()
 
 
