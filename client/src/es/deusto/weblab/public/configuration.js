@@ -85,7 +85,15 @@
 	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
 								   "experiment.info.description" : "description"
-	                    	   },
+	                    	   },	
+ 				   {
+					   "experiment.name"		: "archimedes",
+					   "experiment.category"	: "Aquatic experiments",
+					   "experiment.picture"         : "/img/experiments/aquarium.png",
+                                           "cssWidth"                   : "1024",
+                                           "cssHeight"                  : "1000",
+                                           "html.file"                  : "jslabs/archimedes/archimedes.html"
+				   },
         	                   {
 	                    		   "experiment.name"		: "submarinejs",
 	                    		   "experiment.category"	: "Aquatic experiments",

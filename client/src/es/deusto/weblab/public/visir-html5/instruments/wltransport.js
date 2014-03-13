@@ -82,3 +82,28 @@ visir.WLTransport.prototype.Error = function(errormsg) {
 	this.onerror(errormsg);
 	this._error = errormsg;
 }
+
+visir.WLTransport.prototype.LoadCircuit = function(file, callback) {
+
+	var reader = new FileReader();
+
+	reader.onload = (function(cirFile) {
+		return function(circuit) {
+			trace("Loaded: " + circuit.target.result);
+			Weblab.sendCommand("load " + circuit.target.result, null, this.Error.bind(this));
+
+			callback(circuit.target.result);
+		}.bind(this);
+	}.bind(this))(file);
+
+	reader.readAsText(file);
+}
+
+visir.WLTransport.prototype.SaveCircuit = function(circuit) {
+
+	trace("Saved: " + circuit);
+	Weblab.sendCommand("save " + circuit, null, this.Error.bind(this));
+
+	var blob = new Blob([circuit], {type: "application/xml;charset=UTF-8"});
+	saveAs(blob, "experiment.cir");
+}
