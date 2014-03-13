@@ -1,0 +1,43 @@
+[
+	[
+		{
+			"question": "¿En qué año se descubrió América?",
+			"answers": [
+				1465,
+				1523,
+				1492,
+				1812
+			],
+			"correct": 2,
+			"points": 150,
+			"type": 0,
+			"movements": 8
+		},{
+			"question": "¿Qué tipo de rayos usan las radiografías?",
+			"answers": [
+				"Rayos Gamma",
+				"Rayos X",
+				"Rayos láser"
+			],
+			"correct": 1,
+			"points": 125,
+			"type": 0,
+			"movements": 6
+		}
+	],
+	[
+		{
+			"question": "¿Cuantos huesos tiene el ser humano?",
+			"answers": [
+				128,
+				204,
+				233,
+				206
+			],
+			"correct": 3,
+			"points": 1.3,
+			"type": 1,
+			"movements": 10
+		}
+	]
+]

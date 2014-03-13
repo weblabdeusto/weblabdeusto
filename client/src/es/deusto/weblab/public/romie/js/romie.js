@@ -1,33 +1,70 @@
-Romie = function()
+Romie = function(movements)
 {
 	this.topCamActivated = false;
+	this.movements = movements;
 }
 
-Romie.prototype.forward = function()
+Romie.prototype.forward = function(callback)
 {
-	Weblab.sendCommand("F",
-		function(response){
-			if (this.hasTag(response))
+	if (this.movements != 0)
+	{
+		this.movements--;
+		Weblab.sendCommand("F",
+			function(response){
+				if (this.hasTag(response))
+				{
+					console.log(this.getTag(response));
+				}
+				if (typeof callback == "function") callback();
+				console.log(response);}.bind(this),
+			function(response)
 			{
-				console.log(this.getTag(response));
-			}
-			console.log(response);},
-		function(response){console.log(response);});
+				this.movements++;
+				if (typeof callback == "function") callback();
+				console.log(response);
+			}.bind(this));
+	}
 }
 
 
-Romie.prototype.left = function()
+Romie.prototype.left = function(callback)
 {
-	Weblab.sendCommand("L",
-		function(response){console.log(response);},
-		function(response){console.log(response);});
+	if (this.movements != 0)
+	{
+		this.movements--;
+		Weblab.sendCommand("L",
+			function(response)
+			{
+				if (typeof callback == "function") callback();
+				console.log(response);
+			},
+			function(response)
+			{
+				this.movements++;
+				if (typeof callback == "function") callback();
+				console.log(response);
+			}.bind(this));
+	}
 }
 
-Romie.prototype.right = function()
+Romie.prototype.right = function(callback)
 {
-	Weblab.sendCommand("R",
-		function(response){console.log(response);},
-		function(response){console.log(response);});
+	if (this.movements != 0)
+	{
+		this.movements--;
+		Weblab.sendCommand("R",
+			function(response)
+			{
+				if (typeof callback == "function") callback();
+				console.log(response);
+			},
+			function(response)
+			{
+				this.movements++;
+				if (typeof callback == "function") callback();
+				console.log(response);
+			}.bind(this));
+	}
 }
 
 Romie.prototype.checkWall = function(callback)
@@ -35,10 +72,10 @@ Romie.prototype.checkWall = function(callback)
 	Weblab.sendCommand("S",
 		function(response)
 		{
-			if (response == "OK")
-				callback();
-			else
-				alert("TIENES UN MURO DELANTE");
+		//	if (response == "OK")
+				if (typeof callback == "function") callback();
+		//	else
+		//		alert("TIENES UN MURO DELANTE");
 		},
 		function(response){console.log(response);});
 }
@@ -66,4 +103,9 @@ Romie.prototype.deactivateTopCam = function()
 Romie.prototype.isTopCamActivated = function()
 {
 	return this.topCamActivated;
+}
+
+Romie.prototype.getMovements = function()
+{
+	return this.movements;
 }

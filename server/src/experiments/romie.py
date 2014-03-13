@@ -19,6 +19,8 @@ from voodoo.override import Override
 from voodoo.log import logged
 
 import urllib2
+import json
+import random
 
 DEBUG = True
 ROMIE_SERVER = "http://127.0.0.1:8000/"
@@ -34,7 +36,9 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 		Reads the base config parameters from the config file.
 		"""
-		pass
+
+		general_question_file = self._cfg_manager.get_value("general_questions")
+		self.general_questions = json.loads(open(general_question_file).read())
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -72,6 +76,16 @@ class RoMIExperiment(Experiment.Experiment):
 			urllib2.urlopen("%sr" % ROMIE_SERVER)
 		elif command == 'S':
 			urllib2.urlopen("%ss" % ROMIE_SERVER)
+		elif command.startswith("QUESTION"):
+			difficulty = int(command[9])
+			category = command[11:]
+			# TODO - more categories
+
+			questions = self.general_questions[difficulty];
+
+			question = questions[random.randint(0, len(questions)-1)]
+
+			print question
 
 		return "OK"
 
