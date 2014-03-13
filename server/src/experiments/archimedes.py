@@ -48,7 +48,7 @@ class Archimedes(Experiment):
         self._cfg_manager    = cfg_manager
 
         # IP of the board, raspberry, beagle, or whatever.
-        self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:8000')
+        self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:2001/')
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
         
         self.opener          = urllib2.build_opener(urllib2.ProxyHandler({}))
@@ -118,7 +118,7 @@ class Archimedes(Experiment):
     def _send(self, command):
         if self.real_device:
             print "[Archimedes]: Sending to board: ", command
-            return self.opener.open(self.board_location, command).read()
+            return self.opener.open(self.board_location + command).read()
         else:
             print "[Archimedes]: Simulating request: ", command
             if command == 'UP':
