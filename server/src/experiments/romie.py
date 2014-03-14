@@ -37,8 +37,9 @@ class RoMIExperiment(Experiment.Experiment):
 		Reads the base config parameters from the config file.
 		"""
 
+		self.questions = {}
 		general_question_file = self._cfg_manager.get_value("general_questions")
-		self.general_questions = json.loads(open(general_question_file).read())
+		self.questions['general'] = json.loads(open(general_question_file).read())
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -79,13 +80,27 @@ class RoMIExperiment(Experiment.Experiment):
 		elif command.startswith("QUESTION"):
 			difficulty = int(command[9])
 			category = command[11:]
-			# TODO - more categories
 
-			questions = self.general_questions[difficulty];
+			questions = self.questions[category][difficulty];
+			question_nr =random.randint(0, len(questions)-1)
+			question = questions[question_nr]
 
-			question = questions[random.randint(0, len(questions)-1)]
+			response_question = {
+				'question_nr': question_nr,
+				'question': question['question'],
+				'answers': question['answers']
+			}
 
-			print question
+			return json.dumps(response_question)
+
+		elif command.startswith("RESPONSE"):
+
+			response = int(command[9])
+			difficulty = int(command[11])
+			question = int(command[13:command.index('|')-1])
+			category = command[command.index('|')+2:]
+
+			return self.questions[category][difficulty][question]['correct'] == response
 
 		return "OK"
 

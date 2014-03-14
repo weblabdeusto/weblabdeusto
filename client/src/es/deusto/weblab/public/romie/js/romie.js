@@ -2,6 +2,7 @@ Romie = function(movements)
 {
 	this.topCamActivated = false;
 	this.movements = movements;
+	this.points = 0;
 }
 
 Romie.prototype.forward = function(callback)
@@ -108,4 +109,20 @@ Romie.prototype.isTopCamActivated = function()
 Romie.prototype.getMovements = function()
 {
 	return this.movements;
+}
+
+Romie.prototype.addPoints = function(points)
+{
+	this.points += points;
+}
+
+Romie.prototype.substractPoints = function(points)
+{
+	this.points -= points;
+	if (this.points < 0) this.points = 0;
+}
+
+Romie.prototype.getPoints = function()
+{
+	return this.points;
 }

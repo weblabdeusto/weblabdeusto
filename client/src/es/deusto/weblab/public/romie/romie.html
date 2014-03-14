@@ -31,17 +31,23 @@
 					}
 				}
 
-				updateMovements = function()
+				updateNumbers = function()
 				{
-					$('.movements span').html(romie.getMovements());
+					movements = romie.getMovements();
+					points = romie.getPoints();
+
+					// TODO
+
+					$('.movements span').html(movements);
+					$('.points span').html(points);
 				}
 
 				$('button.forward').click(function()
 				{
-					romie.checkWall(function(){romie.forward(updateMovements)});
+					romie.checkWall(function(){romie.forward(updateNumbers)});
 				});
-				$('button.left').click(function(){romie.left(updateMovements);});
-				$('button.right').click(function(){romie.right(updateMovements);});
+				$('button.left').click(function(){romie.left(updateNumbers);});
+				$('button.right').click(function(){romie.right(updateNumbers);});
 
 				$(parent.document).find('iframe[name=wlframe]').show();
 
@@ -67,7 +73,7 @@
 					}
 				});
 
-				updateMovements();
+				updateNumbers();
 			}
 
 			Weblab.setOnStartInteractionCallback(init);
@@ -89,7 +95,7 @@
 			<div class="row">
 				<section class="col-md-2 col-md-offset-4 container controls">
 					<div class="row">
-						<button type="button" class="col-md-1 col-md-offset-3 forward">
+						<button type="button" class="col-md-1 col-md-offset-2 forward">
 							<img src="img/forward.png" alt="Forward">
 						</button>
 					</div>
