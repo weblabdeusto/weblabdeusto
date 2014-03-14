@@ -10,9 +10,11 @@ function displayErrorMessage(msg) {
 //! in a few seconds.
 //!
 //! @param msg Message to show in the alert box.
+//!
 //! @param alertclass Class or classes to place in the alert box style.
 //! It can be, for instance, any bootstrap alert class, such as alert-danger,
 //! alert-success or alert-info.
+//!
 //! @param time: Time to wait until it automatically fades. Optional. 3000 by default.
 //! If it is 0 it will never fade.
 function displayMessage(msg, alertclass, time)
