@@ -6,6 +6,15 @@ function displayErrorMessage(msg) {
 }
 
 
+function hideFrame() {
+    $(window.parent.document).find("iframe[name=wlframe]").hide();
+}
+
+function showFrame() {
+    $(window.parent.document).find("iframe[name=wlframe]").show();
+}
+
+
 //! Displays a floating alert box which will fade out
 //! in a few seconds.
 //!

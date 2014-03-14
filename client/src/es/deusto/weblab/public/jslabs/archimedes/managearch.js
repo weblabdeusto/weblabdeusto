@@ -66,7 +66,10 @@ LoadRetriver = new function(){
     this.readSuccess = function(response){
         console.log(response);
 
-        $("#load").text(response + " gr.");
+        var load = parseInt(response);
+        load = Math.max(0, (load - 1256) * 3.2);
+
+        $("#load").text(load.toFixed(2) + " gr.");
 
     }
     this.readFailure = function(response){
@@ -85,8 +88,6 @@ LoadRetriver = new function(){
         Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
         if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
             Weblab.sendCommand("LOAD", this.readSuccess, this.readFailure);
-
-
     }
 
     this.refreshParams =function(){
@@ -118,7 +119,10 @@ LevelRetriver = new function(){
     this.readSuccess = function(response){
         console.log(response);
 
-        $("#level").text(response + " gr.");
+        var level = parseInt(response);
+        level = (1208 - level) * 7.23 + 64;
+
+        $("#level").text(level.toFixed(2) + " inch.");
 
     }
     this.readFailure = function(response){
@@ -184,7 +188,7 @@ Weblab.setOnStartInteractionCallback(function () {
 });
 
 Weblab.setOnEndCallback( function() {
-	console.log("[DBG]: On end itneraction");
+	console.log("[DBG]: On end interaction");
 	LoadRetriver.stop();
 	LevelRetriver.stop();
 });
@@ -204,7 +208,7 @@ $(document).ready(function(){
             Weblab.sendCommand("DOWN",
                 function(success) {
                     $("#downButton img").attr("src", "img/down_green.png");
-                    $("#downButton img").removeAttr("disabled");
+                    $("#downButton").removeAttr("disabled");
                 },
                 function(error){
                     console.error("DOWN command failed: " + error);
