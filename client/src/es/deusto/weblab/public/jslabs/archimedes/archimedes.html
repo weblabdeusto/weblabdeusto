@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Archimedes Experiment</title>
+
+<script type="text/javascript" src="widgets.js"></script>
+<script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+
+<link href='http://fonts.googleapis.com/css?family=Ultra' rel='stylesheet' type='text/css'>
+<link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="widgets.css" rel="stylesheet" type="text/css"/>
+
+<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="../archimedes/jquery.tinytimer.dev.js"></script>
+<script type="text/javascript" src="../archimedes/jquery.tinytimer.js"></script>
+<script type="text/javascript" src="../archimedes/jquery.tinytimer.min.js"></script>
+
+
+
+<script type="text/javascript" src="../archimedes/managearch.js" ></script>
+
+</head>
+
+<body>
+
+
+
+<!-- Large modal -->
+<button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg" hidden>Large modal</button>
+
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <img id="hdpic" src="http://weblab.deusto.es/webcam/proxied.py/splash0"/>
+    </div>
+  </div>
+</div>
+
+
+
+<table width="907">
+  <tr>
+    <td rowspan="2" width="480px">
+    	<img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:480px" src="http://weblab.deusto.es/webcam/proxied.py/splash1">
+    </td>
+    <td height="320px">
+    	<img id="cam2" src="http://weblab.deusto.es/webcam/proxied.py/splash0" style="height:320px">
+    </td>
+  </tr>
+  <tr>
+    <td height="320px">
+    	
+        <table width="300">
+          <tr>
+            <td colspan="2"> <span class="timer" id="timer"></span></td>
+          </tr>
+          <tr>
+            <td width="96" ><a id="upButton"><img id="up" src="../archimedes/img/up.png"></a></td>
+            <td width="192"><img src="../archimedes/img/load.png">  <span class="load" id="load"></span></td>
+          </tr>
+          <tr>
+            <td><a id="downButton"><img id="down" src="../archimedes/img/down.png"></a></td>
+            <td><img src="../archimedes/img/level.png"> <span class="level" id="level"> </td>
+          </tr>
+          <tr>
+            <td height="96" colspan="2"><a href="photo.html" target="_blank"><img src="../archimedes/img/photo.png"></a></td>
+          </tr>
+        </table>
+        
+    </td>
+  </tr>
+</table>
+</body>
+</html>
