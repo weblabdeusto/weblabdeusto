@@ -100,7 +100,7 @@ LoadRetriver = new function(){
             //error
             console.log("Error Refreshing LOAD");
         }
-        _timeout = setTimeout(this.refreshParams.bind(this), 30000);
+        _timeout = setTimeout(this.refreshParams.bind(this), 3000);
     }
 
     this.stop = function() {
@@ -153,7 +153,7 @@ LevelRetriver = new function(){
             //error
             console.log("Error Refreshing LEVEL");
         }
-        _timeout = setTimeout(this.refreshParams.bind(this), 30000);
+        _timeout = setTimeout(this.refreshParams.bind(this), 3000);
     }
 
     this.stop = function() {
@@ -170,6 +170,9 @@ function setTimeToGo(time){
     var d = new Date();
     d.setTime(d.getTime() + (time*1000));
     //$('#timer').tinyTimer({ to: d });
+
+    timerDisplayer.setTimeLeft(time);
+    timerDisplayer.startCountDown();
 }
 
 
@@ -181,23 +184,34 @@ Weblab.setOnTimeCallback(function (time) {
 });
 
 Weblab.setOnStartInteractionCallback(function () {
+    showFrame();
     console.log("[DBG]: On start interaction");
     LoadRetriver.refreshParams();
 	LevelRetriver.refreshParams();
+
     //light_page();
 });
 
 Weblab.setOnEndCallback( function() {
+    hideFrame();
 	console.log("[DBG]: On end interaction");
 	LoadRetriver.stop();
 	LevelRetriver.stop();
 });
 
 $(document).ready(function(){
+
+    // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
+    if(Weblab.checkOnline() == true)
+        hideFrame();
+
 	var refresher1 = new CameraRefresher("cam1");
 	var refresher2 = new CameraRefresher("cam2");
 	refresher1.start();
 	refresher2.start();
+
+    // Create the timer for later.
+    timerDisplayer = new TimerDisplayer("timer");
 
 	// Declare button handlers.
 	$("#downButton").click(function() {
@@ -244,11 +258,15 @@ $(document).ready(function(){
         console.log("IMAGE");
 
         if($("#photoButton").attr("disabled") == undefined) {
+
+            //$("#hdpic").attr("src", "img/image_placeholder.png");
+            $("#hdpic").attr("src", "");
+            $("#photoModal").modal();
+
             Weblab.sendCommand("IMAGE",
                 function(data) {
                     $("#photoButton").removeAttr("disabled");
                     $("#hdpic").attr("src", "data:image/jpg;base64," + data);
-                    $("#photoModal").modal();
                     $("#photoButton img").attr("src", "img/photo_green.png");
                 },
                 function(error) {

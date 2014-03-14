@@ -6,10 +6,14 @@ function displayErrorMessage(msg) {
 }
 
 
+//! Hides the whole experiment iframe.
+//!
 function hideFrame() {
     $(window.parent.document).find("iframe[name=wlframe]").hide();
 }
 
+//! Shows the whole experiment iframe.
+//!
 function showFrame() {
     $(window.parent.document).find("iframe[name=wlframe]").show();
 }
