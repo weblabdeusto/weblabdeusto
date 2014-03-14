@@ -28,15 +28,23 @@
 
 
 
-<!-- Large modal -->
-<button class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg" hidden>Large modal</button>
-
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <img id="hdpic" src="http://weblab.deusto.es/webcam/proxied.py/splash0"/>
+<!-- Large modal to show the HD picture -->
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <img id="hdpic" style="width: 100%" src="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
@@ -58,15 +66,15 @@
             <td colspan="2"> <span class="timer" id="timer"></span></td>
           </tr>
           <tr>
-            <td width="96" ><a id="upButton"><img id="up" src="../archimedes/img/up.png"></a></td>
+            <td width="96" ><a id="upButton" href="javascript:void(0);"><img id="up" src="../archimedes/img/up.png"></a></td>
             <td width="192"><img src="../archimedes/img/load.png">  <span class="load" id="load"></span></td>
           </tr>
           <tr>
-            <td><a id="downButton"><img id="down" src="../archimedes/img/down.png"></a></td>
-            <td><img src="../archimedes/img/level.png"> <span class="level" id="level"> </td>
+            <td><a id="downButton" href="javascript:void(0);"><img id="down" src="../archimedes/img/down.png"></a></td>
+            <td><img src="../archimedes/img/level.png"> <span class="level" id="level"/></td>
           </tr>
           <tr>
-            <td height="96" colspan="2"><a href="photo.html" target="_blank"><img src="../archimedes/img/photo.png"></a></td>
+            <td height="96" colspan="2"><a id="photoButton" href="javascript:void(0);"><img src="../archimedes/img/photo.png"></a></td>
           </tr>
         </table>
         

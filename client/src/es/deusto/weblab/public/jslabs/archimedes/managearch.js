@@ -205,4 +205,17 @@ $(document).ready(function(){
 		console.log("UP");
 		Weblab.testCommand("UP");
 	});
+
+    $("#photoButton").click(function() {
+        console.log("IMAGE");
+
+        Weblab.sendCommand("IMAGE",
+            function(data) {
+                $("#hdpic").attr("src", "data:image/jpg;base64,'" + data);
+            },
+            function(error) {
+                console.error("Error: " + error);
+            });
+    });
+    
 });
