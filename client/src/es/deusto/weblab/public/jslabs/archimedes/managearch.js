@@ -198,50 +198,64 @@ $(document).ready(function(){
 	// Declare button handlers.
 	$("#downButton").click(function() {
 
-        $("#downButton img").attr("src", "img/down.png");
-
 		console.log("DOWN");
 
-		Weblab.sendCommand("DOWN",
-            function(success) {
-                $("#downButton img").attr("src", "img/down_green.png");
-            },
-            function(error){
-                console.error("DOWN command failed: " + error);
-                displayErrorMessage("DOWN command failed");
-            });
+        if($("#downButton").attr("disabled") == undefined) {
+            Weblab.sendCommand("DOWN",
+                function(success) {
+                    $("#downButton img").attr("src", "img/down_green.png");
+                    $("#downButton img").removeAttr("disabled");
+                },
+                function(error){
+                    console.error("DOWN command failed: " + error);
+                    displayErrorMessage("DOWN command failed");
+                });
+        }
+
+        $("#downButton img").attr("src", "img/down.png");
+        $("#downButton").attr("disabled", "disabled");
 	});
 
 	$("#upButton").click(function() {
 		console.log("UP");
 
-        $("#upButton img").attr("src", "img/up.png");
+        if($("#upButton").attr("disabled") == undefined) {
+            Weblab.sendCommand("UP",
+                function(success) {
+                    $("#upButton img").attr("src", "img/up_green.png");
+                    $("#upButton").removeAttr("disabled");
+                },
+                function(error){
+                    console.error("UP command failed: " + error);
+                    displayErrorMessage("UP command failed");
+                });
+        }
 
-        Weblab.sendCommand("UP",
-            function(success) {
-                $("#upButton img").attr("src", "img/up_green.png");
-            },
-            function(error){
-                console.error("UP command failed: " + error);
-                displayErrorMessage("UP command failed");
-            });
+        // Disable the button for now.
+        $("#upButton img").attr("src", "img/up.png");
+        $("#upButton").attr("disabled", "disabled");
 	});
 
     $("#photoButton").click(function() {
         console.log("IMAGE");
 
-        $("#photoButton img").attr("src", "img/photo.png");
+        if($("#photoButton").attr("disabled") == undefined) {
+            Weblab.sendCommand("IMAGE",
+                function(data) {
+                    $("#photoButton").removeAttr("disabled");
+                    $("#hdpic").attr("src", "data:image/jpg;base64," + data);
+                    $("#photoModal").modal();
+                    $("#photoButton img").attr("src", "img/photo_green.png");
+                },
+                function(error) {
+                    console.error("Error: " + error);
+                    displayErrorMessage("IMAGE command failed");
+                });
+        }
 
-        Weblab.sendCommand("IMAGE",
-            function(data) {
-                $("#hdpic").attr("src", "data:image/jpg;base64," + data);
-                $("#photoModal").modal();
-                $("#photoButton img").attr("src", "img/photo_green.png");
-            },
-            function(error) {
-                console.error("Error: " + error);
-                displayErrorMessage("IMAGE command failed");
-            });
+        // Disable the button for now.
+        $("#photoButton img").attr("src", "img/photo.png");
+        $("#photoButton").attr("disabled", "disabled");
     });
 
 });
