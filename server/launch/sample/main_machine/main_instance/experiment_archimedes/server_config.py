@@ -3,5 +3,5 @@
 
 archimedes_board_location = 'http://192.168.0.161:2001/'
 
-real_device = True
+archimedes_real_device = True
 

@@ -165,7 +165,7 @@ function setTimeToGo(time){
     //timer function
     var d = new Date();
     d.setTime(d.getTime() + (time*1000));
-    $('#timer').tinyTimer({ to: d });
+    //$('#timer').tinyTimer({ to: d });
 }
 
 
@@ -234,7 +234,8 @@ $(document).ready(function(){
 
         Weblab.sendCommand("IMAGE",
             function(data) {
-                $("#hdpic").attr("src", "data:image/jpg;base64,'" + data);
+                $("#hdpic").attr("src", "data:image/jpg;base64," + data);
+                $("#photoModal").modal();
                 $("#photoButton img").attr("src", "img/photo_green.png");
             },
             function(error) {
