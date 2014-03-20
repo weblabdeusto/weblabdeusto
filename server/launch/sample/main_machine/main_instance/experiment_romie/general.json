@@ -13,11 +13,11 @@
 			"type": 0,
 			"movements": 8
 		},{
-			"question": "¿Qué tipo de rayos usan las radiografías?",
+			"question": "¿Qué espectro de ondas electromagnéticas usan las radiografías?",
 			"answers": [
-				"Rayos Gamma",
+				"Rayos gamma",
 				"Rayos X",
-				"Rayos láser"
+				"Ondas de radio"
 			],
 			"correct": 1,
 			"points": 125,
