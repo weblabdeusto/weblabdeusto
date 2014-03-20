@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js CUSTOM TEST</title>
+		<title>Watertank Experiment</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
@@ -71,7 +71,7 @@
 	</head>
 	<body>
 
-        <img id="video" style="display:none" src="https://www.weblab.deusto.es/webcam/proxied.py/fpga1?123123123123" />
+        <img id="video" style="display:none" src="//www.weblab.deusto.es/webcam/proxied.py/fpga1?123123123123" />
 
         <div id="progressbar" class="progress-bar"><div class="progress-label">Loading...</div></div>
 
@@ -101,7 +101,7 @@
 		    window.__water = THREE.ImageUtils.loadTexture('../models/water.jpg', new THREE.UVMapping());
 
 
-		    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/fpga1");
+		    rc = new RefreshingCameraWidget("video", "//www.weblab.deusto.es/webcam/proxied.py/fpga1");
 		    rc.startRefreshing();
 
 
