@@ -68,18 +68,18 @@ Romie.prototype.right = function(callback)
 	}
 }
 
-Romie.prototype.checkWall = function(callback)
-{
-	Weblab.sendCommand("S",
-		function(response)
-		{
-		//	if (response == "OK")
-				if (typeof callback == "function") callback();
-		//	else
-		//		alert("TIENES UN MURO DELANTE");
-		},
-		function(response){console.log(response);});
-}
+// Romie.prototype.checkWall = function(callback)
+// {
+// 	Weblab.sendCommand("S",
+// 		function(response)
+// 		{
+// 		//	if (response == "OK")
+// 				if (typeof callback == "function") callback();
+// 		//	else
+// 		//		alert("TIENES UN MURO DELANTE");
+// 		},
+// 		function(response){console.log(response);});
+// }
 
 Romie.prototype.hasTag = function(response)
 {

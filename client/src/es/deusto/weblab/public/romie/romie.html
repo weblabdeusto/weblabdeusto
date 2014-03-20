@@ -36,16 +36,18 @@
 					movements = romie.getMovements();
 					points = romie.getPoints();
 
-					// TODO
+					// TODO format
 
 					$('.movements span').html(movements);
 					$('.points span').html(points);
+
+					// if (romie.getTag() != '')
+					// {
+					// 	// TODO question
+					// }
 				}
 
-				$('button.forward').click(function()
-				{
-					romie.checkWall(function(){romie.forward(updateNumbers)});
-				});
+				$('button.forward').click(function(){romie.forward(updateNumbers);});
 				$('button.left').click(function(){romie.left(updateNumbers);});
 				$('button.right').click(function(){romie.right(updateNumbers);});
 
@@ -54,7 +56,7 @@
 				camera1 = setInterval(function()
 				{
 					d = new Date();
-					$('.camera1 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+d.getTime());
+					$('.camera1 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
 				}, 100);
 
 				camera2 = setInterval(updateCam2, 500);
