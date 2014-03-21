@@ -50,7 +50,7 @@ public class WlWebcamSafariBased extends WlWebcam {
 	private final HorizontalPanel choicePanel;
 	
 	public WlWebcamSafariBased(){
-		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
+		this(WlWebcam.WEBCAM_REFRESH_TIME.getIntDefaultValue(), WlWebcam.DEFAULT_IMAGE_URL);
 	}
 	
 	public WlWebcamSafariBased(int time){

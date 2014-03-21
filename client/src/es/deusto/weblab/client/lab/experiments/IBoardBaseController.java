@@ -37,6 +37,11 @@ public interface IBoardBaseController{
 	 */
 	public SessionID getSessionId();
 	
+	/**
+	 * What is the reservation id of the user? 
+	 */
+	public SessionID getReservationId();
+	
 	////////////////////////////////////
 	// 
 	// Sending commands
