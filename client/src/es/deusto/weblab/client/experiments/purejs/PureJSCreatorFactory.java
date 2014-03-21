@@ -21,11 +21,18 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
-public class PureJSCreatorFactory implements IExperimentCreatorFactory {
+public class PureJSCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameter HTML_FILE = new ExperimentParameter("html.file", ExperimentParameter.Type.string, "HTML file to redirect the user");
+	public static final ExperimentParameterDefault LOAD_ON_INIT = new ExperimentParameterDefault("load.on.init", "Load the HTML", false);
+	public static final ExperimentParameterDefault BASE_URL = new ExperimentParameterDefault("base.url", "Base URL before the HTML file. By default, it's experiments/ ", "experiments/");
+	
 	@Override
 	public String getCodeName() {
 		return "purejs";
@@ -52,6 +59,11 @@ public class PureJSCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter[] { LOAD_ON_INIT, HTML_FILE, BASE_URL };
 	}
 
 }
