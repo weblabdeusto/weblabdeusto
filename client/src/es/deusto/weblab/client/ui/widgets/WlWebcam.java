@@ -30,10 +30,11 @@ import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
 public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
-	public static final ExperimentParameterDefault WEBCAM_REFRESH_TIME = new ExperimentParameterDefault("webcam.refresh.millis", "Time to refresh the webcam image,  in milliseconds", 200);
+	public static final ExperimentParameterDefault WEBCAM_REFRESH_TIME = IHasExperimentParameters.WEBCAM_REFRESH_TIME;
 	
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
 	

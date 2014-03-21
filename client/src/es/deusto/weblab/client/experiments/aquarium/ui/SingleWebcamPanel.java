@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.IDisposableWidgetsContainer;
 import es.deusto.weblab.client.ui.widgets.IWlDisposableWidget;
 import es.deusto.weblab.client.ui.widgets.WlWebcam;
@@ -46,7 +45,7 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 		this.configurationRetriever = configurationRetriever;
 		
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		parseWebcamConfig(initialConfiguration, camera);
@@ -56,11 +55,6 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 		this.webcam.start();
 	}
 	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(AquariumCreatorFactory.WEBCAM_REFRESH);
-	}	
-	
-
 	private void parseWebcamConfig(String initialConfiguration, int camera) {
 		System.out.println("Aquarium: initial config:" + initialConfiguration);
 		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);

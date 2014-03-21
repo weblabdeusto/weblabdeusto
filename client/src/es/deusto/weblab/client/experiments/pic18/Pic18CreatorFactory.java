@@ -62,7 +62,7 @@ public class Pic18CreatorFactory implements IExperimentCreatorFactory, IHasExper
 
 	@Override
 	public ExperimentParameter[] getParameters() {
-		return new ExperimentParameter[] { IS_DEMO };
+		return new ExperimentParameter[] { IS_DEMO, IHasExperimentParameters.WEBCAM_REFRESH_TIME };
 	}
 
 }

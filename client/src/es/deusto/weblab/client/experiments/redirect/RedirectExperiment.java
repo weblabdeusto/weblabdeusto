@@ -33,7 +33,6 @@ import es.deusto.weblab.client.lab.experiments.UIExperimentBase;
 
 public class RedirectExperiment extends UIExperimentBase {
 	
-	public static final String LINK_PRESENTATION_PROPERTY_NAME = "link.presentation";
 	public static final String EXTERNAL_WIDTH  = "external.width";
 	public static final String EXTERNAL_HEIGHT = "external.height";
 	
@@ -41,18 +40,16 @@ public class RedirectExperiment extends UIExperimentBase {
 		popup, iframe, redirection
 	}
 	
-	public static final String DEFAULT_PRESENTATION_PROPERTY = LinkPresentation.redirection.name();
-	
 	public RedirectExperiment(IConfigurationRetriever configurationRetriever, IBoardBaseController boardController) {
 		super(configurationRetriever, boardController);
 	}
 	
 	public LinkPresentation getLinkPresentation() {
-		final String linkPresentationStr = this.configurationRetriever.getProperty(LINK_PRESENTATION_PROPERTY_NAME, DEFAULT_PRESENTATION_PROPERTY);
+		final String linkPresentationStr = this.configurationRetriever.getProperty(RedirectCreatorFactory.LINK_PRESENTATION);
 		try{
 			return LinkPresentation.valueOf(linkPresentationStr);
 		} catch (IllegalArgumentException iae) {
-			return LinkPresentation.valueOf(DEFAULT_PRESENTATION_PROPERTY);
+			return LinkPresentation.valueOf(RedirectCreatorFactory.LINK_PRESENTATION.getStringDefaultValue());
 		}
 	}
 	
@@ -69,8 +66,8 @@ public class RedirectExperiment extends UIExperimentBase {
 		final String baseURL = value.get("url").isString().stringValue();
 		System.out.println("Control app URL=" + baseURL);
 		
-		final String width  = this.configurationRetriever.getProperty(EXTERNAL_WIDTH,  "" + Window.getClientWidth());
-		final String height = this.configurationRetriever.getProperty(EXTERNAL_HEIGHT, "" + Window.getClientHeight());
+		final String width  = this.configurationRetriever.getProperty(RedirectCreatorFactory.EXTERNAL_WIDTH);
+		final String height = this.configurationRetriever.getProperty(RedirectCreatorFactory.EXTERNAL_HEIGHT);
 		
 		final long startTime = System.currentTimeMillis();
 		

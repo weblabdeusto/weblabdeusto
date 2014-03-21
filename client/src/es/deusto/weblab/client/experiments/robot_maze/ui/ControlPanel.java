@@ -44,9 +44,6 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 
 public class ControlPanel extends Composite {
 
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-	
 	private static final String RIGHT = "RIGHT";
 	private static final String LEFT = "LEFT";
 	private static final String DOWN = "BACK";
@@ -140,8 +137,7 @@ public class ControlPanel extends Composite {
 		
 		this.webcam = GWT.create(WlWebcam.class);
 		
-		final int refreshingTime = this.configurationRetriever.getIntProperty(WEBCAM_REFRESH_TIME_PROPERTY, DEFAULT_WEBCAM_REFRESH_TIME);
-		this.webcam.setTime(refreshingTime);
+		this.webcam.setTime(this.configurationRetriever);
 	}
 
 	@SuppressWarnings("unused")
