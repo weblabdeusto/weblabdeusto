@@ -157,7 +157,20 @@
         {% if results['links'] %}
         <a name="social_network"></a>
         <h4>Social Network</h4>
+        <p>The following data is based on students sending the same exact file which has not been previously sent by an instructor or administrator. Each arrow means that one user is the original creator of the file and that the pointed user has submitted the same file.</p>
         {{ sna() }}
+        {% if results['copies.time.diff'] %}
+            <h5>Time elapsed</h5>
+            <p>Time elapsed since the original submission to the time it was copied. Horizontal: potential time elapsed. Vertical: times a file copied was submitted.</p>
+            {{ timeline_bars('copies_distribution') }} 
+        {% endif %}
+
+        {% if results['copies.timelines'] %}
+            <h5>Copy timeline</h5>
+            {% from "_widgets.html" import multitimeline %}
+            {{ multitimeline('total') }}
+        {% endif %}
+
         {% endif %}
         {% endif %}
         {% else %}
@@ -186,10 +199,20 @@
         {{ timeline_bars_load('users_per_student', results['users_timeline_bar_data']) }}
     {% endif %}
 
+    {% if results['copies.time.diff'] %}
+        {{ timeline_bars_load('copies_distribution', results['copies.time.diff']['distribution']) }} 
+    {% endif %}
+
 
     {% if results['links'] %}
         {{ sna_scripts() }}
         {{ sna_load(url_for('.gefx', group_id = group_id)) }}
+    {% endif %}
+    
+    {% if results['copies.timelines'] %}
+        {% from "_widgets.html" import multitimeline_scripts, multitimeline_load %}
+        {{ multitimeline_scripts(skip_d3 = True) }}
+        {{ multitimeline_load('total', results['copies.timelines']) }}
     {% endif %}
 {% endblock %}
 

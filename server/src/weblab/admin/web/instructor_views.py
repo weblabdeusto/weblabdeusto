@@ -1,7 +1,10 @@
-from collections import defaultdict, OrderedDict
+import time
+import math
 import json
 import random
 import datetime
+
+from collections import defaultdict, OrderedDict
 from StringIO import StringIO
 
 import networkx as nx
@@ -48,6 +51,33 @@ class InstructorModelView(ModelView):
 
         return super(InstructorModelView, self)._handle_view(name, **kwargs)
 
+class ImmutableGroup(object):
+    def __init__(self, group, mapping):
+        self.id = group.id
+        self.name = group.name
+        if group.parent is None:
+            self.parent = None
+        else:
+            if group.parent.id in mapping:
+                self.parent = mapping[group.parent.id]
+            else:
+                self.parent = ImmutableGroup(group.parent, mapping)
+                mapping[self.parent.id] = self.parent
+
+    def __eq__(self, other):
+        return isinstance(other, ImmutableGroup) and other.id == self.id
+
+    def __hash__(self):
+        return self.id
+
+def convert_groups_to_immutable(group_list):
+    new_groups = []
+    mapping = {}
+    for group in group_list:
+        new_group = ImmutableGroup(group, mapping)
+        new_groups.append(new_group)
+    return new_groups
+
 class InstructorHomeView(AdminIndexView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
@@ -57,6 +87,8 @@ class InstructorHomeView(AdminIndexView):
     def index(self):
         user_information = get_app_instance().get_user_information()
         groups = get_assigned_groups(self._db_session)
+        groups = convert_groups_to_immutable(groups)
+        set_uses_number_in_name(self._db_session, groups)
         tree_groups = get_tree_groups(groups)
         return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
 
@@ -92,6 +124,17 @@ def get_assigned_groups_query(session):
 
 def get_assigned_groups(session):
     return get_assigned_groups_query(session).all()
+
+def set_uses_number_in_name(session, group_list):
+    for group in group_list:
+        permission_ids = set()
+        for permission in session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group_id == group.id, model.DbGroupPermission.permission_type == permissions.EXPERIMENT_ALLOWED).all():
+            permission_ids.add(permission.id)
+
+        count = session.query(model.DbUserUsedExperiment).filter(model.DbUserUsedExperiment.group_permission_id.in_(permission_ids)).count()
+        if count:
+            group.name = group.name + ' (%s)' % count
+
 
 def get_tree_groups(group_list):
     tree = defaultdict(list)
@@ -256,7 +299,7 @@ def generate_links(session, condition):
     hashes = defaultdict(list)
     # 
     # {
-    #     'file_hash' : [(use.id, user.id), (use.id,user.id), (use.id, user.id)]
+    #     'file_hash' : [(use.id, user.id, datetime, login), (use.id,user.id, datetime, login), (use.id, user.id, datetime, login)]
     # }
     #
     multiuser_file_hashes = sql.select(
@@ -273,7 +316,7 @@ def generate_links(session, condition):
     joined = outerjoin(multiuser_file_hashes, model.DbUserFile, model.DbUserFile.file_hash == multiuser_file_hashes.c.UserFile_file_hash)
 
     files_query = sql.select(
-                            [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login, model.DbUser.full_name],
+                            [model.DbUserUsedExperiment.id, model.DbUserUsedExperiment.user_id, model.DbUserFile.file_hash, model.DbUser.login, model.DbUser.full_name, model.DbUserUsedExperiment.start_date],
                             sql.and_( 
                                 condition,
                                 model.DbUserFile.experiment_use_id == model.DbUserUsedExperiment.id,
@@ -288,12 +331,13 @@ def generate_links(session, condition):
         file_hash = use['file_hash']
         login = use['login']
         full_name = use['full_name']
+        start_date = use['start_date']
         # user_id_cache[user_id] = u'%s (%s)' % (full_name, login)
         user_id_cache[user_id] = login
-        hashes[file_hash].append((use_id, user_id))
+        hashes[file_hash].append((use_id, user_id, start_date, login))
 
     if not hashes:
-        return {}
+        return {}, {}
 
     # No group by since there is no easy way to order correctly, and the amount of data is not
     # huge
@@ -322,16 +366,16 @@ def generate_links(session, condition):
     # With the remaining, calculate the copies
     for file_hash in hashes:
         # Get first in course
-        first_use_id, first_user_id = hashes[file_hash][0]
-        distinct_user_ids = set([ user_id for use_id, user_id in hashes[file_hash] if user_id != first_user_id ])
+        first_use_id, first_user_id, use_datetime, login = hashes[file_hash][0]
+        distinct_user_ids = set([ user_id for use_id, user_id, use_datetime, login in hashes[file_hash] if user_id != first_user_id ])
         for user_id in distinct_user_ids:
             links[user_id_cache[first_user_id]].append(user_id_cache[user_id])
 
-    return links
+    return links, hashes
 
 
 def gefx(session, condition):
-    links = generate_links(session, condition)
+    links, _ = generate_links(session, condition)
     if not links:
         return "This groups does not have any detected plagiarism"
 
@@ -370,6 +414,34 @@ def gefx(session, condition):
     output = StringIO()
     nx.write_gexf(G, output)
     return Response(output.getvalue(), mimetype='text/xml')
+
+def to_human(seconds):
+    if seconds < 60:
+        return "%.2f sec" % seconds
+    elif seconds < 3600:
+        return "%s min %s sec" % (int(seconds) / 60, int(seconds) % 60)
+    elif seconds < 24 * 3600:
+        return "%s hour %s min" % (int(seconds) / 3600, int(seconds) % 3600 / 60)
+    else:
+        return "%s days" % (int(seconds) / (3600 * 24))
+    
+def to_nvd3(timeline):
+    # Get timeline in the form of:
+    # {
+    #    '2013-01-01' : 5
+    # }
+    # and return:
+    # [
+    #    [ millis_since_epoch, 5 ],
+    # ]
+    nvd3 = []
+    for key in sorted(timeline.keys()):
+        nvd3.append([
+            time.mktime(time.strptime(key, "%Y-%m-%d")) * 1000,
+            timeline[key]
+        ])
+    return nvd3
+
 
 def generate_info(panel, session, condition, experiments, results):
     results['statistics'].update({
@@ -428,9 +500,15 @@ def generate_info(panel, session, condition, experiments, results):
     # {
     #     '2013-01-01' : 5 # being 2013-01-01 that monday
     # }
+    min_day = datetime.date(2100, 1, 1)
+    max_day = datetime.date(1900, 1, 1)
     for start_date_date, uses in session.execute(sql.select([model.DbUserUsedExperiment.start_date_date, sa_func.count(model.DbUserUsedExperiment.id)],
                                                            condition 
                                                     ).group_by(model.DbUserUsedExperiment.start_date_date)):
+        if start_date_date > max_day:
+            max_day = start_date_date
+        if start_date_date < min_day:
+            min_day = start_date_date
         per_day[start_date_date.strftime('%Y-%m-%d')] = uses
         week_day = start_date_date.weekday()
         per_week[start_date_date - datetime.timedelta(days = week_day)] += uses
@@ -462,8 +540,83 @@ def generate_info(panel, session, condition, experiments, results):
         time_per_day[start_date_date.strftime('%Y-%m-%d')] = session_time_micro / session_number / 1000000
         results['statistics']['total_time'] += session_time_micro / 1000000
     
-    links = generate_links(session, condition)
+    links, hashes = generate_links(session, condition)
+    # hashes = { file_hash : [ (use.id, user.id, datetime, login), ... ] }
     results['links'] = links
+
+    if hashes:
+        new_hashes = defaultdict(list)
+        total_copies_per_date = defaultdict(int)
+        total_copy_time_diffs = []
+        min_diff = 100 * 365 * 24 * 3600 # a century
+        max_diff = 0 
+        # new_hashes = { (file_hash, first_login) : [ (use_id, user_id, datetime, login), ... ] } with different logins
+        for file_hash, uses in hashes.items():
+            original_user_id = uses[0][1]
+            original_dt = uses[0][2]
+            original_login = uses[0][3]
+            for use_id, user_id, dt, login in uses:
+                if user_id != original_user_id:
+                    difference = dt - original_dt
+                    difference = (difference.microseconds + (difference.seconds + difference.days * 24 * 3600) * 10**6) / 10**6
+                    current_use = (use_id, user_id, dt, login, difference)
+                    new_hashes[(file_hash, original_login)].append( current_use )
+                    total_copies_per_date[dt.strftime('%Y-%m-%d')] += 1
+                    total_copy_time_diffs.append(difference)
+                    if difference > max_diff:
+                        max_diff = difference
+                    if difference < min_diff:
+                        min_diff = difference
+        
+        DIFF_STEPS = 50
+        DIFF_STEP  = math.log10(max_diff) / DIFF_STEPS
+        diff_distribution = []
+
+        for pos in range(DIFF_STEPS):
+            min_value = 10 ** (DIFF_STEP * pos)
+            max_value = 10 ** (DIFF_STEP * (pos + 1))
+            current_value = 0
+            for time_diff in total_copy_time_diffs:
+                if min_value < time_diff <= max_value:
+                    current_value += 1
+
+            diff_distribution.append({
+                'header' : "%s - %s" % (to_human(min_value), to_human(max_value)),
+                'value'  : current_value,
+            })
+
+        # Remove first steps
+        while diff_distribution and diff_distribution[0]['value'] == 0:
+            diff_distribution.pop(0)
+        
+
+        results['copies.time.diff'] = {
+            'min_diff' : min_diff,
+            'max_diff' : max_diff,
+            'distribution'  : json.dumps(diff_distribution),
+        }
+        per_day_nvd3 = to_nvd3(per_day)
+        for key in per_day:
+            if key not in total_copies_per_date:
+                total_copies_per_date[key] = 0
+        total_copies_per_date_nvd3 = to_nvd3(total_copies_per_date)
+
+        results['copies.dates'] = {
+            'normal' : per_day,
+            'copies' : total_copies_per_date,
+            'min'    : min_day,
+            'max'    : max_day,
+        }
+        results['copies.timelines'] = json.dumps([
+            {
+                'key' : 'Total',
+                'values' : per_day_nvd3
+            },
+            {
+                'key' : 'Copies',
+                'values' : total_copies_per_date_nvd3
+            }
+        ], indent = 4)
 
     results['statistics']['total_time_human'] = datetime.timedelta(seconds=int(results['statistics']['total_time']))
 
