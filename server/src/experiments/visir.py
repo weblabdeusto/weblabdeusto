@@ -723,4 +723,3 @@ if __name__ == '__main__':
     sessionkey = experiment.extract_sessionkey(login_response)
     request = regular_request % sessionkey
     print experiment.do_send_command_to_device(lab_session_id, request)
-
