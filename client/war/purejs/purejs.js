@@ -88,6 +88,53 @@ Weblab = new function()
         );
     };
 
+
+    //! Internal send function. It will send the request to the target URL.
+    //! Meant only for internal use. If an error occurs (network error, "is_exception" to true, or other) then
+    //! the exception will be printed to console, and nothing else will happen (as of now).
+    //!
+    //! @param request: The JSON-able to send. This method will not check whether the format of the JSON-able is
+    //! right or not. It is assumed it is. This should be a JSON-able object and NOT a JSON string.
+    //!
+    //! @param successHandler: successHandler(success). Will be called after an apparently successful request. A request is
+    //! successful if there are no network errors and if the "is_exception" of the response is set to "false". The successHandler
+    //! will be passed an object containing the response.
+    //!
+    this._send = function(request, successHandler) {
+
+        if(typeof(request) !== 'object')
+        {
+            console.error("[_SEND]: Request parameter should be an object.");
+            return;
+        }
+
+        $.post(mTargetURL, JSON.stringify(request), function(success) {
+                // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
+
+                var result = success["result"];
+
+                if(result == undefined) {
+                    console.error("[ERROR][_send]: Response didn't contain the expected 'result' key.");
+                    console.error(success);
+                    return;
+                }
+
+                // Check that the internal is_exception is set to false.
+                if(success["is_exception"] === true) {
+                    console.error("[ERROR][_send]: Returned exception (is_exception is true)");
+                    console.error(success);
+                    return;
+                }
+
+                // The request, whatever it contains, was apparently successful. We call the success handler.
+                successHandler(success);
+            }, "json"
+        ).fail(function(fail){
+                console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + mTargetURL);
+                console.error(fail);
+            });
+    };
+
     this._get_reservation_status = function() {
         var request = {"method": "get_reservation_status", "params": {"reservation_id": {"id": mReservation}}};
 
