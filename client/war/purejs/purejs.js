@@ -1,5 +1,7 @@
 
 
+
+
 // From StackOverflow. To extract parameters from the hash.
 (function($) {
     $.QueryString = (function(a) {
@@ -90,8 +92,30 @@ Weblab = new function()
         var request = {"method": "get_reservation_status", "params": {"reservation_id": {"id": mReservation}}};
 
         $.post(mTargetURL, JSON.stringify(request), function(success) {
+                // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
+
                 console.log("Data received: " + success);
                 console.log(success);
+
+                var result = success["result"];
+
+                if(success["is_exception"] != false) {
+                    console.error("[ERROR][get_reservation_status]: Returned exception.");
+                    throw success;
+                }
+
+                var status = result["status"];
+
+                if(status != "Reservation::confirmed") {
+                    console.error("[ERROR][get_reservation_status]: Status is not Reservation::confirmed, as was expected");
+                    return;
+                }
+
+                var time = result["time"];
+                var starting_configuration = result["starting_configuration"];
+
+                // TODO:QUESTION: If they are received at the same time, why are setTime and startInteraction different methods?
+
             }, "json"
         );
     };
@@ -109,6 +133,10 @@ Weblab = new function()
         );
     };
 
+    this._finish_experiment = function() {
+        var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
+    }
+
     this._finished_experiment = function(command) {
         var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
@@ -117,7 +145,7 @@ Weblab = new function()
                 console.log(success);
             }, "json"
         );
-    }
+    };
 
 
 
@@ -140,7 +168,7 @@ Weblab = new function()
     //! @param errorHandler Callback that will receive the response for the command.
     //! Takes a single string as argument.
     //!
-    this.sendCommand = new function(command, successHandler, errorHandler) {
+    this.sendCommand = function(command, successHandler, errorHandler) {
         this.sendCommand(command, successHandler, errorHandler);
     };
 
@@ -149,12 +177,19 @@ Weblab = new function()
     //! If the command was successful it is printed to the stdout and otherwise to stderr.
     //!
     //! @param text: Command to send.
-    this.testCommand = new function(command) {
+    this.testCommand = function(command) {
         this.sendCommand(command, function(success) {
             console.log("SUCCESS: " + success);
         }, function(error) {
             console.error("ERROR: " + error);
         });
+    };
+
+
+    //! Finishes the experiment.
+    //!
+    this.finishExperiment = function() {
+        this._finish_experiment();
     };
 
 
