@@ -219,10 +219,16 @@
 			    //!
 			    this._createSwitches = function (container) {
 			        for (var i = 9; i >= 0; i--) {
-			            var swit = new SwitchWidget(9-i, "" + (15+i*8) + "%", "85%", "Sw" + (9-i));
-			            mSwitches[i] = swit;
 
-			            container.appendChild(swit.getElement());
+                        // We skip some witches which are actually used to receive the input
+                        // of virtual sensors.
+                        if(9-i >= 5)
+                        {
+			                var swit = new SwitchWidget(9-i, "" + (15+i*8) + "%", "85%", "Sw" + (9-i));
+			                mSwitches[i] = swit;
+
+			                container.appendChild(swit.getElement());
+                        }
 			        }
 
 			    }
