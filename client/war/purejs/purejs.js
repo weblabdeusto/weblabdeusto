@@ -46,6 +46,9 @@ Weblab = new function()
     var mTargetURL;
     var mReservation;
 
+    var mStartHandlers = [];
+    var mFinishHandlers = [];
+
     //! Extracts the reservation id from the URL (in the hash).
     //!
     //! @return The reservation ID if present in the URL's hash field, or undefined.
@@ -78,15 +81,17 @@ Weblab = new function()
     };
 
 
-    this._poll = function() {
+    this._poll = function(successHandler) {
         var request = {"method": "poll", "params": {"reservation_id": {"id": mReservation}}};
 
-        $.post(mTargetURL, JSON.stringify(request), function(success) {
+        this._send(request, function() {
                 console.log("Data received: " + success);
                 console.log(success);
-            }, "json"
-        );
-    };
+
+                if(successHandler != undefined)
+                    successHandler();
+            });
+    }; //!_poll
 
 
     //! Internal send function. It will send the request to the target URL.
@@ -133,24 +138,21 @@ Weblab = new function()
                 console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + mTargetURL);
                 console.error(fail);
             });
-    };
+    };//!_send
 
+    //! Internal method to check the reservation status. While the experiment is active this should return confirmed.
+    //! As of now that is in fact the only supported response, because the full reservation process is not covered
+    //! by this API.
     this._get_reservation_status = function() {
         var request = {"method": "get_reservation_status", "params": {"reservation_id": {"id": mReservation}}};
 
-        $.post(mTargetURL, JSON.stringify(request), function(success) {
+        this._send(request, function(success_data) {
                 // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
 
-                console.log("Data received: " + success);
-                console.log(success);
+                console.log("Data received: " + success_data);
+                console.log(success_data);
 
-                var result = success["result"];
-
-                if(success["is_exception"] != false) {
-                    console.error("[ERROR][get_reservation_status]: Returned exception.");
-                    throw success;
-                }
-
+                var result = success_data["result"];
                 var status = result["status"];
 
                 if(status != "Reservation::confirmed") {
@@ -158,42 +160,44 @@ Weblab = new function()
                     return;
                 }
 
+
                 var time = result["time"];
                 var starting_configuration = result["starting_configuration"];
 
-                // TODO:QUESTION: If they are received at the same time, why are setTime and startInteraction different methods?
+                // Invoke the start handlers.
+                for(var i = 0; i < mStartHandlers.length; i++) {
+                    console.log("Invoking start handler");
+                    handler[i](starting_configuration, time);
+                }
+            });
+    }; // !_get_reservation
 
-            }, "json"
-        );
-    };
-
-    this._send_command = function(command, success, error) {
+    //! Internal method to send a command to the server.
+    //!
+    this._send_command = function(command, successHandler, errorHandler) {
         var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
 
-        $.post(mTargetURL, JSON.stringify(request), function(success_data) {
+        this._send(request, function(success_data) {
                 console.log("Data received: " + success_data);
                 console.log(success_data);
 
-                if(success != undefined)
-                    success(success_data);
+                if(successHandler != undefined)
+                    successHandler(success_data);
             }, "json"
         );
-    };
+    }; // !_send_command
 
-    this._finish_experiment = function() {
-        var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
-    }
-
-    this._finished_experiment = function(command) {
+    this._finished_experiment = function(successHandler) {
         var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
-        $.post(mTargetURL, JSON.stringify(request), function(success) {
-                console.log("Data received: " + success);
-                console.log(success);
-            }, "json"
-        );
-    };
+        this._send(request, function(success_data) {
+            console.log("Data received: " + success_data);
+            console.log(success_data);
 
+            if(successHandler != undefined)
+                successHandler(success_data);
+        });
+    };
 
 
     ///////////////////////////////////////////////////////////////
@@ -232,11 +236,48 @@ Weblab = new function()
         });
     };
 
-
     //! Finishes the experiment.
     //!
-    this.finishExperiment = function() {
-        this._finish_experiment();
+    this.finishExperiment = function(successHandler) {
+        this._finished_experiment(successHandler);
+    };
+
+    //! addStartHandler(startHandler(initialConfiguration, timeLeft))
+    //!
+    //! Registers a start handler, which will be called when the experiment's interaction starts. Several start
+    //! handlers can be registered. They will be invoked in the order they are registered.
+    //!
+    //! @param startHandler: The start handler function. Should receive the starting configuration and the time left.
+    this.addStartHandler = function(startHandler) {
+        mStartHandlers.push(startHandler);
+    };
+
+    //! addFinishHandler(finishHandler(reason))
+    //!
+    //! Registers a finish handler, which will be called when the experiment finishes. Several end handlers can be
+    //! registered. They will be invoked in the order they are registered.
+    //!
+    //! @param finishHandler: The finish handler function. Should receive an object related to the cause, whose
+    //! exact nature is for now not specified.
+    this.addFinishHandler = function(finishHandler) {
+        mFinishHandlers.push(finishHandler);
+    };
+
+
+
+    //! Indicates that we are ready and that we have registered all callbacks.
+    //! Should be called to start.
+    this.ready = function() {
+        this._get_reservation_status();
+
+
+        // Poll every minute.
+        function poller() {
+          this._poll(function(){
+              window.setTimeout(poller, 60000);
+          });
+        };
+        window.setTimeout(poller, 60000);
     };
 
 
