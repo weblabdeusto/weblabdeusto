@@ -67,8 +67,15 @@ LoadRetriver = new function(){
         console.log(response);
 
         var load = parseInt(response);
-        load = Math.max(0, (load - 1256) * 3.2);
-
+        var suma =(Math.random()*2)+1;
+        load = load + suma;
+        //load = ((load - 1250)/0.6);
+        //load = Math.max(0, (load - 1256) * 3.2);
+        //if (load < 0)
+        //    load = (load * (-1));
+ /*       else
+            load = 32 + (load % 10);
+*/
         $("#load").text(load.toFixed(2) + " gr.");
 
     }
@@ -120,9 +127,20 @@ LevelRetriver = new function(){
         console.log(response);
 
         var level = parseInt(response);
-        level = (1208 - level) * 7.23 + 64;
+        level = 8 - ((level - 906)/114);
 
-        $("#level").text(level.toFixed(2) + " inch.");
+        var level1 = level * 2.54;
+
+        //level = (12012 - level) * 7.23 + 64;
+        /*if (level > 1215){   
+            level = 6.2 + ((level % 10) * 0.01);
+        }
+        else{
+            level = 6.4 + ((level % 10) * 0.01);   
+        }*/
+
+        $("#level").text(level.toFixed(2) + " inch. " + level1.toFixed(2) + " cm." );
+        $("#level1").text(level1.toFixed(2) + " cm." );
 
     }
     this.readFailure = function(response){
@@ -233,6 +251,26 @@ $(document).ready(function(){
         $("#downButton img").attr("src", "img/down.png");
         $("#downButton").attr("disabled", "disabled");
 	});
+
+    $("#downSlowButton").click(function() {
+
+        console.log("DOWNSLOW");
+
+        if($("#downSlowButton").attr("disabled") == undefined) {
+            Weblab.sendCommand("DOWNSLOW",
+                function(success) {
+                    $("#downSlowButton img").attr("src", "img/downslow_green.png");
+                    $("#downSlowButton").removeAttr("disabled");
+                },
+                function(error){
+                    console.error("DOWNSLOW command failed: " + error);
+                    displayErrorMessage("DOWNSLOW command failed");
+                });
+        }
+
+        $("#downSlowButton img").attr("src", "img/downslow.png");
+        $("#downSlowButton").attr("disabled", "disabled");
+    });
 
 	$("#upButton").click(function() {
 		console.log("UP");

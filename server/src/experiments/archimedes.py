@@ -101,6 +101,8 @@ class Archimedes(Experiment):
             return self._send("up")
         elif command == "DOWN":
             return self._send("down")
+        elif command == "DOWNSLOW":
+            return self._send("downslow")
         elif command == "LEVEL":
             resp = self._send("level")
             num = resp.split("=")[1]
@@ -114,7 +116,7 @@ class Archimedes(Experiment):
             img = base64.b64encode(resp)
             return img
         else:
-            return "Unknown command. Allowed commands: " + "[UP | DOWN | LEVEL | LOAD | IMAGE]"
+            return "Unknown command. Allowed commands: " + "[UP | DOWN | DOWNSLOW | LEVEL | LOAD | IMAGE]"
 
     def _send(self, command):
         if self.real_device:
@@ -126,6 +128,8 @@ class Archimedes(Experiment):
                 return "ball_up"
             elif command == 'down':
                 return "ball_down"
+            elif command == 'downslow':
+                return "ball_downslow"
             elif command == 'level':
                 return "LOAD=1200"
             elif command == 'load':
@@ -174,6 +178,8 @@ if __name__ == "__main__":
     print up_resp
     down_resp = experiment.do_send_command_to_device("DOWN")
     print down_resp
+    downslow_resp = experiment.do_send_command_to_device("DOWNSLOW")
+    print downslow_resp
     level_resp = experiment.do_send_command_to_device("LEVEL")
     print level_resp
     load_resp = experiment.do_send_command_to_device("LOAD")
