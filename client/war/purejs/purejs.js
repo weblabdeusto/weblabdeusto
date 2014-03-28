@@ -84,7 +84,7 @@ Weblab = new function()
     this._poll = function(successHandler) {
         var request = {"method": "poll", "params": {"reservation_id": {"id": mReservation}}};
 
-        this._send(request, function() {
+        this._send(request, function(success) {
                 console.log("Data received: " + success);
                 console.log(success);
 
@@ -116,17 +116,32 @@ Weblab = new function()
         $.post(mTargetURL, JSON.stringify(request), function(success) {
                 // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
 
-                var result = success["result"];
+                // Check that the internal is_exception is set to false.
+                if(success["is_exception"] === true) {
 
-                if(result == undefined) {
-                    console.error("[ERROR][_send]: Response didn't contain the expected 'result' key.");
+                    // Get the code.
+                    var code = success["code"];
+
+                    // Probably our reservation finished.
+                    if(code === "JSON:Client.NoCurrentReservation") {
+                        // Invoke the finish handlers.
+                        for(var i = 0; i < mFinishHandlers.length; i++) {
+                            mFinishHandlers[i](code);
+                        }
+
+                        // Remove the handlers so that they are not invoked again.
+                        mFinishHandlers = [];
+                    }
+
+                    console.error("[ERROR][_send]: Returned exception (is_exception is true)");
                     console.error(success);
                     return;
                 }
 
-                // Check that the internal is_exception is set to false.
-                if(success["is_exception"] === true) {
-                    console.error("[ERROR][_send]: Returned exception (is_exception is true)");
+                var result = success["result"];
+
+                if(result == undefined) {
+                    console.error("[ERROR][_send]: Response didn't contain the expected 'result' key.");
                     console.error(success);
                     return;
                 }
@@ -156,19 +171,22 @@ Weblab = new function()
                 var status = result["status"];
 
                 if(status != "Reservation::confirmed") {
-                    console.error("[ERROR][get_reservation_status]: Status is not Reservation::confirmed, as was expected");
+                    console.error("[ERROR][get_reservation_status]: Status is not Reservation::confirmed as was expected");
                     return;
                 }
 
 
                 var time = result["time"];
-                var starting_configuration = result["starting_configuration"];
+                var initial_configuration = result["initial_configuration"];
 
                 // Invoke the start handlers.
                 for(var i = 0; i < mStartHandlers.length; i++) {
                     console.log("Invoking start handler");
-                    handler[i](starting_configuration, time);
+                    mStartHandlers[i](initial_configuration, time);
                 }
+
+                // Remove the handlers so that they are not invoked again.
+                mStartHandlers = [];
             });
     }; // !_get_reservation
 
@@ -183,8 +201,7 @@ Weblab = new function()
 
                 if(successHandler != undefined)
                     successHandler(success_data);
-            }, "json"
-        );
+            });
     }; // !_send_command
 
     this._finished_experiment = function(successHandler) {
@@ -193,6 +210,14 @@ Weblab = new function()
         this._send(request, function(success_data) {
             console.log("Data received: " + success_data);
             console.log(success_data);
+
+            // Invoke the finish handlers.
+            for(var i = 0; i < mFinishHandlers; i++) {
+                mFinishHandlers[i]();
+            }
+
+            // Clear the finish handlers so that they are not invoked again.
+            mFinishHandlers = [];
 
             if(successHandler != undefined)
                 successHandler(success_data);
@@ -220,7 +245,7 @@ Weblab = new function()
     //! Takes a single string as argument.
     //!
     this.sendCommand = function(command, successHandler, errorHandler) {
-        this.sendCommand(command, successHandler, errorHandler);
+        this._send_command(command, successHandler, errorHandler);
     };
 
 
@@ -274,10 +299,10 @@ Weblab = new function()
         // Poll every minute.
         function poller() {
           this._poll(function(){
-              window.setTimeout(poller, 60000);
-          });
+              window.setTimeout(poller.bind(this), 1000*30);
+          }.bind(this));
         };
-        window.setTimeout(poller, 60000);
+        window.setTimeout(poller.bind(this), 1000*30);
     };
 
 
