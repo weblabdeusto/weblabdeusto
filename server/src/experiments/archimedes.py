@@ -121,6 +121,10 @@ class Archimedes(Experiment):
     def _send(self, command):
         if self.real_device:
             print "[Archimedes]: Sending to board: ", command
+
+            if not self.board_location.endswith("/"):
+                self.board_location += "/"
+
             return self.opener.open(self.board_location + command).read()
         else:
             print "[Archimedes]: Simulating request: ", command
