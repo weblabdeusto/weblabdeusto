@@ -28,7 +28,7 @@ import StringIO
 
 from functools import wraps
 
-from flask import render_template, request, url_for, flash, redirect, session, abort, Response
+from flask import render_template, request, url_for, flash, redirect, session, abort, Response, render_template_string
 from werkzeug import secure_filename
 
 from weblab.admin.script import Creation, weblab_create
@@ -341,6 +341,49 @@ def logo():
     if entity is None or entity.logo is None:
         return abort(404)
     return Response(entity.logo, headers={'Content-Type': 'image/%s' % entity.logo_ext})
+
+
+@app.route('/dashboard/undeploy', methods=["GET", "POST"])
+@login_required
+def undeploy():
+
+    if not (app.config["DEBUG"] and app.config["DEBUG_UNDEPLOY_ENABLED"]):
+        return "Not allowed with the current configuration", 405
+
+    email = session['user_email']
+    user = User.query.filter_by(email=email).first()
+    entity = user.entity
+
+    if request.method == "GET":
+
+        return render_template_string(
+            """
+            <p>
+            Are you sure you want to undeploy?
+            </p>
+
+            <form name="input" method="post">
+                <input type="submit" value="Undeploy"/>
+            </form>
+            """
+            )
+
+    else:
+
+        entity.deployed = False
+        db.session.add(entity)
+        db.session.commit()
+
+        return render_template_string(
+            """
+            <p>
+            Undeployed.
+            </p>
+
+            <a href="{{ url_for("login") }}">Back</a>
+
+            """
+        )
 
 
 @app.route('/dashboard/deploy', methods=['GET', 'POST'])

@@ -45,6 +45,11 @@
     <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('home')      }}">Home</a></li>
     <li {% if current_link == 'configure' %}class="active"{%endif%}><a href="{{ url_for('configure') }}">Configure</a></li>
     <li {% if current_link == 'deploy'    %}class="active"{%endif%}><a href="{{ url_for('deploy')    }}">Deploy</a></li>
+
+    {% if config["DEBUG"] and config["DEBUG_UNDEPLOY_ENABLED"] %}
+    <li {% if current_link == 'undeploy'    %}class="active"{%endif%}><a href="{{ url_for('undeploy')}}">Undeploy</a></li>
+    {% endif %}
+
     {% else %}
     <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('index')     }}">Home</a></li>
     {% endif %}

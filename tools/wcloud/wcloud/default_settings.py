@@ -27,6 +27,8 @@ RECAPTCHA_PRIVATE_KEY = 'private key'
 
 MAIL_CONFIRMATION_ENABLED = False
 
+DEBUG_UNDEPLOY_ENABLED = True
+
 
 # 
 # We have to use multiple Redis servers (Redis supports by default up to 16 databases,
