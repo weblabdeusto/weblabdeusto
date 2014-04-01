@@ -25,6 +25,9 @@ RECAPTCHA_PUBLIC_KEY  = 'public key'
 RECAPTCHA_PRIVATE_KEY = 'private key'
 
 
+MAIL_CONFIRMATION_ENABLED = False
+
+
 # 
 # We have to use multiple Redis servers (Redis supports by default up to 16 databases,
 # and adding more may affect performance)

@@ -42,13 +42,16 @@ SESSION_TYPE = 'labdeployer_admin'
 
 opener = urllib2.build_opener(urllib2.ProxyHandler({}))
 
+
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
 
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 def login_required(f):
     @wraps(f)
@@ -56,62 +59,67 @@ def login_required(f):
         logged_in = session.get('logged_in', False)
         session_type = session.get('session_type', '')
         if not logged_in or session_type != SESSION_TYPE:
-           return redirect(url_for('login', next = request.url))
+            return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
-    return decorated 
+
+    return decorated
 
 
 @app.route('/')
 def index():
     if session.get('logged_in', False):
         return redirect(url_for('home'))
-    
+
     return render_template('index.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
-        
+
         email = form.email.data
         password = form.password.data
-        
+
         user = User.query.filter_by(email=email).first()
-        
+
         #User exists?
         if user is None:
             flash('Register first please', 'error')
             return redirect(url_for('register'))
-        
+
         #User is active
         if not user.active:
-            flash("Your account isn't active. Follow the e-mail instructions. If you didn't receive it, check the SPAM directory or contact the admin at %s." % app.config['ADMIN_MAIL'], 'error')
+            flash(
+                "Your account isn't active. Follow the e-mail instructions. If you didn't receive it, check the SPAM directory or contact the admin at %s." %
+                app.config['ADMIN_MAIL'], 'error')
             return redirect(url_for('index'))
-        
+
         #If exists and is active check the password
         hash_password = hashlib.sha1(password).hexdigest()
-        
+
         if user.password == hash_password:
-            
+
             #Insert data in session
             session['logged_in'] = True
             session['session_type'] = SESSION_TYPE
             session['user_id'] = user.id
             session['user_email'] = user.email
-            
+
             flash('Logged in', 'success')
-            
+
             #Redirect
             next_url = request.args.get('next')
             if next_url != '' and next_url != None:
                 return redirect(next_url)
-                
+
             return redirect(url_for('configure'))
         else:
             flash('Failure login', 'error')
-    
+
     next_url = request.args.get('next')
     return render_template('login.html', form=form, next=next_url)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -123,61 +131,78 @@ def register():
     if request.method == 'POST' and form.validate():
         #Exract data from the form
         full_name = form.full_name.data
-        email     = form.email.data
-        password  = form.password.data
-        
+        email = form.email.data
+        password = form.password.data
+
         #create user
         user = User(email, hashlib.sha1(password).hexdigest())
         user.full_name = full_name
         user.active = False
-        
+
+        mail_confirmation = app.config["MAIL_CONFIRMATION_ENABLED"]
+
         #add to database
         token = Token(str(uuid.uuid4()), datetime.datetime.now())
         user.token = token
+
+        if not mail_confirmation:
+            user.active = True
+
         db.session.add(user)
         db.session.commit()
-        
-        #create email
-        from_email = 'weblab@deusto.es'
 
-        link = url_for('confirm', email=email, token=token.token, _external = True)
-        body_html = """ <html>
-                            <head></head>
-                            <body>
-                              <p>Welcome!<p>
-                              <p>This is the wcloud system, which creates new WebLab-Deusto instances.
-                              Your account is ready, and you can activate it:</p>
-                              <ul>
-                                <li><a href="%(link)s">%(link)s</a>.</li>
-                              </ul>
-                              <p>If you didn't register, feel free to ignore this e-mail.</p>
-                              <p>Best regards,</p>
-                              <p>WebLab-Deusto team</p>
-                            </body>
-                          </html>""" % dict(link=link)
-        print(body_html)
-        body = """Welcome to wcloud. Click %s to confirm your registration.""" % link
-        subject = 'wCloud registration'
-        
-        # Send email
-        try:
-            utils.send_email(app, body, subject, from_email, user.email, body_html)
-            flash("Mail sent to %s from %s with subject '%s'. Check your SPAM folder if you don't receive it." % (user.email, from_email, subject), 'success') 
-        except:
-            db.session.delete(token)
-            db.session.delete(user)
-            db.session.commit()
-            flash("There was an error sending the e-mail. This might be because of a invalid e-mail address. Please re-check it.", "error")
-            return render_template('register.html', form=form)
+        if mail_confirmation:
+            #create email
+            from_email = 'weblab@deusto.es'
 
-        flash("""Thanks for registering. You have an
-              email with the steps to confirm your account""", 'success')
+            link = url_for('confirm', email=email, token=token.token, _external=True)
+            body_html = """ <html>
+                                <head></head>
+                                <body>
+                                  <p>Welcome!<p>
+                                  <p>This is the wcloud system, which creates new WebLab-Deusto instances.
+                                  Your account is ready, and you can activate it:</p>
+                                  <ul>
+                                    <li><a href="%(link)s">%(link)s</a>.</li>
+                                  </ul>
+                                  <p>If you didn't register, feel free to ignore this e-mail.</p>
+                                  <p>Best regards,</p>
+                                  <p>WebLab-Deusto team</p>
+                                </body>
+                              </html>""" % dict(link=link)
+            print(body_html)
+            body = """Welcome to wcloud. Click %s to confirm your registration.""" % link
+            subject = 'wCloud registration'
+
+
+            # Send email
+            try:
+                utils.send_email(app, body, subject, from_email, user.email, body_html)
+                flash("Mail sent to %s from %s with subject '%s'. Check your SPAM folder if you don't receive it." % (
+                    user.email, from_email, subject), 'success')
+            except:
+                db.session.delete(token)
+                db.session.delete(user)
+                db.session.commit()
+                flash(
+                    "There was an error sending the e-mail. This might be because of a invalid e-mail address. Please re-check it.",
+                    "error")
+                return render_template('register.html', form=form)
+
+            flash("""Thanks for registering. You have an
+                  email with the steps to confirm your account""", 'success')
+
+        # No mail confirmation.
+        else:
+            flash("""Thanks for registering. Your account is ready. Please, login.""", 'success')
+
         return redirect(url_for('login'))
-    
+
     return render_template('register.html', form=form)
 
+
 @app.route('/confirm')
-def confirm(email = None, token = None):
+def confirm(email=None, token=None):
     if email is None:
         email = request.args.get('email')
     if token is None:
@@ -191,25 +216,26 @@ def confirm(email = None, token = None):
         return render_template('errors.html', message="Fields missing")
 
     user = User.query.filter_by(email=email).first()
-    
+
     #User exists?
     if user is None:
         flash('Register first please', 'error')
         return redirect(url_for('register'))
-    #Check token
+        #Check token
     if user.token.token != token:
         flash('Confirmation failed', 'error')
         return redirect(url_for('login'))
 
     #verify account
     user.active = True
-    
+
     #update in database the active flag
     db.session.add(user)
     db.session.commit()
-    
+
     flash('Account confirmed. Please login', 'success')
     return redirect(url_for('login'))
+
 
 @app.route('/dashboard/home')
 @login_required
@@ -218,7 +244,7 @@ def home():
     user = User.query.filter_by(email=email).first()
     if user is None:
         return redirect(url_for('logout'))
-    return render_template('home.html', user = user)
+    return render_template('home.html', user=user)
 
 
 @app.route('/dashboard/configure', methods=['GET', 'POST'])
@@ -246,20 +272,20 @@ def configure():
     if request.method == 'POST' and form.validate():
         if not enabled:
             flash("You can not change the entity once deployed.")
-            return render_template('configuration.html', form=form, enabled=enabled,logo_available=logo_available)
+            return render_template('configuration.html', form=form, enabled=enabled, logo_available=logo_available)
 
         # Exract data from the form
         logo = request.files['logo']
         logo_data = logo.stream.read()
         logo_ext = (logo.name or '').split('.')[-1]
-        if len(logo_ext) not in (3,4):
+        if len(logo_ext) not in (3, 4):
             # That's not an extension
-            logo_ext  = 'jpeg'
+            logo_ext = 'jpeg'
         name = form.name.data
         base_url = form.base_url.data
         link_url = form.link_url.data
         google_analytics_number = form.google_analytics_number.data
-               
+
         logo_available = True
 
         # Create entity
@@ -270,29 +296,29 @@ def configure():
             entity.link_url = link_url
             entity.google_analytics_number = google_analytics_number
             user.entity = entity
-        
+
         # Update
         else:
-            if logo_data is not None and logo_data != '': 
+            if logo_data is not None and logo_data != '':
                 user.entity.logo = logo_data
                 user.entity.logo_ext = logo_ext
-            if name is not None : user.entity.name = name
-            if base_url is not None : user.entity.base_url = base_url
-            if link_url is not None : user.entity.link_url = link_url
-            if google_analytics_number is not None :
+            if name is not None: user.entity.name = name
+            if base_url is not None: user.entity.base_url = base_url
+            if link_url is not None: user.entity.link_url = link_url
+            if google_analytics_number is not None:
                 user.entity.google_analytics_number = google_analytics_number
-            
+
         # Save
         db.session.add(user)
         db.session.commit()
-     
+
         flash('Configuration saved.', 'success')
-        
-        if request.form.get('action','') == 'savedeploy':
+
+        if request.form.get('action', '') == 'savedeploy':
             return redirect(url_for('deploy'))
 
     else:
-         # Get user
+    # Get user
         email = session['user_email']
         user = User.query.filter_by(email=email).first()
         if user is None:
@@ -314,7 +340,8 @@ def logo():
     entity = user.entity
     if entity is None or entity.logo is None:
         return abort(404)
-    return Response(entity.logo, headers = {'Content-Type' : 'image/%s' % entity.logo_ext})
+    return Response(entity.logo, headers={'Content-Type': 'image/%s' % entity.logo_ext})
+
 
 @app.route('/dashboard/deploy', methods=['GET', 'POST'])
 @login_required
@@ -341,46 +368,47 @@ def deploy():
     if request.method == 'POST' and form.validate():
         if not enabled:
             flash("You have already deployed your system, so you can not redeploy it")
-            return render_template('deploy.html', form=form, enabled = enabled)
+            return render_template('deploy.html', form=form, enabled=enabled)
 
         admin_user = form.admin_user.data
         admin_name = form.admin_name.data
         admin_email = form.admin_email.data
         admin_password = form.admin_password.data
-            
+
         if entity is None:
             flash('Configure before using the deployment app', 'error')
             return redirect(url_for('configure'))
-        
+
         entity.deployed = True
         db.session.add(entity)
         db.session.commit()
 
         # Deploy
-        
+
         directory = os.path.join(app.config['DIR_BASE'], entity.base_url)
-               
-        task = {'directory'      : directory,
-                'email'          : email,
-                'admin_user'     : admin_user,
-                'admin_name'     : admin_name,
-                'admin_email'    : admin_email,
-                'admin_password' : admin_password,
-                'url_root'       : base_url }
-    
+
+        task = {'directory': directory,
+                'email': email,
+                'admin_user': admin_user,
+                'admin_name': admin_name,
+                'admin_email': admin_email,
+                'admin_password': admin_password,
+                'url_root': base_url}
+
         task_json = json.dumps(task)
 
         url = "http://127.0.0.1:%s/task/" % app.config['TASK_MANAGER_PORT']
         req = urllib2.Request(url,
-                            task_json,
-                            {'Content-Type': 'application/json',
-                             'Content-Length': len(task_json)})
+                              task_json,
+                              {'Content-Type': 'application/json',
+                               'Content-Length': len(task_json)})
         f = opener.open(req)
         response = f.read()
         f.close()
-        return redirect(url_for('result', deploy_id = response))
-    
-    return render_template('deploy.html', form=form, enabled=enabled, url = base_url + entity.base_url)
+        return redirect(url_for('result', deploy_id=response))
+
+    return render_template('deploy.html', form=form, enabled=enabled, url=base_url + entity.base_url)
+
 
 @app.route('/dashboard/deploy/result/<deploy_id>')
 @login_required
@@ -406,7 +434,8 @@ def result(deploy_id):
     return render_template('result.html',
                            status=response.get('status', 'Task not found'),
                            stdout=response.get('output', 'Not available'),
-                           deploy_id = deploy_id, loop = loop)
+                           deploy_id=deploy_id, loop=loop)
+
 
 @app.route('/dashboard/deploy/ready/<deploy_id>')
 @login_required
@@ -428,7 +457,7 @@ def result_ready(deploy_id):
     return render_template('result-ready.html',
                            status=response.get('status', 'Task not found'),
                            stdout=response.get('output', 'Not available'),
-                           deploy_id = deploy_id, url = response.get('url', ''))
+                           deploy_id=deploy_id, url=response.get('url', ''))
 
 
 @app.route('/logout')
@@ -439,6 +468,6 @@ def logout():
     session.pop('session_type', None)
     session.pop('user_id', None)
     session.pop('user_email', None)
-    
+
     flash('Logged out', 'success')
     return redirect(url_for('index'))
