@@ -5,6 +5,6 @@ Flask-Uploads<0.2
 pillow==2.0
 Flask-admin<1.1
 
-SQLAlchemy<0.7.100
+SQLAlchemy==0.8.2
 
 mysql-python<1.3
