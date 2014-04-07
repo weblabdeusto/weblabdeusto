@@ -1,18 +1,24 @@
 #!/bin/bash
 
+pwd
+source config.sh
+
 export WCLOUD_REDIS=/home/weblab/redis_env
 
-cd ${WCLOUD_REDIS}
-./launch.sh
+# The WCLOUD dir is generally the one this script is called from.
+WCLOUD_DIR=$(pwd)
 
-cd /home/weblab/weblab/tools/wcloud/
-. /usr/local/bin/virtualenvwrapper.sh
-workon weblab
+# This is done in production but I temporarily disable it for testing.
+#cd ${WCLOUD_REDIS}
+#./launch.sh
 
-export WCLOUD_SETTINGS=/home/weblab/weblab/tools/wcloud/secret_settings.py
-export PYTHONPATH=.
-export http_proxy=http://proxy-s-priv.deusto.es:3128/
-export https_proxy=https://proxy-s-priv.deusto.es:3128/
+cd $WCLOUD_DIR
+#. /usr/local/bin/virtualenvwrapper.sh
+#. workon $VIRTUALENV_NAME
+
+. $VIRTUALENV_ACTIVATE
+
+
 
 sleep 2 # Wait until Redis servers are loaded before starting WebLab-Deusto instances
 
