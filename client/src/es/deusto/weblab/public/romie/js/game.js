@@ -31,3 +31,12 @@ Game.prototype.answerQuestion = function()
 	// Hide question
 	// clear question
 }
+
+Game.prototype.getQuestion = function(tag, callback)
+{
+	//TODO
+	dificulty = floor(this.romie.getPoints()/500);
+	category = "general";
+
+	Weblab.sendCommand("QUESTION "+difficulty+" "+category, callback);
+}

@@ -3,6 +3,8 @@ Romie = function(movements)
 	this.topCamActivated = false;
 	this.movements = movements;
 	this.points = 0;
+	this.moving = false;
+	this.lastResponse = null;
 }
 
 Romie.prototype.forward = function(callback)
@@ -10,17 +12,22 @@ Romie.prototype.forward = function(callback)
 	if (this.movements != 0)
 	{
 		this.movements--;
+		this.moving = true;
 		Weblab.sendCommand("F",
 			function(response){
-				if (this.hasTag(response))
+				this.lastResponse = response;
+				if (this.hasTag())
 				{
-					console.log(this.getTag(response));
+					console.log(this.getTag());
 				}
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);}.bind(this),
 			function(response)
 			{
+				this.lastResponse = response;
 				this.movements++;
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);
 			}.bind(this));
@@ -33,15 +40,20 @@ Romie.prototype.left = function(callback)
 	if (this.movements != 0)
 	{
 		this.movements--;
+		this.moving = true;
 		Weblab.sendCommand("L",
 			function(response)
 			{
+				this.lastResponse = response;
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);
-			},
+			}.bind(this),
 			function(response)
 			{
+				this.lastResponse = response;
 				this.movements++;
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);
 			}.bind(this));
@@ -53,42 +65,34 @@ Romie.prototype.right = function(callback)
 	if (this.movements != 0)
 	{
 		this.movements--;
+		this.moving = true;
 		Weblab.sendCommand("R",
 			function(response)
 			{
+				this.lastResponse = response;
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);
-			},
+			}.bind(this),
 			function(response)
 			{
+				this.lastResponse = response;
 				this.movements++;
+				this.moving = false;
 				if (typeof callback == "function") callback();
 				console.log(response);
 			}.bind(this));
 	}
 }
 
-// Romie.prototype.checkWall = function(callback)
-// {
-// 	Weblab.sendCommand("S",
-// 		function(response)
-// 		{
-// 		//	if (response == "OK")
-// 				if (typeof callback == "function") callback();
-// 		//	else
-// 		//		alert("TIENES UN MURO DELANTE");
-// 		},
-// 		function(response){console.log(response);});
-// }
-
-Romie.prototype.hasTag = function(response)
+Romie.prototype.hasTag = function()
 {
-	return response.indexOf("Tag:") != -1;
+	return this.lastResponse !== null && this.lastResponse.indexOf("Tag:") != -1;
 }
 
-Romie.prototype.getTag = function(response)
+Romie.prototype.getTag = function()
 {
-	return response.substring(5, response.length-4);
+	return this.lastResponse.substring(5, response.length-4);
 }
 
 Romie.prototype.activateTopCam = function()
@@ -125,4 +129,9 @@ Romie.prototype.substractPoints = function(points)
 Romie.prototype.getPoints = function()
 {
 	return this.points;
+}
+
+Romie.prototype.isMoving = function()
+{
+	return this.moving;
 }

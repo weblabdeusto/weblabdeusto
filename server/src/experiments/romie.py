@@ -23,7 +23,7 @@ import json
 import random
 
 DEBUG = True
-ROMIE_SERVER = "http://127.0.0.1:8000/"
+ROMIE_SERVER = "http://192.168.0.190:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
 
@@ -70,13 +70,11 @@ class RoMIExperiment(Experiment.Experiment):
 		global ROMIE_SERVER
 
 		if command == 'F':
-			urllib2.urlopen("%sf" % ROMIE_SERVER)
+			return urllib2.urlopen("%sf" % ROMIE_SERVER).read()
 		elif command == 'L':
-			urllib2.urlopen("%sl" % ROMIE_SERVER)
+			return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
 		elif command == 'R':
-			urllib2.urlopen("%sr" % ROMIE_SERVER)
-		elif command == 'S':
-			urllib2.urlopen("%ss" % ROMIE_SERVER)
+			return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
 		elif command.startswith("QUESTION"):
 			difficulty = int(command[9])
 			category = command[11:]

@@ -25,7 +25,7 @@
 					if (romie.isTopCamActivated())
 					{
 						d = new Date();
-						$('.camera2 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+d.getTime());
+						$('.camera2 img').attr("src", "http://192.168.0.89/image.jpg?"+d.getTime());
 					}
 					else
 					{
@@ -43,17 +43,17 @@
 					$('.movements span').html(movements);
 					$('.points span').html(points);
 
-					// if (romie.getTag() != '')
-					// {
-					// 	// TODO question
-					// }
+					if (romie.hasTag())
+					{
+						game.getQuestion(romie.getTag(), game.showQuestion);
+					}
 				}
 
 				updateNumbers();
 
-				$('button.forward').click(function(){romie.forward(updateNumbers);});
-				$('button.left').click(function(){romie.left(updateNumbers);});
-				$('button.right').click(function(){romie.right(updateNumbers);});
+				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(updateNumbers);});
+				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(updateNumbers);});
+				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right(updateNumbers);});
 
 				$('.modal-footer button').click(game.answerQuestion);
 
@@ -62,7 +62,7 @@
 				camera1 = setInterval(function()
 				{
 					d = new Date();
-					$('.camera1 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
+					$('.camera1 img').attr("src", "http://192.168.0.88/image.jpg?"+d.getTime());
 				}, 100);
 
 				camera2 = setInterval(updateCam2, 500);
@@ -96,7 +96,7 @@
 		</header>
 		<section class="container">
 			<div class="row">
-				<section class="col-md-6 col-md-offset-2 camera1"><img src="https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard"></section>
+				<section class="col-md-6 col-md-offset-2 camera1"><img src="http://192.168.0.88/image.jpg"></section>
 			</div>
 			<div class="row">
 				<section class="col-md-2 col-md-offset-4 container controls">
