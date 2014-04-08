@@ -1,15 +1,7 @@
+import unittest
 import celery
-
-import getpass
-import optparse
-
-from weblab.admin.script import Creation
 import sqlalchemy
 from sqlalchemy.sql import text
-import traceback
-
-from wcloud.default_settings import DB_USERNAME, DB_PASSWORD
-from wcloud.deploymentsettings import DEFAULT_DEPLOYMENT_SETTINGS
 
 
 def connect(user, passwd):
@@ -75,6 +67,20 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
     return db_name
 
 
+@celery.task
+def destroy_db(root_username, root_password, db_name):
+    """
+    Destroys the specified database.
+
+    @param root_username: MySQL root username to use.
+    @param root_password: MySQL root password to use.
+    @param db_name: Name of the database to destroy.
+    """
+    engine = connect(root_username, root_password)
+    engine.execute("DROP DATABASE %s" % db_name)
+
+    return True
+
 
 ######################################
 #
@@ -82,11 +88,10 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
 #
 ######################################
 
-from nose.tools import eq_
 from nose.tools import assert_is_not_none
 
 
-class TestDatabaseTasks:
+class TestDatabaseTasks(unittest.TestCase):
 
     def test_connect(self):
         """
@@ -102,7 +107,14 @@ class TestDatabaseTasks:
         db = create_db("root", "password", "wcloudtest", "weblab", "weblab")
         assert db.startswith("wcloudtest")
 
-    def clearTestDatabases(self):
+    def test_destroy_db(self):
+        db = create_db("root", "password", "wcloudtest", "weblab", "weblab")
+        destroy_db("root", "password", db)
+        engine = connect("root", "password")
+        dbs = engine.execute("SHOW databases LIKE '%s'" % db).fetchall()
+        assert len(dbs) == 0
+
+    def _clearTestDatabases(self):
         engine = connect("root", "password")
         dbs = engine.execute(text("SHOW databases LIKE :bn"), bn="%s%%" % "wcloudtest")
         dbs = dbs.fetchall()
@@ -111,8 +123,8 @@ class TestDatabaseTasks:
             engine.execute("DROP DATABASE %s" % db)
 
     def setUp(self):
-        self.clearTestDatabases()
+        self._clearTestDatabases()
 
     def tearDown(self):
-        self.clearTestDatabases()
+        self._clearTestDatabases()
 
