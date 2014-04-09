@@ -3,8 +3,6 @@ import unittest
 import StringIO
 import celery
 from redis.exceptions import ConnectionError
-import sqlalchemy
-from sqlalchemy.sql import text
 import redis
 
 @celery.task
