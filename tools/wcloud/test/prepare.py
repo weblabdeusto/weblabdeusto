@@ -26,7 +26,7 @@ def prepare_test_database(root_username, root_password):
         pass
 
     engine.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
-    engine.execute("GRANT ALL PRIVILEGES ON wcloud.* TO weblabtest@localhost")
+    engine.execute("GRANT ALL PRIVILEGES ON wcloudtest.* TO weblabtest@localhost")
     engine.execute("USE wcloudtest")
 
     # Create the schema.

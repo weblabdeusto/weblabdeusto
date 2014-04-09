@@ -34,8 +34,8 @@ app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 db = SQLAlchemy(app)
 
 #Import before use because we need to create the databases and to manage without running the webapp
-import wcloud.models
 
-import wcloud.views
-
-import wcloud.admin
+# TODO: Commented out to avoid cyclic dependency issues.
+# import wcloud.models
+# import wcloud.views
+# import wcloud.admin

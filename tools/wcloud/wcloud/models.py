@@ -45,7 +45,8 @@ class User(db.Model):
         self.email = email
         self.password = password
         self.full_name = full_name
-    
+
+    # TODO: Consider whether we should use this from wcloud_tasks or not. And fix it accordingly.
     @staticmethod
     def total_users():
         return db.session.query(func.count(User.id)).first()[0]

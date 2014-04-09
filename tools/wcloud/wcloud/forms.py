@@ -20,6 +20,8 @@
 from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError, RecaptchaField
 
 from flask.ext.uploads import UploadSet, IMAGES
+
+import wcloud.models as models
 from wcloud.models import User, Entity
 from flask import session
 

@@ -55,7 +55,9 @@ from celery import task, Task
 
 #from wcloud import deploymentsettings
 import deploymentsettings
-from models import User, Entity
+
+
+from wcloud.models import User, Entity
 
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
 # session when in tests would be very useful.
@@ -95,12 +97,14 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     Prepare the system.
     """
 
+    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
+    app.config.update(wcloud_settings)
+
     # Connect to the database
     engine, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
     session = Session()
 
-    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
-    app.config.from_object(wcloud_settings)
+
 
     self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
     user = session.query(User).filter_by(email=wcloud_user_email).first()
@@ -139,7 +143,9 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     settings[Creation.ADMIN_PASSWORD] = admin_password
     settings[Creation.ADMIN_MAIL] = admin_email
 
-    last_port = Entity.last_port()
+
+    # Retrieve the last port.
+    last_port = session.query(sqlalchemy.func.max(Entity.end_port_number)).one()[0]
     if last_port is None:
         last_port = deploymentsettings.MIN_PORT
 
