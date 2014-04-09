@@ -41,9 +41,10 @@ class User(db.Model):
                                 uselist=False, #This 
                                 backref=db.backref('user', uselist=False))
      
-    def __init__(self, email, password):
+    def __init__(self, email, password, full_name):
         self.email = email
         self.password = password
+        self.full_name = full_name
     
     @staticmethod
     def total_users():
