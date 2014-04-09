@@ -1,5 +1,4 @@
 import sqlalchemy
-from sqlalchemy.sql import text
 from sqlalchemy.orm import sessionmaker
 from wcloud import models
 
@@ -18,6 +17,16 @@ def prepare_test_database(root_username, root_password):
     # Destroy the test databse if it exists already, to create it anew.
     engine.execute("DROP DATABASE IF EXISTS wcloudtest")
     engine.execute("CREATE DATABASE wcloudtest DEFAULT CHARACTER SET utf8")
+
+    # Create the test user as well: weblabtest/weblabtest
+
+    try:
+        engine.execute("DROP USER weblabtest@localhost")
+    except:
+        pass
+
+    engine.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
+    engine.execute("GRANT ALL PRIVILEGES ON wcloud.* TO weblabtest@localhost")
     engine.execute("USE wcloudtest")
 
     # Create the schema.
@@ -46,8 +55,6 @@ def prepare_test_database(root_username, root_password):
     db.add(testentity)
     db.add(testuser)
     db.commit()
-
-    print("DONE")
 
 
 

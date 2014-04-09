@@ -48,7 +48,8 @@ from cStringIO import StringIO
 from flask import Flask, request
 
 from weblab.admin.script import weblab_create, Creation
-from wcloud import deploymentsettings, db
+from wcloud import deploymentsettings
+from wcloud.flaskapp import db
 from wcloud.models import User, Entity
 
 class TaskManager(threading.Thread):

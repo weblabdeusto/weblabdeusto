@@ -17,7 +17,25 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wcloud.flaskapp import app
+from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
+import wcloud.default_settings as default_settings
 
-if __name__ == '__main__':
-    app.run(debug=app.config['DEBUG'])
+# TODO: We shouldn't need to instance flask from the tasks, nor link it to a specific database.
+
+app = Flask(__name__)
+
+#Config
+app.config['SESSION_COOKIE_NAME'] = 'session-wcloud'
+app.config.from_object(default_settings)
+app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
+
+#Extensions
+db = SQLAlchemy(app)
+
+#Import before use because we need to create the databases and to manage without running the webapp
+import wcloud.models
+
+import wcloud.views
+
+import wcloud.admin

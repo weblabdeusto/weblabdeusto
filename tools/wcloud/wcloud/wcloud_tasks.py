@@ -46,14 +46,19 @@ import tempfile
 from cStringIO import StringIO
 
 from flask import Flask, request
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
 
 from weblab.admin.script import weblab_create, Creation
 
 from celery import task, Task
 
-#from wcloud import deploymentsettings, db
+#from wcloud import deploymentsettings
 import deploymentsettings
 from models import User, Entity
+
+# TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
+# session when in tests would be very useful.
 
 
 # TODO: Remove the dependency on this.
@@ -63,13 +68,42 @@ app.config.from_object(default_settings)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 
+def connect_to_database(user, passwd, db_name):
+    """
+    Connects to the MySQL database using the specified username and password.
+    Assumes the DB is in localhost and listening on port 3306.
+
+    @param user: Username, which will need to be root to create new databases.
+    @param passwd: Password for the Username.
+
+    @return: Engine object and the Session() maker.
+    """
+    conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
+    engine = sqlalchemy.create_engine(conn_string)
+    engine.execute("SELECT 1")
+    engine.execute("USE %s" % db_name)
+
+    Session = sessionmaker()
+    Session.configure(bind=engine)
+
+    return engine, Session
+
+
 @task(bind=True)
-def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email):
+def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
     """
     Prepare the system.
     """
+
+    # Connect to the database
+    engine, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    session = Session()
+
+    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
+    app.config.from_object(wcloud_settings)
+
     self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
-    user = User.query.filter_by(email=wcloud_user_email).first()
+    user = session.query(User).filter_by(email=wcloud_user_email).first()
     entity = user.entity
 
     #
@@ -249,7 +283,12 @@ from nose.tools import assert_is_not_none
 class TestWcloudTasks(unittest.TestCase):
 
     def test_prepare_system(self):
-        prepare_system("admin", "Administrador", "password", "admin@admin.com")
+        wcloud_settings = {
+            "DB_USERNAME"           : "weblabtest",
+            "DB_PASSWORD"           : "weblabtest",
+            "DB_NAME"               : "wcloudtest"
+        }
+        prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com", wcloud_settings)
 
     def setUp(self):
         pass

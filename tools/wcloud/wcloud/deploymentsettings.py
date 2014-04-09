@@ -8,12 +8,12 @@ DEFAULT_DEPLOYMENT_SETTINGS = {
     Creation.COORD_ENGINE: 'redis',
     Creation.COORD_REDIS_DB: 0,                    # --coordination-redis-db=COORD_REDIS_DB
     Creation.COORD_REDIS_PORT: 6379,               # --coordination-redis-port=PORT
-    Creation.ADMIN_USER: 'CHANGE_ME',              # --admin-user=admin
-    Creation.ADMIN_NAME: 'CHANGE_ME',              #  --admin-name=(lo que diga)
-    Creation.ADMIN_PASSWORD: 'CHANGE_ME',          # --admin-password=(lo que diga)
-    Creation.ADMIN_MAIL: 'CHANGE_ME',              # --admin-mail=(lo que diga)
-    Creation.START_PORTS: 'CHANGE_ME',             # --start-port=10000
-    Creation.SYSTEM_IDENTIFIER: 'CHANGE_ME',       # -i (nombre de la uni, puede tener espacios)
+    Creation.ADMIN_USER: 'admin',              # --admin-user=admin
+    Creation.ADMIN_NAME: 'Administrator',              #  --admin-name=(lo que diga)
+    Creation.ADMIN_PASSWORD: 'password',          # --admin-password=(lo que diga)
+    Creation.ADMIN_MAIL: 'admin@admin.com',              # --admin-mail=(lo que diga)
+    Creation.START_PORTS: '10000',             # --start-port=10000
+    Creation.SYSTEM_IDENTIFIER: 'University of Deusto',       # -i (nombre de la uni, puede tener espacios)
     Creation.SERVER_HOST: 'weblab.deusto.es',      # --server-host=(de settings)
     Creation.ENTITY_LINK: 'http://www.deusto.es/', # --entity-link= http://www.deusto.es/
     Creation.CORES: 3, 

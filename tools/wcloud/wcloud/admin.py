@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wcloud import app, db
+from wcloud.flaskapp import app, db
 
 from flask import session, redirect, url_for, request, Markup
 from flask.ext.admin import Admin, AdminIndexView

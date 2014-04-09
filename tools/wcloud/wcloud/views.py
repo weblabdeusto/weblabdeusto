@@ -33,7 +33,8 @@ from werkzeug import secure_filename
 
 from weblab.admin.script import Creation, weblab_create
 
-from wcloud import app, db, utils, deploymentsettings
+from wcloud.flaskapp import db, app
+from wcloud import utils, deploymentsettings
 from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DisabledConfigurationForm, DeployForm
 from wcloud.models import User, Token, Entity
 from wcloud.taskmanager import TaskManager

@@ -1,5 +1,6 @@
 import getpass
 import optparse
+import sys
 
 from weblab.admin.script import Creation
 import sqlalchemy

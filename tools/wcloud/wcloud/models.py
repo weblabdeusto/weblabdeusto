@@ -17,7 +17,7 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wcloud import db
+from wcloud.flaskapp import db
 from sqlalchemy import func, Unicode, String, Column, Integer, Boolean, DateTime
 
 class User(db.Model):
