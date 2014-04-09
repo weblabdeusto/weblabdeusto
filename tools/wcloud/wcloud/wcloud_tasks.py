@@ -304,8 +304,8 @@ class TestWcloudTasks(unittest.TestCase):
         prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com", wcloud_settings)
 
     def setUp(self):
-        from test.prepare import prepare_test_database
-        prepare_test_database()
+        import test.prepare as prepare
+        prepare.prepare_test_database("root", "password")
 
     def tearDown(self):
         pass

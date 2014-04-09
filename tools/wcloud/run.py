@@ -18,6 +18,9 @@
 #
 
 from wcloud.flaskapp import app
+import wcloud.models
+import wcloud.views
+import wcloud.admin
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])

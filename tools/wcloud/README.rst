@@ -52,3 +52,14 @@ TODO list
 * setup.py
 * Find out why unicode with utf-8 is failing
 
+
+
+UNIT TESTING
+~~~~~~~~~~~~
+
+The system is being redesigned to be somewhat generic. However, the Unit Testing still makes some assumptions.
+Those are the following:
+
+* A MySQL server is running.
+* The root MySQL user is "root" and its password is: "password".
+
