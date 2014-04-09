@@ -94,8 +94,16 @@ def connect_to_database(user, passwd, db_name):
 @task(bind=True)
 def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
     """
-    Prepare the system.
+    Prepare the system. Ports and databases are assigned.
+
+    @param wcloud_user_email: User email to identify the account of the wcloud user that is making the request.
+    @param admin_user: Username of the wcloud instance admin.
+    @param admin_password: Password for the wcloud instance admin.
+    @param admin_email: Email address for the wcloud instance admin.
+    @param wcloud_settings: Dictionary containing settings. Those will override both the default_settings and the ones
+    declared through the WCLOUD_SETTINGS environment variable.
     """
+    self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
 
     # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
     app.config.update(wcloud_settings)
@@ -104,9 +112,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     engine, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
     session = Session()
 
-
-
-    self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
+    # Get the wcloud user.
     user = session.query(User).filter_by(email=wcloud_user_email).first()
     entity = user.entity
 
@@ -144,7 +150,8 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     settings[Creation.ADMIN_MAIL] = admin_email
 
 
-    # Retrieve the last port.
+    # Retrieve the last assigned port from the database, so that we can assign the
+    # next one as the starting point of the new instance.
     last_port = session.query(sqlalchemy.func.max(Entity.end_port_number)).one()[0]
     if last_port is None:
         last_port = deploymentsettings.MIN_PORT
@@ -297,7 +304,8 @@ class TestWcloudTasks(unittest.TestCase):
         prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com", wcloud_settings)
 
     def setUp(self):
-        pass
+        from test.prepare import prepare_test_database
+        prepare_test_database()
 
     def tearDown(self):
         pass
