@@ -28,7 +28,7 @@ def wait_process(process):
 
 def start_weblab(dirname, wait):
     print "Deploying instance: %s" % dirname, 
-    process = subprocess.Popen(['nohup','weblab-admin','start', dirname], 
+    process = subprocess.Popen(['nohup','weblab-admin', 'start', dirname],
                 stdout = open(os.path.join(dirname, 'stdout.txt'), 'w'),
                 stderr = open(os.path.join(dirname, 'stderr.txt'), 'w'),
                 stdin  = subprocess.PIPE)

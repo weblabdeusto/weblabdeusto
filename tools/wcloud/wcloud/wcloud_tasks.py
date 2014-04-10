@@ -59,6 +59,7 @@ import deploymentsettings
 from wcloud.models import User, Entity
 
 import redis_tasks
+import db_tasks
 
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
 # session when in tests would be very useful.
@@ -115,6 +116,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     # Connect to the database
     engine, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
     session = Session()
+    session._model_changes = {}  # Bypass flask issue.
 
     # Get the wcloud user.
     user = session.query(User).filter_by(email=wcloud_user_email).first()
@@ -142,7 +144,16 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
         settings[Creation.LOGO_PATH] = None
 
     # TODO: Change the DB system.
-    settings[Creation.DB_NAME] = 'wcloud%s' % entity.id
+
+    # Create a new database and assign the DB name.
+    # TODO: Unhardcode / tidy this up.
+    db_name = db_tasks.create_db("root", "password", "wcloudtest", app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
+    entity.db_name = db_name
+    session.commit()
+
+    # settings[Creation.DB_NAME] = 'wcloud%s' % entity.id
+    settings[Creation.DB_NAME] = db_name
+
     settings[Creation.DB_USER] = app.config['DB_USERNAME']
     settings[Creation.DB_PASSWD] = app.config['DB_PASSWORD']
 
