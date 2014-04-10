@@ -83,17 +83,17 @@ def connect_to_database(user, passwd, db_name):
     @param user: Username, which will need to be root to create new databases.
     @param passwd: Password for the Username.
 
-    @return: Engine object and the Session() maker.
+    @return: Connection object and the Session() maker.
     """
     conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
     engine = sqlalchemy.create_engine(conn_string)
-    engine.execute("SELECT 1")
-    engine.execute("USE %s" % db_name)
+    connection = engine.connect()
+    connection.execute("SELECT 1")
+    connection.execute("USE %s" % db_name)
 
-    Session = sessionmaker()
-    Session.configure(bind=engine)
+    Session = sessionmaker(bind=connection)
 
-    return engine, Session
+    return connection, Session
 
 
 @task(bind=True)
@@ -114,7 +114,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     app.config.update(wcloud_settings)
 
     # Connect to the database
-    engine, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
@@ -190,6 +190,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     settings[Creation.ENTITY_LINK] = user.entity.link_url
 
     Session.close_all()
+    connection.close()
 
     return settings
 
