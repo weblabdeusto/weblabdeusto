@@ -1,6 +1,15 @@
-import os
-
 """
+WCLOUD_SETTINGS_DEFAULT
+
+This file contains the default wcloud settings. The settings in this file can be overriden
+by placing a wcloud_settings.py file in this same directory, or by specifying another file
+through the WCLOUD_SETTINGS environment variable.
+
+The order in which the config files will be applied is:
+wcloud_settings_default.py -> wcloud_settings.py -> WCLOUD_SETTINGS
+
+
+
 This file contains a sample configuration file. All the applications
 use a environment variable called WCLOUD_SETTINGS which must point to
 a valid Python file. If this file is found, those variables located there
@@ -8,6 +17,9 @@ will replace these variables. So if you only need to establish passwords,
 reCAPTCHA configuration, etc., you only need to put the file with those 
 variables. However, for development that's not required.
 """
+
+import os
+
 
 #################################
 # 
