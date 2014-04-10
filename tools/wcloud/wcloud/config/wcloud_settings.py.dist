@@ -3,6 +3,8 @@ WCLOUD_SETTINGS
 
 This file can be used to add new config elements or to override existing ones.
 
+It is MEANT TO BE COPIED as wcloud_settings.py
+
 To do so, it needs to be copied to "wcloud_settings.py". If that's done,
 the settings here will override those in wcloud_settings_default.py.
 

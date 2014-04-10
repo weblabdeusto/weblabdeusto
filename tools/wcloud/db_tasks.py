@@ -12,7 +12,7 @@ def connect(user, passwd):
     @param user: Username, which will need to be root to create new databases.
     @param passwd: Password for the Username.
     """
-    conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
+    conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)   # TODO: Port is not being read from config.
     engine = sqlalchemy.create_engine(conn_string)
     engine.execute("SELECT 1")
     return engine
