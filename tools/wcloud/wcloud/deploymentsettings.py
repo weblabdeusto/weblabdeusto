@@ -1,4 +1,13 @@
+"""
+This file contains the default deployment settings.
+
+Most of these parameters are automatically overriden when creating a new instance,
+and passed to the weblab-admin script.
+"""
+
+
 from weblab.admin.script import Creation
+
 
 APACHE_CONF_NAME = 'apache.conf'
 MIN_PORT = 14000

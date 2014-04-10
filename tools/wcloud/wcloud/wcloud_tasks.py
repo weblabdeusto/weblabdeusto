@@ -166,11 +166,11 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     # TODO: Tidy this up. Remove redis_env hardcoding.
     # Ensure REDIS is present.
     try:
-        redis_tasks.deploy_redis_instance("../redis_env", settings[Creation.COORD_REDIS_PORT])
+        redis_tasks.deploy_redis_instance(app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
     except (redis_tasks.AlreadyDeployedException) as ex:
         pass
 
-    redis_tasks.check_redis_deployment("../redis_env", settings[Creation.COORD_REDIS_PORT])
+    redis_tasks.check_redis_deployment(app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
 
 
     settings[Creation.ADMIN_USER] = admin_user
@@ -230,6 +230,7 @@ def create_weblab_environment(self, directory, settings):
 @task(bind=True)
 def deploy_weblab_instance(self):
     prepare_system()
+
     create_weblab_environment()
 
     #
@@ -349,7 +350,8 @@ class TestWcloudTasks(unittest.TestCase):
     wcloud_settings = {
         "DB_USERNAME": "weblabtest",
         "DB_PASSWORD": "weblabtest",
-        "DB_NAME": "wcloudtest"
+        "DB_NAME": "wcloudtest",
+        "REDIS_FOLDER": "../redis_env"
     }
 
     def test_prepare_system(self):

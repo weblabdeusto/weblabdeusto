@@ -49,6 +49,9 @@ DEBUG_UNDEPLOY_ENABLED = True
 REDIS_START_PORT=6379 + 1 # So we don't use the 6379
 REDIS_DBS_PER_PORT=16
 
+# Folder on which to place the REDIS .conf files. It must exist.
+REDIS_FOLDER = "redis_env"
+
 ##########################
 # 
 # DB configuration:
