@@ -56,8 +56,9 @@ from celery import task, Task
 #from wcloud import deploymentsettings
 import deploymentsettings
 
-
 from wcloud.models import User, Entity
+
+import redis_tasks
 
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
 # session when in tests would be very useful.
@@ -65,8 +66,11 @@ from wcloud.models import User, Entity
 
 # TODO: Remove the dependency on this.
 import default_settings
+import settings
+
 app = Flask(__name__)
 app.config.from_object(default_settings)
+app.config.from_object(settings)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 
@@ -132,8 +136,12 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     settings[Creation.BASE_URL] = 'w/' + entity.base_url
 
-    settings[Creation.LOGO_PATH] = tmp_logo.name
+    if user.entity.logo != None and user.entity.logo != "":
+        settings[Creation.LOGO_PATH] = tmp_logo.name
+    else:
+        settings[Creation.LOGO_PATH] = None
 
+    # TODO: Change the DB system.
     settings[Creation.DB_NAME] = 'wcloud%s' % entity.id
     settings[Creation.DB_USER] = app.config['DB_USERNAME']
     settings[Creation.DB_PASSWD] = app.config['DB_PASSWORD']
@@ -143,6 +151,16 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     settings[Creation.COORD_REDIS_DB] = entity.id % databases_per_port
     settings[Creation.COORD_REDIS_PORT] = initial_redis_port + entity.id / databases_per_port
+
+    # TODO: Tidy this up. Remove redis_env hardcoding.
+    # Ensure REDIS is present.
+    try:
+        redis_tasks.deploy_redis_instance("../redis_env", settings[Creation.COORD_REDIS_PORT])
+    except (redis_tasks.AlreadyDeployedException) as ex:
+        pass
+
+    redis_tasks.check_redis_deployment("../redis_env", settings[Creation.COORD_REDIS_PORT])
+
 
     settings[Creation.ADMIN_USER] = admin_user
     settings[Creation.ADMIN_NAME] = admin_name
@@ -160,27 +178,48 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
     settings[Creation.ENTITY_LINK] = user.entity.link_url
 
+    Session.close_all()
+
+    return settings
+
+
+# TODO: Fix this.
+def exit_func(code):
+    traceback.print_exc()
+    # print "Output:", output.getvalue()
+    raise Exception("Error creating weblab: %s" % code)
+
+
+@task(bind=True)
+def create_weblab_environment(self, directory, settings):
+    """
+    2. Create the full WebLab-Deusto environment.
+    """
+
+    self.update_state(state="PROGRESS", meta={"action": "Creating deployment directory"})
+
+    output = StringIO()
+    command_output = StringIO()
+
+
+
+    results = weblab_create(directory,
+                            settings,
+                            command_output,
+                            command_output,
+                            exit_func)
+
+    time.sleep(0.5)
+
+    # Don't know what was this done originally for.
+    # settings.update(task)
 
 
 @task(bind=True)
 def deploy_weblab_instance(self):
-
     prepare_system()
+    create_weblab_environment()
 
-    #
-    #     #########################################################
-    #     #
-    #     # 2. Create the full WebLab-Deusto environment
-    #     #
-    #     output.write("[Done]\nCreating deployment directory...")
-    #     results = weblab_create(task['directory'],
-    #                             settings,
-    #                             task['stdout'],
-    #                             task['stderr'],
-    #                             task['exit_func'])
-    #     time.sleep(0.5)
-    #
-    #     settings.update(task)
     #
     #     ##########################################################
     #     #
@@ -295,18 +334,34 @@ from nose.tools import assert_is_not_none
 
 class TestWcloudTasks(unittest.TestCase):
 
+    wcloud_settings = {
+        "DB_USERNAME": "weblabtest",
+        "DB_PASSWORD": "weblabtest",
+        "DB_NAME": "wcloudtest"
+    }
+
     def test_prepare_system(self):
-        wcloud_settings = {
-            "DB_USERNAME"           : "weblabtest",
-            "DB_PASSWORD"           : "weblabtest",
-            "DB_NAME"               : "wcloudtest"
-        }
-        prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com", wcloud_settings)
+        prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+                       self.wcloud_settings)
+
+    def test_create_weblab_environment(self):
+
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+               self.wcloud_settings)
+
+        create_weblab_environment("weblabtest", settings)
+
 
     def setUp(self):
-        import test.prepare as prepare
+        import wcloud.test.prepare as prepare
+
         prepare.prepare_test_database("root", "password")
 
     def tearDown(self):
-        pass
+
+        # Delete the deployed directory.
+        try:
+            shutil.rmtree("weblabtest")
+        except:
+            pass
 

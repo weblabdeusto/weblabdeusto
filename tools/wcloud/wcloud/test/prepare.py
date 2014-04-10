@@ -12,29 +12,29 @@ def prepare_test_database(root_username, root_password):
     @param root_username: Username for the MySQL root.
     @param root_password: Password for the MySQL root.
     """
-    engine = connect(root_username, root_password)
+    connection = connect(root_username, root_password)
 
     # Destroy the test databse if it exists already, to create it anew.
-    engine.execute("DROP DATABASE IF EXISTS wcloudtest")
-    engine.execute("CREATE DATABASE wcloudtest DEFAULT CHARACTER SET utf8")
+    connection.execute("DROP DATABASE IF EXISTS wcloudtest")
+    connection.execute("CREATE DATABASE wcloudtest DEFAULT CHARACTER SET utf8")
 
     # Create the test user as well: weblabtest/weblabtest
 
     try:
-        engine.execute("DROP USER weblabtest@localhost")
+        connection.execute("DROP USER weblabtest@localhost")
     except:
         pass
 
-    engine.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
-    engine.execute("GRANT ALL PRIVILEGES ON wcloudtest.* TO weblabtest@localhost")
-    engine.execute("USE wcloudtest")
+    connection.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
+    connection.execute("GRANT ALL PRIVILEGES ON wcloudtest.* TO weblabtest@localhost")
+    connection.execute("USE wcloudtest")
 
     # Create the schema.
-    models.db.metadata.create_all(engine)
+    models.db.metadata.create_all(connection)
 
     # Get the Session maker and bind it to the engine.
     Session = sessionmaker()
-    Session.configure(bind=engine)
+    Session.configure(bind=connection)
 
     db = Session()
     db._model_changes = {}  # In order to bypass a flask-sqlalchemy vs sqlalchemy issue.
@@ -56,6 +56,10 @@ def prepare_test_database(root_username, root_password):
     db.add(testuser)
     db.commit()
 
+    db.close()
+    connection.close()
+
+
 
 
 
@@ -70,5 +74,4 @@ def connect(user, passwd):
     """
     conn_string = 'mysql://%s:%s@%s:%d' % (user, passwd, '127.0.0.1', 3306)
     engine = sqlalchemy.create_engine(conn_string)
-    engine.execute("SELECT 1")
-    return engine
+    return engine.connect()

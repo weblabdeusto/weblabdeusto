@@ -5,6 +5,16 @@ import celery
 from redis.exceptions import ConnectionError
 import redis
 
+
+class AlreadyDeployedException(Exception):
+    """
+    Thrown when an attempt to deploy REDIS is done, but the specified instance
+    is already deployed.
+    """
+    def __init__(self):
+        self.msg = "REDIS instance is apparently already deployed (the config file exists already)."
+
+
 @celery.task
 def deploy_redis_instance(redis_env_folder, port):
     """
@@ -43,9 +53,7 @@ def deploy_redis_instance(redis_env_folder, port):
 
     # Make sure the config file doesn't exist already.
     if os.path.exists(os.path.join(redis_env_folder, config_file_name)):
-        raise Exception(
-            "The config file that is being deployed exists already (%s). Cannot deploy the new Redis instance." % config_file_name
-        )
+        raise AlreadyDeployedException()
 
     # Write it to disk.
     f = file(os.path.join(redis_env_folder, config_file_name), "w")
