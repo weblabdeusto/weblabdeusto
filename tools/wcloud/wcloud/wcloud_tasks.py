@@ -136,7 +136,12 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     # Copy the default settings from the deploymentsettings file.
     settings = deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS.copy()
 
-    settings[Creation.BASE_URL] = 'w/' + entity.base_url
+    # settings[Creation.BASE_URL] = 'w/' + entity.base_url
+    settings[Creation.BASE_URL] = entity.base_url
+
+    # TODO: Originally a w/ was preppended. That is confusing because knowing the BASE_URL
+    # is required in other parts of the code. For instance, for the create itself.
+    # We remove it for now. May have side effects, and maybe should be added somehow.
 
     if user.entity.logo != None and user.entity.logo != "":
         settings[Creation.LOGO_PATH] = tmp_logo.name
@@ -206,6 +211,11 @@ def exit_func(code):
 def create_weblab_environment(self, directory, settings):
     """
     2. Create the full WebLab-Deusto environment.
+
+    @param directory: Directory to create.
+    @param settings: Deployment settings to use.
+    @return: Results of the Weblab creation process. They may be required to take further action, such as
+    adding the new instance to the Web Server configuration.
     """
 
     self.update_state(state="PROGRESS", meta={"action": "Creating deployment directory"})
@@ -226,64 +236,101 @@ def create_weblab_environment(self, directory, settings):
     # Don't know what was this done originally for.
     # settings.update(task)
 
+    return results
+
+@task(bind=True)
+def configure_web_server(self, creation_results):
+    """
+    3. Configures the Apache web server. (Adds a new, specific .conf to the Apache configuration files, so that
+    the new Weblab-Deusto instance is run appropriately).
+
+    REQUIREMENT: For this to work, the Apache Reloader script must be listening for requests on the
+    APACHER_RELOADER_PORT, which is 1662 by default.
+    """
+
+    ##########################################################
+    #
+    # 3. Configure the web server
+    #
+    self.update_state(state="PROGRESS", meta={"action": "Configuring Web Server"})
+
+    # Create Apache configuration
+    with open(os.path.join(app.config['DIR_BASE'],
+                           deploymentsettings.APACHE_CONF_NAME), 'a') as f:
+        conf_dir = creation_results['apache_file']
+        f.write('Include "%s"\n' % conf_dir)
+
+    # Reload apache
+    opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+    print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
+
+@task(bind=True)
+def register_and_start_instance(self, wcloud_user_email):
+    """
+    Registers and starts the new WebLab-Deusto instance.
+    This might take a while.
+
+    REQUIREMENTS: The WebLab Starter must be running on WEBLAB_STARTER_PORT
+    as defined in the configuration files. By defualt, this port is 1663.
+
+    @param wcloud_user_email: The email of the wcloud user whose instance we are deploying.
+    """
+
+    ##########################################################
+    #
+    # 4. Register and start the new WebLab-Deusto instance
+    #
+    self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
+
+
+    # Connect to the database
+    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    session = Session()
+    session._model_changes = {}  # Bypass flask issue.
+
+    # Get the wcloud entity.
+    user = session.query(User).filter_by(email=wcloud_user_email).first()
+    entity = user.entity
+
+    Session.close_all()
+
+    global response
+    import urllib2
+    import traceback
+
+    response = None
+    is_error = False
+
+    try:
+        url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
+        req = urllib2.Request(url, json.dumps({'name': entity.base_url}), {'Content-Type': 'application/json'})
+        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+        response = opener.open(req).read()
+    except:
+        is_error = True
+        response = "There was an error registering or starting the service. Contact the administrator"
+        traceback.print_exc()
+
+    print "Ended. is_error=%s; response=%s" % (is_error, response)
+
+    if is_error:
+        raise Exception(response)
+
 
 @task(bind=True)
 def deploy_weblab_instance(self):
+
     prepare_system()
 
     create_weblab_environment()
 
-    #
-    #     ##########################################################
-    #     #
-    #     # 3. Configure the web server
-    #     #
-    #     output.write("[Done]\nConfiguring web server...")
-    #
-    #     # Create Apache configuration
-    #     with open(os.path.join(app.config['DIR_BASE'],
-    #                            deploymentsettings.APACHE_CONF_NAME), 'a') as f:
-    #         conf_dir = results['apache_file']
-    #         f.write('Include "%s"\n' % conf_dir)
-    #
-    #     # Reload apache
-    #     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-    #     print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
-    #
-    #     ##########################################################
-    #     #
-    #     # 4. Register and start the new WebLab-Deusto instance
-    #     #
-    #     output.write("[Done]\nRegistering and starting instance...")
-    #
-    #     global response
-    #     response = None
-    #     is_error = False
-    #
-    #     def register():
-    #         global response
-    #         import urllib2
-    #         import traceback
-    #
-    #         try:
-    #             url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
-    #             req = urllib2.Request(url, json.dumps({'name': entity.base_url}), {'Content-Type': 'application/json'})
-    #             response = opener.open(req).read()
-    #         except:
-    #             is_error = True
-    #             response = "There was an error registering or starting the service. Contact the administrator"
-    #             traceback.print_exc()
-    #
-    #     print "Executing 'register' in other thread...",
-    #     t = threading.Thread(target=register)
-    #     t.start()
-    #     while t.isAlive() and response is None:
-    #         time.sleep(1)
-    #         output.write(".")
-    #     print "Ended. is_error=%s; response=%s" % (is_error, response)
-    #
-    #     if is_error:
-    #         raise Exception(response)
+    configure_web_server()
+
+    register_and_start_instance()
+
+
+
+
     #
     #     ##########################################################
     #     #
@@ -355,15 +402,33 @@ class TestWcloudTasks(unittest.TestCase):
     }
 
     def test_prepare_system(self):
-        prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                        self.wcloud_settings)
+        self._settings = settings
 
     def test_create_weblab_environment(self):
-
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        create_weblab_environment(base_url, settings)
 
-        create_weblab_environment("weblabtest", settings)
+    def test_configure_web_server(self):
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+               self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        creation_results = create_weblab_environment(base_url, settings)
+        configure_web_server(creation_results)
+
+    def test_register_and_start_instance(self):
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+            self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        creation_results = create_weblab_environment(base_url, settings)
+        configure_web_server(creation_results)
+        # register_and_start_instance("testuser@testuser.com")
 
 
     def setUp(self):
@@ -371,11 +436,18 @@ class TestWcloudTasks(unittest.TestCase):
 
         prepare.prepare_test_database("root", "password")
 
+
     def tearDown(self):
 
         # Delete the deployed directory.
         try:
             shutil.rmtree("weblabtest")
+        except:
+            pass
+
+        try:
+            base_url = os.path.join(app.config["DIR_BASE"], self._settings[Creation.BASE_URL])
+            shutil.rmtree(base_url)
         except:
             pass
 

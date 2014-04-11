@@ -8,11 +8,14 @@ from flask import Flask, request
 sys.path.append('.')
 
 import wcloud.deploymentsettings as deploymentsettings
+import wcloud.config.wcloud_settings_default as wcloud_settings_default
+import wcloud.config.wcloud_settings as wcloud_settings
 
 app = Flask(__name__)
 
-import wcloud.default_settings as default_settings
-app.config.from_object(default_settings)
+
+app.config.from_object(wcloud_settings_default)
+app.config.from_object(wcloud_settings)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 FILENAME = os.path.join(app.config['DIR_BASE'], 'instances.txt')

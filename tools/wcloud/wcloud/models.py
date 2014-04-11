@@ -76,7 +76,7 @@ class Entity(db.Model):
     name                    = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. University of Deusto
     logo                    = Column(db.LargeBinary(16 * 1024 * 1024), nullable=False)           # e.g. (the logo of the entity)
     logo_ext                = Column(Unicode(4), nullable=False)           # e.g. '.jpeg'
-    base_url                = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. /myschool.
+    base_url                = Column(Unicode(200), unique=True, nullable=False, index=True) # e.g. myschool (as in http://www.deusto.es/myschool)
     link_url                = Column(Unicode(300), nullable=False)             # e.g. http://www.deusto.es
     google_analytics_number = Column(Unicode(30))                              # e.g. UA-1234-1234
     start_port_number       = Column(Integer) # Null until the task manager assigns them
