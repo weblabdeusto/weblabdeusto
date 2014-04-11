@@ -254,17 +254,17 @@ $(document).ready(function(){
 
     $("#downSlowButton").click(function() {
 
-        console.log("DOWNSLOW");
+        console.log("SLOW");
 
         if($("#downSlowButton").attr("disabled") == undefined) {
-            Weblab.sendCommand("DOWNSLOW",
+            Weblab.sendCommand("SLOW",
                 function(success) {
                     $("#downSlowButton img").attr("src", "img/downslow_green.png");
                     $("#downSlowButton").removeAttr("disabled");
                 },
                 function(error){
-                    console.error("DOWNSLOW command failed: " + error);
-                    displayErrorMessage("DOWNSLOW command failed");
+                    console.error("SLOW command failed: " + error);
+                    displayErrorMessage("SLOW command failed");
                 });
         }
 
