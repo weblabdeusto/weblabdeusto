@@ -428,7 +428,7 @@ class TestWcloudTasks(unittest.TestCase):
         base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
-        # register_and_start_instance("testuser@testuser.com")
+        register_and_start_instance("testuser@testuser.com")
 
 
     def setUp(self):
@@ -445,6 +445,8 @@ class TestWcloudTasks(unittest.TestCase):
         except:
             pass
 
+        # TODO: Careful with this. It is dangerous, in production if configured wrongly it would
+        # erase the whole deployments directory.
         try:
             base_url = os.path.join(app.config["DIR_BASE"], self._settings[Creation.BASE_URL])
             shutil.rmtree(base_url)
