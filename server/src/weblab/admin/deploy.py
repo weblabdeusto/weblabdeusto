@@ -28,6 +28,7 @@ import weblab.permissions as permissions
 def insert_required_initial_data(engine):
     session = sessionmaker(bind=engine)
     session = session()
+    session._model_changes = {}
 
     # Roles
     federated = Model.DbRole("federated")
@@ -94,6 +95,7 @@ def insert_required_initial_data(engine):
 def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)
     session = Session()
+    session._model_changes = {}
 
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
     iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()

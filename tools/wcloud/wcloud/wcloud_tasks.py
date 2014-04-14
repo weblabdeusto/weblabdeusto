@@ -430,18 +430,17 @@ class TestWcloudTasks(unittest.TestCase):
         configure_web_server(creation_results)
         register_and_start_instance("testuser@testuser.com")
 
-
     def setUp(self):
         import wcloud.test.prepare as prepare
 
         prepare.prepare_test_database("root", "password")
 
-
     def tearDown(self):
 
         # Delete the deployed directory.
         try:
-            shutil.rmtree("weblabtest")
+            pass
+            #shutil.rmtree("weblabtest")
         except:
             pass
 

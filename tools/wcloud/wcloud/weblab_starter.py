@@ -42,7 +42,7 @@ def start_weblab(dirname, wait):
 
 
 
-@app.route('/deployments/', methods=['POST','GET'])
+@app.route('/deployments/', methods=['POST', 'GET'])
 def add_deployment():
     try:
         if request.method == 'POST':

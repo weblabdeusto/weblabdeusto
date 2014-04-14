@@ -385,6 +385,7 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
             upgrader = upgrader_class(db_str)
             Session = sessionmaker(bind=engine)
             session = Session()
+            session._model_changes = {}  # To bypass some kind of bug in some flask-sqlalchemy version.
             session.execute(
                 metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
             )
