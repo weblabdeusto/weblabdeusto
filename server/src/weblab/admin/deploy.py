@@ -27,8 +27,8 @@ import weblab.permissions as permissions
 
 def insert_required_initial_data(engine):
     session = sessionmaker(bind=engine)
-    session = session()
     session._model_changes = {}
+    session = session()
 
     # Roles
     federated = Model.DbRole("federated")
@@ -94,8 +94,8 @@ def insert_required_initial_data(engine):
 
 def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)
+    Session._model_changes = {}
     session = Session()
-    session._model_changes = {}
 
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
     iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
@@ -1325,6 +1325,7 @@ def generate_create_database(engine_str):
         return None
 
 def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+    sessionmaker._model_changes = {}
     session = sessionmaker()
 
     student       = session.query(Model.DbRole).filter_by(name='student').one()
@@ -1340,6 +1341,7 @@ def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None)
     session.close()
 
 def add_group(sessionmaker, group_name):
+    sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
     group = Model.DbGroup(group_name)
     session.add(group)
@@ -1347,6 +1349,7 @@ def add_group(sessionmaker, group_name):
     session.close()
 
 def add_users_to_group(sessionmaker, group_name, *user_logins):
+    sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()
     users = session.query(Model.DbUser).filter(Model.DbUser.login.in_(user_logins)).all()
@@ -1356,6 +1359,7 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
     session.close()
 
 def add_experiment(sessionmaker, category_name, experiment_name):
+    sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
     existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
     if existing_category is None:
@@ -1374,6 +1378,7 @@ def add_experiment(sessionmaker, category_name, experiment_name):
     session.close()
 
 def grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
+    sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
 
     group = session.query(Model.DbGroup).filter_by(name = group_name).one()

@@ -444,6 +444,28 @@ class TestWcloudTasks(unittest.TestCase):
         except:
             pass
 
+        # Remove the testentity line if present. Otherwise, the next attempt to start-weblab will fail
+        # because its folder will be removed.
+        try:
+            instances_file = os.path.join(app.config["DIR_BASE"], "instances.txt")
+            f = file(instances_file)
+            lines = f.readlines()
+            lines = [line + "\n" for line in lines if not "testentity" in line]
+            f.close()
+            f = file(instances_file, "w")
+            f.writelines(lines)
+            f.close()
+        except:
+            pass
+
+        # Make sure all the instances are stopped. DANGEROUS: This will kill all running instances of WebLab.
+        # This is done, specifically, so that "testentity" instance is killed after being run, so that
+        # the test can be run again without issues.
+        try:
+            os.system("killall weblab-admin")
+        except:
+            pass
+
         # TODO: Careful with this. It is dangerous, in production if configured wrongly it would
         # erase the whole deployments directory.
         try:
