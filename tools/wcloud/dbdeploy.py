@@ -53,22 +53,27 @@ def main():
     if result.first() == (1,):
         session.execute("DROP USER 'wcloud'@'localhost'")
 
-    print "[1/6] Previous users wcloud and wcloud_creator cleared if present"
+    print "[1/7] Previous users wcloud and wcloud_creator cleared if present"
 
     session.execute("CREATE USER 'wcloud_creator'@'localhost' identified by '%s'" % app.config["DB_WCLOUD_CREATOR_PASSWORD"])
-    print "[2/6]"
+    print "[2/7]"
 
     session.execute("GRANT CREATE ON `wcloud%`.* to 'wcloud_creator'@'localhost'")
-    print "[3/6] Database creation privileges granted on wcloud_creator"
+    print "[3/7] Database creation privileges granted on wcloud_creator"
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud_creator'@'localhost'")
-    print "[4/6] Wcloud databases read/write privileges granted on wcloud_creator."
+    print "[4/7] Wcloud databases read/write privileges granted on wcloud_creator."
 
     session.execute("CREATE USER 'wcloud'@'localhost' IDENTIFIED BY '%s'" % app.config["DB_WCLOUD_PASSWORD"])
-    print "[5/6] User wcloud created."
+    print "[5/7] User wcloud created."
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud'@'localhost'")
-    print "[6/6] Wcloud databases read/write privileges granted on wcloud."
+    print "[6/7] Wcloud databases read/write privileges granted on wcloud."
+
+    # For now, the testuser has a default password.
+    session.execute("CREATE USER 'wcloudtest'@'localhost' IDENTIFIED BY 'password'")
+    session.execute("GRANT ALL PRIVILEGES ON `wcloudtest`.* TO 'wcloud'@'localhost'")
+    print "[7/7] Wcloudtest user created and granted privileges for wcloudtest DB"
 
     print "DONE."
 

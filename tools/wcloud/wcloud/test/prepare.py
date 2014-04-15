@@ -20,13 +20,15 @@ def prepare_test_database(root_username, root_password):
 
     # Create the test user as well: weblabtest/weblabtest
 
-    try:
-        connection.execute("DROP USER weblabtest@localhost")
-    except:
-        pass
 
-    connection.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
-    connection.execute("GRANT ALL PRIVILEGES ON wcloudtest.* TO weblabtest@localhost")
+    # The weblabtest user is created by the deploy script.
+    # try:
+    #    connection.execute("DROP USER weblabtest@localhost")
+    # except:
+    #    pass
+
+    # connection.execute("CREATE USER weblabtest@localhost IDENTIFIED BY 'weblabtest'")
+    # connection.execute("GRANT ALL PRIVILEGES ON wcloudtest.* TO weblabtest@localhost")
     connection.execute("USE wcloudtest")
 
     # Create the schema.

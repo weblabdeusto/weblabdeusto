@@ -148,7 +148,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     # Create a new database and assign the DB name.
     # TODO: Unhardcode / tidy this up.
-    db_name = db_tasks.create_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloudtest", app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
+    db_name = db_tasks.create_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloud_%s" % entity.base_url, app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
     entity.db_name = db_name
     session.commit()
 
@@ -439,7 +439,7 @@ class TestWcloudTasks(unittest.TestCase):
             instances_file = os.path.join(app.config["DIR_BASE"], "instances.txt")
             f = file(instances_file)
             lines = f.readlines()
-            lines = [line + "\n" for line in lines if not "testentity" in line]
+            lines = [line.replace("\n", "") + "\n" for line in lines if not "testentity" in line]
             f.close()
             f = file(instances_file, "w")
             f.writelines(lines)
