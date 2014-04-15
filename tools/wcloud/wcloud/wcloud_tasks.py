@@ -148,7 +148,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     # Create a new database and assign the DB name.
     # TODO: Unhardcode / tidy this up.
-    db_name = db_tasks.create_db("root", "password", "wcloudtest", app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
+    db_name = db_tasks.create_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloudtest", app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
     entity.db_name = db_name
     session.commit()
 
@@ -343,15 +343,14 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port):
 
 @task(bind=True)
 def deploy_weblab_instance(self):
-
+    """
+    As of now this function does not run and is not meant to.
+    Just for reference purposes.
+    """
     prepare_system()
-
     create_weblab_environment()
-
     configure_web_server()
-
     register_and_start_instance()
-
     finish_deployment()
 
 
@@ -371,8 +370,8 @@ if __name__ == "__main__":
 class TestWcloudTasks(unittest.TestCase):
 
     wcloud_settings = {
-        "DB_USERNAME": "weblabtest",
-        "DB_PASSWORD": "weblabtest",
+        "DB_USERNAME": "wcloud",
+        "DB_PASSWORD": "password",
         "DB_NAME": "wcloudtest",
         "REDIS_FOLDER": "../redis_env"
     }

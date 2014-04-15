@@ -55,7 +55,11 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
 
     # Create the database.
     engine.execute("CREATE DATABASE %s DEFAULT CHARACTER SET utf8" % db_name)
-    engine.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" % (db_name, db_username))
+
+    # It is not necessary to grant privileges. We assume that the deploy script
+    # was run, which grants privileges to wcloud_creator and wcloud on 'wcloud%'
+    # databases.
+    # engine.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@localhost" % (db_name, db_username))
 
     # Test that the database was created successfully.
     engine = connect(db_username, db_password)

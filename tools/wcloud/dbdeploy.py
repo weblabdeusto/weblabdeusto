@@ -53,30 +53,25 @@ def main():
     if result.first() == (1,):
         session.execute("DROP USER 'wcloud'@'localhost'")
 
-    print "[1/5] Previous users wcloud and wcloud_creator cleared if present"
+    print "[1/6] Previous users wcloud and wcloud_creator cleared if present"
 
     session.execute("CREATE USER 'wcloud_creator'@'localhost' identified by '%s'" % app.config["DB_WCLOUD_CREATOR_PASSWORD"])
-    print "[2/5] User wcloud_creator created."
+    print "[2/6]"
 
     session.execute("GRANT CREATE ON `wcloud%`.* to 'wcloud_creator'@'localhost'")
-    print "[3/5] Database creation privileges granted on wcloud_creator"
+    print "[3/6] Database creation privileges granted on wcloud_creator"
+
+    session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud_creator'@'localhost'")
+    print "[4/6] Wcloud databases read/write privileges granted on wcloud_creator."
 
     session.execute("CREATE USER 'wcloud'@'localhost' IDENTIFIED BY '%s'" % app.config["DB_WCLOUD_PASSWORD"])
-    print "[4/5] User wcloud created."
+    print "[5/6] User wcloud created."
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud'@'localhost'")
-    print "[5/5] Wcloud databases read/write privileges granted on wcloud."
+    print "[6/6] Wcloud databases read/write privileges granted on wcloud."
 
     print "DONE."
 
     Session.close_all()
 
 main()
-
-
-# TO CREATE THE CREATOR MYSQL ACCOUNT:
-# CREATE USER wcloud_creator identified by 'password';
-# grant create on `wcloud%`.* to 'wcloud_creator'@'localhost';
-# create user wcloud identified by 'password';
-# grant all privileges on `wcloud%`.* to wcloud;
-

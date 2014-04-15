@@ -70,8 +70,8 @@ DB_HOST = '127.0.0.1'
 # MySQL
 # 
 DB_PORT = 3306
-DB_USERNAME = 'weblab'
-DB_PASSWORD = 'weblab'
+DB_USERNAME = 'wcloud'
+DB_PASSWORD = 'password'
 
 # Password to assign to the "wcloud_creator" mysql user,
 # which is used to create the MySQL databases.
