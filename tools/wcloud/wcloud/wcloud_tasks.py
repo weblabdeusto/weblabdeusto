@@ -31,27 +31,21 @@ of the deployment.
 """
 
 import os
-import sys
-
 import shutil
-import Queue
-import threading
 import time
 import traceback
 import unittest
 import urllib2
 import json
-import uuid
 import tempfile
 from cStringIO import StringIO
 
-from flask import Flask, request
+from flask import Flask
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+from celery import task
 
 from weblab.admin.script import weblab_create, Creation
-
-from celery import task, Task
 
 #from wcloud import deploymentsettings
 import deploymentsettings
@@ -73,6 +67,8 @@ app = Flask(__name__)
 app.config.from_object(wcloud_settings_default)
 app.config.from_object(wcloud_settings)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
+
+# TODO: Check that the config order is consistent.
 
 
 def connect_to_database(user, passwd, db_name):
@@ -370,8 +366,6 @@ if __name__ == "__main__":
 # UNIT TESTS BELOW
 #
 ######################################
-
-from nose.tools import assert_is_not_none
 
 
 class TestWcloudTasks(unittest.TestCase):

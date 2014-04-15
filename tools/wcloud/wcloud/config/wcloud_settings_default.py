@@ -73,6 +73,14 @@ DB_PORT = 3306
 DB_USERNAME = 'weblab'
 DB_PASSWORD = 'weblab'
 
+# Password to assign to the "wcloud_creator" mysql user,
+# which is used to create the MySQL databases.
+DB_WCLOUD_CREATOR_PASSWORD = 'password'
+
+# Password to assign to the "wcloud" mysql user,
+# which has access to all "wcloud%" databases.
+DB_WCLOUD_PASSWORD = 'password'
+
 # 
 # PostgreSQL
 # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )

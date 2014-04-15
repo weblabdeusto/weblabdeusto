@@ -1,12 +1,17 @@
-import sys
-import traceback
+import getpass
+
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+from flask import Flask
 
 import wcloud.config.wcloud_settings as wcloud_settings
 import wcloud.config.wcloud_settings_default as wcloud_settings_default
 
-import getpass
+
+app = Flask(__name__)
+app.config.from_object(wcloud_settings_default)
+app.config.from_object(wcloud_settings)
+app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 
 
@@ -38,8 +43,6 @@ def main():
     session = Session()
 
 
-    # Clean.
-
     # Check if wcloud_creator exists and delete it if so
     result = session.execute("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'wcloud_creator')")
     if result.first() == (1,):
@@ -52,13 +55,13 @@ def main():
 
     print "[1/5] Previous users wcloud and wcloud_creator cleared if present"
 
-    session.execute("CREATE USER 'wcloud_creator'@'localhost' identified by 'password'")
+    session.execute("CREATE USER 'wcloud_creator'@'localhost' identified by '%s'" % app.config["DB_WCLOUD_CREATOR_PASSWORD"])
     print "[2/5] User wcloud_creator created."
 
     session.execute("GRANT CREATE ON `wcloud%`.* to 'wcloud_creator'@'localhost'")
     print "[3/5] Database creation privileges granted on wcloud_creator"
 
-    session.execute("CREATE USER 'wcloud'@'localhost' IDENTIFIED BY 'password'")
+    session.execute("CREATE USER 'wcloud'@'localhost' IDENTIFIED BY '%s'" % app.config["DB_WCLOUD_PASSWORD"])
     print "[4/5] User wcloud created."
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud'@'localhost'")
