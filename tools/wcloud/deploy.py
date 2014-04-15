@@ -34,3 +34,13 @@ except:
 else:
     print "Deployment succeeded."
 
+
+
+
+# TO CREATE THE CREATOR MYSQL ACCOUNT:
+# CREATE USER wcloud_creator identified by 'password';
+# grant create on `wcloud%`.* to 'wcloud_creator'@'localhost';
+#
+# create user wcloud identified by 'password';
+# grant all privileges on `wcloud%`.* to wcloud;
+
