@@ -275,11 +275,6 @@ def register_and_start_instance(self, wcloud_user_email):
 
     @param wcloud_user_email: The email of the wcloud user whose instance we are deploying.
     """
-
-    ##########################################################
-    #
-    # 4. Register and start the new WebLab-Deusto instance
-    #
     self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
 
 
@@ -318,6 +313,39 @@ def register_and_start_instance(self, wcloud_user_email):
 
 
 @task(bind=True)
+def finish_deployment(self, wcloud_user_email, settings, start_port, end_port):
+    """
+    Finishes the deployment, marks the entity as deployed and
+    configures the response.
+    """
+    self.update_state(state="PROGRESS", meta={"action": "Finishing the deployment."})
+
+    # Connect to the database
+    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    session = Session()
+    session._model_changes = {}  # Bypass flask issue.
+
+    # Get the wcloud entity.
+    user = session.query(User).filter_by(email=wcloud_user_email).first()
+    entity = user.entity
+
+    url = settings[Creation.SERVER_HOST] + "/" + entity.base_url
+
+    # Save in database data like last port
+    # Note: this is thread-safe since the task manager is
+    # monothread
+    user.entity.start_port_number = start_port
+    user.entity.end_port_number = end_port
+
+    # Save
+    session.add(user)
+    session.commit()
+
+    Session.close_all()
+
+
+
+@task(bind=True)
 def deploy_weblab_instance(self):
 
     prepare_system()
@@ -328,53 +356,7 @@ def deploy_weblab_instance(self):
 
     register_and_start_instance()
 
-
-
-
-    #
-    #     ##########################################################
-    #     #
-    #     # 5. Service deployed. Configure the response
-    #     #
-    #
-    #     output.write("[Done]\n\nCongratulations, your system is ready!")
-    #     task['url'] = task['url_root'] + entity.base_url
-    #     self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
-    #
-    #     #
-    #     # Save in database data like last port
-    #     # Note: this is thread-safe since the task manager is
-    #     # monothread
-    #     user.entity.start_port_number = results['start_port']
-    #     user.entity.end_port_number = results['end_port']
-    #
-    #     # Save
-    #     db.session.add(user)
-    #     db.session.commit()
-    #
-    # except:
-    #     import traceback
-    #
-    #     print(traceback.format_exc())
-    #     sys.stdout.flush()
-    #     self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
-    #
-    #     # Revert changes:
-    #     #
-    #     # 1. Delete the directory
-    #     shutil.rmtree(task['directory'], ignore_errors=True)
-    #
-    #     #
-    #     # 2. Remove from apache and reload
-    #     # TODO
-    #
-    #     #
-    #     # 3. Remove from the instances to be loaded
-    #     # TODO
-    #
-    #     #
-    #     # 4. Remove from the database
-    #     # TODO
+    finish_deployment()
 
 
 if __name__ == "__main__":
@@ -430,6 +412,20 @@ class TestWcloudTasks(unittest.TestCase):
         configure_web_server(creation_results)
         register_and_start_instance("testuser@testuser.com")
 
+        start_port, end_port = creation_results["start_port"], creation_results["end_port"]
+
+    def test_finish_deployment(self):
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+            self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        creation_results = create_weblab_environment(base_url, settings)
+        configure_web_server(creation_results)
+        register_and_start_instance("testuser@testuser.com")
+
+        start_port, end_port = creation_results["start_port"], creation_results["end_port"]
+        finish_deployment("testuser@testuser.com", settings, start_port, end_port)
+
     def setUp(self):
         import wcloud.test.prepare as prepare
 
@@ -460,7 +456,7 @@ class TestWcloudTasks(unittest.TestCase):
 
         # Make sure all the instances are stopped. DANGEROUS: This will kill all running instances of WebLab.
         # This is done, specifically, so that "testentity" instance is killed after being run, so that
-        # the test can be run again without issues.
+        # the test can be run again without issues.l
         try:
             os.system("killall weblab-admin")
         except:
