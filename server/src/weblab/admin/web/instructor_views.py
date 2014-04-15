@@ -330,6 +330,7 @@ def generate_links(session, condition):
         user_id = use['user_id']
         file_hash = use['file_hash']
         login = use['login']
+        # login = 'user%s' % user_id
         full_name = use['full_name']
         start_date = use['start_date']
         # user_id_cache[user_id] = u'%s (%s)' % (full_name, login)
