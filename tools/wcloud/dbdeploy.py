@@ -53,27 +53,36 @@ def main():
     if result.first() == (1,):
         session.execute("DROP USER 'wcloud'@'localhost'")
 
-    print "[1/7] Previous users wcloud and wcloud_creator cleared if present"
+    # Check if wcloud exists and delete it if so
+    result = session.execute("SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'wcloudtest')")
+    if result.first() == (1,):
+        session.execute("DROP USER 'wcloudtest'@'localhost'")
+
+    print "[1/8] Previous users wcloud, wcloud_creator and wcloudtest cleared if present"
+
+
+    session.execute("CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET utf8" % app.config["DB_NAME"])
+    print "[2/8] Central wcloud database created if it didn't exist."
 
     session.execute("CREATE USER 'wcloud_creator'@'localhost' identified by '%s'" % app.config["DB_WCLOUD_CREATOR_PASSWORD"])
-    print "[2/7]"
+    print "[3/8] User wcloud_creator created."
 
     session.execute("GRANT CREATE ON `wcloud%`.* to 'wcloud_creator'@'localhost'")
-    print "[3/7] Database creation privileges granted on wcloud_creator"
+    print "[4/8] Database creation privileges granted on wcloud_creator"
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud_creator'@'localhost'")
-    print "[4/7] Wcloud databases read/write privileges granted on wcloud_creator."
+    print "[5/8] Wcloud databases read/write privileges granted on wcloud_creator."
 
     session.execute("CREATE USER 'wcloud'@'localhost' IDENTIFIED BY '%s'" % app.config["DB_WCLOUD_PASSWORD"])
-    print "[5/7] User wcloud created."
+    print "[6/8] User wcloud created."
 
     session.execute("GRANT ALL PRIVILEGES ON `wcloud%`.* TO 'wcloud'@'localhost'")
-    print "[6/7] Wcloud databases read/write privileges granted on wcloud."
+    print "[7/8] Wcloud databases read/write privileges granted on wcloud."
 
     # For now, the testuser has a default password.
     session.execute("CREATE USER 'wcloudtest'@'localhost' IDENTIFIED BY 'password'")
     session.execute("GRANT ALL PRIVILEGES ON `wcloudtest`.* TO 'wcloud'@'localhost'")
-    print "[7/7] Wcloudtest user created and granted privileges for wcloudtest DB"
+    print "[8/8] Wcloudtest user created and granted privileges for wcloudtest DB"
 
     print "DONE."
 

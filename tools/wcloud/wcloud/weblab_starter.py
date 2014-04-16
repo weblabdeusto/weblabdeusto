@@ -4,6 +4,7 @@ import time
 import traceback
 import subprocess
 from flask import Flask, request
+import shutil
 
 sys.path.append('.')
 
@@ -30,14 +31,28 @@ def wait_process(process):
         raise Exception("Error seconds after the system was not running")
 
 def start_weblab(dirname, wait):
-    print "Deploying instance: %s" % dirname, 
+
+    stdout_path = os.path.join(dirname, "stdout.txt")
+    stderr_path = os.path.join(dirname, "stderr.txt")
+
+    print "Deploying instance: %s" % dirname,
+
     process = subprocess.Popen(['nohup','weblab-admin', 'start', dirname],
-                stdout = open(os.path.join(dirname, 'stdout.txt'), 'w'),
-                stderr = open(os.path.join(dirname, 'stderr.txt'), 'w'),
+                stdout = open(stdout_path, 'w'),
+                stderr = open(stderr_path, 'w'),
                 stdin  = subprocess.PIPE)
+
     print "[done]"
+
+    errors = file(stderr_path).read()
+    print "[dbg] Stderr: " + errors
+
+    shutil.copyfile(stdout_path, "_test_stdout.txt")
+    shutil.copyfile(stderr_path, "_test_stderr.txt")
+
     if wait:
         wait_process(process)
+
     return process
 
 

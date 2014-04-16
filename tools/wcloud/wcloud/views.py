@@ -11,6 +11,7 @@
 #
 # Author: Xabier Larrakoetxea <xabier.larrakoetxea@deusto.es>
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
+# Author: Luis Rodriguez <luis.rodriguezgil@deusto.es>
 #
 # These authors would like to acknowledge the Spanish Ministry of science
 # and innovation, for the support in the project IPT-2011-1558-430000
@@ -21,20 +22,16 @@ import os
 import uuid
 import json
 import hashlib
-import urlparse
 import urllib2
 import datetime
-import StringIO
 
 from functools import wraps
 
 from flask import render_template, request, url_for, flash, redirect, session, abort, Response, render_template_string
 from werkzeug import secure_filename
 
-from weblab.admin.script import Creation, weblab_create
-
 from wcloud.flaskapp import db, app
-from wcloud import utils, deploymentsettings
+from wcloud import utils
 from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DisabledConfigurationForm, DeployForm
 from wcloud.models import User, Token, Entity
 from wcloud.taskmanager import TaskManager
@@ -124,25 +121,28 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Endpoint for registering a new user. Depending on the configuration, mail confirmation
+    will be required or not.
+    """
     form = RegistrationForm(request.form)
 
     if not app.config['RECAPTCHA_ENABLED']:
         del form.recaptcha
 
     if request.method == 'POST' and form.validate():
-        #Exract data from the form
+        # Extract data from the form
         full_name = form.full_name.data
         email = form.email.data
         password = form.password.data
 
-        #create user
-        user = User(email, hashlib.sha1(password).hexdigest())
-        user.full_name = full_name
+        # Create user
+        user = User(email, hashlib.sha1(password).hexdigest(), full_name)
         user.active = False
 
         mail_confirmation = app.config["MAIL_CONFIRMATION_ENABLED"]
 
-        #add to database
+        # Add to database
         token = Token(str(uuid.uuid4()), datetime.datetime.now())
         user.token = token
 
@@ -153,7 +153,7 @@ def register():
         db.session.commit()
 
         if mail_confirmation:
-            #create email
+            # Create email
             from_email = 'weblab@deusto.es'
 
             link = url_for('confirm', email=email, token=token.token, _external=True)

@@ -17,10 +17,15 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wcloud.flaskapp import app
+from wcloud.flaskapp import app, db
 import wcloud.models
 import wcloud.views
 import wcloud.admin
 
 if __name__ == '__main__':
+
+    # Create the database if it doesn't exist already.
+    # TODO: Check that this doesn't delete information if it exists already.
+    db.create_all()
+
     app.run(debug=app.config['DEBUG'])
