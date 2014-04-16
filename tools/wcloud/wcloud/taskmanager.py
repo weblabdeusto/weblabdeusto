@@ -135,7 +135,7 @@ class TaskManager(threading.Thread):
                 # 1. Prepare the system
                 #
                 output.write('[done]\nPreparing requirements...')
-                settings = wcloud_tasks.prepare_system(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {})
+                settings = wcloud_tasks.prepare_system.delay(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {}).get()
 
 
                 #########################################################
@@ -143,7 +143,7 @@ class TaskManager(threading.Thread):
                 # 2. Create the full WebLab-Deusto environment
                 #
                 output.write("[Done]\nCreating deployment directory...")
-                creation_results = wcloud_tasks.create_weblab_environment(task["directory"], settings)
+                creation_results = wcloud_tasks.create_weblab_environment.delay(task["directory"], settings).get()
                 # TODO: settings vs wcloud_settings. It is confusing.
 
 
@@ -152,7 +152,7 @@ class TaskManager(threading.Thread):
                 # 3. Configure the web server
                 # 
                 output.write("[Done]\nConfiguring web server...")
-                wcloud_tasks.configure_web_server(creation_results)
+                wcloud_tasks.configure_web_server.delay(creation_results).get()
 
 
                 ##########################################################
@@ -160,7 +160,7 @@ class TaskManager(threading.Thread):
                 # 4. Register and start the new WebLab-Deusto instance
                 #
                 output.write("[Done]\nRegistering and starting instance...")
-                wcloud_tasks.register_and_start_instance(task[u'email'], {})
+                wcloud_tasks.register_and_start_instance.delay(task[u'email'], {}).get()
 
 
                 ##########################################################
@@ -169,7 +169,7 @@ class TaskManager(threading.Thread):
                 #
                 output.write("[Done]\n\nCongratulations, your system is ready!")
                 start_port, end_port = creation_results["start_port"], creation_results["end_port"]
-                wcloud_tasks.finish_deployment(task[u'email'], settings, start_port, end_port, {})
+                wcloud_tasks.finish_deployment.delay(task[u'email'], settings, start_port, end_port, {}).get()
 
                 task['url'] = task['url_root'] + settings[Creation.BASE_URL]
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED

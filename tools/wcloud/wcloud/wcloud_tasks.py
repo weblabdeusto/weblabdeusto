@@ -95,7 +95,7 @@ def connect_to_database(user, passwd, db_name):
     return connection, Session
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name="wcloud.prepare_system")
 def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
     """
     Prepare the system. Ports and databases are assigned.
@@ -206,7 +206,7 @@ def exit_func(code):
     raise Exception("Error creating weblab: %s" % code)
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name="wcloud.create_weblab_environment")
 def create_weblab_environment(self, directory, settings):
     """
     2. Create the full WebLab-Deusto environment.
@@ -237,7 +237,7 @@ def create_weblab_environment(self, directory, settings):
 
     return results
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name="wcloud.configure_web_server")
 def configure_web_server(self, creation_results):
     """
     3. Configures the Apache web server. (Adds a new, specific .conf to the Apache configuration files, so that
@@ -263,7 +263,7 @@ def configure_web_server(self, creation_results):
     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
     print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name="wcloud.register_and_start_instance")
 def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
     """
     Registers and starts the new WebLab-Deusto instance.
@@ -313,7 +313,7 @@ def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
         raise Exception(response)
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name="wcloud.finish_deployment")
 def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, wcloud_settings):
     """
     Finishes the deployment, marks the entity as deployed and
