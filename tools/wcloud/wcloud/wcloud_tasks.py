@@ -55,6 +55,10 @@ from wcloud.models import User, Entity
 import redis_tasks
 import db_tasks
 
+from celery_app import celery_app
+
+
+
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
 # session when in tests would be very useful.
 
@@ -92,7 +96,7 @@ def connect_to_database(user, passwd, db_name):
     return connection, Session
 
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
     """
     Prepare the system. Ports and databases are assigned.
@@ -203,7 +207,7 @@ def exit_func(code):
     raise Exception("Error creating weblab: %s" % code)
 
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def create_weblab_environment(self, directory, settings):
     """
     2. Create the full WebLab-Deusto environment.
@@ -234,7 +238,7 @@ def create_weblab_environment(self, directory, settings):
 
     return results
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def configure_web_server(self, creation_results):
     """
     3. Configures the Apache web server. (Adds a new, specific .conf to the Apache configuration files, so that
@@ -260,7 +264,7 @@ def configure_web_server(self, creation_results):
     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
     print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def register_and_start_instance(self, wcloud_user_email):
     """
     Registers and starts the new WebLab-Deusto instance.
@@ -308,7 +312,7 @@ def register_and_start_instance(self, wcloud_user_email):
         raise Exception(response)
 
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def finish_deployment(self, wcloud_user_email, settings, start_port, end_port):
     """
     Finishes the deployment, marks the entity as deployed and
@@ -341,7 +345,7 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port):
 
 
 
-@task(bind=True)
+@celery_app.task(bind=True)
 def deploy_weblab_instance(self):
     """
     As of now this function does not run and is not meant to.

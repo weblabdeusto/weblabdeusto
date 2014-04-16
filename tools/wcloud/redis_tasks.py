@@ -6,6 +6,9 @@ from redis.exceptions import ConnectionError
 import redis
 
 
+from celery_app import celery_app
+
+
 class AlreadyDeployedException(Exception):
     """
     Thrown when an attempt to deploy REDIS is done, but the specified instance
@@ -15,7 +18,7 @@ class AlreadyDeployedException(Exception):
         self.msg = "REDIS instance is apparently already deployed (the config file exists already)."
 
 
-@celery.task
+@celery_app.task
 def deploy_redis_instance(redis_env_folder, port):
     """
     Deploys a new redis instance in the specified folder. A redis instance will be able to serve
@@ -63,7 +66,7 @@ def deploy_redis_instance(redis_env_folder, port):
     return True
 
 
-@celery.task
+@celery_app.task
 def check_redis_deployment(redis_env_folder, port):
     """
     Verifies that a Redis instance has been deployed properly by doing a PING against the server.
@@ -108,7 +111,7 @@ def check_redis_deployment(redis_env_folder, port):
 from nose.tools import assert_is_not_none
 
 
-class TestDatabaseTasks(unittest.TestCase):
+class TestRedisTasks(unittest.TestCase):
     def test_deploy_redis_instance(self):
         deploy_redis_instance("redis_env", 15000)
         assert os.path.exists("redis_env/redis_15000.conf")
