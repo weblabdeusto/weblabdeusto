@@ -67,9 +67,9 @@ LoadRetriver = new function(){
         console.log(response);
 
         var load = parseInt(response);
-        var suma =(Math.random()*2)+1;
-        load = load + suma;
-        //load = ((load - 1250)/0.6);
+        //var suma =(Math.random()*2)+1;
+        //load = load + suma;
+        load = ( (load - 83) * 0.056 );
         //load = Math.max(0, (load - 1256) * 3.2);
         //if (load < 0)
         //    load = (load * (-1));
@@ -127,7 +127,7 @@ LevelRetriver = new function(){
         console.log(response);
 
         var level = parseInt(response);
-        level = 8 - ((level - 906)/114);
+        level = 8 - ((level - 935)/85);
 
         var level1 = level * 2.54;
 
@@ -140,7 +140,7 @@ LevelRetriver = new function(){
         }*/
 
         $("#level").text(level.toFixed(2) + " inch. " + level1.toFixed(2) + " cm." );
-        $("#level1").text(level1.toFixed(2) + " cm." );
+        //$("#level1").text(level1.toFixed(2) + " cm." );
 
     }
     this.readFailure = function(response){
