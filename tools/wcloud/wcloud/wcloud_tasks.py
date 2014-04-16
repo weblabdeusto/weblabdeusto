@@ -422,10 +422,10 @@ class TestWcloudTasks(unittest.TestCase):
         base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
-        register_and_start_instance("testuser@testuser.com")
+        register_and_start_instance("testuser@testuser.com", self.wcloud_settings)
 
         start_port, end_port = creation_results["start_port"], creation_results["end_port"]
-        finish_deployment("testuser@testuser.com", settings, start_port, end_port)
+        finish_deployment("testuser@testuser.com", settings, start_port, end_port, self.wcloud_settings)
 
     def setUp(self):
         import wcloud.test.prepare as prepare
