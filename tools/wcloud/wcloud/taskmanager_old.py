@@ -134,45 +134,138 @@ class TaskManager(threading.Thread):
                 # 
                 # 1. Prepare the system
                 #
-                output.write('[done]\nPreparing requirements...')
-                settings = wcloud_tasks.prepare_system(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {})
 
+
+                wcloud_tasks.prepare_system(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {})
+
+                output.write('[done]\nPreparing requirements...')
+                user = User.query.filter_by(email=task[u'email']).first()
+                entity = user.entity
+
+                #
+                # Write the logo to disc
+                # 
+                tmp_logo = tempfile.NamedTemporaryFile()
+                tmp_logo.write(user.entity.logo)
+                tmp_logo.flush()
+
+                # 
+                # Prepare the parameters
+                # 
+                settings = deploymentsettings.DEFAULT_DEPLOYMENT_SETTINGS.copy()
+
+                settings[Creation.BASE_URL] = 'w/' + entity.base_url
+
+                settings[Creation.LOGO_PATH] = tmp_logo.name
+
+                settings[Creation.DB_NAME] = 'wcloud%s' % entity.id
+                settings[Creation.DB_USER] = app.config['DB_USERNAME']
+                settings[Creation.DB_PASSWD] = app.config['DB_PASSWORD']
+
+                databases_per_port = app.config['REDIS_DBS_PER_PORT']
+                initial_redis_port = app.config['REDIS_START_PORT']
+
+                settings[Creation.COORD_REDIS_DB] = entity.id % databases_per_port
+                settings[Creation.COORD_REDIS_PORT] = initial_redis_port + entity.id / databases_per_port
+
+                settings[Creation.ADMIN_USER] = task['admin_user']
+                settings[Creation.ADMIN_NAME] = task['admin_name']
+                settings[Creation.ADMIN_PASSWORD] = task['admin_password']
+                settings[Creation.ADMIN_MAIL] = task['admin_email']
+
+                last_port = Entity.last_port()
+                if last_port is None:
+                    last_port = deploymentsettings.MIN_PORT
+
+                settings[Creation.START_PORTS] = last_port + 1
+                settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
+                settings[Creation.ENTITY_LINK] = user.entity.link_url
 
                 #########################################################
                 # 
                 # 2. Create the full WebLab-Deusto environment
-                #
+                # 
                 output.write("[Done]\nCreating deployment directory...")
-                creation_results = wcloud_tasks.create_weblab_environment(task["directory"], settings)
-                # TODO: settings vs wcloud_settings. It is confusing.
+                results = weblab_create(task['directory'],
+                                        settings,
+                                        task['stdout'],
+                                        task['stderr'],
+                                        task['exit_func'])
+                time.sleep(0.5)
 
+                settings.update(task)
 
                 ##########################################################
                 # 
                 # 3. Configure the web server
                 # 
                 output.write("[Done]\nConfiguring web server...")
-                wcloud_tasks.configure_web_server(creation_results)
 
+                # Create Apache configuration
+                with open(os.path.join(app.config['DIR_BASE'],
+                                       deploymentsettings.APACHE_CONF_NAME), 'a') as f:
+                    conf_dir = results['apache_file']
+                    f.write('Include "%s"\n' % conf_dir)
+
+                    # Reload apache
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
 
                 ##########################################################
                 # 
                 # 4. Register and start the new WebLab-Deusto instance
                 #
                 output.write("[Done]\nRegistering and starting instance...")
-                wcloud_tasks.register_and_start_instance(task[u'email'], {})
 
+                global response
+                response = None
+                is_error = False
+
+                def register():
+                    global response
+                    import urllib2
+                    import traceback
+
+                    try:
+                        url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
+                        req = urllib2.Request(url, json.dumps({'name': entity.base_url}),
+                                              {'Content-Type': 'application/json'})
+                        response = opener.open(req).read()
+                    except:
+                        is_error = True
+                        response = "There was an error registering or starting the service. Contact the administrator"
+                        traceback.print_exc()
+
+                print "Executing 'register' in other thread...",
+                t = threading.Thread(target=register)
+                t.start()
+                while t.isAlive() and response is None:
+                    time.sleep(1)
+                    output.write(".")
+                print "Ended. is_error=%s; response=%s" % (is_error, response)
+
+                if is_error:
+                    raise Exception(response)
 
                 ##########################################################
                 # 
                 # 5. Service deployed. Configure the response
                 #
-                output.write("[Done]\n\nCongratulations, your system is ready!")
-                start_port, end_port = creation_results["start_port"], creation_results["end_port"]
-                wcloud_tasks.finish_deployment(task[u'email'], settings, start_port, end_port, {})
 
-                task['url'] = task['url_root'] + settings[Creation.BASE_URL]
+                output.write("[Done]\n\nCongratulations, your system is ready!")
+                task['url'] = task['url_root'] + entity.base_url
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
+
+                # 
+                # Save in database data like last port
+                # Note: this is thread-safe since the task manager is 
+                # monothread
+                user.entity.start_port_number = results['start_port']
+                user.entity.end_port_number = results['end_port']
+
+                # Save
+                db.session.add(user)
+                db.session.commit()
 
             except:
                 import traceback
