@@ -43,7 +43,6 @@ from cStringIO import StringIO
 from flask import Flask
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
-from celery import task
 
 from weblab.admin.script import weblab_create, Creation
 
@@ -108,7 +107,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     @param wcloud_settings: Dictionary containing settings. Those will override both the default_settings and the ones
     declared through the WCLOUD_SETTINGS environment variable.
     """
-    self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
+    #self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
 
     # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
     app.config.update(wcloud_settings)
@@ -218,7 +217,7 @@ def create_weblab_environment(self, directory, settings):
     adding the new instance to the Web Server configuration.
     """
 
-    self.update_state(state="PROGRESS", meta={"action": "Creating deployment directory"})
+    #self.update_state(state="PROGRESS", meta={"action": "Creating deployment directory"})
 
     output = StringIO()
     command_output = StringIO()
@@ -252,7 +251,7 @@ def configure_web_server(self, creation_results):
     #
     # 3. Configure the web server
     #
-    self.update_state(state="PROGRESS", meta={"action": "Configuring Web Server"})
+    #self.update_state(state="PROGRESS", meta={"action": "Configuring Web Server"})
 
     # Create Apache configuration
     with open(os.path.join(app.config['DIR_BASE'],
@@ -265,7 +264,7 @@ def configure_web_server(self, creation_results):
     print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
 
 @celery_app.task(bind=True)
-def register_and_start_instance(self, wcloud_user_email):
+def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
     """
     Registers and starts the new WebLab-Deusto instance.
     This might take a while.
@@ -275,8 +274,10 @@ def register_and_start_instance(self, wcloud_user_email):
 
     @param wcloud_user_email: The email of the wcloud user whose instance we are deploying.
     """
-    self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
+    #self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
 
+    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
+    app.config.update(wcloud_settings)
 
     # Connect to the database
     connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
@@ -313,12 +314,15 @@ def register_and_start_instance(self, wcloud_user_email):
 
 
 @celery_app.task(bind=True)
-def finish_deployment(self, wcloud_user_email, settings, start_port, end_port):
+def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, wcloud_settings):
     """
     Finishes the deployment, marks the entity as deployed and
     configures the response.
     """
-    self.update_state(state="PROGRESS", meta={"action": "Finishing the deployment."})
+    #self.update_state(state="PROGRESS", meta={"action": "Finishing the deployment."})
+
+    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
+    app.config.update(wcloud_settings)
 
     # Connect to the database
     connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])

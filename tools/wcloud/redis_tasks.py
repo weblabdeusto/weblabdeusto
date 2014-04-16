@@ -1,7 +1,6 @@
 import os
 import unittest
 import StringIO
-import celery
 from redis.exceptions import ConnectionError
 import redis
 
