@@ -92,7 +92,7 @@ Romie.prototype.hasTag = function()
 
 Romie.prototype.getTag = function()
 {
-	return this.lastResponse.substring(5, response.length-4);
+	return this.lastResponse.substring(5, this.lastResponse.length-6);
 }
 
 Romie.prototype.activateTopCam = function()

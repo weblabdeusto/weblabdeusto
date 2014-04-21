@@ -76,27 +76,37 @@ class RoMIExperiment(Experiment.Experiment):
 		elif command == 'R':
 			return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
 		elif command.startswith("QUESTION"):
-			difficulty = int(command[9])
-			category = command[11:]
+
+			command = command.split()
+
+			difficulty = int(command[1])
+			category = command[2]
 
 			questions = self.questions[category][difficulty];
 			question_nr =random.randint(0, len(questions)-1)
 			question = questions[question_nr]
 
 			response_question = {
-				'question_nr': question_nr,
+				'index': question_nr,
+				'difficulty': difficulty,
+				'category': category,
 				'question': question['question'],
-				'answers': question['answers']
+				'answers': question['answers'],
+				'type': question['type'],
+				'points': question['points'],
+				'movements': question['movements']
 			}
 
 			return json.dumps(response_question)
 
-		elif command.startswith("RESPONSE"):
+		elif command.startswith("ANSWER"):
 
-			response = int(command[9])
-			difficulty = int(command[11])
-			question = int(command[13:command.index('|')-1])
-			category = command[command.index('|')+2:]
+			command = command.split()
+
+			response = int(command[1])
+			difficulty = int(command[2])
+			question = int(command[3])
+			category = command[4]
 
 			return self.questions[category][difficulty][question]['correct'] == response
 

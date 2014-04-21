@@ -5,6 +5,8 @@ Game = function(romie)
 
 Game.prototype.showQuestion = function(question)
 {
+	question = JSON.parse(question);
+
 	$('#questionLabel').html(question["question"]);
 
 	i = 0;
@@ -23,20 +25,30 @@ Game.prototype.showQuestion = function(question)
 Game.prototype.answerQuestion = function()
 {
 	answer = parseInt($('#question input[name="answer"]:checked').val());
-	console.log(answer);
-	// Get answer
-	// Send command
-	//    if correct -> show dialog + add points & movements
-	//    if incorrect -> show dialog
-	// Hide question
-	// clear question
+
+	$("#question").modal('hide');
+
+	Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
+		this.question["index"]+" "+this.question["category"], function(response)
+		{
+			if (response == 'true')
+			{
+				$('#response_ok').modal('show');
+				// TODO show dialog + add points & movements
+			}
+			else
+			{
+				// TODO show dialog
+			}
+			// TODO clear question
+		});
 }
 
-Game.prototype.getQuestion = function(tag, callback)
+Game.prototype.getQuestion = function(tag)
 {
 	//TODO
-	dificulty = floor(this.romie.getPoints()/500);
+	difficulty = Math.floor(this.romie.getPoints()/500);
 	category = "general";
 
-	Weblab.sendCommand("QUESTION "+difficulty+" "+category, callback);
+	Weblab.sendCommand("QUESTION "+difficulty+" "+category, function(response){this.showQuestion(response);}.bind(this));
 }
