@@ -53,7 +53,7 @@ class TestWcloudTasks(unittest.TestCase):
         base_url = os.path.join(wcloud_tasks.app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = wcloud_tasks.create_weblab_environment.delay(base_url, settings).get()
         wcloud_tasks.configure_web_server.delay(creation_results).get()
-        wcloud_tasks.register_and_start_instance.delay("testuser@testuser.com").get()
+        wcloud_tasks.register_and_start_instance.delay("testuser@testuser.com", {}).get()
 
         start_port, end_port = creation_results["start_port"], creation_results["end_port"]
 

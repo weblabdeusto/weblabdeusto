@@ -30,6 +30,26 @@ def wait_process(process):
     if process.poll() is not None: 
         raise Exception("Error seconds after the system was not running")
 
+def stop_weblab(dirname):
+    print "Deploying instance: %s" % dirname,
+    try:
+        result = subprocess.check_output(['weblab-admin', 'stop', dirname])
+    except subprocess.CalledProcessError:
+        return False
+
+    print "[done]"
+
+    return True
+
+
+def test_weblab(dirname):
+    try:
+        result = subprocess.check_output(['weblab-admin', 'monitor', 'test/testinstance', '-l'])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
 def start_weblab(dirname, wait):
 
     stdout_path = os.path.join(dirname, "stdout.txt")
@@ -107,4 +127,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    app.run(debug = False, port = app.config['WEBLAB_STARTER_PORT'], host = '127.0.0.1')
+    app.run(debug=False, port=app.config['WEBLAB_STARTER_PORT'], host='127.0.0.1')
