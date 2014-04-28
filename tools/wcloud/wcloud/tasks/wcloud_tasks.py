@@ -41,6 +41,7 @@ from cStringIO import StringIO
 from flask import Flask
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+import sys
 from wcloud.tasks import db_tasks, redis_tasks
 
 from weblab.admin.script import weblab_create, Creation
@@ -107,7 +108,8 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     flask_app.config.update(wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"],
+                                              flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
@@ -172,7 +174,6 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     redis_tasks.check_redis_deployment(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
 
-
     settings[Creation.ADMIN_USER] = admin_user
     settings[Creation.ADMIN_NAME] = admin_name
     settings[Creation.ADMIN_PASSWORD] = admin_password
@@ -218,8 +219,6 @@ def create_weblab_environment(self, directory, settings):
     output = StringIO()
     command_output = StringIO()
 
-
-
     results = weblab_create(directory,
                             settings,
                             command_output,
@@ -232,6 +231,7 @@ def create_weblab_environment(self, directory, settings):
     # settings.update(task)
 
     return results
+
 
 @celery_app.task(bind=True, name="wcloud.configure_web_server")
 def configure_web_server(self, creation_results):
@@ -259,6 +259,7 @@ def configure_web_server(self, creation_results):
     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
     print(opener.open('http://127.0.0.1:%s/' % flask_app.config['APACHE_RELOADER_PORT']).read())
 
+
 def weblab_starter_running():
     try:
         url = 'http://127.0.0.1:%s' % flask_app.config['WEBLAB_STARTER_PORT']
@@ -269,8 +270,9 @@ def weblab_starter_running():
     except:
         return False
 
+
 @celery_app.task(bind=True, name="wcloud.register_and_start_instance")
-def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
+def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_settings):
     """
     Registers and starts the new WebLab-Deusto instance.
     This might take a while.
@@ -282,17 +284,23 @@ def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
     """
     #self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
 
-    # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
-    flask_app.config.update(wcloud_settings)
+    # Override the items in the config that are contained in the explicit_wcloud_settings dictionary.
+    flask_app.config.update(explicit_wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"],
+                                              flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
-    # Get the wcloud entity.
-    user = session.query(User).filter_by(email=wcloud_user_email).first()
-    entity = user.entity
+    try:
+        # Get the wcloud entity.
+        user = session.query(User).filter_by(email=wcloud_user_email).first()
+        entity = user.entity
+    except:
+        sys.stderr.write(
+            "[register_and_start_instance]: ERROR: Recovering wcloud user from DB. DB_NAME: %s" % flask_app.config[
+                "DB_NAME"])
 
     Session.close_all()
 
@@ -338,7 +346,8 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, w
     flask_app.config.update(wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"],
+                                              flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
@@ -359,7 +368,6 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, w
     session.commit()
 
     Session.close_all()
-
 
 
 @celery_app.task(bind=True)

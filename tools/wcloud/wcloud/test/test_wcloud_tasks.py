@@ -22,7 +22,8 @@ class TestWcloudTasks(unittest.TestCase):
         "DB_USERNAME": "wcloud",
         "DB_PASSWORD": "password",
         "DB_NAME": "wcloudtest",
-        "REDIS_FOLDER": "redis_env"
+        "REDIS_FOLDER": "redis_env",
+        "WEBLAB_STARTUP_TIME": 2
     }
 
     def test_prepare_system(self):

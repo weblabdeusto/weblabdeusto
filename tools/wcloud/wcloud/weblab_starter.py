@@ -23,12 +23,20 @@ FILENAME = os.path.join(app.config['DIR_BASE'], 'instances.txt')
 
 
 def wait_process(process):
-    print "Waiting for process to start...",
-    time_to_wait = app.config.get('WEBLAB_STARTUP_TIME', 15)
-    time.sleep(time_to_wait)
-    print "[done]"
-    if process.poll() is not None: 
-        raise Exception("Error seconds after the system was not running")
+    """
+    Checks that the Process is running for the number of seconds specified in the configuration.
+    If within that time the process stops running, an exception is thrown.
+    """
+
+    print "Waiting for process to start and stay..."
+
+    time_to_wait = app.config.get("WEBLAB_STARTUP_TIME", 15)
+
+    start_time = time.time()
+
+    while time.time() - start_time < time_to_wait:
+        if process.poll() is not None:
+            raise Exception("Weblab was apparently not started successfully")
 
 def stop_weblab(dirname):
     print "Deploying instance: %s" % dirname,
