@@ -9,7 +9,7 @@ import unittest
 
 from nose.tools import assert_is_not_none
 from sqlalchemy import text
-from db_tasks import connect, create_db, destroy_db
+from wcloud.tasks.db_tasks import connect, create_db, destroy_db
 
 
 class TestDatabaseTasks(unittest.TestCase):

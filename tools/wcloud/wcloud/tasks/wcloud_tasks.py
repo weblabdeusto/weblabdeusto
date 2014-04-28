@@ -31,10 +31,8 @@ of the deployment.
 """
 
 import os
-import shutil
 import time
 import traceback
-import unittest
 import urllib2
 import json
 import tempfile
@@ -43,16 +41,14 @@ from cStringIO import StringIO
 from flask import Flask
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
+from wcloud.tasks import db_tasks, redis_tasks
 
 from weblab.admin.script import weblab_create, Creation
 
-#from wcloud import deploymentsettings
-import deploymentsettings
+from wcloud import deploymentsettings
+# import deploymentsettings
 
 from wcloud.models import User, Entity
-
-import redis_tasks
-import db_tasks
 
 from celery_app import celery_app
 

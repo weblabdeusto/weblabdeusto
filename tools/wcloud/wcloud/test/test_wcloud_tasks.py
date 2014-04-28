@@ -6,7 +6,7 @@
 import os
 import shutil
 import unittest
-from wcloud.wcloud_tasks import app, prepare_system, create_weblab_environment, configure_web_server, register_and_start_instance, finish_deployment
+from wcloud.tasks.wcloud_tasks import app, prepare_system, create_weblab_environment, configure_web_server, register_and_start_instance, finish_deployment
 from weblab.admin.script import Creation
 
 # These tests are meant to be run from the root wcloud folder. Fix the path

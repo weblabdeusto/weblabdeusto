@@ -7,8 +7,7 @@
 import os
 import unittest
 
-from nose.tools import assert_is_not_none
-from redis_tasks import deploy_redis_instance, check_redis_deployment
+from wcloud.tasks.redis_tasks import deploy_redis_instance, check_redis_deployment
 
 # These tests are meant to be run from the root wcloud folder. Fix the path
 # so it is so.

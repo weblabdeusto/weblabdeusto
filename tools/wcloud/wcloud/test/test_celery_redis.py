@@ -1,9 +1,10 @@
 import os
 import unittest
-import redis_tasks
 
 
 # Fix the working directory.
+from wcloud.tasks import redis_tasks
+
 cwd = os.getcwd()
 if cwd.endswith(os.path.join("wcloud", "test")):
     cwd = cwd[0:len(cwd)-len(os.path.join("wcloud", "test"))]

@@ -30,7 +30,7 @@ of the deployment.
 
 import os
 import sys
-import signal
+from wcloud.tasks import wcloud_tasks
 
 path_aux = sys.path[0].split('/')
 path_aux = os.path.join('/', *path_aux[0:len(path_aux) - 1])
@@ -38,26 +38,14 @@ sys.path.append(path_aux)
 import shutil
 import Queue
 import threading
-import time
 import traceback
-import subprocess
-import urllib2
 import json
 import uuid
-import tempfile
 from cStringIO import StringIO
 
 from flask import Flask, request
 
-from weblab.admin.script import weblab_create, Creation
-from wcloud import deploymentsettings
-
-from wcloud.models import User, Entity
-
-
-
-import wcloud_tasks
-
+from weblab.admin.script import Creation
 
 
 class TaskManager(threading.Thread):

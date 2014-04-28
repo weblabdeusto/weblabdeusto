@@ -1,8 +1,8 @@
 import os
 import unittest
 import shutil
-import wcloud.wcloud_tasks as wcloud_tasks
-from weblab.admin.script import weblab_create, Creation
+import wcloud.tasks.wcloud_tasks as wcloud_tasks
+from weblab.admin.script import Creation
 
 
 # Fix the working directory.
