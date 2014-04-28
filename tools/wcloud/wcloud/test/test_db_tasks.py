@@ -37,7 +37,7 @@ class TestDatabaseTasks(unittest.TestCase):
 
     def _clearTestDatabases(self):
         engine = connect("root", "password")
-        dbs = engine.execute(text("SHOW databases LIKE :bn"), bn="%s%%" % "wcloudtest")
+        dbs = engine.execute(text("SHOW databases LIKE :bn"), bn="%s%%" % "wcloud_test")
         dbs = dbs.fetchall()
         dbs = [db[0] for db in dbs]
         for db in dbs:
