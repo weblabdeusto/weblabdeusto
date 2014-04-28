@@ -1,11 +1,9 @@
 import os
-import unittest
 import StringIO
 from redis.exceptions import ConnectionError
 import redis
 
-
-from celery_app import celery_app
+from wcloud.tasks.celery_app import celery_app
 
 
 class AlreadyDeployedException(Exception):

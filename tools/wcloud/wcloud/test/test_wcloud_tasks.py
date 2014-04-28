@@ -6,7 +6,7 @@
 import os
 import shutil
 import unittest
-from wcloud.tasks.wcloud_tasks import app, prepare_system, create_weblab_environment, configure_web_server, register_and_start_instance, finish_deployment
+from wcloud.tasks.wcloud_tasks import flask_app, prepare_system, create_weblab_environment, configure_web_server, register_and_start_instance, finish_deployment
 from weblab.admin.script import Creation
 
 # These tests are meant to be run from the root wcloud folder. Fix the path
@@ -34,14 +34,14 @@ class TestWcloudTasks(unittest.TestCase):
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                self.wcloud_settings)
         self._settings = settings
-        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
         create_weblab_environment(base_url, settings)
 
     def test_configure_web_server(self):
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                self.wcloud_settings)
         self._settings = settings
-        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
 
@@ -49,7 +49,7 @@ class TestWcloudTasks(unittest.TestCase):
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
             self.wcloud_settings)
         self._settings = settings
-        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
         register_and_start_instance("testuser@testuser.com", {})
@@ -60,7 +60,7 @@ class TestWcloudTasks(unittest.TestCase):
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
             self.wcloud_settings)
         self._settings = settings
-        base_url = os.path.join(app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
         register_and_start_instance("testuser@testuser.com", self.wcloud_settings)
@@ -91,7 +91,7 @@ class TestWcloudTasks(unittest.TestCase):
         # Remove the testentity line if present. Otherwise, the next attempt to start-weblab will fail
         # because its folder will be removed.
         try:
-            instances_file = os.path.join(app.config["DIR_BASE"], "instances.txt")
+            instances_file = os.path.join(flask_app.config["DIR_BASE"], "instances.txt")
             f = file(instances_file)
             lines = f.readlines()
             lines = [line.replace("\n", "") + "\n" for line in lines if not "testentity" in line]
@@ -113,7 +113,7 @@ class TestWcloudTasks(unittest.TestCase):
         # TODO: Careful with this. It is dangerous, in production if configured wrongly it would
         # erase the whole deployments directory.
         try:
-            base_url = os.path.join(app.config["DIR_BASE"], self._settings[Creation.BASE_URL])
+            base_url = os.path.join(flask_app.config["DIR_BASE"], self._settings[Creation.BASE_URL])
             shutil.rmtree(base_url)
         except:
             pass

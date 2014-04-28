@@ -49,9 +49,7 @@ from wcloud import deploymentsettings
 # import deploymentsettings
 
 from wcloud.models import User, Entity
-
-from celery_app import celery_app
-
+from wcloud.tasks.celery_app import celery_app
 
 
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
@@ -62,10 +60,10 @@ from celery_app import celery_app
 import wcloud.config.wcloud_settings_default as wcloud_settings_default
 import wcloud.config.wcloud_settings as wcloud_settings
 
-app = Flask(__name__)
-app.config.from_object(wcloud_settings_default)
-app.config.from_object(wcloud_settings)
-app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
+flask_app = Flask(__name__)
+flask_app.config.from_object(wcloud_settings_default)
+flask_app.config.from_object(wcloud_settings)
+flask_app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 # TODO: Check that the config order is consistent.
 
@@ -106,10 +104,10 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     #self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
 
     # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
-    app.config.update(wcloud_settings)
+    flask_app.config.update(wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
@@ -147,18 +145,20 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     # Create a new database and assign the DB name.
     # TODO: Unhardcode / tidy this up.
-    db_name = db_tasks.create_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloud_%s" % entity.base_url, app.config["DB_USERNAME"], app.config["DB_PASSWORD"])
+    db_name = db_tasks.create_db("wcloud_creator", flask_app.config["DB_WCLOUD_CREATOR_PASSWORD"],
+                                 "wcloud_%s" % entity.base_url, flask_app.config["DB_USERNAME"],
+                                 flask_app.config["DB_PASSWORD"])
     entity.db_name = db_name
     session.commit()
 
     # settings[Creation.DB_NAME] = 'wcloud%s' % entity.id
     settings[Creation.DB_NAME] = db_name
 
-    settings[Creation.DB_USER] = app.config['DB_USERNAME']
-    settings[Creation.DB_PASSWD] = app.config['DB_PASSWORD']
+    settings[Creation.DB_USER] = flask_app.config['DB_USERNAME']
+    settings[Creation.DB_PASSWD] = flask_app.config['DB_PASSWORD']
 
-    databases_per_port = app.config['REDIS_DBS_PER_PORT']
-    initial_redis_port = app.config['REDIS_START_PORT']
+    databases_per_port = flask_app.config['REDIS_DBS_PER_PORT']
+    initial_redis_port = flask_app.config['REDIS_START_PORT']
 
     settings[Creation.COORD_REDIS_DB] = entity.id % databases_per_port
     settings[Creation.COORD_REDIS_PORT] = initial_redis_port + entity.id / databases_per_port
@@ -166,11 +166,11 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     # TODO: Tidy this up. Remove redis_env hardcoding.
     # Ensure REDIS is present.
     try:
-        redis_tasks.deploy_redis_instance(app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
+        redis_tasks.deploy_redis_instance(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
     except (redis_tasks.AlreadyDeployedException) as ex:
         pass
 
-    redis_tasks.check_redis_deployment(app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
+    redis_tasks.check_redis_deployment(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
 
 
     settings[Creation.ADMIN_USER] = admin_user
@@ -250,14 +250,24 @@ def configure_web_server(self, creation_results):
     #self.update_state(state="PROGRESS", meta={"action": "Configuring Web Server"})
 
     # Create Apache configuration
-    with open(os.path.join(app.config['DIR_BASE'],
+    with open(os.path.join(flask_app.config['DIR_BASE'],
                            deploymentsettings.APACHE_CONF_NAME), 'a') as f:
         conf_dir = creation_results['apache_file']
         f.write('Include "%s"\n' % conf_dir)
 
     # Reload apache
     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-    print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
+    print(opener.open('http://127.0.0.1:%s/' % flask_app.config['APACHE_RELOADER_PORT']).read())
+
+def weblab_starter_running():
+    try:
+        url = 'http://127.0.0.1:%s' % flask_app.config['WEBLAB_STARTER_PORT']
+        req = urllib2.Request(url)
+        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+        response = opener.open(req).read()
+        return True
+    except:
+        return False
 
 @celery_app.task(bind=True, name="wcloud.register_and_start_instance")
 def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
@@ -273,10 +283,10 @@ def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
     #self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
 
     # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
-    app.config.update(wcloud_settings)
+    flask_app.config.update(wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 
@@ -293,8 +303,15 @@ def register_and_start_instance(self, wcloud_user_email, wcloud_settings):
     response = None
     is_error = False
 
+    # Verify that the Weblab Starter seems to be running
+    starter_running = weblab_starter_running()
+    if not starter_running:
+        print "Apparently the WebLab starter is not running."
+        is_error = True
+        response = "Apparently the WebLab starter is not running."
+
     try:
-        url = 'http://127.0.0.1:%s/deployments/' % app.config['WEBLAB_STARTER_PORT']
+        url = 'http://127.0.0.1:%s/deployments/' % flask_app.config['WEBLAB_STARTER_PORT']
         req = urllib2.Request(url, json.dumps({'name': entity.base_url}), {'Content-Type': 'application/json'})
         opener = urllib2.build_opener(urllib2.ProxyHandler({}))
         response = opener.open(req).read()
@@ -318,10 +335,10 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, w
     #self.update_state(state="PROGRESS", meta={"action": "Finishing the deployment."})
 
     # Override the items in the config that are contained in the explicit wcloud_settings dictionary.
-    app.config.update(wcloud_settings)
+    flask_app.config.update(wcloud_settings)
 
     # Connect to the database
-    connection, Session = connect_to_database(app.config["DB_USERNAME"], app.config["DB_PASSWORD"], app.config["DB_NAME"])
+    connection, Session = connect_to_database(flask_app.config["DB_USERNAME"], flask_app.config["DB_PASSWORD"], flask_app.config["DB_NAME"])
     session = Session()
     session._model_changes = {}  # Bypass flask issue.
 

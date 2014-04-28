@@ -1,9 +1,7 @@
-import unittest
-import celery
 import sqlalchemy
 from sqlalchemy.sql import text
 
-from celery_app import celery_app
+from wcloud.tasks.celery_app import celery_app
 
 
 def connect(user, passwd):
