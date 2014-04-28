@@ -1,8 +1,22 @@
 import os
 import unittest
+from flask import Flask
+from wcloud.config import wcloud_settings_default, wcloud_settings
 
 from wcloud.weblab_starter import app, start_weblab, test_weblab, stop_weblab
 from wcloud.weblab_starter import main
+
+import werkzeug
+
+
+wcloud_app = Flask(__name__)
+
+
+wcloud_app.config.from_object(wcloud_settings_default)
+wcloud_app.config.from_object(wcloud_settings)
+wcloud_app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
+
+FILENAME = os.path.join(wcloud_app.config['DIR_BASE'], 'instances.txt')
 
 
 # Fix the working directory.
@@ -19,9 +33,16 @@ class TestWeblabStarter(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestWeblabStarter, self).__init__(*args, **kwargs)
         self.flask_app = None
+        self._process = None
 
     def _cleanup(self):
-        pass
+        """
+        Cleans up left-overs from this or other tests.
+        Supposed to be somewhat idempotent.
+        """
+        lines = open(FILENAME, "r").readlines()
+        lines = [line.strip() for line in lines if len(line.strip()) > 0 and "testentity" not in line]
+        open(FILENAME, "w").writelines(lines)
 
     def test_root(self):
         response = self.flask_app.get("/")
@@ -29,7 +50,7 @@ class TestWeblabStarter(unittest.TestCase):
         assert "listens in" in response.data
 
     def test_start_test_instance(self):
-        start_weblab("test/testinstance", 5)
+        self._process = start_weblab("test/testinstance", 5)
         active = test_weblab("test/testinstance")
         assert active
         stop_weblab("test/testinstance")
@@ -39,9 +60,16 @@ class TestWeblabStarter(unittest.TestCase):
 
 
     def setUp(self):
+        self._cleanup()
         app.config['DEBUG'] = True
         app.config['TESTING'] = True
         app.config['CSRF_ENABLED'] = False
         app.config["SECRET_KEY"] = 'secret'
         self.flask_app = app.test_client()
         self.flask_app.get("/")
+
+    def tearDown(self):
+        if self._process is not None:
+            print "Cleaning process: " + str(self._process.pid)
+            self._process.kill()
+

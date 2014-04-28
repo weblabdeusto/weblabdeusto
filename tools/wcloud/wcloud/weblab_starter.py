@@ -67,9 +67,6 @@ def start_weblab(dirname, wait):
     errors = file(stderr_path).read()
     print "[dbg] Stderr: " + errors
 
-    shutil.copyfile(stdout_path, "_test_stdout.txt")
-    shutil.copyfile(stderr_path, "_test_stderr.txt")
-
     if wait:
         wait_process(process)
 

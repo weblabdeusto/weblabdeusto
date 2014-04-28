@@ -11,6 +11,7 @@
 #
 # Author: Xabier Larrakoetxea <xabier.larrakoetxea@deusto.es>
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
+# Author: Luis Rodriguez <luis.rodriguezgil@deusto.es>
 #
 # These authors would like to acknowledge the Spanish Ministry of science
 # and innovation, for the support in the project IPT-2011-1558-430000
