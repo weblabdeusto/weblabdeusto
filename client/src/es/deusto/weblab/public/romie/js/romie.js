@@ -120,6 +120,11 @@ Romie.prototype.addPoints = function(points)
 	this.points += points;
 }
 
+Romie.prototype.setPoints = function(points)
+{
+	this.points = points;
+}
+
 Romie.prototype.substractPoints = function(points)
 {
 	this.points -= points;

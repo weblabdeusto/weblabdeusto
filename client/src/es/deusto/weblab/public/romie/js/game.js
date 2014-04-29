@@ -35,12 +35,23 @@ Game.prototype.answerQuestion = function()
 			{
 				$('#response_ok').modal('show');
 				// TODO show dialog + add points & movements
+				if (this.question["type"] == 0)
+				{
+					this.romie.addPoints(this.question["points"]);
+				}
+				else
+				{
+					this.romie.setPoints(this.question["points"]*this.romie.getPoints())
+				}
 			}
 			else
 			{
-				// TODO show dialog
+				$('#response_wrong').modal('show');
 			}
-			// TODO clear question
+
+			this.question = {};
+			$('#questionLabel').html("");
+			$('#question .modal-body form').html("");
 		});
 }
 

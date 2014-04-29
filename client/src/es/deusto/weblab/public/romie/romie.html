@@ -144,10 +144,28 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						<h4 class="modal-title" id="questionLabel"></h4>
+						<h4 class="modal-title">¡Respuesta correcta!</h4>
 					</div>
 					<div class="modal-body">
-						<p>¡Respuesta correcta!</p>
+						<p>¡Felicidades! La respuesta elegida era la correcta.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Fail -->
+		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">¡Error!</h4>
+					</div>
+					<div class="modal-body">
+						<p>¡Error! La respuesta elegida es errónea.</p>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary">Aceptar</button>
