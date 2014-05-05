@@ -26,33 +26,37 @@ Game.prototype.answerQuestion = function()
 {
 	answer = parseInt($('#question input[name="answer"]:checked').val());
 
-	$("#question").modal('hide');
+	if ( ! isNaN(answer))
+	{
+		$("#question").modal('hide');
 
-	Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
-		this.question["index"]+" "+this.question["category"], function(response)
-		{
-			if (response == 'true')
+		Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
+			this.question["index"]+" "+this.question["category"], function(response)
 			{
-				$('#response_ok').modal('show');
-				// TODO show dialog + add points & movements
-				if (this.question["type"] == 0)
+				if (response == 'True')
 				{
-					this.romie.addPoints(this.question["points"]);
+					// TODO show dialog + add points & movements
+					console.log(this.question['points']);
+					if (this.question["type"] == 0)
+					{
+						this.romie.addPoints(this.question["points"]);
+					}
+					else
+					{
+						this.romie.setPoints(this.question["points"]*this.romie.getPoints())
+					}
+					$('#response_ok').modal('show');
 				}
 				else
 				{
-					this.romie.setPoints(this.question["points"]*this.romie.getPoints())
+					$('#response_wrong').modal('show');
 				}
-			}
-			else
-			{
-				$('#response_wrong').modal('show');
-			}
 
-			this.question = {};
-			$('#questionLabel').html("");
-			$('#question .modal-body form').html("");
-		});
+				this.question = {};
+				$('#questionLabel').html("");
+				$('#question .modal-body form').html("");
+			}.bind(this));
+	}
 }
 
 Game.prototype.getQuestion = function(tag)

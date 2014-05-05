@@ -55,7 +55,7 @@
 				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(updateNumbers);});
 				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right(updateNumbers);});
 
-				$('.modal-footer button').click(game.answerQuestion);
+				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
 
 				$(parent.document).find('iframe[name=wlframe]').show();
 
