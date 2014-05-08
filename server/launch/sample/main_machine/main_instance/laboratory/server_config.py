@@ -128,6 +128,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp6:visir-html5@Visir experiments':
+            {
+                 'coord_address': 'experiment_visir_html5:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:vm@Dummy experiments':
             {
                  'coord_address': 'experiment_vm:main_instance@main_machine',
@@ -146,6 +151,11 @@ laboratory_assigned_experiments = {
         'exp1:submarinejs@Aquatic experiments':
             {
                  'coord_address': 'experiment_submarine:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:archimedes@Aquatic experiments':
+            {
+                 'coord_address': 'experiment_archimedes:main_instance@main_machine',
                  'checkers': ()
             },
         'exp1:aquarium@Aquatic experiments':

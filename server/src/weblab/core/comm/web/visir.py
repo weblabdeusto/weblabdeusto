@@ -7,12 +7,12 @@
 # This software is licensed as described in the file COPYING, which
 # you should have received as part of this distribution.
 #
-# This software consists of contributions made by many individuals, 
+# This software consists of contributions made by many individuals,
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
-# 
+#
 
 import weblab.comm.web_server as WebFacadeServer
 __builtins__
@@ -65,7 +65,7 @@ class UploadExtractor(object):
     HTTP requests. There seem to be some issues with the standard cgi library
     alternatives which limit their usage.
     """
-    
+
     def __init__(self, data, boundary):
         """
         Initializes the UploadExtractor object.
@@ -79,7 +79,7 @@ class UploadExtractor(object):
         self.data = data
         self.boundary = boundary
         self._index = 0 # To indicate how far we have parsed into the string.
-    
+
     def extract_file(self):
         """
         Extracts the next file from the stream. Returns None if no more
@@ -94,20 +94,20 @@ class UploadExtractor(object):
         ind_end -= 2
         rawdata = self.data[ind_start:ind_end-2]
         self._index = ind_end
-        
+
         # rawdata now contains the headers and content of each part.
         # Extract the headers off it.
         headers_end = rawdata.find("\r\n\r\n")
         if headers_end == -1:
             return None
-        
+
         # Use a regex to extract the headers.
         headers = dict(re.findall(r"(?P<name>.*?): (?P<value>.*?)\r\n", rawdata[0:headers_end+2]))
-        
+
         # Separate the data from the headers
         filedata = rawdata[headers_end+4 :]
-        
-    
+
+
         return headers, filedata
 
 
@@ -122,32 +122,32 @@ class  VisirMethod(WebFacadeServer.Method):
         run()
         This will redirect every request to serve the VISIR files.
         """
-        
+
         # Just deny any request with an URL containing .. to prevent security issues
         if ".." in self.uri:
             self.set_status(403)
             if DEBUG: print "Forbidden"
             return "403 Forbidden: The URI should not contain .."
-        
-        # Find out the location of the file. 
+
+        # Find out the location of the file.
         fileonly = self.uri.split('/web/visir/')[1]
-        
+
         fname = VISIR_LOCATION + fileonly
 
         if DEBUG: print "Loading %s..." % fname,
-        
+
         if not os.path.abspath(fname).startswith(VISIR_LOCATION):
             self.set_status(403)
             if DEBUG: print "Forbidden"
             return "403 Forbidden: The URI tried to go outside the scope of VISIR"
 
-               
+
         # Intercept the save request
         if fileonly == "save":
             content = self.intercept_save()
             if DEBUG: print "Intercepted %s" % len(content)
             return content
-        
+
         if fileonly == "store_temporary.php":
             content = self.intercept_store()
             if DEBUG: print "Intercepted %s" % len(content)
@@ -157,9 +157,9 @@ class  VisirMethod(WebFacadeServer.Method):
             content = self.intercept_temp(fileonly[len('temp/'):])
             if DEBUG: print "Intercepted %s" % len(content)
             return content
-        
+
         # We did not intercept the request, we will just serve the file.
-        
+
         # We will need to report the Last-Modified date. Otherwise the browser
         # won't send if-modified-since.
         # Getmtime returns a localtime, so we also convert it to gmt. Also, we want
@@ -172,18 +172,18 @@ class  VisirMethod(WebFacadeServer.Method):
                 mod_time = None
         else:
             mod_time = None
-        
+
         # Client already has a version of the file. Check whether
-        # ours is newer. 
+        # ours is newer.
         if self.if_modified_since is not None:
             since_time = self.http_date_to_time(self.if_modified_since)
-            
+
             # The file was not modified. Report as such.
             if mod_time is not None and mod_time <= since_time:
                 self.set_status(304)
                 if DEBUG: print "Not modified"
                 return "304 Not Modified"
-        
+
         try:
             with open(fname, "rb") as f:
                 content = f.read()
@@ -191,51 +191,51 @@ class  VisirMethod(WebFacadeServer.Method):
             self.set_status(404)
             if DEBUG: print "Not found"
             return "404 Not found"
-        
+
         if not VisirMethod.mimetypes_loaded:
             mimetypes.init()
             VisirMethod.mimetypes_loaded = True
 
-        
+
         # Use the file path to guess the mimetype
         mimetype = mimetypes.guess_type(fname)[0]
         if mimetype is None:
             mimetype = "application/octet-stream"
-        
+
         self.set_content_type(mimetype)
-        
+
         if fileonly == "breadboard/library.xml":
             content = self.intercept_library(content, mimetype)
             if DEBUG: print "Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest())
             return content
 
-        
+
         if DEBUG: print "Returning %s bytes" % len(content)
         return content
-    
+
 
     def http_date_to_time(self, datestr, want_gmt = True):
         """
         http_date_to_time(datestr)
         Converts an HTTP date string to a localtime timestamp.
-        
+
         @param datestr HTTP date string, generally GMT, which is specified in the
         string itself
-        
+
         @param want_gmt If True (the default) then the timestamp returned will be GMT.
         Otherwise, it will be localtime.
-        
+
         @return Timestamp which corresponds to the specified date. It will be the GMT
         timestamp if want_gmt is set to true (the default), false otherwise.
         """
         t = time.mktime(eut.parsedate(datestr))
         if want_gmt: return time.gmtime(t)
         else: return t
-    
+
     def time_to_http_date(self, tm):
         """
         time_to_http_date(tm)
-        Converts a timestamp to an http date string. 
+        Converts a timestamp to an http date string.
         @param tm The timestamp to convert to an http date. The timestamp should
         represent the GMT time.
         """
@@ -253,7 +253,7 @@ class  VisirMethod(WebFacadeServer.Method):
 
     def intercept_library(self, content, mimetype):
         cookies = self.req.headers.getheader('cookie')
-        
+
         sess_id = None
         reservation_id = None
         for cur_cookie in (cookies or '').split('; '):
@@ -295,21 +295,21 @@ class  VisirMethod(WebFacadeServer.Method):
             return content
         else:
             return response.commandstring
-    
+
     def intercept_store(self):
         ctype = self.req.headers.gettype()
         boundary = self.req.headers.getparam("boundary")
         length = int(self.req.headers.getheader('content-length'))
         data = self.req.rfile.read(length)
-        
+
         if ctype != "multipart/form-data":
             return "Unexpected mimetype"
-        
+
         extractor = UploadExtractor(data, boundary)
-        
+
         partheaders, filename = extractor.extract_file() #@UnusedVariable
         partheaders, filedata = extractor.extract_file() #@UnusedVariable
-        
+
         if not os.path.exists(VISIR_TEMP_FILES):
             os.makedirs(VISIR_TEMP_FILES)
         fd, name = tempfile.mkstemp(suffix='.cir.tmp', prefix='weblab_visir_', dir=VISIR_TEMP_FILES)
@@ -320,7 +320,7 @@ class  VisirMethod(WebFacadeServer.Method):
         fo.close()
 
         self.set_content_type("text/xml")
-        
+
         return "<result><filename>%s</filename></result>" % os.path.basename(name)
 
     def intercept_temp(self, fileonly):
@@ -343,12 +343,12 @@ class VisirException(Exception):
 
 
 
-    
+
 
 ## TODO: Make this a real test.
 #f = file("c:/tmp/out.txt", "r")
 #f.readline()
-#data = f.read()        
+#data = f.read()
 #boundary = """------------KM7gL6cH2KM7Ij5GI3ae0ei4ei4gL6"""
 #u = UploadExtractor(data, boundary)
 #
