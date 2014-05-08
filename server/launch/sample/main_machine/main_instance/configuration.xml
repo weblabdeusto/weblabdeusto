@@ -45,4 +45,5 @@
 	<server>experiment_incubator</server>
 	<server>experiment_robot_maze</server>
 	<server>experiment_http</server>
+    <server>experiment_archimedes</server>
 </servers>

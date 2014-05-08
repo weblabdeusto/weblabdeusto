@@ -133,6 +133,9 @@ def populate_weblab_tests(engine, tests):
     admin1 = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, administrator)
     session.add(admin1)
 
+    archimedes_user = Model.DbUser("archimedes", "Usuario de prueba para Splash", "weblab@deusto.es", None, student)
+    session.add(archimedes_user)
+
     admin2 = Model.DbUser("admin2", "Name of administrator 2", "weblab@deusto.es", None, administrator)
     session.add(admin2)
 
@@ -212,6 +215,7 @@ def populate_weblab_tests(engine, tests):
     session.add(provider_university2)
 
     # Authentication
+    session.add(Model.DbUserAuth(archimedes_user,   weblab_db, _password2sha("archimedes", 'aaaa')))
     session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(admin2,   weblab_db, _password2sha("password", 'aaaa')))
     session.add(Model.DbUserAuth(admin3,   weblab_db, _password2sha("password", 'aaaa')))
@@ -336,6 +340,9 @@ def populate_weblab_tests(engine, tests):
 
     dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date)
     session.add(dummy_batch)
+
+    archimedes = Model.DbExperiment("archimedes", cat_aquatic, start_date, end_date)
+    session.add(archimedes)
 
     dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date)
     session.add(dummy1)
@@ -462,6 +469,7 @@ def populate_weblab_tests(engine, tests):
     session.add(pic18)
 
     # Permissions
+    
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
         groupCourse0809,
         experiment_allowed,
@@ -658,6 +666,22 @@ def populate_weblab_tests(engine, tests):
     session.add(up_student6_pld_allowed_p2)
     up_student6_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p3, "140")
     session.add(up_student6_pld_allowed_p3)
+    
+    
+    up_arch_archimedes_allowed = Model.DbUserPermission(
+        archimedes_user,
+        experiment_allowed,
+        "arch::archimedes",
+        datetime.datetime.utcnow(),
+        "Permission for any to use archimedes"
+    )
+    session.add(up_arch_archimedes_allowed)
+    up_arch_archimedes_allowed_p1 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p1, "archimedes")
+    session.add(up_arch_archimedes_allowed_p1)
+    up_arch_archimedes_allowed_p2 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(up_arch_archimedes_allowed_p2)
+    up_arch_archimedes_allowed_p3 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p3, "1400")
+    session.add(up_arch_archimedes_allowed_p3)
 
 
     up_any_jsdummy_allowed = Model.DbUserPermission(
