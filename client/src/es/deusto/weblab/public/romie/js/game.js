@@ -1,10 +1,27 @@
-Game = function(romie)
+Game = function(romie, updater)
 {
 	this.romie = romie;
 }
 
+Game.prototype.updateNumbers = function()
+{
+	movements = romie.getMovements();
+	points = romie.getPoints();
+
+	// TODO format
+
+	$('.movements span').html(movements);
+	$('.points span').html(points);
+
+	if (romie.hasTag())
+	{
+		game.showQuestion(game.getQuestion(romie.getTag()));
+	}
+}
+
 Game.prototype.showQuestion = function(question)
 {
+	console.log(question);
 	question = JSON.parse(question);
 
 	$('#questionLabel').html(question["question"]);
@@ -35,16 +52,17 @@ Game.prototype.answerQuestion = function()
 			{
 				if (response == 'True')
 				{
-					// TODO show dialog + add points & movements
-					console.log(this.question['points']);
 					if (this.question["type"] == 0)
 					{
 						this.romie.addPoints(this.question["points"]);
+						this.romie.addMovements(this.question["movements"]);
 					}
 					else
 					{
-						this.romie.setPoints(this.question["points"]*this.romie.getPoints())
+						this.romie.setPoints(this.question["points"]*this.romie.getPoints());
+						this.romie.setMovements(this.question["movements"]*this.romie.getMovements());
 					}
+					this.updateNumbers();
 					$('#response_ok').modal('show');
 				}
 				else

@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/style.css">
 
-		<script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+		<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 		<script type="text/javascript" src="../jslib/weblabjs.js"></script>
 		<script src="js/bootstrap.min.js"></script>
 		<script src="js/romie.js"></script>
@@ -33,29 +33,15 @@
 					}
 				}
 
-				updateNumbers = function()
-				{
-					movements = romie.getMovements();
-					points = romie.getPoints();
+				game.updateNumbers();
 
-					// TODO format
-
-					$('.movements span').html(movements);
-					$('.points span').html(points);
-
-					if (romie.hasTag())
-					{
-						game.getQuestion(romie.getTag());
-					}
-				}
-
-				updateNumbers();
-
-				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(updateNumbers);});
-				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(updateNumbers);});
-				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right(updateNumbers);});
+				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(game.updateNumbers);});
+				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(game.updateNumbers);});
+				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right(game.updateNumbers);});
 
 				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
+				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
+				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
 
 				$(parent.document).find('iframe[name=wlframe]').show();
 

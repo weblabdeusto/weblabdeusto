@@ -22,8 +22,8 @@ Romie.prototype.forward = function(callback)
 				}
 				this.moving = false;
 				if (typeof callback == "function") callback();
-				console.log(response);}.bind(this),
-			function(response)
+				console.log(response);
+			}.bind(this), function(response)
 			{
 				this.lastResponse = response;
 				this.movements++;
@@ -113,6 +113,16 @@ Romie.prototype.isTopCamActivated = function()
 Romie.prototype.getMovements = function()
 {
 	return this.movements;
+}
+
+Romie.prototype.addMovements = function(moves)
+{
+	this.movements += moves;
+}
+
+Romie.prototype.setMovements = function(moves)
+{
+	this.movements = moves;
 }
 
 Romie.prototype.addPoints = function(points)
