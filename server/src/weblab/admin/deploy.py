@@ -74,7 +74,6 @@ CONFIG_JS = {
 	                       		   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
 	                        	   "experiment.info.description" : "description"
 	                       		}
-	                       		// Other flash experiments could be added here
 	                       ],
 	                "java" : [
 	                          {
@@ -89,7 +88,6 @@ CONFIG_JS = {
 	                          	  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
 	                        	  "experiment.info.description" : "description"
 	                          }
-	                          // Other java experiments could be added here
 	                       ],
 	                "js"	: [
 	                    	   {
@@ -98,10 +96,7 @@ CONFIG_JS = {
 	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
 	                    		   "width"					: 500,
 	                    		   "height"					: 350,
-	                    		   //"js.file"				: "test.js",
-	                    		   "provide.file.upload"	: true,
-	                    		   // If we use an html.file as base, we cannot use a js.file.
-	                    		   // (Though of course, we may include that js file from our html file).
+	                    		   "provide.file.upload"	: True,
 	                    		   "html.file"				: "jstest.html"
 	                    	   },
 	                    	   {
@@ -138,7 +133,7 @@ CONFIG_JS = {
 	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
 	                    		   "width"					: "800",
 	                    		   "height"					: "600",
-	                    		   "provide.file.upload"	: true,
+	                    		   "provide.file.upload"	: True,
 	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
 	                    	   },
 							   {
@@ -147,7 +142,7 @@ CONFIG_JS = {
 								   "experiment.picture"		: "/img/experiments/visir.jpg",
 								   "cssWidth"				: "805",
 								   "cssHeight"				: "520",
-								   "provide.file.upload"	: false,
+								   "provide.file.upload"	: False,
 								   "html.file"				: "visir-html5/visir.html"
 							   }
 	                       ],
@@ -205,7 +200,7 @@ CONFIG_JS = {
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
 	                            	"experiment.name"     : "fpga-board-experiment",
 	                            	"experiment.category" : "LabVIEW experiments",
-	                            	"send.file"           : true
+	                            	"send.file"           : True
 	                            },
 	                            {
 		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
@@ -218,19 +213,19 @@ CONFIG_JS = {
 								   "experiment.name"     : "ud-test-pld1",
 								   "experiment.category" : "PLD experiments",
 								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : True
 							  },
 							  {
 								   "experiment.name"     : "ud-test-pld2",
 								   "experiment.category" : "PLD experiments",
 								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : True
 							  },
 							  {
 								   "experiment.name"     : "ud-demo-pld",
 								   "experiment.category" : "PLD experiments",
 								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true,
+								   "is.demo"             : True,
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#cpld",
 								   "experiment.info.description" : "description"
 							  },
@@ -238,7 +233,7 @@ CONFIG_JS = {
 								   "experiment.name"     : "ud-demo-fpga",
 								   "experiment.category" : "FPGA experiments",
 								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true,
+								   "is.demo"             : True,
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
 								   "experiment.info.description" : "description"
 							  },
@@ -246,8 +241,8 @@ CONFIG_JS = {
 								   "experiment.name"     : "ud-demo-xilinx",
 								   "experiment.category" : "Xilinx experiments",
 								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
-								   "is.demo"             : true,
-								   "is.multiresource.demo" : true,
+								   "is.demo"             : True,
+								   "is.multiresource.demo" : True,
 								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx",
 								   "experiment.info.description" : "description"
 							  },
@@ -537,19 +532,19 @@ CONFIG_JS = {
 								   "experiment.name"	 : "ud-test-pic18-1",
 								   "experiment.category" : "PIC experiments",
 								   "experiment.picture"  : "/img/experiments/microchip.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : True
 								},
 								{
 								   "experiment.name"	 : "ud-test-pic18-2",
 								   "experiment.category" : "PIC experiments",
 								   "experiment.picture"  : "/img/experiments/microchip.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : True
 								},
 								{
 								   "experiment.name"	 : "ud-test-pic18-3",
 								   "experiment.category" : "PIC experiments",
 								   "experiment.picture"  : "/img/experiments/microchip.jpg",
-								   "is.demo"             : true
+								   "is.demo"             : True
 	                			}
 	                		],
 	                "unr-physics" : [
@@ -561,7 +556,7 @@ CONFIG_JS = {
 	                        ],
                     "ilab-batch" : [
                                 {
-                                	"experiment.reserve.button.shown" : false,
+                                	"experiment.reserve.button.shown" : False,
 	                        	    "experiment.picture"              : "/img/experiments/MIT.jpg",
                                     "experiment.name"                 : "microelectronics",
                                     "experiment.category"             : "iLab experiments",
@@ -589,7 +584,7 @@ CONFIG_JS = {
 	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
                                 	"experiment.name"                 : "incubator",
                                 	"experiment.category"             : "Farm experiments",
-                                    "experiment.reserve.button.shown" : false,
+                                    "experiment.reserve.button.shown" : False,
                                 	"html"                            : "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results."
                                 }
                             ]
