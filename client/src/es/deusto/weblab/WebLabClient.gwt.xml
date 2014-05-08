@@ -23,6 +23,7 @@
 	<extend-property name="locale" values="ro"/>
 	<extend-property name="locale" values="ru"/>
 	<extend-property name="locale" values="sk"/>
+	<extend-property name="locale" values="ar"/>
 	
 	<source path="client">
 		<exclude name="admin/**java" />
