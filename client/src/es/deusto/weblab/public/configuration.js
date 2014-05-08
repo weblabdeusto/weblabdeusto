@@ -5,7 +5,7 @@
 	//  {
 	//        'foo' : 'bar',
 	//  }
-	// 
+	//
 	// Due to the last ',' after 'bar'. Same for lists
 	//   [
 	//      1,
@@ -13,8 +13,8 @@
 	//      //3
 	//   ]
 	// Would produce an error since there is a ',' and then a ']'.
-	// 
-	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php", 
+	//
+	// "weblab.service.fileupload.post.url" : "/weblab/fileUpload.php",
 	"development"                    : true, // To see the latest features, although they might not be working
 	"demo.available"                 : true,
 	"sound.enabled"					 : false,

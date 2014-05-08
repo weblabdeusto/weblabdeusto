@@ -53,7 +53,7 @@ class ServerLoader(object):
                 or
                 not global_configuration.machines[machine_name].instances.has_key(instance_name)
             ):
-            raise Exception("instance@machine not found")
+            raise Exception("%s@%s not found" % (instance_name, machine_name))
 
         if len(global_configuration.machines[machine_name].instances[instance_name].servers.keys()) == 0:
             raise Exception("Zero servers found!")
