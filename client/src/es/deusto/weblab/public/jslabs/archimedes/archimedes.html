@@ -10,12 +10,18 @@
 <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 <link href="widgets.css" rel="stylesheet" type="text/css"/>
 
+<link href="timeweight_plot.css" rel="stylesheet" type="text/css"/>
+
 <script src="//code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
 
 <script type="text/javascript" src="../archimedes/jquery.tinytimer.dev.js"></script>
 <script type="text/javascript" src="../archimedes/jquery.tinytimer.js"></script>
 <script type="text/javascript" src="../archimedes/jquery.tinytimer.min.js"></script>
+
+<!-- TODO: Fix protocol here (probably, download the gfx). -->
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="timeweight_plot.js"></script>
 
 
 
@@ -42,6 +48,27 @@
             </div>
             <div class="modal-body">
                 <img id="hdpic" style="width: 100%; max-height: 600px;" src="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Large modal to show the TIME/WEIGHT plot -->
+<!-- Modal -->
+<div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
+            </div>
+            <div class="modal-body" id="plotModalBody">
+                <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -80,6 +107,10 @@
           <tr>
             <td><a id="downButton" href="javascript:void(0);"><img id="down" src="img/down_green.png"></a></td>
             <td height="96"><a id="photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
           </tr>
         </table>
         
