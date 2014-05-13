@@ -5,6 +5,8 @@ Romie = function(movements)
 	this.points = 0;
 	this.moving = false;
 	this.lastResponse = null;
+	this.topTime = 10;
+	this.updater = null;
 }
 
 Romie.prototype.forward = function(callback)
@@ -33,7 +35,6 @@ Romie.prototype.forward = function(callback)
 			}.bind(this));
 	}
 }
-
 
 Romie.prototype.left = function(callback)
 {
@@ -98,11 +99,20 @@ Romie.prototype.getTag = function()
 Romie.prototype.activateTopCam = function()
 {
 	this.topCamActivated = true;
+
+	this.updater = setInterval(function()
+	{
+		if (this.topCamActivated)
+			this.topTime--;
+		else
+			this.deactivateTopCam();
+	}, 1000);
 }
 
 Romie.prototype.deactivateTopCam = function()
 {
 	this.topCamActivated = false;
+	clearInterval(this.updater);
 }
 
 Romie.prototype.isTopCamActivated = function()
