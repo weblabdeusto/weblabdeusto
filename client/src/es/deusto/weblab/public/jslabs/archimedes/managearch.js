@@ -69,7 +69,7 @@ LoadRetriver = new function(){
         var load = parseInt(response);
         //var suma =(Math.random()*2)+1;
         //load = load + suma;
-        load = ( (load - 83) * 0.056 );
+        load = ( (load - 89) * 0.049175412);
         //load = Math.max(0, (load - 1256) * 3.2);
         //if (load < 0)
         //    load = (load * (-1));
