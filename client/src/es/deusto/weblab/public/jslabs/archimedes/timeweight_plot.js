@@ -43,7 +43,9 @@ function drawChart(data)
 
 
 
-    x.domain(d3.extent(data, function(d) { return d.number*0.03; }));
+    var x_domain = d3.extent(data, function(d) { return d.number*0.03; });
+    x_domain[1] += 0.3;
+    x.domain(x_domain);
     y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
     svg.append("path")

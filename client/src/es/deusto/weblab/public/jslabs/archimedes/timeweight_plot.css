@@ -10,5 +10,9 @@
 }
 
 .area {
-  fill: steelblue;
+    fill: steelblue;
+    stroke-width: 4;
+    fill-opacity: 0.1;
+    stroke-opacity: 1;
+    stroke:blue;
 }
