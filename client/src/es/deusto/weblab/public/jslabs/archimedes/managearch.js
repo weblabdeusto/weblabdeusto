@@ -318,4 +318,53 @@ $(document).ready(function(){
         $("#photoButton").attr("disabled", "disabled");
     });
 
+
+    $("#plotButton").click(function() {
+        console.log("PLOT");
+
+        if($("#plotButton").attr("disabled") == undefined) {
+
+            $("#plotModalBody").empty();
+            $("#plotModal").modal();
+
+            // For debugging purpose, when offline we hard-code the data.
+            var fakeData = "1:20\n" +
+                "2:40\n" +
+                "3:60\n" +
+                "4:90";
+
+            Weblab.dbgSetOfflineSendCommandResponse(fakeData);
+
+            Weblab.sendCommand("PLOT",
+                function(data) {
+
+                    $("#plotButton").removeAttr("disabled");
+
+                    // Parse the data to convert each element into a "number" & "value" object.
+                    var items = [];
+                    var lines = data.split("\n");
+                    $.each(lines, function(index, line) {
+                        if(line.length <= 1)
+                            return;
+                        var elems = line.split(":");
+                        var number = elems[0];
+                        var value = elems[1];
+                        items.push({"number": number, "value": value});
+                    });
+
+                    drawChart(items);
+
+                    $("#plotButton img").attr("src", "img/photo_green.png");
+                },
+                function(error) {
+                    console.error("Error: " + error);
+                    displayErrorMessage("PLOT command failed");
+                });
+        }
+
+        // Disable the button for now.
+        $("#plotButton img").attr("src", "img/photo.png");
+        $("#plotButton").attr("disabled", "disabled");
+    });
+
 });

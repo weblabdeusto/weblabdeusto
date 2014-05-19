@@ -145,6 +145,7 @@ class ClientMethod(WebFacadeServer.Method):
 
         back_url = self.get_POST_argument(BACK_URL)
         widget   = self.get_POST_argument(WIDGET) or ''
+        locale   = self.get_POST_argument(LOCALE) or ''
 
         reservation_id = urllib.unquote(reservation_id)
 

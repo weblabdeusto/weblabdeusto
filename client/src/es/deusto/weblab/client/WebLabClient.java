@@ -136,7 +136,11 @@ public abstract class WebLabClient implements EntryPoint {
 		return false;
 	}
 	
-	private void selectLanguage(){		
+	private void selectLanguage(){
+		final String historyValue = HistoryProperties.getValue(LOCALE_URL_PARAM, null);
+		if(historyValue != null && !historyValue.equals(getLocale()))
+			WebLabClient.refresh(historyValue);
+		
 		if(localeConfigured())
 			return;
 		
