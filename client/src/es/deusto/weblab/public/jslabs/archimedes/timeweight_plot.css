@@ -3,16 +3,20 @@
 }
 
 .axis path,
+
 .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
+    fill: none;
+    stroke: #000;
+    stroke-width: 3;
+}
+
+.gfxline {
+    fill: none;
+    stroke-width: 3;
+    stroke: blue;
 }
 
 .area {
     fill: steelblue;
-    stroke-width: 4;
     fill-opacity: 0.1;
-    stroke-opacity: 1;
-    stroke:blue;
 }
