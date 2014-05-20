@@ -354,7 +354,7 @@ $(document).ready(function(){
 
                     drawChart(items);
 
-                    $("#plotButton img").attr("src", "img/photo_green.png");
+                    $("#plotButton img").attr("src", "img/plot_green.png");
                 },
                 function(error) {
                     console.error("Error: " + error);
@@ -363,7 +363,7 @@ $(document).ready(function(){
         }
 
         // Disable the button for now.
-        $("#plotButton img").attr("src", "img/photo.png");
+        $("#plotButton img").attr("src", "img/plot.png");
         $("#plotButton").attr("disabled", "disabled");
     });
 
