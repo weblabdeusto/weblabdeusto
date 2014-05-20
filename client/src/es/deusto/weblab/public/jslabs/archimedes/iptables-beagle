@@ -1,0 +1,40 @@
+
+
+iptables --flush
+iptables --table nat --flush
+iptables --delete-chain
+iptables --table nat --delete-chain
+
+
+
+
+iptables --table nat --append POSTROUTING --out-interface eth1 -j MASQUERADE
+iptables --append FORWARD --in-interface eth2 -j ACCEPT
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+iptables -L -n -v
+
+
+130.206.100.1, 130.206.100.10
+
+
+
+
+sudo ufw disable # To disable the firewall
+
+sudo ufw enable # To enable the firewall
+
+
+On the BeagleBone
+
+ifconfig usb0 192.168.7.2
+route add default gw 192.168.7.1
+
+On Linux computer:
+
+sudo su
+#eth0 is my internet facing interface, eth3 is the BeagleBone USB connection
+ifconfig eth3 192.168.7.1
+iptables --table nat --append POSTROUTING --out-interface eth0 -j MASQUERADE
+iptables --append FORWARD --in-interface eth3 -j ACCEPT
+echo 1 > /proc/sys/net/ipv4/ip_forward

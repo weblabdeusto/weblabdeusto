@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -77,12 +77,192 @@
     </div>
 </div>
 
+<!-- LAYOUT DEL EXPERIMENTO -->
+<div class="container">
+  <div class="row clearfix">
+    <div class="col-md-12 column">
+      <div class="page-header">
+        <h1>
+          Archimedes Experiment <small>Tube-1</small>
+        </h1>
+      </div>
+      <div class="row clearfix">
+        <div class="col-md-6 column">
+          <div class="media well">
+            <!-- DIV que contiene la imagen de la webcam en tiempo real -->
+            <img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:480px; align=center" src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
+          </div>
+        </div>
+        <!-- Elementos colapsables con la info del liqudo y la bola -->
+        <div class="col-md-6 column">
+          <div class="panel-group" id="panel-180258">
+          	<div class="panel panel-default">
+              <div class="panel-heading">
+                 <a class="panel-title" data-toggle="collapse" data-parent="#panel-180258" href="#panel-element-825207">Electronics WebCAM (Real time)</a>
+              </div>
+              <div id="panel-element-825207" class="panel-collapse in">
+                <div class="panel-body">
+                  <img id="cam2" src="//www.weblab.deusto.es/webcam/proxied.py/splash0" style="height:150px">
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                 <a class="panel-title collapsed" data-toggle="collapse" data-parent="#panel-180258" href="#panel-element-457387">BALL weight (Real time)</a>
+              </div>
+              <div id="panel-element-457387" class="panel-collapse collapse">
+                <div class="panel-body">
+                  <img src="../archimedes/img/load.png"/>  <span class="load" id="load"/>
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                 <a class="panel-title" data-toggle="collapse" data-parent="#panel-180258" href="#panel-element-825209">LIQUID level (Real time)</a>
+              </div>
+              <div id="panel-element-825209" class="panel-collapse in">
+                <div class="panel-body">
+                  <img src="../archimedes/img/level.png"/> <span class="level" id="level"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Información del experimento y acciones sobre el mismo -->
+          <dl>
+          	<dt>
+							Time remaining:
+						</dt>
+						<dd>
+							<span class="timer" id="timer"></span>
+						</dd>
+						<dt>
+							Actions to perform at the experiment:
+						</dt>
+						<dd>
+							At this experiment you can move the ball up/down using the "green arrows", you can also take photos of the experiment using de "camera" icon and then you can save the image for you, the last thing you can do is graph the mass of the ball when you push down the ball using the "graph" icon.
+						</dd>
+						<dt>
+							</br>Action icons:
+						</dt>
+						<dd>
+							<a id="upButton" href="javascript:void(0);"><img id="up" src="img/up_green.png"></a>
+							<a id="photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a>
+						</dd>
+						<dd>
+							<a id="downButton" href="javascript:void(0);"><img id="down" src="img/down_green.png"></a>
+							<a id="plotButton" href="javascript:void(0);"><img src="img/plot_green.png"></a>
+						</dd>
+					</dl>
+        </div>
+      </div>
+      <dl>
+      	<dt>
+	       	Table of values
+	      </dt>
+	      <dd>
+	       	At this section of the experiment you have a table with all the values we can retrive.
+	      </dd>
+	    </dl>
+      <table class="table table-bordered table-hover table-condensed">
+        <thead>
+          <tr>
+            <th>
+              #
+            </th>
+            <th>
+              Product
+            </th>
+            <th>
+              Payment Taken
+            </th>
+            <th>
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              1
+            </td>
+            <td>
+              TB - Monthly
+            </td>
+            <td>
+              01/04/2012
+            </td>
+            <td>
+              Default
+            </td>
+          </tr>
+          <tr class="active">
+            <td>
+              1
+            </td>
+            <td>
+              TB - Monthly
+            </td>
+            <td>
+              01/04/2012
+            </td>
+            <td>
+              Approved
+            </td>
+          </tr>
+          <tr class="success">
+            <td>
+              2
+            </td>
+            <td>
+              TB - Monthly
+            </td>
+            <td>
+              02/04/2012
+            </td>
+            <td>
+              Declined
+            </td>
+          </tr>
+          <tr class="warning">
+            <td>
+              3
+            </td>
+            <td>
+              TB - Monthly
+            </td>
+            <td>
+              03/04/2012
+            </td>
+            <td>
+              Pending
+            </td>
+          </tr>
+          <tr class="danger">
+            <td>
+              4
+            </td>
+            <td>
+              TB - Monthly
+            </td>
+            <td>
+              04/04/2012
+            </td>
+            <td>
+              Call in to confirm
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 
+
+<!---
 <table width="907">
   <tr>
     <td rowspan="2" width="480px">
-        <!-- We use the generic protocol // and "www" to avoid HTTPS issues -->
     	<img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:480px" src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
     </td>
     <td height="320px">
@@ -110,12 +290,15 @@
           </tr>
           <tr>
             <td></td>
-            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
+            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/plots_green.png"></a></td>
           </tr>
         </table>
         
     </td>
   </tr>
 </table>
+-->
+
+
 </body>
 </html>
