@@ -66,17 +66,17 @@ LoadRetriver = new function(){
     this.readSuccess = function(response){
         console.log(response);
 
-        var load = parseInt(response);
+        var load = parseFloat(response);
         //var suma =(Math.random()*2)+1;
         //load = load + suma;
-        load = ( (load - 89) * 0.049175412);
+        //load = ( (load - 89) * 0.049175412);
         //load = Math.max(0, (load - 1256) * 3.2);
         //if (load < 0)
         //    load = (load * (-1));
  /*       else
             load = 32 + (load % 10);
 */
-        $("#load").text(load.toFixed(2) + " gr.");
+        $("#load").text(load + " gr.");
 
     }
     this.readFailure = function(response){
@@ -126,10 +126,10 @@ LevelRetriver = new function(){
     this.readSuccess = function(response){
         console.log(response);
 
-        var level = parseInt(response);
-        level = 8 - ((level - 935)/85);
+        var level = parseFloat(response);
+        //level = 8 - ((level - 935)/85);
 
-        var level1 = level * 2.54;
+        //var level1 = level * 2.54;
 
         //level = (12012 - level) * 7.23 + 64;
         /*if (level > 1215){   
@@ -139,7 +139,7 @@ LevelRetriver = new function(){
             level = 6.4 + ((level % 10) * 0.01);   
         }*/
 
-        $("#level").text(level.toFixed(2) + " inch. " + level1.toFixed(2) + " cm." );
+        $("#level").text(level + " cm. ");
         //$("#level1").text(level1.toFixed(2) + " cm." );
 
     }
