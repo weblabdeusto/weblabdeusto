@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -47,7 +47,7 @@
                 <h4 class="modal-title" id="myModalLabel">HD picture</h4>
             </div>
             <div class="modal-body">
-                <img id="hdpic" style="width: 100%; max-height: 600px;" src="">
+                <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -77,12 +77,185 @@
     </div>
 </div>
 
+<!-- LAYOUT DEL EXPERIMENTO -->
+<div class="container">
+  <div class="row clearfix">
+    <div class="col-md-12 column">
+      <div class="page-header">
+        <h1>
+          Archimedes Experiment <small>Tube-1</small>
+        </h1>
+      </div>
+      <div class="row clearfix">
+        <div class="col-md-6 column">
+          <div class="media well" style="vertical-align:middle; text-align:center; margin-left:-140px; height:600px;">
+            <!-- DIV que contiene la imagen de la webcam en tiempo real -->
+            <img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:500px;" src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
+          </div>
+        </div>
+        <div class="col-md-6 column">
+        <!-- Elementos colapsables con la info del liqudo y la bola -->
+        <div class="panel-group" id="accordion">
+				  <div class="panel panel-default">
+				    <div class="panel-heading">
+				      <h4 class="panel-title">
+				        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+				          Electronics WebCAM (Real time)
+				        </a>
+				      </h4>
+				    </div>
+				    <div id="collapseOne" class="panel-collapse collapse in">
+				      <div class="panel-body" style="vertical-align:middle; text-align:center">
+				        <img id="cam2" src="//www.weblab.deusto.es/webcam/proxied.py/splash0" style="height:250px" align >
+				      </div>
+				    </div>
+				  </div>
+				  <div class="panel panel-default">
+				    <div class="panel-heading">
+				      <h4 class="panel-title">
+				        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+				          BALL weight and LIQUID level (Real time)
+				        </a>
+				      </h4>
+				    </div>
+				    <div id="collapseTwo" class="panel-collapse collapse">
+				      <div class="panel-body" style="vertical-align:middle; text-align:center">
+				        <img src="../archimedes/img/load.png" style="height:50px">  <span class="load" id="load"></span>
+				       <img src="../archimedes/img/level.png"style="height:50px"> <span class="level" id="level"></span>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+          <!-- Información del experimento y acciones sobre el mismo -->
+          <dl>
+          	<dt>
+							Time remaining:
+						</dt>
+						<dd>
+							<span class="timer" id="timer"></span>
+						</dd>
+						<dt>
+							Actions to perform at the experiment:
+						</dt>
+						<dd>
+							At this experiment you can move the ball up/down using the "green arrows", you can also take photos of the experiment using the "camera" icon and then you can save the image for you, the last thing you can do is graph the mass of the ball when you push down the ball using the "graph" icon.
+						</dd>
+						<dt>
+							</br>Action icons:
+						</dt>
+						<dd>
+							<a id="upButton" href="javascript:void(0);"><img id="up" src="img/up_green.png"></a>
+							<a id="photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a>
+						</dd>
+						<dd>
+							<a id="downButton" href="javascript:void(0);"><img id="down" src="img/down_green.png"></a>
+							<a id="plotButton" href="javascript:void(0);"><img src="img/plot_green.png"></a>
+						</dd>
+					</dl>
+        </div>
+      </div>
+      <!--
+      <dl>
+      	<dt>
+	       	Tables of values
+	      </dt>
+	      <dd>
+	       	At this section of the experiment you have a table with all the values we can retrive for each component.
+	      </dd>
+	    </dl>
+      
+	    <table class="table table-bordered table-hover table-condensed">
+			    <thead>
+			        <tr>
+			            <th colspan="5">
+			                TABLE FOR THE BALL
+			            </th>
+			        </tr>
+			        <tr>
+			            <th>
+			                Radius
+			            </th>
+			            <th>
+			                Volume
+			            </th>
+			            <th>
+			                Mass
+			            </th>
+			            <th>
+			                Weigh
+			            </th>
+			            <th>
+			                Density
+			            </th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr class="success">
+			            <td>
+			                Radius value
+			            </td>
+			            <td>
+			                Volume value
+			            </td>
+			            <td>
+			                Mass value
+			            </td>
+			            <td>
+			                Weigh value
+			            </td>
+			            <td>
+			                Density value
+			            </td>
+			        </tr>
+			    </tbody>
+			</table>
+
+			<table class="table table-bordered table-hover table-condensed">
+			    <thead>
+			        <tr>
+			            <th colspan="3">
+			                TABLE FOR THE LIQUID
+			            </th>
+			        </tr>
+			        <tr>
+			            <th>
+			                Level
+			            </th>
+			            <th>
+			                Volume
+			            </th>
+
+			            <th>
+			                Density
+			            </th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr class="success">
+			            <td>
+			                Level value
+			            </td>
+			            <td>
+			                Volume value
+			            </td>
+			            <td>
+			                Density value
+			            </td>
+
+			        </tr>
+			    </tbody>
+			</table>
+-->
+    </div>
+  </div>
+</div>
 
 
+
+<!---
 <table width="907">
   <tr>
     <td rowspan="2" width="480px">
-        <!-- We use the generic protocol // and "www" to avoid HTTPS issues -->
     	<img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:480px" src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
     </td>
     <td height="320px">
@@ -110,12 +283,15 @@
           </tr>
           <tr>
             <td></td>
-            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
+            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/plots_green.png"></a></td>
           </tr>
         </table>
         
     </td>
   </tr>
 </table>
+-->
+
+
 </body>
 </html>
