@@ -35,6 +35,11 @@ function drawChart(data)
         .y0(height)
         .y1(function(d) { return y(d.value); });
 
+    var line = d3.svg.line()
+        .x(function(d) { return x(d.number * 0.03); })
+        .y(function(d) { return y(d.value); })
+        .interpolate("linear");
+
     var svg = d3.select("#plotModalBody").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -43,13 +48,20 @@ function drawChart(data)
 
 
 
-    x.domain(d3.extent(data, function(d) { return d.number*0.03; }));
+    var x_domain = d3.extent(data, function(d) { return d.number*0.03; });
+    x_domain[1] += 0.3;
+    x.domain(x_domain);
     y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
     svg.append("path")
       .datum(data)
       .attr("class", "area")
       .attr("d", area);
+
+    svg.append("path")
+        .datum(data)
+        .attr("d", line)
+        .attr("class", "gfxline");
 
     svg.append("g")
       .attr("class", "x axis")
