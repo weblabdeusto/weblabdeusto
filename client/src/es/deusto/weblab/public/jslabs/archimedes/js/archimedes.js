@@ -1,60 +1,9 @@
+
+//! CLASS meant to contain the logic for an archimedes instance.
+//! The Archimedes experiment can support an arbitrary number of simultaneous
+//! Archimedes instances. Each instance will bind itself to specific DOM
+//! nodes, which will be identified by the instanceid.
 ArchimedesInstance = function (instanceid) {
-
-    var state;
-    var response;
-    var remainingTime;
-
-
-    LoadRetriever = function (instanceid) {
-        //to retrive real time parameters
-
-        var _timeout = undefined;
-
-        this.readSuccess = function (response) {
-            console.log(response);
-            var load = parseFloat(response);
-            $("#" + instanceid + "-load").text(load + " gr.");
-        };
-
-        this.readFailure = function (response) {
-            //console.log(response);
-            console.log("Error retrieving LOAD");
-        };
-
-        this.readParams = function () {
-            //read params
-
-            // Create a fake PARAMS response, for testing offline.
-            var rand1 = Math.random() * 10;
-            fakeResponse = rand1;
-            //console.log(fakeResponse);
-            //debugger;
-            Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
-            if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
-                Weblab.sendCommand("LOAD", this.readSuccess, this.readFailure);
-        };
-
-        this.refreshParams = function () {
-            //to auto refresh every 3 sec
-            try {
-                //try this
-                this.readParams();
-            }
-            catch (error) {
-                //error
-                console.log("Error Refreshing LOAD");
-            }
-            _timeout = setTimeout(this.refreshParams.bind(this), 3000);
-        };
-
-        this.stop = function () {
-            if (_timeout != undefined) {
-                clearTimeout(_timeout);
-                _timeout = undefined;
-            }
-        };
-
-    }//end of load retrive
 
     LevelRetriever = function (instanceid) {
         //to retrive real time parameters
@@ -132,8 +81,8 @@ ArchimedesInstance = function (instanceid) {
 
         loadRetriever = new LoadRetriever("name1");
         levelRetriever = new LevelRetriever("name1");
-        loadRetriever.refreshParams();
-        levelRetriever.refreshParams();
+        loadRetriever.start();
+        levelRetriever.start();
 
         //light_page();
     });
@@ -286,7 +235,7 @@ ArchimedesInstance = function (instanceid) {
             $(this).attr("disabled", "disabled");
         });
 
-    } //! End-of initializeInstance()
+    }; //! End-of initializeInstance()
 
 
 }; //! End-of ArchimedesInstance
