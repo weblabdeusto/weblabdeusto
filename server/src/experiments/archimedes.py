@@ -73,7 +73,7 @@ class Archimedes(Experiment):
 
     @Override(Experiment)
     @logged("info")
-    def do_start_experiment(self, *args, **kwargs):
+    def do_start_experiment(self, client_initial_data, server_initial_data):
         """
         Callback run when the experiment is started.
         """
@@ -82,7 +82,8 @@ class Archimedes(Experiment):
 
         current_config = self.initial_configuration.copy()
 
-        return json.dumps({"initial_configuration": json.dumps(current_config), "batch": False})
+        # The client initial data is meant to contain a structure that defines what the client should show.
+        return json.dumps({"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
 
 
 
