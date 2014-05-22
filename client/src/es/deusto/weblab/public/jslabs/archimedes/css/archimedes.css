@@ -1,0 +1,9 @@
+.modal {
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.modal-body {
+    max-height: none;
+    text-align: center;
+}

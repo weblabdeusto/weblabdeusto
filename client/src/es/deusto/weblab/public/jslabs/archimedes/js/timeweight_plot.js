@@ -46,7 +46,12 @@ function drawChart(data)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
+    // Add a background color.
+    d3.select("svg")
+        .insert("rect", "g")// Insert rect before g.
+        .attr("class", "background")
+        .attr("width", "100%")
+        .attr("height", "100%");
 
     var x_domain = d3.extent(data, function(d) { return d.number*0.03; });
     x_domain[1] += 0.3;
