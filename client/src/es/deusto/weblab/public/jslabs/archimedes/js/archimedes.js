@@ -238,8 +238,8 @@ function initializeInstance(instanceid) {
 
         if($(plotButton).attr("disabled") == undefined) {
 
-            $(getidselect("plotModalBody")).empty();
-            $(getidselect("plotModal")).modal();
+            $("#plotModalBody").empty();
+            $("#plotModal").modal();
 
             // For debugging purpose, when offline we hard-code the data.
             var fakeData = "1:20\n" +

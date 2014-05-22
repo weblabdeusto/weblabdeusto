@@ -51,12 +51,67 @@
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
 
             var rendered = Mustache.render(template, {"instanceid": "name1"});
-            $("body").html(rendered);
+            $(".instances_row").html(rendered);
+
+            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
+            $(".instances_row").html(rendered + rendered2);
 
             initializeInstance("name1");
         });
     });
 </script>
+
+
+<!-- Large modal to show the HD picture -->
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">HD picture</h4>
+            </div>
+            <div class="modal-body">
+                <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Large modal to show the TIME/WEIGHT plot -->
+<!-- Modal -->
+<div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
+            </div>
+            <div class="modal-body" id="plotModalBody">
+                <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+
+    <div class="instances_row row clearfix">
+
+        <!-- THE INSTANCE TEMPLATES WILL BE RENDERED HERE -->
+
+    </div>
+
+</div>
 
 
 </body>
