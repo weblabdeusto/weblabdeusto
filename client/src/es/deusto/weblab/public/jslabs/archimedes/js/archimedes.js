@@ -3,86 +3,21 @@ var response;
 var remainingTime;
 
 
-MotorUp = new function(){
-    //to retrive real time parameters
-    
-    this.readSuccess = function(response){
-        console.log(response);
-    }
-    this.readFailure = function(response){
-        //console.log(response);
-        console.log("Error going UP");
-    }
-
-    this.readParams = function(){
-        //read params
-
-        // Create a fake PARAMS response, for testing offline.
-        var rand1 = Math.random() * 10;
-        fakeResponse = rand1;
-        //console.log(fakeResponse);
-        //debugger;
-        Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
-        if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
-            Weblab.sendCommand("UP", this.readSuccess, this.readFailure);
-
-    }
-
-}//end of up motor
-
-MotorUp = new function(){
-    //to retrive real time parameters
-    
-    this.readSuccess = function(response){
-        console.log(response);
-    }
-    this.readFailure = function(response){
-        //console.log(response);
-        console.log("Error going DOWN");
-    }
-
-    this.readParams = function(){
-        //read params
-
-        // Create a fake PARAMS response, for testing offline.
-        var rand1 = Math.random() * 10;
-        fakeResponse = rand1;
-        //console.log(fakeResponse);
-        //debugger;
-        Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
-        if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
-            Weblab.sendCommand("DOWN", this.readSuccess, this.readFailure);
-
-    }
-
-}//end of down motor
-
-
-LoadRetriver = new function(){
+LoadRetriever = new function(){
     //to retrive real time parameters
 
     var _timeout = undefined;
     
     this.readSuccess = function(response){
         console.log(response);
-
         var load = parseFloat(response);
-        //var suma =(Math.random()*2)+1;
-        //load = load + suma;
-        //load = ( (load - 89) * 0.049175412);
-        //load = Math.max(0, (load - 1256) * 3.2);
-        //if (load < 0)
-        //    load = (load * (-1));
- /*       else
-            load = 32 + (load % 10);
-*/
         $("#load").text(load + " gr.");
+    };
 
-    }
     this.readFailure = function(response){
         //console.log(response);
         console.log("Error retriving LOAD");
-    }
+    };
 
     this.readParams = function(){
         //read params
@@ -95,7 +30,7 @@ LoadRetriver = new function(){
         Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
         if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
             Weblab.sendCommand("LOAD", this.readSuccess, this.readFailure);
-    }
+    };
 
     this.refreshParams =function(){
         //to auto refresh every 3 sec
@@ -108,14 +43,15 @@ LoadRetriver = new function(){
             console.log("Error Refreshing LOAD");
         }
         _timeout = setTimeout(this.refreshParams.bind(this), 3000);
-    }
+    };
 
     this.stop = function() {
     	if(_timeout != undefined) {
     		clearTimeout(_timeout);
     		_timeout = undefined;
     	}
-    }
+    };
+
 }//end of load retrive
 
 LevelRetriver = new function(){
@@ -123,30 +59,18 @@ LevelRetriver = new function(){
 
     var _timeout = undefined;
     
-    this.readSuccess = function(response){
+    this.readSuccess = function(response) {
         console.log(response);
 
         var level = parseFloat(response);
-        //level = 8 - ((level - 935)/85);
-
-        //var level1 = level * 2.54;
-
-        //level = (12012 - level) * 7.23 + 64;
-        /*if (level > 1215){   
-            level = 6.2 + ((level % 10) * 0.01);
-        }
-        else{
-            level = 6.4 + ((level % 10) * 0.01);   
-        }*/
 
         $("#level").text(level + " cm. ");
-        //$("#level1").text(level1.toFixed(2) + " cm." );
+    };
 
-    }
     this.readFailure = function(response){
         console.log(response);
         console.log("Error retriving LEVEL");
-    }
+    };
 
     this.readParams = function(){
         //read params
@@ -159,7 +83,7 @@ LevelRetriver = new function(){
         Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
         if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
             Weblab.sendCommand("LEVEL", this.readSuccess, this.readFailure);
-    }
+    };
 
     this.refreshParams =function(){
         //to auto refresh every 3 sec
@@ -172,7 +96,7 @@ LevelRetriver = new function(){
             console.log("Error Refreshing LEVEL");
         }
         _timeout = setTimeout(this.refreshParams.bind(this), 3000);
-    }
+    };
 
     this.stop = function() {
     	if (_timeout != undefined) {
@@ -194,7 +118,6 @@ function setTimeToGo(time){
 }
 
 
-
 Weblab.setOnTimeCallback(function (time) {
 	//debugger;
     console.log("[DBG]: Time left: " + time);
@@ -204,7 +127,7 @@ Weblab.setOnTimeCallback(function (time) {
 Weblab.setOnStartInteractionCallback(function () {
     showFrame();
     console.log("[DBG]: On start interaction");
-    LoadRetriver.refreshParams();
+    LoadRetriever.refreshParams();
 	LevelRetriver.refreshParams();
 
     //light_page();
@@ -213,7 +136,7 @@ Weblab.setOnStartInteractionCallback(function () {
 Weblab.setOnEndCallback( function() {
     hideFrame();
 	console.log("[DBG]: On end interaction");
-	LoadRetriver.stop();
+	LoadRetriever.stop();
 	LevelRetriver.stop();
 });
 
@@ -367,4 +290,4 @@ function initializeInstance() {
         $("#plotButton").attr("disabled", "disabled");
     });
 
-};
+}
