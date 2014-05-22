@@ -5,59 +5,6 @@
 //! nodes, which will be identified by the instanceid.
 ArchimedesInstance = function (instanceid) {
 
-    LevelRetriever = function (instanceid) {
-        //to retrive real time parameters
-
-        var _timeout = undefined;
-
-        this.readSuccess = function (response) {
-            console.log(response);
-
-            var level = parseFloat(response);
-
-            $("#" + instanceid + "-level").text(level + " cm. ");
-        };
-
-        this.readFailure = function (response) {
-            console.log(response);
-            console.log("Error retriving LEVEL");
-        };
-
-        this.readParams = function () {
-            //read params
-
-            // Create a fake PARAMS response, for testing offline.
-            var rand1 = Math.random() * 10;
-            fakeResponse = rand1;
-            //console.log(fakeResponse);
-            //debugger;
-            Weblab.dbgSetOfflineSendCommandResponse(fakeResponse, true);
-            if (Weblab.isExperimentActive() || Weblab.checkOnline() == false)
-                Weblab.sendCommand("LEVEL", this.readSuccess, this.readFailure);
-        };
-
-        this.refreshParams = function () {
-            //to auto refresh every 3 sec
-            try {
-                //try this
-                this.readParams();
-            }
-            catch (error) {
-                //error
-                console.log("Error Refreshing LEVEL");
-            }
-            _timeout = setTimeout(this.refreshParams.bind(this), 3000);
-        };
-
-        this.stop = function () {
-            if (_timeout != undefined) {
-                clearTimeout(_timeout);
-                _timeout = undefined;
-            }
-        }
-    }//end of level retrive
-
-
     function setTimeToGo(time) {
         //timer function
         var d = new Date();
@@ -79,20 +26,19 @@ ArchimedesInstance = function (instanceid) {
         showFrame();
         console.log("[DBG]: On start interaction");
 
-        loadRetriever = new LoadRetriever("name1");
-        levelRetriever = new LevelRetriever("name1");
-        loadRetriever.start();
-        levelRetriever.start();
+        this._retrieveLevelController = StartRetrievingLevel(instanceid);
+        this._retrieveLoadController = StartRetrievingLoad(instanceid);
 
         //light_page();
-    });
+    }.bind(this));
 
     Weblab.setOnEndCallback(function () {
         hideFrame();
         console.log("[DBG]: On end interaction");
-        LoadRetriever.stop();
-        LevelRetriever.stop();
-    });
+
+        this._retrieveLoadController.stop();
+        this._retrieveLevelController.stop();
+    }.bind(this));
 
 
     //! Initializes the Archimedes instance.

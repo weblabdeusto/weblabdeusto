@@ -1,40 +1,36 @@
 
-class @LoadRetriever
+# Starts sending a periodical command to retrieve the load.
+@StartRetrievingLoad = (instanceid) ->
+  fakeResponse = Math.random() * 10
 
-  _timeout : undefined
-  _instanceid : undefined
+  Weblab.dbgSetOfflineSendCommandResponse fakeResponse, true
 
-  constructor : (instanceid) ->
-    @_instanceid = instanceid
+  if Weblab.isExperimentActive() or !Weblab.checkOnline()
 
-  # Retrieves the load.
-  retrieveLoad : () =>
-    fakeResponse = Math.random() * 10
+    controller = Weblab.sendCommandPeriodically("LOAD", 3000
+      (load) =>
+        console.log "[LoadRetriever]: LOAD response: " + load
+        $("#" + @_instanceid + "-load").text(load + " gr.")
+      (response) =>
+        console.error "[LoadRetriever]: ERROR: " + response
+    )
 
-    Weblab.dbgSetOfflineSendCommandResponse fakeResponse, true
+  controller
 
-    if Weblab.isExperimentActive() or !Weblab.checkOnline()
+# Starts sending a periodical command to retrieve the level.
+@StartRetrievingLevel = (instanceid) ->
+  fakeResponse = Math.random() * 10
 
-      Weblab.sendCommand("LOAD",
-        (load) =>
-          console.log "[LoadRetrieved]: LOAD response: " + load
-          $("#" + @_instanceid + "-load").text(load + " gr.")
-        (response) =>
-          console.error "[LoadRetrieved]: ERROR: " + response
-      )
+  Weblab.dbgSetOfflineSendCommandResponse fakeResponse, true
 
-  # Starts refreshing the load for this instance.
-  #
-  start : () =>
-    try
-      @retrieveLoad()
-    catch error
-      console.error "Error refreshing LOAD"
-    @_timeout = setTimeout @start, 3000
+  if Weblab.isExperimentActive() or !Weblab.checkOnline()
 
-  # Stops refreshin ghte load for this instance.
-  #
-  stop : () =>
-    if @_timeout?
-      clearTimeout @_timeout
-      @_timeout = undefined
+    controller = Weblab.sendCommandPeriodically("LEVEL", 3000
+      (load) =>
+        console.log "[LevelRetriever]: LOAD response: " + load
+        $("#" + @_instanceid + "-level").text(load + " cm.")
+      (response) =>
+        console.error "[LevelRetriever]: ERROR: " + response
+    )
+
+  controller
