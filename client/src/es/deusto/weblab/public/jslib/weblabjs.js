@@ -193,7 +193,7 @@ Weblab = new function () {
 
             // This method should be invoked again soon.
             if (r !== false)
-                setTimeout(successHandlerWrapper, time);
+                setTimeout(invokeSendCommand, time);
             else
                 controller._active = false;
         }.bind(this);
@@ -210,12 +210,21 @@ Weblab = new function () {
 
             // This method should be invoked again soon.
             if (r !== false)
-                setTimeout(errorHandlerWrapper, time);
+                setTimeout(invokeSendCommand, time);
             else
                 controller._active = false;
-        }
+        };
 
-        this.sendCommand(text, successHandlerWrapper, errorHandlerWrapper);
+        // Wrapper function to call the sendCommand itself.
+        var invokeSendCommand = function() {
+            this.sendCommand(text, successHandlerWrapper, errorHandlerWrapper);
+        }.bind(this);
+
+        // invokeSendCommand explicitly the first time.
+        invokeSendCommand();
+
+        // Return the controller so that it can be stopped.
+        return controller;
     };
 
 
