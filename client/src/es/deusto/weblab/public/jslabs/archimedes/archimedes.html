@@ -56,7 +56,8 @@
             var rendered2 = Mustache.render(template, {"instanceid": "name2"});
             $(".instances_row").html(rendered + rendered2);
 
-            initializeInstance("name1");
+            var archimedesInstance = new ArchimedesInstance("name1");
+            archimedesInstance.initializeInstance();
         });
     });
 </script>
