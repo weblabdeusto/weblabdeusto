@@ -3,7 +3,7 @@
 
 // This is mostly so that no errors occur when executing
 // the script stand-alone.
-parent.wl_inst = {}
+parent.wl_inst = {};
 
 ///////////////////////////////////////////////////////////////
 //
@@ -70,19 +70,19 @@ Weblab = new function () {
     parent.wl_inst.setTime = function (time) {
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
-    }
+    };
 
     parent.wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
         if(mOnStartInteractionCallback != undefined)
             mOnStartInteractionCallback(initial_config);
-    }
+    };
 
     parent.wl_inst.end = function () {
         mIsExperimentActive = false;
         if(mOnEndCallback != undefined)
             mOnEndCallback();
-    }
+    };
 
     parent.wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
@@ -112,7 +112,7 @@ Weblab = new function () {
             mFilesSentMap[id][0](msg);
             delete mFilesSentMap[id];
         }
-    }
+    };
 
 
 
@@ -336,7 +336,7 @@ Weblab = new function () {
     //!
     this.isExperimentActive = function () {
         return mIsExperimentActive;
-    }
+    };
 
     //! Checks whether this interface is actually connected to the real
     //! WebLab client.
@@ -344,7 +344,7 @@ Weblab = new function () {
     //! @return True, if connected to the real WL client. False otherwise.
     this.checkOnline = function () {
         return parent.wl_sendCommand != undefined;
-    }
+    };
 
 
     //! The GWT client will not function properly until the user's script has
@@ -357,7 +357,7 @@ Weblab = new function () {
     //! been loaded successfully.
     this.nowLoaded = function () {
     	parent.onFrameLoad();
-    }
+    };
 
     //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
     //! offline from the real Weblab client, then the response to SendCommand will be as specified.
