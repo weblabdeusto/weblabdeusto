@@ -3,7 +3,7 @@ var response;
 var remainingTime;
 
 
-LoadRetriever = new function(){
+LoadRetriever = function(instanceid){
     //to retrive real time parameters
 
     var _timeout = undefined;
@@ -11,7 +11,7 @@ LoadRetriever = new function(){
     this.readSuccess = function(response){
         console.log(response);
         var load = parseFloat(response);
-        $("#load").text(load + " gr.");
+        $("#" + instanceid + "-load").text(load + " gr.");
     };
 
     this.readFailure = function(response){
@@ -54,7 +54,7 @@ LoadRetriever = new function(){
 
 }//end of load retrive
 
-LevelRetriver = new function(){
+LevelRetriever = function(instanceid){
     //to retrive real time parameters
 
     var _timeout = undefined;
@@ -64,7 +64,7 @@ LevelRetriver = new function(){
 
         var level = parseFloat(response);
 
-        $("#level").text(level + " cm. ");
+        $("#" + instanceid + "-level").text(level + " cm. ");
     };
 
     this.readFailure = function(response){
@@ -127,8 +127,11 @@ Weblab.setOnTimeCallback(function (time) {
 Weblab.setOnStartInteractionCallback(function () {
     showFrame();
     console.log("[DBG]: On start interaction");
-    LoadRetriever.refreshParams();
-	LevelRetriver.refreshParams();
+
+    loadRetriever = new LoadRetriever("name1");
+    levelRetriever = new LevelRetriever("name1");
+    loadRetriever.refreshParams();
+	levelRetriever.refreshParams();
 
     //light_page();
 });
@@ -137,7 +140,7 @@ Weblab.setOnEndCallback( function() {
     hideFrame();
 	console.log("[DBG]: On end interaction");
 	LoadRetriever.stop();
-	LevelRetriver.stop();
+	LevelRetriever.stop();
 });
 
 function initializeInstance(instanceid) {
