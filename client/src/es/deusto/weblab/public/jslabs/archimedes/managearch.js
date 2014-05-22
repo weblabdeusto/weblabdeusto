@@ -217,7 +217,7 @@ Weblab.setOnEndCallback( function() {
 	LevelRetriver.stop();
 });
 
-$(document).ready(function(){
+function initializeInstance() {
 
     // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
     if(Weblab.checkOnline() == true)
@@ -367,4 +367,4 @@ $(document).ready(function(){
         $("#plotButton").attr("disabled", "disabled");
     });
 
-});
+};
