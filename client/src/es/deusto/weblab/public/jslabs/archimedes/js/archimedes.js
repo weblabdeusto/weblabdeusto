@@ -140,30 +140,35 @@ Weblab.setOnEndCallback( function() {
 	LevelRetriver.stop();
 });
 
-function initializeInstance() {
+function initializeInstance(instanceid) {
+
+    function getidselect(id) {
+        return "#" + instanceid + "-" + id
+    }
 
     // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
     if(Weblab.checkOnline() == true)
         hideFrame();
 
-	var refresher1 = new CameraRefresher("cam1");
-	var refresher2 = new CameraRefresher("cam2");
+	var refresher1 = new CameraRefresher(instanceid + "-cam1");
+	var refresher2 = new CameraRefresher(instanceid + "-cam2");
 	refresher1.start();
 	refresher2.start();
 
     // Create the timer for later.
-    timerDisplayer = new TimerDisplayer("timer");
+    timerDisplayer = new TimerDisplayer(instanceid + "-timer");
 
 	// Declare button handlers.
-	$("#downButton").click(function() {
+    var downButton = $(getidselect("downButton"));
+	downButton.click(function() {
 
 		console.log("DOWN");
 
-        if($("#downButton").attr("disabled") == undefined) {
+        if(downButton.attr("disabled") == undefined) {
             Weblab.sendCommand("DOWN",
                 function(success) {
-                    $("#downButton img").attr("src", "img/down_green.png");
-                    $("#downButton").removeAttr("disabled");
+                    $(getidselect("downButton") + " img").attr("src", "img/down_green.png");
+                    $(getidselect("downButton")).removeAttr("disabled");
                 },
                 function(error){
                     console.error("DOWN command failed: " + error);
@@ -171,38 +176,19 @@ function initializeInstance() {
                 });
         }
 
-        $("#downButton img").attr("src", "img/down.png");
-        $("#downButton").attr("disabled", "disabled");
+        $(getidselect("downButton") + " img").attr("src", "img/down.png");
+        $(getidselect("downButton")).attr("disabled", "disabled");
 	});
 
-    $("#downSlowButton").click(function() {
-
-        console.log("SLOW");
-
-        if($("#downSlowButton").attr("disabled") == undefined) {
-            Weblab.sendCommand("SLOW",
-                function(success) {
-                    $("#downSlowButton img").attr("src", "img/downslow_green.png");
-                    $("#downSlowButton").removeAttr("disabled");
-                },
-                function(error){
-                    console.error("SLOW command failed: " + error);
-                    displayErrorMessage("SLOW command failed");
-                });
-        }
-
-        $("#downSlowButton img").attr("src", "img/downslow.png");
-        $("#downSlowButton").attr("disabled", "disabled");
-    });
-
-	$("#upButton").click(function() {
+    var upButton = $(getidselect("upButton"));
+	$(upButton).click(function() {
 		console.log("UP");
 
-        if($("#upButton").attr("disabled") == undefined) {
+        if(upButton.attr("disabled") == undefined) {
             Weblab.sendCommand("UP",
                 function(success) {
-                    $("#upButton img").attr("src", "img/up_green.png");
-                    $("#upButton").removeAttr("disabled");
+                    upButton.find("img").attr("src", "img/up_green.png");
+                    upButton.removeAttr("disabled");
                 },
                 function(error){
                     console.error("UP command failed: " + error);
@@ -211,14 +197,15 @@ function initializeInstance() {
         }
 
         // Disable the button for now.
-        $("#upButton img").attr("src", "img/up.png");
-        $("#upButton").attr("disabled", "disabled");
+        upButton.find("img").attr("src", "img/up.png");
+        upButton.attr("disabled", "disabled");
 	});
 
-    $("#photoButton").click(function() {
-        console.log("IMAGE");
+    var photoButton = $(getidselect("photoButton"));
+    photoButton.click(function() {
 
-        if($("#photoButton").attr("disabled") == undefined) {
+        console.log("IMAGE");
+        if($(this).attr("disabled") == undefined) {
 
             //$("#hdpic").attr("src", "img/image_placeholder.png");
             $("#hdpic").attr("src", "");
@@ -226,9 +213,9 @@ function initializeInstance() {
 
             Weblab.sendCommand("IMAGE",
                 function(data) {
-                    $("#photoButton").removeAttr("disabled");
+                    $(this).removeAttr("disabled");
                     $("#hdpic").attr("src", "data:image/jpg;base64," + data);
-                    $("#photoButton img").attr("src", "img/photo_green.png");
+                    $(this).find("img").attr("src", "img/photo_green.png");
                 },
                 function(error) {
                     console.error("Error: " + error);
@@ -237,18 +224,19 @@ function initializeInstance() {
         }
 
         // Disable the button for now.
-        $("#photoButton img").attr("src", "img/photo.png");
-        $("#photoButton").attr("disabled", "disabled");
+        $(this).find("img").attr("src", "img/photo.png");
+        $(this).attr("disabled", "disabled");
     });
 
 
-    $("#plotButton").click(function() {
+    var plotButton = $(getidselect("plotButton"));
+    plotButton.click(function() {
         console.log("PLOT");
 
-        if($("#plotButton").attr("disabled") == undefined) {
+        if($(plotButton).attr("disabled") == undefined) {
 
-            $("#plotModalBody").empty();
-            $("#plotModal").modal();
+            $(getidselect("plotModalBody")).empty();
+            $(getidselect("plotModal")).modal();
 
             // For debugging purpose, when offline we hard-code the data.
             var fakeData = "1:20\n" +
@@ -261,7 +249,7 @@ function initializeInstance() {
             Weblab.sendCommand("PLOT",
                 function(data) {
 
-                    $("#plotButton").removeAttr("disabled");
+                    plotButton.removeAttr("disabled");
 
                     // Parse the data to convert each element into a "number" & "value" object.
                     var items = [];
@@ -277,7 +265,7 @@ function initializeInstance() {
 
                     drawChart(items);
 
-                    $("#plotButton img").attr("src", "img/plot_green.png");
+                    plotButton.find("img").attr("src", "img/plot_green.png");
                 },
                 function(error) {
                     console.error("Error: " + error);
@@ -286,8 +274,8 @@ function initializeInstance() {
         }
 
         // Disable the button for now.
-        $("#plotButton img").attr("src", "img/plot.png");
-        $("#plotButton").attr("disabled", "disabled");
+        $(this).find("img").attr("src", "img/plot.png");
+        $(this).attr("disabled", "disabled");
     });
 
 }

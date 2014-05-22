@@ -1,6 +1,6 @@
 <!-- Large modal to show the HD picture -->
 <!-- Modal -->
-<div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="{{instanceid}}-photoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -20,7 +20,7 @@
 
 <!-- Large modal to show the TIME/WEIGHT plot -->
 <!-- Modal -->
-<div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+<div class="modal fade" id="{{instanceid}}-plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -37,6 +37,7 @@
     </div>
 </div>
 
+
 <!-- Archimedes experiment instance layout -->
 <div class="container">
     <div class="row clearfix">
@@ -52,7 +53,7 @@
                     <div class="media well"
                          style="vertical-align:middle; text-align:center; margin-left:-140px; height:600px;">
                         <!-- DIV que contiene la imagen de la webcam en tiempo real -->
-                        <img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:500px;"
+                        <img id="{{instanceid}}-cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:500px;"
                              src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
                     </div>
                 </div>
@@ -69,7 +70,7 @@
                             </div>
                             <div id="collapseOne" class="panel-collapse collapse in">
                                 <div class="panel-body" style="vertical-align:middle; text-align:center">
-                                    <img id="cam2" src="//www.weblab.deusto.es/webcam/proxied.py/splash0"
+                                    <img id="{{instanceid}}-cam2" src="//www.weblab.deusto.es/webcam/proxied.py/splash0"
                                          style="height:250px" align>
                                 </div>
                             </div>
@@ -113,12 +114,12 @@
                             </br>Action icons:
                         </dt>
                         <dd>
-                            <a id="upButton" href="javascript:void(0);"><img id="up" src="img/up_green.png"></a>
-                            <a id="photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a>
+                            <a id="{{instanceid}}-upButton" href="javascript:void(0);"><img id="{{instanceid}}-up" src="img/up_green.png"></a>
+                            <a id="{{instanceid}}-photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a>
                         </dd>
                         <dd>
-                            <a id="downButton" href="javascript:void(0);"><img id="down" src="img/down_green.png"></a>
-                            <a id="plotButton" href="javascript:void(0);"><img src="img/plot_green.png"></a>
+                            <a id="{{instanceid}}-downButton" href="javascript:void(0);"><img id="{{instanceid}}-down" src="img/down_green.png"></a>
+                            <a id="{{instanceid}}-plotButton" href="javascript:void(0);"><img src="img/plot_green.png"></a>
                         </dd>
                     </dl>
                 </div>

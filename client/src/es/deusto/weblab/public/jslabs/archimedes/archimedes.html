@@ -49,11 +49,11 @@
 <script type="text/javascript">
     $(document).ready(function(){
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
-            var rendered = Mustache.render(template, {});
 
+            var rendered = Mustache.render(template, {"instanceid": "name1"});
             $("body").html(rendered);
 
-            initializeInstance();
+            initializeInstance("name1");
         });
     });
 </script>
