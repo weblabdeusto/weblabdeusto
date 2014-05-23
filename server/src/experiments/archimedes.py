@@ -16,6 +16,7 @@ import base64
 
 import os
 import traceback
+import unittest
 import urllib2
 import json
 import threading
@@ -41,8 +42,6 @@ class Archimedes(Experiment):
         self.DEBUG = True
 
         self._lock = threading.Lock()
-
-#        thermometer_svg_path = data_filename(os.path.join(module_directory, 'submarine-thermometer.svg'))
 
         self._cfg_manager    = cfg_manager
 
@@ -173,36 +172,63 @@ class Archimedes(Experiment):
         return "ok"
 
 
-if __name__ == "__main__":
-    from voodoo.configuration import ConfigurationManager
-    from voodoo.sessions.session_id import SessionId
 
-    cfg_manager = ConfigurationManager()
-    #cfg_manager._set_value("archimedes_board_location", "http://localhost:2000")
-    experiment = Archimedes(None, None, cfg_manager)
-    lab_session_id = SessionId('my-session-id')
 
-    start = experiment.do_start_experiment()
-    up_resp = experiment.do_send_command_to_device("UP")
-    print up_resp
-    down_resp = experiment.do_send_command_to_device("DOWN")
-    print down_resp
-    slow_resp = experiment.do_send_command_to_device("SLOW")
-    print slow_resp
-    level_resp = experiment.do_send_command_to_device("LEVEL")
-    print level_resp
-    load_resp = experiment.do_send_command_to_device("LOAD")
-    print load_resp
-    image_resp = experiment.do_send_command_to_device("IMAGE")
-    print image_resp
-    plot_resp = experiment.do_send_command_to_device("PLOT")
-    print plot_resp
+########################################################
+# UNIT TESTS. Should eventually be moved somewhere else.
+########################################################
 
-    f = file("/tmp/img.html", "w+")
-    f.write("""
-        <html><body><img alt="embedded" src="data:image/jpg;base64,%s"/></body></html>
-        """ % (image_resp)
-    )
-    f.close()
+from voodoo.configuration import ConfigurationManager
+from voodoo.sessions.session_id import SessionId
+
+
+class TestArchimedes(unittest.TestCase):
+
+    def setUp(self):
+        # Initialize the experiment for testing.
+        # We set the archimedes_real_device setting to False so that
+        # it doesn't attempt to contact the real ip.
+        self.cfg_manager = ConfigurationManager()
+        self.cfg_manager._set_value("archimedes_real_device", False)
+        self.experiment = Archimedes(None, None, self.cfg_manager)
+        self.lab_session_id = SessionId('my-session-id')
+
+
+    def tearDown(self):
+        pass
+
+    def test_start(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+
+    def test_control_ball_commands(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        up_resp = self.experiment.do_send_command_to_device("UP")
+        down_resp = self.experiment.do_send_command_to_device("DOWN")
+        slow_resp = self.experiment.do_send_command_to_device("SLOW")
+
+    def test_basic_data_commands(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        level_resp = self.experiment.do_send_command_to_device("LEVEL")
+        assert float(level_resp) == 1200
+
+        load_resp = self.experiment.do_send_command_to_device("LOAD")
+        assert float(load_resp) == 1300
+
+    def test_advanced_data_commands(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        image_resp = self.experiment.do_send_command_to_device("IMAGE")
+        dec = base64.b64decode(image_resp)
+        assert len(dec) > 100
+
+        plot_resp = self.experiment.do_send_command_to_device("PLOT")
+        print plot_resp
+
+        f = file("/tmp/img.html", "w+")
+        f.write("""
+            <html><body><img alt="embedded" src="data:image/jpg;base64,%s"/></body></html>
+            """ % (image_resp)
+        )
+        f.close()
+
 
 
