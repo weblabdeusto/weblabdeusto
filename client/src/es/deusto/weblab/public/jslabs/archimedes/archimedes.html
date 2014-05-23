@@ -68,6 +68,12 @@
                 var c = $(".arch-camera");
                 c.width(c.parent().width());
                 //c.parent().height(c.width());
+
+                // Calculate the offset
+                var hoffset = -(c.width() - c.height()) / 2;
+                var voffset = (c.height() - c.width()) / 2;
+                hoffset = 0;
+                c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
             };
 
             $(window).resize(function(){
