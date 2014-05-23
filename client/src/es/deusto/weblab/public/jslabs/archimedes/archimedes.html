@@ -54,13 +54,13 @@
     $(document).ready(function(){
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
 
-            var rendered = Mustache.render(template, {"instanceid": "name1"});
+            var rendered = Mustache.render(template, {"instanceid": "default"});
             $(".instances_row").html(rendered);
 
-            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
-            $(".instances_row").html(rendered + rendered2);
+            //var rendered2 = Mustache.render(template, {"instanceid": "name2"});
+            //$(".instances_row").html(rendered + rendered2);
 
-            var archimedesInstance = new ArchimedesInstance("name1");
+            var archimedesInstance = new ArchimedesInstance("default");
             archimedesInstance.initializeInstance();
         });
     });
