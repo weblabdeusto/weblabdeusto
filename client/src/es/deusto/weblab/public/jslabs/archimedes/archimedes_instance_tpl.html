@@ -1,26 +1,37 @@
 
 
 <!-- Archimedes experiment instance layout -->
-        <div class="col-md-12 column">
+        <div class="col-md-6 column">
             <div class="page-header">
                 <h1>
                     Archimedes Experiment
                     <small>Tube-1</small>
                 </h1>
             </div>
-            <div class="row clearfix">
                 <div class="col-md-6 column">
-                    <div class="media well"
-                         style="vertical-align:middle; text-align:center; margin-left:-140px; height:600px;">
+                    <!--<div class="arch-well media well">-->
                         <!-- DIV que contiene la imagen de la webcam en tiempo real -->
-                        <img id="{{instanceid}}-cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:500px;"
-                             src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
-                    </div>
+                        <div class="arch-img-wrapper">
+                            <img class="arch-camera" id="{{instanceid}}-cam1"
+                                 src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
+                        </div>
+
+                        <div class="arch-controls-table" style="margin: 0 auto;">
+                                    <a id="{{instanceid}}-upButton" style="" class="arch-control" href="javascript:void(0);"><img id="{{instanceid}}-up" class="arch-control" src="img/up_green.png"></a>
+                                    <a id="{{instanceid}}-photoButton" style="" class="arch-control" href="javascript:void(0);"><img src="img/photo_green.png" class="arch-control"></a>
+
+                                    <a id="{{instanceid}}-downButton" style="" class="arch-control" href="javascript:void(0);"><img id="{{instanceid}}-down" src="img/down_green.png" class="arch-control"></a>
+                                    <a id="{{instanceid}}-plotButton" style="" class="arch-control" href="javascript:void(0);"><img src="img/plot_green.png" class="arch-control"></a>
+                        </div>
+
+                    <!--</div> -->
                 </div>
                 <div class="col-md-6 column">
                     <!-- Elementos colapsables con la info del liqudo y la bola -->
                     <div class="panel-group" id="accordion">
-                        <div class="panel panel-default">
+
+                        <!-- TODO: CONSIDER REMOVING THIS -->
+                        <div class="panel panel-default" style="display: none">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -35,6 +46,8 @@
                                 </div>
                             </div>
                         </div>
+
+
                         <div class="panel panel-default">
                             <div class="panel-heading">
                                 <h4 class="panel-title">
@@ -70,20 +83,8 @@
                             the last thing you can do is graph the mass of the ball when you push down the ball using
                             the "graph" icon.
                         </dd>
-                        <dt>
-                            </br>Action icons:
-                        </dt>
-                        <dd>
-                            <a id="{{instanceid}}-upButton" href="javascript:void(0);"><img id="{{instanceid}}-up" src="img/up_green.png"></a>
-                            <a id="{{instanceid}}-photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a>
-                        </dd>
-                        <dd>
-                            <a id="{{instanceid}}-downButton" href="javascript:void(0);"><img id="{{instanceid}}-down" src="img/down_green.png"></a>
-                            <a id="{{instanceid}}-plotButton" href="javascript:void(0);"><img src="img/plot_green.png"></a>
-                        </dd>
                     </dl>
                 </div>
-            </div>
-        </div>
+        </div> <!-- EndOf Column -->
 
 

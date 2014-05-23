@@ -7,3 +7,45 @@
     max-height: none;
     text-align: center;
 }
+
+
+
+
+.arch-camera {
+    transform:rotate(270deg);
+    -webkit-transform: rotate(-90deg) translate(0, 0);
+    -webkit-transform-origin: 50% 50%;
+    border-color: red;
+    border-style: dotted solid dashed double;
+}
+
+.arch-img-wrapper {
+    width: 95%;
+    height: 400px;
+}
+
+.arch-well {
+    vertical-align:middle;
+    text-align:center;
+    margin-left:-140px;
+    height:600px;
+}
+
+
+a.arch-control {
+    display: inline-block;
+    width: 48%;
+}
+
+img.arch-control {
+    width: 70%;
+}
+
+.arch-control-table {
+    margin: 0 auto;
+    width: 200px;
+}
+
+dd,dl {
+    display: inline-block;
+}
