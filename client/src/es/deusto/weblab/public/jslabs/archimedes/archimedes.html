@@ -22,6 +22,7 @@
     <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
 
     <script type="text/coffeescript" src="js/retrievers.coffee"></script>
+    <script type="text/javascript" src="js/imagezoom.js"></script>
     <script type="text/javascript" src="js/archimedes.js"></script>
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
@@ -32,35 +33,45 @@
 
 
 <script type="text/javascript">
+
+    var i18n = {
+        "time.remaining": "Time remaining",
+        "ball.weight.liquid.level" : "Ball weight & Liquid level",
+        "time.weight.plot" : "Time / Weight Plot",
+        "hd.picture" : "HD Picture",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)"
+    };
+
     var Registry = {
         "default" : {
             "ball_mass": 20,
             "ball_density": 40,
             "liquid_name": "water",
             "liquid_density": 15,
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/splash1"
+        },
+        "name1" : {
+            "ball_mass": 20,
+            "ball_density": 40,
+            "liquid_name": "water",
+            "liquid_density": 15,
             "webcam": "http://whatever.com/name1.jpg"
         },
-//        "name1" : {
-//            "ball_mass": 20,
-//            "ball_density": 40,
-//            "liquid_name": "water",
-//            "liquid_density": 15,
-//            "webcam": "http://whatever.com/name1.jpg"
-//        },
-//        "name2" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 20,
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        }
-//        "name3" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 20,
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        }
+        "name2" : {
+            "ball_mass": 20,
+            "ball_density": 60,
+            "liquid_density": 20,
+            "liquid_name": "oil",
+            "webcam": "http://whatever.com/name2.jpg"
+        },
+        "name3" : {
+            "ball_mass": 20,
+            "ball_density": 60,
+            "liquid_density": 20,
+            "liquid_name": "oil",
+            "webcam": "http://whatever.com/name2.jpg"
+        }
     };
 </script>
 
@@ -76,8 +87,9 @@
                 if(!Registry.hasOwnProperty(instance))
                     continue;
 
+                var data = Registry[instance];
                 instancesNumber += 1;
-                rendered += Mustache.render(template, {"instanceid": instance});
+                rendered += Mustache.render(template, {"instanceid": instance, "webcam": data.webcam});
             }
 
             // Insert it.
@@ -95,61 +107,11 @@
                 archimedesInstance.initializeInstance();
             }
 
-            var res = function() {
-                console.log("RESIZING");
+            // Fix the issue with the webcam image rotation.
+            fixImageRotation();
 
-                // The image wrappers should meet the 640x480 aspect ratio of the image.
-                var wrapper = $(".arch-img-wrapper");
-                var width = wrapper.width();
-                var ratio = 640 / 480;
-                wrapper.height(ratio * width);
-
-                // The image itself should be the wrapper's size. However, the image is
-                // rotated, so the width/height are interchanged.
-                var img = $(".arch-camera");
-                img.height(wrapper.width());
-                img.width(wrapper.height());
-
-                //var c = $(".arch-camera");
-                //c.width(c.parent().width());
-                //c.parent().height(c.width());
-                //c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
-            };
-
-            $(window).resize(function(){
-                res();
-            });
-            res();
-
-
-            var hover = function(ev) {
-                var cam = $(this);
-
-                console.log("ON HOVER");
-                console.log(ev);
-
-                if(ev.type == "mouseenter") {
-                    // Store the original dimensions.
-                    cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
-
-                    cam.width(cam.width() * 1.5);
-                    cam.height(cam.height() * 1.5);
-
-                    // Center it.
-                    cam.css("left", "" + -cam.width() / 8 + "px");
-                } else {
-                    // Restore the original dimensions.
-                    var original = cam.data("original-dimensions");
-                    cam.width(original.w);
-                    cam.height(original.h);
-
-                    // Center it.
-                    cam.css("left", "0px");
-                }
-            };
-            $(".arch-camera").hover(hover);
-
-
+            // Enable image zooming on hover.
+            enableImageZooming();
         });
     });
 
@@ -169,6 +131,28 @@
         } else {
             col.addClass("col-md-3");
         }
+    }
+
+
+    //! Fixes the issues that appear because the webcamera image
+    //! needs to be rotated through CSS.
+    function fixImageRotation() {
+        $(window).resize(function() {
+            // The image wrappers should meet the 640x480 aspect ratio of the image.
+            var wrapper = $(".arch-img-wrapper");
+            var width = wrapper.width();
+            var ratio = 640 / 480;
+            wrapper.height(ratio * width);
+
+            // The image itself should be the wrapper's size. However, the image is
+            // rotated, so the width/height are interchanged.
+            var img = $(".arch-camera");
+            img.height(wrapper.width());
+            img.width(wrapper.height());
+        });
+
+        // Trigger it on the start.
+        $(window).trigger("resize");
     }
 
 </script>
@@ -218,8 +202,7 @@
 <div class="container">
 
     <h2>
-    Time remaining:
-    <span class="timer" id="timer"></span>
+        <span class="timer" id="timer"></span>
     </h2>
 
     <div class="instances_row row clearfix">

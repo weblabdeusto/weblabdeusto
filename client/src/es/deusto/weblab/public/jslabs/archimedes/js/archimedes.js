@@ -117,6 +117,7 @@ ArchimedesInstance = function (instanceid) {
                 Weblab.sendCommand("IMAGE",
                     function (data) {
                         $(this).removeAttr("disabled");
+
                         $("#hdpic").attr("src", "data:image/jpg;base64," + data);
                         $(this).find("img").attr("src", "img/photo_green.png");
                     },
