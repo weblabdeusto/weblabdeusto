@@ -21,6 +21,7 @@
 
 
 .arch-camera {
+    position: relative;
     transform:rotate(270deg);
     -webkit-transform: rotate(-90deg) translate(-100%, 0%) scale(1, 1);
     -webkit-transform-origin: 0% 0%;

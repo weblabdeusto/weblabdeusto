@@ -57,14 +57,14 @@
             var rendered = Mustache.render(template, {"instanceid": "default"});
             $(".instances_row").html(rendered);
 
-//            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
-//            $(".instances_row").html(rendered + rendered2);
-//
-//            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
-//            $(".instances_row").html(rendered + rendered2 + rendered3);
-//
-//            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
-//            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
+            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
+            $(".instances_row").html(rendered + rendered2);
+
+            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
+            $(".instances_row").html(rendered + rendered2 + rendered3);
+
+            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
+            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
 
 
             var archimedesInstance = new ArchimedesInstance("default");
@@ -98,19 +98,33 @@
 
 
             var hover = function(ev) {
+                var cam = $(this);
 
-                if(ev.type == "mouseenter") {
-
-                } else {
-
-                }
                 console.log("ON HOVER");
                 console.log(ev);
 
-                var cam = $(".arch-camera");
+                if(ev.type == "mouseenter") {
+                    // Store the original dimensions.
+                    cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
 
+                    cam.width(cam.width() * 1.5);
+                    cam.height(cam.height() * 1.5);
+
+                    // Center it.
+                    cam.css("left", "" + -cam.width() / 8 + "px");
+                } else {
+                    // Restore the original dimensions.
+                    var original = cam.data("original-dimensions");
+                    cam.width(original.w);
+                    cam.height(original.h);
+
+                    // Center it.
+                    cam.css("left", "0px");
+                }
             };
             $(".arch-camera").hover(hover);
+
+            
         });
     });
 </script>
