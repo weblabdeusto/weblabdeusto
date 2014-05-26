@@ -3,6 +3,12 @@
   overflow-y: auto;
 }
 
+.modal-dialog {
+    max-width: 80%;
+    overflow-x: auto;
+    width: 80%;
+}
+
 .modal-body {
     max-height: none;
     text-align: center;
