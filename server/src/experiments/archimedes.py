@@ -147,7 +147,7 @@ class Archimedes(Experiment):
             img = base64.b64encode(resp)
             return img
         elif board_command == "PLOT":
-            return self._send(target_board, "plot")
+            return self._send(target_board, "plotload")
         else:
             return "Unknown command. Allowed commands: " + "[UP | DOWN | SLOW | LEVEL | LOAD | IMAGE | PLOT]"
 
