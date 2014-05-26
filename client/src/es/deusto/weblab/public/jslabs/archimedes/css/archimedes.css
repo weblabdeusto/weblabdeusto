@@ -31,6 +31,7 @@
     transform:rotate(270deg);
     -webkit-transform: rotate(-90deg) translate(-100%, 0%) scale(1, 1);
     -webkit-transform-origin: 0% 0%;
+    z-index: 10; /* Always display over the buttons */
 }
 
 .arch-img-wrapper {
@@ -58,9 +59,18 @@ img.arch-control {
 .arch-controls-table {
     margin: 0 auto;
     width: 200px;
-
 }
 
 dd,dl {
     display: inline-block;
+}
+
+
+
+.glower { opacity: 0.8 }
+
+.glower:hover {
+    opacity: 1;
+    border-radius: 25px;
+    box-shadow: 0 0 5px 10px rgba(255, 255, 0, .75);
 }
