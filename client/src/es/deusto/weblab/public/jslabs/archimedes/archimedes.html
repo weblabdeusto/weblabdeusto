@@ -33,6 +33,13 @@
 
 <script type="text/javascript">
     var Registry = {
+        "default" : {
+            "ball_mass": 20,
+            "ball_density": 40,
+            "liquid_name": "water",
+            "liquid_density": 15,
+            "webcam": "http://whatever.com/name1.jpg"
+        },
         "name1" : {
             "ball_mass": 20,
             "ball_density": 40,
@@ -46,6 +53,13 @@
             "liquid_density": 20,
             "liquid_name": "oil",
             "webcam": "http://whatever.com/name2.jpg"
+        },
+        "name3" : {
+            "ball_mass": 20,
+            "ball_density": 60,
+            "liquid_density": 20,
+            "liquid_name": "oil",
+            "webcam": "http://whatever.com/name2.jpg"
         }
     };
 </script>
@@ -54,21 +68,32 @@
     $(document).ready(function(){
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
 
-            var rendered = Mustache.render(template, {"instanceid": "default"});
+            var rendered = "";
+            var instancesNumber = 0;
+
+            // Render the HTML for every instance.
+            for(var instance in Registry) {
+                if(!Registry.hasOwnProperty(instance))
+                    continue;
+
+                instancesNumber += 1;
+                rendered += Mustache.render(template, {"instanceid": instance});
+            }
+
+            // Insert it.
             $(".instances_row").html(rendered);
 
-            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
-            $(".instances_row").html(rendered + rendered2);
+            // Dynamically size the bootstrap columns so that it looks pretty enough.
+            fitInstances(instancesNumber);
 
-            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
-            $(".instances_row").html(rendered + rendered2 + rendered3);
+            // Initialize every Archimedes instance.
+            for(var instance in Registry) {
+                if(!Registry.hasOwnProperty(instance))
+                    continue;
 
-            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
-            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
-
-
-            var archimedesInstance = new ArchimedesInstance("default");
-            archimedesInstance.initializeInstance();
+                var archimedesInstance = new ArchimedesInstance(instance);
+                archimedesInstance.initializeInstance();
+            }
 
             var res = function() {
                 console.log("RESIZING");
@@ -127,6 +152,25 @@
 
         });
     });
+
+
+    //! Fits the instances by defining the col-md-* classes through JS,
+    //! depending on the actual number of instances.
+    function fitInstances(instancesNumber) {
+        var col = $(".instance-column");
+
+        if(instancesNumber == 1) {
+            col.addClass("col-md-6");
+            col.addClass("col-md-offset-3");
+        } else if(instancesNumber == 2) {
+            col.addClass("col-md-6");
+        } else if(instancesNumber == 3) {
+            col.addClass("col-md-4");
+        } else {
+            col.addClass("col-md-3");
+        }
+    }
+
 </script>
 
 
