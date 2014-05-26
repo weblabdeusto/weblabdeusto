@@ -42,6 +42,12 @@
 }
 
 
+.instance-column {
+    border-radius: 5px;
+    border: 1px solid #EEE;
+    padding-bottom: 20px;
+}
+
 .arch-instance-title {
     text-align: center;
 }
