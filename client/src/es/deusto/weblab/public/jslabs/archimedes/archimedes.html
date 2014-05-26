@@ -58,22 +58,42 @@
             $(".instances_row").html(rendered);
 
             var rendered2 = Mustache.render(template, {"instanceid": "name2"});
-            //$(".instances_row").html(rendered + rendered2);
+            $(".instances_row").html(rendered + rendered2);
+
+            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
+            $(".instances_row").html(rendered + rendered2 + rendered3);
+
+            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
+            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
+
 
             var archimedesInstance = new ArchimedesInstance("default");
             archimedesInstance.initializeInstance();
 
             var res = function() {
                 console.log("RESIZING");
-                var c = $(".arch-camera");
-                c.width(c.parent().width());
+
+                // The image wrappers should meet the 640x480 aspect ratio of the image.
+                var wrapper = $(".arch-img-wrapper");
+                var width = wrapper.width();
+                var ratio = 640 / 480;
+                wrapper.height(ratio * width);
+
+                // The image itself should be the wrapper's size. However, the image is
+                // rotated, so the width/height are interchanged.
+                var img = $(".arch-camera");
+                img.height(wrapper.width());
+                img.width(wrapper.height());
+
+                //var c = $(".arch-camera");
+                //c.width(c.parent().width());
                 //c.parent().height(c.width());
 
                 // Calculate the offset
                 var hoffset = -(c.width() - c.height()) / 2;
                 var voffset = (c.height() - c.width()) / 2;
                 hoffset = 0;
-                c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
+                //c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
             };
 
             $(window).resize(function(){
@@ -127,6 +147,11 @@
 
 
 <div class="container">
+
+    <h2>
+    Time remaining:
+    <span class="timer" id="timer"></span>
+    </h2>
 
     <div class="instances_row row clearfix">
 

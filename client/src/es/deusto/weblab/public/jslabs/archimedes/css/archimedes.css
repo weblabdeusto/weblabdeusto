@@ -9,22 +9,26 @@
 }
 
 
-
 .debug {
     border-color: red;
     border-style: dotted solid dashed double;
 }
 
 
+.arch-instance-title {
+    text-align: center;
+}
+
+
 .arch-camera {
     transform:rotate(270deg);
-    -webkit-transform: rotate(-90deg) translate(0, 0);
-    -webkit-transform-origin: 50% 50%;
+    -webkit-transform: rotate(-90deg) translate(-100%, 0%) scale(1, 1);
+    -webkit-transform-origin: 0% 0%;
 }
 
 .arch-img-wrapper {
     width: 95%;
-    height: 400px;
+    height: 480px; /* JS-modified to meet a 640x480 aspect ratio */
 }
 
 .arch-well {
@@ -44,9 +48,10 @@ img.arch-control {
     width: 70%;
 }
 
-.arch-control-table {
+.arch-controls-table {
     margin: 0 auto;
     width: 200px;
+
 }
 
 dd,dl {
