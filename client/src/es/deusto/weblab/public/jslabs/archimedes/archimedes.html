@@ -57,14 +57,14 @@
             var rendered = Mustache.render(template, {"instanceid": "default"});
             $(".instances_row").html(rendered);
 
-            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
-            $(".instances_row").html(rendered + rendered2);
-
-            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
-            $(".instances_row").html(rendered + rendered2 + rendered3);
-
-            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
-            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
+//            var rendered2 = Mustache.render(template, {"instanceid": "name2"});
+//            $(".instances_row").html(rendered + rendered2);
+//
+//            var rendered3 = Mustache.render(template, {"instanceid": "name3"});
+//            $(".instances_row").html(rendered + rendered2 + rendered3);
+//
+//            var rendered4 = Mustache.render(template, {"instanceid": "name3"});
+//            $(".instances_row").html(rendered + rendered2 + rendered3 + rendered4);
 
 
             var archimedesInstance = new ArchimedesInstance("default");
