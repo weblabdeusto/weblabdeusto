@@ -11,7 +11,7 @@
     <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
-    <script type="text/javascript" src="//d3js.org/d3.v3.js"></script>
+    <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
 
     <!-- WebLab library -->
@@ -88,11 +88,6 @@
                 //var c = $(".arch-camera");
                 //c.width(c.parent().width());
                 //c.parent().height(c.width());
-
-                // Calculate the offset
-                var hoffset = -(c.width() - c.height()) / 2;
-                var voffset = (c.height() - c.width()) / 2;
-                hoffset = 0;
                 //c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
             };
 
@@ -100,6 +95,22 @@
                 res();
             });
             res();
+
+
+            var hover = function(ev) {
+
+                if(ev.type == "mouseenter") {
+
+                } else {
+
+                }
+                console.log("ON HOVER");
+                console.log(ev);
+
+                var cam = $(".arch-camera");
+
+            };
+            $(".arch-camera").hover(hover);
         });
     });
 </script>
