@@ -23,7 +23,9 @@
 
     <script type="text/coffeescript" src="js/retrievers.coffee"></script>
     <script type="text/javascript" src="js/imagezoom.js"></script>
-    <script type="text/javascript" src="js/archimedes.js"></script>
+    <script type="text/javascript" src="js/misc_ui.js"></script>
+    <script type="text/javascript" src="js/archimedes_instance.js"></script>
+    <script type="text/javascript" src="js/archimedes_experiment.js"></script>
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
 
@@ -77,83 +79,12 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
-
-            var rendered = "";
-            var instancesNumber = 0;
-
-            // Render the HTML for every instance.
-            for(var instance in Registry) {
-                if(!Registry.hasOwnProperty(instance))
-                    continue;
-
-                var data = Registry[instance];
-                instancesNumber += 1;
-                rendered += Mustache.render(template, {"instanceid": instance, "webcam": data.webcam});
-            }
-
-            // Insert it.
-            $(".instances_row").html(rendered);
-
-            // Dynamically size the bootstrap columns so that it looks pretty enough.
-            fitInstances(instancesNumber);
-
-            // Initialize every Archimedes instance.
-            for(var instance in Registry) {
-                if(!Registry.hasOwnProperty(instance))
-                    continue;
-
-                var archimedesInstance = new ArchimedesInstance(instance);
-                archimedesInstance.initializeInstance();
-            }
-
-            // Fix the issue with the webcam image rotation.
-            fixImageRotation();
-
-            // Enable image zooming on hover.
-            enableImageZooming();
-        });
+        // global
+        archimedesExperiment = new ArchimedesExperiment(Registry);
     });
 
 
-    //! Fits the instances by defining the col-md-* classes through JS,
-    //! depending on the actual number of instances.
-    function fitInstances(instancesNumber) {
-        var col = $(".instance-column");
 
-        if(instancesNumber == 1) {
-            col.addClass("col-md-6");
-            col.addClass("col-md-offset-3");
-        } else if(instancesNumber == 2) {
-            col.addClass("col-md-6");
-        } else if(instancesNumber == 3) {
-            col.addClass("col-md-4");
-        } else {
-            col.addClass("col-md-3");
-        }
-    }
-
-
-    //! Fixes the issues that appear because the webcamera image
-    //! needs to be rotated through CSS.
-    function fixImageRotation() {
-        $(window).resize(function() {
-            // The image wrappers should meet the 640x480 aspect ratio of the image.
-            var wrapper = $(".arch-img-wrapper");
-            var width = wrapper.width();
-            var ratio = 640 / 480;
-            wrapper.height(ratio * width);
-
-            // The image itself should be the wrapper's size. However, the image is
-            // rotated, so the width/height are interchanged.
-            var img = $(".arch-camera");
-            img.height(wrapper.width());
-            img.width(wrapper.height());
-        });
-
-        // Trigger it on the start.
-        $(window).trigger("resize");
-    }
 
 </script>
 

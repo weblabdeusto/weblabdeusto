@@ -22,23 +22,19 @@ ArchimedesInstance = function (instanceid) {
         setTimeToGo(time);
     });
 
-    Weblab.setOnStartInteractionCallback(function () {
-        showFrame();
-        console.log("[DBG]: On start interaction");
-
+    // Callback to handle interaction start for the instance.
+    // It should be invoked from the single Experiment.
+    this.handleStartInteraction = function () {
         this._retrieveLevelController = StartRetrievingLevel(instanceid);
         this._retrieveLoadController = StartRetrievingLoad(instanceid);
+    };
 
-        //light_page();
-    }.bind(this));
-
-    Weblab.setOnEndCallback(function () {
-        hideFrame();
-        console.log("[DBG]: On end interaction");
-
+    // Callback to handle interaction start for the instance.
+    // It should be invoked from the single Experiment.
+    this.handleEndCallback = function () {
         this._retrieveLoadController.stop();
         this._retrieveLevelController.stop();
-    }.bind(this));
+    };
 
 
     //! Initializes the Archimedes instance.
