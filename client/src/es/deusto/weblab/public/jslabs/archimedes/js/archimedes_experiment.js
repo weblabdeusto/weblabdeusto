@@ -52,6 +52,9 @@ ArchimedesExperiment = function (registry) {
             // Enable image zooming on hover.
             enableImageZooming();
 
+            // Translate the interface.
+            this.translateInstanceInterface();
+
 
             // Declare onStartInteraction listener.
             Weblab.setOnStartInteractionCallback(function () {
@@ -83,6 +86,13 @@ ArchimedesExperiment = function (registry) {
 
         this.timerDisplayer.setTimeLeft(time);
         this.timerDisplayer.startCountDown();
+    };
+
+
+    //! Handles translation for the dynamic part of the interface.
+    //!
+    this.translateInstanceInterface = function() {
+        $(".title-ballinfo").text($.i18n._("ball.weight.liquid.level"));
     };
 
 
