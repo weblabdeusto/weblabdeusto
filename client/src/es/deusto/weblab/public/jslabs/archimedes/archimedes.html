@@ -13,6 +13,7 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
     <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+    <script type="text/javascript" src="./libs/jquery.i18n.min.js"></script>
 
     <!-- WebLab library -->
     <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
@@ -37,13 +38,26 @@
 <script type="text/javascript">
 
     var i18n = {
+        "archimedes.experiment": "Archimedes Experiment",
         "time.remaining": "Time remaining",
         "ball.weight.liquid.level" : "Ball weight & Liquid level",
         "time.weight.plot" : "Time / Weight Plot",
+        "close": "Close",
         "hd.picture" : "HD Picture",
         "weight.g" : "Weight (g)",
         "seconds.s" : "Seconds (s)"
     };
+
+    $.i18n.load(i18n);
+
+    //! Gets the translation for an identifier.
+    //!
+    function getText(ident) {
+        if(ident in i18n)
+            return i18n[ident];
+        else
+            return "[" + ident + "]";
+    }
 
     var Registry = {
         "default" : {
@@ -81,9 +95,19 @@
     $(document).ready(function(){
         // global
         archimedesExperiment = new ArchimedesExperiment(Registry);
+
+        // Carries out translations on the HTML, modifying the text
+        // in those elements which are not dynamically created.
+        translatePage();
     });
 
 
+    function translatePage() {
+        $(document).attr("title", $.i18n._("archimedes.experiment"));
+        $("#hdModalLabelTitle").text($.i18n._("hd.picture"));
+        $(".modal-footer > button").text($.i18n._("close"));
+        $("#plotModalLabel").text($.i18n._("time.weight.plot"));
+    }
 
 
 </script>
@@ -96,7 +120,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">HD picture</h4>
+                <h4 class="modal-title" id="hdModalLabelTitle">HD picture</h4>
             </div>
             <div class="modal-body">
                 <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
@@ -108,7 +132,7 @@
     </div>
 </div>
 
-
+l
 <!-- Large modal to show the TIME/WEIGHT plot -->
 <!-- Modal -->
 <div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
