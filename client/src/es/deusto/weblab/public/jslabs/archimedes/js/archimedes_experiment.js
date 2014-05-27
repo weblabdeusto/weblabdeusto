@@ -76,15 +76,14 @@ ArchimedesExperiment = function (registry) {
     };
 
     // To set the timer to its initial value.
-    function setTimeToGo(time) {
+    this.setTimeToGo = function(time) {
         //timer function
         var d = new Date();
         d.setTime(d.getTime() + (time * 1000));
-        //$('#timer').tinyTimer({ to: d });
 
-        timerDisplayer.setTimeLeft(time);
-        timerDisplayer.startCountDown();
-    }
+        this.timerDisplayer.setTimeLeft(time);
+        this.timerDisplayer.startCountDown();
+    };
 
 
     //////////////////
@@ -94,11 +93,12 @@ ArchimedesExperiment = function (registry) {
 
     this.initialize();
 
+    this.timerDisplayer = new TimerDisplayer("timer");
+
     // Set the timer initialization handler.
     Weblab.setOnTimeCallback(function (time) {
-        //debugger;
-        console.log("[DBG]: Time left: " + time);
-        setTimeToGo(time);
-    });
+        console.log("[DBG]: Time leftt: " + time);
+        this.setTimeToGo(time);
+    }.bind(this));
 
 }; //! End-of ArchimedesInstance
