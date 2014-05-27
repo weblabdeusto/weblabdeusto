@@ -4,7 +4,7 @@
     left: 10px;
     top: 10px;
 
-    font-size: 2em;
+    font-size: 1.6em;
     font-family: "Times New Roman", Times, serif;
     color: #222;
     text-shadow: 1px 3px 5px #555;
@@ -12,11 +12,13 @@
     width: auto;
 
     padding: 4px 8px 4px 8px;
-    background-color: #DDD;
+    background-color: rgba(210, 210, 210, 0.5);
     display: inline-block;
     border-radius: 6px;
     border: 2px solid #444;
     box-shadow: 2px 2px 10px 2px #222;
+
+    z-index: 100;
 }
 
 .modal {
