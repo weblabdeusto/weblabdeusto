@@ -5,6 +5,13 @@
 //! nodes, which will be identified by the instanceid.
 ArchimedesInstance = function (instanceid) {
 
+    // Simple utility function to retrieve a CSS selector for an
+    // instance-specific ID.
+    function getidselect(id) {
+        return "#" + instanceid + "-" + id
+    }
+
+
     // Callback to handle interaction start for the instance.
     // It should be invoked from the single Experiment.
     this.handleStartInteraction = function () {
@@ -20,13 +27,39 @@ ArchimedesInstance = function (instanceid) {
     };
 
 
+    //! Updates the view to show only those components that it
+    //! should, according to the view definition.
+    //!
+    //! @param inst_view: The part of the view definiiton that
+    //! corresponds to the specific instance. This should be a simple
+    //! list with certain fields inside.
+    this.updateView = function(inst_view) {
+
+        // The following element names are the specific names
+        // that the View MUST contain or not.
+        var elements = {
+            "webcam" : $(getidselect("webcam-wrapper")),
+            "controls" : $(getidselect("upButton") + "," + getidselect("downButton")),
+            "hdcam" : $(getidselect("photoButton")),
+            "plot" : $(getidselect("plotButton")),
+            "sensor_weight": $(getidselect("load") + "," + getidselect("load-img")),
+            "sensor_level" : $(getidselect("level") + "," + getidselect("level-img")),
+            "sensor_panel" : $(getidselect("weight-level-panel"))
+        };
+
+        // Hide those elements which aren't present in the inst_view list.
+        $.each(elements, function(elem, selector) {
+            if(inst_view.indexOf(elem) > -1)
+                selector.show();
+            else
+                selector.hide();
+        });
+    };
+
+
     //! Initializes the Archimedes instance.
     //!
     this.initializeInstance = function() {
-
-        function getidselect(id) {
-            return "#" + instanceid + "-" + id
-        }
 
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
         if (Weblab.checkOnline() == true)

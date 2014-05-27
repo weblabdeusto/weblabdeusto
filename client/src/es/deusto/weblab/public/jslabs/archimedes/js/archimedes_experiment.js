@@ -6,7 +6,10 @@
 //!
 //! @param registry: Registry object of Archimedes instance data,
 //! from which the instances themselves will be constructed.
-ArchimedesExperiment = function (registry) {
+//!
+//! @param view: View definition. To indicate which components of each
+//! instance are shown and which are not.
+ArchimedesExperiment = function (registry, view) {
 
     // To store the instances.
     this.instances = {};
@@ -45,6 +48,10 @@ ArchimedesExperiment = function (registry) {
 
                 this.instances[instance] = archimedesInstance;
             }
+
+            // Hides those components that should not be shown according to the
+            // specified view.
+            this.updateView(view);
 
             // Fix the issue with the webcam image rotation.
             fixImageRotation();
@@ -88,6 +95,18 @@ ArchimedesExperiment = function (registry) {
         this.timerDisplayer.startCountDown();
     };
 
+
+    //! Defines (for the first or nth time) which components
+    //! are seen and which are not, through the provided view.
+    //!
+    //! @param view: View definition.
+    this.updateView = function(view) {
+        $.each(view, function(name, inst_view) {
+            if(name in this.instances) {
+                this.instances[name].updateView(inst_view);
+            }
+        }.bind(this));
+    };
 
     //! Handles translation for the dynamic part of the interface.
     //!

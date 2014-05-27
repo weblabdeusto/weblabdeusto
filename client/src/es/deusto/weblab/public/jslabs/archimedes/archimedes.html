@@ -91,12 +91,16 @@
             "webcam": "http://whatever.com/name2.jpg"
         }
     };
+
+    var View = {
+        "default" : ["controls", "sensor_weight", "webcam", "hdcam", "plot"]
+    };
 </script>
 
 <script type="text/javascript">
     $(document).ready(function(){
         // global
-        archimedesExperiment = new ArchimedesExperiment(Registry);
+        archimedesExperiment = new ArchimedesExperiment(Registry, View);
 
         // Carries out translations on the HTML, modifying the text
         // in those elements which are not dynamically created.

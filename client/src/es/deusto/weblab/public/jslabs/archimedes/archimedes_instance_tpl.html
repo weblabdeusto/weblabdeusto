@@ -8,7 +8,7 @@
     <div class="col-md-12 column">
         <!--<div class="arch-well media well">-->
         <!-- DIV que contiene la imagen de la webcam en tiempo real -->
-        <div class="arch-img-wrapper">
+        <div class="arch-img-wrapper" id="{{instanceid}}-webcam-wrapper">
             <img class="arch-camera" id="{{instanceid}}-cam1"
                  src="{{webcam}}">
         </div>
@@ -48,7 +48,7 @@
             </div>
 
 
-            <div class="panel panel-default">
+            <div class="panel panel-default" id="{{instanceid}}-weight-level-panel">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a href="#collapseTwo" class="title-ballinfo" data-toggle="collapse" data-target="#{{instanceid}}-collapseTwo">
@@ -58,9 +58,9 @@
                 </div>
                 <div id="{{instanceid}}-collapseTwo" class="panel-collapse collapse in">
                     <div class="panel-body" style="vertical-align:middle; text-align:center">
-                        <img src="../archimedes/img/load.png" style="height:50px"> <span class="load"
+                        <img src="../archimedes/img/load.png" id="{{instanceid}}-load-img" style="height:50px"> <span class="load"
                                                                                          id="{{instanceid}}-load"></span>
-                        <img src="../archimedes/img/level.png" style="height:50px"> <span class="level"
+                        <img src="../archimedes/img/level.png" id="{{instanceid}}-level-img" style="height:50px"> <span class="level"
                                                                                           id="{{instanceid}}-level"></span>
                     </div>
                 </div>
