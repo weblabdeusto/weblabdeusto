@@ -6,6 +6,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 public interface IWebLabI18N extends Messages {
 	
 	public String [] LANGUAGES = {
+            "العربية",
             "Čeština",
 			"English",
 			"Español",
@@ -22,6 +23,7 @@ public interface IWebLabI18N extends Messages {
 	
 	// Must use the same order
 	public String [] LANGUAGE_CODES = {
+            "ar",
             "cs",
 			"en",
 			"es",

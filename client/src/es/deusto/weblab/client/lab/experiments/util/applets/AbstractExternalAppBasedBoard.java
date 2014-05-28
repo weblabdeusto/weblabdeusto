@@ -243,9 +243,16 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}-*/;
 	
 	protected static native void startInteractionImpl(String initialConfig) /*-{
-	    // TODO: For now, no parameters are passed to start interaction because there are issues with
-	    // Flash if we do.
-		$wnd.wl_inst.startInteraction();
+	    // There used to be issues because wl_inst startInteraction is defined by the app (ej: by flash, java or js),
+        // and some of these use an older version of the API with no initial config. To solve the issues easily,
+        // we try to find out whether the function has at least 1 argument, and only if it does we send
+        // the initialConfig.
+        var startInteraction = $wnd.wl_inst.startInteraction;
+
+        if(startInteraction.hasOwnProperty("length") && startInteraction.length == 1)
+            $wnd.wl_inst.startInteraction(initialConfig);
+        else
+		    $wnd.wl_inst.startInteraction();
 	}-*/;
 	
 	protected static native void endImpl() /*-{

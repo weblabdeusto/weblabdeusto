@@ -3,7 +3,7 @@
 
 // This is mostly so that no errors occur when executing
 // the script stand-alone.
-parent.wl_inst = {}
+parent.wl_inst = {};
 
 ///////////////////////////////////////////////////////////////
 //
@@ -70,19 +70,19 @@ Weblab = new function () {
     parent.wl_inst.setTime = function (time) {
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
-    }
+    };
 
     parent.wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
         if(mOnStartInteractionCallback != undefined)
             mOnStartInteractionCallback(initial_config);
-    }
+    };
 
     parent.wl_inst.end = function () {
         mIsExperimentActive = false;
         if(mOnEndCallback != undefined)
             mOnEndCallback();
-    }
+    };
 
     parent.wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
@@ -112,7 +112,7 @@ Weblab = new function () {
             mFilesSentMap[id][0](msg);
             delete mFilesSentMap[id];
         }
-    }
+    };
 
 
 
@@ -150,13 +150,92 @@ Weblab = new function () {
     };
 
 
+    //! Sends a command to the experiment server periodically.
+    //! This is just an utility method.
+    //! To stop the sending, you can either return "false" from any of the callbacks,
+    //! or use the controller object that this method returns.
+    //!
+    //! When called a controller object is returned, so that the sending can be stopped
+    //! at will.
+    //!
+    //! @param text: Text to send periodically.
+    //! @param time: Time to wait after the text has been sent successfully, before sending again.
+    //! @param successHandler: Success handler that will be invoked each time.
+    //! @param errorHandler: Error handler that will be invoked if the send fails.
+    //! @return: A controller. It supports two methods: stop(), to stop it; and isActive(), to check
+    //! whether it is still running.
+    this.sendCommandPeriodically = function (text, time, successHandler, errorHandler) {
+
+        // A controller object so that the timeout can be stopped.
+        var controller = {
+            _should_stop : false,
+
+            _active : true,
+
+            //! Stops sending the command.
+            stop : function () {this._should_stop = true;},
+
+            //! Returns true if the command is still meant to be sent periodically.
+            isActive : function() {
+                return this._active;
+            }
+        };
+
+        var successHandlerWrapper = function(response) {
+            // Call the success handler.
+            var r = successHandler(response);
+
+            // Consider whether we need to invoke again.
+            if(controller._should_stop) {
+                controller._active = false;
+                return;
+            }
+
+            // This method should be invoked again soon.
+            if (r !== false)
+                setTimeout(invokeSendCommand, time);
+            else
+                controller._active = false;
+        }.bind(this);
+
+        var errorHandlerWrapper = function(response) {
+            // Call the error handler.
+            var r = errorHandler(response);
+
+            // Consider whether we need to invoke again.
+            if(controller._should_stop) {
+                controller._active = false;
+                return;
+            }
+
+            // This method should be invoked again soon.
+            if (r !== false)
+                setTimeout(invokeSendCommand, time);
+            else
+                controller._active = false;
+        };
+
+        // Wrapper function to call the sendCommand itself.
+        var invokeSendCommand = function() {
+            this.sendCommand(text, successHandlerWrapper, errorHandlerWrapper);
+        }.bind(this);
+
+        // invokeSendCommand explicitly the first time.
+        invokeSendCommand();
+
+        // Return the controller so that it can be stopped.
+        return controller;
+    };
+
+
+
     //! Sends a command to the experiment server and prints the result to console.
     //! If the command was successful it is printed to the stdout and otherwise to stderr.
     //!
     //! @param text: Command to send.
     this.testCommand = function (text) {
         this.sendCommand(text, function(success) { console.log(success); }, function(error) { console.error(error); });
-    }
+    };
 
 
     //! Sets the callback that will be invoked when the experiment finishes. Generally,
@@ -166,7 +245,7 @@ Weblab = new function () {
     //!
     this.setOnEndCallback = function (onEndCallback) {
         mOnEndCallback = onEndCallback;
-    }
+    };
 
     //! Sets the callbacks that will be invoked by default when a sendfile request
     //! finishes. The appropriate callback specified here will be invoked if no
@@ -180,7 +259,7 @@ Weblab = new function () {
     this.setFileHandlerCallbacks = function (onSuccess, onError) {
         mDefaultFileHandlerErrorCallback = onError;
         mDefaultFileHandlerSuccessCallback = onSuccess;
-    }
+    };
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
@@ -191,7 +270,7 @@ Weblab = new function () {
     //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
-    }
+    };
 
     //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
     //! the time that the experiment has left. Currently, the Weblab system only invokes
@@ -204,7 +283,7 @@ Weblab = new function () {
     //!
     this.setOnTimeCallback = function (onTimeCallback) {
         mOnTimeCallback = onTimeCallback;
-    }
+    };
 
     //! Sets the three Weblab callbacks at once.
     //!
@@ -219,7 +298,7 @@ Weblab = new function () {
         this.setOnStartInteractionCallback(onStartInteraction);
         this.setOnTimeCallback(onTime);
         this.setOnEndCallback(onEnd);
-    }
+    };
 
     //! Retrieves a configuration property.
     //!
@@ -266,7 +345,7 @@ Weblab = new function () {
     //!
     this.isExperimentActive = function () {
         return mIsExperimentActive;
-    }
+    };
 
     //! Checks whether this interface is actually connected to the real
     //! WebLab client.
@@ -274,7 +353,7 @@ Weblab = new function () {
     //! @return True, if connected to the real WL client. False otherwise.
     this.checkOnline = function () {
         return parent.wl_sendCommand != undefined;
-    }
+    };
 
 
     //! The GWT client will not function properly until the user's script has
@@ -287,7 +366,7 @@ Weblab = new function () {
     //! been loaded successfully.
     this.nowLoaded = function () {
     	parent.onFrameLoad();
-    }
+    };
 
     //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
     //! offline from the real Weblab client, then the response to SendCommand will be as specified.
