@@ -32,76 +32,145 @@
 
 		// The actual plugin constructor
 		function Plugin ( element, options ) {
-				this.element = element;
-				// jQuery has an extend method which merges the contents of two or
-				// more objects, storing the result in the first object. The first object
-				// is generally empty as we don't want to alter the default options for
-				// future instances of the plugin
-				this.settings = $.extend( {}, defaults, options );
-				this._defaults = defaults;
-				this._name = pluginName;
-				this.init();
+            this.element = element;
+            // jQuery has an extend method which merges the contents of two or
+            // more objects, storing the result in the first object. The first object
+            // is generally empty as we don't want to alter the default options for
+            // future instances of the plugin
+            this.settings = $.extend( {}, defaults, options );
+            this._defaults = defaults;
+            this._name = pluginName;
+
+
+            // To store the elements that correspond to the variables,
+            // identified by their header name or functor.
+            // Items are contained within as a [elem, tr] list.
+            this._varElements = {};
+
+            this._table = {};
+
+            this.init();
 		}
 
 		Plugin.prototype = {
-				init: function () {
-                    // Place initialization logic here
-                    // You already have access to the DOM element and
-                    // the options via the instance, e.g. this.element
-                    // and this.settings
-                    // you can add more functions like the one below and
-                    // call them like so: this.yourOtherFunction(this.element, this.settings).
-                    console.log("[DataTable]: Initializing table.");
-                    return this._createTable();
-                },
+            init: function () {
+                // Place initialization logic here
+                // You already have access to the DOM element and
+                // the options via the instance, e.g. this.element
+                // and this.settings
+                // you can add more functions like the one below and
+                // call them like so: this.yourOtherFunction(this.element, this.settings).
+                console.log("[DataTable]: Initializing table.");
+                return this._createTable();
+            },
 
-                // Creates the table for the first time.
-                _createTable: function() {
-                    var table = $("<table>").appendTo($(this.element));
-                    table.attr("class", "table table-bordered table-condensed");
+            // Creates the table for the first time.
+            _createTable: function() {
+                var table = $("<table>").appendTo($(this.element));
+                this._table = table;
+                table.attr("class", "table table-bordered table-condensed");
 
-                    var thead = $("<thead>").appendTo(table);
-                    var header_tr = $("<tr>").appendTo(thead);
-                    var th = $("<th>").appendTo(header_tr);
-                    th.text(this.getText(this.settings.header));
+                var thead = $("<thead>").appendTo(table);
+                var header_tr = $("<tr>").appendTo(thead);
+                var th = $("<th>").appendTo(header_tr);
+                th.text(this.getText(this.settings.header));
 
-                    var tbody = $("<tbody>").appendTo(table);
+                var tbody = $("<tbody>").appendTo(table);
 
-                    var that = this;
-                    $.each(this.settings.vars, function(key, value) {
-                        var tr = $("<tr>").appendTo(tbody);
-                        var td_key = $("<td>").appendTo(tr);
-                        var td_value = $("<td>").appendTo(tr);
+                var that = this;
+                $.each(this.settings.vars, function(key, value) {
+                    var tr = $("<tr>").appendTo(tbody);
+                    var td_key = $("<td>").appendTo(tr);
+                    var td_value = $("<td>").appendTo(tr);
 
-                        td_key.text(that.getText(key));
-                        td_value.text(value);
-                    });
+                    that._varElements[key] = [td_value, tr];
 
-                    return table;
-                },
+                    td_key.text(that.getText(key));
+                    td_value.text(value);
+                });
 
-                //! Gets the actual text that corresponds to the specified text,
-                //! depending on whether it is a function, on the translation
-                //! settings, etc.
-				getText: function(text) {
-	                // Gets the actual text to display depending on the settings.
-                    if($.isFunction(text)) {
-                        // If it is a function call it to obtain the actual value.
-                        return text();
-                    } else {
-                        if($.isFunction(this.settings.translator)) {
-                            // If we are configured to use a translator, use the text it returns.
-                            return this.settings.translator(text);
-                        } else {
-                            // Otherwise just use the text itself.
-                            return text;
-                        }
-                    }
-				}, // !getText
+                return table;
+            },
 
-                test : function(txt) {
-                    console.log(txt);
+
+            //! Updates the text in a specified variable.
+            //!
+            //! @param variable: Header to identify the variable.
+            update: function(variable) {
+                var v = this._varElements[variable][0];
+                var newText = this.getText(this.settings.vars[variable]);
+                var oldText = v.text();
+
+                if(newText !== oldText)
+                {
+                    // Update the text.
+                    v.text(newText);
+
+                    // Add feedback on the updated text.
+                    this._varElements[variable][1]
+                        .css("-webkit-transition","all 0.6s ease")
+                        .css("backgroundColor","white")
+                        .css("-moz-transition","all 0.6s ease")
+                        .css("-o-transition","all 0.6s ease")
+                        .css("-ms-transition","all 0.6s ease")
+
+                        .css("backgroundColor", "rgba(200, 255, 200, 1)").delay(800).queue(function() {
+                            $(this).css("backgroundColor","white");
+                            $(this).dequeue(); //Prevents box from holding color with no fadeOut on second click.
+                        });
                 }
+            },
+
+            //! Full update.
+            updateAll: function() {
+                var that = this;
+                $.each(this._varElements, function(ident, element) {
+                    that.update(ident);
+                });
+            },
+
+            //! Hides the specified variable.
+            hide : function(variable) {
+                this._varElements[variable][1].hide();
+            },
+
+            //! Shows the specified variable.
+            show : function(variable) {
+                this._varElements[variable][1].show();
+            },
+
+            //! Hides everything.
+            hideAll : function() {
+                this._table.hide();
+            },
+
+            showAll : function() {
+                this._table.show();
+            },
+
+            //! Gets the actual text that corresponds to the specified text,
+            //! depending on whether it is a function, on the translation
+            //! settings, etc.
+            getText: function(text) {
+                // Gets the actual text to display depending on the settings.
+                if($.isFunction(text)) {
+                    // If it is a function call it to obtain the actual value.
+                    return text();
+                } else {
+                    if($.isFunction(this.settings.translator)) {
+                        // If we are configured to use a translator, use the text it returns.
+                        return this.settings.translator(text);
+                    } else {
+                        // Otherwise just use the text itself.
+                        return text;
+                    }
+                }
+            }, // !getText
+
+            test : function(txt) {
+                console.log(this);
+                console.log(txt);
+            }
 
 		};
 
@@ -109,22 +178,27 @@
 		// preventing against multiple instantiations
 		$.fn[ pluginName ] = function ( optionsOrMethod ) {
 
-                var args = arguments;
+            var args = arguments;
+            var ret;
 
-				this.each(function() {
-                    var data = $.data(this, "plugin_" + pluginName);
-                    if ( !data ) {
-                            $.data( this, "plugin_" + pluginName, new Plugin( this, optionsOrMethod ) );
+            this.each(function() {
+                var data = $.data(this, "plugin_" + pluginName);
+                if ( !data ) {
+                        $.data( this, "plugin_" + pluginName, new Plugin( this, optionsOrMethod ) );
+                } else {
+                    if( data[optionsOrMethod] ) {
+                        ret = data[optionsOrMethod].apply(data, Array.prototype.slice.call(args, 1));
                     } else {
-                        if( data[optionsOrMethod] ) {
-                            return data[optionsOrMethod].apply(data, Array.prototype.slice.call(args, 1));
-                        }
-                        return this;
+                        ret = data;
                     }
-				});
+                }
+            });
 
-				// chain jQuery functions
-				return this;
+            // TODO: Improve this.
+            if(this.length == 1)
+                return ret;
+            else
+                return this;
 		};
 
 })( jQuery, window, document );
