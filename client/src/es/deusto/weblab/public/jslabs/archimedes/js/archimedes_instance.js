@@ -5,6 +5,13 @@
 //! nodes, which will be identified by the instanceid.
 ArchimedesInstance = function (instanceid) {
 
+    // Stores the current sensor values (they are updated somewhat automatically
+    // by the retrievers).
+    this.sensors = {
+        "liquid.level": 0,
+        "ball.weight": 0
+    };
+
     // Simple utility function to retrieve a CSS selector for an
     // instance-specific ID.
     function getidselect(id) {
@@ -15,8 +22,8 @@ ArchimedesInstance = function (instanceid) {
     // Callback to handle interaction start for the instance.
     // It should be invoked from the single Experiment.
     this.handleStartInteraction = function () {
-        this._retrieveLevelController = StartRetrievingLevel(instanceid);
-        this._retrieveLoadController = StartRetrievingLoad(instanceid);
+        this._retrieveLevelController = StartRetrievingLevel(instanceid, this.sensors);
+        this._retrieveLoadController = StartRetrievingLoad(instanceid, this.sensors);
     };
 
     // Callback to handle interaction start for the instance.
@@ -57,9 +64,48 @@ ArchimedesInstance = function (instanceid) {
     };
 
 
+    // Creates the data tables for the instance.
+    this.createDataTables = function() {
+
+        // Creates the data tables.
+        $(getidselect("table-sensors")).datatable({
+            header: $.i18n._("sensors"),
+            vars: {
+                "liquid.level": function() {return this.sensors["liquid.level"]; }.bind(this),
+                "ball.weight": function() {return this.sensors["ball.weight"];}.bind(this)
+            },
+            translator: $.i18n._.bind($.i18n)
+        });
+
+        $(getidselect("table-liquid")).datatable({
+            header: $.i18n._("Liquid"),
+            vars: {
+                "density": "",
+                "diameter": ""
+            },
+            translator: $.i18n._.bind($.i18n)
+        });
+
+        $(getidselect("table-ball")).datatable({
+            header: $.i18n._("ball"),
+            vars: {
+                "mass": "",
+                "volume": "",
+                "diameter": "",
+                "density": ""
+            },
+            translator: $.i18n._.bind($.i18n)
+        });
+    };
+
+
+
     //! Initializes the Archimedes instance.
     //!
     this.initializeInstance = function() {
+
+        // Create the data tables.
+        this.createDataTables();
 
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
         if (Weblab.checkOnline() == true)
