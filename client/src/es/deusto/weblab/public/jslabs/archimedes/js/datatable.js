@@ -1,0 +1,130 @@
+
+
+// the semi-colon before function invocation is a safety net against concatenated
+// scripts and/or other plugins which may not be closed properly.
+;(function ( $, window, document, undefined ) {
+
+		// undefined is used here as the undefined global variable in ECMAScript 3 is
+		// mutable (ie. it can be changed by someone else). undefined isn't really being
+		// passed in so we can ensure the value of it is truly undefined. In ES5, undefined
+		// can no longer be modified.
+
+		// window and document are passed through as local variable rather than global
+		// as this (slightly) quickens the resolution process and can be more efficiently
+		// minified (especially when both are regularly referenced in your plugin).
+
+		// Create the defaults once
+		var pluginName = "datatable",
+				defaults = {
+                    // Header text
+			        header: "Sensors",
+
+                    // Variables and values. May be functions.
+                    vars: {
+                        "Liquid Level" : "17 cm.",
+                        "Ball Weight" : function() { return "25 gr."; }
+                    },
+
+                    // Translator function. If not null, it will be used to
+                    // translate every text.
+                    translator : null
+		};
+
+		// The actual plugin constructor
+		function Plugin ( element, options ) {
+				this.element = element;
+				// jQuery has an extend method which merges the contents of two or
+				// more objects, storing the result in the first object. The first object
+				// is generally empty as we don't want to alter the default options for
+				// future instances of the plugin
+				this.settings = $.extend( {}, defaults, options );
+				this._defaults = defaults;
+				this._name = pluginName;
+				this.init();
+		}
+
+		Plugin.prototype = {
+				init: function () {
+                    // Place initialization logic here
+                    // You already have access to the DOM element and
+                    // the options via the instance, e.g. this.element
+                    // and this.settings
+                    // you can add more functions like the one below and
+                    // call them like so: this.yourOtherFunction(this.element, this.settings).
+                    console.log("[DataTable]: Initializing table.");
+                    return this._createTable();
+                },
+
+                // Creates the table for the first time.
+                _createTable: function() {
+                    var table = $("<table>").appendTo($(this.element));
+                    table.attr("class", "table table-bordered table-condensed");
+
+                    var thead = $("<thead>").appendTo(table);
+                    var header_tr = $("<tr>").appendTo(thead);
+                    var th = $("<th>").appendTo(header_tr);
+                    th.text(this.getText(this.settings.header));
+
+                    var tbody = $("<tbody>").appendTo(table);
+
+                    var that = this;
+                    $.each(this.settings.vars, function(key, value) {
+                        var tr = $("<tr>").appendTo(tbody);
+                        var td_key = $("<td>").appendTo(tr);
+                        var td_value = $("<td>").appendTo(tr);
+
+                        td_key.text(that.getText(key));
+                        td_value.text(value);
+                    });
+
+                    return table;
+                },
+
+                //! Gets the actual text that corresponds to the specified text,
+                //! depending on whether it is a function, on the translation
+                //! settings, etc.
+				getText: function(text) {
+	                // Gets the actual text to display depending on the settings.
+                    if($.isFunction(text)) {
+                        // If it is a function call it to obtain the actual value.
+                        return text();
+                    } else {
+                        if($.isFunction(this.settings.translator)) {
+                            // If we are configured to use a translator, use the text it returns.
+                            return this.settings.translator(text);
+                        } else {
+                            // Otherwise just use the text itself.
+                            return text;
+                        }
+                    }
+				}, // !getText
+
+                test : function(txt) {
+                    console.log(txt);
+                }
+
+		};
+
+		// A really lightweight plugin wrapper around the constructor,
+		// preventing against multiple instantiations
+		$.fn[ pluginName ] = function ( optionsOrMethod ) {
+
+                var args = arguments;
+
+				this.each(function() {
+                    var data = $.data(this, "plugin_" + pluginName);
+                    if ( !data ) {
+                            $.data( this, "plugin_" + pluginName, new Plugin( this, optionsOrMethod ) );
+                    } else {
+                        if( data[optionsOrMethod] ) {
+                            return data[optionsOrMethod].apply(data, Array.prototype.slice.call(args, 1));
+                        }
+                        return this;
+                    }
+				});
+
+				// chain jQuery functions
+				return this;
+		};
+
+})( jQuery, window, document );
