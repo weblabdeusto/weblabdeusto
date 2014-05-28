@@ -67,12 +67,12 @@ ArchimedesInstance = function (instanceid) {
     // Creates the data tables for the instance.
     this.createDataTables = function() {
 
-        // Creates the data tables.
+        // Creates the data tables, and data-bind them to the values.
         $(getidselect("table-sensors")).datatable({
             header: $.i18n._("sensors"),
             vars: {
-                "liquid.level": function() {return this.sensors["liquid.level"]; }.bind(this),
-                "ball.weight": function() {return this.sensors["ball.weight"];}.bind(this)
+                "liquid.level": function() { return this.sensors["liquid.level"] + " " + $.i18n._("cm"); }.bind(this),
+                "ball.weight": function() { return this.sensors["ball.weight"] + " " + $.i18n._("grams"); }.bind(this)
             },
             translator: $.i18n._.bind($.i18n)
         });
@@ -80,8 +80,8 @@ ArchimedesInstance = function (instanceid) {
         $(getidselect("table-liquid")).datatable({
             header: $.i18n._("Liquid"),
             vars: {
-                "density": "",
-                "diameter": ""
+                "density": Registry[instanceid]["liquid_density"] + " " + $.i18n._("gm2"),
+                "volume": Registry[instanceid]["liquid_volume"] + " " + $.i18n._("cl")
             },
             translator: $.i18n._.bind($.i18n)
         });
@@ -89,10 +89,14 @@ ArchimedesInstance = function (instanceid) {
         $(getidselect("table-ball")).datatable({
             header: $.i18n._("ball"),
             vars: {
-                "mass": "",
-                "volume": "",
-                "diameter": "",
-                "density": ""
+                "mass": Registry[instanceid]["ball_mass"] + " " + $.i18n._("grams"),
+                "diameter": Registry[instanceid]["ball_diameter"] + " " + $.i18n._("cm"),
+                "density": function() {
+                        var r = this["ball_diameter"] / (2 * 100); //  To meters
+                        var vol = 4 * Math.PI * r * r * r;
+                        var den = this["ball_mass"] / vol;
+                        return den.toFixed(2) + " " + $.i18n._("gm2");
+                }.bind(Registry[instanceid])
             },
             translator: $.i18n._.bind($.i18n)
         });

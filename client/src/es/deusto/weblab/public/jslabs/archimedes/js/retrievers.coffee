@@ -10,7 +10,10 @@
       (load) =>
         load = parseFloat(load);
         load = load.toFixed(2);
+
+        # Report the new value to the Instance.
         values["ball.weight"] = load
+
         console.log "[LoadRetriever]: LOAD response: " + load
         $("#" + instanceid + "-load").text(load + " " + $.i18n._("grams"));
 
@@ -34,6 +37,8 @@
       (level) =>
         level = parseFloat(level);
         level = level.toFixed(2);
+
+        # Report the new value to the Instance.
         values["liquid.level"] = level
         @level = level;
         console.log "[LevelRetriever]: LEVEL response: " + level
