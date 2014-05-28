@@ -37,10 +37,12 @@ ArchimedesInstance = function (instanceid) {
     //! Updates the view to show only those components that it
     //! should, according to the view definition.
     //!
-    //! @param inst_view: The part of the view definiiton that
+    //! @param inst_view: The part of the view definition that
     //! corresponds to the specific instance. This should be a simple
     //! list with certain fields inside.
     this.updateView = function(inst_view) {
+
+        console.log("Updating view of instance: " + instanceid);
 
         // The following element names are the specific names
         // that the View MUST contain or not.
@@ -61,6 +63,75 @@ ArchimedesInstance = function (instanceid) {
             else
                 selector.hide();
         });
+
+
+        // Match the View options to the names within the data table.
+        var sensor_matches = {
+            "sensor_level" : "liquid.level",
+            "sensor_weight" : "ball.weight"
+        };
+
+        var liquid_matches = {
+            "liquid_density": "density",
+            "liquid_volume": "volume"
+        };
+
+        var ball_matches = {
+            "ball_mass": "mass",
+            "ball_diameter": "diameter",
+            "ball_density": "density",
+            "ball_volume": "volume"
+        };
+
+        // Control visibility for the Sensors table.
+        var sensors = $(getidselect("table-sensors"));
+        var nshown = 0;
+        $.each(sensor_matches, function(key, value) {
+            if(inst_view.indexOf(key) > -1) {
+                sensors.datatable("show", value);
+                nshown++;
+            }
+            else
+                sensors.datatable("hide", value);
+        });
+        if(nshown == 0)
+            sensors.datatable("hideAll");
+        else
+            sensors.datatable("showAll");
+
+
+        // Control visibility for the Liquid table.
+        var liquid = $(getidselect("table-liquid"));
+        nshown = 0;
+        $.each(liquid_matches, function(key, value) {
+            if(inst_view.indexOf(key) > -1) {
+                liquid.datatable("show", value);
+                nshown++;
+            }
+            else
+                liquid.datatable("hide", value);
+        });
+        if(nshown == 0)
+            liquid.datatable("hideAll");
+        else
+            liquid.datatable("showAll");
+
+        // Control visibility for the ball table.
+        var ball = $(getidselect("table-ball"));
+        nshown = 0;
+        $.each(ball_matches, function(key, value) {
+            if(inst_view.indexOf(key) > -1) {
+                ball.datatable("show", value);
+                nshown++;
+            }
+            else
+                ball.datatable("hide", value);
+        });
+        if(nshown == 0)
+            ball.datatable("hideAll");
+        else
+            ball.datatable("showAll");
+
     };
 
 
@@ -90,12 +161,20 @@ ArchimedesInstance = function (instanceid) {
             header: $.i18n._("ball"),
             vars: {
                 "mass": Registry[instanceid]["ball_mass"] + " " + $.i18n._("grams"),
+
                 "diameter": Registry[instanceid]["ball_diameter"] + " " + $.i18n._("cm"),
+
                 "density": function() {
                         var r = this["ball_diameter"] / (2 * 100); //  To meters
                         var vol = 4 * Math.PI * r * r * r;
                         var den = this["ball_mass"] / vol;
                         return den.toFixed(2) + " " + $.i18n._("gm2");
+                }.bind(Registry[instanceid]),
+
+                "volume": function() {
+                    var r = this["ball_diameter"] / (2 * 100); //  To meters
+                    var vol = 4 * Math.PI * r * r * r;
+                    return vol.toFixed(2) + " " + $.i18n._("cl");
                 }.bind(Registry[instanceid])
             },
             translator: $.i18n._.bind($.i18n)

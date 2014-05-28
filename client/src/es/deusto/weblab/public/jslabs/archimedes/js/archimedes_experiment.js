@@ -101,6 +101,9 @@ ArchimedesExperiment = function (registry, view) {
     //!
     //! @param view: View definition.
     this.updateView = function(view) {
+
+        console.log("Updating view of all instances");
+
         $.each(view, function(name, inst_view) {
             if(name in this.instances) {
                 this.instances[name].updateView(inst_view);
