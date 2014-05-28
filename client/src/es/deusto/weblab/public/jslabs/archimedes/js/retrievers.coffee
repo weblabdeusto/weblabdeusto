@@ -15,7 +15,7 @@
         values["ball.weight"] = load
 
         console.log "[LoadRetriever]: LOAD response: " + load
-        $("#" + instanceid + "-load").text(load + " " + $.i18n._("grams"));
+        #$("#" + instanceid + "-load").text(load + " " + $.i18n._("grams"));
 
         $("#" + instanceid + "-table-sensors").datatable("updateAll")
       (response) =>
@@ -42,7 +42,7 @@
         values["liquid.level"] = level
         @level = level;
         console.log "[LevelRetriever]: LEVEL response: " + level
-        $("#" + instanceid + "-level").text(level + " " + $.i18n._("cm"));
+        #$("#" + instanceid + "-level").text(level + " " + $.i18n._("cm"));
 
         $("#" + instanceid + "-table-sensors").datatable("updateAll")
       (response) =>

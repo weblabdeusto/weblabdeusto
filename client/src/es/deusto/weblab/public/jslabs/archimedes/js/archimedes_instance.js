@@ -50,10 +50,13 @@ ArchimedesInstance = function (instanceid) {
             "webcam" : $(getidselect("webcam-wrapper")),
             "controls" : $(getidselect("upButton") + "," + getidselect("downButton")),
             "hdcam" : $(getidselect("photoButton")),
-            "plot" : $(getidselect("plotButton")),
-            "sensor_weight": $(getidselect("load") + "," + getidselect("load-img")),
-            "sensor_level" : $(getidselect("level") + "," + getidselect("level-img")),
-            "sensor_panel" : $(getidselect("weight-level-panel"))
+            "plot" : $(getidselect("plotButton"))
+
+// The following are unused
+// TODO: Consider removing them.
+//            "sensor_weight": $(getidselect("load") + "," + getidselect("load-img")),
+//            "sensor_level" : $(getidselect("level") + "," + getidselect("level-img")),
+//            "sensor_panel" : $(getidselect("weight-level-panel"))
         };
 
         // Hide those elements which aren't present in the inst_view list.

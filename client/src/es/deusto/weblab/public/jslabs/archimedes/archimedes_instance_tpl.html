@@ -48,7 +48,8 @@
             </div>
 
 
-            <div class="panel panel-default" id="{{instanceid}}-weight-level-panel">
+            <!-- TODO: The following are unused. Consider removing this whole panel. -->
+            <div class="panel panel-default" id="{{instanceid}}-weight-level-panel" style="display: none">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a href="#collapseTwo" class="title-ballinfo" data-toggle="collapse" data-target="#{{instanceid}}-collapseTwo">
@@ -67,7 +68,7 @@
             </div>
 
             <!-- To be filled by the custom datatables plugin -->
-            <div id="{{instanceid}}-table-sensors"/>
+            <div id="{{instanceid}}-table-sensors" class="sensor-data"/>
             <div id="{{instanceid}}-table-liquid"/>
             <div id="{{instanceid}}-table-ball"/>
 

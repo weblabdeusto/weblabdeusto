@@ -105,3 +105,22 @@ dd,dl {
     border-radius: 25px;
     box-shadow: 0 0 5px 10px rgba(255, 255, 0, .75);
 }
+
+
+
+.sensor-data
+{
+    padding-top: 10px;
+}
+
+.sensor-data>table
+{
+    outline: 4px solid #d3d0c7;
+}
+
+.sensor-data>table>thead
+{
+    background-color: #66afe9;
+    font-weight: bold;
+}
+
