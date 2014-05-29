@@ -76,7 +76,7 @@ ArchimedesInstance = function (instanceid) {
 
         var liquid_matches = {
             "liquid_density": "density",
-            "liquid_diameter": "diameter"
+            "liquid_diameter": "internal.diameter"
         };
 
         var ball_matches = {
@@ -155,7 +155,7 @@ ArchimedesInstance = function (instanceid) {
             header: $.i18n._("Liquid"),
             vars: {
                 "density": Registry[instanceid]["liquid_density"] + " " + $.i18n._("kgm3"),
-                "diameter": Registry[instanceid]["liquid_diameter"] + " " + $.i18n._("cm")
+                "internal.diameter": Registry[instanceid]["liquid_diameter"] + " " + $.i18n._("cm")
             },
             translator: $.i18n._.bind($.i18n)
         });
@@ -169,15 +169,15 @@ ArchimedesInstance = function (instanceid) {
 
                 "density": function() {
                         var r = this["ball_diameter"] / (2 * 100); //  Radius: cm to m
-                        var vol = 4 * Math.PI * r * r * r;
-                        var den = this["ball_mass"] / (vol * 1000); // Mass: g to kg
+                        var vol = (4/3) * Math.PI * r * r * r * 1000000; // m3 to cm3
+                        var den = this["ball_mass"]*1000000 / (vol * 1000); // Mass: g to kg; cm3 to m3
                         return den.toFixed(2) + " " + $.i18n._("kgm3");
                 }.bind(Registry[instanceid]),
 
                 "volume": function() {
                     var r = this["ball_diameter"] / (2 * 100); //  To meters
-                    var vol = (4/3) * Math.PI * r * r * r * 100000; // m3 to cl
-                    return vol.toFixed(2) + " " + $.i18n._("cl");
+                    var vol = (4/3) * Math.PI * r * r * r * 1000000; // m3 to cm3
+                    return vol.toFixed(2) + " " + $.i18n._("cm3");
                 }.bind(Registry[instanceid])
             },
             translator: $.i18n._.bind($.i18n)
@@ -260,7 +260,7 @@ ArchimedesInstance = function (instanceid) {
 
                 Weblab.sendCommand("IMAGE",
                     function (data) {
-                        $(this).removeAttr("disabled");
+                        photoButton.removeAttr("disabled");
 
                         $("#hdpic").attr("src", "data:image/jpg;base64," + data);
                         $(this).find("img").attr("src", "img/photo_green.png");
@@ -273,7 +273,7 @@ ArchimedesInstance = function (instanceid) {
 
             // Disable the button for now.
             $(this).find("img").attr("src", "img/photo.png");
-            $(this).attr("disabled", "disabled");
+            photoButton.attr("disabled", "disabled");
         });
 
 
