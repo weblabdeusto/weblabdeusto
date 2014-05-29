@@ -19,7 +19,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
@@ -36,13 +35,6 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
-
-        // Currently these widths and heights are fake and kept here
-        // just for compatibility. The ones that are and should be used
-        // are the cssHeight and cssWidth.
-		final int width;
-		final int height;
-
         final String cssHeight;
         final String cssWidth;
 
@@ -50,11 +42,8 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory {
 		final String htmlfile;
 		final boolean provideFileUpload;
 		
-		//final String message;
-		
-
         cssWidth   = configurationRetriever.getProperty("cssWidth", "100%");
-        cssHeight  = configurationRetriever.getProperty("cssHeight", "80%");
+        cssHeight  = configurationRetriever.getProperty("cssHeight", "auto");
         jsfile = configurationRetriever.getProperty("js.file", "");
         htmlfile = configurationRetriever.getProperty("html.file", "");
         provideFileUpload = configurationRetriever.getBoolProperty("provide.file.upload", false);
