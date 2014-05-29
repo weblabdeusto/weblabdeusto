@@ -176,7 +176,7 @@ ArchimedesInstance = function (instanceid) {
 
                 "volume": function() {
                     var r = this["ball_diameter"] / (2 * 100); //  To meters
-                    var vol = 4 * Math.PI * r * r * r * 100000; // m3 to cl
+                    var vol = (4/3) * Math.PI * r * r * r * 100000; // m3 to cl
                     return vol.toFixed(2) + " " + $.i18n._("cl");
                 }.bind(Registry[instanceid])
             },
