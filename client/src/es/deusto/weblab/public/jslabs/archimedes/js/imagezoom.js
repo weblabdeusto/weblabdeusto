@@ -1,5 +1,3 @@
-
-
 //! Enables the image zooming feature.
 //! As of now, when the webcam images are zoomed in this script
 //! makes them bigger and centered. Eventually the behaviour
@@ -7,26 +5,51 @@
 //!
 function enableImageZooming() {
 
-    $(".arch-camera").hover(function(ev){
+
+    var cams = $(".arch-camera");
+
+    function makeBig(cam) {
+        // Store the original dimensions.
+        cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
+
+        cam.width(cam.width() * 1.5);
+        cam.height(cam.height() * 1.5);
+
+        // Center it.
+        cam.css("left", "" + -cam.width() / 8 + "px");
+
+        cam.addClass("arch-camera_hover");
+    }
+
+    function makeSmall(cam) {
+        // Restore the original dimensions.
+        var original = cam.data("original-dimensions");
+        cam.width(original.w);
+        cam.height(original.h);
+
+        // Center it.
+        cam.css("left", "0px");
+
+        cam.removeClass("arch-camera_hover");
+    }
+
+    cams.hover(function (ev) {
         var cam = $(this);
 
-        if(ev.type == "mouseenter") {
-            // Store the original dimensions.
-            cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
-
-            cam.width(cam.width() * 1.5);
-            cam.height(cam.height() * 1.5);
-
-            // Center it.
-            cam.css("left", "" + -cam.width() / 8 + "px");
+        if (ev.type == "mouseenter") {
+            makeBig(cam);
         } else {
-            // Restore the original dimensions.
-            var original = cam.data("original-dimensions");
-            cam.width(original.w);
-            cam.height(original.h);
+            makeSmall(cam);
+        }
+    });
 
-            // Center it.
-            cam.css("left", "0px");
+
+    cams.click(function (ev) {
+        var cam = $(this);
+        if(cam.hasClass("arch-camera_hover")) {
+            makeSmall(cam);
+        } else {
+            makeBig(cam);
         }
     });
 

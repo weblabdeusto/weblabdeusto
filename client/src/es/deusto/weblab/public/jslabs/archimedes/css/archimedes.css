@@ -61,6 +61,12 @@
     -webkit-transform: rotate(-90deg) translate(-100%, 0%) scale(1, 1);
     -webkit-transform-origin: 0% 0%;
     z-index: 10; /* Always display over the buttons */
+
+    box-shadow: 0 0 2px 3px rgba(100, 40, 40, .75);
+}
+
+.arch-camera_hover {
+    box-shadow: 0 0 5px 10px rgba(100, 40, 40, .75);
 }
 
 .arch-img-wrapper {
