@@ -59,7 +59,7 @@
         "mass": "Mass",
         "grams": "gr.",
         "cm": "cm.",
-        "gm2": "g/m²",
+        "kgm3": "kg/m³",
         "cl": "cl."
     };
 
@@ -78,11 +78,11 @@
 
     var Registry = {
         "default" : {
-            "ball_mass": 20,
-            "ball_diameter": 40,
+            "ball_mass": 20, //
+            "ball_diameter": 4, // cm
             "liquid_name": "water",
-            "liquid_density": 15,
-            "liquid_volume": 15,
+            "liquid_density": 1000, // 1000/m3
+            "liquid_diameter": 6.5, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/splash1"
         }
 //        "name1" : {
@@ -113,7 +113,7 @@
     // "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
     var View = {
         "default" : ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
-        "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
+        "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
     };
 </script>
 

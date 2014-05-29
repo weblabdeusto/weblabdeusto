@@ -76,7 +76,7 @@ ArchimedesInstance = function (instanceid) {
 
         var liquid_matches = {
             "liquid_density": "density",
-            "liquid_volume": "volume"
+            "liquid_diameter": "diameter"
         };
 
         var ball_matches = {
@@ -154,8 +154,8 @@ ArchimedesInstance = function (instanceid) {
         $(getidselect("table-liquid")).datatable({
             header: $.i18n._("Liquid"),
             vars: {
-                "density": Registry[instanceid]["liquid_density"] + " " + $.i18n._("gm2"),
-                "volume": Registry[instanceid]["liquid_volume"] + " " + $.i18n._("cl")
+                "density": Registry[instanceid]["liquid_density"] + " " + $.i18n._("kgm3"),
+                "diameter": Registry[instanceid]["liquid_diameter"] + " " + $.i18n._("cm")
             },
             translator: $.i18n._.bind($.i18n)
         });
@@ -168,15 +168,15 @@ ArchimedesInstance = function (instanceid) {
                 "diameter": Registry[instanceid]["ball_diameter"] + " " + $.i18n._("cm"),
 
                 "density": function() {
-                        var r = this["ball_diameter"] / (2 * 100); //  To meters
+                        var r = this["ball_diameter"] / (2 * 100); //  Radius: cm to m
                         var vol = 4 * Math.PI * r * r * r;
-                        var den = this["ball_mass"] / vol;
-                        return den.toFixed(2) + " " + $.i18n._("gm2");
+                        var den = this["ball_mass"] / (vol * 1000); // Mass: g to kg
+                        return den.toFixed(2) + " " + $.i18n._("kgm3");
                 }.bind(Registry[instanceid]),
 
                 "volume": function() {
                     var r = this["ball_diameter"] / (2 * 100); //  To meters
-                    var vol = 4 * Math.PI * r * r * r;
+                    var vol = 4 * Math.PI * r * r * r * 100000; // m3 to cl
                     return vol.toFixed(2) + " " + $.i18n._("cl");
                 }.bind(Registry[instanceid])
             },
