@@ -42,11 +42,8 @@
         "archimedes.experiment": "Archimedes Experiment",
         "time.remaining": "Time remaining",
         "ball.weight.liquid.level" : "Ball weight & Liquid level",
-        "time.weight.plot" : "Time / Weight Plot",
         "close": "Close",
         "hd.picture" : "HD Picture",
-        "weight.g" : "Weight (g)",
-        "seconds.s" : "Seconds (s)",
 
         "sensors": "Sensors",
         "liquid": "Liquid",
@@ -62,7 +59,14 @@
         "cm": "cm",
         "kgm3": "kg/m³",
         "m3": "m³",
-        "cm3": "cm³"
+        "cm3": "cm³",
+
+
+        // For the Weight/Time plot
+        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+        "time.weight.plot" : "Time / Weight Plot",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)"
     };
 
     $.i18n.load(i18n);
@@ -173,8 +177,12 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
             </div>
-            <div class="modal-body" id="plotModalBody">
+            <div class="modal-body">
+                <p id="plotexplanation"></p>
+
+                <div id="plotModalBody">
                 <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

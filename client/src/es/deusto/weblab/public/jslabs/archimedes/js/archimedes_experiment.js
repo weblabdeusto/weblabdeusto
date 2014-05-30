@@ -115,6 +115,7 @@ ArchimedesExperiment = function (registry, view) {
     //!
     this.translateInstanceInterface = function() {
         $(".title-ballinfo").text($.i18n._("ball.weight.liquid.level"));
+        $("#plotexplanation").text($.i18n._("plot.explanation"))
     };
 
 
