@@ -10,6 +10,7 @@ Create Date: 2014-01-13 16:54:33.181578
 revision = 'f1ce7950ae8'
 down_revision = '3614197cb5da'
 
+import time
 import datetime
 from alembic import op
 import sqlalchemy as sa
@@ -252,10 +253,28 @@ def upgrade():
 
     skipped = []
 
+    total_uses_count = op.get_bind().execute(sql.select([sa.func.count(uue.c.id)]))
+    
+    total_uses = [ x[0] for x in total_uses_count ][0]
+
+    if total_uses:
+        print "Converting %s uses" % total_uses
+
+    last_time = time.time()
+
+    counter = 0
     for use in op.get_bind().execute(s):
         group_permission_id = use[uue.c.group_permission_id]
         user_permission_id = use[uue.c.user_permission_id]
         role_permission_id = use[uue.c.role_permission_id]
+        counter += 1
+
+        if counter % 1000 == 0:
+            new_last_time = time.time()
+            timespan = new_last_time - last_time
+            speed = 1000.0 / timespan
+            print "%s out of %s (%.2f%%). 1000 uses processed in %.2f seconds (%.2f uses / second)." % (counter, total_uses, 100.0 * counter / total_uses, timespan, speed)
+            last_time = new_last_time
 
         if not user_permission_id and not group_permission_id and not role_permission_id:
             use_id   = use[uue.c.id]
