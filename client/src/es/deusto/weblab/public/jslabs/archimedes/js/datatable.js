@@ -129,6 +129,12 @@
                 });
             },
 
+
+            // Checks if the specified variable is hidden.
+            getElement : function(variable) {
+                return !this._varElements[variable][0];
+            },
+
             //! Hides the specified variable.
             hide : function(variable) {
                 this._varElements[variable][1].hide();
@@ -188,6 +194,8 @@
                 } else {
                     if( data[optionsOrMethod] ) {
                         ret = data[optionsOrMethod].apply(data, Array.prototype.slice.call(args, 1));
+                        console.log(ret);
+                        return false;
                     } else {
                         ret = data;
                     }

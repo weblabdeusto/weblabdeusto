@@ -44,6 +44,11 @@ ArchimedesInstance = function (instanceid) {
 
         console.log("Updating view of instance: " + instanceid);
 
+        if(inst_view === undefined) {
+            inst_view = ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
+            "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
+        }
+
         // The following element names are the specific names
         // that the View MUST contain or not.
         var elements = {
@@ -58,6 +63,9 @@ ArchimedesInstance = function (instanceid) {
 //            "sensor_level" : $(getidselect("level") + "," + getidselect("level-img")),
 //            "sensor_panel" : $(getidselect("weight-level-panel"))
         };
+
+        // Store them internally.
+        this.elements = elements;
 
         // Hide those elements which aren't present in the inst_view list.
         $.each(elements, function(elem, selector) {
@@ -196,6 +204,9 @@ ArchimedesInstance = function (instanceid) {
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
         if (Weblab.checkOnline() == true)
             hideFrame();
+
+        // Call an updateView so that view-related things are always initialized.
+        this.updateView();
 
         var refresher1 = new CameraRefresher(instanceid + "-cam1");
         var refresher2 = new CameraRefresher(instanceid + "-cam2");

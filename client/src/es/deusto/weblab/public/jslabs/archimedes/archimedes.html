@@ -104,14 +104,16 @@
         "name2" : {
             "ball_mass": 20,
             "ball_density": 60,
-            "liquid_density": 20,
+            "liquid_density": 1000, // 1000/m3
+            "liquid_diameter": 6.5, // cm
             "liquid_name": "oil",
             "webcam": "http://whatever.com/name2.jpg"
         },
         "name3" : {
             "ball_mass": 20,
             "ball_density": 60,
-            "liquid_density": 20,
+            "liquid_density": 1000, // 1000/m3
+            "liquid_diameter": 6.5, // cm
             "liquid_name": "oil",
             "webcam": "http://whatever.com/name2.jpg"
         }
@@ -214,6 +216,13 @@
     </div>
 
 </div>
+
+
+<script type="text/javascript">
+    setTimeout( function() {
+        ArchimedesDesign.enableDesignView();
+    }, 1500);
+</script>
 
 
 </body>
