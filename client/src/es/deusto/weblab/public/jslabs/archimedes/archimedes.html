@@ -8,12 +8,14 @@
     <!-- Third-party libraries JS & CSS -->
     <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="css/archimedes.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes_design.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
     <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
     <script type="text/javascript" src="./libs/jquery.i18n.min.js"></script>
+
 
     <!-- WebLab library -->
     <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
@@ -30,6 +32,7 @@
     <script type="text/javascript" src="js/archimedes_experiment.js"></script>
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
+    <script type="text/javascript" src="js/archimedes_design.js"></script>
 
 </head>
 
@@ -90,28 +93,28 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.5, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/splash1"
+        },
+        "name1" : {
+            "ball_mass": 20,
+            "ball_density": 40,
+            "liquid_name": "water",
+            "liquid_density": 15,
+            "webcam": "http://whatever.com/name1.jpg"
+        },
+        "name2" : {
+            "ball_mass": 20,
+            "ball_density": 60,
+            "liquid_density": 20,
+            "liquid_name": "oil",
+            "webcam": "http://whatever.com/name2.jpg"
+        },
+        "name3" : {
+            "ball_mass": 20,
+            "ball_density": 60,
+            "liquid_density": 20,
+            "liquid_name": "oil",
+            "webcam": "http://whatever.com/name2.jpg"
         }
-//        "name1" : {
-//            "ball_mass": 20,
-//            "ball_density": 40,
-//            "liquid_name": "water",
-//            "liquid_density": 15,
-//            "webcam": "http://whatever.com/name1.jpg"
-//        },
-//        "name2" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 20,
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        },
-//        "name3" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 20,
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        }
     };
 
     // Possible values:
@@ -142,7 +145,6 @@
         $("#plotModalLabel").text($.i18n._("time.weight.plot"));
 
         // Translate the strings in the experiment instances.
-
     }
 
 
@@ -197,6 +199,12 @@
 
     <h2>
         <span class="timer" id="timer"></span>
+    </h2>
+
+    <h2>
+        <span class="editmodeh hide" id="editmodeh">
+            DESIGN MODE
+        </span>
     </h2>
 
     <div class="instances_row row clearfix">
