@@ -52,8 +52,25 @@ ArchimedesDesign = new function() {
             var tliquid = $("#" + name + "-" + "table-liquid");
             var tball = $("#" + name + "-" + "table-ball");
 
-            if(!tsensors.datatable("isHidden", "liquid.level"))
+            if(!tsensors.datatable("getElement", "liquid.level").prev().hasClass("design-disabled"))
                 v.push("sensor_level");
+            if(!tsensors.datatable("getElement", "ball.weight").prev().hasClass("design-disabled"))
+                v.push("sensor_weight");
+
+            if(!tliquid.datatable("getElement", "density").prev().hasClass("design-disabled"))
+                v.push("liquid_density");
+            if(!tliquid.datatable("getElement", "internal.diameter").prev().hasClass("design-disabled"))
+                v.push("liquid_diameter");
+
+            if(!tball.datatable("getElement", "mass").prev().hasClass("design-disabled"))
+                v.push("ball_mass");
+            if(!tball.datatable("getElement", "diameter").prev().hasClass("design-disabled"))
+                v.push("ball_diameter");
+            if(!tball.datatable("getElement", "density").prev().hasClass("design-disabled"))
+                v.push("ball_density");
+            if(!tball.datatable("getElement", "volume").prev().hasClass("design-disabled"))
+                v.push("ball_volume");
+
 //        "default" : ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
 //        "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
 

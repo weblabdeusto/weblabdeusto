@@ -132,7 +132,7 @@
 
             // Checks if the specified variable is hidden.
             getElement : function(variable) {
-                return !this._varElements[variable][0];
+                return this._varElements[variable][0];
             },
 
             //! Hides the specified variable.
@@ -194,7 +194,6 @@
                 } else {
                     if( data[optionsOrMethod] ) {
                         ret = data[optionsOrMethod].apply(data, Array.prototype.slice.call(args, 1));
-                        console.log(ret);
                         return false;
                     } else {
                         ret = data;
