@@ -173,7 +173,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	private static native void runIframeResizer() /*-{
 		$wnd.iFrameResize({
-        	log : true,
+        	log : false,
         	enablePublicMethods : true,
     	}, "#wlframe");
 	}-*/;
