@@ -382,10 +382,23 @@ Weblab = new function () {
 
 }; //! end-of class-like Weblab function
 
+(function() {
+    var script_tags = document.getElementsByTagName("script");
+    var relative_path = "";
+    var script_element;
+    for (var i = 0; i < script_tags.length; ++i) {
+        var script_src = script_tags[i].src;
+        if (script_src.indexOf("weblabjs.js") >= 0) {
+            relative_path = script_tags[i].src.replace("weblabjs.js", "");
+            break;
+        }
+    }
 
-
-
-
-
-
+    var new_script = document.createElement('script'); 
+    new_script.type = 'text/javascript'; 
+    new_script.async = true;
+    new_script.src = relative_path + "weblab_iframeResizer.contentWindow.min.js";
+    var s = document.getElementsByTagName('script')[0]; 
+    s.parentNode.insertBefore(new_script, s);
+})();
 
