@@ -8,11 +8,14 @@
     <!-- Third-party libraries JS & CSS -->
     <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="css/archimedes.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes_design.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
     <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
     <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+    <script type="text/javascript" src="./libs/jquery.i18n.min.js"></script>
+
 
     <!-- WebLab library -->
     <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
@@ -21,10 +24,15 @@
     <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
     <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
 
+    <script type="text/javascript" src="js/datatable.js"></script>
     <script type="text/coffeescript" src="js/retrievers.coffee"></script>
-    <script type="text/javascript" src="js/archimedes.js"></script>
+    <script type="text/javascript" src="js/imagezoom.js"></script>
+    <script type="text/javascript" src="js/misc_ui.js"></script>
+    <script type="text/javascript" src="js/archimedes_instance.js"></script>
+    <script type="text/javascript" src="js/archimedes_experiment.js"></script>
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
+    <script type="text/javascript" src="js/archimedes_design.js"></script>
 
 </head>
 
@@ -32,13 +40,59 @@
 
 
 <script type="text/javascript">
+
+    var i18n = {
+        "archimedes.experiment": "Archimedes Experiment",
+        "time.remaining": "Time remaining",
+        "ball.weight.liquid.level" : "Ball weight & Liquid level",
+        "close": "Close",
+        "hd.picture" : "HD Picture",
+
+        "sensors": "Sensors",
+        "liquid": "Liquid",
+        "ball": "Ball",
+        "liquid.level": "Liquid Level",
+        "ball.weight": "Ball Weight",
+        "volume": "Volume",
+        "diameter": "Diameter",
+        "internal.diameter": "Internal Diameter",
+        "density": "Density",
+        "mass": "Mass",
+        "grams": "g",
+        "cm": "cm",
+        "kgm3": "kg/m³",
+        "m3": "m³",
+        "cm3": "cm³",
+
+
+        // For the Weight/Time plot
+        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+        "time.weight.plot" : "Time / Weight Plot",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)"
+    };
+
+    $.i18n.load(i18n);
+
+    //! Gets the translation for an identifier.
+    //!
+    function getText(ident) {
+        if(ident in i18n)
+            return i18n[ident];
+        else
+            return "[" + ident + "]";
+    }
+
+    // TODO: Add some kind of resistence to individual failures of the instances.
+
     var Registry = {
         "default" : {
-            "ball_mass": 20,
-            "ball_density": 40,
+            "ball_mass": 31, // g
+            "ball_diameter": 4, // cm
             "liquid_name": "water",
-            "liquid_density": 15,
-            "webcam": "http://whatever.com/name1.jpg"
+            "liquid_density": 1000, // 1000/m3
+            "liquid_diameter": 6.5, // cm
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/splash1"
         },
 //        "name1" : {
 //            "ball_mass": 20,
@@ -50,126 +104,51 @@
 //        "name2" : {
 //            "ball_mass": 20,
 //            "ball_density": 60,
-//            "liquid_density": 20,
+//            "liquid_density": 1000, // 1000/m3
+//            "liquid_diameter": 6.5, // cm
 //            "liquid_name": "oil",
 //            "webcam": "http://whatever.com/name2.jpg"
-//        }
+//        },
 //        "name3" : {
 //            "ball_mass": 20,
 //            "ball_density": 60,
-//            "liquid_density": 20,
+//            "liquid_density": 1000, // 1000/m3
+//            "liquid_diameter": 6.5, // cm
 //            "liquid_name": "oil",
 //            "webcam": "http://whatever.com/name2.jpg"
 //        }
+    };
+
+    // Possible values:
+    // ["controls", "sensor_weight", "sensor_level", "webcam", "hdcam", "plot", "ball_mass", "ball_volume",
+    // "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
+    var View = {
+        "default" : ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
+        "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
     };
 </script>
 
 <script type="text/javascript">
     $(document).ready(function(){
-        var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
+        // global
+        archimedesExperiment = new ArchimedesExperiment(Registry, View);
 
-            var rendered = "";
-            var instancesNumber = 0;
-
-            // Render the HTML for every instance.
-            for(var instance in Registry) {
-                if(!Registry.hasOwnProperty(instance))
-                    continue;
-
-                instancesNumber += 1;
-                rendered += Mustache.render(template, {"instanceid": instance});
-            }
-
-            // Insert it.
-            $(".instances_row").html(rendered);
-
-            // Dynamically size the bootstrap columns so that it looks pretty enough.
-            fitInstances(instancesNumber);
-
-            // Initialize every Archimedes instance.
-            for(var instance in Registry) {
-                if(!Registry.hasOwnProperty(instance))
-                    continue;
-
-                var archimedesInstance = new ArchimedesInstance(instance);
-                archimedesInstance.initializeInstance();
-            }
-
-            var res = function() {
-                console.log("RESIZING");
-
-                // The image wrappers should meet the 640x480 aspect ratio of the image.
-                var wrapper = $(".arch-img-wrapper");
-                var width = wrapper.width();
-                var ratio = 640 / 480;
-                wrapper.height(ratio * width);
-
-                // The image itself should be the wrapper's size. However, the image is
-                // rotated, so the width/height are interchanged.
-                var img = $(".arch-camera");
-                img.height(wrapper.width());
-                img.width(wrapper.height());
-
-                //var c = $(".arch-camera");
-                //c.width(c.parent().width());
-                //c.parent().height(c.width());
-                //c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
-            };
-
-            $(window).resize(function(){
-                res();
-            });
-            res();
-
-
-            var hover = function(ev) {
-                var cam = $(this);
-
-                console.log("ON HOVER");
-                console.log(ev);
-
-                if(ev.type == "mouseenter") {
-                    // Store the original dimensions.
-                    cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
-
-                    cam.width(cam.width() * 1.5);
-                    cam.height(cam.height() * 1.5);
-
-                    // Center it.
-                    cam.css("left", "" + -cam.width() / 8 + "px");
-                } else {
-                    // Restore the original dimensions.
-                    var original = cam.data("original-dimensions");
-                    cam.width(original.w);
-                    cam.height(original.h);
-
-                    // Center it.
-                    cam.css("left", "0px");
-                }
-            };
-            $(".arch-camera").hover(hover);
-
-
-        });
+        // Carries out translations on the HTML, modifying the text
+        // in those elements which are not dynamically created.
+        translatePage();
     });
 
 
-    //! Fits the instances by defining the col-md-* classes through JS,
-    //! depending on the actual number of instances.
-    function fitInstances(instancesNumber) {
-        var col = $(".instance-column");
+    function translatePage() {
+        // Translate the strings in the experiment frame, etc.
+        $(document).attr("title", $.i18n._("archimedes.experiment"));
+        $("#hdModalLabelTitle").text($.i18n._("hd.picture"));
+        $(".modal-footer > button").text($.i18n._("close"));
+        $("#plotModalLabel").text($.i18n._("time.weight.plot"));
 
-        if(instancesNumber == 1) {
-            col.addClass("col-md-6");
-            col.addClass("col-md-offset-3");
-        } else if(instancesNumber == 2) {
-            col.addClass("col-md-6");
-        } else if(instancesNumber == 3) {
-            col.addClass("col-md-4");
-        } else {
-            col.addClass("col-md-3");
-        }
+        // Translate the strings in the experiment instances.
     }
+
 
 </script>
 
@@ -181,7 +160,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">HD picture</h4>
+                <h4 class="modal-title" id="hdModalLabelTitle">HD picture</h4>
             </div>
             <div class="modal-body">
                 <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
@@ -193,7 +172,6 @@
     </div>
 </div>
 
-
 <!-- Large modal to show the TIME/WEIGHT plot -->
 <!-- Modal -->
 <div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
@@ -203,8 +181,12 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
             </div>
-            <div class="modal-body" id="plotModalBody">
+            <div class="modal-body">
+                <p id="plotexplanation"></p>
+
+                <div id="plotModalBody">
                 <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -218,9 +200,20 @@
 <div class="container">
 
     <h2>
-    Time remaining:
-    <span class="timer" id="timer"></span>
+        <span class="timer" id="timer"></span>
     </h2>
+
+    <div class="editmodeh hide" id="editmodeh">
+        <h2>
+            <span>
+                DESIGN MODE
+            </span>
+        </h2>
+        <p>
+            Please, click on the elements you wish to hide.
+        </p>
+    </div>
+
 
     <div class="instances_row row clearfix">
 
@@ -229,6 +222,13 @@
     </div>
 
 </div>
+
+
+<script type="text/javascript">
+//    setTimeout( function() {
+//        ArchimedesDesign.enableDesignView();
+//    }, 1500);
+</script>
 
 
 </body>
