@@ -74,7 +74,8 @@
 	                    		   "provide.file.upload"	: true,
 	                    		   // If we use an html.file as base, we cannot use a js.file.
 	                    		   // (Though of course, we may include that js file from our html file).
-	                    		   "html.file"				: "jstest.html"
+	                    		   // "html.file"				: "jstest.html"
+	                    		   "html.file"				: "jstest2.html"
 	                    	   },
 	                    	   {
 	                    		   "experiment.name"		: "aquariumjs",
