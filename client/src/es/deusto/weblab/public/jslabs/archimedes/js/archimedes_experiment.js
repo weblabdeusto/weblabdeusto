@@ -64,7 +64,20 @@ ArchimedesExperiment = function (registry, view) {
 
 
             // Declare onStartInteraction listener.
-            Weblab.setOnStartInteractionCallback(function () {
+            Weblab.setOnStartInteractionCallback(function (initial_config) {
+
+                if(typeof(initial_config) === "string") {
+                    var config = JSON.parse(initial_config);
+                    console.log("Initial config: ");
+                    console.log(config);
+
+                    if("view" in config) {
+                        // If the config specifies the view we must initialize it accordingly.
+                        View = config["view"];
+                        this.updateView(View);
+                    }
+                }
+
                 showFrame();
 
                 $.each(this.instances, function (instanceid, instance) {
