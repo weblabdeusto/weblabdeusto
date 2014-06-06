@@ -51,7 +51,8 @@ ArchimedesExperiment = function (registry, view) {
 
             // Hides those components that should not be shown according to the
             // specified view.
-            this.updateView(view);
+            debugger;
+            this.updateView();
 
             // Fix the issue with the webcam image rotation.
             fixImageRotation();
@@ -74,7 +75,7 @@ ArchimedesExperiment = function (registry, view) {
                     if("view" in config) {
                         // If the config specifies the view we must initialize it accordingly.
                         View = config["view"];
-                        this.updateView(View);
+                        this.updateView();
                     }
                 }
 
@@ -112,14 +113,21 @@ ArchimedesExperiment = function (registry, view) {
     //! Defines (for the first or nth time) which components
     //! are seen and which are not, through the provided view.
     //!
-    //! @param view: View definition.
+    //! @param view: View definition. Optional. Uses Configuration.getView() by default.
     this.updateView = function(view) {
 
-        console.log("Updating view of all instances");
+        if(view == undefined)
+            view = Configuration.getView();
 
-        $.each(view, function(name, inst_view) {
-            if(name in this.instances) {
-                this.instances[name].updateView(inst_view);
+        console.log("Updating view of all instances");
+        console.log(view);
+
+        $.each(this.instances, function(name, instance) {
+            if(name in view) {
+                var inst_view = view[name];
+                instance.updateView(inst_view);
+            } else {
+                instance.updateView([]);
             }
         }.bind(this));
     };

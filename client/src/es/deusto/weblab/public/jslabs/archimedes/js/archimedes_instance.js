@@ -44,10 +44,18 @@ ArchimedesInstance = function (instanceid) {
 
         console.log("Updating view of instance: " + instanceid);
 
-        if(inst_view === undefined) {
+        if(inst_view === undefined || inst_view === "ALL") {
             inst_view = ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
         }
+
+        if(inst_view.length == 0) {
+            $(getidselect("experiment-instance")).hide();
+        } else {
+            $(getidselect("experiment-instance")).show();
+        }
+
+
 
         // The following element names are the specific names
         // that the View MUST contain or not.

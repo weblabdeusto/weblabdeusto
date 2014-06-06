@@ -24,6 +24,7 @@
     <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
     <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
 
+    <script type="text/javascript" src="js/archimedes_configuration.js"></script>
     <script type="text/javascript" src="js/datatable.js"></script>
     <script type="text/coffeescript" src="js/retrievers.coffee"></script>
     <script type="text/javascript" src="js/imagezoom.js"></script>
@@ -33,7 +34,6 @@
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
     <script type="text/javascript" src="js/archimedes_design.js"></script>
-    <script type="text/javascript" src="js/archimedes_edt.js"></script>
 
 </head>
 
@@ -75,58 +75,9 @@
 
     $.i18n.load(i18n);
 
-    //! Gets the translation for an identifier.
-    //!
-    function getText(ident) {
-        if(ident in i18n)
-            return i18n[ident];
-        else
-            return "[" + ident + "]";
-    }
-
     // TODO: Add some kind of resistence to individual failures of the instances.
 
-    var Registry = {
-        "default" : {
-            "ball_mass": 31, // g
-            "ball_diameter": 4, // cm
-            "liquid_name": "water",
-            "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/splash1"
-        },
-//        "name1" : {
-//            "ball_mass": 20,
-//            "ball_density": 40,
-//            "liquid_name": "water",
-//            "liquid_density": 15,
-//            "webcam": "http://whatever.com/name1.jpg"
-//        },
-//        "name2" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 1000, // 1000/m3
-//            "liquid_diameter": 6.5, // cm
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        },
-//        "name3" : {
-//            "ball_mass": 20,
-//            "ball_density": 60,
-//            "liquid_density": 1000, // 1000/m3
-//            "liquid_diameter": 6.5, // cm
-//            "liquid_name": "oil",
-//            "webcam": "http://whatever.com/name2.jpg"
-//        }
-    };
 
-    // Possible values:
-    // ["controls", "sensor_weight", "sensor_level", "webcam", "hdcam", "plot", "ball_mass", "ball_volume",
-    // "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
-    var View = {
-        "default" : ["controls", "sensor_weight", "sensor_level",  "webcam", "hdcam", "plot", "ball_mass",
-        "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
-    };
 </script>
 
 <script type="text/javascript">
