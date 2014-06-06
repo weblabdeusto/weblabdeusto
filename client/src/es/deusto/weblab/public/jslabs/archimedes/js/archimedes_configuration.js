@@ -39,10 +39,11 @@
     // ["controls", "sensor_weight", "sensor_level", "webcam", "hdcam", "plot", "ball_mass", "ball_volume",
     // "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
     var View = {
-        "default" : ["controls", "sensor_weight",  "webcam", "hdcam", "plot", "ball_mass",
+        "default" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
-
         "name1" : "ALL",
+        "name2" : "ALL",
+        "name3" : "ALL"
     };
 
 
