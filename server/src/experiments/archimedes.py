@@ -137,14 +137,20 @@ class Archimedes(Experiment):
             return self._send(target_board, "slow")
         elif board_command == "LEVEL":
             resp = self._send(target_board, "level")
+            if resp == "ERROR":
+                return resp
             num = resp.split("=")[1]
             return num
         elif board_command == "LOAD":
             resp = self._send(target_board, "load")
+            if resp == "ERROR":
+                return resp
             num = resp.split("=")[1]
             return num
         elif board_command == "IMAGE":
             resp = self._send(target_board, "image")
+            if resp == "ERROR":
+                return resp
             img = base64.b64encode(resp)
             return img
         elif board_command == "PLOT":
@@ -162,7 +168,7 @@ class Archimedes(Experiment):
 
                 return self.opener.open(board_location + command).read()
             except:
-                log.log(Archimedes, log.level.Error, "Error programming file: " + traceback.format_exc())
+                log.log(Archimedes, log.level.Error, "Error: " + traceback.format_exc())
                 return "ERROR"
         else:
             print "[Archimedes]: Simulating request: ", command
