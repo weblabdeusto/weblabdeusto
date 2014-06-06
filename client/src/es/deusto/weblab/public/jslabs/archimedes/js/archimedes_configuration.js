@@ -42,12 +42,12 @@
         "default" : ["controls", "sensor_weight",  "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
 
-        "name1" : "ALL"
+        "name1" : "ALL",
     };
 
 
     EDTFilter = {
-        "ball_mass": 20
+
     };
 
 

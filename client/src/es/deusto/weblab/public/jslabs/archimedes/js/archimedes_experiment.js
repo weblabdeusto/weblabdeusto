@@ -131,6 +131,14 @@ ArchimedesExperiment = function (registry, view) {
                 instance.updateView([]);
             }
         }.bind(this));
+
+        // Fit the bootstrap cols properly.
+        fitInstances($(".instance-column:visible").length);
+
+        console.log("Setting length: " + $(".instance-column:visible").length);
+
+        // Scale the images right.
+        fixImageRotation();
     };
 
     //! Handles translation for the dynamic part of the interface.
