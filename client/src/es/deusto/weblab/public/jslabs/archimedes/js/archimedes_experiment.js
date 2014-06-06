@@ -51,7 +51,6 @@ ArchimedesExperiment = function (registry, view) {
 
             // Hides those components that should not be shown according to the
             // specified view.
-            debugger;
             this.updateView();
 
             // Fix the issue with the webcam image rotation.
@@ -115,6 +114,8 @@ ArchimedesExperiment = function (registry, view) {
     //!
     //! @param view: View definition. Optional. Uses Configuration.getView() by default.
     this.updateView = function(view) {
+
+        console.log("Update view");
 
         if(view == undefined)
             view = Configuration.getView();

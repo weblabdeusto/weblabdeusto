@@ -25,15 +25,32 @@ function fixImageRotation() {
     $(window).resize(function() {
         // The image wrappers should meet the 640x480 aspect ratio of the image.
         var wrapper = $(".arch-img-wrapper");
-        var width = wrapper.width();
-        var ratio = 640 / 480;
-        wrapper.height(ratio * width);
 
-        // The image itself should be the wrapper's size. However, the image is
-        // rotated, so the width/height are interchanged.
-        var img = $(".arch-camera");
-        img.height(wrapper.width());
-        img.width(wrapper.height());
+        wrapper.each( function() {
+            debugger;
+            var w = $(this);
+            var width = w.width();
+
+            var ratio = 640/480;
+            w.height(ratio * width);
+
+            // The image itself should be the wrapper's size. However, the image is
+            // rotated, so the width/height are interchanged.
+            var img = w.find(".arch-camera");
+            img.height(w.width());
+            img.width(w.height());
+        });
+//
+//        var width = wrapper.width();
+//
+//        var ratio = 640 / 480;
+//        wrapper.height(ratio * width);
+//
+//        // The image itself should be the wrapper's size. However, the image is
+//        // rotated, so the width/height are interchanged.
+//        var img = $(".arch-camera");
+//        img.height(wrapper.width());
+//        img.width(wrapper.height());
     });
 
     // Trigger it on the start.

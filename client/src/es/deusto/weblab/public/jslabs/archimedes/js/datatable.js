@@ -60,7 +60,7 @@
                 // and this.settings
                 // you can add more functions like the one below and
                 // call them like so: this.yourOtherFunction(this.element, this.settings).
-                console.log("[DataTable]: Initializing table.");
+                //console.log("[DataTable]: Initializing table.");
                 return this._createTable();
             },
 
