@@ -1,6 +1,6 @@
 
     var Registry = {
-        "default" : {
+        "archimedes1" : {
             "ball_mass": 31, // g
             "ball_diameter": 4, // cm
             "liquid_name": "water",
@@ -8,14 +8,14 @@
             "liquid_diameter": 6.5, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1"
         },
-        "name1" : {
+        "archimedes2" : {
             "ball_mass": 20,
             "ball_density": 40,
             "liquid_name": "water",
             "liquid_density": 15,
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2"
         },
-        "name2" : {
+        "archimedes3" : {
             "ball_mass": 20,
             "ball_density": 60,
             "liquid_density": 1000, // 1000/m3
@@ -23,7 +23,7 @@
             "liquid_name": "oil",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3"
         },
-        "name3" : {
+        "archimedes4" : {
             "ball_mass": 20,
             "ball_density": 60,
             "liquid_density": 1000, // 1000/m3
@@ -39,11 +39,11 @@
     // ["controls", "sensor_weight", "sensor_level", "webcam", "hdcam", "plot", "ball_mass", "ball_volume",
     // "ball_diameter", "ball_density", "liquid_density", "liquid_diameter", "liquid_volume"]
     var View = {
-        "default" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes1" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
-        "name1" : "ALL",
-        "name2" : "ALL",
-        "name3" : "ALL"
+        "archimedes2" : "ALL",
+        "archimedes3" : "ALL",
+        "archimedes4" : "ALL"
     };
 
 
