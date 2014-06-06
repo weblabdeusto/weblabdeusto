@@ -24,6 +24,7 @@ import datetime
 import time
 import StringIO
 import subprocess
+from voodoo import log
 
 from weblab.util import data_filename
 from voodoo.log import logged
@@ -153,12 +154,16 @@ class Archimedes(Experiment):
 
     def _send(self, board_location, command):
         if self.real_device:
-            print "[Archimedes]: Sending to board: ", command
+            try:
+                print "[Archimedes]: Sending to board: ", command
 
-            if not board_location.endswith("/"):
-                board_location += "/"
+                if not board_location.endswith("/"):
+                    board_location += "/"
 
-            return self.opener.open(board_location + command).read()
+                return self.opener.open(board_location + command).read()
+            except:
+                log.log(Archimedes, log.level.Error, "Error programming file: " + traceback.format_exc())
+                return "ERROR"
         else:
             print "[Archimedes]: Simulating request: ", command
             return self.simulate_instance_reply_to_command(command)
