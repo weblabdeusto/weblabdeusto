@@ -9,6 +9,11 @@ ArchimedesDesign = new function() {
 
         // Show everything.
         View = {};
+        $.each(Registry, function(name, inst) {
+            View[name] = "ALL";
+        });
+
+
         archimedesExperiment.updateView(View);
 
         // Hide the timer, show the EDIT MODE notice.

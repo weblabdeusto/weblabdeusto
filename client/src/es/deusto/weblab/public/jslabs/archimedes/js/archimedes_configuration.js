@@ -48,7 +48,7 @@
 
 
     EDTFilter = {
-
+        "ball_mass" : 20
     };
 
 
