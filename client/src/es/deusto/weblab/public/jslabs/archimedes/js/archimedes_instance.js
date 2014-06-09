@@ -271,7 +271,7 @@ ArchimedesInstance = function (instanceid) {
         photoButton.click(function () {
 
             console.log("IMAGE");
-            if ($(this).attr("disabled") == undefined) {
+            if ($(photoButton).attr("disabled") == undefined) {
 
                 //$("#hdpic").attr("src", "img/image_placeholder.png");
                 $("#hdpic").attr("src", "");
