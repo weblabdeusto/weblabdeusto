@@ -177,9 +177,39 @@
 
 
 <script type="text/javascript">
-//    setTimeout( function() {
-//        ArchimedesDesign.enableDesignView();
-//    }, 1500);
+    var cur_hash = location.hash.substring(1);
+    var configure = "";
+    var variables = cur_hash.split('&');
+    for(var i in variables){
+        var cur_variable = variables[i];
+        if(cur_variable.indexOf('configure=') == 0)
+            configure = cur_variable.substring('configure='.length);
+    }
+
+    var appcomposer_config = appcomposer_config || [];
+
+    if (configure.toLowerCase() == "true") {
+        setTimeout(ArchimedesDesign.enableDesignView, 300);
+
+        function getConfiguration() {
+            return ArchimedesDesign.getView();
+        }
+
+        function initializer(config) {
+            View = config;
+            archimedesExperiment.updateView();
+        }
+
+        appcomposer_config.push(['get_view', getConfiguration]);
+        appcomposer_config.push(['initializer', initializer]);
+
+        var new_script = document.createElement('script'); 
+        new_script.type = 'text/javascript'; 
+        new_script.async = true;
+        new_script.src = "../../jslib/appcomposer.js";
+        var s = document.getElementsByTagName('script')[0]; 
+        s.parentNode.insertBefore(new_script, s);
+    }
 </script>
 
 
