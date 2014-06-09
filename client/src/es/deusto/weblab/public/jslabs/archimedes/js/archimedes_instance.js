@@ -231,7 +231,7 @@ ArchimedesInstance = function (instanceid) {
             console.log("DOWN");
 
             if (downButton.attr("disabled") == undefined) {
-                Weblab.sendCommand("DOWN",
+                Weblab.sendCommand(instanceid + ":DOWN",
                     function (success) {
                         $(getidselect("downButton") + " img").attr("src", "img/down_green.png");
                         $(getidselect("downButton")).removeAttr("disabled");
@@ -251,7 +251,7 @@ ArchimedesInstance = function (instanceid) {
             console.log("UP");
 
             if (upButton.attr("disabled") == undefined) {
-                Weblab.sendCommand("UP",
+                Weblab.sendCommand(instanceid + ":UP",
                     function (success) {
                         upButton.find("img").attr("src", "img/up_green.png");
                         upButton.removeAttr("disabled");
@@ -277,7 +277,7 @@ ArchimedesInstance = function (instanceid) {
                 $("#hdpic").attr("src", "");
                 $("#photoModal").modal();
 
-                Weblab.sendCommand("IMAGE",
+                Weblab.sendCommand(instanceid + ":IMAGE",
                     function (data) {
                         photoButton.removeAttr("disabled");
 
@@ -313,7 +313,7 @@ ArchimedesInstance = function (instanceid) {
 
                 Weblab.dbgSetOfflineSendCommandResponse(fakeData);
 
-                Weblab.sendCommand("PLOT",
+                Weblab.sendCommand(instanceid + ":PLOT",
                     function (data) {
 
                         plotButton.removeAttr("disabled");
