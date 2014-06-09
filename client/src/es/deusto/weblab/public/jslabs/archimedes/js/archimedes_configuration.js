@@ -47,8 +47,8 @@
     };
 
 
-    EDTFilter = {
-        "ball_mass" : 20
+    var EDTFilter = {
+        //"ball_mass" : 20
     };
 
 

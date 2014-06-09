@@ -6,7 +6,7 @@
   Weblab.dbgSetOfflineSendCommandResponse fakeResponse, true
 
   if Weblab.isExperimentActive() or !Weblab.checkOnline()
-    controller = Weblab.sendCommandPeriodically("LOAD", 3000
+    controller = Weblab.sendCommandPeriodically(instanceid + ":LOAD", 4000
       (load) =>
         load = parseFloat(load);
         load = load.toFixed(2);
@@ -33,7 +33,7 @@
 
   if Weblab.isExperimentActive() or !Weblab.checkOnline()
 
-    controller = Weblab.sendCommandPeriodically("LEVEL", 3000
+    controller = Weblab.sendCommandPeriodically(instanceid + ":LEVEL", 4000
       (level) =>
         level = parseFloat(level);
         level = level.toFixed(2);
