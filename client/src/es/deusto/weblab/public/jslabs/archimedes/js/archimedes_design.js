@@ -21,15 +21,21 @@ ArchimedesDesign = new function() {
         $("#timer").hide();
 
         // Add makerts to the editable field and turn off the standard event handlers.
-        $(".arch-control, .arch-img-wrapper, .arch-camera").toggleClass("design-editable");
+        $(".arch-control, .arch-img-wrapper, .arch-camera, .arch-instance-title").toggleClass("design-editable");
         $("td:first-child").toggleClass("design-editable").toggleClass("design-editable-marked");
 
         $(".arch-control, .arch-img-wrapper, .arch-camera").off("click");
         $(".arch-img-wrapper, .arch-camera").off("mouseenter mouseleave");
 
         $(".arch-control, .arch-img-wrapper, .arch-camera, td:first-child").click(function(){
-           $(this).toggleClass("design-disabled");
+            $(this).toggleClass("design-disabled");
         });
+
+        $(".arch-instance-title").click(function(){
+            $(this).toggleClass("design-disabled");
+            $(this).parent().parent().toggleClass("design-disabled");
+        });
+
 
         // TODO: Enable or disable up/down controls together.
     };
@@ -44,6 +50,13 @@ ArchimedesDesign = new function() {
         $.each(instances, function(name, inst) {
             console.log(name);
             v = [];
+
+            if($("#"+name+"-"+"experiment-instance").hasClass("design-disabled")) {
+                // The whole instance is disabled: set an empty view.
+                view[name] = v;
+                return true; // Go on
+            }
+
             if(!inst.elements["webcam"].hasClass("design-disabled"))
                 v.push("webcam");
             if(!inst.elements["controls"].hasClass("design-disabled"))
