@@ -62,6 +62,16 @@ ArchimedesExperiment = function (registry, view) {
             // Translate the interface.
             this.translateInstanceInterface();
 
+            // Add the instance selector for the design view.
+//            $.each(Registry, function(name, instdata) {
+//                var cb = $('<input type="checkbox"/>').attr(
+//                    {"id": "is-" + name, "value": name});
+//                var div = $("<div></div>")
+//                cb.appendTo(div);
+//                cb.after(name);
+//                div.appendTo($(".instances_select"));
+//            });
+
 
             // Declare onStartInteraction listener.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
