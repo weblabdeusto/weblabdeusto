@@ -170,7 +170,7 @@ ArchimedesExperiment = function (registry, view) {
 
     // Set the timer initialization handler.
     Weblab.setOnTimeCallback(function (time) {
-        console.log("[DBG]: Time leftt: " + time);
+        console.log("[DBG]: Time left: " + time);
         this.setTimeToGo(time);
     }.bind(this));
 
