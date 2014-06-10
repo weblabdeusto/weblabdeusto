@@ -37,6 +37,11 @@ ArchimedesDesign = new function() {
         });
 
 
+        // Disable the camera refreshing.
+        $.each(archimedesExperiment.instances, function(name, inst) {
+             inst.cameraRefresher.stop();
+        });
+
         // TODO: Enable or disable up/down controls together.
     };
 

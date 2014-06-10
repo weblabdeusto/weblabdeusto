@@ -216,14 +216,9 @@ ArchimedesInstance = function (instanceid) {
         // Call an updateView so that view-related things are always initialized.
         this.updateView();
 
-        var refresher1 = new CameraRefresher(instanceid + "-cam1");
-        var refresher2 = new CameraRefresher(instanceid + "-cam2");
-        refresher1.setInterval(2000);
-        refresher2.setInterval(2000);
-        refresher1.start();
-// SECOND CAMERA IS DISABLED. THIS WILL HELP PREVENT SLOWNESS DUE TO TOO MANY SIMULTANEOUS REQUESTS.
-        // TODO: Remove all references from the code & cleanup.
-//        refresher2.start();
+        this.cameraRefresher = new CameraRefresher(instanceid + "-cam1");
+        this.cameraRefresher.setInterval(2000);
+        this.cameraRefresher.start();
 
         // Create the timer for later.
         timerDisplayer = new TimerDisplayer(instanceid + "-timer");
