@@ -49,6 +49,10 @@ ArchimedesInstance = function (instanceid) {
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
         }
 
+
+        // WARNING: This code is currently affected by https://bugzilla.mozilla.org/show_bug.cgi?id=1012413
+        // and doesn't work properly on Firefox.
+
         if(inst_view.length == 0) {
             $(getidselect("experiment-instance")).hide();
         } else {
@@ -64,12 +68,6 @@ ArchimedesInstance = function (instanceid) {
             "controls" : $(getidselect("upButton") + "," + getidselect("downButton")),
             "hdcam" : $(getidselect("photoButton")),
             "plot" : $(getidselect("plotButton"))
-
-// The following are unused
-// TODO: Consider removing them.
-//            "sensor_weight": $(getidselect("load") + "," + getidselect("load-img")),
-//            "sensor_level" : $(getidselect("level") + "," + getidselect("level-img")),
-//            "sensor_panel" : $(getidselect("weight-level-panel"))
         };
 
         // Store them internally.

@@ -115,6 +115,37 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes]: do_send_command_to_device called: %s" % command
 
+        # HANDLE NON-INSTANCE-SPECIFIC COMMANDS
+        # We expect a command like: "ALLINFO:archimedes1:archimedes2"
+        if command.startswith("ALLINFO"):
+            boards = command.split(":")[1:]
+            response = {}
+            for b in boards:
+                target = self.archimedes_instances.get(b)
+                if target is None:
+                    response[b] = "ERROR"
+
+                response[b] = {}
+
+                load = self._send(target, "load")
+                level = self._send(target, "level")
+
+                if load == "ERROR":
+                    response[b]["load"] = "ERROR"
+                else:
+                    num = load.split("=")[1]
+                    response[b]["load"] = num
+
+                if level == "ERROR":
+                    response[b]["level"] = "ERROR"
+                else:
+                    num = level.split("=")[1]
+                    response[b]["level"] = num
+            return json.dumps(response)
+
+
+
+        # HANDLE INSTANCE-SPECIFIC COMMANDS
         if ":" in command:
             s = command.split(":")
             target_board = s[0]
@@ -147,6 +178,7 @@ class Archimedes(Experiment):
                 return resp
             num = resp.split("=")[1]
             return num
+
         elif board_command == "IMAGE":
             resp = self._send(target_board, "image")
             if resp == "ERROR":
@@ -302,6 +334,13 @@ class TestArchimedes(unittest.TestCase):
         assert float(level_resp) == 1200
         load_resp = self.experiment.do_send_command_to_device("default:LOAD")
         assert float(load_resp) == 1300
+
+    def test_allinfo_command(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        resp = self.experiment.do_send_command_to_device("ALLINFO:default")
+        r = json.loads(resp)
+        assert float(r["default"]["level"]) == 1200
+        assert float(r["default"]["load"]) == 1300
 
 
 
