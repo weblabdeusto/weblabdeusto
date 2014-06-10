@@ -3,7 +3,15 @@
 
 // This is mostly so that no errors occur when executing
 // the script stand-alone.
-parent.wl_inst = {};
+try {
+    parent.wl_inst = {};
+    var parent_wl_inst = parent.wl_inst;
+    var external = false;
+} catch(e) {
+    // If can't modify the parent, fail gracefully
+    var parent_wl_inst = {};
+    var external = true;
+}
 
 ///////////////////////////////////////////////////////////////
 //
@@ -65,26 +73,26 @@ Weblab = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    parent.wl_inst.version = "1.2";
+    parent_wl_inst.version = "1.2";
 
-    parent.wl_inst.setTime = function (time) {
+    parent_wl_inst.setTime = function (time) {
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
     };
 
-    parent.wl_inst.startInteraction = function (initial_config) {
+    parent_wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
         if(mOnStartInteractionCallback != undefined)
             mOnStartInteractionCallback(initial_config);
     };
 
-    parent.wl_inst.end = function () {
+    parent_wl_inst.end = function () {
         mIsExperimentActive = false;
         if(mOnEndCallback != undefined)
             mOnEndCallback();
     };
 
-    parent.wl_inst.handleCommandResponse = function (msg, id) {
+    parent_wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
             if( mCommandsSentMap[id][0] != undefined )
                 mCommandsSentMap[id][0](msg);
@@ -92,7 +100,7 @@ Weblab = new function () {
         }
     };
 
-    parent.wl_inst.handleCommandError = function (msg, id) {
+    parent_wl_inst.handleCommandError = function (msg, id) {
         if (id in mCommandsSentMap) {
             if( mCommandsSentMap[id][1] != undefined )
                 mCommandsSentMap[id][1](msg);
@@ -100,14 +108,14 @@ Weblab = new function () {
         }
     };
 
-    parent.wl_inst.handleFileResponse = function (msg, id) {
+    parent_wl_inst.handleFileResponse = function (msg, id) {
         if (id in mFilesSentMap) {
             mFilesSentMap[id][0](msg);
             delete mFilesSentMap[id];
         }
     };
 
-    parent.wl_inst.handleFileError = function (msg, id) {
+    parent_wl_inst.handleFileError = function (msg, id) {
         if (id in mFilesSentMap) {
             mFilesSentMap[id][0](msg);
             delete mFilesSentMap[id];
@@ -352,7 +360,10 @@ Weblab = new function () {
     //!
     //! @return True, if connected to the real WL client. False otherwise.
     this.checkOnline = function () {
-        return parent.wl_sendCommand != undefined;
+        if (external)
+            return false;
+        else
+            return parent.wl_sendCommand != undefined;
     };
 
 
