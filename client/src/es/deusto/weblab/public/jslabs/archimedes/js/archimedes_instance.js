@@ -22,15 +22,17 @@ ArchimedesInstance = function (instanceid) {
     // Callback to handle interaction start for the instance.
     // It should be invoked from the single Experiment.
     this.handleStartInteraction = function () {
-        this._retrieveLevelController = StartRetrievingLevel(instanceid, this.sensors);
-        this._retrieveLoadController = StartRetrievingLoad(instanceid, this.sensors);
+        // TODO: Remove this.
+        //this._retrieveLevelController = StartRetrievingLevel(instanceid, this.sensors);
+        //this._retrieveLoadController = StartRetrievingLoad(instanceid, this.sensors);
     };
 
     // Callback to handle interaction start for the instance.
     // It should be invoked from the single Experiment.
     this.handleEndCallback = function () {
-        this._retrieveLoadController.stop();
-        this._retrieveLevelController.stop();
+        // TODO: Remove this.
+        //this._retrieveLoadController.stop();
+        //this._retrieveLevelController.stop();
     };
 
 

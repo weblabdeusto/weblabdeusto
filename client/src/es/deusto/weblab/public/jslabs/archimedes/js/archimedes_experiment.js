@@ -84,9 +84,12 @@ ArchimedesExperiment = function (registry, view) {
                     if("view" in config) {
                         // If the config specifies the view we must initialize it accordingly.
                         View = config["view"];
-                        this.updateView();
                     }
+
+                    this.updateView();
                 }
+
+                this.startRefreshingData();
 
                 showFrame();
 
@@ -97,6 +100,9 @@ ArchimedesExperiment = function (registry, view) {
 
 
             Weblab.setOnEndCallback(function () {
+
+                this.stopRefreshingData();
+
                 hideFrame();
 
                 $.each(this.instances, function (instanceid, instance) {
@@ -106,6 +112,55 @@ ArchimedesExperiment = function (registry, view) {
 
 
         }.bind(this)); //! template $.get
+    };
+
+
+    // Repeteadly queries the server for data for all
+    // instances.
+    this.startRefreshingData = function() {
+        var that = this;
+        var command = "ALLINFO";
+        $.each(View, function(name, data) {
+            command += ":" + name;
+        });
+
+        Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
+        Weblab.sendCommand(command,
+            function(data) {
+                var response = JSON.parse(data);
+
+                console.log("Refreshing data: ");
+                console.log(response);
+
+                $.each(response, function(inst, data) {
+
+                    if(!(inst in that.instances)) {
+                        console.error("ALLINFO: Reported instance is not registered. Ignoring it.");
+                        return true;
+                    }
+
+                    var instance = that.instances[inst];
+
+                    instance.sensors["liquid.level"] = data["level"].toFixed(2);
+                    instance.sensors["ball.weight"] = data["load"].toFixed(2);
+
+                    $("#" + inst + "-table-sensors").datatable("updateAll");
+
+                    return true;
+                });
+
+                // Invoke a refresh again in some seconds.
+                that._refresh_timer = setTimeout(that.startRefreshingData, 3000);
+            },
+            function() {
+                console.error("[Error]: Refreshing data");
+        });
+    }.bind(this);
+
+    // Stops querying the server for data.
+    this.stopRefreshingData = function() {
+        if(this._refresh_timer !== undefined)
+            clearTimeout(this._refresh_timer);
     };
 
     // To set the timer to its initial value.
