@@ -1,3 +1,7 @@
+// Note: This function relies on the jquery i18n plugin.
+// The values that need to be provided are:
+// seconds.s
+// weight.g
 
 
 function drawChart(data)
@@ -46,7 +50,12 @@ function drawChart(data)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
+    // Add a background color.
+    d3.select("svg")
+        .insert("rect", "g")// Insert rect before g.
+        .attr("class", "background")
+        .attr("width", "100%")
+        .attr("height", "100%");
 
     var x_domain = d3.extent(data, function(d) { return d.number*0.03; });
     x_domain[1] += 0.3;
@@ -71,7 +80,7 @@ function drawChart(data)
       .attr("x", width-2)
       .attr("dy", -6)
       .style("text-anchor", "end")
-      .text("Seconds (s)");
+      .text($.i18n._("seconds.s"));
 
     svg.append("g")
       .attr("class", "y axis")
@@ -81,7 +90,7 @@ function drawChart(data)
       .attr("y", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Weight (g)");
+      .text($.i18n._("weight.g"));
 
 
 } //! function drawChart

@@ -1,40 +1,108 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Archimedes Experiment</title>
 
-<script type="text/javascript" src="widgets.js"></script>
-<script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Archimedes Experiment</title>
 
-<link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-<link href="widgets.css" rel="stylesheet" type="text/css"/>
-
-<link href="timeweight_plot.css" rel="stylesheet" type="text/css"/>
-
-<script src="//code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
-
-<script type="text/javascript" src="../archimedes/jquery.tinytimer.dev.js"></script>
-<script type="text/javascript" src="../archimedes/jquery.tinytimer.js"></script>
-<script type="text/javascript" src="../archimedes/jquery.tinytimer.min.js"></script>
-
-<!-- TODO: Fix protocol here (probably, download the gfx). -->
-<script src="http://d3js.org/d3.v3.js"></script>
-<script src="timeweight_plot.js"></script>
+    <!-- Third-party libraries JS & CSS -->
+    <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes_design.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+    <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+    <script type="text/javascript" src="./libs/jquery.i18n.min.js"></script>
 
 
+    <!-- WebLab library -->
+    <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
 
-<script type="text/javascript" src="../archimedes/managearch.js" ></script>
+    <!-- Archimedes-specific JS & CSS -->
+    <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
+    <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
 
-<style>
-
-</style>
+    <script type="text/javascript" src="js/archimedes_configuration.js"></script>
+    <script type="text/javascript" src="js/datatable.js"></script>
+    <script type="text/coffeescript" src="js/retrievers.coffee"></script>
+    <script type="text/javascript" src="js/imagezoom.js"></script>
+    <script type="text/javascript" src="js/misc_ui.js"></script>
+    <script type="text/javascript" src="js/archimedes_instance.js"></script>
+    <script type="text/javascript" src="js/archimedes_experiment.js"></script>
+    <script type="text/javascript" src="js/timeweight_plot.js"></script>
+    <script type="text/javascript" src="js/widgets.js"></script>
+    <script type="text/javascript" src="js/archimedes_design.js"></script>
 
 </head>
 
 <body>
 
+
+<script type="text/javascript">
+
+    var i18n = {
+        "archimedes.experiment": "Archimedes Experiment",
+        "time.remaining": "Time remaining",
+        "ball.weight.liquid.level" : "Ball weight & Liquid level",
+        "close": "Close",
+        "hd.picture" : "HD Picture",
+
+        "sensors": "Sensors",
+        "liquid": "Liquid",
+        "ball": "Ball",
+        "liquid.level": "Liquid Level",
+        "ball.weight": "Ball Weight",
+        "volume": "Volume",
+        "diameter": "Diameter",
+        "internal.diameter": "Internal Diameter",
+        "density": "Density",
+        "mass": "Mass",
+        "grams": "g",
+        "cm": "cm",
+        "kgm3": "kg/m³",
+        "m3": "m³",
+        "cm3": "cm³",
+
+
+        // For the Weight/Time plot
+        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+        "time.weight.plot" : "Time / Weight Plot",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)"
+    };
+
+    $.i18n.load(i18n);
+
+    // TODO: Add some kind of resistence to individual failures of the instances.
+
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        // global
+        archimedesExperiment = new ArchimedesExperiment(Registry, View);
+
+        // Carries out translations on the HTML, modifying the text
+        // in those elements which are not dynamically created.
+        translatePage();
+    });
+
+
+    function translatePage() {
+        // Translate the strings in the experiment frame, etc.
+        $(document).attr("title", $.i18n._("archimedes.experiment"));
+        $("#hdModalLabelTitle").text($.i18n._("hd.picture"));
+        $(".modal-footer > button").text($.i18n._("close"));
+        $("#plotModalLabel").text($.i18n._("time.weight.plot"));
+
+        // Translate the strings in the experiment instances.
+    }
+
+
+</script>
 
 
 <!-- Large modal to show the HD picture -->
@@ -44,10 +112,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">HD picture</h4>
+                <h4 class="modal-title" id="hdModalLabelTitle">HD picture</h4>
             </div>
             <div class="modal-body">
-                <img id="hdpic" style="width: 100%; max-height: 600px;" src="">
+                <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -55,8 +123,6 @@
         </div>
     </div>
 </div>
-
-
 
 <!-- Large modal to show the TIME/WEIGHT plot -->
 <!-- Modal -->
@@ -67,8 +133,12 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
             </div>
-            <div class="modal-body" id="plotModalBody">
+            <div class="modal-body">
+                <p id="plotexplanation"></p>
+
+                <div id="plotModalBody">
                 <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -79,43 +149,78 @@
 
 
 
-<table width="907">
-  <tr>
-    <td rowspan="2" width="480px">
-        <!-- We use the generic protocol // and "www" to avoid HTTPS issues -->
-    	<img id="cam1" style="transform:rotate(270deg);-webkit-transform:rotate(270deg); height:480px" src="//www.weblab.deusto.es/webcam/proxied.py/splash1">
-    </td>
-    <td height="320px">
-    	<img id="cam2" src="//www.weblab.deusto.es/webcam/proxied.py/splash0" style="height:320px">
-    </td>
-  </tr>
-  <tr>
-    <td height="340px">
-    	
-        <table width="340">
-          <tr>
-            <td colspan="2"> <span class="timer" id="timer"></span></td>
-          </tr>
-          <tr>
-            <td width="96" ><a id="upButton" href="javascript:void(0);"><img id="up" src="img/up_green.png"></a></td>
-            <td width="240"><img src="../archimedes/img/load.png">  <span class="load" id="load"></span></td>
-          </tr>
-          <tr>
-            <td><a id="downSlowButton" href="javascript:void(0);"><img id="downslow" src="img/downslow_green.png"></a></td>
-            <td><img src="../archimedes/img/level.png"> <span class="level" id="level"/></td>
-          </tr>
-          <tr>
-            <td><a id="downButton" href="javascript:void(0);"><img id="down" src="img/down_green.png"></a></td>
-            <td height="96"><a id="photoButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
-          </tr>
-          <tr>
-            <td></td>
-            <td height="96"><a id="plotButton" href="javascript:void(0);"><img src="img/photo_green.png"></a></td>
-          </tr>
-        </table>
-        
-    </td>
-  </tr>
-</table>
+
+
+<div class="container">
+
+    <h2>
+        <span class="timer" id="timer"></span>
+    </h2>
+
+    <div class="editmodeh hide" id="editmodeh">
+        <h2>
+            <span>
+                DESIGN MODE
+            </span>
+        </h2>
+        <p>
+            Please, click on the elements you wish to hide.
+        </p>
+    </div>
+
+    <!-- For the design view, to fully hide instances -->
+    <!-- CURRENTLY NOT IMPLEMENTED / UNUSED -->
+    <div class="row instances_select" style="display: none">
+        <form>
+        <!-- To be filled dynamically -->
+        </form>
+    </div>
+
+    <div class="instances_row row clearfix">
+
+        <!-- THE INSTANCE TEMPLATES WILL BE RENDERED HERE -->
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    var cur_hash = location.hash.substring(1);
+    var configure = "";
+    var variables = cur_hash.split('&');
+    for(var i in variables){
+        var cur_variable = variables[i];
+        if(cur_variable.indexOf('configure=') == 0)
+            configure = cur_variable.substring('configure='.length);
+    }
+
+    var appcomposer_config = appcomposer_config || [];
+
+    if (configure.toLowerCase() == "true") {
+        setTimeout(ArchimedesDesign.enableDesignView, 300);
+
+        function getConfiguration() {
+            return ArchimedesDesign.getView();
+        }
+
+        function initializer(config) {
+            View = config;
+            archimedesExperiment.updateView();
+        }
+
+        appcomposer_config.push(['get_view', getConfiguration]);
+        appcomposer_config.push(['initializer', initializer]);
+
+        var new_script = document.createElement('script'); 
+        new_script.type = 'text/javascript'; 
+        new_script.async = true;
+        new_script.src = "../../jslib/appcomposer.js";
+        var s = document.getElementsByTagName('script')[0]; 
+        s.parentNode.insertBefore(new_script, s);
+    }
+</script>
+
+
 </body>
 </html>

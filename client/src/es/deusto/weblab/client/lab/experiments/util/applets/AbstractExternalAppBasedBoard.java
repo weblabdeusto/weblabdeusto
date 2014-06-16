@@ -93,6 +93,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 
 		
 		this.panel = new VerticalPanel();
+		this.panel.setWidth("100%");
 		this.html = new HTML("<div/>");
 		this.panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		this.panel.add(this.standardTimerPanel);
