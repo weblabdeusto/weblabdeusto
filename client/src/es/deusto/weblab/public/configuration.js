@@ -84,7 +84,7 @@
 	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
 								   "experiment.info.description" : "description"
-	                    	   },	
+	                    	   },
  				   {
 					   "experiment.name"		: "archimedes",
 					   "experiment.category"	: "Aquatic experiments",
@@ -123,8 +123,6 @@
 	                    		   "experiment.name"		: "romie",
 	                    		   "experiment.category"	: "Dummy experiments",
 	                    		   "experiment.picture"		: "",
-	                    		   "cssWidth"				: "1000",
-	                    		   "cssHeight"				: "700",
 	                    		   "provide.file.upload"	: false,
 	                    		   "html.file"				: "romie/romie.html"
 	                    	   }

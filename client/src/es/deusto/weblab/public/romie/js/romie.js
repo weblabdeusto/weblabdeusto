@@ -5,7 +5,7 @@ Romie = function(movements)
 	this.points = 0;
 	this.moving = false;
 	this.lastResponse = null;
-	this.topTime = 10;
+	this.topTime = 10000;
 	this.updater = null;
 }
 
@@ -96,6 +96,17 @@ Romie.prototype.getTag = function()
 	return this.lastResponse.substring(5, this.lastResponse.length-6);
 }
 
+Romie.prototype.isTopCamActive = function()
+{
+	return this.topCamActivated;
+}
+
+Romie.prototype.deactivateTopCam = function()
+{
+	this.topCamActivated = false;
+	clearInterval(this.updater);
+}
+
 Romie.prototype.activateTopCam = function()
 {
 	this.topCamActivated = true;
@@ -109,15 +120,9 @@ Romie.prototype.activateTopCam = function()
 	}, 1000);
 }
 
-Romie.prototype.deactivateTopCam = function()
+Romie.prototype.topCamTime = function()
 {
-	this.topCamActivated = false;
-	clearInterval(this.updater);
-}
-
-Romie.prototype.isTopCamActivated = function()
-{
-	return this.topCamActivated;
+	return this.topTime;
 }
 
 Romie.prototype.getMovements = function()

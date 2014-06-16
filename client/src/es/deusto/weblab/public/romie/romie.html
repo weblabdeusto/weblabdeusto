@@ -36,28 +36,6 @@
 				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
 				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
 
-				camera1 = setInterval(function()
-				{
-					d = new Date();
-					$('.camera1 img').attr("src", big+"?"+d.getTime());
-				}, 100);
-
-				camera2 = setInterval(updateCam2, 500);
-
-				$('.camera2 img').click(function()
-				{
-					if (romie.isTopCamActivated())
-					{
-						romie.deactivateTopCam();
-						$('.camera2 img').attr("src", "img/black.png");
-					}
-					else
-					{
-						romie.activateTopCam();
-						camera2 = setInterval(updateCam2, 500);
-					}
-				});
-
 				updateCam2 = function()
 				{
 					if (romie.topCamTime() > 0)
@@ -68,11 +46,33 @@
 					else
 					{
 						romie.deactivateTopCam();
-						big = onboard:
+						big = onboard;
 						clearInterval(camera2);
 						$('.camera2 img').attr("src", "img/black.png");
 					}
 				}
+
+				camera1 = setInterval(function()
+				{
+					d = new Date();
+					$('.camera1 img').attr("src", big+"?"+d.getTime());
+				}, 100);
+
+				camera2 = setInterval(updateCam2, 500);
+
+				$('.camera2 img').click(function()
+				{
+					if (romie.isTopCamActive())
+					{
+						romie.deactivateTopCam();
+						$('.camera2 img').attr("src", "img/black.png");
+					}
+					else
+					{
+						romie.activateTopCam();
+						camera2 = setInterval(updateCam2, 500);
+					}
+				});
 
 				$('.camera2 img').click(function()
 				{
@@ -89,7 +89,7 @@
 						clearInterval(camera2);
 						$('.camera2 img').attr("src", "img/black.png");
 					}
-				}
+				});
 
 				$(parent.document).find('iframe[name=wlframe]').show();
 			}
