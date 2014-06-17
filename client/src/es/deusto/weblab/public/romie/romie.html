@@ -20,7 +20,7 @@
 				romie = new Romie(10);
 				game = new Game(romie);
 				onboard = "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard"; //"http://192.168.0.88/image.jpg";
-				top = "https://www.weblab.deusto.es/webcam/proxied.py/romie_top"; //"http://192.168.0.89/image.jpg";
+				topCam = "https://www.weblab.deusto.es/webcam/proxied.py/romie_top"; //"http://192.168.0.89/image.jpg";
 
 				big = onboard;
 
@@ -58,27 +58,11 @@
 					$('.camera1 img').attr("src", big+"?"+d.getTime());
 				}, 100);
 
-				camera2 = setInterval(updateCam2, 500);
-
-				$('.camera2 img').click(function()
-				{
-					if (romie.isTopCamActive())
-					{
-						romie.deactivateTopCam();
-						$('.camera2 img').attr("src", "img/black.png");
-					}
-					else
-					{
-						romie.activateTopCam();
-						camera2 = setInterval(updateCam2, 500);
-					}
-				});
-
 				$('.camera2 img').click(function()
 				{
 					if (romie.topCamTime() > 0 && ! romie.isTopCamActive())
 					{
-						big = top;
+						big = topCam;
 						camera2 = setInterval(updateCam2, 500);
 						romie.activateTopCam();
 					}
