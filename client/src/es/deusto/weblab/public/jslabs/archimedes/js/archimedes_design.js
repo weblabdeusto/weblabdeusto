@@ -46,6 +46,41 @@ ArchimedesDesign = new function() {
     };
 
 
+    this.setDesignView = function(designView) {
+
+        var instances = archimedesExperiment.instances;
+
+        $.each(instances, function(name, inst) {
+            var v = designView[name];
+
+            var instance_present = v != undefined && v.length != 0;
+            $("#" + name + "-" + "experiment-instance").toggleClass("design-disabled", !instance_present);
+            if(!instance_present)
+                return true;
+
+            inst.elements["webcam"].toggleClass("design-disabled", $.inArray("webcam", v) == -1);
+            inst.elements["controls"].toggleClass("design-disabled", $.inArray("controls", v) == -1);
+            inst.elements["hdcam"].toggleClass("design-disabled", $.inArray("hdcam", v) == -1);
+            inst.elements["plot"].toggleClass("design-disabled", $.inArray("plot", v) == -1);
+
+            var tsensors = $("#" + name + "-" + "table-sensors");
+            var tliquid = $("#" + name + "-" + "table-liquid");
+            var tball = $("#" + name + "-" + "table-ball");
+
+            tsensors.datatable("getElement", "liquid.level").prev().toggleClass("design-disabled", $.inArray("sensor_level", v) == -1);
+            tsensors.datatable("getElement", "ball.weight").prev().toggleClass("design-disabled", $.inArray("sensor_weight", v) == -1);
+
+            tliquid.datatable("getElement", "density").prev().toggleClass("design-disabled", $.inArray("liquid_density", v) == -1);
+            tliquid.datatable("getElement", "internal.diameter").prev().toggleClass("design-disabled", $.inArray("liquid_diameter", v) == -1);
+
+            tball.datatable("getElement", "mass").prev().toggleClass("design-disabled", $.inArray("ball_mass", v) == -1);
+            tball.datatable("getElement", "diameter").prev().toggleClass("design-disabled", $.inArray("ball_diameter", v) == -1);
+            tball.datatable("getElement", "density").prev().toggleClass("design-disabled", $.inArray("ball_density", v) == -1);
+            tball.datatable("getElement", "volume").prev().toggleClass("design-disabled", $.inArray("ball_volume", v) == -1);
+        });
+    };
+
+
     //! Gets the View definition that matches the user's selection.
     //!
     this.getView = function() {
@@ -53,8 +88,7 @@ ArchimedesDesign = new function() {
         var view = {};
 
         $.each(instances, function(name, inst) {
-            console.log(name);
-            v = [];
+            var v = [];
 
             if($("#"+name+"-"+"experiment-instance").hasClass("design-disabled")) {
                 // The whole instance is disabled: set an empty view.

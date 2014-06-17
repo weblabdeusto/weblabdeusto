@@ -16,7 +16,7 @@ ArchimedesInstance = function (instanceid) {
     // instance-specific ID.
     function getidselect(id) {
         return "#" + instanceid + "-" + id
-    }
+    };
 
 
     // Callback to handle interaction start for the instance.
