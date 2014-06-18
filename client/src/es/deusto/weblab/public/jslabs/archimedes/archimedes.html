@@ -210,8 +210,13 @@
             ArchimedesDesign.setDesignView(config);
         }
 
+        function labmanager_retrieval() {
+            return { 'widget_url' : 'http://www.weblab.deusto.es/golab/labmanager/opensocial/public/widgets/archimedes/widget_default.xml' };
+        }
+
         appcomposer_config.push(['get_view', getConfiguration]);
         appcomposer_config.push(['initializer', initializer]);
+        appcomposer_config.push(['labmanager_retrieval', labmanager_retrieval]);
 
         var new_script = document.createElement('script'); 
         new_script.type = 'text/javascript'; 
