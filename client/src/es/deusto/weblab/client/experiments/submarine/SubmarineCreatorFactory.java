@@ -20,12 +20,14 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.experiments.submarine.ui.SubmarineExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
+import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
-public class SubmarineCreatorFactory implements IExperimentCreatorFactory {
+public class SubmarineCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
 	@Override
 	public String getCodeName() {
@@ -53,5 +55,10 @@ public class SubmarineCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter[] { IHasExperimentParameters.WEBCAM_REFRESH_TIME };
 	}
 }

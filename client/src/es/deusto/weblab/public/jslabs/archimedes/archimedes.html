@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Archimedes Experiment</title>
+
+    <!-- Third-party libraries JS & CSS -->
+    <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+    <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+
+    <!-- WebLab library -->
+    <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+
+    <!-- Archimedes-specific JS & CSS -->
+    <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
+    <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/coffeescript" src="js/retrievers.coffee"></script>
+    <script type="text/javascript" src="js/archimedes.js"></script>
+    <script type="text/javascript" src="js/timeweight_plot.js"></script>
+    <script type="text/javascript" src="js/widgets.js"></script>
+
+</head>
+
+<body>
+
+
+<script type="text/javascript">
+    var Registry = {
+        "default" : {
+            "ball_mass": 20,
+            "ball_density": 40,
+            "liquid_name": "water",
+            "liquid_density": 15,
+            "webcam": "http://whatever.com/name1.jpg"
+        },
+//        "name1" : {
+//            "ball_mass": 20,
+//            "ball_density": 40,
+//            "liquid_name": "water",
+//            "liquid_density": 15,
+//            "webcam": "http://whatever.com/name1.jpg"
+//        },
+//        "name2" : {
+//            "ball_mass": 20,
+//            "ball_density": 60,
+//            "liquid_density": 20,
+//            "liquid_name": "oil",
+//            "webcam": "http://whatever.com/name2.jpg"
+//        }
+//        "name3" : {
+//            "ball_mass": 20,
+//            "ball_density": 60,
+//            "liquid_density": 20,
+//            "liquid_name": "oil",
+//            "webcam": "http://whatever.com/name2.jpg"
+//        }
+    };
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function(template) {
+
+            var rendered = "";
+            var instancesNumber = 0;
+
+            // Render the HTML for every instance.
+            for(var instance in Registry) {
+                if(!Registry.hasOwnProperty(instance))
+                    continue;
+
+                instancesNumber += 1;
+                rendered += Mustache.render(template, {"instanceid": instance});
+            }
+
+            // Insert it.
+            $(".instances_row").html(rendered);
+
+            // Dynamically size the bootstrap columns so that it looks pretty enough.
+            fitInstances(instancesNumber);
+
+            // Initialize every Archimedes instance.
+            for(var instance in Registry) {
+                if(!Registry.hasOwnProperty(instance))
+                    continue;
+
+                var archimedesInstance = new ArchimedesInstance(instance);
+                archimedesInstance.initializeInstance();
+            }
+
+            var res = function() {
+                console.log("RESIZING");
+
+                // The image wrappers should meet the 640x480 aspect ratio of the image.
+                var wrapper = $(".arch-img-wrapper");
+                var width = wrapper.width();
+                var ratio = 640 / 480;
+                wrapper.height(ratio * width);
+
+                // The image itself should be the wrapper's size. However, the image is
+                // rotated, so the width/height are interchanged.
+                var img = $(".arch-camera");
+                img.height(wrapper.width());
+                img.width(wrapper.height());
+
+                //var c = $(".arch-camera");
+                //c.width(c.parent().width());
+                //c.parent().height(c.width());
+                //c.css("-webkit-transform", "rotate(-90deg) translate(" + voffset + "px, " + hoffset + "px)");
+            };
+
+            $(window).resize(function(){
+                res();
+            });
+            res();
+
+
+            var hover = function(ev) {
+                var cam = $(this);
+
+                console.log("ON HOVER");
+                console.log(ev);
+
+                if(ev.type == "mouseenter") {
+                    // Store the original dimensions.
+                    cam.data("original-dimensions", {w: cam.width(), h: cam.height()});
+
+                    cam.width(cam.width() * 1.5);
+                    cam.height(cam.height() * 1.5);
+
+                    // Center it.
+                    cam.css("left", "" + -cam.width() / 8 + "px");
+                } else {
+                    // Restore the original dimensions.
+                    var original = cam.data("original-dimensions");
+                    cam.width(original.w);
+                    cam.height(original.h);
+
+                    // Center it.
+                    cam.css("left", "0px");
+                }
+            };
+            $(".arch-camera").hover(hover);
+
+
+        });
+    });
+
+
+    //! Fits the instances by defining the col-md-* classes through JS,
+    //! depending on the actual number of instances.
+    function fitInstances(instancesNumber) {
+        var col = $(".instance-column");
+
+        if(instancesNumber == 1) {
+            col.addClass("col-md-6");
+            col.addClass("col-md-offset-3");
+        } else if(instancesNumber == 2) {
+            col.addClass("col-md-6");
+        } else if(instancesNumber == 3) {
+            col.addClass("col-md-4");
+        } else {
+            col.addClass("col-md-3");
+        }
+    }
+
+</script>
+
+
+<!-- Large modal to show the HD picture -->
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">HD picture</h4>
+            </div>
+            <div class="modal-body">
+                <img id="hdpic" style="width: 100%; max-height: 600px; " src="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Large modal to show the TIME/WEIGHT plot -->
+<!-- Modal -->
+<div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
+            </div>
+            <div class="modal-body" id="plotModalBody">
+                <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="container">
+
+    <h2>
+    Time remaining:
+    <span class="timer" id="timer"></span>
+    </h2>
+
+    <div class="instances_row row clearfix">
+
+        <!-- THE INSTANCE TEMPLATES WILL BE RENDERED HERE -->
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

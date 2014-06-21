@@ -132,6 +132,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public void disableFinishOnClose() {
 			}
+
+			@Override
+			public SessionID getReservationId() {
+				return new SessionID("");
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -217,6 +222,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 
 			@Override
 			public void disableFinishOnClose() {
+			}
+
+			@Override
+			public SessionID getReservationId() {
+				return new SessionID("");
 			}
 		});
 		

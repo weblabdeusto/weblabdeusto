@@ -14,6 +14,10 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
+
 public interface IHasExperimentParameters {
 	public ExperimentParameter [] getParameters();
+	
+	// Typical parameters
+	public static final ExperimentParameterDefault WEBCAM_REFRESH_TIME = new ExperimentParameterDefault("webcam.refresh.millis", "Time to refresh the webcam image,  in milliseconds", 200);
 }

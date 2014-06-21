@@ -136,7 +136,7 @@
 <script>
 (function() {
 
-    var margin = {top: 20, right: 20, bottom: 100, left: 40},
+    var margin = {top: 20, right: 20, bottom: 200, left: 80},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
@@ -476,4 +476,63 @@ if (document.addEventListener) {
     padding-top: 12px;
   }
 </style>
+{% endmacro %}
+
+{% macro multitimeline(name) %}
+    <div id="multitimeline_{{ name }}" style="height: 500px">
+        <svg></svg>
+    </div>
+{% endmacro %}
+
+{% macro multitimeline_scripts(skip_d3 = False, skip_nvd3 = False) %}
+    {% if not skip_d3 %}
+        <script src="{{ url_for('instructor.static', filename='js/d3.v3.min.js') }}"></script>
+    {% endif %}
+    {% if not skip_nvd3 %}
+        <link href="{{ url_for('instructor.static', filename='css/nv.d3.css') }}" rel="stylesheet">
+        <script src="{{ url_for('instructor.static', filename='js/nv.d3.js') }}"></script>    
+    {% endif %}
+{% endmacro %}
+
+{% macro multitimeline_load(name, data) %}
+    <script>
+        /* 
+            data format: [
+                {
+                    'key' : 'line name',
+                    'values' : [
+                        [
+                            millisecond_since_epoch,
+                            value
+                        ]
+                    ]
+                }
+            ]
+        */
+        nv.addGraph(function() {
+          var chart = nv.models.lineChart()
+                        .x(function(d) { return d[0] })
+                        .y(function(d) { return d[1] }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                        .color(d3.scale.category10().range());
+
+          chart.xAxis
+              .tickFormat(function(d) {
+                return d3.time.format('%x')(new Date(d))
+              });
+
+          chart.yAxis
+              .tickFormat(d3.format('.1'));
+
+          var data = {{ data|safe }};
+
+          d3.select('#multitimeline_{{ name }} svg')
+              .datum(data)
+              .transition().duration(500)
+              .call(chart);
+
+          nv.utils.windowResize(chart.update);
+
+          return chart;
+        });
+    </script>
 {% endmacro %}

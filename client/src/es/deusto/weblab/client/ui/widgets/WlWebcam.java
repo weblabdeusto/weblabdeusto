@@ -28,10 +28,15 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
+
 public class WlWebcam extends VerticalPanel implements IWlWidget{
 	
+	public static final ExperimentParameterDefault WEBCAM_REFRESH_TIME = IHasExperimentParameters.WEBCAM_REFRESH_TIME;
+	
 	public static final String DEFAULT_IMAGE_URL = GWT.getModuleBaseURL() + "/waiting_url_image.jpg";
-	public static final int DEFAULT_REFRESH_TIME = 400;
 	
 	protected Image image;
 	
@@ -45,11 +50,15 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 	protected final HorizontalPanel imagePanel;
 	
 	public WlWebcam(){
-		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
+		this(WlWebcam.WEBCAM_REFRESH_TIME.getIntDefaultValue(), WlWebcam.DEFAULT_IMAGE_URL);
 	}
 	
 	public WlWebcam(int time){
 		this(time, WlWebcam.DEFAULT_IMAGE_URL);
+	}
+	
+	public WlWebcam(String url){
+		this(WlWebcam.WEBCAM_REFRESH_TIME.getIntDefaultValue(), url);
 	}
 	
 	public WlWebcam(int time, String url){
@@ -189,6 +198,10 @@ public class WlWebcam extends VerticalPanel implements IWlWidget{
 			stop();
 			start();
 		}
+	}
+	
+	public void setTime(IConfigurationRetriever configurationRetriever) {
+		setTime(configurationRetriever.getIntProperty(WEBCAM_REFRESH_TIME));
 	}
 
 	/**

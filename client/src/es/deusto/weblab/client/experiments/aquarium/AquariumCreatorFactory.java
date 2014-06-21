@@ -23,15 +23,12 @@ import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
-import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
 public class AquariumCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
-	public static final ExperimentParameterDefault WEBCAM_REFRESH = new ExperimentParameterDefault("webcam.refresh.millis", "Webcam refreshing time", 200);
-	
 	@Override
 	public String getCodeName() {
 		return "aquarium";
@@ -62,6 +59,6 @@ public class AquariumCreatorFactory implements IExperimentCreatorFactory, IHasEx
 
 	@Override
 	public ExperimentParameter[] getParameters() {
-		return new ExperimentParameter[] {  WEBCAM_REFRESH	};
+		return new ExperimentParameter[] {  IHasExperimentParameters.WEBCAM_REFRESH_TIME	};
 	}
 }

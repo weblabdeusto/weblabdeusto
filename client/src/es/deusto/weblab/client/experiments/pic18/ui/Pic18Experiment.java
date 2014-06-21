@@ -70,9 +70,6 @@ public class Pic18Experiment extends ExperimentBase{
 
 	private static final PIC18UiBinder uiBinder = GWT.create(PIC18UiBinder.class);
 	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY          = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME           = 400;
-	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
 
 	private static final int IS_READY_QUERY_TIMER = 1000;
@@ -165,13 +162,6 @@ public class Pic18Experiment extends ExperimentBase{
 		return this.configurationRetriever.getBoolProperty(Pic18CreatorFactory.IS_DEMO);
 	}
 	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-				Pic18Experiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-				Pic18Experiment.DEFAULT_WEBCAM_REFRESH_TIME
-			);
-	}	
-	
 	/**
 	 * Will find those interactive widgets that are defined on UiBinder
 	 * and add them to the interactive widgets list, so that they can
@@ -217,7 +207,7 @@ public class Pic18Experiment extends ExperimentBase{
 	 */
 	private void createProvidedWidgets() {
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 		
 		this.timer = new WlTimer(false);
 		

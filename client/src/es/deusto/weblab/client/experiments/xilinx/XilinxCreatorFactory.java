@@ -63,7 +63,7 @@ public class XilinxCreatorFactory implements IExperimentCreatorFactory, IHasExpe
 
 	@Override
 	public ExperimentParameter[] getParameters() {
-		return new ExperimentParameter[] { IS_MULTIRESOURCE_DEMO, IS_DEMO };
+		return new ExperimentParameter[] { IS_MULTIRESOURCE_DEMO, IS_DEMO, IHasExperimentParameters.WEBCAM_REFRESH_TIME };
 	}
 
 }

@@ -233,6 +233,10 @@
                 "type": "bool", 
                 "description": "Show the reserve button or not"
             }, 
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -297,6 +301,10 @@
     }, 
     "vm": {
         "parameters": {
+            "vnc.width": {
+                "type": "string", 
+                "description": "Width of the VNC applet"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -441,21 +449,25 @@
     }, 
     "pic18": {
         "parameters": {
-            "is.demo": {
+            "experiment.reserve.button.shown": {
                 "type": "bool", 
-                "description": "Is a demo?"
+                "description": "Show the reserve button or not"
+            }, 
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
             }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
             }, 
+            "is.demo": {
+                "type": "bool", 
+                "description": "Is a demo?"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -465,6 +477,10 @@
     }, 
     "robot-standard": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -485,6 +501,10 @@
     }, 
     "robot-movement": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -505,6 +525,10 @@
     }, 
     "robot-proglist": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -525,6 +549,10 @@
     }, 
     "robotarm": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -545,6 +573,10 @@
     }, 
     "submarine": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -621,17 +653,29 @@
     }, 
     "control-app": {
         "parameters": {
-            "experiment.info.description": {
+            "external.width": {
                 "type": "string", 
-                "description": "Description message"
+                "description": "If popup or iframe,  width"
             }, 
-            "experiment.info.link": {
+            "external.height": {
                 "type": "string", 
-                "description": "Link to point in the information"
+                "description": "If popup or iframe,  height"
             }, 
             "experiment.reserve.button.shown": {
                 "type": "bool", 
                 "description": "Show the reserve button or not"
+            }, 
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "link.presentation": {
+                "type": "string", 
+                "description": "Link presentation (redirection, iframe, popup)"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -663,7 +707,7 @@
         "parameters": {
             "webcam.refresh.millis": {
                 "type": "integer", 
-                "description": "Webcam refreshing time"
+                "description": "Time to refresh the webcam image,  in milliseconds"
             }, 
             "experiment.info.description": {
                 "type": "string", 
@@ -685,6 +729,10 @@
     }, 
     "robot-maze": {
         "parameters": {
+            "webcam.refresh.millis": {
+                "type": "integer", 
+                "description": "Time to refresh the webcam image,  in milliseconds"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
@@ -705,17 +753,61 @@
     }, 
     "redirect": {
         "parameters": {
+            "external.width": {
+                "type": "string", 
+                "description": "If popup or iframe,  width"
+            }, 
+            "external.height": {
+                "type": "string", 
+                "description": "If popup or iframe,  height"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
             "experiment.info.description": {
                 "type": "string", 
                 "description": "Description message"
+            }, 
+            "link.presentation": {
+                "type": "string", 
+                "description": "Link presentation (redirection, iframe, popup)"
             }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
             }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }, 
+    "purejs": {
+        "parameters": {
+            "load.on.init": {
+                "type": "bool", 
+                "description": "Load the HTML"
+            }, 
+            "html.file": {
+                "type": "string", 
+                "description": "HTML file to redirect the user"
+            }, 
             "experiment.reserve.button.shown": {
                 "type": "bool", 
                 "description": "Show the reserve button or not"
+            }, 
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "base.url": {
+                "type": "string", 
+                "description": "Base URL before the HTML file. By default, it's experiments/"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
             }, 
             "experiment.picture": {
                 "type": "string", 
