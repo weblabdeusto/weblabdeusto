@@ -3,6 +3,7 @@ var appcomposer = new (function () {
 
     this.config_retrieval = null;
     this.initializer = null;
+    this.labmanager_retrieval = null;
 
     this._processMessages = function(e) {
         if(new String(e.data) == "get-configuration") {
@@ -28,6 +29,9 @@ var appcomposer = new (function () {
     this.registerInitializer = function(func) {
         self.initializer = func;
     }
+    this.registerLabmanagerRetrieval = function(func) {
+        self.labmanager_retrieval = func;
+    }
 
 
     if (appcomposer_config != undefined) {
@@ -38,9 +42,16 @@ var appcomposer = new (function () {
                 this.registerConfigRetrieval(value);
             } else if (tag_name == 'initializer') {
                 this.registerInitializer(value);
+            } else if (tag_name == 'labmanager_retrieval') {
+                this.registerLabmanagerRetrieval(value);
             }
         }
     }
 
     window.parent.postMessage("request-initialization", "*");
+    if (this.labmanager_retrieval != null) {
+        var labmanager_config = this.labmanager_retrieval();
+        var message = "labmanager::" + JSON.stringify(labmanager_config);
+        window.parent.postMessage(message, "*");
+    }
 });

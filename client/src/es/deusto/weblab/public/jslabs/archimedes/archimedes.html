@@ -158,15 +158,17 @@
         <span class="timer" id="timer"></span>
     </h2>
 
-    <div class="editmodeh hide" id="editmodeh">
-        <h2>
-            <span>
-                DESIGN MODE
-            </span>
-        </h2>
-        <p>
-            Please, click on the elements you wish to hide.
-        </p>
+    <div class="text-center" style="width: 100%">
+        <div class="editmodeh hide" id="editmodeh">
+            <h2>
+                <span>
+                    DESIGN MODE
+                </span>
+            </h2>
+            <p>
+                Click on the elements you wish to hide.
+            </p>
+        </div>
     </div>
 
     <!-- For the design view, to fully hide instances -->
@@ -206,12 +208,16 @@
         }
 
         function initializer(config) {
-            View = config;
-            archimedesExperiment.updateView();
+            ArchimedesDesign.setDesignView(config);
+        }
+
+        function labmanager_retrieval() {
+            return { 'widget_url' : 'http://www.weblab.deusto.es/golab/labmanager/opensocial/public/widgets/archimedes/widget_default.xml' };
         }
 
         appcomposer_config.push(['get_view', getConfiguration]);
         appcomposer_config.push(['initializer', initializer]);
+        appcomposer_config.push(['labmanager_retrieval', labmanager_retrieval]);
 
         var new_script = document.createElement('script'); 
         new_script.type = 'text/javascript'; 
