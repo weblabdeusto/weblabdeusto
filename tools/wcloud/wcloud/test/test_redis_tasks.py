@@ -3,6 +3,9 @@
 #
 # UNIT TESTS BELOW
 #
+# REQUIREMENTS:
+#   - Redis-server installed and accessible from cmd.
+#
 ######################################
 import os
 import unittest

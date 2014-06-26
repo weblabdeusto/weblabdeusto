@@ -4,6 +4,10 @@
 #
 # UNIT TESTS BELOW
 #
+# REQUIREMENTS:
+#   - mysql-server should be running.
+#   - An account should exist with the privileges to create accounts: root / password
+#
 ######################################
 import unittest
 

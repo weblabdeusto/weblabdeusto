@@ -27,6 +27,11 @@ class TestWcloudTasks(unittest.TestCase):
     }
 
     def test_prepare_system(self):
+        """
+        Tests that the first step (prepare system) works as expected.
+
+        Prerrequisites: mysql running, redis running.
+        """
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                        self.wcloud_settings)
         self._settings = settings
@@ -37,6 +42,20 @@ class TestWcloudTasks(unittest.TestCase):
         self._settings = settings
         base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
         create_weblab_environment(base_url, settings)
+
+    def test_create_weblab_environment_thorough(self):
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+               self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        create_weblab_environment(base_url, settings)
+
+        # Start a local server on that config to check whether it works as expected.
+        from weblab.comm.proxy_server import start as start_proxy
+        execfile(os.path.join(base_url, 'httpd/simple_server_config.py'))
+        print "FILE: " + base_url
+        start_proxy(8001, PATHS)
+
 
     def test_configure_web_server(self):
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
