@@ -23,6 +23,7 @@
 	<extend-property name="locale" values="ro"/>
 	<extend-property name="locale" values="ru"/>
 	<extend-property name="locale" values="sk"/>
+	<extend-property name="locale" values="ar"/>
 	
 	<source path="client">
 		<exclude name="admin/**java" />
@@ -54,4 +55,9 @@
 	<public path="public"></public>
 	
 	<entry-point class='es.deusto.weblab.client.WebLabClientLab'/>
+	
+	<!-- REMOVE ME
+	<add-linker name="xsiframe" />
+	<set-configuration-property name="devModeRedirectEnabled" value="true" />
+	 -->
 </module>
