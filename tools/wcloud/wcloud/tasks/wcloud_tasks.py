@@ -196,13 +196,6 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     return settings
 
 
-# TODO: Fix this.
-def exit_func(code):
-    traceback.print_exc()
-    # print "Output:", output.getvalue()
-    raise Exception("Error creating weblab: %s" % code)
-
-
 @celery_app.task(bind=True, name="wcloud.create_weblab_environment")
 def create_weblab_environment(self, directory, settings):
     """
@@ -218,6 +211,11 @@ def create_weblab_environment(self, directory, settings):
 
     output = StringIO()
     command_output = StringIO()
+
+    def exit_func(code):
+        traceback.print_exc()
+        print "[WebLabCreate] Output:", command_output.getvalue()
+        raise Exception("Error creating weblab: %s" % code)
 
     results = weblab_create(directory,
                             settings,

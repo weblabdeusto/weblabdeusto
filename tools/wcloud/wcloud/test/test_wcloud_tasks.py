@@ -104,6 +104,10 @@ class TestWcloudTasks(unittest.TestCase):
         start_port, end_port = creation_results["start_port"], creation_results["end_port"]
 
     def test_finish_deployment(self):
+        """
+        Tests that every step can be done, and the deployment finished.
+        PRERREQUISITES: apache-reloader and weblab-starter scripts running.
+        """
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
             self.wcloud_settings)
         self._settings = settings
@@ -114,6 +118,39 @@ class TestWcloudTasks(unittest.TestCase):
 
         start_port, end_port = creation_results["start_port"], creation_results["end_port"]
         finish_deployment("testuser@testuser.com", settings, start_port, end_port, self.wcloud_settings)
+        pass
+
+    def test_finish_deployment_thorough(self):
+        """
+        Tests that every step can be done, and the deployment finished.
+        Checks that after being configured, Apache is indeed serving the new instance correctly.
+        PRERREQUISITES: apache-reloader and weblab-starter scripts running; apache2 configured correctly to load the instances.
+        """
+        settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
+            self.wcloud_settings)
+        self._settings = settings
+        base_url = os.path.join(flask_app.config["DIR_BASE"], settings[Creation.BASE_URL])
+        creation_results = create_weblab_environment(base_url, settings)
+        configure_web_server(creation_results)
+        register_and_start_instance("testuser@testuser.com", self.wcloud_settings)
+
+        start_port, end_port = creation_results["start_port"], creation_results["end_port"]
+        finish_deployment("testuser@testuser.com", settings, start_port, end_port, self.wcloud_settings)
+
+        # Check that the new instance is being served correctly.
+        bot = requests.Session()
+        r = bot.get("http://localhost/testentity/weblab/client/index.html")
+        text = r.text
+        print text
+        assert "weblabclientlab" in text
+        assert "input" in text
+        assert "hiddenPassword" in text
+
+        # Check that we can login with admin/password.
+        r = bot.post("http://localhost/testentity/weblab/login/json/", data="""{"params":{"username":"admin", "password":"password"}, "method":"login"}""")
+        j = r.json()
+        assert not j["is_exception"]
+        assert "id" in j["result"]
 
     def setUp(self):
         import wcloud.test.prepare as prepare
