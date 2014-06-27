@@ -26,12 +26,12 @@ class TestDatabaseTasks(unittest.TestCase):
         Test that we can successfully create a database.
         """
 
-        result = create_db.delay("root", "password", "wcloudtest", "weblab", "weblab")
+        result = create_db.delay("root", "password", "wcloudtest", "wcloud", "password")
         db_name = result.get()
         assert db_name.startswith("wcloudtest")
 
     def test_destroy_db(self):
-        db = create_db.delay("root", "password", "wcloudtest", "weblab", "weblab").get()
+        db = create_db.delay("root", "password", "wcloudtest", "wcloud", "password").get()
         destroy_db.delay("root", "password", db).get()
 
         engine = connect("root", "password")

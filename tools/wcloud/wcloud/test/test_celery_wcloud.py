@@ -97,6 +97,12 @@ class TestWcloudTasks(unittest.TestCase):
         except:
             pass
 
+        # Remove the include from apache.conf
+        apacheconf = os.path.join(wcloud_tasks.flask_app.config["DIR_BASE"], "apache.conf")
+        lines = open(apacheconf, "r").readlines()
+        cleared_lines = [line.strip() + "\n" for line in lines if "testentity" not in line]
+        open(apacheconf, "w").writelines(cleared_lines)
+
         # Make sure all the instances are stopped. DANGEROUS: This will kill all running instances of WebLab.
         # This is done, specifically, so that "testentity" instance is killed after being run, so that
         # the test can be run again without issues.l

@@ -295,6 +295,11 @@ def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_setting
         # Get the wcloud entity.
         user = session.query(User).filter_by(email=wcloud_user_email).first()
         entity = user.entity
+
+        if entity is None:
+            result = "[register_and_start_instance]: ERROR: Could not retrieve entity from the database"
+            sys.stderr.write(result)
+            raise Exception(result)
     except:
         sys.stderr.write(
             "[register_and_start_instance]: ERROR: Recovering wcloud user from DB. DB_NAME: %s" % flask_app.config[
@@ -382,7 +387,7 @@ def deploy_weblab_instance(self):
 
 
 if __name__ == "__main__":
-    pass
+    celery_app.start(["celery", "-A", "wcloud.tasks.wcloud_tasks", "worker", "--loglevel=INFO"])
 
 
 
