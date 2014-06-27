@@ -70,6 +70,10 @@ class TestWcloudTasks(unittest.TestCase):
 
 
     def test_configure_web_server(self):
+        """
+        Checks whether the Apache server can be configured correctly.
+        PRERREQUISITE: Apache Reloader script must previously be running.
+        """
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                self.wcloud_settings)
         self._settings = settings
@@ -77,7 +81,18 @@ class TestWcloudTasks(unittest.TestCase):
         creation_results = create_weblab_environment(base_url, settings)
         configure_web_server(creation_results)
 
+        assert os.path.isfile(os.path.join(base_url, "../", "apache.conf"))
+        content = open(os.path.join(base_url, "../", "apache.conf"), "r").read()
+        assert "testentity" in content
+        lines = content.split("\n")
+        line = [line.strip() for line in lines if "testentity" in line][0]
+        assert os.path.isfile(line.split("\"")[1])
+
     def test_register_and_start_instance(self):
+        """
+        Test whether the weblab instance can be started successfully.
+        PRERREQUISITE: weblabstarter script needs to be running in the background.
+        """
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
             self.wcloud_settings)
         self._settings = settings
@@ -133,6 +148,12 @@ class TestWcloudTasks(unittest.TestCase):
             f.close()
         except:
             pass
+
+        # Remove the include from apache.conf
+        apacheconf = os.path.join(flask_app.config["DIR_BASE"], "apache.conf")
+        lines = open(apacheconf, "r").readlines()
+        cleared_lines = [line.strip() + "\n" for line in lines if "testentity" not in line]
+        open(apacheconf, "w").writelines(cleared_lines)
 
         # Make sure all the instances are stopped. DANGEROUS: This will kill all running instances of WebLab.
         # This is done, specifically, so that "testentity" instance is killed after being run, so that

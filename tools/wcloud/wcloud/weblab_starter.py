@@ -117,6 +117,8 @@ def main():
     dir_base = app.config['DIR_BASE']
     if not os.path.exists(dir_base):
         os.mkdir(dir_base)
+
+    if not os.path.exists(FILENAME):
         open(FILENAME, 'w').write("")
         apache_conf_file = os.path.join(dir_base, deploymentsettings.APACHE_CONF_NAME)
         open(apache_conf_file, 'w').write("")
