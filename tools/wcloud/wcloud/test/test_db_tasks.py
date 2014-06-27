@@ -29,11 +29,11 @@ class TestDatabaseTasks(unittest.TestCase):
         """
         Test that we can successfully create a database.
         """
-        db = create_db("root", "password", "wcloudtest", "weblab", "weblab")
+        db = create_db("root", "password", "wcloudtest", "wcloud", "password")
         assert db.startswith("wcloudtest")
 
     def test_destroy_db(self):
-        db = create_db("root", "password", "wcloudtest", "weblab", "weblab")
+        db = create_db("root", "password", "wcloudtest", "wcloud", "password")
         destroy_db("root", "password", db)
         engine = connect("root", "password")
         dbs = engine.execute("SHOW databases LIKE '%s'" % db).fetchall()

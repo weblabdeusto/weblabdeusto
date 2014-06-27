@@ -6,6 +6,9 @@
 import os
 import shutil
 import unittest
+import time
+import subprocess
+import requests
 from wcloud.tasks.wcloud_tasks import flask_app, prepare_system, create_weblab_environment, configure_web_server, register_and_start_instance, finish_deployment
 from weblab.admin.script import Creation
 
@@ -52,9 +55,18 @@ class TestWcloudTasks(unittest.TestCase):
 
         # Start a local server on that config to check whether it works as expected.
         from weblab.comm.proxy_server import start as start_proxy
-        execfile(os.path.join(base_url, 'httpd/simple_server_config.py'))
+        g = globals()
+        l = locals()
+        execfile(os.path.join(base_url, 'httpd/simple_server_config.py'), g, l)
         print "FILE: " + base_url
-        start_proxy(8001, PATHS)
+        p = g.get("PATHS") or l.get("PATHS")
+        start_proxy(8001, p)
+
+        time.sleep(1)
+
+        r = requests.get("http://localhost:8001/testentity/weblab/client/index.html")
+        assert r.status_code == 200
+        assert "Deusto" in r.text
 
 
     def test_configure_web_server(self):
