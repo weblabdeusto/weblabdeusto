@@ -95,7 +95,6 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         sess_id = self._parse_session_id(reservation_id)
         return self._server.get_reservation_status(sess_id)
 
-    # TODO: does ZSI support Attachments (yes in theory)? And in the rest of libraries used?
     @logged(except_for=(('file_content',2),))
     @RFM.check_exceptions(EXCEPTIONS)
     @RFM.check_nullable
@@ -297,26 +296,6 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
     def _serialize_experiment_result(self, experiment_result):
         return experiment_result
 
-class AbstractUserProcessingRemoteFacadeManagerObject(AbstractUserProcessingRemoteFacadeManager):
-    # When accessing structures, this class uses instance.attribute
-    # Useful for ZSI and other libraries
-
-    def _parse_session_id(self, session_id):
-        return SessionId.SessionId(session_id.id)
-
-    def _parse_experiment_id(self, exp_id):
-        return ExperimentId(
-                exp_id.exp_name,
-                exp_id.cat_name
-            )
-
-    def _parse_command(self, command):
-        return Command.Command(command.commandstring)
-
-    def _parse_request_identifiers(self, request_identifiers):
-        print "[DBG] Request identifiers: " + str(request_identifiers)
-        return request_identifiers
-
 class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemoteFacadeManager):
     # When accessing structures, this class uses instance['attribute']
     # Useful for SimpleXMLRPCServer, JSON, etc.
@@ -340,9 +319,6 @@ class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemote
         """
         print "[DBG] Request identifiers dict: " + str(request_identifiers)
         return request_identifiers
-
-class UserProcessingRemoteFacadeManagerZSI(RFM.AbstractZSI, AbstractUserProcessingRemoteFacadeManagerObject):
-    pass
 
 class UserProcessingRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractUserProcessingRemoteFacadeManagerDict):
     pass

@@ -424,9 +424,6 @@ if __name__ == '__main__':
     parser.add_option('--coverage-report',         dest='coverage_report', default = 'report',  choices = ('report', 'xml', 'html'),
                                                    help = "Coverage report style (report, xml, html)", metavar = 'REPORT_STYLE')
 
-    parser.add_option('--deploy-stubs',            dest='deploy_stubs', action='store_true', default=False,
-                                                   help = "Creates all the ZSI SOAP stubs.")
-
     parser.add_option('--compile-client',          dest='compile_client', action='store_true', default=False,
                                                    help = "Compiles the client.")
 
@@ -523,10 +520,6 @@ if __name__ == '__main__':
 
     if options.install_weblab:
         os.system("python setup.py install")
-
-    if options.deploy_stubs:
-        import weblab.comm.util as comm_util
-        comm_util.deploy_stubs()
 
     if options.deploy_testdb:
         deploy_testdb(options)

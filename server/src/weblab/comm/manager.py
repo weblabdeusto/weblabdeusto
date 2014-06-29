@@ -20,13 +20,6 @@ import weblab.configuration_doc as configuration_doc
 import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
 
-try:
-    import ZSI
-except ImportError:
-    ZSI_AVAILABLE = False
-else:
-    ZSI_AVAILABLE = True
-
 import SimpleXMLRPCServer
 import datetime
 import traceback
@@ -96,16 +89,6 @@ def _propagate_stack_trace(cfg_manager, msg):
     if propagate:
         msg = str(msg) + "; Traceback: " + formatted_exc
     return msg
-
-class AbstractZSI(object):
-    def _raise_exception(self, code, msg):
-        if ZSI_AVAILABLE:
-            msg = _propagate_stack_trace(self._cfg_manager, msg)
-            raise ZSI.Fault( 'ZSI:' + code, msg )
-        else:
-            msg = "Optional library 'ZSI' is not available, so SOAP clients will not be supported. However, AbstractZSI is being used, so problems will arise"
-            log.log( self, log.level.Error, msg )
-            print >> sys.stderr, msg
 
 class JSONError(Exception):
     pass

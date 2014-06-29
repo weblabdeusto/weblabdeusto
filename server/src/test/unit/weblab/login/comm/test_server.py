@@ -43,16 +43,12 @@ REAL_ID          ='this_is_the_real_id'
 class WrappedRemoteFacadeServer(LoginFacadeServer.LoginRemoteFacadeServer):
     rfm_mock = None
     
-    def _create_zsi_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
-    
     def _create_json_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
     
     def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
 
-ZSI_PORT    = new_port()
 JSON_PORT   = new_port()
 XMLRPC_PORT = new_port()
 
@@ -65,38 +61,11 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
         time.sleep( 0.01 * 5 )
 
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_PORT, ZSI_PORT)
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_SERVICE_NAME, '/weblab/login/soap/')
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_ZSI_LISTEN, '')
-
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
 
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
-
-    if RemoteFacadeServer.ZSI_AVAILABLE:
-
-        @uses_module(RemoteFacadeServer)
-        def test_simple_use_zsi(self):
-            session_to_return = SessionId.SessionId(REAL_ID)
-            rfm_obj = self.mocker.mock()
-            rfm_obj.login(USERNAME, PASSWORD)
-            self.mocker.result(session_to_return)
-            WrappedRemoteFacadeServer.rfm_mock = rfm_obj
-            self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-            self.mocker.replay()
-            self.rfs.start()
-            try:
-                zsi_client = Client.BotZSI("http://localhost:%s/weblab/soap/" % ZSI_PORT, "http://localhost:%s/weblab/login/soap/" % ZSI_PORT)
-                session = zsi_client.do_login(USERNAME, PASSWORD)
-                self.assertEquals(session.id, REAL_ID)
-            finally:
-                self.rfs.stop()
-    else:
-        
-        print >> sys.stderr, "Optional library 'ZSI' not available. Skipping test int weblab.login.comm.RemoteFacadeServer"
 
     @uses_module(RemoteFacadeServer)
     def test_simple_use_json(self):

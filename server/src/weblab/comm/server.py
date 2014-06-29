@@ -19,17 +19,6 @@ import SocketServer
 
 import weblab.configuration_doc as configuration_doc
 
-# ZSI
-try:
-    import ZSI.ServiceContainer as ServiceContainer
-    import weblab.core.comm.generated.weblabdeusto_client as weblabdeusto_client
-    # Avoid pyflakes warning
-    assert weblabdeusto_client is not None
-except ImportError:
-    ZSI_AVAILABLE = False
-else:
-    ZSI_AVAILABLE = True
-
 # JSON/HTTP
 import BaseHTTPServer
 import json
@@ -339,57 +328,6 @@ class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCS
         sock.settimeout(None)
         return sock, addr
 
-############
-# ZSI code #
-############
-
-if ZSI_AVAILABLE:
-    class WebLabRequestHandlerClass(ServiceContainer.SOAPRequestHandler):
-        server_route = None
-        location     = None
-
-        def do_POST(self, *args, **kwargs):
-            create_context(self.server, self.client_address, self.headers)
-            try:
-                ServiceContainer.SOAPRequestHandler.do_POST(self, *args, **kwargs)
-            finally:
-                delete_context()
-
-        def end_headers(self):
-            if self.server_route is not None:
-                route = get_context().route
-                if route is None:
-                    route = self.server_route
-                if self.location is not None:
-                    location = self.location
-                else:
-                    location = '/weblab/'
-                self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
-                self.send_header("Set-Cookie","loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
-            ServiceContainer.SOAPRequestHandler.end_headers(self)
-
-        def log_message(self, format, *args):
-            #args: ('POST /weblab/soap/ HTTP/1.1', '200', '-')
-            log.log(
-                WebLabRequestHandlerClass,
-                log.level.Info,
-                "Request from %s: %s" % (get_context().get_ip_address(), format % args)
-            )
-
-    class _AvoidTimeoutServiceContainer(SocketServer.ThreadingMixIn, ServiceContainer.ServiceContainer):
-
-        daemon_threads = True
-        request_queue_size = 50 #TODO: parameter!
-        allow_reuse_address = True
-
-        def __init__(self, *args, **kargs):
-            ServiceContainer.ServiceContainer.__init__(self, *args, **kargs)
-
-        def get_request(self):
-            sock, addr = ServiceContainer.ServiceContainer.get_request(self)
-            sock.settimeout(None)
-            return sock, addr
-
 ###############
 # COMMON CODE #
 ###############
@@ -423,7 +361,7 @@ def _show_help(request_inst, protocol, methods, methods_help):
             pass
 
 class AbstractProtocolRemoteFacadeServer(threading.Thread):
-    protocol_name = 'FILL_ME!' # For instance: zsi
+    protocol_name = 'FILL_ME!' # For instance: XMLRPC
 
     def __init__(self, server, configuration_manager, remote_facade_server):
         threading.Thread.__init__(self)
@@ -453,59 +391,6 @@ class AbstractProtocolRemoteFacadeServer(threading.Thread):
             return self._configuration_manager.get_values(*args, **kargs)
         except ConfigurationErrors.ConfigurationError as ce:
             raise FacadeErrors.MisconfiguredError("Missing params: " + ce.args[0])
-
-class AbstractRemoteFacadeServerZSI(AbstractProtocolRemoteFacadeServer):
-    protocol_name = "zsi"
-
-    def _retrieve_configuration(self):
-        values = self.parse_configuration(
-                self._rfs.FACADE_ZSI_PORT,
-                **{
-                    self._rfs.FACADE_ZSI_LISTEN: self._rfs.DEFAULT_FACADE_ZSI_LISTEN,
-                    self._rfs.FACADE_ZSI_SERVICE_NAME: self._rfs.DEFAULT_FACADE_ZSI_SERVICE_NAME,
-                    BASE_LOCATION_PROPERTY : ''
-                }
-           )
-        listen        = getattr(values, self._rfs.FACADE_ZSI_LISTEN)
-        port          = getattr(values, self._rfs.FACADE_ZSI_PORT)
-        base_location = getattr(values, BASE_LOCATION_PROPERTY)
-        service_name  = base_location + getattr(values, self._rfs.FACADE_ZSI_SERVICE_NAME)
-        return listen, port, service_name
-
-    def _create_service_container(self, listen, port, the_server_route):
-
-        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
-        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
-            without_protocol = '//'.join(core_server_url.split('//')[1:])
-            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
-        else:
-            the_location = '/weblab/'
-
-        class NewWebLabRequestHandlerClass(WebLabRequestHandlerClass):
-            server_route = the_server_route
-            location     = the_location
-
-        return _AvoidTimeoutServiceContainer(
-                (listen,port),
-                RequestHandlerClass=NewWebLabRequestHandlerClass
-            )
-
-    def initialize(self):
-        if not ZSI_AVAILABLE:
-            msg = "The optional library 'ZSI' is not available, so the server will not support SOAP clients. However, it's being used so problems will arise."
-            print >> sys.stderr, msg
-            log.log( self, log.level.Error, msg)
-
-        listen, port, service_name = self._retrieve_configuration()
-        self._interface = self.WebLabDeusto(impl = self._rfm)
-        server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        self._server = self._create_service_container(listen,port,server_route)
-        self._server.server_name = self._configuration_manager.get_value( self._rfs.FACADE_ZSI_PUBLIC_SERVER_HOST, self._rfs.DEFAULT_FACADE_ZSI_PUBLIC_SERVER_HOST )
-        self._server.server_port = self._configuration_manager.get_value( self._rfs.FACADE_ZSI_PUBLIC_SERVER_PORT, self._rfs.DEFAULT_FACADE_ZSI_PUBLIC_SERVER_PORT )
-        self._server.setNode(self._interface, url=service_name)
-
-        timeout = self.get_timeout()
-        self._server.socket.settimeout(timeout)
 
 class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
     protocol_name = "json"

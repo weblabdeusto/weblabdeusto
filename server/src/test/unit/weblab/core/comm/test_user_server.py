@@ -44,16 +44,12 @@ RESPONSE_COMMAND = 'myresponsecommand'
 class WrappedRemoteFacadeServer(UserProcessingFacadeServer.UserProcessingRemoteFacadeServer):
     rfm_mock = None
     
-    def _create_zsi_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
-    
     def _create_json_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
     
     def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
 
-ZSI_PORT    = new_port()
 JSON_PORT   = new_port()
 XMLRPC_PORT = new_port()
     
@@ -65,37 +61,11 @@ class UserProcessingRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
         time.sleep( 0.01 * 5 )
 
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_PORT, ZSI_PORT)
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_SERVICE_NAME, '/weblab/soap/')
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_ZSI_LISTEN, '')
-
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
 
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
-
-    if RemoteFacadeServer.ZSI_AVAILABLE:
-        @uses_module(RemoteFacadeServer)
-        def test_simple_use_zsi(self):
-            response_command = Command.Command(RESPONSE_COMMAND)
-            rfm_obj = self.mocker.mock()
-            rfm_obj.send_command(mocker.ARGS)
-            self.mocker.result( response_command )
-            WrappedRemoteFacadeServer.rfm_mock = rfm_obj
-            self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-            self.mocker.replay()            
-            self.rfs.start()
-            try:
-                zsi_client = Client.BotZSI("http://localhost:%s/weblab/soap/" % ZSI_PORT, "http://localhost:%s/weblab/login/soap/" % ZSI_PORT)
-                zsi_client.reservation_id = SessionId.SessionId(REAL_ID)
-                response_command = zsi_client.do_send_command(Command.Command(COMMAND))
-                self.assertEquals(response_command.commandstring, RESPONSE_COMMAND)
-            finally:
-                self.rfs.stop()
-    else:
-        print >> sys.stderr, "Optional library 'ZSI' not available. Skipped test in weblab.core.comm.RemoteFacadeServer"
 
     @uses_module(RemoteFacadeServer)
     def test_simple_use_json(self):

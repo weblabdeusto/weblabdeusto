@@ -92,9 +92,6 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
         return self._server.create_external_user(system, credentials)
 
 
-class LoginRemoteFacadeManagerZSI(RFM.AbstractZSI, AbstractLoginRemoteFacadeManager):
-    pass
-
 class LoginRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractLoginRemoteFacadeManager):
     pass
 
