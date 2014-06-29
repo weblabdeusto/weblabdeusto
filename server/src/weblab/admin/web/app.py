@@ -51,6 +51,8 @@ class AdministrationApplication(AbstractDatabaseGateway):
             f = os.path.join('logs','admin_app.log')
         else:
             f = 'admin_app.log'
+
+              
         file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
         file_handler.setLevel(logging.WARNING)
         self.app.logger.addHandler(file_handler)
@@ -67,6 +69,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = 'General', name = 'Add multiple users',  endpoint = 'general/multiple/users'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
         self.admin.add_view(admin_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
+        self.admin.add_view(admin_views.AuthsPanel(db_session, category = 'General', name = 'Authentication', endpoint = 'general/auth'))
 
         self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
 
