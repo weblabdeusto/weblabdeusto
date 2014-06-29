@@ -4,8 +4,6 @@ core_experiment_poll_time         = 350 # seconds
 
 # Ports
 
-core_facade_soap_port   = 10123
-core_facade_xmlrpc_port = 19345
 core_facade_json_port   = 18345
 
 admin_facade_json_port   = 18545

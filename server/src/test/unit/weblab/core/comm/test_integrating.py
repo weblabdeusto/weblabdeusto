@@ -50,7 +50,6 @@ import weblab.core.exc as coreExc
 from test.unit.weblab.core.comm.test_user_manager import MockUPS
 
 JSON_PORT = new_port()
-XMLRPC_PORT = new_port()
 
 class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
     def setUp(self):
@@ -61,10 +60,6 @@ class UserProcessingIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_JSON_LISTEN, '')
-
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_PORT, XMLRPC_PORT)
-        self.configurationManager._set_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_XMLRPC_LISTEN, '')
-
 
         self.mock_server      = MockUPS()
         self.rfs = UserProcessingFacadeServer.UserProcessingRemoteFacadeServer(self.mock_server, self.configurationManager)

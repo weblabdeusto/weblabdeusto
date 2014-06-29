@@ -323,8 +323,3 @@ class AbstractUserProcessingRemoteFacadeManagerDict(AbstractUserProcessingRemote
 class UserProcessingRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractUserProcessingRemoteFacadeManagerDict):
     pass
 
-class UserProcessingRemoteFacadeManagerXMLRPC(RFM.AbstractXMLRPC, AbstractUserProcessingRemoteFacadeManagerDict):
-    pass
-
-
-

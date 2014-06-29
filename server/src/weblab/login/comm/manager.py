@@ -95,6 +95,4 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
 class LoginRemoteFacadeManagerJSON(RFM.AbstractJSON, AbstractLoginRemoteFacadeManager):
     pass
 
-class LoginRemoteFacadeManagerXMLRPC(RFM.AbstractXMLRPC, AbstractLoginRemoteFacadeManager):
-    pass
 

@@ -26,9 +26,6 @@ import json
 import datetime
 import types
 
-# XML-RPC
-import SimpleXMLRPCServer
-
 import voodoo.log as log
 import voodoo.counter as counter
 import voodoo.resources_manager as ResourceManager
@@ -250,84 +247,6 @@ class JsonHttpServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         sock.settimeout(None)
         return sock, addr
 
-################
-# XML-RPC code #
-################
-
-class XmlRpcRequestHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
-
-    server_route = None
-    location     = None
-
-    def do_GET(self):
-        methods = self.server.system_listMethods()
-        methods_help = {}
-        for method in methods:
-            methods_help[method] = self.server.system_methodHelp(method)
-        _show_help(self, "XML-RPC", methods, methods_help)
-
-    def do_POST(self, *args, **kwargs):
-        create_context(self.server, self.client_address, self.headers)
-        try:
-            SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.do_POST(self, *args, **kwargs)
-        finally:
-            delete_context()
-
-    def end_headers(self):
-        if self.server_route is not None:
-            route = get_context().route
-            if route is None:
-                route = self.server_route
-            if self.location is not None:
-                location = self.location
-            else:
-                location = '/weblab/'
-            self.send_header("Set-Cookie","weblabsessionid=anythinglikeasessid.%s; path=%s" % (route, location))
-            self.send_header("Set-Cookie", "loginweblabsessionid=anythinglikeasessid.%s; path=%s; Expires=%s" % (route, location, strdate(hours=1)))
-        SimpleXMLRPCServer.SimpleXMLRPCRequestHandler.end_headers(self)
-
-    def log_message(self, format, *args):
-        #args: ('POST /weblab/xmlrpc/ HTTP/1.1', '200', '-')
-        log.log(
-            XmlRpcRequestHandler,
-            log.level.Info,
-            "Request from %s: %s" % (get_context().get_ip_address(), format % args)
-        )
-
-class XmlRpcServer(SocketServer.ThreadingMixIn, SimpleXMLRPCServer.SimpleXMLRPCServer):
-    daemon_threads = True
-    request_queue_size = 50 #TODO: parameter!
-    allow_reuse_address = True
-
-    def __init__(self, server_address, manager, the_server_route, base_location, core_server_url):
-        the_rpc_paths = []
-
-        location_to_append = base_location[:-1] if base_location.endswith('/') else base_location
-
-        for path in '/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/', '/weblab/login/xmlrpc', '/weblab/login/xmlrpc/':
-            the_rpc_paths.append(path)
-            if location_to_append:
-                the_rpc_paths.append(location_to_append + path)
-
-        if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
-            without_protocol = '//'.join(core_server_url.split('//')[1:])
-            the_location = '/' + ( '/'.join(without_protocol.split('/')[1:]) )
-        else:
-            the_location = '/weblab/'
-
-        class NewXmlRpcRequestHandler(XmlRpcRequestHandler):
-            server_route = the_server_route
-            rpc_paths    = the_rpc_paths
-            location     = the_location
-
-        SimpleXMLRPCServer.SimpleXMLRPCServer.__init__(self, server_address, NewXmlRpcRequestHandler, allow_none = True)
-        self.register_instance(manager)
-
-    def get_request(self):
-        sock, addr = SimpleXMLRPCServer.SimpleXMLRPCServer.get_request(self)
-        sock.settimeout(None)
-        return sock, addr
-
 ###############
 # COMMON CODE #
 ###############
@@ -361,7 +280,7 @@ def _show_help(request_inst, protocol, methods, methods_help):
             pass
 
 class AbstractProtocolRemoteFacadeServer(threading.Thread):
-    protocol_name = 'FILL_ME!' # For instance: XMLRPC
+    protocol_name = 'FILL_ME!' # For instance: JSON
 
     def __init__(self, server, configuration_manager, remote_facade_server):
         threading.Thread.__init__(self)
@@ -425,34 +344,8 @@ class RemoteFacadeServerJSON(AbstractProtocolRemoteFacadeServer):
         self._server = JsonHttpServer((listen, port), NewJsonHttpHandler)
         self._server.socket.settimeout(timeout)
 
-
-class RemoteFacadeServerXMLRPC(AbstractProtocolRemoteFacadeServer):
-    protocol_name = "xmlrpc"
-
-    def _retrieve_configuration(self):
-        values = self.parse_configuration(
-                self._rfs.FACADE_XMLRPC_PORT,
-                **{
-                    self._rfs.FACADE_XMLRPC_LISTEN: self._rfs.DEFAULT_FACADE_XMLRPC_LISTEN,
-                    BASE_LOCATION_PROPERTY : ''
-                }
-           )
-        listen        = getattr(values, self._rfs.FACADE_XMLRPC_LISTEN)
-        port          = getattr(values, self._rfs.FACADE_XMLRPC_PORT)
-        base_location = getattr(values, BASE_LOCATION_PROPERTY)
-        return listen, port, base_location
-
-    def initialize(self):
-        timeout = self.get_timeout()
-        listen, port, base_location = self._retrieve_configuration()
-        core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
-        server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
-        self._server = XmlRpcServer((listen, port), self._rfm, server_route, base_location, core_server_url)
-        self._server.socket.settimeout(timeout)
-
-
 class AbstractRemoteFacadeServer(object):
-    SERVERS = (RemoteFacadeServerJSON, RemoteFacadeServerXMLRPC)
+    SERVERS = (RemoteFacadeServerJSON,)
 
     def __init__(self, server, configuration_manager):
         self._configuration_manager = configuration_manager

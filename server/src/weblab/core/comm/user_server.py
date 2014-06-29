@@ -21,11 +21,6 @@ DEFAULT_USER_PROCESSING_FACADE_JSON_LISTEN            = ''
 
 USER_PROCESSING_FACADE_JSON_PORT                      = 'core_facade_json_port'
 
-USER_PROCESSING_FACADE_XMLRPC_LISTEN                  = 'core_facade_xmlrpc_bind'
-DEFAULT_USER_PROCESSING_FACADE_XMLRPC_LISTEN          = ''
-
-USER_PROCESSING_FACADE_XMLRPC_PORT                    = 'core_facade_xmlrpc_port'
-
 USER_PROCESSING_FACADE_SERVER_ROUTE                   = 'core_facade_server_route'
 DEFAULT_USER_PROCESSING_SERVER_ROUTE                  = 'default-route-to-server'
 
@@ -35,15 +30,8 @@ class UserProcessingRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     DEFAULT_FACADE_JSON_LISTEN                   = DEFAULT_USER_PROCESSING_FACADE_JSON_LISTEN
     FACADE_JSON_PORT                             = USER_PROCESSING_FACADE_JSON_PORT
 
-    FACADE_XMLRPC_LISTEN                         = USER_PROCESSING_FACADE_XMLRPC_LISTEN
-    DEFAULT_FACADE_XMLRPC_LISTEN                 = DEFAULT_USER_PROCESSING_FACADE_XMLRPC_LISTEN
-    FACADE_XMLRPC_PORT                           = USER_PROCESSING_FACADE_XMLRPC_PORT
-
     FACADE_SERVER_ROUTE                          = USER_PROCESSING_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE                         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
-
-    def _create_xmlrpc_remote_facade_manager(self, server, configuration_manager):
-        return UPFM.UserProcessingRemoteFacadeManagerXMLRPC( configuration_manager, server)
 
     def _create_json_remote_facade_manager(self, server, configuration_manager):
         return UPFM.UserProcessingRemoteFacadeManagerJSON( configuration_manager, server)

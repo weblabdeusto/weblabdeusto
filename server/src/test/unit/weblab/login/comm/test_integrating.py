@@ -34,7 +34,6 @@ import weblab.login.comm.server as LoginFacadeServer
 import weblab.login.exc as LoginErrors
 
 JSON_PORT   = new_port()
-XMLRPC_PORT = new_port()
 
 class MockLogin(object):
     def __init__(self):
@@ -64,10 +63,6 @@ class LoginIntegratingRemoteFacadeManagerJSON(unittest.TestCase):
 
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
-
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
-
 
         self.mock_server      = MockLogin()
         self.rfs = LoginFacadeServer.LoginRemoteFacadeServer(self.mock_server, self.configurationManager)

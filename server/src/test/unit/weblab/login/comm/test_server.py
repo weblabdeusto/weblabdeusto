@@ -45,12 +45,8 @@ class WrappedRemoteFacadeServer(LoginFacadeServer.LoginRemoteFacadeServer):
     
     def _create_json_remote_facade_manager(self, *args, **kwargs):
         return self.rfm_mock
-    
-    def _create_xmlrpc_remote_facade_manager(self, *args, **kwargs):
-        return self.rfm_mock
 
 JSON_PORT   = new_port()
-XMLRPC_PORT = new_port()
 
 class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
@@ -63,9 +59,6 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
 
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_PORT, JSON_PORT)
         self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_JSON_LISTEN, '')
-
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_PORT, XMLRPC_PORT)
-        self.configurationManager._set_value(LoginFacadeServer.LOGIN_FACADE_XMLRPC_LISTEN, '')
 
     @uses_module(RemoteFacadeServer)
     def test_simple_use_json(self):
@@ -84,25 +77,6 @@ class LoginRemoteFacadeServerTestCase(mocker.MockerTestCase):
             self.assertEquals(session.id, REAL_ID)
         finally:
             self.rfs.stop()
-
-    @uses_module(RemoteFacadeServer)
-    def test_simple_use_xmlrpc(self):
-        session_to_return = {'id' : REAL_ID}
-        rfm_xmlrpc = self.mocker.mock()
-        rfm_xmlrpc._dispatch('login', (USERNAME, PASSWORD))
-        self.mocker.result(session_to_return)
-        WrappedRemoteFacadeServer.rfm_mock = rfm_xmlrpc
-        self.rfs = WrappedRemoteFacadeServer(None, self.configurationManager)
-        
-        self.mocker.replay()
-        self.rfs.start()
-        try:
-            xmlrpc_client = Client.BotXMLRPC("http://localhost:%s/weblab/xmlrpc/" % XMLRPC_PORT, "http://localhost:%s/weblab/login/xmlrpc/" % XMLRPC_PORT)
-            session = xmlrpc_client.do_login(USERNAME, PASSWORD)
-            self.assertEquals(session.id, REAL_ID)
-        finally:
-            self.rfs.stop()
-
 
 def suite():
     return unittest.makeSuite(LoginRemoteFacadeServerTestCase)

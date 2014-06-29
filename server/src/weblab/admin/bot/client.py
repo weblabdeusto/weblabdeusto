@@ -22,8 +22,6 @@ import json
 
 import cookielib
 
-import xmlrpclib
-
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
 import weblab.data.command as Command
@@ -303,86 +301,9 @@ class BotJSON(AbstractBotDict):
         self.opener = None
         self.cj     = None
 
-class _CookiesTransport(xmlrpclib.Transport):
-    def send_user_agent(self, connection):
-        xmlrpclib.Transport.send_user_agent(self, connection)
-        if hasattr(self, '_sessid_cookie'):
-            connection.putheader("Cookie",self._sessid_cookie)
-        self.__connection = connection
-
-    def _parse_response(self, *args, **kwargs):
-        for header, value in self.__connection.headers.items():
-            if header.lower() == 'set-cookie':
-                real_value = value.split(';')[0]
-                self._sessid_cookie = real_value
-                if self._bot is not None:
-                    self._bot.weblabsessionid = real_value
-        return xmlrpclib.Transport._parse_response(self, *args, **kwargs)
-
-    def parse_response(self, response, *args, **kwargs):
-        real_value = response.getheader("Set-Cookie").split(';')[0]
-        self._sessid_cookie       = real_value
-        if self._bot is not None:
-            self._bot.weblabsessionid = real_value
-
-        return xmlrpclib.Transport.parse_response(self, response, *args, **kwargs)
-
-
-class BotXMLRPC(AbstractBotDict):
-    def __init__(self, url, url_login):
-        super(BotXMLRPC, self).__init__(url, url_login)
-        self.server       = xmlrpclib.Server(url)
-        self.server_login = xmlrpclib.Server(url_login)
-        self.transport = self.server._ServerProxy__transport
-        self.transport.__class__  = _CookiesTransport
-        self.transport._bot = self
-
-        self.transport_login = self.server_login._ServerProxy__transport
-        self.transport_login.__class__  = _CookiesTransport
-        self.transport_login._bot = self
-        self.weblabsessionid = "<unknown>"
-
-    def _call(self, method, **kwargs):
-        if method == 'login':
-            args   = (kwargs['username'], kwargs['password'])
-            result = getattr(self.server_login, method)(*args)
-            if hasattr(self.transport_login, '_sessid_cookie'):
-                self.transport._sessid_cookie = self.transport_login._sessid_cookie
-            return result
-        elif method in ('list_experiments','logout','get_user_information'):
-            args = (kwargs['session_id'],)
-        elif method in ('get_reservation_status',"finished_experiment", "poll"):
-            args = (kwargs['reservation_id'],)
-        elif method == 'reserve_experiment':
-            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'], kwargs['consumer_data'])
-        elif method == 'send_file':
-            args = (kwargs['reservation_id'],kwargs['file_content'],kwargs['file_info'])
-        elif method == 'send_command':
-            args = (kwargs['reservation_id'],kwargs['command'])
-        else:
-            raise RuntimeError("Unknown method: %s; Couldn't unpack the parameters" % method)
-
-        if method in ('send_file', 'send_command', 'poll') and self.remote_url is not None:
-            server = xmlrpclib.Server(self.remote_url + 'xmlrpc/')
-            server.transport = server._ServerProxy__transport
-            server.transport.__class__  = _CookiesTransport
-            server.transport._bot = None
-            server.transport._sessid_cookie = 'weblabsessionid=%s' % self.remote_reservation_id.id.split(';')[1]
-        else:
-            server = self.server
-
-        return getattr(server, method)(*args)
-
-    def dispose(self):
-        self.server          = None
-        self.server_login    = None
-        self.transport       = None
-        self.transport_login = None
 
 def create_bot(name, url, url_login):
     if name == 'JSON':
         return BotJSON(url, url_login)
-    elif name == 'XMLRPC':
-        return BotXMLRPC(url, url_login)
     raise NotImplementedError("no bot for %s" % name)
 

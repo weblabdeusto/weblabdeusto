@@ -21,11 +21,6 @@ DEFAULT_LOGIN_FACADE_JSON_LISTEN            = ''
 
 LOGIN_FACADE_JSON_PORT                      = 'login_facade_json_port'
 
-LOGIN_FACADE_XMLRPC_LISTEN                  = 'login_facade_xmlrpc_bind'
-DEFAULT_LOGIN_FACADE_XMLRPC_LISTEN          = ''
-
-LOGIN_FACADE_XMLRPC_PORT                    = 'login_facade_xmlrpc_port'
-
 LOGIN_FACADE_SERVER_ROUTE                   = 'login_facade_server_route'
 DEFAULT_LOGIN_SERVER_ROUTE                  = 'default-route-to-server'
 
@@ -36,15 +31,8 @@ class LoginRemoteFacadeServer(RFS.AbstractRemoteFacadeServer):
     DEFAULT_FACADE_JSON_LISTEN                   = DEFAULT_LOGIN_FACADE_JSON_LISTEN
     FACADE_JSON_PORT                             = LOGIN_FACADE_JSON_PORT
 
-    FACADE_XMLRPC_LISTEN                         = LOGIN_FACADE_XMLRPC_LISTEN
-    DEFAULT_FACADE_XMLRPC_LISTEN                 = DEFAULT_LOGIN_FACADE_XMLRPC_LISTEN
-    FACADE_XMLRPC_PORT                           = LOGIN_FACADE_XMLRPC_PORT
-
     FACADE_SERVER_ROUTE                          = LOGIN_FACADE_SERVER_ROUTE
     DEFAULT_SERVER_ROUTE                         = DEFAULT_LOGIN_SERVER_ROUTE
-
-    def _create_xmlrpc_remote_facade_manager(self, server, configuration_manager):
-        return LFM.LoginRemoteFacadeManagerXMLRPC( configuration_manager, server )
 
     def _create_json_remote_facade_manager(self, server, configuration_manager):
         return LFM.LoginRemoteFacadeManagerJSON( configuration_manager, server )
