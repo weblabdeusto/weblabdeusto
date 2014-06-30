@@ -364,6 +364,14 @@ class UserProcessingServerTestCase(unittest.TestCase):
         # Two users: student2, that started before "any" but finished after "any", and "any" then. Both use
         # the same experiment.
         #
+        db_gw = self.ups._db_manager
+        session = db_gw.Session()
+        try:
+            student1 = db_gw._get_user(session, 'student1')
+            student2 = db_gw._get_user(session, 'student2')
+        finally:
+            session.close()
+
         reservation_id1 = SessionId.SessionId(u'5')
 
         initial_usage1 = ExperimentUsage()
@@ -373,6 +381,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage1.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
         initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage1.reservation_id = reservation_id1.id
+        initial_usage1.request_info = { 'permission_scope' : 'user', 'permission_id' : student1.id }
 
         valid_file_path = os.path.relpath(os.sep.join(('test','__init__.py')))
         file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
@@ -399,6 +408,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
         initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
         initial_usage2.reservation_id = reservation_id2.id
+        initial_usage2.request_info = { 'permission_scope' : 'user', 'permission_id' : student2.id }
 
         file1 = FileSent( valid_file_path, u'{sha}12345', time.time())
 

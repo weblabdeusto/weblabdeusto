@@ -558,7 +558,7 @@ class DbUserUsedExperiment(Base):
         self.user_permission = user_permission
         self.role_permission = role_permission
         if end_date is not None:
-            self.session_time_micro = (self.end_date - start_date).seconds * 1e6 + (self.end_date - start_date).microseconds
+            self.session_time_micro = (self.end_date - self.start_date).seconds * 1e6 + (self.end_date - self.start_date).microseconds
             self.session_time_seconds = self.session_time_micro / 1000000
         else:
             self.session_time_micro = session_time_micro

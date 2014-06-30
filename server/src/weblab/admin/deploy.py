@@ -485,6 +485,13 @@ CONFIG_JS = {
 								   "experiment.info.description" : "description"
 							   },
 							   {
+								   "experiment.name"     : "ud-logic",
+								   "experiment.category" : "Dummy experiments",
+								   "experiment.picture"   : "/img/experiments/logic.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+								   "experiment.info.description" : "description"
+							   },
+							   {
 								   "experiment.name"     : "logic",
 								   "experiment.category" : "Games",
 								   "experiment.picture"   : "/img/experiments/logic.jpg",
@@ -1208,7 +1215,7 @@ def populate_weblab_tests(engine, tests):
     session.add(gp_course0809_logic_allowed)
     gp_course0809_logic_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p1, "ud-logic")
     session.add(gp_course0809_logic_allowed_p1)
-    gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "Dummy experiments")
+    gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "PIC experiments")
     session.add(gp_course0809_logic_allowed_p2)
     gp_course0809_logic_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p3, "150")
     session.add(gp_course0809_logic_allowed_p3)

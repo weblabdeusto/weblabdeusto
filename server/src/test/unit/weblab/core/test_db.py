@@ -75,7 +75,7 @@ def create_usage(gateway, reservation_id = 'my_reservation_id'):
         initial_usage.append_command(command2)
         initial_usage.append_file(file1)
         initial_usage.append_file(file2)
-        initial_usage.request_info = {'facebook' : False}
+        initial_usage.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id }
         gateway.store_experiment_usage(student1.login, initial_usage)
         return student1, initial_usage, command1, command2, file1, file2
 
@@ -177,7 +177,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info = {'facebook' : False}
+        usage1.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
@@ -195,7 +195,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info = {'facebook' : False}
+        usage2.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -251,7 +251,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
-        usage1.request_info = {'facebook' : False}
+        usage1.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
 
@@ -299,7 +299,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
@@ -316,7 +316,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -380,7 +380,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
@@ -398,7 +398,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -449,7 +449,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage1.reservation_id = RESERVATION_ID1
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
@@ -458,7 +458,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
         usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
         usage2.reservation_id = RESERVATION_ID2
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
