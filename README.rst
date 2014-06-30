@@ -1,5 +1,5 @@
-.. |travis| image:: https://travis-ci.org/weblabdeusto/weblabdeusto.svg?branch=master
-.. _travis: https://travis-ci.org/weblabdeusto/weblabdeusto/
+.. image:: https://travis-ci.org/weblabdeusto/weblabdeusto.svg?branch=master
+        :target: https://travis-ci.org/weblabdeusto/weblabdeusto/
 
 Introduction
 ============
