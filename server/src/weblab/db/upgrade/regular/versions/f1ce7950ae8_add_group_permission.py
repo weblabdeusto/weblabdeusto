@@ -261,7 +261,8 @@ def upgrade():
         print "Converting %s uses" % total_uses
 
     last_time = time.time()
-
+    
+    operations = []
     counter = 0
     for use in op.get_bind().execute(s):
         group_permission_id = use[uue.c.group_permission_id]
@@ -273,7 +274,8 @@ def upgrade():
             new_last_time = time.time()
             timespan = new_last_time - last_time
             speed = 1000.0 / timespan
-            print "%s out of %s (%.2f%%). 1000 uses processed in %.2f seconds (%.2f uses / second)." % (counter, total_uses, 100.0 * counter / total_uses, timespan, speed)
+            cur_time = time.asctime()
+            print "%s Reading %s out of %s (%.2f%%). 1000 uses processed in %.2f seconds (%.2f uses / second)." % (cur_time, counter, total_uses, 100.0 * counter / total_uses, timespan, speed)
             last_time = new_last_time
 
         if not user_permission_id and not group_permission_id and not role_permission_id:
@@ -327,7 +329,28 @@ def upgrade():
             
             if kwargs:
                 update_stmt = uue.update().where(uue.c.id == use_id).values(**kwargs)
-                op.execute(update_stmt)
+                operations.append(update_stmt)
+
+    if total_uses > 1000:
+        new_last_time = time.time()
+        timespan = new_last_time - last_time
+        remainder = total_uses % 1000
+        speed = 1.0 * remainder / timespan
+        cur_time = time.asctime()
+        print "%s Found %s out of %s (%.2f%%). %s uses processed in %.2f seconds (%.2f uses / second)." % (cur_time, counter, total_uses, 100.0 * counter / total_uses, remainder, timespan, speed)
+        last_time = new_last_time
+
+    print "Executing %s operations..." % len(operations)
+    for pos, operation in enumerate(operations):
+        if pos % 1000 == 0 and pos > 0:
+            new_last_time = time.time()
+            timespan = new_last_time - last_time
+            speed = 1000.0 / timespan
+            cur_time = time.asctime()
+            print "%s Processing %s out of %s (%.2f%%). 1000 uses processed in %.2f seconds (%.2f uses / second)." % (cur_time, pos, total_uses, 100.0 * pos / total_uses, timespan, speed)
+            last_time = new_last_time
+        op.execute(operation)
+    print "Finished"
 
     if skipped:
         print "Warning. The following usages (total = %s) did not have any permission assigned and have been skipped:" % len(skipped)
