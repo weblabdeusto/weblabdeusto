@@ -28,16 +28,6 @@ from setuptools.command.build_py import build_py as _build_py
 
 def _build_requirements():
     ##########################################################
-    # 
-    # 
-    #       S O A P     S T U B S  ( O P T I O N A L )
-    # 
-    # 
-
-    import weblab.comm.util as comm_util
-    comm_util.deploy_stubs()
-
-    ##########################################################
     #
     # 
     #       C L I E N T 

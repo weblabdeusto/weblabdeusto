@@ -207,7 +207,7 @@
             }, 
             "cssHeight": {
                 "type": "string", 
-                "description": "CSS width"
+                "description": "CSS height"
             }, 
             "experiment.info.link": {
                 "type": "string", 

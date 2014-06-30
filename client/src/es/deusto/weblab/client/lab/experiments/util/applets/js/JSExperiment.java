@@ -126,8 +126,9 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		} else {
 			GWT.log("NOT creating upload structure");
 		}
-		
-		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.cssWidth, this.cssHeight);
+		System.out.println(this.cssWidth);
+		final String realCssHeight = this.cssHeight.equals("auto")?"300px":this.cssHeight;
+		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.cssWidth, realCssHeight);
 	}
 	
 	
@@ -138,6 +139,10 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * that is always kept.
 	 */
 	public static void onIframeLoaded() {
+		if (staticSelf.cssHeight.equals("auto"))
+			runIframeResizer();
+		else
+			System.out.println("cssHeight not set to auto. Not running iframeResizer");
 		
 		System.out.println("[DBG] The iframe finished loading. " + staticSelf);
 		
@@ -166,31 +171,30 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		$wnd.onFrameLoad = $entry(@es.deusto.weblab.client.lab.experiments.util.applets.js.JSExperiment::onIframeLoaded());
 	}-*/;
 	
+	private static native void runIframeResizer() /*-{
+		$wnd.iFrameResize({
+        	log : false,
+        	enablePublicMethods : true,
+    	}, "#wlframe");
+	}-*/;
+	
 	private static native void createJavaScriptCode(Element element, String file, boolean isJSFile, String width, String height) /*-{
 		
 		var divHtml = "<div id=\"div_extra\"></div>";	
 		
 		$wnd.wl_inst = {}; // This is the object that will contain the in-javascript callbacks.
 	
-		if(isJSFile)
-		{	
-			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
-										"width=\"" + width + "\"  scrolling=\"auto\"  height=\"" + height +  "\" " +
-										"onLoad=\"onFrameLoad();\"" +
-									"></iframe>";
-		}
-		else
-		{
-			var iFrameHtml = "<iframe name=\"wlframe\" frameborder=\"0\"  allowfullscreen webkitallowfullscreen mozallowfullscreen vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
-										"width=\"" + width + "\"  scrolling=\"auto\"  height=\"" + height +  "\" " +
-										"onLoad=\"onFrameLoad();\"" +
-									"src=\"" + file + "\"" + "></iframe>"; 
-		}
+		var iFrameHtml = "<iframe id=\"wlframe\" name=\"wlframe\" frameborder=\"0\" allowfullscreen webkitallowfullscreen mozzallowfullscreen  vspace=\"0\"  hspace=\"0\"  marginwidth=\"0\"  marginheight=\"0\" " +
+							"width=\"" + width + "\"  scrolling=\"auto\"  height=\"" + height +  "\" " +
+										"onLoad=\"onFrameLoad();\"";
+		if(!isJSFile)
+			iFrameHtml = iFrameHtml + "src=\"" + file + "\"";
+			 
+		iFrameHtml = iFrameHtml + "></iframe>";
 		
 		element.innerHTML = iFrameHtml + divHtml;
 		$wnd.wl_div_extra = $doc.getElementById('div_extra');
 		$wnd.wl_iframe    = element.getElementsByTagName('iframe')[0];
-
 }-*/;
 	
 	/**

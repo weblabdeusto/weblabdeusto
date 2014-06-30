@@ -19,7 +19,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
@@ -34,7 +33,7 @@ import es.deusto.weblab.client.lab.experiments.util.applets.AbstractCreatorFacto
 public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
 	public static final ExperimentParameterDefault CSS_WIDTH  = new ExperimentParameterDefault("cssWidth", "CSS width", "100%");
-	public static final ExperimentParameterDefault CSS_HEIGHT = new ExperimentParameterDefault("cssHeight", "CSS width", "80%");
+	public static final ExperimentParameterDefault CSS_HEIGHT = new ExperimentParameterDefault("cssHeight", "CSS height", "auto");
 	public static final ExperimentParameterDefault JS_FILE = new ExperimentParameterDefault("js.file", "JavaScript file", "");
 	public static final ExperimentParameterDefault HTML_FILE = new ExperimentParameterDefault("html.file", "HTML file", "");
 	public static final ExperimentParameterDefault PROVIDE_FILE_UPLOAD = new ExperimentParameterDefault("provide.file.upload", "Provide upload file", false);
@@ -46,19 +45,15 @@ public class JSAppCreatorFactory implements IExperimentCreatorFactory, IHasExper
 
 	@Override
 	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) throws ExperimentCreatorInstanciationException {
-
         // Currently these widths and heights are fake and kept here
         // just for compatibility. The ones that are and should be used
         // are the cssHeight and cssWidth.
-
         final String cssHeight;
         final String cssWidth;
 
 		final String jsfile;
 		final String htmlfile;
 		final boolean provideFileUpload;
-		
-		//final String message;
 		
         cssWidth   = configurationRetriever.getProperty(CSS_WIDTH);
         cssHeight  = configurationRetriever.getProperty(CSS_HEIGHT);
