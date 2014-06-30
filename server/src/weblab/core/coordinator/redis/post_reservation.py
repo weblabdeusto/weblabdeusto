@@ -46,7 +46,7 @@ class PostReservationDataManager(object):
 
         pipeline.sadd(WEBLAB_POST_RESERVATIONS, reservation_id)
         pipeline.set(weblab_post_reservation, obj)
-        time_difference = expiration_date - datetime.datetime.now()
+        time_difference = expiration_date - datetime.datetime.utcnow()
         remaining_seconds = time_difference.days * 3600 * 24 + time_difference.seconds
         pipeline.expire(weblab_post_reservation, remaining_seconds)
 

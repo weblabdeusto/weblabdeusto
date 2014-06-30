@@ -57,17 +57,11 @@ def get_raw_information(date, verbose = True):
         # that protocol and for that number of users
         protocols = {
                 "JSON"   : {},
-                "SOAP"   : {},
-                "XMLRPC" : {}
             }
 
         protocols = {}
         data, initial = calculate_positions(0)
         protocols["JSON"] = data
-        data, initial = calculate_positions(initial)
-        protocols["SOAP"] = data
-        data, _       = calculate_positions(initial)
-        protocols["XMLRPC"] = data
         return protocols
 
     protocols = calculate_protocols()

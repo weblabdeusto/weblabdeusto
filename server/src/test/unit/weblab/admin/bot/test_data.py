@@ -26,13 +26,13 @@ class DataTestCase(unittest.TestCase):
 
     def test_botiteration(self):
         botexc  = Data.BotError((Exception("foo"), "foobar"), 2,4,6)
-        botuser = User.StandardBotUser({"XMLRPC":("http://foo","http://foo/login")},"XMLRPC","user","passwd","exp_name","cat_name","bar", 0.05)
+        botuser = User.StandardBotUser({"JSON":("http://foo","http://foo/login")},"JSON","user","passwd","exp_name","cat_name","bar", 0.05)
         botit   = Data.BotIteration(100, [botexc], [botuser], "stdout", "stderr")
         self.assertTrue(repr(botit).find('botusers') > 0)
 
     def test_bottrial(self):
         botexc  = Data.BotError((Exception("foo"), "foobar"), 2,4,6)
-        botuser = User.StandardBotUser({"XMLRPC": ("http://foo", "http://foo/login")},"XMLRPC","user","passwd","exp_name","cat_name","bar", 0.05)
+        botuser = User.StandardBotUser({"JSON": ("http://foo", "http://foo/login")},"JSON","user","passwd","exp_name","cat_name","bar", 0.05)
         botit   = Data.BotIteration(100, {"Exception":botexc}, [botuser], "stdout", "stderr")
 
         bottri  = Data.BotTrial([botit])

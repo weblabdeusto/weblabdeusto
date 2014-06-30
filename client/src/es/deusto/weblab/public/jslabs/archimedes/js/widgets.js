@@ -165,13 +165,13 @@ CameraRefresher = function (img_id) {
             console.error("[CameraRefresher]: The element with the tag " + img_id + " could not be found in the DOM");
             throw "Element not found";
         }
-    }
+    };
 
     //! Sets the URL to load.
     //!
     this.setURL = function (url) {
         _url = url;
-    }
+    };
 
     //! Refreshes the camera. If the automatic refresher has been
     //! started through start(), then this method is invoked
@@ -183,6 +183,10 @@ CameraRefresher = function (img_id) {
     };
 
     this._get_timestamped_url = function (url) {
+
+        // TIMESTAMPING IS DISABLED FOR TESTING PURPOSES.
+        return url;
+
         if (url.search("\\?") != -1) {
             return url + "&__ts=" + new Date().getTime();
         } else {
@@ -198,7 +202,7 @@ CameraRefresher = function (img_id) {
     //!
     this.setInterval = function (interval) {
         INTERVAL = interval;
-    }
+    };
 
     //! Gets the number of milliseconds to wait after each image load.
     //!

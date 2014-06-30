@@ -18,12 +18,13 @@ except:
     print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
     raise
 
-from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
 from wtforms.fields.html5 import URLField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
+from sqlalchemy.orm import joinedload
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
@@ -538,6 +539,182 @@ class GroupsPanel(AdministratorModelView):
         self.user_filter_number = get_filter_number(self, u'User.login')
 
         GroupsPanel.INSTANCE = self
+
+class DefaultAuthenticationForm(Form):
+    name     = TextField(u"Name:", description="Authentication name", validators = [ Required() ])
+    priority = Select2Field(u"Priority:", description="Order followed by the authentication system. Authentication mechanism with priority 1 will be checked before the one with priority 2.", validators = [ Required() ])
+
+def generate_generic_config(form):
+    return ''
+
+def fill_generic_config(form, config):
+    pass
+
+class LdapForm(DefaultAuthenticationForm):
+    ldap_uri = TextField(u'LDAP server', description="LDAP server URL", validators = [ URL(), Required() ])
+    domain = TextField(u"Domain", description="Domain", validators = [ Required() ])
+    base = TextField(u"Base", description="Base, e.g.: dc=deusto,dc=es", validators = [ Required() ])
+
+    def validate_ldap_uri(form, ldap_uri):
+        if ';' in ldap_uri.data:
+            raise ValidationError("Character ; not supported")
+
+    validate_domain = validate_base = validate_ldap_uri
+
+def generate_ldap_config(form):
+    return 'ldap_uri=%(ldap_uri)s;domain=%(domain)s;base=%(base)s' % {
+            'ldap_uri' : form.ldap_uri.data,
+            'domain' : form.domain.data,
+            'base' : form.base.data,
+        }
+
+def fill_ldap_config(form, config):
+    ldap_uri, domain, base = config.split(';')
+    form.ldap_uri.data = ldap_uri[len('ldap_uri='):]
+    form.domain.data   = domain[len('domain='):]
+    form.base.data     = base[len('base='):]
+
+class TrustedIpForm(DefaultAuthenticationForm):
+    ip_addresses = TextField(u'IP addresses', description="Put an IP address or set of IP addresses separated by commas", validators = [ Required() ])
+
+def generate_trusted_ip_config(form):
+    return form.ip_addresses.data
+
+def fill_trusted_ip_config(form, config):
+    pass
+
+class AuthsPanel(AdministratorModelView):
+    column_searchable_list = ('name',)
+    column_filters = ( ('name', 'configuration', 'priority') )
+    action_disallowed_list = ['delete']
+    
+    INSTANCE = None
+    CONFIGURABLES = {
+        'LDAP' : {
+            'form' : LdapForm,
+            'fields' : ['ldap_uri', 'domain', 'base'],
+            'generate_func' : generate_ldap_config,
+            'fill_func' : fill_ldap_config,
+        }, 
+        'TRUSTED-IP-ADDRESSES' : {
+            'form' : TrustedIpForm,
+            'fields' : ['ip_addresses'],
+            'fill_func' : fill_trusted_ip_config,
+        },
+    }
+
+    def __init__(self, session, **kwargs):
+        super(AuthsPanel, self).__init__(model.DbAuth, session, **kwargs)
+        AuthsPanel.INSTANCE = self
+
+    @expose('/create/')
+    def create_view(self, *args, **kwargs):
+        auth_types = self.session.query(model.DbAuthType).options(joinedload('auths')).all()
+
+        possible_auth_types = [
+            [ auth_type, True, '' ]
+            for auth_type in auth_types
+        ]
+        
+        for auth_type_pack in possible_auth_types:
+            auth_type = auth_type_pack[0]
+            if auth_type.name in self.CONFIGURABLES:
+                pass # Configurables can 
+            else:
+                if len(auth_type.auths) > 0:
+                    auth_type_pack[1] = False
+                    auth_type_pack[2] = u"Already created"
+        
+        return self.render("admin-auths-create.html", auth_types = possible_auth_types)
+
+    @expose('/create/<auth_type_name>/', methods = ['GET', 'POST'])
+    def create_auth_view(self, auth_type_name):
+        auth_type = self.session.query(model.DbAuthType).filter_by(name = auth_type_name).options(joinedload('auths')).first()
+
+        if not auth_type:
+            return "Auth type not found"
+
+        if len(auth_type.auths) > 0 and auth_type_name not in self.CONFIGURABLES:
+            return "Existing auth type"
+
+        priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
+        priority_choices = [ (str(priority), str(priority)) for priority in range(1, 20) if priority not in priorities ]
+
+        fields = ['name', 'priority']
+        if auth_type_name in self.CONFIGURABLES:
+            form_config = self.CONFIGURABLES[auth_type_name]
+            form = form_config['form']()
+            fields.extend(form_config['fields'])
+            generate_func = form_config['generate_func']
+        else:
+            form = DefaultAuthenticationForm()
+            generate_func = generate_generic_config
+
+        form.priority.choices = priority_choices
+        
+        if form.validate_on_submit():
+            configuration = generate_func(form)
+            if self.session.query(model.DbAuth).filter_by(name = form.name.data).first():
+                form.name.errors = ['Name already taken']
+            else:
+                auth = model.DbAuth(auth_type = auth_type, name = form.name.data, priority = int(form.priority.data), configuration = configuration)
+                self.session.add(auth)
+                self.session.commit()
+                return redirect(url_for('.index_view'))
+
+        form.name.data = auth_type_name
+        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.create_view'))
+
+    @expose('/edit/', methods = ['GET','POST'])
+    def edit_view(self, *args, **kwargs):
+        auth = self.session.query(model.DbAuth).filter_by(id = request.args.get('id', -1)).first()
+        if auth is None:
+            return "Element not found"
+
+        if auth.auth_type.name == 'DB':
+            flash("Can't modify the DB authentication mechanism")
+            return redirect(url_for('.index_view'))
+
+        priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
+        priority_choices = [ (str(priority), str(priority)) for priority in range(1, 20) if priority == auth.priority or priority not in priorities ]
+
+        auth_type_name = auth.auth_type.name
+
+        fields = ['name', 'priority']
+        if auth_type_name in self.CONFIGURABLES:
+            form_config = self.CONFIGURABLES[auth_type_name]
+            form = form_config['form']()
+            fields.extend(form_config['fields'])
+            fill_func = form_config['fill_func']
+            generate_func = form_config['generate_func']
+        else:
+            form = DefaultAuthenticationForm()
+            fill_func = fill_generic_config
+            generate_func = generate_generic_config
+        
+        form.priority.choices = priority_choices
+        if form.validate_on_submit():
+            configuration = generate_func(form)
+            existing_auth_name = self.session.query(model.DbAuth).filter_by(name = form.name.data).first()
+            if existing_auth_name.id != auth.id:
+                form.name.errors = ['Name already taken']
+            else:
+                auth.name = form.name.data
+                auth.priority = int(form.priority.data)
+                auth.configuration = configuration
+                self.session.add(auth)
+                self.session.commit()
+                return redirect(url_for('.index_view'))
+
+        form.name.data = auth.name
+        form.priority.data = str(auth.priority)
+        fill_func(form, auth.configuration)
+
+        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.index_view'))
+
+    def on_model_delete(self, auth):
+        if auth.auth_type.name == 'DB':
+            raise Exception("Can't delete this authentication system")
 
 
 class UserUsedExperimentPanel(AdministratorModelView):

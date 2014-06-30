@@ -22,22 +22,12 @@ import json
 
 import cookielib
 
-import xmlrpclib
-
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
 import weblab.data.command as Command
 import weblab.comm.server as RemoteFacadeServer
 from weblab.data.dto.experiments import Experiment, ExperimentClient, ExperimentCategory
 from weblab.data.dto.users import User
-
-try:
-    import weblab.login.comm.generated.loginweblabdeusto_client as LoginWebLabDeusto_client
-    import weblab.core.comm.generated.weblabdeusto_client as UserProcessingWebLabDeusto_client
-except ImportError:
-    ZSI_AVAILABLE = False
-else:
-    ZSI_AVAILABLE = True
 
 from exc import InvalidUserOrPasswordError
 from exc import ListOfExperimentsIsEmptyError
@@ -234,70 +224,6 @@ class AbstractBot(object):
         holder = self._call('get_user_permissions', session_id=self.session_id)
         return self._parse_user(holder)
 
-if ZSI_AVAILABLE:
-    class BotZSI(AbstractBot):
-
-        def __init__(self, url, url_login):
-            super(BotZSI, self).__init__(url, url_login)
-            self.login_ws = LoginWebLabDeusto_client.loginweblabdeustoLocator().getloginweblabdeusto(url=url_login)
-            self.ups_ws   = UserProcessingWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=url)
-            self.weblabsessionid = "<unknown>"
-            self.sample_cookie   = None
-
-        def _call(self, method, **kwargs):
-            if 'session_id' in kwargs and not 'session' in kwargs:
-                kwargs['session'] = kwargs.pop('session_id')
-            if 'file_content' in kwargs and not 'content' in kwargs:
-                kwargs['content'] = kwargs.pop('file_content')
-            try:
-                if method == 'login':
-                    return_value = getattr(self.login_ws, method)(**kwargs)
-                elif method in ('send_command', 'send_file', 'poll'):
-                    if self.remote_url is None:
-                        return_value = getattr(self.ups_ws,   method)(**kwargs)
-                    else:
-                        remote_ws = UserProcessingWebLabDeusto_client.weblabdeustoLocator().getweblabdeusto(url=self.remote_url + 'soap/')
-                        remote_ws.binding.cookies.load({'weblabsessionid' : self.remote_reservation_id.id.split(';')[1]})
-                        return_value = getattr(remote_ws, method)(**kwargs)
-                else:
-                    return_value = getattr(self.ups_ws,   method)(**kwargs)
-            finally:
-                if method == 'login':
-                    weblabsessionid = self.login_ws.binding.cookies.get('weblabsessionid')
-                    self.sample_cookie = weblabsessionid
-                    self.ups_ws.binding.cookies['weblabsessionid'] = weblabsessionid.value
-                else:
-                    weblabsessionid = self.ups_ws.binding.cookies.get('weblabsessionid')
-                if weblabsessionid is not None:
-                    self.weblabsessionid = weblabsessionid.value or self.weblabsessionid
-            return return_value
-
-        def _parse_session_id(self, session_holder):
-            return SessionId.SessionId(session_holder.id)
-
-        def _parse_experiment_list_holders(self, experiment_list_holders):
-            experiments = []
-            for experiment in [ holder.experiment for holder in experiment_list_holders]:
-                category = ExperimentCategory(experiment.category.name)
-                client = ExperimentClient(experiment.client.client_id, experiment.client.configuration)
-                exp = Experiment(experiment.name, category, experiment.start_date, experiment.end_date, client)
-                experiments.append(exp)
-            return experiments
-
-        def _parse_reservation_holder(self, reservation_holder):
-            return Reservation.Reservation.translate_reservation_from_data(reservation_holder.status, reservation_holder.reservation_id.id, reservation_holder.position, reservation_holder.time, reservation_holder.initial_configuration, reservation_holder.end_data, reservation_holder.url, reservation_holder.finished, reservation_holder.initial_data, None if reservation_holder.remote_reservation_id is None else reservation_holder.remote_reservation_id.id )
-
-        def _parse_user(self, holder):
-            return User(holder.login, holder.full_name, holder.email, holder.role.name)
-
-        def _parse_command(self, command_holder):
-            command = Command.Command(command_holder.commandstring)
-            return command
-
-        def dispose(self):
-            self.login_ws = None
-            self.ups_ws   = None
-
 class AbstractBotDict(AbstractBot):
 
     def __init__(self, url, url_login):
@@ -376,91 +302,9 @@ class BotJSON(AbstractBotDict):
         self.opener = None
         self.cj     = None
 
-class _CookiesTransport(xmlrpclib.Transport):
-    def send_user_agent(self, connection):
-        xmlrpclib.Transport.send_user_agent(self, connection)
-        if hasattr(self, '_sessid_cookie'):
-            connection.putheader("Cookie",self._sessid_cookie)
-        self.__connection = connection
-
-    def _parse_response(self, *args, **kwargs):
-        for header, value in self.__connection.headers.items():
-            if header.lower() == 'set-cookie':
-                real_value = value.split(';')[0]
-                self._sessid_cookie = real_value
-                if self._bot is not None:
-                    self._bot.weblabsessionid = real_value
-        return xmlrpclib.Transport._parse_response(self, *args, **kwargs)
-
-    def parse_response(self, response, *args, **kwargs):
-        real_value = response.getheader("Set-Cookie").split(';')[0]
-        self._sessid_cookie       = real_value
-        if self._bot is not None:
-            self._bot.weblabsessionid = real_value
-
-        return xmlrpclib.Transport.parse_response(self, response, *args, **kwargs)
-
-
-class BotXMLRPC(AbstractBotDict):
-    def __init__(self, url, url_login):
-        super(BotXMLRPC, self).__init__(url, url_login)
-        self.server       = xmlrpclib.Server(url)
-        self.server_login = xmlrpclib.Server(url_login)
-        self.transport = self.server._ServerProxy__transport
-        self.transport.__class__  = _CookiesTransport
-        self.transport._bot = self
-
-        self.transport_login = self.server_login._ServerProxy__transport
-        self.transport_login.__class__  = _CookiesTransport
-        self.transport_login._bot = self
-        self.weblabsessionid = "<unknown>"
-
-    def _call(self, method, **kwargs):
-        if method == 'login':
-            args   = (kwargs['username'], kwargs['password'])
-            result = getattr(self.server_login, method)(*args)
-            if hasattr(self.transport_login, '_sessid_cookie'):
-                self.transport._sessid_cookie = self.transport_login._sessid_cookie
-            return result
-        elif method in ('list_experiments','logout','get_user_information'):
-            args = (kwargs['session_id'],)
-        elif method in ('get_reservation_status',"finished_experiment", "poll"):
-            args = (kwargs['reservation_id'],)
-        elif method == 'reserve_experiment':
-            args = (kwargs['session_id'],kwargs['experiment_id'],kwargs['client_initial_data'], kwargs['consumer_data'])
-        elif method == 'send_file':
-            args = (kwargs['reservation_id'],kwargs['file_content'],kwargs['file_info'])
-        elif method == 'send_command':
-            args = (kwargs['reservation_id'],kwargs['command'])
-        else:
-            raise RuntimeError("Unknown method: %s; Couldn't unpack the parameters" % method)
-
-        if method in ('send_file', 'send_command', 'poll') and self.remote_url is not None:
-            server = xmlrpclib.Server(self.remote_url + 'xmlrpc/')
-            server.transport = server._ServerProxy__transport
-            server.transport.__class__  = _CookiesTransport
-            server.transport._bot = None
-            server.transport._sessid_cookie = 'weblabsessionid=%s' % self.remote_reservation_id.id.split(';')[1]
-        else:
-            server = self.server
-
-        return getattr(server, method)(*args)
-
-    def dispose(self):
-        self.server          = None
-        self.server_login    = None
-        self.transport       = None
-        self.transport_login = None
 
 def create_bot(name, url, url_login):
     if name == 'JSON':
         return BotJSON(url, url_login)
-    elif name == 'SOAP' or name == 'ZSI':
-        if ZSI_AVAILABLE:
-            return BotZSI(url, url_login)
-        else:
-            raise NotImplementedError("Optional library 'ZSI' is not installed, so BotZSI is not available")
-    elif name == 'XMLRPC':
-        return BotXMLRPC(url, url_login)
     raise NotImplementedError("no bot for %s" % name)
 

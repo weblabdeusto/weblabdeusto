@@ -24,6 +24,7 @@ import datetime
 import time
 import StringIO
 import subprocess
+from voodoo import log
 
 from weblab.util import data_filename
 from voodoo.log import logged
@@ -114,6 +115,37 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes]: do_send_command_to_device called: %s" % command
 
+        # HANDLE NON-INSTANCE-SPECIFIC COMMANDS
+        # We expect a command like: "ALLINFO:archimedes1:archimedes2"
+        if command.startswith("ALLINFO"):
+            boards = command.split(":")[1:]
+            response = {}
+            for b in boards:
+                target = self.archimedes_instances.get(b)
+                if target is None:
+                    response[b] = "ERROR"
+
+                response[b] = {}
+
+                load = self._send(target, "load")
+                level = self._send(target, "level")
+
+                if load == "ERROR":
+                    response[b]["load"] = "ERROR"
+                else:
+                    num = load.split("=")[1]
+                    response[b]["load"] = num
+
+                if level == "ERROR":
+                    response[b]["level"] = "ERROR"
+                else:
+                    num = level.split("=")[1]
+                    response[b]["level"] = num
+            return json.dumps(response)
+
+
+
+        # HANDLE INSTANCE-SPECIFIC COMMANDS
         if ":" in command:
             s = command.split(":")
             target_board = s[0]
@@ -136,14 +168,21 @@ class Archimedes(Experiment):
             return self._send(target_board, "slow")
         elif board_command == "LEVEL":
             resp = self._send(target_board, "level")
+            if resp == "ERROR":
+                return resp
             num = resp.split("=")[1]
             return num
         elif board_command == "LOAD":
             resp = self._send(target_board, "load")
+            if resp == "ERROR":
+                return resp
             num = resp.split("=")[1]
             return num
+
         elif board_command == "IMAGE":
             resp = self._send(target_board, "image")
+            if resp == "ERROR":
+                return resp
             img = base64.b64encode(resp)
             return img
         elif board_command == "PLOT":
@@ -153,12 +192,16 @@ class Archimedes(Experiment):
 
     def _send(self, board_location, command):
         if self.real_device:
-            print "[Archimedes]: Sending to board: ", command
+            try:
+                print "[Archimedes]: Sending to board: ", command
 
-            if not board_location.endswith("/"):
-                board_location += "/"
+                if not board_location.endswith("/"):
+                    board_location += "/"
 
-            return self.opener.open(board_location + command).read()
+                return self.opener.open(board_location + command).read()
+            except:
+                log.log(Archimedes, log.level.Error, "Error: " + traceback.format_exc())
+                return "ERROR"
         else:
             print "[Archimedes]: Simulating request: ", command
             return self.simulate_instance_reply_to_command(command)
@@ -291,6 +334,13 @@ class TestArchimedes(unittest.TestCase):
         assert float(level_resp) == 1200
         load_resp = self.experiment.do_send_command_to_device("default:LOAD")
         assert float(load_resp) == 1300
+
+    def test_allinfo_command(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        resp = self.experiment.do_send_command_to_device("ALLINFO:default")
+        r = json.loads(resp)
+        assert float(r["default"]["level"]) == 1200
+        assert float(r["default"]["load"]) == 1300
 
 
 
