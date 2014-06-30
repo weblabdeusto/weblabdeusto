@@ -81,11 +81,10 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         self.wait_for_programming_to_end()
 
         # These were initially 1.
-        initial_open  = 0
-        initial_send  = 0
-        initial_close = 0
+        initial_open  = 1
+        initial_send  = 1
+        initial_close = 1
 
-        # TODO: The following assert fails but probably shouldn't. Fix it.
         self.assertEquals(
                 initial_open,
                 self.uxm._command_sender._serial_port.dict['open']
@@ -153,9 +152,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
         self.wait_for_programming_to_end()
 
         # Initially 1.
-        initial_send  = 0
+        initial_send  = 1
 
-        # TODO: The followign assert fails but probably shouldn't. Fix it.
         #self.assertEquals(
         #        initial_send,
         #        len(self.uxm._command_sender._http_device.msgs)

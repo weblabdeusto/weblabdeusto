@@ -119,29 +119,15 @@ core_experiment_poll_time = 15 # seconds
 # RemoteFacade configuration #
 ##############################
 
-core_facade_soap_bind       = ''
-core_facade_soap_port         = 10123
-core_facade_soap_service_name = '/weblab/soap/'
-
 core_facade_json_bind      = ''
 core_facade_json_port        = 18345
-
-core_facade_xmlrpc_bind    = ''
-core_facade_xmlrpc_port      = 19345
 
 admin_facade_json_port       = 19545
 
 core_web_facade_port         = 19645
 
-login_facade_soap_bind       = ''
-login_facade_soap_port         = 10223
-login_facade_soap_service_name = '/weblab/login/soap/'
-
 login_facade_json_bind      = ''
 login_facade_json_port        = 18445
-
-login_facade_xmlrpc_bind    = ''
-login_facade_xmlrpc_port      = 19445
 
 login_web_facade_port         = 19945
 

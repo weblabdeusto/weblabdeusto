@@ -22,9 +22,7 @@ from weblab.admin.bot.user import StandardBotUser, DisconnectedBotUser, NotRespo
 
 def generate_url_maps(base_url):
     return {
-                        "SOAP" :   ("%s/weblab/soap/" % base_url, "%s/weblab/login/soap/" % base_url),
                         "JSON" :   ("%s/weblab/json/" % base_url, "%s/weblab/login/json/" % base_url),
-                        "XMLRPC" : ("%s/weblab/xmlrpc/" % base_url, "%s/weblab/login/xmlrpc/" % base_url)
                     }
 
 def get_supported_protocols():
