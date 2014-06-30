@@ -1,4 +1,5 @@
 .. image:: https://travis-ci.org/weblabdeusto/weblabdeusto.svg?branch=master
+        :target: https://travis-ci.org/weblabdeusto/weblabdeusto/
 
 Introduction
 ============
