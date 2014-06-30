@@ -136,6 +136,7 @@
 	        <path refid="project.class.path"/>
 	      </classpath>
 	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+	      <jvmarg value="-Xss16M"/>
 	      <jvmarg value="-Xmx512M"/>
 	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
 	      <arg value="${lab.module.name}"/>
@@ -168,6 +169,7 @@
 	<target name="test.dev" depends="javac-test">
 		<mkdir dir="${testreportdir_dev}" />
 		<junit failureproperty="test.failure" printSummary="yes" fork="true" haltonerror="true" showoutput="true">
+	        <jvmarg value="-Xss16M"/>
 			<jvmarg value="-Xmx512M" />
 			<sysproperty key="gwt.args" value="-logLevel WARN"/>
             <sysproperty key="java.awt.headless" value="true"/>
@@ -199,6 +201,7 @@
 		<mkdir dir="${testreportdir_prod}" />
 		<mkdir dir="www-test" />
 		<junit failureproperty="test.failure" printSummary="yes" fork="true" haltonerror="true" showoutput="true">
+	        <jvmarg value="-Xss16M"/>
 			<jvmarg value="-Xmx512M" />
 			<sysproperty key="gwt.args" value="-prod -logLevel WARN -out www-test"/>
 			<sysproperty key="java.awt.headless" value="true"/>
