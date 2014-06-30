@@ -1,4 +1,6 @@
 language: python
+services:
+  - redis-server
 python: 2.7
 install:
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
