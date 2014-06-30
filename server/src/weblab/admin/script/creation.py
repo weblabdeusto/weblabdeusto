@@ -1295,33 +1295,27 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """</server>\n""")
 
         login_config = {
-            'soap'   : current_port + 0,
-            'xmlrpc' : current_port + 1,
-            'json'   : current_port + 2,
-            'web'    : current_port + 3,
+            'json'   : current_port + 0,
+            'web'    : current_port + 1,
             'route'  : 'route%s' % core_number,
         }
         ports['login'].append(login_config)
 
         core_config = {
-            'soap'   : current_port + 4,
-            'xmlrpc' : current_port + 5,
-            'json'   : current_port + 6,
-            'web'    : current_port + 7,
-            'admin'  : current_port + 8,
+            'json'   : current_port + 2,
+            'web'    : current_port + 3,
+            'admin'  : current_port + 4,
             'route'  : 'route%s' % core_number,
             'clean'  : core_number == 1
         }
         ports['core'].append(core_config)
 
-        core_port = current_port + 9
+        core_port = current_port + 5
 
-        current_port += 10
+        current_port += 6
 
         open(os.path.join(login_dir, 'server_config.py'), 'w').write((
         "login_facade_server_route = %(route)r\n"
-        "login_facade_soap_port    = %(soap)r\n"
-        "login_facade_xmlrpc_port  = %(xmlrpc)r\n"
         "login_facade_json_port    = %(json)r\n"
         "login_web_facade_port     = %(web)r\n") % login_config)
 
@@ -1367,8 +1361,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(core_dir, 'server_config.py'), 'w').write((
         "core_coordinator_clean   = %(clean)r\n"
         "core_facade_server_route = %(route)r\n"
-        "core_facade_soap_port    = %(soap)r\n"
-        "core_facade_xmlrpc_port  = %(xmlrpc)r\n"
         "core_facade_json_port    = %(json)r\n"
         "core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
@@ -2065,7 +2057,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     debugging_config += "BASE_URL = %r\n\n" % base_url
     debugging_config += "# PORTS is used by the WebLab Bot to know what\n# ports it should wait prior to start using\n# the simulated clients.\n"
     debugging_config += "PORTS = {\n"
-    for protocol in ('soap','xmlrpc','json'):
+    for protocol in ('json',):
         protocol_configuration = []
         for core_configuration in ports['core']:
             core_protocol_configuration = core_configuration.get(protocol, None)
@@ -2254,20 +2246,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
         """ProxyVia On\n"""
         """\n"""
-        """ProxyPass                       %(root)s/weblab/soap/                 balancer://%(root-no-slash)s_weblab_cluster_soap/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/soap/                 balancer://%(root-no-slash)s_weblab_cluster_soap/           stickysession=weblabsessionid\n"""
         """ProxyPass                       %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
         """ProxyPassReverse                %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/xmlrpc/               balancer://%(root-no-slash)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/xmlrpc/               balancer://%(root-no-slash)s_weblab_cluster_xmlrpc/         stickysession=weblabsessionid\n"""
         """ProxyPass                       %(root)s/weblab/web/                  balancer://%(root-no-slash)s_weblab_cluster_web/            stickysession=weblabsessionid lbmethod=bybusyness\n"""
         """ProxyPassReverse                %(root)s/weblab/web/                  balancer://%(root-no-slash)s_weblab_cluster_web/            stickysession=weblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/login/soap/           balancer://%(root-no-slash)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/login/soap/           balancer://%(root-no-slash)s_weblab_cluster_login_soap/     stickysession=loginweblabsessionid\n"""
         """ProxyPass                       %(root)s/weblab/login/json/           balancer://%(root-no-slash)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
         """ProxyPassReverse                %(root)s/weblab/login/json/           balancer://%(root-no-slash)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/login/xmlrpc/         balancer://%(root-no-slash)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/login/xmlrpc/         balancer://%(root-no-slash)s_weblab_cluster_login_xmlrpc/   stickysession=loginweblabsessionid\n"""
         """ProxyPass                       %(root)s/weblab/login/web/            balancer://%(root-no-slash)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
         """ProxyPassReverse                %(root)s/weblab/login/web/            balancer://%(root-no-slash)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid\n"""
         """ProxyPass                       %(root)s/weblab/administration/       balancer://%(root-no-slash)s_weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
@@ -2276,18 +2260,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
 
     apache_conf += "\n"
-    apache_conf += "<Proxy balancer://%(root-no-slash)s_weblab_cluster_soap>\n"
-
-    proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports['core']:
-        d = { 'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += "    BalancerMember http://localhost:%(port)s/weblab/soap route=%(route)s\n" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/soap,' % d
-    proxy_paths.append(('%(root)s/weblab/soap/',  proxy_path))
-
-    apache_conf += "</Proxy>\n"
-    apache_conf += "\n"
-
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
 
     proxy_path = "proxy-sessions:weblabsessionid:"
@@ -2296,18 +2268,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json,' % d
     proxy_paths.append(('%(root)s/weblab/json/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_xmlrpc>\n"""
-
-    proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports['core']:
-        d = { 'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/xmlrpc route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/xmlrpc,' % d
-    proxy_paths.append(('%(root)s/weblab/xmlrpc/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
@@ -2334,17 +2294,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_soap>\n"""
-
-    proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['login']:
-        d = { 'port' : core_configuration['soap'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/soap route=%(route)s \n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/soap,' % d
-    proxy_paths.append(('%(root)s/weblab/login/soap/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
 
     proxy_path = "proxy-sessions:loginweblabsessionid:"
@@ -2353,17 +2302,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json,' % d
     proxy_paths.append(('%(root)s/weblab/login/json/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_xmlrpc>\n"""
-
-    proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['login']:
-        d = { 'port' : core_configuration['xmlrpc'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/xmlrpc route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/xmlrpc,' % d
-    proxy_paths.append(('%(root)s/weblab/login/xmlrpc/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
