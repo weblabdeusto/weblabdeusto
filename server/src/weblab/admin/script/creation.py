@@ -2493,6 +2493,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             print >> stdout, "For instance, in Ubuntu you can run: "
             print >> stdout, ""
             print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http headers"
+            print >> stdout, ""
+            print >> stdout, "and depending on the version (in 14.04 onwards), also:"
+            print >> stdout, ""
+            print >> stdout, "    $ sudo a2enmod lbmethod_bybusyness"
         print >> stdout, ""
         print >> stdout, "Then restart apache. If you don't have apache don't worry, delete %s and " % directory
         print >> stdout, "run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT
