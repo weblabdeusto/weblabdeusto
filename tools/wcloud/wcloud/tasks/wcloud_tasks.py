@@ -297,7 +297,7 @@ def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_setting
         entity = user.entity
 
         if entity is None:
-            result = "[register_and_start_instance]: ERROR: Could not retrieve entity from the database"
+            result = "[register_and_start_instance]: ERROR: Could not retrieve entity from the database %s" % flask_app.config["DB_NAME"]
             sys.stderr.write(result)
             raise Exception(result)
     except:

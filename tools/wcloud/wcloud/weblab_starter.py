@@ -30,7 +30,7 @@ def wait_process(process):
 
     print "Waiting for process to start and stay..."
 
-    time_to_wait = app.config.get("WEBLAB_STARTUP_TIME", 15)
+    time_to_wait = app.config.get("WEBLAB_STARTUP_TIME", 20)
 
     start_time = time.time()
 
@@ -50,9 +50,9 @@ def stop_weblab(dirname):
     return True
 
 
-def test_weblab(dirname):
+def check_weblab(dirname):
     try:
-        result = subprocess.check_output(['weblab-admin', 'monitor', 'test/testinstance', '-l'])
+        result = subprocess.check_output(['weblab-admin', 'monitor', dirname, '-l'])
         return True
     except subprocess.CalledProcessError:
         return False
@@ -66,17 +66,20 @@ def start_weblab(dirname, wait):
     print "Deploying instance: %s" % dirname,
 
     process = subprocess.Popen(['nohup','weblab-admin', 'start', dirname],
-                stdout = open(stdout_path, 'w'),
-                stderr = open(stderr_path, 'w'),
+                stdout = open(stdout_path, 'w+'),
+                stderr = open(stderr_path, 'w+'),
                 stdin  = subprocess.PIPE)
 
     print "[done]"
 
+    if wait:
+        wait_process(process)
+
     errors = file(stderr_path).read()
     print "[dbg] Stderr: " + errors
 
-    if wait:
-        wait_process(process)
+    logs = file(stdout_path).read()
+    print "[dbg] Stdout: " + errors
 
     return process
 

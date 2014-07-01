@@ -3,7 +3,7 @@ import unittest
 from flask import Flask
 from wcloud.config import wcloud_settings_default, wcloud_settings
 
-from wcloud.weblab_starter import app, start_weblab, test_weblab, stop_weblab
+from wcloud.weblab_starter import app, start_weblab, check_weblab, stop_weblab
 from wcloud.weblab_starter import main
 
 import werkzeug
@@ -50,14 +50,14 @@ class TestWeblabStarter(unittest.TestCase):
         assert "listens in" in response.data
 
     def test_start_test_instance(self):
-        self._process = start_weblab("test/testinstance", 5)
-        active = test_weblab("test/testinstance")
+        print "CWD: " + os.getcwd()
+        self._process = start_weblab("test/testinstance_sqlite", 15)
+        active = check_weblab("test/testinstance_sqlite")
         assert active
-        stop_weblab("test/testinstance")
+        stop_weblab("test/testinstance_sqlite")
 
     def test_start_existing(self):
         main()
-
 
     def setUp(self):
         self._cleanup()

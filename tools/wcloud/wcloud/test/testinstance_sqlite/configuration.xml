@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><machines
+        xmlns="http://www.weblab.deusto.es/configuration"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="global_configuration.xsd"
+    >
+
+    <machine>core_machine</machine>
+
+</machines>

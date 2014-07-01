@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+    xmlns="http://www.weblab.deusto.es/configuration" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+    <configuration file="server_config.py" />
+
+    <type>weblab.data.server_type::Laboratory</type>
+    <methods>weblab.methods::Laboratory</methods>
+
+    <implementation>weblab.lab.server.LaboratoryServer</implementation>
+
+    <protocols>
+        <protocol name="Direct">
+            <coordinations>
+                <coordination></coordination>
+            </coordinations>
+            <creation></creation>
+        </protocol>
+        <protocol name="SOAP">
+            <coordinations>
+                <coordination>
+                    <parameter name="address" value="127.0.0.1:10010@NETWORK" />
+                </coordination>
+            </coordinations>
+            <creation>
+                <parameter name="address" value=""     />
+                <parameter name="port"    value="10010" />
+            </creation>
+        </protocol>
+        <protocol name="XMLRPC">
+            <coordinations>
+                <coordination>
+                    <parameter name="address" value="127.0.0.1:10011@NETWORK" />
+                </coordination>
+            </coordinations>
+            <creation>
+                <parameter name="address" value=""     />
+                <parameter name="port"    value="10011" />
+            </creation>
+        </protocol>
+    </protocols>
+</server>
