@@ -83,22 +83,6 @@ class WebLabProcess(object):
         try:
             matches = True
 
-            for port in self.ports['soap']:
-                soap_url = 'http://%s:%s%s/weblab/soap/?WSDL' % (self.host, port, self.base_location)
-                if self.verbose:
-                    print soap_url
-                current_content = urllib2.urlopen(soap_url).read()
-                matches &= current_content.find("definitions targetNamespace") > 0
-                running.append('soap')
-
-            for port in self.ports['xmlrpc']:
-                xmlrpc_url = 'http://%s:%s%s/weblab/xmlrpc/' % (self.host, port, self.base_location)
-                if self.verbose:
-                    print xmlrpc_url
-                current_content = urllib2.urlopen(xmlrpc_url).read()
-                matches &= current_content.find("XML-RPC service") > 0
-                running.append('xmlrpc')
-
             for port in self.ports['json']:
                 json_url = 'http://%s:%s%s/weblab/json/' % (self.host, port, self.base_location)
                 if self.verbose:
@@ -106,22 +90,6 @@ class WebLabProcess(object):
                 current_content = urllib2.urlopen(json_url).read()
                 matches &= current_content.find("JSON service") > 0
                 running.append('json')
-
-            for port in self.ports['soap_login']:
-                soap_login_url = 'http://%s:%s%s/weblab/login/soap/?WSDL' % (self.host, port, self.base_location)
-                if self.verbose:
-                    print soap_login_url
-                current_content = urllib2.urlopen(soap_login_url).read()
-                matches &= current_content.find("definitions targetNamespace") > 0
-                running.append('soap_login')
-
-            for port in self.ports['xmlrpc_login']:
-                xmlrpc_login_url = 'http://%s:%s%s/weblab/login/xmlrpc/' % (self.host, port, self.base_location)
-                if self.verbose:
-                    print xmlrpc_login_url
-                current_content = urllib2.urlopen(xmlrpc_login_url).read()
-                matches &= current_content.find("XML-RPC service") > 0
-                running.append('xmlrpc_login')
 
             for port in self.ports['json_login']:
                 json_login_url = 'http://%s:%s%s/weblab/login/json/' % (self.host, port, self.base_location)

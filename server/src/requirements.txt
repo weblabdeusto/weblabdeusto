@@ -32,6 +32,7 @@ SOAPpy<0.13
 # WebLab incompatibility issues with higher versions.
 #
 Flask-WTF<0.9
+WTForms<2.0
 
 # 
 # Flask_admin is used for the new administration panel

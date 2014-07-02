@@ -170,7 +170,7 @@ ArchimedesInstance = function (instanceid) {
         $(getidselect("table-liquid")).datatable({
             header: $.i18n._("Liquid"),
             vars: {
-                "density": Registry[instanceid]["liquid_density"] + " " + $.i18n._("kgm3"),
+                "density": Registry[instanceid]["liquid_density"] / 1000.0 + " " + $.i18n._("gcm3"),
                 "internal.diameter": Registry[instanceid]["liquid_diameter"] + " " + $.i18n._("cm")
             },
             translator: $.i18n._.bind($.i18n)
@@ -186,8 +186,8 @@ ArchimedesInstance = function (instanceid) {
                 "density": function() {
                         var r = this["ball_diameter"] / (2 * 100); //  Radius: cm to m
                         var vol = (4/3) * Math.PI * r * r * r * 1000000; // m3 to cm3
-                        var den = this["ball_mass"]*1000000 / (vol * 1000); // Mass: g to kg; cm3 to m3
-                        return den.toFixed(2) + " " + $.i18n._("kgm3");
+                        var den = this["ball_mass"] / vol; // Density: g / cm3
+                        return den.toFixed(2) + " " + $.i18n._("gcm3");
                 }.bind(Registry[instanceid]),
 
                 "volume": function() {

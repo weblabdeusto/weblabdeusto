@@ -708,7 +708,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         # Make sure that the number of users it returns matches the number of users
         # that we currently have in the test database.
-        self.assertEquals(len(users), 27)
+        self.assertEquals(len(users), 28)
 
         user_logins = list( ( user.login for user in users ) )
 

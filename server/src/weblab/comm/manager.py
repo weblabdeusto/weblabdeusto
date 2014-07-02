@@ -20,14 +20,6 @@ import weblab.configuration_doc as configuration_doc
 import weblab.data.dto.experiments as Experiment
 from weblab.data.experiments import ExperimentId
 
-try:
-    import ZSI
-except ImportError:
-    ZSI_AVAILABLE = False
-else:
-    ZSI_AVAILABLE = True
-
-import SimpleXMLRPCServer
 import datetime
 import traceback
 
@@ -97,16 +89,6 @@ def _propagate_stack_trace(cfg_manager, msg):
         msg = str(msg) + "; Traceback: " + formatted_exc
     return msg
 
-class AbstractZSI(object):
-    def _raise_exception(self, code, msg):
-        if ZSI_AVAILABLE:
-            msg = _propagate_stack_trace(self._cfg_manager, msg)
-            raise ZSI.Fault( 'ZSI:' + code, msg )
-        else:
-            msg = "Optional library 'ZSI' is not available, so SOAP clients will not be supported. However, AbstractZSI is being used, so problems will arise"
-            log.log( self, log.level.Error, msg )
-            print >> sys.stderr, msg
-
 class JSONError(Exception):
     pass
 
@@ -114,27 +96,4 @@ class AbstractJSON(object):
     def _raise_exception(self, code, msg):
         msg = _propagate_stack_trace(self._cfg_manager, msg)
         raise JSONError({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg })
-
-class AbstractXMLRPC(object):
-    def _raise_exception(self, code, msg):
-        msg = _propagate_stack_trace(self._cfg_manager, msg)
-        raise SimpleXMLRPCServer.Fault('XMLRPC:' + code, msg)
-
-    def _parse_experiment_id(self, exp_id):
-        return ExperimentId(
-                exp_id['exp_name'],
-                exp_id['cat_name']
-            )
-
-    def _fix_dates_in_experiments(self, experiments_allowed):
-        for experiment_allowed in experiments_allowed:
-            experiment = experiment_allowed.experiment
-            experiment_allowed.experiment = Experiment.Experiment(experiment.name, experiment.category,
-                                datetime.datetime( experiment.start_date.year, experiment.start_date.month, experiment.start_date.day ),
-                                datetime.datetime( experiment.end_date.year, experiment.end_date.month, experiment.end_date.day )
-                            )
-
-    def _check_nullable_response(self, response):
-        # In XML-RPC, None doesn't exist
-        return response or ''
 
