@@ -24,6 +24,7 @@ import datetime
 import time
 import StringIO
 import subprocess
+from nose.plugins import multiprocess
 from voodoo import log
 
 from weblab.util import data_filename
@@ -33,6 +34,9 @@ from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
 #module_directory = os.path.join(*__name__.split('.')[:-1])
+
+
+from multiprocessing.pool import ThreadPool
 
 
 class Archimedes(Experiment):
@@ -83,11 +87,57 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes] do_start_experiment called"
 
+        # Allocate a small pool of worker threads to handle the requests to the board.
+        self._workpool = ThreadPool(len(self.archimedes_instances))
+
         current_config = self.initial_configuration.copy()
 
         # The client initial data is meant to contain a structure that defines what the client should show.
         return json.dumps({"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
 
+
+    def handle_command_allinfo(self, command):
+        """
+        Handles an ALLINFO command, which has the format: ALLINFO:instance1:instance2...
+        """
+        boards = command.split(":")[1:]
+        response = {}
+
+        # Carry out the operation in parallel.
+        infos = self._workpool.map(self.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
+        for i in range(len(boards)):
+            response[boards[i]] = infos[i]
+
+        return json.dumps(response)
+
+    def obtain_board_info(self, board):
+        """
+        Obtains the info for a specific board by carrying out an HTTP request to it.
+        @param board: The URL / IP to the board.
+        @return: json-able data object with the info for the specified board. A string containing
+        the word ERROR if a problem occurs.
+        """
+        if board is None:
+            info = "ERROR"
+
+        info = {}
+
+        load = self._send(board, "load")
+        level = self._send(board, "level")
+
+        if load == "ERROR":
+            info["load"] = "ERROR"
+        else:
+            num = load.split("=")[1]
+            info["load"] = num
+
+        if level == "ERROR":
+            info["level"] = "ERROR"
+        else:
+            num = level.split("=")[1]
+            info["level"] = num
+
+        return info
 
 
     @Override(Experiment)
@@ -118,31 +168,7 @@ class Archimedes(Experiment):
         # HANDLE NON-INSTANCE-SPECIFIC COMMANDS
         # We expect a command like: "ALLINFO:archimedes1:archimedes2"
         if command.startswith("ALLINFO"):
-            boards = command.split(":")[1:]
-            response = {}
-            for b in boards:
-                target = self.archimedes_instances.get(b)
-                if target is None:
-                    response[b] = "ERROR"
-
-                response[b] = {}
-
-                load = self._send(target, "load")
-                level = self._send(target, "level")
-
-                if load == "ERROR":
-                    response[b]["load"] = "ERROR"
-                else:
-                    num = load.split("=")[1]
-                    response[b]["load"] = num
-
-                if level == "ERROR":
-                    response[b]["level"] = "ERROR"
-                else:
-                    num = level.split("=")[1]
-                    response[b]["level"] = num
-            return json.dumps(response)
-
+            return self.handle_command_allinfo(command)
 
 
         # HANDLE INSTANCE-SPECIFIC COMMANDS
@@ -270,7 +296,7 @@ class TestArchimedes(unittest.TestCase):
         # it doesn't attempt to contact the real ip.
         self.cfg_manager = ConfigurationManager()
         self.cfg_manager._set_value("archimedes_real_device", False)
-        self.cfg_manager._set_value("archimedes_instances", {"default": "http://localhost:8000"})
+        self.cfg_manager._set_value("archimedes_instances", {"default": "http://localhost:8000", "second": "http://localhost:8001"})
         self.experiment = Archimedes(None, None, self.cfg_manager)
         self.lab_session_id = SessionId('my-session-id')
 
@@ -285,7 +311,7 @@ class TestArchimedes(unittest.TestCase):
         Check that it replies an error if the instance isn't in the config.
         """
         self.cfg_manager = ConfigurationManager()
-        self.cfg_manager._set_value("archimedes_instances", {"first": "http://localhost:8000"})
+        self.cfg_manager._set_value("archimedes_instances", {"first": "http://localhost:8000", "second": "http://localhost:8001"})
         self.experiment = Archimedes(None, None, self.cfg_manager)
         start = self.experiment.do_start_experiment("{}", "{}")
 
@@ -326,6 +352,9 @@ class TestArchimedes(unittest.TestCase):
         f.close()
 
     def test_explicit_instance_commands(self):
+        """
+        Test that commands can be sent to a specific instance.
+        """
         start = self.experiment.do_start_experiment("{}", "{}")
         up_resp = self.experiment.do_send_command_to_device("default:UP")
         down_resp = self.experiment.do_send_command_to_device("default:DOWN")
@@ -341,6 +370,16 @@ class TestArchimedes(unittest.TestCase):
         r = json.loads(resp)
         assert float(r["default"]["level"]) == 1200
         assert float(r["default"]["load"]) == 1300
+
+    def test_allinfo_command_multiple(self):
+        start = self.experiment.do_start_experiment("{}", "{}")
+        resp = self.experiment.do_send_command_to_device("ALLINFO:default:second")
+        r = json.loads(resp)
+        assert float(r["default"]["level"]) == 1200
+        assert float(r["default"]["load"]) == 1300
+
+        assert float(r["second"]["level"]) == 1200
+        assert float(r["second"]["load"]) == 1300
 
 
 
