@@ -10,7 +10,7 @@
 # This software consists of contributions made by many individuals,
 # listed below:
 #
-# Author: Luis Rodriguez <luis.rodriguezgil@deusto.es>
+# Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
 import base64
 
@@ -21,6 +21,7 @@ import threading
 from voodoo import log
 
 from voodoo.lock import locked
+from voodoo.log import logged
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
