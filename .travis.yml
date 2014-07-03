@@ -5,5 +5,11 @@ python: 2.7
 install:
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
+    - WEBLAB_OPT_NOCLIENT=True
+    - cd server
+    - python setup.py install
+    - pip install nose celery
 script:
     - cd server/src; python develop.py
+    - cd ../../tools/wcloud
+    - python run_auto_tests.py wcloud/test/test_db_tasks.py
