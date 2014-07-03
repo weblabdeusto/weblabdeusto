@@ -36,6 +36,9 @@ class TestArchimedes(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_nothing(self):
+        pass
+
     def test_start(self):
         start = self.experiment.do_start_experiment("{}", "{}")
 
@@ -75,7 +78,6 @@ class TestArchimedes(unittest.TestCase):
         assert len(dec) > 100
 
         plot_resp = self.experiment.do_send_command_to_device("PLOT")
-        print plot_resp
 
         f = file("/tmp/img.html", "w+")
         f.write("""
@@ -113,3 +115,17 @@ class TestArchimedes(unittest.TestCase):
 
         assert float(r["second"]["level"]) == 1200
         assert float(r["second"]["load"]) == 1300
+
+
+
+def suite():
+    return unittest.TestSuite(
+        (
+            unittest.makeSuite(TestArchimedes)
+        )
+    )
+
+
+
+if __name__ == '__main__':
+    unittest.main()

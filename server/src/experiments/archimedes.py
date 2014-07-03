@@ -42,11 +42,11 @@ class Archimedes(Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Archimedes, self).__init__(*args, **kwargs)
 
-        self.DEBUG = True
+        self.DEBUG = False
 
         self._lock = threading.Lock()
 
-        self._cfg_manager    = cfg_manager
+        self._cfg_manager = cfg_manager
 
         # IP of the board, raspberry, beagle, or whatever.
         # self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:2001/')
@@ -55,17 +55,17 @@ class Archimedes(Experiment):
 
         self.board_timeout = self._cfg_manager.get_value('archimedes_board_timeout', DEFAULT_ARCHIMEDES_BOARD_TIMEOUT)
 
-        self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
+        self.webcams_info = self._cfg_manager.get_value('webcams_info', [])
         self.real_device = self._cfg_manager.get_value("archimedes_real_device", True)
 
-        self.opener          = urllib2.build_opener(urllib2.ProxyHandler({}))
+        self.opener = urllib2.build_opener(urllib2.ProxyHandler({}))
 
         self.initial_configuration = {}
         for pos, webcam_config in enumerate(self.webcams_info):
             num = pos + 1
-            webcam_url   = webcam_config.get('webcam_url')
-            mjpeg_url    = webcam_config.get('mjpeg_url')
-            mjpeg_width  = webcam_config.get('mjpeg_width')
+            webcam_url = webcam_config.get('webcam_url')
+            mjpeg_url = webcam_config.get('mjpeg_url')
+            mjpeg_width = webcam_config.get('mjpeg_width')
             mjpeg_height = webcam_config.get('mjpeg_height')
 
             if webcam_url is not None:
@@ -93,7 +93,8 @@ class Archimedes(Experiment):
         current_config = self.initial_configuration.copy()
 
         # The client initial data is meant to contain a structure that defines what the client should show.
-        return json.dumps({"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
+        return json.dumps(
+            {"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
 
 
     def handle_command_allinfo(self, command):
@@ -219,7 +220,7 @@ class Archimedes(Experiment):
     def _send(self, board_location, command):
         if self.real_device:
             try:
-                print "[Archimedes]: Sending to board: ", command
+                if self.DEBUG: print "[Archimedes]: Sending to board: ", command
 
                 if not board_location.endswith("/"):
                     board_location += "/"
@@ -229,7 +230,7 @@ class Archimedes(Experiment):
                 log.log(Archimedes, log.level.Error, "Error: " + traceback.format_exc())
                 return "ERROR"
         else:
-            print "[Archimedes]: Simulating request: ", command
+            if self.DEBUG: print "[Archimedes]: Simulating request: ", command
             return self.simulate_instance_reply_to_command(command)
 
     def simulate_instance_reply_to_command(self, command):
