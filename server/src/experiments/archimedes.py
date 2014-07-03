@@ -14,20 +14,13 @@
 #
 import base64
 
-import os
 import traceback
 import unittest
 import urllib2
 import json
 import threading
-import datetime
-import time
-import StringIO
-import subprocess
-from nose.plugins import multiprocess
 from voodoo import log
 
-from weblab.util import data_filename
 from voodoo.log import logged
 from voodoo.lock import locked
 from voodoo.override import Override
@@ -37,6 +30,9 @@ from weblab.experiment.experiment import Experiment
 
 
 from multiprocessing.pool import ThreadPool
+
+
+DEFAULT_ARCHIMEDES_BOARD_TIMEOUT = 2
 
 
 class Archimedes(Experiment):
@@ -54,6 +50,8 @@ class Archimedes(Experiment):
         # self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:2001/')
 
         self.archimedes_instances = self._cfg_manager.get_value('archimedes_instances')
+
+        self.board_timeout = self._cfg_manager.get_value('archimedes_board_timeout', DEFAULT_ARCHIMEDES_BOARD_TIMEOUT)
 
         self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
         self.real_device = self._cfg_manager.get_value("archimedes_real_device", True)
@@ -224,7 +222,7 @@ class Archimedes(Experiment):
                 if not board_location.endswith("/"):
                     board_location += "/"
 
-                return self.opener.open(board_location + command).read()
+                return self.opener.open(board_location + command, timeout=self.board_timeout).read()
             except:
                 log.log(Archimedes, log.level.Error, "Error: " + traceback.format_exc())
                 return "ERROR"
