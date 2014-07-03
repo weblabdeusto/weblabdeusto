@@ -6,9 +6,10 @@ install:
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
     - WEBLAB_OPT_NOCLIENT=True
-    - cd server
+    - cd server/src
     - python setup.py install
     - pip install nose celery
+    - cd ../../
 script:
     - cd server/src; python develop.py
     - cd ../../tools/wcloud
