@@ -11,7 +11,9 @@ install:
     - pip install nose celery
     - cd ../../
 before_script:
-    - python tools/wcloud/dbdeploy.py -u root -p ""
+    - cd tools/wcloud/
+    - python dbdeploy.py -u root -p ""
+    - cd ../../
 script:
     - cd server/src; python develop.py
     - cd ../../tools/wcloud
