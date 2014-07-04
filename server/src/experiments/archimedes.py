@@ -18,6 +18,7 @@ import traceback
 import urllib2
 import json
 import threading
+import weakref
 from voodoo import log
 
 from voodoo.lock import locked
@@ -41,6 +42,11 @@ class Archimedes(Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Archimedes, self).__init__(*args, **kwargs)
+
+        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
+        # python versions.
+        if not hasattr(threading.current_thread(), "_children"):
+            threading.current_thread()._children = weakref.WeakKeyDictionary()
 
         self.DEBUG = False
 
