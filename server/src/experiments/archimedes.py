@@ -43,11 +43,6 @@ class Archimedes(Experiment):
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Archimedes, self).__init__(*args, **kwargs)
 
-        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
-        # python versions.
-        if not hasattr(threading.current_thread(), "_children"):
-            threading.current_thread()._children = weakref.WeakKeyDictionary()
-
         self.DEBUG = False
 
         self._lock = threading.Lock()
@@ -92,6 +87,11 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_start_experiment called"
+
+        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
+        # python versions.
+        if not hasattr(threading.current_thread(), "_children"):
+            threading.current_thread()._children = weakref.WeakKeyDictionary()
 
         # Allocate a small pool of worker threads to handle the requests to the board.
         self._workpool = ThreadPool(len(self.archimedes_instances))
