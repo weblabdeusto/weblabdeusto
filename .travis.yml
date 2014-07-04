@@ -14,6 +14,7 @@ before_script:
     - cd tools/wcloud/
     - python dbdeploy.py -u root -p ""
     - cd ../../
+    - cp wcloud/config/wcloud_settings.py.dist wcloud/config/wcloud_settings.py
 script:
     - cd server/src; python develop.py
     - cd ../../tools/wcloud
