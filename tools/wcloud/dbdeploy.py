@@ -1,4 +1,9 @@
+"""
+This is the new DB deployment script.
+"""
+
 import getpass
+from optparse import OptionParser
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
@@ -36,8 +41,25 @@ def connect_to_database(user, passwd):
 
 
 def main():
-    accname = raw_input("SQL root account name: ")
-    password = getpass.getpass("SQL root account password: ")
+
+    parser = OptionParser()
+    parser.add_option("-u", "--user", dest="user", action="store",
+                      help="MySQL root account name", type="string", default=None)
+    parser.add_option("-p", "--password",
+                      action="store", dest="password",
+                      help="MySQL root password", type="string", default=None)
+
+    (options, args) = parser.parse_args()
+
+    if options.user is None:
+        accname = raw_input("SQL root account name: ")
+    else:
+        accname = options.user
+
+    if options.password is None:
+        password = getpass.getpass("SQL root account password: ")
+    else:
+        password = options.password
 
     engine, Session = connect_to_database(accname, password)
     session = Session()
