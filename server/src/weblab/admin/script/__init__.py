@@ -28,7 +28,14 @@ from weblab.admin.script.upgrade import weblab_upgrade
 # 
 # TODO
 #  - --virtual-machine
-# 
+#
+
+
+# Error codes:
+#
+# 0: SUCCESS (NO ERROR)
+# 2: WRONG ARGS
+
 
 SORTED_COMMANDS = []
 SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
@@ -45,9 +52,10 @@ def weblab():
     if len(sys.argv) == 2 and sys.argv[1] in HIDDEN_COMMANDS:
         if sys.argv[1] in ('--version', '-version', '-V'):
             print weblab_version
+            sys.exit(2)
         else:
             print >> sys.stderr, "Command %s not implemented" % sys.argv[1]
-        sys.exit(0)
+            sys.exit(0)
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
         max_size = max((len(command) for command in COMMANDS))
@@ -55,7 +63,7 @@ def weblab():
             filled_command = command + ' ' * (max_size - len(command))
             command_list += "\t%s\t%s\n" % (filled_command, help_text)
         print >> sys.stderr, "Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list)
-        sys.exit(0)
+        sys.exit(2)
     main_command = sys.argv[1]
     if main_command == 'create':
         weblab_create(sys.argv[2])
@@ -75,5 +83,6 @@ def weblab():
         print weblab_version
     else:
         print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
+        exit(2)
 
 
