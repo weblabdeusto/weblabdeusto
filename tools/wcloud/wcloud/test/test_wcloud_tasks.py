@@ -48,6 +48,7 @@ class TestWcloudTasks(unittest.TestCase):
         create_weblab_environment(base_url, settings)
 
     def test_create_weblab_environment_thorough(self):
+
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
                self.wcloud_settings)
         self._settings = settings
@@ -94,6 +95,7 @@ class TestWcloudTasks(unittest.TestCase):
         Test whether the weblab instance can be started successfully.
         PRERREQUISITE: weblabstarter script needs to be running in the background.
         """
+        time.sleep(2)
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
             self.wcloud_settings)
         self._settings = settings
@@ -210,4 +212,7 @@ class TestWcloudTasks(unittest.TestCase):
             shutil.rmtree(base_url)
         except:
             pass
+
+        # Give it some time. It seems to be necessary.
+        time.sleep(1.5)
 

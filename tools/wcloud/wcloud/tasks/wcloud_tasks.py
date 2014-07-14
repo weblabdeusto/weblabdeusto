@@ -282,6 +282,8 @@ def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_setting
     """
     #self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
 
+    print "[DBG]: ON REGISTER AND START INSTANCE"
+
     # Override the items in the config that are contained in the explicit_wcloud_settings dictionary.
     flask_app.config.update(explicit_wcloud_settings)
 
@@ -328,7 +330,8 @@ def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_setting
         response = opener.open(req).read()
     except:
         is_error = True
-        response = "There was an error registering or starting the service. Contact the administrator"
+        reason = traceback.format_exc()
+        response = "There was an error registering or starting the service. Contact the administrator: %s" % reason
         traceback.print_exc()
 
     print "Ended. is_error=%s; response=%s" % (is_error, response)

@@ -35,13 +35,13 @@ def wait_process(process):
     start_time = time.time()
 
     # Wait for some seconds to start with.
-    time.sleep(2)
-    if time_to_wait > 2:
-        time_to_wait -= 2
+    time.sleep(4)
+    if time_to_wait > 4:
+        time_to_wait -= 4
 
     while time.time() - start_time < time_to_wait:
         if process.poll() is not None:  # Ensure that the process does not finish early.
-            raise Exception("Weblab was apparently not started successfully")
+            raise Exception("Weblab was apparently not started successfully (not running after %f seconds)" % (time.time() - start_time))
 
 def stop_weblab(dirname):
     print "Deploying instance: %s" % dirname,
@@ -82,9 +82,11 @@ def start_weblab(dirname, wait):
 
     errors = file(stderr_path).read()
     print "[dbg] Stderr: " + errors
+    print "[dbg:END OF STDERR]"
 
     logs = file(stdout_path).read()
     print "[dbg] Stdout: " + errors
+    print "[dbg:END OF STDOUT]"
 
     return process
 
