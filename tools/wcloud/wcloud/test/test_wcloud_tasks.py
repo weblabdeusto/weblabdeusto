@@ -3,6 +3,7 @@
 # UNIT TESTS BELOW
 #
 ######################################
+import json
 import os
 import shutil
 import unittest
@@ -105,7 +106,7 @@ class TestWcloudTasks(unittest.TestCase):
 
     def test_finish_deployment(self):
         """
-        Tests that every step can be done, and the deployment finished.
+        test_finish_deployment: Tests that every step can be done, and the deployment finished.
         PRERREQUISITES: apache-reloader and weblab-starter scripts running.
         """
         settings = prepare_system("testuser@testuser.com", "admin", "Administrador", "password", "admin@admin.com",
@@ -122,7 +123,7 @@ class TestWcloudTasks(unittest.TestCase):
 
     def test_finish_deployment_thorough(self):
         """
-        Tests that every step can be done, and the deployment finished.
+        test_finish_deployment_thorough: Tests that every step can be done, and the deployment finished.
         Checks that after being configured, Apache is indeed serving the new instance correctly.
         PRERREQUISITES: apache-reloader and weblab-starter scripts running; apache2 configured correctly to load the instances.
         """
@@ -148,7 +149,9 @@ class TestWcloudTasks(unittest.TestCase):
 
         # Check that we can login with admin/password.
         r = bot.post("http://localhost/testentity/weblab/login/json/", data="""{"params":{"username":"admin", "password":"password"}, "method":"login"}""")
-        j = r.json()
+        str = r.text
+        print "The request returned: " + str
+        j = json.loads(str)
         assert not j["is_exception"]
         assert "id" in j["result"]
 
