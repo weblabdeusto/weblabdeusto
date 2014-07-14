@@ -44,19 +44,19 @@ class TestWeblabStarter(unittest.TestCase):
         lines = [line.strip() for line in lines if len(line.strip()) > 0 and "testentity" not in line]
         open(FILENAME, "w").writelines(lines)
 
-    def test_root(self):
+    def DISABLED_test_root(self):
         response = self.flask_app.get("/")
         assert response.status_code == 200
         assert "listens in" in response.data
 
-    def test_start_test_instance(self):
+    def DISABLED_start_an_instance(self):
         print "CWD: " + os.getcwd()
         self._process = start_weblab("test/testinstance_sqlite", 15)
         active = check_weblab("test/testinstance_sqlite")
         assert active
         stop_weblab("test/testinstance_sqlite")
 
-    def test_start_existing(self):
+    def DISABLED_test_start_existing(self):
         main()
 
     def setUp(self):

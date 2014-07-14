@@ -34,8 +34,13 @@ def wait_process(process):
 
     start_time = time.time()
 
+    # Wait for some seconds to start with.
+    time.sleep(2)
+    if time_to_wait > 2:
+        time_to_wait -= 2
+
     while time.time() - start_time < time_to_wait:
-        if process.poll() is not None:
+        if process.poll() is not None:  # Ensure that the process does not finish early.
             raise Exception("Weblab was apparently not started successfully")
 
 def stop_weblab(dirname):
