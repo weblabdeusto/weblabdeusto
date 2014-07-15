@@ -34,10 +34,13 @@ def wait_process(process):
 
     start_time = time.time()
 
-    # Wait for some seconds to start with.
-    time.sleep(4)
-    if time_to_wait > 4:
-        time_to_wait -= 4
+    # Wait for some seconds to start with. Apparently POPEN() did not immediately start the process in some instances.
+    # This meant than when we ran the following check, it was mistakenly reported as a failure.
+    # TODO: The 4 here is a magic number. This should probably be improved. Ideally, with a better way to detect
+    # failures.
+    time.sleep(7)
+    if time_to_wait > 7:
+        time_to_wait -= 7
 
     while time.time() - start_time < time_to_wait:
         if process.poll() is not None:  # Ensure that the process does not finish early.
