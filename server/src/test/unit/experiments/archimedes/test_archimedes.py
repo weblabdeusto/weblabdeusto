@@ -116,6 +116,16 @@ class TestArchimedes(unittest.TestCase):
         assert float(r["second"]["level"]) == 1200
         assert float(r["second"]["load"]) == 1300
 
+    def test_info_retriever_life_cycle(self):
+        """
+        Tests the lifecycle of the info retriever thread.
+        """
+        start = self.experiment.do_start_experiment("{}", "{}")
+        assert self.experiment._info_t.is_alive()  # Ensure the thread is running.
+
+        self.experiment.do_dispose()
+        assert not self.experiment._info_t.is_alive()
+
 
 
 def suite():

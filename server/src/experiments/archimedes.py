@@ -15,6 +15,7 @@
 import base64
 
 import traceback
+import unittest
 import urllib2
 import json
 import threading
@@ -37,7 +38,6 @@ DEFAULT_ARCHIMEDES_BOARD_TIMEOUT = 2
 
 
 class InfoRetrieverThread(threading.Thread):
-
     def __init__(self, archimedes, archimedes_instances):
         super(InfoRetrieverThread, self).__init__()
         self.should_exit = False
@@ -62,11 +62,12 @@ class InfoRetrieverThread(threading.Thread):
 
         while not self.should_exit:
             # Carry out the operation in parallel.
-            infos = self._workpool.map(self.archimedes.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
+            infos = self._workpool.map(self.archimedes.obtain_board_info,
+                                       [self.archimedes_instances.get(b) for b in boards])
             for i in range(len(boards)):
                 response[boards[i]] = infos[i]
 
-            self.last_data = json.dumps(response)
+            self.last_data = response
 
             time.sleep(500)
 
@@ -74,10 +75,14 @@ class InfoRetrieverThread(threading.Thread):
         self.should_exit = True
 
 
+MAX_ALLINFO_START_TIME = 5
+
+
 class Archimedes(Experiment):
     """
     The archimedes experiment. Unittests for this class can be found in the test folder (test_archimedes).
     """
+
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Archimedes, self).__init__(*args, **kwargs)
@@ -143,15 +148,18 @@ class Archimedes(Experiment):
     def handle_command_allinfo(self, command):
         """
         Handles an ALLINFO command, which has the format: ALLINFO:instance1:instance2...
+
+        The information about the boards is obtained asynchronously.
         """
+        wait_start = time.time()
+        while self._info_t.last_data is None:
+            time.sleep(0.5)
+            if time.time() - wait_start > MAX_ALLINFO_START_TIME:
+                return "ERROR"
+
         boards = command.split(":")[1:]
-        response = {}
-
-        # Carry out the operation in parallel.
-        infos = self._workpool.map(self.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
-        for i in range(len(boards)):
-            response[boards[i]] = infos[i]
-
+        response = json.loads(json.dumps(self._info_t.last_data))
+        response = {board: v for board, v in response.items() if board in boards}
         return json.dumps(response)
 
     def obtain_board_info(self, board):
@@ -323,7 +331,14 @@ class Archimedes(Experiment):
         if self._info_t is not None:
             self._info_t.exit()
             self._info_t.join()
-            
+
         return "ok"
+
+    if __name__ == "__main__":
+        import unittest
+        from test.unit.experiments.archimedes.test_archimedes import TestArchimedes
+
+        suite = unittest.TestLoader().loadTestsFromTestCase(TestArchimedes)
+        unittest.TextTestRunner(verbosity=2).run(suite)
 
 
