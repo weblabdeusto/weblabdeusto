@@ -19,6 +19,7 @@ import urllib2
 import json
 import threading
 import weakref
+import time
 from voodoo import log
 
 from voodoo.lock import locked
@@ -35,6 +36,44 @@ from multiprocessing.pool import ThreadPool
 DEFAULT_ARCHIMEDES_BOARD_TIMEOUT = 2
 
 
+class InfoRetrieverThread(threading.Thread):
+
+    def __init__(self, archimedes, archimedes_instances):
+        super(InfoRetrieverThread, self).__init__()
+        self.should_exit = False
+        self.archimedes = archimedes
+        self.archimedes_instances = archimedes_instances
+        self._workpool = None
+        self.last_data = None  # Store the last retrieved data.
+
+    def run(self):
+
+        # Initialize the threadpool.
+        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
+        # python versions.
+        if not hasattr(threading.current_thread(), "_children"):
+            threading.current_thread()._children = weakref.WeakKeyDictionary()
+
+        # Allocate a small pool of worker threads to handle the requests to the board.
+        self._workpool = ThreadPool(len(self.archimedes_instances))
+
+        boards = self.archimedes_instances.keys()
+        response = {}
+
+        while not self.should_exit:
+            # Carry out the operation in parallel.
+            infos = self._workpool.map(self.archimedes.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
+            for i in range(len(boards)):
+                response[boards[i]] = infos[i]
+
+            self.last_data = json.dumps(response)
+
+            time.sleep(500)
+
+    def exit(self):
+        self.should_exit = True
+
+
 class Archimedes(Experiment):
     """
     The archimedes experiment. Unittests for this class can be found in the test folder (test_archimedes).
@@ -48,6 +87,8 @@ class Archimedes(Experiment):
         self._lock = threading.Lock()
 
         self._cfg_manager = cfg_manager
+
+        self._info_t = None  # The information retriever thread.
 
         # IP of the board, raspberry, beagle, or whatever.
         # self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:2001/')
@@ -88,15 +129,11 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes] do_start_experiment called"
 
-        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
-        # python versions.
-        if not hasattr(threading.current_thread(), "_children"):
-            threading.current_thread()._children = weakref.WeakKeyDictionary()
-
-        # Allocate a small pool of worker threads to handle the requests to the board.
-        self._workpool = ThreadPool(len(self.archimedes_instances))
-
         current_config = self.initial_configuration.copy()
+
+        # Start the information retrieving thread.
+        self._info_t = InfoRetrieverThread(self, self.archimedes_instances)
+        self._info_t.start()
 
         # The client initial data is meant to contain a structure that defines what the client should show.
         return json.dumps(
@@ -282,6 +319,11 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
+
+        if self._info_t is not None:
+            self._info_t.exit()
+            self._info_t.join()
+            
         return "ok"
 
 
