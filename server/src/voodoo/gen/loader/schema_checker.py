@@ -25,6 +25,8 @@ except ImportError:
 else:
     LXML_AVAILABLE = True
 
+DEBUG = False
+
 from weblab.util import data_filename
 import voodoo.log as log
 import voodoo.gen.exceptions.loader.LoaderErrors as LoaderErrors
@@ -35,7 +37,7 @@ class SchemaChecker(object):
     def check_schema(self, xmlfile_path, xsdfile_path):
         if not LXML_AVAILABLE:
             global MESSAGE_SHOWN
-            if not MESSAGE_SHOWN:
+            if DEBUG and not MESSAGE_SHOWN:
                 msg = "The optional library 'lxml' is not available. The syntax of the configuration files will not be checked."
                 print >> sys.stderr, msg
                 log.log( SchemaChecker, log.level.Warning, msg )
