@@ -217,7 +217,7 @@ ArchimedesInstance = function (instanceid) {
         this.updateView();
 
         this.cameraRefresher = new CameraRefresher(instanceid + "-cam1");
-        this.cameraRefresher.setInterval(2000);
+        this.cameraRefresher.setInterval(500);
         this.cameraRefresher.start();
 
         // Create the timer for later.
