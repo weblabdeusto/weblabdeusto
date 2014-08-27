@@ -428,6 +428,9 @@ def _build_parser():
     parser.add_option("-v", "--verbose",          dest = Creation.VERBOSE, action="store_true", default=False,
                                                    help = "Show more information about the process.")
 
+    parser.add_option("--not-interactive",          dest = Creation.NOT_INTERACTIVE, action="store_true", default=False,
+                                                   help = "Run the script in not interactive mode. Recommended for scripts only.")
+
     parser.add_option("--add-test-data",          dest = Creation.ADD_TEST_DATA, action="store_true", default=False,
                                                   help = "Populate the database with sample data")
 
@@ -718,7 +721,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options_dict is None:
         parser_options, _ = parser.parse_args()
         options = OptionWrapper(parser_options)
-        options[Creation.NOT_INTERACTIVE] = False
     else:
         options = parser.defaults.copy()
         options[Creation.NOT_INTERACTIVE] = True
