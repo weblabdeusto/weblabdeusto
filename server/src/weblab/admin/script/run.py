@@ -48,7 +48,7 @@ def check_pid(pid):
 
 
 def weblab_start(directory):
-    parser = OptionParser(usage="%prog create DIR [options]")
+    parser = OptionParser(usage="%prog start DIR [options]")
 
     parser.add_option("-m", "--machine",           dest="machine", default=None, metavar="MACHINE",
                                                    help = "If there is more than one machine in the configuration, which one should be started.")
