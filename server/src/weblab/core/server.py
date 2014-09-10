@@ -29,6 +29,7 @@ import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
 
+from weblab.core.login import LoginManager
 import weblab.data.server_type as ServerType
 
 from weblab.comm.context import get_context
@@ -190,6 +191,8 @@ class UserProcessingServer(object):
         self._alive_users_collection = AliveUsersCollection.AliveUsersCollection(
                 self._locator, self._cfg_manager, session_type, self._reservations_session_manager, self._coordinator, self._commands_store, self._coordinator.finished_reservations_store)
 
+        # Login Manager
+        self._login_manager  = LoginManager(self._db_manager, self)
 
         #
         # Initialize facade (comm) servers
@@ -222,6 +225,23 @@ class UserProcessingServer(object):
             super(UserProcessingServer, self).stop()
         for facade_server in self._facade_servers:
             facade_server.stop()
+
+    # TODO TO BE REMOVED
+
+    @logged(log.level.Info, except_for='password')
+    def do_login(self, username, password):
+        return self._login_manager.login(username, password)
+
+    def do_extensible_login(self, system, credentials):
+        return self._login_manager.extensible_login(system, credentials)
+
+    def do_grant_external_credentials(self, username, password, system, credentials):
+        return self._login_manager.grant_external_credentials(username, password, system, credentials)
+
+    def do_create_external_user(self, system, credentials):
+        return self._login_manager.create_external_user(system, credentials)
+
+    # TODO </TO BE REMOVED>
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
