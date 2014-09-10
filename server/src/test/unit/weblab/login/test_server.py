@@ -38,7 +38,7 @@ import weblab.methods as weblab_methods
 
 import weblab.core.login as login_manager
 from weblab.core.server import UserProcessingServer
-import weblab.login.simple.ldap_auth as ldap_auth
+import weblab.core.login.simple.ldap_auth as ldap_auth
 import weblab.login.exc as LoginErrors
 
 import test.unit.configuration as configuration_module
