@@ -26,7 +26,7 @@ import weblab.db.exc as DbErrors
 import voodoo.log as log
 import weblab.login.exc as LoginErrors
 
-from weblab.login.simple import SimpleAuthnUserAuth
+from weblab.core.login.simple import SimpleAuthnUserAuth
 
 #######################################################################
 # 

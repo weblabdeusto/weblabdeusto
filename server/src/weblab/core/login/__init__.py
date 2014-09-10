@@ -4,7 +4,7 @@ import traceback
 import voodoo.log as log
 from voodoo.log import logged
 
-from weblab.login.web import EXTERNAL_MANAGERS
+from weblab.core.login.web import EXTERNAL_MANAGERS
 
 import weblab.login.exc as LoginErrors
 import weblab.db.exc as DbErrors

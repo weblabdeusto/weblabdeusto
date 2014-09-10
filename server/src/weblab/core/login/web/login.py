@@ -15,7 +15,7 @@
 
 import traceback
 
-from weblab.login.web import WebPlugin 
+from weblab.core.login.web import WebPlugin 
 from weblab.login.exc import InvalidCredentialsError
 
 USERNAME="username"

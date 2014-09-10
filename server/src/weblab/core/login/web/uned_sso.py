@@ -22,7 +22,7 @@ import voodoo.log as log
 from voodoo.log import logged
 
 
-from weblab.login.web import WebPlugin, ExternalSystemManager
+from weblab.core.login.web import WebPlugin, ExternalSystemManager
 import weblab.login.exc as LoginErrors
 
 from weblab.data.dto.users import User

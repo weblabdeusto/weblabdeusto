@@ -143,10 +143,10 @@ class WebPlugin(object):
 #     Registry of the web plug-ins and User Auths
 # 
 
-from weblab.login.web.login      import LoginPlugin
-from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
-from weblab.login.web.openid_web import OpenIdPlugin, OpenIdManager
-from weblab.login.web.uned_sso   import UnedSSOPlugin, UnedSSOManager
+from weblab.core.login.web.login      import LoginPlugin
+from weblab.core.login.web.facebook   import FacebookPlugin, FacebookManager
+from weblab.core.login.web.openid_web import OpenIdPlugin, OpenIdManager
+from weblab.core.login.web.uned_sso   import UnedSSOPlugin, UnedSSOManager
 
 WEB_PLUGINS = [
     LoginPlugin,
