@@ -37,7 +37,7 @@ from Cookie import SimpleCookie
 import voodoo.log as log
 from voodoo.log import logged
 
-import weblab.login.exc as LoginErrors
+import weblab.core.login.exc as LoginErrors
 from weblab.core.login.web import WebPlugin, ExternalSystemManager
 
 USERNAME = "username"

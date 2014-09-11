@@ -29,7 +29,7 @@ import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
 
-from weblab.core.login import LoginManager
+from weblab.core.login.manager import LoginManager
 import weblab.data.server_type as ServerType
 
 from weblab.comm.context import get_context
