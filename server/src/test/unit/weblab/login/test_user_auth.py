@@ -25,9 +25,9 @@ except ImportError:
 
 from test.util.optional_modules import OptionalModuleTestCase
 import weblab.login.exc as LoginErrors
-import weblab.login.simple as auth_simple
-import weblab.login.simple.ldap_auth as ldap_auth
-from weblab.login.simple import create_user_auth
+import weblab.core.login.simple as auth_simple
+import weblab.core.login.simple.ldap_auth as ldap_auth
+from weblab.core.login.simple import create_user_auth
 import weblab.db.exc as DbErrors
 
 class DbUserAuthTestCase(unittest.TestCase):

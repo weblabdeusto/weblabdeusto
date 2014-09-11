@@ -20,7 +20,7 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
 
-import weblab.login.db as DatabaseGateway
+import weblab.core.db as DatabaseGateway
 
 import weblab.db.exc as DbErrors
 
@@ -30,7 +30,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
     def setUp(self):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
-        self.auth_gateway = DatabaseGateway.AuthDatabaseGateway(cfg_manager)
+        self.auth_gateway = DatabaseGateway.DatabaseGateway(cfg_manager)
 
     def test_retrieve_role_and_user_auths(self):
         # With user "admin": password 'password', role administrator

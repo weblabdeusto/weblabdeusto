@@ -38,7 +38,7 @@ import voodoo.log as log
 from voodoo.log import logged
 
 import weblab.login.exc as LoginErrors
-from weblab.login.web import WebPlugin, ExternalSystemManager
+from weblab.core.login.web import WebPlugin, ExternalSystemManager
 
 USERNAME = "username"
 DOMAIN   = "domain"

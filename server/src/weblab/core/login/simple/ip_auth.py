@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.login.simple import SimpleAuthnUserAuth
+from weblab.core.login.simple import SimpleAuthnUserAuth
 
 #######################################################################
 # 

@@ -16,7 +16,7 @@
 import re
 import hashlib
 
-from weblab.login.simple import SimpleAuthnUserAuth
+from weblab.core.login.simple import SimpleAuthnUserAuth
 
 import weblab.db.exc as DbErrors
 

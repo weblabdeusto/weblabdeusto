@@ -48,7 +48,7 @@ class WebProtocolUserAuth(UserAuth):
 #      refer to this module.
 # 
 
-from weblab.login.web import EXTERNAL_MANAGERS
+from weblab.core.login.web import EXTERNAL_MANAGERS
 
 def create_user_auth(name, auth_configuration, user_auth_configuration):
     if name in SIMPLE_PLUGINS:
@@ -63,9 +63,9 @@ def create_user_auth(name, auth_configuration, user_auth_configuration):
     raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
 
-from weblab.login.simple.db_auth import WebLabDbUserAuth
-from weblab.login.simple.ldap_auth import LdapUserAuth
-from weblab.login.simple.ip_auth import TrustedIpAddressesUserAuth
+from weblab.core.login.simple.db_auth import WebLabDbUserAuth
+from weblab.core.login.simple.ldap_auth import LdapUserAuth
+from weblab.core.login.simple.ip_auth import TrustedIpAddressesUserAuth
 
 SIMPLE_PLUGINS = {
     WebLabDbUserAuth.NAME           : WebLabDbUserAuth,

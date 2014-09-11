@@ -15,7 +15,7 @@
 
 import urlparse
 
-from weblab.login.web import WEB_PLUGINS
+from weblab.core.login.web import WEB_PLUGINS
 from werkzeug import Request
 
 from weblab.comm.context import create_context, delete_context
