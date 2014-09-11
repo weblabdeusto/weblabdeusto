@@ -1,3 +1,5 @@
+REFRESH_DATA_INTERVAL = 1000;
+
 //! CLASS meant to contain the experiment and the logic that is not
 //! specific to an instance. It will handle the creation of the appropriate
 //! Archimedes Instances.
@@ -150,7 +152,7 @@ ArchimedesExperiment = function (registry, view) {
                 });
 
                 // Invoke a refresh again in some seconds.
-                that._refresh_timer = setTimeout(that.startRefreshingData, 3000);
+                that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
             },
             function() {
                 console.error("[Error]: Refreshing data");

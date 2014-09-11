@@ -241,7 +241,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				if(responseCommand.getCommandString().startsWith("File send")) {
+				if(responseCommand.getCommandString().startsWith("File sen")) {
 					RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
 					RobotMovementExperiment.this.messages.setText(i18n.youCanControlTheBot());
 					RobotMovementExperiment.this.messages.stop();

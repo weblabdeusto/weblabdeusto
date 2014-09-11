@@ -33,10 +33,22 @@ from voodoo.gen.loader.ConfigurationParser import GlobalParser
 #      W E B L A B     R U N N I N G      A N D     S T O P P I N G 
 # 
 # 
-# 
+#
+
+def check_pid(pid):
+    """
+    Check if a process with the specified PID is currently running.
+    """
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    else:
+        return True
+
 
 def weblab_start(directory):
-    parser = OptionParser(usage="%prog create DIR [options]")
+    parser = OptionParser(usage="%prog start DIR [options]")
 
     parser.add_option("-m", "--machine",           dest="machine", default=None, metavar="MACHINE",
                                                    help = "If there is more than one machine in the configuration, which one should be started.")
@@ -57,6 +69,18 @@ def weblab_start(directory):
 
     old_cwd = os.getcwd()
     os.chdir(directory)
+
+    # Ensure we aren't already running. The check is not currently supported on Windows.
+    if sys.platform.lower().startswith('win'):
+        if os.path.exists("weblab.pid"):
+            pid = int(open("weblab.pid").read())
+            running = check_pid(pid)
+            if not running:
+                os.remove("weblab.pid")
+            else:
+                print >> sys.stderr, "Error: WebLab-Deusto instance seems to be running already!"
+                sys.exit(-1)
+
     try:
         if options.script: # If a script is provided, ignore the rest
             if os.path.exists(options.script):

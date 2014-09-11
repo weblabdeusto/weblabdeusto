@@ -178,6 +178,7 @@ class Creation(object):
     COORD_REDIS_DB     = 'coord_redis_db'
     COORD_REDIS_PASSWD = 'coord_redis_passwd'
     COORD_REDIS_PORT   = 'coord_redis_port'
+    COORD_REDIS_HOST   = 'coord_redis_host'
 
     # Other
     NOT_INTERACTIVE      = 'not_interactive'
@@ -427,6 +428,9 @@ def _build_parser():
 
     parser.add_option("-v", "--verbose",          dest = Creation.VERBOSE, action="store_true", default=False,
                                                    help = "Show more information about the process.")
+
+    parser.add_option("--not-interactive",          dest = Creation.NOT_INTERACTIVE, action="store_true", default=False,
+                                                   help = "Run the script in not interactive mode. Recommended for scripts only.")
 
     parser.add_option("--add-test-data",          dest = Creation.ADD_TEST_DATA, action="store_true", default=False,
                                                   help = "Populate the database with sample data")
@@ -680,6 +684,9 @@ def _build_parser():
     coord.add_option("--coordination-redis-passwd",  dest = Creation.COORD_REDIS_PASSWD,   type="string", default=None,
                                                   help = "Coordination redis password used, if the coordination is based on redis.")
 
+    coord.add_option("--coordination-redis-host",  dest = Creation.COORD_REDIS_HOST,   type="string", default=None,
+                                                  help = "Coordination redis host used, if the coordination is based on redis.")
+
     coord.add_option("--coordination-redis-port",  dest = Creation.COORD_REDIS_PORT,   type="int", default=None,
                                                   help = "Coordination redis port used, if the coordination is based on redis.")
 
@@ -718,7 +725,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options_dict is None:
         parser_options, _ = parser.parse_args()
         options = OptionWrapper(parser_options)
-        options[Creation.NOT_INTERACTIVE] = False
     else:
         options = parser.defaults.copy()
         options[Creation.NOT_INTERACTIVE] = True
@@ -826,7 +832,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         redis_passwd = options[Creation.COORD_REDIS_PASSWD]
         redis_port   = options[Creation.COORD_REDIS_PORT]
         redis_db     = options[Creation.COORD_REDIS_DB]
-        redis_host   = None
+        redis_host   = options[Creation.COORD_REDIS_HOST]
         _test_redis('coordination', verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func)
         creation_results[CreationResult.COORD_REDIS_PORT] = redis_port
         creation_results[CreationResult.COORD_REDIS_DB]   = redis_db
@@ -1131,6 +1137,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "%(coord_redis)scoordinator_redis_db       = %(core_coordinator_redis_db)r\n"
                         "%(coord_redis)scoordinator_redis_password = %(core_coordinator_redis_password)r\n"
                         "%(coord_redis)scoordinator_redis_port     = %(core_coordinator_redis_port)r\n"
+                        "%(coord_redis)scoordinator_redis_host     = %(core_coordinator_redis_host)r\n"
                         "\n"
                         "%(coord_db)score_coordinator_db_name      = %(core_coordinator_db_name)r\n"
                         "%(coord_db)score_coordinator_db_engine    = %(core_coordinator_db_engine)r\n"
@@ -1195,6 +1202,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'core_coordinator_redis_db'               : options[Creation.COORD_REDIS_DB],
         'core_coordinator_redis_password'         : options[Creation.COORD_REDIS_PASSWD],
         'core_coordinator_redis_port'             : options[Creation.COORD_REDIS_PORT],
+        'core_coordinator_redis_host'             : options[Creation.COORD_REDIS_HOST],
 
         'core_coordinator_db_username'            : options[Creation.COORD_DB_USER],
         'core_coordinator_db_password'            : options[Creation.COORD_DB_PASSWD],
