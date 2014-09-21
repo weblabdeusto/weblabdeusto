@@ -191,10 +191,15 @@ CORE_FACADE_SERVER_ROUTE            = 'core_facade_server_route'
 CORE_FACADE_JSON_BIND               = 'core_facade_json_bind'
 CORE_FACADE_JSON_PORT               = 'core_facade_json_port'
 
+CORE_FACADE_BIND                    = 'core_facade_bind'
+CORE_FACADE_PORT                    = 'core_facade_port'
+
 _sorted_variables.extend([
     (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, basestring, '',                        """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, basestring, '',                 """Binding address for the JSON facade at Core Server""")),
     (CORE_FACADE_JSON_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_BIND,                    _Argument(CORE_FACADE, basestring, '',                 """Binding address for the main facade at Core server""")), 
+    (CORE_FACADE_PORT,                    _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the main facade at Core Server""")),
 ])
 
 # 

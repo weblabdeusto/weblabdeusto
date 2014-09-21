@@ -122,6 +122,8 @@ core_experiment_poll_time = 15 # seconds
 core_facade_json_bind      = ''
 core_facade_json_port        = 18345
 
+core_facade_port = 18346
+
 admin_facade_json_port       = 19545
 
 core_web_facade_port         = 19645
