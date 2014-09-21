@@ -530,32 +530,6 @@ class UserProcessingServer(object):
         self._check_reservation_not_expired_and_poll( reservation_processor, False )
         return reservation_processor.get_status()
 
-    ######################################
-    #
-    #  Admin services
-    #
-    #
-
-    @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_groups(self, user_processor, session, parent_id=None):
-        return user_processor.get_groups(parent_id)
-
-
-    @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_experiments(self, user_processor, session):
-        return user_processor.get_experiments()
-
-
-    @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_experiment_uses(self, user_processor, session, from_date=None, to_date=None, group_id=None, experiment_id=None, start_row=None, end_row=None, sort_by=None):
-        return user_processor.get_experiment_uses(from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
     @logged(log.level.Info)
     @check_session(**check_session_params)
     @load_user_processor
@@ -567,30 +541,6 @@ class UserProcessingServer(object):
     @load_user_processor
     def get_experiment_uses_by_id(self, user_processor, session, reservation_ids):
         return user_processor.get_experiment_uses_by_id(reservation_ids)
-
-    @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_roles(self, user_processor, session):
-        return user_processor.get_roles()
-
-
-    @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_users(self, user_processor, session):
-        """
-        get_users(user_processor, session)
-
-        Receives the get_users petition sent by the client and handles the request through
-        a user processor for the calling session.
-
-        @param user_processor UserProcessor object through which to handle the request
-        @param session Session string
-        @return List of users and their data
-        """
-        return user_processor.get_users()
-
 
     @logged(log.level.Info)
     @check_session(**check_session_params)

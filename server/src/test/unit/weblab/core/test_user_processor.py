@@ -167,21 +167,6 @@ class FakeDatabase(object):
     def get_user_by_name(self, db_session_id):
         return self.users[0]
 
-    def get_groups(self, db_session_id):
-        return self.groups
-
-    def get_roles(self, db_session_id):
-        return self.roles
-
-    def get_users(self, db_session_id):
-        return self.users
-
-    def get_experiments(self, db_session_id):
-        return self.experiments
-
-    def get_experiment_uses(self, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        return self.experiment_uses
-
 class FakeLocator(object):
     def __init__(self, lab):
         self.lab = lab

@@ -562,34 +562,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
 
-        experiments = self.gateway.get_experiments(student2.login)
-        self.assertEquals(len(experiments), 0)
-
-    def test_get_experiment_uses(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = datetime.datetime.utcnow()
-        to_date = datetime.datetime.utcnow()
-        group_id = 1
-        experiment_id = 1
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
-    def test_get_experiment_uses_with_null_params(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = None
-        to_date = None
-        group_id = None
-        experiment_id = None
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
-
 def suite():
     return unittest.makeSuite(DatabaseGatewayTestCase)
 

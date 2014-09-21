@@ -39,14 +39,8 @@ _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor"
 
 #TODO: configuration
 LIST_EXPERIMENTS_CACHE_TIME     = 15  # seconds
-GET_GROUPS_CACHE_TIME           = 15  # seconds
-GET_ROLES_CACHE_TIME            = 15  # seconds
-GET_USERS_CACHE_TIME            = 15  # seconds
-GET_EXPERIMENTS_CACHE_TIME      = 15  # seconds
-GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
 GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
 GET_USER_PERMISSIONS_CACHE_TIME = 200 # seconds
-GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
 DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
 EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
 
@@ -64,34 +58,10 @@ def list_experiments(db_manager, db_session_id):
 def get_user_information(db_manager, db_session_id):
     return db_manager.get_user_by_name(db_session_id.username)
 
-@cache(GET_GROUPS_CACHE_TIME, _resource_manager)
-def get_groups(db_manager, db_session_id, parent_id):
-    return db_manager.get_groups(db_session_id.username, parent_id)
-
-@cache(GET_ROLES_CACHE_TIME, _resource_manager)
-def get_roles(db_manager, db_session_id):
-    return db_manager.get_roles(db_session_id.username)
-
-@cache(GET_USERS_CACHE_TIME, _resource_manager)
-def get_users(db_manager, db_session_id):
-    """ Retrieves the users from the database, through the database manager. """
-    return db_manager.get_users(db_session_id.username)
-
-@cache(GET_EXPERIMENTS_CACHE_TIME, _resource_manager)
-def get_experiments(db_manager, db_session_id):
-    return db_manager.get_experiments(db_session_id.username)
-
-@cache(GET_EXPERIMENT_USES_CACHE_TIME, _resource_manager)
-def get_experiment_uses(db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-    return db_manager.get_experiment_uses(db_session_id.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
 @cache(GET_USER_PERMISSIONS_CACHE_TIME, _resource_manager)
 def get_user_permissions(db_manager, db_session_id):
     return db_manager.get_user_permissions(db_session_id.username)
 
-@cache(GET_PERMISSION_TYPES_CACHE_TIME, _resource_manager)
-def get_permission_types(db_manager, db_session_id):
-    return db_manager.get_permission_types(db_session_id.username)
 
 class UserProcessor(object):
     """
@@ -311,39 +281,6 @@ class UserProcessor(object):
             log.log(UserProcessor, log.level.Debug, "Reservation %s is cancelled due to expired session: %s" % (reservation_id, ese))
             return CancelledReservationResult()
 
-
-    #
-    # admin service
-    #
-
-    def get_users(self):
-        """
-        Retrieves the users from the database itself.
-        """
-        db_session_id        = self._session['db_session_id']
-        return get_users(self._db_manager, db_session_id)
-
-    def get_groups(self, parent_id=None):
-        db_session_id         = self._session['db_session_id']
-        return get_groups(self._db_manager, db_session_id, parent_id)
-
-    def get_roles(self):
-        db_session_id         = self._session['db_session_id']
-        return get_roles(self._db_manager, db_session_id)
-
-    def get_experiments(self):
-        db_session_id         = self._session['db_session_id']
-        return get_experiments(self._db_manager, db_session_id)
-
-    def get_experiment_uses(self, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        db_session_id         = self._session['db_session_id']
-        return get_experiment_uses(self._db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
     def get_user_permissions(self):
         db_session_id         = self._session['db_session_id']
         return get_user_permissions(self._db_manager, db_session_id)
-
-    def get_permission_types(self):
-        db_session_id         = self._session['db_session_id']
-        return get_permission_types(self._db_manager, db_session_id)
-

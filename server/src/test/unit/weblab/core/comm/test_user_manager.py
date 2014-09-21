@@ -88,12 +88,6 @@ class MockUPS(object):
     send_async_command        = generate_mock_method('send_async_command',        ('session_id', 'command'))
     poll                      = generate_mock_method('poll',                      ('session_id',))
     get_user_information      = generate_mock_method('get_user_information',      ('session_id',))
-    get_roles                 = generate_mock_method('get_roles',                 ('session_id',))
-    get_groups                = generate_mock_method('get_groups',                ('session_id',))
-    get_users                 = generate_mock_method('get_users',                 ('session_id',))
-    get_experiments           = generate_mock_method('get_experiments',           ('session_id',))
-    get_experiment_uses       = generate_mock_method('get_experiment_uses',       ('session_id', 'from_date', 'to_date', 'group_id', 'experiment_id', 'start_row', 'end_row', 'sort_by'))
-    get_user_permissions      = generate_mock_method('get_user_permissions',      ('session_id',))
     get_experiment_use_by_id  = generate_mock_method('get_experiment_use_by_id',  ('session_id','reservation_id'))
     get_experiment_uses_by_id = generate_mock_method('get_experiment_uses_by_id', ('session_id','reservation_ids'))
 
@@ -251,66 +245,6 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
         self.assertEquals( expected_user_information.full_name, user_information.full_name )
         self.assertEquals( expected_user_information.email, user_information.email )
         self.assertEquals( expected_user_information.role.name, user_information.role.name )
-
-    def test_return_get_groups(self):
-        expected_sess_id = {'id' : 'whatever'}
-        groups = self._generate_groups()
-
-        self.mock_ups.return_values['get_groups'] = groups
-
-        self.assertEquals( groups, self.rfm.get_groups(expected_sess_id) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_groups'][0].id )
-
-    def test_return_get_users(self):
-        expected_sess_id = {'id' : "whatever"}
-        users = self._generate_users()
-
-        self.mock_ups.return_values['get_users'] = users
-
-        self.assertEquals( users, self.rfm.get_users(expected_sess_id) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_users'][0].id )
-
-
-    def test_return_get_roles(self):
-        expected_sess_id = {'id' : "whatever"}
-        roles = self._generate_roles()
-
-        self.mock_ups.return_values['get_roles'] = roles
-
-        self.assertEquals( roles, self.rfm.get_roles(expected_sess_id) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_roles'][0].id )
-
-
-    def test_return_get_experiments(self):
-        expected_sess_id = {'id' : "whatever"}
-        experiments = self._generate_experiments()
-
-        self.mock_ups.return_values['get_experiments'] = experiments
-
-        self.assertEquals( experiments, self.rfm.get_experiments(expected_sess_id) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_experiments'][0].id )
-
-    def test_return_get_experiment_uses(self):
-        expected_sess_id = {'id' : "whatever"}
-        experiment_uses = _generate_experiment_uses()
-
-        self.mock_ups.return_values['get_experiment_uses'] = experiment_uses
-
-        self.assertEquals( experiment_uses, self.rfm.get_experiment_uses(expected_sess_id, None, None, None, None, None, None, None) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_experiment_uses'][0].id )
-        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][1] )
-        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][2] )
-        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][3] )
-        self.assertEquals( None, self.mock_ups.arguments['get_experiment_uses'][4] )
-
-    def test_return_get_user_permissions(self):
-        expected_sess_id = {'id' : "whatever"}
-        permissions = _generate_permissions()
-
-        self.mock_ups.return_values['get_user_permissions'] = permissions
-
-        self.assertEquals( permissions, self.rfm.get_user_permissions(expected_sess_id) )
-        self.assertEquals( expected_sess_id['id'], self.mock_ups.arguments['get_user_permissions'][0].id )
 
     def _generate_real_mock_raising(self, method, exception, message):
         self.mock_ups.exceptions[method] = exception(message)

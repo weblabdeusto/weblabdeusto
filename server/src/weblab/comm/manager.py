@@ -66,13 +66,6 @@ def check_exceptions(exceptions_to_check):
         return wrapper
     return real_check_exceptions
 
-def check_nullable(func):
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        response = func(self, *args, **kwargs)
-        return self._check_nullable_response(response)
-    return wrapper
-
 class AbstractRemoteFacadeManager(object):
     def __init__(self, cfg_manager, server):
         super(AbstractRemoteFacadeManager, self).__init__()
