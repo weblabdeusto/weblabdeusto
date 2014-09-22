@@ -1,0 +1,26 @@
+{% set title="My Experiments" %}
+{% extends "_logged_base.html" %}
+{% block body %}
+{{ super() }}
+
+<center>
+    <h2>My Experiments</h2>
+<center>
+
+<div class="container">
+    {% for category in "Aquatic experiments", "Control experiments", "Dummy experiments", "FPGA experiments", "Farm experiments", "Games" %}
+        <div class="col-lg-3">
+            <h4>{{ category }}</h4>
+            <table>
+            {% for experiment_id in range((category|length) // 2) %}
+                <tr>
+                    <td><a href="lab.html">experiment_{{ experiment_id }}</a></td>
+                    <td><a href="lab.html">ICON</a></td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

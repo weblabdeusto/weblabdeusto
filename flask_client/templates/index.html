@@ -1,0 +1,57 @@
+{% set link="home" %}
+{% set title="Log in" %}
+{% extends "_base.html" %}
+{% block body %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-lg-4">
+            <form action="{{ action_url }}" method="POST" class="form-horizontal">
+                <div id="legend">
+                      <legend class="">Log in</legend>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="username">Username</label>
+                    <div class="controls">
+                        <input type="text" name="username" placeholder="Username" id="username" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label" for="username">Password</label>
+                    <div class="controls">
+                        <input type="password" name="password" placeholder="Password" id="password" class="form-control">
+                    </div>
+                </div>
+
+                <input type="submit"  class="btn btn-success" value="Log in »">
+            </form>
+
+            <p>Some experiments allow guest access</p>
+            <a href="labs.html"  class="btn btn-default">Log in as guest</a>
+
+            <p>Don't have an account? Create one through Facebook</p>
+            <a href="" class="btn btn-default">Create an account</a>
+        </div>
+
+        <div class="col-lg-5 col-lg-push-3">
+            <h2>WebLab-Deusto</h2>
+            <p>WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the university, having the same experience as if in traditional hands-on-lab sessions. There is more information regarding the project in the WebLab-Deusto Research Group site.</p>
+            
+            <h3>Support</h3>
+            <p>For any technical issue you may find, please contact us at weblab@deusto.es</p>
+
+            <h3>Demo</h3>
+            <p>If you do not have a user account, you can try our demo experiments with the username demo and the password demo.</p>
+
+            <h3>Open Source</h3>
+            <p>WebLab-Deusto is Open Source Software, and it is available in https://github.com/weblabdeusto/weblabdeusto/</h3>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
