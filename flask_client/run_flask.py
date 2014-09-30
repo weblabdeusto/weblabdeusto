@@ -1,3 +1,3 @@
 from flaskclient import flask_app
 
-flask_app.run()
+flask_app.run(debug=True)
