@@ -29,7 +29,7 @@ WeblabWeb = new function()
     //
     ///////////////////////////////////////////////////////////////
 
-    var BASE_URL = "www.weblab.deusto.es/weblab";
+    var BASE_URL = "//www.weblab.deusto.es/weblab";
 
 
     //! Internal send function. It will send the request to the target URL.
@@ -39,7 +39,7 @@ WeblabWeb = new function()
     //! @param request: The JSON-able to send. This method will not check whether the format of the JSON-able is
     //! right or not. It is assumed it is. This should be a JSON-able object and NOT a JSON string.
     //!
-    //! @return: Promise, whose .done or .fail will be invoked depending on the success of the request.
+    //! @return: Promise, whose .done(result_field) or .fail will be invoked depending on the success of the request.
     //!
     this._send = function(targetURL, request, successHandler) {
 
@@ -74,8 +74,9 @@ WeblabWeb = new function()
                     return;
                 }
 
-                // The request, whatever it contains, was apparently successful. We call the success handler.
-                promise.resolve(success);
+                // The request, whatever it contains, was apparently successful. We call the success handler, passing
+                // the result field.
+                promise.resolve(result);
             }, "json"
         ).fail(function(fail){
                 console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + targetURL);
@@ -93,26 +94,57 @@ WeblabWeb = new function()
     //!
     //! @param account: Account name.
     //! @param password: Password.
-    //! @return: Promise. Done will be called if success, Fail otherwise.
+    //! @return: Promise. Done(sessionid) will be called if success, Fail otherwise.
     this._login = function(account, password)
     {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/login/json",
+        this._send(BASE_URL + "/login/json/",
             {
+                "method": "login",
                 "params": {
                     "username": account,
                     "password": password
                 }
             }
         ).done(function(response){
-                promise.resolve(response);
+                // Parse the response.
+                var sessionid = response["id"];
+                promise.resolve(sessionid);
             }).fail(function(response){
                 promise.reject(response);
             });
 
         return promise;
     };
+
+
+    //! Retrieves information from a session's user.
+    //!
+    //! @param sessionid: Session ID of the user to retrieve information about.
+    //! @param Promise with .done(information) or .fail().
+    this._get_user_information = function(sessionid)
+    {
+        var promise = $.Deferred();
+
+        this._send(BASE_URL + "/json/",
+            {
+                "method": "get_user_information",
+                "params": {
+                    "session_id": {"id": sessionid}
+                }
+            }).done(function(response){
+                // Parse the response.
+                promise.resolve(response);
+            }).fail(function(response){
+
+            });
+
+        return promise;
+    };
+
+
+
 
 
     ///////////////////////////////////////////////////////////////
