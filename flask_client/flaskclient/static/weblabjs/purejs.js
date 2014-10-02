@@ -94,7 +94,7 @@ Weblab = new function()
     }; //!_poll
 
 
-    //! Internal send function. It will send the request to the target URL.
+    //! Internal send function. It will send the request to the target URL.l
     //! Meant only for internal use. If an error occurs (network error, "is_exception" to true, or other) then
     //! the exception will be printed to console, and nothing else will happen (as of now).
     //!

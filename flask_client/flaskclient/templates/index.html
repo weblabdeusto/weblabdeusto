@@ -3,11 +3,10 @@
 {% extends "_base.html" %}
 {% block body %}
 
-<div class="container">
-
     <div class="row">
-        <div class="col-lg-4">
-            <form action="{{ action_url }}" method="POST" class="form-horizontal">
+        <div class="col-lg-4" style="padding-left: 40px">
+
+            <form action="{{ action_url }}" method="POST" class="form-horizontal" role="form">
                 <div id="legend">
                       <legend class="">Log in</legend>
                 </div>
@@ -26,14 +25,21 @@
                     </div>
                 </div>
 
-                <input type="submit"  class="btn btn-success" value="Log in »">
+                <div class="form-group">
+                    <input type="submit"  class="btn btn-success" value="Log in »">
+                </div>
+
             </form>
 
-            <p>Some experiments allow guest access</p>
-            <a href="labs.html"  class="btn btn-default">Log in as guest</a>
+            <div style="margin-top: 40px">
+                <p style="line-height:0.5em">Some experiments allow guest access:</p>
+                <a href="labs.html" id="guestlogin" class="btn btn-default">Log in as guest</a>
+            </div>
 
-            <p>Don't have an account? Create one through Facebook</p>
-            <a href="" class="btn btn-default">Create an account</a>
+            <div style="margin-top: 20px">
+                <p style="line-height:0.5em">Don't have an account? Create one through Facebook:</p>
+                <a href="" id="createaccount" class="btn btn-default">Create an account</a>
+            </div>
         </div>
 
         <div class="col-lg-5 col-lg-push-3">
@@ -51,7 +57,6 @@
         </div>
     </div>
 
-</div>
 
 {% endblock %}
 
