@@ -134,17 +134,39 @@ WeblabWeb = new function()
                     "session_id": {"id": sessionid}
                 }
             }).done(function(response){
-                // Parse the response.
+                // The response by itself is a JSON-dictionary containing the information.
                 promise.resolve(response);
             }).fail(function(response){
-
+                promise.reject(response);
             });
 
         return promise;
     };
 
 
+    //! Retrieves the list of available experiments for the user.
+    //!
+    //! @param sessionid: Session ID of the user to retrieve information about.
+    //! @param Promise with .done(information) or .fail().
+    this._list_experiments = function(sessionid)
+    {
+        var promise = $.Deferred();
 
+        this._send(BASE_URL + "/json/",
+            {
+                "method": "list_experiments",
+                "params": {
+                    "session_id": {"id": sessionid}
+                }
+            }).done(function(response){
+                // The response by itself is a JSON list containing the experiments.
+                promise.resolve(response);
+            }).fail(function(response){
+                promise.reject(response);
+            });
+
+        return promise;
+    };
 
 
     ///////////////////////////////////////////////////////////////
