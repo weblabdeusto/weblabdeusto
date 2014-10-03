@@ -2,6 +2,7 @@
 // Global to store sessions.
 var GDATA = {};
 
+// Method to create a new Session.
 exports.start = function(req, res) {
 
 //    console.log( JSON.stringify(req.body) );
@@ -27,33 +28,30 @@ exports.start = function(req, res) {
 
     var link = "/lab/" + sessionid;
 
+    console.log(GDATA[sessionid]);
+
     res.send({"url": link, "session_id": sessionid});
 };
 
 
-
-
-
-//
-//    # Create a global session
-//    session_id = str(random.randint(0, 10e8)) # Not especially secure 0:-)
-//    DATA[session_id] = {
-//        'username'  : server_initial_data['requ
-// est.username'],
-//        'max_date'  : max_date,
-//        'last_poll' : datetime.datetime.now(),
-//        'back'      : request_data['back']
-//    }
-//
-//    link = url_for('index', session_id=session_id, _external = True)
-//    print "Assigned session_id: %s" % session_id
-//    print "See:",link
-//    return json.dumps({ 'url' : link, 'session_id' : session_id })
-
-
-
 exports.index = function() {};
 
-exports.status = function() {};
 
-exports.dispose = function() {};
+// Method to check the status of an existing session.
+exports.status = function(req, res)
+{
+    var sessionid = req.query.sessionid;
+
+    var session = GDATA["sessionid"];
+
+    if(sessionn != undefined) {
+        console.log("Still time left");
+    } else {
+        req.send({"should_finish": -1});
+    }
+};
+
+
+exports.dispose = function(req, res) {
+    // Not yet implemented.
+};
