@@ -183,10 +183,6 @@ CameraRefresher = function (img_id) {
     };
 
     this._get_timestamped_url = function (url) {
-
-        // TIMESTAMPING IS DISABLED FOR TESTING PURPOSES.
-        return url;
-
         if (url.search("\\?") != -1) {
             return url + "&__ts=" + new Date().getTime();
         } else {
