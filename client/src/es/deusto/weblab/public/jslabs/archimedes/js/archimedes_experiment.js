@@ -77,7 +77,7 @@ ArchimedesExperiment = function (registry, view) {
 
             // Declare onStartInteraction listener.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
-                
+
                 showFrame();
 
                 if(typeof(initial_config) === "string") {
@@ -122,8 +122,10 @@ ArchimedesExperiment = function (registry, view) {
     this.startRefreshingData = function() {
         var that = this;
         var command = "ALLINFO";
+
+        var that = this;
         $.each(View, function(name, data) {
-            var instance = this.instances[name];
+            var instance = that.instances[name];
 
             // Do not request updates for paused instances.
             if(instance.paused == false)
