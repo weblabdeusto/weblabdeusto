@@ -12,6 +12,10 @@ ArchimedesInstance = function (instanceid) {
         "ball.weight": 0
     };
 
+    // If an instance is paused then it is generally not being shown, and webcam and commands
+    // should not be refreshed / sent.
+    this.paused = false;
+
     // Simple utility function to retrieve a CSS selector for an
     // instance-specific ID.
     function getidselect(id) {
@@ -33,6 +37,19 @@ ArchimedesInstance = function (instanceid) {
         // TODO: Remove this.
         //this._retrieveLoadController.stop();
         //this._retrieveLevelController.stop();
+    };
+
+
+    // Pauses this instance (stops refreshing webcam, etc)
+    this.pause = function() {
+        this.cameraRefresher.stop();
+        this.paused = true;
+    };
+
+    // resumes this instance (refreshes webcam again, etc)
+    this.resume = function() {
+        this.cameraRefresher.start();
+        this.paused = false;
     };
 
 

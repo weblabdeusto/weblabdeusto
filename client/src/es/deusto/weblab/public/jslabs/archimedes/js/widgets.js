@@ -228,6 +228,8 @@ CameraRefresher = function (img_id) {
         this.stop();
 
 
+        console.log("ON");
+
         // Register the image loaded listener.
         $img.on("load", function () {
             this._onLoad();
@@ -241,7 +243,6 @@ CameraRefresher = function (img_id) {
     //! Stops refreshing.
     //!
     this.stop = function () {
-
         // Remove the load listener.
         $img.off("load");
 

@@ -123,7 +123,13 @@ ArchimedesExperiment = function (registry, view) {
         var that = this;
         var command = "ALLINFO";
         $.each(View, function(name, data) {
-            command += ":" + name;
+            var instance = this.instances[name];
+
+            // Do not request updates for paused instances.
+            if(instance.paused == false)
+            {
+                command += ":" + name;
+            }
         });
 
         Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');

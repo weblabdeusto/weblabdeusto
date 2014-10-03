@@ -124,12 +124,17 @@
             changed.toggleClass("btn-success");
             changed.toggleClass("btn-info");
 
+            // Find the related instance.
+            var instance = archimedesExperiment.instances[instance_name];
+
             if(changed.find("input").prop("checked")) {
-                // Show
-                $("#" + instance_name + "-experiment-instance").fadeOut(600);
-            } else {
                 // Hide
+                $("#" + instance_name + "-experiment-instance").fadeOut(600);
+                instance.pause(); // Resume webcam etc.
+            } else {
+                // Show
                 $("#" + instance_name + "-experiment-instance").fadeIn(600);
+                instance.resume(); // Stop webcam etc.
             }
         });
     }
