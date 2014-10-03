@@ -48,11 +48,11 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6"
         },
         "archimedes7" : {
-            "ball_mass": 20,
-            "ball_density": 60,
-            "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
+            "ball_mass": 75,
+            "ball_density": 50,
+            "liquid_density": 980, // 1000/m3
+            "liquid_diameter": 6.8, // cm
+            "liquid_name": "Wood",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7"
         }
     };
