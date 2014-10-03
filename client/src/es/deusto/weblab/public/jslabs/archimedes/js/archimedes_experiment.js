@@ -77,6 +77,8 @@ ArchimedesExperiment = function (registry, view) {
 
             // Declare onStartInteraction listener.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
+                
+                showFrame();
 
                 if(typeof(initial_config) === "string") {
                     var config = JSON.parse(initial_config);
@@ -92,8 +94,6 @@ ArchimedesExperiment = function (registry, view) {
                 }
 
                 this.startRefreshingData();
-
-                showFrame();
 
                 $.each(this.instances, function (instanceid, instance) {
                     instance.handleStartInteraction();
