@@ -6,7 +6,7 @@
 
 module.exports = function(app) {
     var weblab = require("./controllers/weblab");
-    app.get("/sample/weblab/sessions/", weblab.start);
+    app.post("/sample/weblab/sessions/", weblab.start);
     app.get("/lab/:sessionid", weblab.index);
     app.get("/sample/weblab/sessions/:sessionid/status", weblab.status);
     app.post("/sample/weblab/sessions/:sessionid", weblab.dispose);

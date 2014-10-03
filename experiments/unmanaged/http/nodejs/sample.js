@@ -2,38 +2,26 @@
 var http = require('http');
 var express = require('express');
 
+var app = express();
 
-var server = express();
+// So that the JSON body is parsed automagically.
+app.use(express.bodyParser());
 
-require("./routes")(server);
+app.use(function (req, res, next) {
+  //console.log(req.body) // populated!
+  next()
+});
 
-
-server.get("/", function(req, res) {
+app.get("/", function(req, res) {
     res.send("Hello");
 });
 
 
-server.post("/sample/weblab/sessions/", function(req, res) {
 
-});
-
-
-
+// This should be included *after* the app.use statements.
+// Otherwise bodyParser doesn't apply etc.
+var routes = require("./routes")(app);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-server.listen(5000, '127.0.0.1');
+app.listen(5000, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:5000/');
