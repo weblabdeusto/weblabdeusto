@@ -37,7 +37,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.5, // cm
             "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5"
         },
         "archimedes6" : {
             "ball_mass": 20,
@@ -45,7 +45,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.5, // cm
             "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6"
         },
         "archimedes7" : {
             "ball_mass": 20,
@@ -53,7 +53,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.5, // cm
             "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7"
         }
     };
 
