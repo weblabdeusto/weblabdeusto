@@ -10,7 +10,17 @@ exports.GEXPIRED = GEXPIRED;
 // This is called by the Weblab Core when reserve.
 exports.start = function(req, res) {
 
-//    console.log( JSON.stringify(req.body) );
+    // console.log( JSON.stringify(req.body) );
+
+    if(req.body["client_initial_data"] == undefined) {
+        res.status(400).send("client_initial_data not provided");
+        return;
+    }
+
+    if(req.body["server_initial_data"] == undefined) {
+        res.status(400).send("server_initial_data not provided");
+        return;
+    }
 
     var client_initial_data = JSON.parse(req.body["client_initial_data"]);
     var server_initial_data = JSON.parse(req.body["server_initial_data"]);
@@ -33,16 +43,17 @@ exports.start = function(req, res) {
 
     var link = "/lab/" + sessionid;
 
-    console.log(GDATA[sessionid]);
+    //console.log(GDATA[sessionid]);
 
     res.send({"url": link, "session_id": sessionid});
 };
 
 //! Index for authorized users.
+//! This should be the page that serves the laboratory itself.
 //!
 exports.index = function(req, res)
 {
-    var sessionid = req.query.sessionid;
+    var sessionid = req.params.sessionid;
     var session = GDATA[sessionid];
 
     if(session == undefined)
@@ -50,7 +61,7 @@ exports.index = function(req, res)
         var back_url = GEXPIRED[sessionid];
         if(back_url == undefined)
         {
-            res.send("Session identifier not found");
+            res.status(404).send("Session identifier not found");
             return;
         }
         else
@@ -63,7 +74,7 @@ exports.index = function(req, res)
 
     res.send("<html><body>Hello</body></html>")
     return;
-}
+};
 
 
 //    data['last_poll'] = datetime.datetime.now()
@@ -81,13 +92,17 @@ exports.index = function(req, res)
 
 //! Checks the status of an existing session.
 //!
+//! It will return the number of seconds before Weblab should query again,
+//! (which is usually 10 seconds), or -1 if the session has expired.
 exports.status = function(req, res)
 {
-    var sessionid = req.query.sessionid;
+    var sessionid = req.params.sessionid;
     var session = GDATA[sessionid];
+
 
     if(session != undefined) {
         console.log("Still time left");
+        res.send({"should_finish": 10});
     } else {
         res.send({"should_finish": -1});
     }
