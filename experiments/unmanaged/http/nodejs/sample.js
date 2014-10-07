@@ -23,5 +23,9 @@ app.get("/", function(req, res) {
 var routes = require("./routes")(app);
 
 
+// So that tests can see it.
+exports.app = app;
+
+
 app.listen(5000, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:5000/');

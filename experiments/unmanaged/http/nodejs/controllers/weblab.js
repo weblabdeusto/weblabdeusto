@@ -1,8 +1,13 @@
 
 // Global to store sessions.
 var GDATA = {};
+var GEXPIRED = {};
 
-// Method to create a new Session.
+exports.GDATA = GDATA;
+exports.GEXPIRED = GEXPIRED;
+
+// Create a new session, whose data will be internally stored.
+// This is called by the Weblab Core when reserve.
 exports.start = function(req, res) {
 
 //    console.log( JSON.stringify(req.body) );
@@ -33,25 +38,80 @@ exports.start = function(req, res) {
     res.send({"url": link, "session_id": sessionid});
 };
 
+//! Index for authorized users.
+//!
+exports.index = function(req, res)
+{
+    var sessionid = req.query.sessionid;
+    var session = GDATA[sessionid];
 
-exports.index = function() {};
+    if(session == undefined)
+    {
+        var back_url = GEXPIRED[sessionid];
+        if(back_url == undefined)
+        {
+            res.send("Session identifier not found");
+            return;
+        }
+        else
+        {
+            return res.redirect(back_url);
+        }
+    }
+
+    session["last_poll"] = new Date();
+
+    res.send("<html><body>Hello</body></html>")
+    return;
+}
 
 
-// Method to check the status of an existing session.
+//    data['last_poll'] = datetime.datetime.now()
+//    return """<html>
+//    <head>
+//        <meta http-equiv="refresh" content="10">
+//    </head>
+//    <body>
+//        Hi %(username)s. You still have %(seconds)s seconds
+//    </body>
+//    </head>
+//    """ % dict(username=data['username'], seconds=(data['max_date'] - datetime.datetime.now()).seconds)
+//};
+
+
+//! Checks the status of an existing session.
+//!
 exports.status = function(req, res)
 {
     var sessionid = req.query.sessionid;
+    var session = GDATA[sessionid];
 
-    var session = GDATA["sessionid"];
-
-    if(sessionn != undefined) {
+    if(session != undefined) {
         console.log("Still time left");
     } else {
-        req.send({"should_finish": -1});
+        res.send({"should_finish": -1});
     }
 };
 
 
+//! Removes the session from the internal DB.
+//!
+//! @return: 'deleted', 'not found' or 'unknown op'
 exports.dispose = function(req, res) {
-    // Not yet implemented.
+    if(req.body["action"] == "delete")
+    {
+        var sessionid = req.params.sessionid;
+        session = GDATA[sessionid];
+        if(session != undefined) {
+            GEXPIRED[sessionid] = session["back"];
+            GDATA[sessionid] = undefined;
+            res.send("deleted");
+            return;
+        }
+        res.send("not found");
+        return;
+    }
+    res.send("unknown op");
+    return;
 };
+
