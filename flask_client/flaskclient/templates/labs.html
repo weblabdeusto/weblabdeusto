@@ -3,6 +3,25 @@
 {% block body %}
 {{ super() }}
 
+
+<script type="x-template" id="template-experiment">
+    <h3>{{ experiment.title }}</h3>
+    <div class="row">
+        <div class="col-sm-2">
+            <img src="http://placehold.it/100x100">
+        </div>
+
+        <div class="col-sm-10">
+            <p>
+                This is the Archimedes experiment, in which the user can check how the Archimedes
+                principle works in practise by controlling any of several balls which can be remotely
+                immersed into water.
+            </p>
+        </div>
+    </div>
+</script>
+
+
 <center>
     <h2>My Experiments</h2>
 </center>
@@ -10,26 +29,9 @@
 <div class="container">
     <div class="row">
         <!-- Column for the labs themselves -->
-        <div class="column col-xs-9">
+        <div class="column col-xs-9" id="experiment-descriptions">
 
-            {% for experiment in [{"title": "Archimedes"}] %}
-
-                <h3>{{ experiment.title }}</h3>
-                <div class="row">
-                    <div class="col-sm-2">
-                        <img src="http://placehold.it/100x100">
-                    </div>
-
-                    <div class="col-sm-10">
-                        <p>
-                            This is the Archimedes experiment, in which the user can check how the Archimedes
-                            principle works in practise by controlling any of several balls which can be remotely
-                            immersed into water.
-                        </p>
-                    </div>
-                </div>
-
-            {% endfor %}
+            <!-- TO BE FILLED WITH EXPERIMENT DESCRIPTIONS -->
 
         </div>
 
@@ -46,4 +48,26 @@
     </div>
 </div>
 
+{% endblock %}
+
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            console.log($.QueryString["sid"]);
+
+            // Load the list of experiments.
+            var sid = $.QueryString["sid"];
+            WeblabWeb._list_experiments(sid)
+                    .done(function(ev){
+                        console.log("List loaded");
+                        console.log(ev);
+                    })
+                    .fail(function(ev){
+                        console.error("List could not be loaded");
+                    });
+        });
+
+
+    </script>
 {% endblock %}

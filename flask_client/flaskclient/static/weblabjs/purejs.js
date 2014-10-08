@@ -4,7 +4,7 @@
 
 // From StackOverflow. To extract parameters from the hash.
 (function($) {
-    $.QueryString = (function(a) {
+    $.HashString = (function(a) {
         if (a == "") return {};
         var b = {};
         for (var i = 0; i < a.length; ++i)
