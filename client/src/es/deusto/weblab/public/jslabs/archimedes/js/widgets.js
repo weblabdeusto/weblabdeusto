@@ -183,10 +183,6 @@ CameraRefresher = function (img_id) {
     };
 
     this._get_timestamped_url = function (url) {
-
-        // TIMESTAMPING IS DISABLED FOR TESTING PURPOSES.
-        return url;
-
         if (url.search("\\?") != -1) {
             return url + "&__ts=" + new Date().getTime();
         } else {
@@ -232,6 +228,8 @@ CameraRefresher = function (img_id) {
         this.stop();
 
 
+        console.log("ON");
+
         // Register the image loaded listener.
         $img.on("load", function () {
             this._onLoad();
@@ -245,7 +243,6 @@ CameraRefresher = function (img_id) {
     //! Stops refreshing.
     //!
     this.stop = function () {
-
         // Remove the load listener.
         $img.off("load");
 
