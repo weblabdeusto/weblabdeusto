@@ -1,26 +1,56 @@
+{% extends "_base.html" %}
 {% set title="My Experiments" %}
-{% extends "_logged_base.html" %}
 {% block body %}
 {{ super() }}
 
-<center>
-    <h2>My Experiments</h2>
-<center>
+{#<center>#}
+{#    <h2>My Experiments</h2>#}
+{#<center>#}
 
 <div class="container">
-    {% for category in "Aquatic experiments", "Control experiments", "Dummy experiments", "FPGA experiments", "Farm experiments", "Games" %}
-        <div class="col-lg-3">
-            <h4>{{ category }}</h4>
-            <table>
-            {% for experiment_id in range((category|length) // 2) %}
-                <tr>
-                    <td><a href="lab.html">experiment_{{ experiment_id }}</a></td>
-                    <td><a href="lab.html">ICON</a></td>
-                </tr>
-            {% endfor %}
-            </table>
+    <div class="row">
+
+        <div class="bg-primary">
+            <p>TESTING</p>
         </div>
-    {% endfor %}
+
+        <!-- Column for the labs themselves -->
+        <div class="column col-xs-10">
+            <p>
+                What is this
+            </p>
+
+{#            {% for experiment in [{"title": "Archimedes"}] %}#}
+{##}
+{#                <div class="row">#}
+{#                    <div class="col-sm-4">#}
+{#                        <img src="http://placehold.it/100x100">#}
+{#                    </div>#}
+{##}
+{#                    <div class="col-sm-8">#}
+{#                        <p>#}
+{#                            This is the Archimedes experiment, in which the user can check how the Archimedes#}
+{#                            principle works in practise by controlling any of several balls which can be remotely#}
+{#                            immersed into water.#}
+{#                        </p>#}
+{#                    </div>#}
+{#                </div>#}
+{##}
+{#            {% endfor %}#}
+
+        </div>
+
+
+        <!-- Column for the categories menu -->
+        <div class="column col-xs-2">
+
+            <p>
+                This should actually contain a menu.
+            </p>
+
+        </div>
+
+    </div>
 </div>
 
 {% endblock %}

@@ -41,7 +41,7 @@ WeblabWeb = new function()
     //!
     //! @return: Promise, whose .done(result_field) or .fail will be invoked depending on the success of the request.
     //!
-    this._send = function(targetURL, request, successHandler) {
+    this._send = function(targetURL, request) {
 
         var promise = $.Deferred();
 

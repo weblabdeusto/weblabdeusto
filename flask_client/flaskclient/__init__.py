@@ -23,3 +23,7 @@ def lab():
 @flask_app.route("/contact.html")
 def contact():
     return render_template("contact.html")
+
+@flask_app.route("/test.html")
+def test():
+    return render_template("test.html")
