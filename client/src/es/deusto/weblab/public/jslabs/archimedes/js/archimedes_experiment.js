@@ -78,6 +78,8 @@ ArchimedesExperiment = function (registry, view) {
             // Declare onStartInteraction listener.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
 
+                showFrame();
+
                 if(typeof(initial_config) === "string") {
                     var config = JSON.parse(initial_config);
                     console.log("Initial config: ");
@@ -92,8 +94,6 @@ ArchimedesExperiment = function (registry, view) {
                 }
 
                 this.startRefreshingData();
-
-                showFrame();
 
                 $.each(this.instances, function (instanceid, instance) {
                     instance.handleStartInteraction();
@@ -122,8 +122,16 @@ ArchimedesExperiment = function (registry, view) {
     this.startRefreshingData = function() {
         var that = this;
         var command = "ALLINFO";
+
+        var that = this;
         $.each(View, function(name, data) {
-            command += ":" + name;
+            var instance = that.instances[name];
+
+            // Do not request updates for paused instances.
+            if(instance.paused == false)
+            {
+                command += ":" + name;
+            }
         });
 
         Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
