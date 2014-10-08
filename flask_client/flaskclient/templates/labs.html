@@ -1,91 +1,139 @@
 {% extends "_logged_base.html" %}
 {% set title="My Experiments" %}
 {% block body %}
-{{ super() }}
+    {{ super() }}
 
 
-{% raw %}
-<script type="x-template" id="template-experiment">
-    <div class="experiment-description" data-name="{{ name }}" data-category="{{ category }}">
-        <h3>{{ name }}</h3>
-        <h4>{{ category }}</h4>
-        <div class="row">
-            <div class="col-sm-2">
-                <img src="http://placehold.it/100x100">
-            </div>
+    {% raw %}
+    <script type="x-template" id="template-experiment">
+        <div class="experiment-description well" data-name="{{ name }}" data-category="{{ category }}">
+            <h3>{{ name }}</h3>
+            <h4>{{ category }}</h4>
 
-            <div class="col-sm-10">
-                <p>
-                    This is the Archimedes experiment, in which the user can check how the Archimedes
-                    principle works in practise by controlling any of several balls which can be remotely
-                    immersed into water.
-                </p>
+            <div class="row">
+                <div class="col-sm-2">
+                    <img src="http://placehold.it/100x100">
+                </div>
+
+                <div class="col-sm-10">
+                    <p>
+                        This is the Archimedes experiment, in which the user can check how the Archimedes
+                        principle works in practise by controlling any of several balls which can be remotely
+                        immersed into water.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-</script>
-{% endraw %}
+    </script>
+
+    <script type="x-template" id="template-menu-item">
+        <li class="menu-item">
+            <a href="#" data-category="{{ category }}">
+                {{ category }} ({{ number }})
+            </a>
+        </li>
+    </script>
+
+    {% endraw %}
 
 
-<center>
-    <h2>My Experiments</h2>
-</center>
+    <center>
+        <h2>My Experiments</h2>
+    </center>
 
-<div class="container">
+    <div class="container">
     <div class="row">
         <!-- Column for the labs themselves -->
         <div class="column col-xs-9" id="experiment-descriptions">
-
-            <!-- TO BE FILLED WITH EXPERIMENT DESCRIPTIONS -->
-
+            <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
         </div>
 
 
         <!-- Column for the categories menu -->
-        <div class="column col-xs-3">
+        <div class="column col-xs-3 well">
 
-            <p>
-                This should actually contain a menu.
-            </p>
+            <div id="wrapper">
+                <legend>
+                    Filter by Category
+                </legend>
+
+                <!-- Sidebar -->
+                <div id="sidebar-wrapper">
+                    <ul class="sidebar-nav" id="menu-categories">
+                        <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
+                    </ul>
+                </div>
+                <!-- /#sidebar-wrapper -->
+            </div>
 
         </div>
-
     </div>
-</div>
 
 {% endblock %}
 
 
 {% block scripts %}
     <script type="text/javascript">
-        $(document).ready(function(){
+        $(document).ready(function () {
             console.log($.QueryString["sid"]);
 
             // Load the list of experiments.
             var sid = $.QueryString["sid"];
             WeblabWeb._list_experiments(sid)
-                    .done(function(experimentsRawList){
+                    .done(function (experimentsRawList) {
                         console.log("List loaded");
                         console.log(experimentsRawList);
 
                         var experiments = buildExperimentsDictionary(experimentsRawList);
                         var experimentTemplate = $("#template-experiment").html();
+                        var categoryMenuItemTemplate = $("#template-menu-item").html();
                         Mustache.parse(experimentTemplate);
+                        Mustache.parse(categoryMenuItemTemplate);
 
-                        $.each(experiments, function(category_name, category) {
-                            $.each(category, function(experiment_name, experiment) {
-                                console.log(experimentTemplate);
+                        // Load & display every single experiment.
+                        $.each(experiments, function (category_name, category) {
+                            $.each(category, function (experiment_name, experiment) {
                                 var experimentRendered = Mustache.render(experimentTemplate, {
-                                    "name": experiment_name,
-                                    "category": category_name}
+                                            "name": experiment_name,
+                                            "category": category_name}
                                 );
-                                console.log(experimentRendered);
                                 $("#experiment-descriptions").append(experimentRendered);
                             });
                         });
 
+
+                        // Load & display the categories in the menu.
+                        $.each(experiments, function (category_name, category) {
+                            var categoryMenuItemRendered = Mustache.render(categoryMenuItemTemplate, {
+                                "category": category_name,
+                                "number": Object.keys(category).length
+                            });
+
+                            var $categoryMenuItem = $(categoryMenuItemRendered.trim());
+                            $("#menu-categories").append($categoryMenuItem);
+
+                            $categoryMenuItem.click(function (ev) {
+                                var all_experiments = $(".experiment-description");
+                                var cat_experiments = $(".experiment-description[data-category='" + category_name + "']");
+
+                                // If the specified category is already selected, we deselect it and show everything.
+                                if ($categoryMenuItem.hasClass("bg-success")) {
+                                    $categoryMenuItem.removeClass("bg-success");
+                                    all_experiments.fadeIn(500);
+                                } else {
+                                    var experiments_to_hide = all_experiments.not(cat_experiments);
+                                    experiments_to_hide.slideUp(500);
+                                    cat_experiments.delay(600).fadeIn(500);
+
+                                    $(".menu-item").removeClass("bg-success");
+                                    $categoryMenuItem.addClass("bg-success");
+                                }
+
+                            });
+                        });
+
                     })
-                    .fail(function(ev){
+                    .fail(function (ev) {
                         console.error("List could not be loaded");
                     });
         });
@@ -96,9 +144,9 @@
         //! @param experimentsList: Raw list of experiments returned by the list_experiements Weblab API.
         function buildExperimentsDictionary(experimentsList) {
             var experiments = {};
-            $.each(experimentsList, function(index, expData){
+            $.each(experimentsList, function (index, expData) {
                 var category = expData.experiment.category.name;
-                if(experiments[category] == undefined) {
+                if (experiments[category] == undefined) {
                     experiments[category] = {};
                 }
                 experiments[category][expData.experiment.name] = {
