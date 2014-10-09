@@ -11,7 +11,7 @@
             </div>
 
             <div class="col-xs-3 pull-right">
-                <p>{{ full_name }} | (i1) | (i2) | <a href="">Log out</a></p>
+                <p>{{ full_name }} | <img src="{{ admin_img }}"/> | <img src="{{ profile_img }}"/> | <a href="">Log out</a></p>
             </div>
         </div> <!-- !row -->
     </script>
@@ -44,7 +44,9 @@
             info = JSON.parse(info);
             var $loggedIn = Mustache.render($("#template-loggedin").html(), {
                 "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
-                "full_name": info["full_name"]
+                "full_name": info["full_name"],
+                "admin_img": "{{ url_for("static", filename="img/ui/administration.png") }}",
+                "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}"
             });
 
             $("#loggedin-container").append($loggedIn);
