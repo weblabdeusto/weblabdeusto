@@ -36,6 +36,9 @@ from weblab.data.experiments import RunningReservationResult, WaitingReservation
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
+SERVER_UUIDS   = 'server_uuid'
+
 class UserProcessor(object):
     """
     User processors are linked to specific sessions. Requests that arrive to the
