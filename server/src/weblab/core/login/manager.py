@@ -7,7 +7,7 @@ from voodoo.log import logged
 from weblab.core.login.web import EXTERNAL_MANAGERS
 
 import weblab.core.login.exc as LoginErrors
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbUserNotFoundError
 from weblab.data import ValidDatabaseSessionId
 import weblab.comm.context as RemoteFacadeContext
 
@@ -49,7 +49,7 @@ class LoginManager(object):
         """
         try:
             role_name, user_auths  = self._db.retrieve_role_and_user_auths(username)
-        except DbErrors.DbUserNotFoundError:
+        except DbUserNotFoundError:
             return self._process_invalid()
 
         errors = False
@@ -115,7 +115,7 @@ class LoginManager(object):
         # It's a valid external user, book it if there is a user linked
         try:
             db_session_id = self._db.check_external_credentials(external_user_id, system)
-        except DbErrors.DbUserNotFoundError:
+        except DbUserNotFoundError:
             raise LoginErrors.InvalidCredentialsError("%s User ID not found: %s" % (system, external_user_id))
 
         return self._reserve_session(db_session_id)

@@ -15,7 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbUnsupportedUserAuth
 
 class UserAuth(object):
 
@@ -60,7 +60,7 @@ def create_user_auth(name, auth_configuration, user_auth_configuration):
     elif name in EXTERNAL_MANAGERS.keys():
         return WebProtocolUserAuth()
         
-    raise DbErrors.DbUnsupportedUserAuth("UserAuth %s not supported" % name)
+    raise DbUnsupportedUserAuth("UserAuth %s not supported" % name)
 
 
 from weblab.core.login.simple.db_auth import WebLabDbUserAuth

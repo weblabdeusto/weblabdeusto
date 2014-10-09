@@ -18,7 +18,7 @@ import hashlib
 
 from weblab.core.login.simple import SimpleAuthnUserAuth
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbHashAlgorithmNotFoundError, DbInvalidPasswordFormatError
 
 ###########################################################################
 # 
@@ -50,7 +50,7 @@ class WebLabDbUserAuth(SimpleAuthnUserAuth):
         REGEX = "([a-zA-Z0-9]*){([a-zA-Z0-9_-]+)}([a-fA-F0-9]+)"
         mo = re.match(REGEX, self.hashed_password)
         if mo is None:
-            raise DbErrors.DbInvalidPasswordFormatError( "Invalid password format" )
+            raise DbInvalidPasswordFormatError( "Invalid password format" )
         first_chars, algorithm, hashed_passwd = mo.groups()
 
         if algorithm == 'sha':
@@ -59,7 +59,7 @@ class WebLabDbUserAuth(SimpleAuthnUserAuth):
         try:
             hashobj = hashlib.new(algorithm)
         except Exception:
-            raise DbErrors.DbHashAlgorithmNotFoundError( "Algorithm %s not found" % algorithm )
+            raise DbHashAlgorithmNotFoundError( "Algorithm %s not found" % algorithm )
 
         hashobj.update((first_chars + password).encode())
         return hashobj.hexdigest() == hashed_passwd

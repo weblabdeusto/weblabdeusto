@@ -33,7 +33,7 @@ from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
-import weblab.db.exc as DbErrors
+import weblab.core.exc as DbErrors
 import weblab.permissions as permissions
 
 DEFAULT_VALUE = object()

@@ -30,7 +30,7 @@ from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 from weblab.data.experiments import ExperimentId
 import weblab.data.command as Command
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParameterFormatError
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
@@ -90,7 +90,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
     def test_get_user_by_name(self):
         self.assertRaises(
-            DbErrors.DbProvidedUserNotFoundError,
+            DbProvidedUserNotFoundError,
             self.gateway.get_user_by_name,
             'studentXX'
         )
@@ -521,7 +521,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(first_permission.get_parameter('time_allowed').value, '100')
         self.assertEquals(self.gateway._get_float_parameter_from_permission(session, first_permission, 'time_allowed'), 100.0)
         self.assertRaises(
-                DbErrors.InvalidPermissionParameterFormatError,
+                InvalidPermissionParameterFormatError,
                 self.gateway._get_float_parameter_from_permission,
                 session,
                 first_permission,

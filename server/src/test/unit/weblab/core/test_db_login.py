@@ -22,7 +22,7 @@ import voodoo.configuration as ConfigurationManager
 
 import weblab.core.db as DatabaseGateway
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbUserNotFoundError
 
 
 class DatabaseGatewayTestCase(unittest.TestCase):
@@ -47,7 +47,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_retrieve_role_and_user_auths_error(self):
-        self.assertRaises(DbErrors.DbUserNotFoundError, self.auth_gateway.retrieve_role_and_user_auths, 'not_exists')
+        self.assertRaises(DbUserNotFoundError, self.auth_gateway.retrieve_role_and_user_auths, 'not_exists')
 
 def suite():
     return unittest.makeSuite(DatabaseGatewayTestCase)
