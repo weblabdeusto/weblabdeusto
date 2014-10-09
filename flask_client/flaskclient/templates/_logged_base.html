@@ -4,18 +4,21 @@
     {% raw %}
     <script type="x-template" id="template-loggedin">
         <div class="row">
-            <div class="col-xs-3">
-                <a href="">
-                    <img id="logo" src="{{ logo_url }}"/>
-                </a>
-            </div>
 
-            <div class="col-xs-9 pull-right" style="text-align: right"> <!-- pull-right not used because we're just aligning right -->
+            <div class="col-xs-12 col-sm-9 pull-right" style="text-align: right"> <!-- pull-right not used because we're just aligning right -->
                 <p style="white-space: nowrap"> <!-- The nowrap is so that the log-out doesnt get a line-break -->
                     <img style="display:inline-block" class="img-responsive img-rounded" src="{{ gravatar }}" width="30px"/>
                     {{ full_name }} | <img src="{{ admin_img }}"/> | <img src="{{ profile_img }}"/> | <a href="">Log out</a>
                 </p>
             </div>
+
+            <div class="col-xs-12 col-sm-3">
+                <a href="">
+                    <img id="logo" class="img-responsive" src="{{ logo_url }}"/>
+                </a>
+            </div>
+
+
         </div> <!-- !row -->
     </script>
     {% endraw %}

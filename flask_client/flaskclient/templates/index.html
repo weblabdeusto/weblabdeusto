@@ -49,12 +49,13 @@
                         </div>
                     </div>
 
+                    <div style="margin-top: 0px">
+                        <p style="line-height:1.2em">Some experiments allow guest access</p>
+                        <input type="submit" href="#" id="guestlogin" class="btn btn-default" value="Log in as guest"/>
+                    </div>
+
                 </form>
 
-                <div style="margin-top: 0px">
-                    <p style="line-height:1.2em">Some experiments allow guest access</p>
-                    <a href="#" id="guestlogin" class="btn btn-default">Log in as guest</a>
-                </div>
 
                 <div style="margin-top: 20px">
                     <p style="line-height:1.2em">Don't have an account? Create one through Facebook</p>
@@ -101,14 +102,29 @@
         $(document).ready(function () {
             console.log("INITIALIZING");
 
+            var $lastSubmit = undefined;
+
+            // Remember which submit is clicked.
+            $("input[type=submit]").click(function(ev){
+                $lastSubmit = ev.target;
+            });
+
             $("#login-form").submit(function (ev) {
 
                 // This is only a form for the auto-enter. We do not want a submit.
                 ev.preventDefault();
 
                 var $status = $("#login-status");
-                var username = $("#username").val();
-                var password = $("#password").val();
+
+                var username = "";
+                var password = "";
+                if($lastSubmit.id == "guestlogin") {
+                    username = "demo";
+                    password = "demo";
+                } else {
+                    username = $("#username").val();
+                    password = $("#password").val();
+                }
 
                 $status.attr("style", "visibility: auto");
                 $status.attr("class", "alert alert-info");
