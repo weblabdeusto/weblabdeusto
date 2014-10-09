@@ -21,13 +21,16 @@
                         principle works in practise by controlling any of several balls which can be remotely
                         immersed into water.
                     </p>
+                    <a href="{{ experiment_link }}">
+                        <button class="btn btn-info">Reserve</button>
+                    </a>
                 </div>
             </div>
         </div>
     </script>
 
     <script type="x-template" id="template-menu-item">
-        <li class="menu-item">
+        <li class="menu-item" style="padding: 3px 1px 1px 3px">
             <a href="#" data-category="{{ category }}">
                 {{ category }} ({{ number }})
             </a>
@@ -59,7 +62,7 @@
 
                 <!-- Sidebar -->
                 <div id="sidebar-wrapper">
-                    <ul class="sidebar-nav" id="menu-categories">
+                    <ul class="sidebar-nav list-unstyled" id="menu-categories">
                         <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
                     </ul>
                 </div>
@@ -133,7 +136,9 @@
                                 var experimentRendered = Mustache.render(experimentTemplate, {
                                             "name": experiment_name,
                                             "category": category_name,
-                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"]
+                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"],
+                                            "experiment_link": sprintf("https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s",
+                                                escape(category_name), escape(experiment_name))
                                         }
                                 );
                                 $("#experiment-descriptions").append(experimentRendered);
