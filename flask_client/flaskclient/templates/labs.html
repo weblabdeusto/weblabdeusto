@@ -73,12 +73,20 @@
 
 
 {% block scripts %}
-    <script type="text/javascript">
-        $(document).ready(function () {
-            console.log($.QueryString["sid"]);
+    {{ super() }}
 
+    <script type="text/javascript">
+
+        $(document).ready(function () {
             // Load the list of experiments.
-            var sid = $.QueryString["sid"];
+
+            // Having session strings in an URL is not too good, so commented out for now.
+            // var sid = $.QueryString["sid"];
+
+            // Retrieve the sessionid from permanent storage.
+            var sid = store.get("sessionid");
+
+
             WeblabWeb._list_experiments(sid)
                     .done(function (experimentsRawList) {
                         console.log("List loaded");

@@ -1,9 +1,54 @@
 {% extends "_base.html" %}
 {% block body %}
-    <div class="container">
-        <a href="">ICONO</a>
-        <div class="pull-right">
-            <p>Name of any | (icon1) | (icon2) | <a href="">Log out</a></p>
-        </div>
+
+    {% raw %}
+    <script type="x-template" id="template-loggedin">
+        <div class="row">
+            <div class="col-xs-3">
+                <a href="">
+                    <img id="logo" src="{{ logo_url }}"/>
+                </a>
+            </div>
+
+            <div class="col-xs-3 pull-right">
+                <p>{{ full_name }} | (i1) | (i2) | <a href="">Log out</a></p>
+            </div>
+        </div> <!-- !row -->
+    </script>
+    {% endraw %}
+
+    <div class="container" id="loggedin-container">
+        <!-- LOGGED IN TEMPLATE GOES HERE - TO BE DYNAMICALLY FILLED -->
     </div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+    <script type="text/javascript">
+
+        IMAGES_FOLDER = "//www.weblab.deusto.es/weblab/client/weblabclientlab/"
+
+        // Load the GLOBAL store.
+        store = new Persist.Store("weblabweb");
+
+        // Retrieve the configuration (as a global)
+        configuration = JSON.parse(store.get("configuration"));
+
+
+        $(document).ready(function() {
+            // Fill the logged in info.
+            store = new Persist.Store("weblabweb");
+            var info = store.get("userinfo");
+            info = JSON.parse(info);
+            var $loggedIn = Mustache.render($("#template-loggedin").html(), {
+                "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
+                "full_name": info["full_name"]
+            });
+
+            $("#loggedin-container").append($loggedIn);
+        });
+
+    </script>
 {% endblock %}

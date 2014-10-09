@@ -138,7 +138,7 @@ WeblabWeb = new function()
 
     //! Retrieves information from a session's user.
     //!
-    //! @param sessionid: Session ID of the user to retrieve information about.
+    //! @param string sessionid: Session ID of the user to retrieve information about.
     //! @param Promise with .done(information) or .fail().
     this._get_user_information = function(sessionid)
     {
