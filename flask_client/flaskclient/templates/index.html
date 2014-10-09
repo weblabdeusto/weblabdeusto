@@ -127,7 +127,10 @@
                             WeblabWeb._get_user_information(sessionid)
                                     .done(function (info) {
                                         store.set("userinfo", JSON.stringify(info));
-                                        window.location = "/labs.html?sid=" + sessionid;
+
+                                        // We do not pass the sid here anymore because now it is done
+                                        // through persist.js.
+                                        window.location = "/labs.html";
                                     })
                                     .fail(function (err) {
                                         $status.attr("class", "alert alert-danger");

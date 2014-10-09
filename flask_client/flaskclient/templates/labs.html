@@ -11,8 +11,8 @@
             <h4>{{ category }}</h4>
 
             <div class="row">
-                <div class="col-sm-2">
-                    <img src="http://placehold.it/100x100">
+                <div class="col-sm-2" style="text-align: center">
+                    <img style="display: inline-block" class="img-responsive img-thumbnail" src="{{ experiment_picture }}" width="80" height="100"/>
                 </div>
 
                 <div class="col-sm-10">
@@ -77,6 +77,29 @@
 
     <script type="text/javascript">
 
+        // Maps the configuration of each experiment in a map with keys: experiment@category
+        // which also has an "experiment_type" key added.
+        function _parse_experiments_config() {
+            experiments = {};
+            var _exps = configuration.experiments;
+            $.each(_exps, function(exp_type, exp_list) {
+                $.each(exp_list, function(index, exp_config){
+                    var key = exp_config["experiment.name"] + "@" + exp_config["experiment.category"];
+                    experiments[key] = exp_config;
+                    exp_config.experiment_type = exp_type;
+                });
+            });
+        }
+
+        //! Retrieves the configuration specific to an experiment from the configuration.js.
+        //!
+        //! @param str exp_name: Name of the experiment.
+        //! @param str exp_category: Category of the experiment.
+        //! @rtype: str
+        function _get_experiment_config(exp_name, exp_category) {
+            return experiments[exp_name + "@" + exp_category];
+        }
+
         $(document).ready(function () {
             // Load the list of experiments.
 
@@ -98,12 +121,20 @@
                         Mustache.parse(experimentTemplate);
                         Mustache.parse(categoryMenuItemTemplate);
 
+                        // Parse the config (from the configuration.js but it is stored internally).
+                        _parse_experiments_config();
+
                         // Load & display every single experiment.
                         $.each(experiments, function (category_name, category) {
                             $.each(category, function (experiment_name, experiment) {
+
+                                var expConfig = _get_experiment_config(experiment_name, category_name);
+
                                 var experimentRendered = Mustache.render(experimentTemplate, {
                                             "name": experiment_name,
-                                            "category": category_name}
+                                            "category": category_name,
+                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"]
+                                        }
                                 );
                                 $("#experiment-descriptions").append(experimentRendered);
                             });
