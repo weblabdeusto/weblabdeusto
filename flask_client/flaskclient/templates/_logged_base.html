@@ -10,8 +10,11 @@
                 </a>
             </div>
 
-            <div class="col-xs-3 pull-right">
-                <p>{{ full_name }} | <img src="{{ admin_img }}"/> | <img src="{{ profile_img }}"/> | <a href="">Log out</a></p>
+            <div class="col-xs-9 pull-right" style="text-align: right"> <!-- pull-right not used because we're just aligning right -->
+                <p style="white-space: nowrap"> <!-- The nowrap is so that the log-out doesnt get a line-break -->
+                    <img style="display:inline-block" class="img-responsive img-rounded" src="{{ gravatar }}" width="30px"/>
+                    {{ full_name }} | <img src="{{ admin_img }}"/> | <img src="{{ profile_img }}"/> | <a href="">Log out</a>
+                </p>
             </div>
         </div> <!-- !row -->
     </script>
@@ -36,17 +39,22 @@
         // Retrieve the configuration (as a global)
         configuration = JSON.parse(store.get("configuration"));
 
+        // Calculate the mail hash for the Gravatar
+        mail_hash = CryptoJS.MD5();
+
 
         $(document).ready(function() {
             // Fill the logged in info.
             store = new Persist.Store("weblabweb");
-            var info = store.get("userinfo");
+            // TODO: Make local.
+            info = store.get("userinfo");
             info = JSON.parse(info);
             var $loggedIn = Mustache.render($("#template-loggedin").html(), {
                 "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
                 "full_name": info["full_name"],
                 "admin_img": "{{ url_for("static", filename="img/ui/administration.png") }}",
-                "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}"
+                "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}",
+                "gravatar": "//gravatar.com/avatar/" + CryptoJS.MD5(info["email"].toLowerCase())
             });
 
             $("#loggedin-container").append($loggedIn);
