@@ -11,6 +11,9 @@ from voodoo.resources_manager import CancelAndJoinResourceManager
 _resource_manager = CancelAndJoinResourceManager("RemoteFacadeServer")
 
 class WsgiApp(object):
+    def __init__(self):
+        pass
+
     def __call__(self, environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         yield 'Hello World\n'
@@ -69,9 +72,6 @@ class ServerThread(threading.Thread):
 
 class WebLabWsgiServer(object):
     def __init__(self, cfg_manager, application):
-        script_name = 'foo'
-        server_address = ('',12345)
-
         the_server_route = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
         core_server_url  = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
         core_server_url_parsed = urlparse.urlparse(core_server_url)

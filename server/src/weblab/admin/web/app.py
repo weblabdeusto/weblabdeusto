@@ -14,7 +14,7 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.configuration_doc as configuration_doc
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web.admin_views as admin_views
@@ -156,7 +156,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_permissions(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId('student1', 'administrator'))
             return self.ups.get_user_permissions(session_id.id)
 
         try:
@@ -168,7 +168,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
     def get_user_information(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
+            session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId('student1', 'administrator'))
             return self.ups.get_user_information(session_id.id)
 
         session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])

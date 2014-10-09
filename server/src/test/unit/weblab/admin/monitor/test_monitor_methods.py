@@ -28,7 +28,7 @@ import weblab.core.exc as core_exc
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
-import weblab.db.session                as DatabaseSession
+from weblab.data import ValidDatabaseSessionId
 
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
@@ -125,7 +125,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
     def test_list_all_users(self):
         first_time = time.time()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         result = methods.list_all_users.call()
@@ -140,7 +140,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
     def test_list_all_users_invalid_user(self):
         first_time = time.time()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         sess_mgr = self.ups._session_manager
@@ -161,7 +161,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         #
@@ -179,17 +179,17 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals( "student2", login )
 
     def test_get_ups_session_ids_from_username(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id2, _ = self.ups.do_reserve_session(db_sess_id)
 
         sessions = methods.get_ups_session_ids_from_username.call("student2")
         self.assertEquals(set([sess_id1, sess_id2]), set(sessions))
 
     def test_get_reservation_id_no_one_using_it(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
 
         reservation_id = methods.get_reservation_id.call(sess_id1.id)
@@ -199,7 +199,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
@@ -210,7 +210,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
 
@@ -225,7 +225,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertRaises( core_exc.NoCurrentReservationError, self.ups.get_reservation_status, reservation_session_id )
 
     def test_kickout_from_ups(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         methods.kickout_from_ups.call(sess_id.id)

@@ -8,7 +8,7 @@ from weblab.core.login.web import EXTERNAL_MANAGERS
 
 import weblab.core.login.exc as LoginErrors
 import weblab.db.exc as DbErrors
-from weblab.db.session import ValidDatabaseSessionId
+from weblab.data import ValidDatabaseSessionId
 import weblab.comm.context as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5

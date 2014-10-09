@@ -42,8 +42,7 @@ import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as ExperimentUse
 import weblab.data.dto.users as User
 import weblab.data.dto.users as Role
-
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 
 from weblab.core.coordinator.resource import Resource
 
@@ -82,7 +81,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
+                        'db_session_id' : ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager, self.coordinator, self.db, self.commands_store
                 )

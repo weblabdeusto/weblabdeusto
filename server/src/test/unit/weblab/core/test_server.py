@@ -29,7 +29,7 @@ import weblab.core.user_processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
 import voodoo.configuration      as ConfigurationManager
-import weblab.db.session                as DatabaseSession
+from weblab.data import ValidDatabaseSessionId
 import weblab.data.server_type                         as ServerType
 import weblab.data.client_address                      as ClientAddress
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
@@ -94,7 +94,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     #########
 
     def test_reserve_session(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         session_manager = self.ups._session_manager
@@ -105,7 +105,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_list_experiments(self):
         # student1
-        db_sess_id1 = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        db_sess_id1 = ValidDatabaseSessionId('student1', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id1)
 
         experiments = self.ups.list_experiments(sess_id1)
@@ -121,7 +121,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id1)
 
         # student2
-        db_sess_id2 = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id2 = ValidDatabaseSessionId('student2', "student")
         sess_id2, _ = self.ups.do_reserve_session(db_sess_id2)
 
         experiments = self.ups.list_experiments(sess_id2)
@@ -139,7 +139,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id2)
 
     def test_get_user_information(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         user = self.ups.get_user_information(sess_id)
@@ -151,7 +151,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id)
 
     def test_get_reservation_info(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
@@ -177,7 +177,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.ups.logout(sess_id)
 
     def test_reserve_experiment(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('this does not experiment','this neither')
@@ -211,7 +211,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     def test_get_experiment_use_by_id_found(self):
         reservations, usages = self._store_two_reservations()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         finished_result = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
@@ -226,7 +226,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     def test_get_experiment_uses_by_id_found(self):
         reservations, usages = self._store_two_reservations()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
@@ -247,7 +247,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         reservation1 = self._reserve_experiment()
         reservation2 = self._reserve_experiment()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
         experiment_results = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
@@ -264,7 +264,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertTrue( experiment_results[2].is_alive() )
 
     def _reserve_experiment(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student1', "student")
+        db_sess_id = ValidDatabaseSessionId('student1', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')

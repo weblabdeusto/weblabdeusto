@@ -28,8 +28,7 @@ import weblab.db.model as model
 
 import weblab.db.gateway as dbGateway
 
-from weblab.db.session import ValidDatabaseSessionId
-
+from weblab.data import ValidDatabaseSessionId
 from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
