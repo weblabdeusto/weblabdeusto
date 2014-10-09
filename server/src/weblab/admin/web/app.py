@@ -14,7 +14,7 @@ from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.configuration_doc as configuration_doc
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 from weblab.db.gateway import AbstractDatabaseGateway
 
 import weblab.admin.web as web
@@ -208,7 +208,7 @@ class AdministrationApplication(AbstractDatabaseGateway):
         exc = None
         for fake_name in fake_names:
             try:
-                session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId(fake_name, 'administrator'))
+                session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
             except Exception as exc:
                 pass
             else:

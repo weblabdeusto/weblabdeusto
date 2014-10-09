@@ -18,7 +18,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import weblab.configuration_doc as configuration_doc
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbMisconfiguredError
 import voodoo.configuration as CfgErrors
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
 
@@ -37,7 +37,7 @@ class AbstractDatabaseGateway(object):
             user          = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
             password      = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
         except CfgErrors.KeyNotFoundError as knfe:
-            raise DbErrors.DbMisconfiguredError(
+            raise DbMisconfiguredError(
                     "Configuration manager didn't provide values for at least one parameter: %s" % knfe,
                     knfe
                 )

@@ -44,7 +44,7 @@ import weblab.data.dto.experiments as ExperimentUse
 import weblab.data.dto.users as User
 import weblab.data.dto.users as Role
 
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 
 from weblab.core.coordinator.resource import Resource
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
@@ -85,7 +85,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.user_processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
+                        'db_session_id' : ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager,
                     self.coordinator,
@@ -590,21 +590,6 @@ class FakeDatabase(object):
 
     def get_user_by_name(self, db_session_id):
         return self.users[0]
-
-    def get_groups(self, db_session_id):
-        return self.groups
-
-    def get_roles(self, db_session_id):
-        return self.roles
-
-    def get_users(self, db_session_id):
-        return self.users
-
-    def get_experiments(self, db_session_id):
-        return self.experiments
-
-    def get_experiment_uses(self, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        return self.experiment_uses
 
 class FakeLocator(object):
     def __init__(self, lab):

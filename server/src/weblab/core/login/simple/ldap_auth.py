@@ -22,9 +22,9 @@ except ImportError:
 else:
     LDAP_AVAILABLE = True
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbInvalidUserAuthConfigurationError
 import voodoo.log as log
-import weblab.login.exc as LoginErrors
+import weblab.core.login.exc as LoginErrors
 
 from weblab.core.login.simple import SimpleAuthnUserAuth
 
@@ -56,7 +56,7 @@ class LdapUserAuth(SimpleAuthnUserAuth):
     def __init__(self, auth_configuration, user_auth_configuration):
         mo = re.match(LdapUserAuth.REGEX, auth_configuration)
         if mo is None:
-            raise DbErrors.DbInvalidUserAuthConfigurationError(
+            raise DbInvalidUserAuthConfigurationError(
                 "Invalid configuration: %s" % auth_configuration
             )
         ldap_uri, domain, base = mo.groups()

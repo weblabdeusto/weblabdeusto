@@ -18,7 +18,6 @@ import time
 
 import voodoo.log as log
 
-import weblab.db.session as DbSession
 from weblab.data.experiments import CommandSent, ExperimentUsage, FileSent
 import weblab.core.file_storer as file_storer
 import weblab.data.command as Command

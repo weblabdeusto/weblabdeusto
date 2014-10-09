@@ -30,7 +30,7 @@ from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 from weblab.data.experiments import ExperimentId
 import weblab.data.command as Command
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParameterFormatError
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
@@ -90,7 +90,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
     def test_get_user_by_name(self):
         self.assertRaises(
-            DbErrors.DbProvidedUserNotFoundError,
+            DbProvidedUserNotFoundError,
             self.gateway.get_user_by_name,
             'studentXX'
         )
@@ -521,7 +521,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(first_permission.get_parameter('time_allowed').value, '100')
         self.assertEquals(self.gateway._get_float_parameter_from_permission(session, first_permission, 'time_allowed'), 100.0)
         self.assertRaises(
-                DbErrors.InvalidPermissionParameterFormatError,
+                InvalidPermissionParameterFormatError,
                 self.gateway._get_float_parameter_from_permission,
                 session,
                 first_permission,
@@ -561,34 +561,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_permission_type(), 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
-
-        experiments = self.gateway.get_experiments(student2.login)
-        self.assertEquals(len(experiments), 0)
-
-    def test_get_experiment_uses(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = datetime.datetime.utcnow()
-        to_date = datetime.datetime.utcnow()
-        group_id = 1
-        experiment_id = 1
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
-    def test_get_experiment_uses_with_null_params(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = None
-        to_date = None
-        group_id = None
-        experiment_id = None
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
 
 def suite():
     return unittest.makeSuite(DatabaseGatewayTestCase)

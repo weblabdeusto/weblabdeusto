@@ -36,12 +36,6 @@ from weblab.data.experiments import RunningReservationResult, WaitingReservation
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
-DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
-EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
-
-FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
-SERVER_UUIDS   = 'server_uuid'
-
 class UserProcessor(object):
     """
     User processors are linked to specific sessions. Requests that arrive to the
@@ -259,32 +253,6 @@ class UserProcessor(object):
             log.log(UserProcessor, log.level.Debug, "Reservation %s is cancelled due to expired session: %s" % (reservation_id, ese))
             return CancelledReservationResult()
 
-
-    #
-    # admin service
-    #
-
-    def get_users(self):
-        """
-        Retrieves the users from the database itself.
-        """
-        return self._db_manager.get_users(self.username)
-
-    def get_groups(self, parent_id=None):
-        return self._db_manager.get_groups(self.username, parent_id)
-
-    def get_roles(self):
-        return self._db_manager.get_roles(self.username)
-
-    def get_experiments(self):
-        return self._db_manager.get_experiments(self.username)
-
-    def get_experiment_uses(self, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        return self._db_manager.get_experiment_uses(self.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
     def get_user_permissions(self):
         return self._db_manager.get_user_permissions(self.username)
-
-    def get_permission_types(self):
-        return self._db_manager.get_permission_types(self.username)
 

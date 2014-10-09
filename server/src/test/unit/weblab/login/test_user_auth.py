@@ -24,16 +24,16 @@ except ImportError:
     pass
 
 from test.util.optional_modules import OptionalModuleTestCase
-import weblab.login.exc as LoginErrors
+import weblab.core.login.exc as LoginErrors
 import weblab.core.login.simple as auth_simple
 import weblab.core.login.simple.ldap_auth as ldap_auth
 from weblab.core.login.simple import create_user_auth
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbUnsupportedUserAuth, DbInvalidUserAuthConfigurationError
 
 class DbUserAuthTestCase(unittest.TestCase):
     def test_create_user_failed(self):
         self.assertRaises(
-            DbErrors.DbUnsupportedUserAuth,
+            DbUnsupportedUserAuth,
             create_user_auth,
             'whatever that does not exist',
             'the configuration',
@@ -42,7 +42,7 @@ class DbUserAuthTestCase(unittest.TestCase):
 
     def test_invalid_ldap_configuration(self):
         self.assertRaises(
-            DbErrors.DbInvalidUserAuthConfigurationError,
+            DbInvalidUserAuthConfigurationError,
             create_user_auth,
             auth_simple.LdapUserAuth.NAME,
             'the configuration',
