@@ -106,6 +106,7 @@ class Archimedes(Experiment):
     def handle_command_allinfo(self, command):
         """
         Handles an ALLINFO command, which has the format: ALLINFO:instance1:instance2...
+        @param {str} command: The command.
         """
         boards = command.split(":")[1:]
         response = {}
@@ -282,6 +283,10 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
+
+        # Finish the thread pool
+        self._workpool.terminate()
+
         return "ok"
 
 
