@@ -1,17 +1,22 @@
 import json
 import requests
 
+
 # TODO: Make this dynamic.
-BASE_URL = "//www.weblab.deusto.es/weblab"
+BASE_URL = "https://www.weblab.deusto.es/weblab"
 
 
 class WeblabWebException(Exception):
     pass
 
-class WeblabWeb:
+
+class WeblabWeb(object):
     """
     Port of the weblabweb.js script to Python.
     """
+
+    def __init__(self):
+        pass
 
     def _send(self, target_url, request):
         """
@@ -40,7 +45,6 @@ class WeblabWeb:
 
         return response["result"]
 
-
     def _login(self, account, password):
         """
         Login to the server.
@@ -57,6 +61,6 @@ class WeblabWeb:
             }
         }
 
-        result = self._send(BASE_URL + "/login/json", req)
+        result = self._send(BASE_URL + "/login/json/", req)
         return result["id"]
 
