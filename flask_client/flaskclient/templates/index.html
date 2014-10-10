@@ -138,7 +138,7 @@
 
                             var sessionid = ev;
 
-                            store.set("sessionid", sessionid);
+                            $.cookie("sessionid", sessionid);
 
                             WeblabWeb._get_user_information(sessionid)
                                     .done(function (info) {

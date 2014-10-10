@@ -1,4 +1,4 @@
-from flask import render_template, request, flash, redirect, url_for, session
+from flask import render_template, request, flash, redirect, url_for, session, make_response, Response
 from flaskclient import flask_app
 from flaskclient.weblabweb import WeblabWeb
 
@@ -21,7 +21,13 @@ def index():
         try:
             weblabweb = WeblabWeb()
             sessionid = weblabweb._login(username, password)
-            session["sessionid"] = sessionid
+
+            response = make_response(redirect(url_for("labs")))
+            """ @type: flask.Response """
+
+            # We set it in a cookie rather than session so that is is immediately interoperable with JS
+            response.set_cookie("sessionid", sessionid)
+
             return redirect(url_for("labs"))
         except:
             flash("Invalid username or password", category="error")
