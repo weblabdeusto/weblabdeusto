@@ -15,7 +15,7 @@ from weblab.core.exc import SessionNotFoundError
 
 import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
-from weblab.db.gateway import AbstractDatabaseGateway
+from weblab.db import db
 
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
@@ -25,17 +25,18 @@ class BackView(BaseView):
     def index(self):
         return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
-class AdministrationApplication(AbstractDatabaseGateway):
+class AdministrationApplication(object):
 
     INSTANCE = None
 
     def __init__(self, cfg_manager, ups, bypass_authz = False):
-
-        super(AdministrationApplication, self).__init__(cfg_manager)
+        super(AdministrationApplication, self).__init__()
+        self.cfg_manager = cfg_manager
+        db.initialize(cfg_manager)
 
         self.ups = ups
 
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=db.engine))
 
         files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
