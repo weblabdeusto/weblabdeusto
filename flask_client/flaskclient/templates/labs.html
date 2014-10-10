@@ -6,7 +6,7 @@
 
     {% raw %}
     <script type="x-template" id="template-experiment">
-        <div class="experiment-description well" data-name="{{ name }}" data-category="{{ category }}">
+        <div class="experiment-description well" data-name="{{ name }}" data-category="{{ category }}" data-experimentid="{{ name }}@{{ category }}">
             <h3>{{ name }}</h3>
             <h4>{{ category }}</h4>
 
@@ -65,15 +65,15 @@
 
                         <!-- Sidebar -->
                         <div id="search-wrapper">
-                            <form action="" class="form">
+                            <form action="#" class="form">
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <input type="Search" placeholder="Search..." class="form-control"/>
+                                        <input id="exp-search" type="Search" placeholder="Search..." class="form-control"/>
 
                                         <div class="input-group-btn">
-                                            <button class="btn btn-info">
+                                            <div class="btn btn-info" disabled>
                                                 <span class="glyphicon glyphicon-search"></span>
-                                            </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -115,9 +115,11 @@
 
     <script type="text/javascript">
 
-        //! Maps the configuration of each experiment in a map with keys: experiment@category
-        //! which also has an "experiment_type" key added.
-        //! @rtype: undefined
+        /**
+         * Maps the configuration of each experiment in a map with keys: experiment@category
+         * which also has an "experiment_type" key added.
+         * @rtype: undefined
+         */
         function _parse_experiments_config() {
             experiments = {};
             var _exps = configuration.experiments;
@@ -130,18 +132,22 @@
             });
         }
 
-        //! Retrieves the configuration specific to an experiment from the configuration.js.
-        //!
-        //! @param str exp_name: Name of the experiment.
-        //! @param str exp_category: Category of the experiment.
-        //! @rtype: str
+        /**
+         * Retrieves the configuration specific to an experiment from the configuration.js.
+         *
+         * @param {string} exp_name: Name of the experiment.
+         * @param {string} exp_category: Category of hte experiment.
+         * @return {undefined}: Nothing
+         */
         function _get_experiment_config(exp_name, exp_category) {
             return experiments[exp_name + "@" + exp_category];
         }
 
-        //! Filters the experiments according to whatever configuration the filters are in.
-        //! As of now search filtering and category filtering are supported.
-        //! @rtype: undefined
+        /**
+         * Filters the experiments according to whatever configuration the filters are in.
+         * As of now search filtering and category filtering are supported.
+         * @return {undefined} Nothing
+         */
         function _filter_experiments() {
             var all_experiments = $(".experiment-description");
             var filtered_experiments = $(".experiment-description");
@@ -155,7 +161,37 @@
                     var exps = $(".experiment-description[data-category='" + category_name + "']");
                     notFilteredExperiments = notFilteredExperiments.add(exps);
                 });
-                var filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+                filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+            }
+
+
+            // Filter by search. If anything is within the search box, show only those experiments which contain
+            // that in the name. Eventually maybe support will be added for the description field too (but as of now
+            // it makes no sense because the description doesn't actually exist server-side).
+            var searchtext = $("#exp-search").val().toLowerCase();
+            console.log("Filtering with: " + searchtext);
+            notFilteredExperiments = $();
+            if(searchtext.length != 0) {
+                filtered_experiments.each(function(index){
+                    var elem = $(this);
+
+                    /** @type string */
+                    var experiment_name = elem.data("name").toLowerCase();
+
+                    if(experiment_name.indexOf(searchtext) != -1) {
+                        notFilteredExperiments = notFilteredExperiments.add(elem);
+                    }
+                });
+                filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+            }
+
+            // Determine the color of the search box.
+            if(searchtext.length == 0) {
+                $("#exp-search").css("background-color", "auto");
+            } else if (filtered_experiments.length > 0) {
+                $("#exp-search").css("background-color", "#EFFFDE");
+            } else if (filtered_experiments.length == 0) {
+                $("#exp-search").css("background-color", "#FFE6E6");
             }
 
             // Hide the experiments that should be hidden.
@@ -225,6 +261,15 @@
                                 _filter_experiments();
                             });
                         });
+
+
+                        // When something is typed in the search box we apply the filter.
+                        $(document).ready(function () {
+                            $("#exp-search").bind('input propertychange', function () {
+                                _filter_experiments();
+                            });
+                        });
+
 
                     })
                     .fail(function (ev) {
