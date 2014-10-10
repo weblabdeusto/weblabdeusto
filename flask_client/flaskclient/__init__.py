@@ -10,11 +10,8 @@ flask_app.config.from_pyfile("../config.py")
 # otherwise the @flask_app notation wouldn't work.
 import view_index
 import view_upload
+import view_labs
 
-
-@flask_app.route("/labs.html")
-def labs():
-    return render_template("labs.html")
 
 
 @flask_app.route("/lab.html")
