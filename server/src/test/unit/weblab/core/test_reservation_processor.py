@@ -25,7 +25,7 @@ import voodoo.sessions.session_id as SessionId
 from   test.util.module_disposer import case_uses_module
 
 import weblab.core.user_processor as UserProcessor
-from weblab.core.reservation_processor import ReservationProcessor
+from weblab.core.reservation_processor import ReservationProcessor, EXPERIMENT_POLL_TIME
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
@@ -153,7 +153,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         time_mock = self.mocker.mock()
         time_mock.time()
 
-        poll_time = self.cfg_manager.get_value(UserProcessor.EXPERIMENT_POLL_TIME)
+        poll_time = self.cfg_manager.get_value(EXPERIMENT_POLL_TIME)
         added = poll_time + 5
 
         self.mocker.result(time.time() + added)
@@ -170,7 +170,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
     def test_is_expired_expired_due_to_expiration_time(self):
         self._return_reserved()
 
-        poll_time = self.cfg_manager.get_value(UserProcessor.EXPERIMENT_POLL_TIME)
+        poll_time = self.cfg_manager.get_value(EXPERIMENT_POLL_TIME)
         added = poll_time - 5 # for example
         self.db.experiments_allowed[0].time_allowed = poll_time - 10
         self.assertTrue( added > 0 )
