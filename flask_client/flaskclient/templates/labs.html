@@ -12,7 +12,8 @@
 
             <div class="row">
                 <div class="col-sm-2" style="text-align: center">
-                    <img style="display: inline-block" class="img-responsive img-thumbnail" src="{{ experiment_picture }}" width="80" height="100"/>
+                    <img style="display: inline-block" class="img-responsive img-thumbnail"
+                         src="{{ experiment_picture }}" width="80" height="100"/>
                 </div>
 
                 <div class="col-sm-10">
@@ -30,8 +31,8 @@
     </script>
 
     <script type="x-template" id="template-menu-item">
-        <li class="menu-item" style="padding: 3px 1px 1px 3px">
-            <a href="#" data-category="{{ category }}">
+        <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px" data-category="{{ category }}">
+            <a href="#">
                 {{ category }} ({{ number }})
             </a>
         </li>
@@ -55,21 +56,55 @@
         <!-- Column for the categories menu -->
         <div class="column col-sm-3 well">
 
-            <div id="wrapper">
-                <legend>
-                    Filter by Category
-                </legend>
+            <div class="row">
+                <div class="column col-sm-12">
+                    <div id="wrapper">
+                        <legend>
+                            Filter by Search
+                        </legend>
 
-                <!-- Sidebar -->
-                <div id="sidebar-wrapper">
-                    <ul class="sidebar-nav list-unstyled" id="menu-categories">
-                        <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
-                    </ul>
+                        <!-- Sidebar -->
+                        <div id="search-wrapper">
+                            <form action="" class="form">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="Search" placeholder="Search..." class="form-control"/>
+
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-info">
+                                                <span class="glyphicon glyphicon-search"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /#search-wrapper -->
+                    </div>
                 </div>
-                <!-- /#sidebar-wrapper -->
+            </div>
+
+            <div class="row">
+                <div class="column col-sm-12">
+                    <div id="wrapper">
+                        <legend>
+                            Filter by Category
+                        </legend>
+
+                        <!-- Sidebar -->
+                        <div id="sidebar-wrapper">
+                            <ul class="sidebar-nav list-unstyled" id="menu-categories">
+                                <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
+                            </ul>
+                        </div>
+                        <!-- /#sidebar-wrapper -->
+                    </div>
+                </div>
             </div>
 
         </div>
+
+
     </div>
 
 {% endblock %}
@@ -80,13 +115,14 @@
 
     <script type="text/javascript">
 
-        // Maps the configuration of each experiment in a map with keys: experiment@category
-        // which also has an "experiment_type" key added.
+        //! Maps the configuration of each experiment in a map with keys: experiment@category
+        //! which also has an "experiment_type" key added.
+        //! @rtype: undefined
         function _parse_experiments_config() {
             experiments = {};
             var _exps = configuration.experiments;
-            $.each(_exps, function(exp_type, exp_list) {
-                $.each(exp_list, function(index, exp_config){
+            $.each(_exps, function (exp_type, exp_list) {
+                $.each(exp_list, function (index, exp_config) {
                     var key = exp_config["experiment.name"] + "@" + exp_config["experiment.category"];
                     experiments[key] = exp_config;
                     exp_config.experiment_type = exp_type;
@@ -101,6 +137,32 @@
         //! @rtype: str
         function _get_experiment_config(exp_name, exp_category) {
             return experiments[exp_name + "@" + exp_category];
+        }
+
+        //! Filters the experiments according to whatever configuration the filters are in.
+        //! As of now search filtering and category filtering are supported.
+        //! @rtype: undefined
+        function _filter_experiments() {
+            var all_experiments = $(".experiment-description");
+            var filtered_experiments = $(".experiment-description");
+
+            // Filter by category. If *any* category is selected, remove those that don't belong to these.
+            var highlightedCategories = $(".category-menu-item.highlighted");
+            var notFilteredExperiments = $();
+            if (highlightedCategories.length > 0) {
+                highlightedCategories.each(function (index) {
+                    var category_name = $(this).data("category");
+                    var exps = $(".experiment-description[data-category='" + category_name + "']");
+                    notFilteredExperiments = notFilteredExperiments.add(exps);
+                });
+                var filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+            }
+
+            // Hide the experiments that should be hidden.
+            all_experiments.not(filtered_experiments).slideUp(500);
+
+            // Show the experiments that should be shown.
+            filtered_experiments.delay(100).slideDown(500);
         }
 
         $(document).ready(function () {
@@ -138,7 +200,7 @@
                                             "category": category_name,
                                             "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"],
                                             "experiment_link": sprintf("https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s",
-                                                escape(category_name), escape(experiment_name))
+                                                    escape(category_name), escape(experiment_name))
                                         }
                                 );
                                 $("#experiment-descriptions").append(experimentRendered);
@@ -156,23 +218,11 @@
                             var $categoryMenuItem = $(categoryMenuItemRendered.trim());
                             $("#menu-categories").append($categoryMenuItem);
 
+                            // When a categoryMenuItem is clicked we apply the filter.
                             $categoryMenuItem.click(function (ev) {
-                                var all_experiments = $(".experiment-description");
-                                var cat_experiments = $(".experiment-description[data-category='" + category_name + "']");
-
-                                // If the specified category is already selected, we deselect it and show everything.
-                                if ($categoryMenuItem.hasClass("bg-success")) {
-                                    $categoryMenuItem.removeClass("bg-success");
-                                    all_experiments.fadeIn(500);
-                                } else {
-                                    var experiments_to_hide = all_experiments.not(cat_experiments);
-                                    experiments_to_hide.slideUp(500);
-                                    cat_experiments.delay(600).fadeIn(500);
-
-                                    $(".menu-item").removeClass("bg-success");
-                                    $categoryMenuItem.addClass("bg-success");
-                                }
-
+                                $categoryMenuItem.toggleClass("highlighted");
+                                $categoryMenuItem.toggleClass("bg-success");
+                                _filter_experiments();
                             });
                         });
 
