@@ -7,18 +7,6 @@
 {% block body %}
     {{ super() }}
 
-
-    {% raw %}
-    <script type="x-template" id="template-menu-item">
-        <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px" data-category="{{ category }}">
-            <a href="#">
-                {{ category }} ({{ number }})
-            </a>
-        </li>
-    </script>
-    {% endraw %}
-
-
     <center>
         <h2>My Experiments</h2>
     </center>
@@ -27,6 +15,16 @@
     <div class="row">
         <!-- Column for the labs themselves -->
         <div class="column col-sm-9" id="experiment-descriptions">
+
+            <!-- To be displayed only if no experiments match the filters -->
+            <div id="no-experiments-alert" class="alert alert-info" style="display:none">
+                <h3>No experiments are available with the current filters</h3>
+                <p>
+                    No experiments are available which match the current filters. You might want to change the filters.
+                    If after changing the filters the experiment you seek still does not seem to be available,
+                    you may need to request access to your teacher, laboratory provider or Weblab administrator.
+                </p>
+            </div>
 
             <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
             {% for exp_key, experiment in experiments.items() %}
@@ -157,7 +155,6 @@
             // that in the name. Eventually maybe support will be added for the description field too (but as of now
             // it makes no sense because the description doesn't actually exist server-side).
             var searchtext = $("#exp-search").val().toLowerCase();
-            console.log("Filtering with: " + searchtext);
             notFilteredExperiments = $();
             if (searchtext.length != 0) {
                 filtered_experiments.each(function (index) {
@@ -187,6 +184,11 @@
 
             // Show the experiments that should be shown.
             filtered_experiments.delay(100).slideDown(500);
+
+            if(filtered_experiments.length == 0)
+                $("#no-experiments-alert").show();
+            else
+                $("#no-experiments-alert").hide();
         }
 
         $(document).ready(function () {
@@ -194,91 +196,22 @@
             // Retrieve the sessionid from a cookie.
             var sid = $.cookie("sessionid");
 
-            WeblabWeb._list_experiments(sid)
-                    .done(function (experimentsRawList) {
-                        console.log("List loaded");
-                        console.log(experimentsRawList);
 
-                        var experiments = buildExperimentsDictionary(experimentsRawList);
-                        var experimentTemplate = $("#template-experiment").html();
-                        var categoryMenuItemTemplate = $("#template-menu-item").html();
-                        Mustache.parse(experimentTemplate);
-                        Mustache.parse(categoryMenuItemTemplate);
-
-                        // Parse the config (from the configuration.js but it is stored internally).
-                        _parse_experiments_config();
-
-                        {#                        // Load & display every single experiment.#}
-                        {#                        $.each(experiments, function (category_name, category) {#}
-                        {#                            $.each(category, function (experiment_name, experiment) {#}
-                        {##}
-                        {#                                var expConfig = _get_experiment_config(experiment_name, category_name);#}
-                        {##}
-                        {#                                var experimentRendered = Mustache.render(experimentTemplate, {#}
-                        {#                                            "name": experiment_name,#}
-                        {#                                            "category": category_name,#}
-                        {#                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"],#}
-                        {#                                            "experiment_link": sprintf("https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s",#}
-                        {#                                                    escape(category_name), escape(experiment_name))#}
-                        {#                                        }#}
-                        {#                                );#}
-                        {#                                $("#experiment-descriptions").append(experimentRendered);#}
-                        {#                            });#}
-                        {#                        });#}
-
-
-                        // Load & display the categories in the menu.
-                        $.each(experiments, function (category_name, category) {
-                            var categoryMenuItemRendered = Mustache.render(categoryMenuItemTemplate, {
-                                "category": category_name,
-                                "number": Object.keys(category).length
-                            });
-
-                            var $categoryMenuItem = $(categoryMenuItemRendered.trim());
-                            $("#menu-categories").append($categoryMenuItem);
-
-                            // When a categoryMenuItem is clicked we apply the filter.
-                            $categoryMenuItem.click(function (ev) {
-                                $categoryMenuItem.toggleClass("highlighted");
-                                $categoryMenuItem.toggleClass("bg-success");
-                                _filter_experiments();
-                            });
-                        });
-
-
-                        // When something is typed in the search box we apply the filter.
-                        $(document).ready(function () {
-                            $("#exp-search").bind('input propertychange', function () {
-                                _filter_experiments();
-                            });
-                        });
-
-
-                    })
-                    .fail(function (ev) {
-                        console.error("List could not be loaded");
-                    });
-        });
-
-
-        //! Builds the Experiments Dictionary.
-        //!
-        //! @param experimentsList: Raw list of experiments returned by the list_experiements Weblab API.
-        function buildExperimentsDictionary(experimentsList) {
-            var experiments = {};
-            $.each(experimentsList, function (index, expData) {
-                var category = expData.experiment.category.name;
-                if (experiments[category] == undefined) {
-                    experiments[category] = {};
-                }
-                experiments[category][expData.experiment.name] = {
-                    "time_allowed": expData.time_allowed
-                };
+            // Initialize the filters and handlers in the categories in the menu.
+            var $categoryMenuItems = $(".category-menu-item>a");
+            $categoryMenuItems.click(function (ev) {
+                console.log(ev.target);
+                $(ev.target).parent().toggleClass("highlighted");
+                $(ev.target).parent().toggleClass("bg-success");
+                _filter_experiments();
             });
 
-            return experiments;
-        }
+            // When something is typed in the search box we apply the filter.
+            $("#exp-search").bind('input propertychange', function () {
+                _filter_experiments();
+            });
 
+        }); // !ready
 
     </script>
 {% endblock %}
