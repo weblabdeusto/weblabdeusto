@@ -1,7 +1,37 @@
-from flask import render_template, url_for, request
+from flask import render_template, url_for, request, flash, redirect, json
 import requests
 from flaskclient import flask_app
 from flaskclient.helpers import _retrieve_configuration_js
+from flaskclient.weblabweb import WeblabWeb
+
+
+def build_experiments_list(experiments_list, experiments_config):
+    """
+    Builds a merged experiments list which contains, for only those experiments which the user
+    is allowed to use, the extra information contained within experiments_config.
+
+    @param experiments_list {list[object]}: List of experiments, provided by the experiments_list Weblab method.
+    @param experiments_config {dict}: Configuration JS file (which will eventually be removed).
+    """
+    experiments = {}
+
+    # First, store the info available from the experiments_list into the experiments registry.
+    for exp_data in experiments_list:
+        category = exp_data["experiment"]["category"]["name"]
+        exp_name = exp_data["experiment"]["name"]
+        time_allowed = exp_data["time_allowed"]
+        experiments["%s@%s" % (exp_name, category)] = {"time_allowed": time_allowed}
+
+    # Now, merge the data from experiments_config into the experiments which are available for the user
+    exps = experiments_config["experiments"]
+    for exp_type, exp_list in exps.items():
+        for exp_config in exp_list:
+            key = exp_config["experiment.name"] + "@" + exp_config["experiment.category"]
+            if key in experiments:
+                exp_config["experiment_type"] = exp_type
+                experiments[key].update(exp_config)
+
+    return experiments
 
 
 @flask_app.route("/labs.html")
@@ -13,6 +43,18 @@ def labs():
     # To properly render the labs list we need access to the configuration.js file (this will change in the
     # future). We actually request this to ourselves.
     config = _retrieve_configuration_js()
-    print config
+    config = json.loads(config)
 
-    return render_template("labs.html")
+    # We also want access to the experiment's list for the user.
+    sessionid = request.cookies.get("sessionid", None)
+    if sessionid is None:
+        flash("You are not logged in", category="error")
+        return redirect(url_for("index"))
+    weblabweb = WeblabWeb()
+    experiments_list = weblabweb._list_experiments(sessionid)
+    # TODO: There could be issues with the routing.
+
+    # Merge the data for the available experiments.
+    experiments = build_experiments_list(experiments_list, config)
+
+    return render_template("labs.html", experiments = experiments)
