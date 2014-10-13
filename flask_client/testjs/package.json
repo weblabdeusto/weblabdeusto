@@ -1,0 +1,10 @@
+{
+  "name": "weblabwebtesting",
+  "description": "For testing the WeblabWeb JS API using Mocha",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "should": "~4.0.4",
+    "supertest": "~0.14.0"
+  }
+}

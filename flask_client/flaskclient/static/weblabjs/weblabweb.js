@@ -40,6 +40,7 @@ WeblabWeb = new function () {
         ///////////////////////////////////////////////////////////////
 
         var BASE_URL = "//www.weblab.deusto.es/weblab";
+        var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling requests.
 
 
         /**
@@ -99,6 +100,19 @@ WeblabWeb = new function () {
             return promise;
 
         }; // !_send
+
+
+        ///////////////////////////////////////////////////////////////
+        //
+        // PROTECTED ATTRIBUTES AND FUNCTIONS
+        // These match Weblab's API almost 1 to 1. Though they can be
+        // used directly by end-users, they will generally return JSON
+        // objects which will carry internal data, and they won't do much
+        // else than to call the Weblab methods and return the response.
+        // If an alternative public method exists, its usage is
+        // recommended.
+        //
+        ///////////////////////////////////////////////////////////////
 
 
         /**
@@ -192,7 +206,7 @@ WeblabWeb = new function () {
          * @param {string} sessionid: Session ID of the user
          * @param {string} experiment_name: Experiment's name
          * @param {string} experiment_category: Experiment's category
-         * @returns {string} reservationid for the experiment
+         * @returns {string} Through the callback, the reservationid for the experiment
          * @example
          *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
          */
@@ -227,7 +241,7 @@ WeblabWeb = new function () {
          *   - Reservation::waiting
          *      {"result": {"status": "Reservation::waiting", "position": 0, "reservation_id": {"id": "5d70d409-e8a7-4123-9dfd-56e321740099;5d70d409-e8a7-4123-9dfd-56e321740099.route1"}}, "is_exception": false}
          * @param {string} reservationid: ReservationID. This is provided by the call to reserve_experiment.
-         * @returns {object} The whole JSON response, which includes the status itself.
+         * @returns {object} Through the callback, the whole JSON response, which includes the status itself.
          */
         this._get_reservation_status = function (reservationid) {
             var promise = $.Deferred();
@@ -259,6 +273,69 @@ WeblabWeb = new function () {
         // context different than Weblab-Deusto.
         //
         ///////////////////////////////////////////////////////////////
+
+
+         /**
+         * Reserves an experiment.
+         *
+         * The valid reservation status reported are:
+         *   - Reservation::waiting_confirmation
+         *     @example
+         *     {"result": {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}, "is_exception": false}
+         *     @example
+         *     {"result": {"status": "Reservation::confirmed", "url": "https://www.weblab.deusto.es/weblab/", "remote_reservation_id": {"id": ""}, "time": 299.56350898742676, "initial_configuration": "{\"webcam\": \"https://www.weblab.deusto.es/webcam/proxied/pld2\", \"labels\": [\"cod1\", \"cod2\", \"cod3\", \"cod4\", \"cod5\"]}", "reservation_id": {"id": "8fefe7f3-8a8f-4a56-920c-64057d5a5701;8fefe7f3-8a8f-4a56-920c-64057d5a5701.route1"}}, "is_exception": false}
+         *
+         * @param {string} sessionid: Session ID of the user
+         * @param {string} experiment_name: Experiment's name
+         * @param {string} experiment_category: Experiment's category
+         * @returns {string} reservationid for the experiment
+         * @example
+         *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
+         */
+        this.reserve_experiment = function(sessionid, experiment_name, experiment_category)
+        {
+            var promise = $.Deferred();
+
+            this._reserve_experiment(sessionid, experiment_name, experiment_category)
+                .done(function(reservationid) {
+
+                    // Check the status of our reservation.
+                    var check_status = function() {
+                        this._get_reservation_status(reservationid)
+                            .done(function (result) {
+                                var status = result["status"];
+                                if(status === "Reservation::confirmed")
+                                {
+                                    // The reservation has succeded. We report this as done, with the
+                                    // status itself.
+                                    promise.resolve(status);
+                                }
+                                else
+                                {
+                                    // The reservation is not ready yet. We report the status, but we will repeat
+                                    // the query in a couple seconds.
+                                    promise.notify(status);
+
+                                    // Try again soon.
+                                    setTimeout(check_status, RESERVE_POLLING_FREQ);
+                                }
+                            })
+                            .fail(function (result) {
+                                // An error occurred. We abort the whole reservation attempt.
+                                // In the future, some further actions which could be considered:
+                                // - If it was a connection error, it would make sense to retry.
+                                // - If the error suggests that the reservation might have succeeded anyway,
+                                //   maybe it would be appropriate to request a dispose().
+                                promise.reject(result);
+                            })
+                    };
+
+                })
+                .fail(function() {
+
+                });
+        }
+
 
 
         ///////////////////////////////////////////////////////////////
