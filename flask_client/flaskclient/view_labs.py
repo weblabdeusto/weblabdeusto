@@ -1,4 +1,6 @@
+from collections import defaultdict
 from flask import render_template, url_for, request, flash, redirect, json
+import urllib
 import requests
 from flaskclient import flask_app
 from flaskclient.helpers import _retrieve_configuration_js
@@ -12,8 +14,10 @@ def build_experiments_list(experiments_list, experiments_config):
 
     @param experiments_list {list[object]}: List of experiments, provided by the experiments_list Weblab method.
     @param experiments_config {dict}: Configuration JS file (which will eventually be removed).
+    @returns {dict[object], dict[object]}: Experiments dictionary, experiments_by_category
     """
     experiments = {}
+    experiments_by_category = defaultdict(list)
 
     # First, store the info available from the experiments_list into the experiments registry.
     for exp_data in experiments_list:
@@ -30,8 +34,9 @@ def build_experiments_list(experiments_list, experiments_config):
             if key in experiments:
                 exp_config["experiment_type"] = exp_type
                 experiments[key].update(exp_config)
+                experiments_by_category[exp_config["experiment.category"]] = experiments[key]
 
-    return experiments
+    return experiments, experiments_by_category
 
 
 @flask_app.route("/labs.html")
@@ -55,6 +60,6 @@ def labs():
     # TODO: There could be issues with the routing.
 
     # Merge the data for the available experiments.
-    experiments = build_experiments_list(experiments_list, config)
+    experiments, experiments_by_category = build_experiments_list(experiments_list, config)
 
-    return render_template("labs.html", experiments = experiments)
+    return render_template("labs.html", experiments = experiments, experiments_by_category = experiments_by_category, urllib = urllib)

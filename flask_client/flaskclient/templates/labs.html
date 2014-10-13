@@ -1,35 +1,14 @@
 {% extends "_logged_base.html" %}
 {% set title="My Experiments" %}
+
+{# Hard-coded for now: #}
+{% set IMAGES_FOLDER="//www.weblab.deusto.es/weblab/client/weblabclientlab/" %}
+
 {% block body %}
     {{ super() }}
 
 
     {% raw %}
-    <script type="x-template" id="template-experiment">
-        <div class="experiment-description well" data-name="{{ name }}" data-category="{{ category }}" data-experimentid="{{ name }}@{{ category }}">
-            <h3>{{ name }}</h3>
-            <h4>{{ category }}</h4>
-
-            <div class="row">
-                <div class="col-sm-2" style="text-align: center">
-                    <img style="display: inline-block" class="img-responsive img-thumbnail"
-                         src="{{ experiment_picture }}" width="80" height="100"/>
-                </div>
-
-                <div class="col-sm-10">
-                    <p>
-                        This is the Archimedes experiment, in which the user can check how the Archimedes
-                        principle works in practise by controlling any of several balls which can be remotely
-                        immersed into water.
-                    </p>
-                    <a href="{{ experiment_link }}">
-                        <button class="btn btn-info">Reserve</button>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </script>
-
     <script type="x-template" id="template-menu-item">
         <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px" data-category="{{ category }}">
             <a href="#">
@@ -37,7 +16,6 @@
             </a>
         </li>
     </script>
-
     {% endraw %}
 
 
@@ -49,7 +27,36 @@
     <div class="row">
         <!-- Column for the labs themselves -->
         <div class="column col-sm-9" id="experiment-descriptions">
+
             <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
+            {% for exp_key, experiment in experiments.items() %}
+                <div class="experiment-description well" data-name="{{ experiment["experiment.name"] }}"
+                     data-category="{{ experiment["experiment.category"] }}"
+                     data-experimentid="{{ exp_key }}">
+                    <h3>{{ experiment["experiment.name"] }}</h3>
+                    <h4>{{ experiment["experiment.category"] }}</h4>
+
+                    <div class="row">
+                        <div class="col-sm-2" style="text-align: center">
+                            <img style="display: inline-block" class="img-responsive img-thumbnail"
+                                 src="{{ IMAGES_FOLDER + experiment.get("experiment.picture", "") }}"
+                                 alt="experiment_picture" width="80" height="100"/>
+                        </div>
+
+                        <div class="col-sm-10">
+                            <p>
+                                This is the Archimedes experiment, in which the user can check how the Archimedes
+                                principle works in practise by controlling any of several balls which can be remotely
+                                immersed into water.
+                            </p>
+                            <a href="{{ "https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s" % (urllib.quote_plus(experiment["experiment.category"]), urllib.quote_plus(experiment["experiment.name"])) }}">
+                                <button class="btn btn-info">Reserve</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
         </div>
 
 
@@ -68,7 +75,8 @@
                             <form action="#" class="form">
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <input id="exp-search" type="Search" placeholder="Search..." class="form-control"/>
+                                        <input id="exp-search" type="Search" placeholder="Search..."
+                                               class="form-control"/>
 
                                         <div class="input-group-btn">
                                             <div class="btn btn-info" disabled>
@@ -95,6 +103,14 @@
                         <div id="sidebar-wrapper">
                             <ul class="sidebar-nav list-unstyled" id="menu-categories">
                                 <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
+                                {% for category, experiments_in_category in experiments_by_category.items() %}
+                                    <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
+                                        data-category="{{ category }}">
+                                        <a href="#">
+                                            {{ category }} ({{ experiments_in_category | length }})
+                                        </a>
+                                    </li>
+                                {% endfor %}
                             </ul>
                         </div>
                         <!-- /#sidebar-wrapper -->
@@ -114,34 +130,6 @@
     {{ super() }}
 
     <script type="text/javascript">
-
-        /**
-         * Maps the configuration of each experiment in a map with keys: experiment@category
-         * which also has an "experiment_type" key added.
-         * @rtype: undefined
-         */
-        function _parse_experiments_config() {
-            experiments = {};
-            var _exps = configuration.experiments;
-            $.each(_exps, function (exp_type, exp_list) {
-                $.each(exp_list, function (index, exp_config) {
-                    var key = exp_config["experiment.name"] + "@" + exp_config["experiment.category"];
-                    experiments[key] = exp_config;
-                    exp_config.experiment_type = exp_type;
-                });
-            });
-        }
-
-        /**
-         * Retrieves the configuration specific to an experiment from the configuration.js.
-         *
-         * @param {string} exp_name: Name of the experiment.
-         * @param {string} exp_category: Category of hte experiment.
-         * @return {undefined}: Nothing
-         */
-        function _get_experiment_config(exp_name, exp_category) {
-            return experiments[exp_name + "@" + exp_category];
-        }
 
         /**
          * Filters the experiments according to whatever configuration the filters are in.
@@ -171,14 +159,14 @@
             var searchtext = $("#exp-search").val().toLowerCase();
             console.log("Filtering with: " + searchtext);
             notFilteredExperiments = $();
-            if(searchtext.length != 0) {
-                filtered_experiments.each(function(index){
+            if (searchtext.length != 0) {
+                filtered_experiments.each(function (index) {
                     var elem = $(this);
 
                     /** @type string */
                     var experiment_name = elem.data("name").toLowerCase();
 
-                    if(experiment_name.indexOf(searchtext) != -1) {
+                    if (experiment_name.indexOf(searchtext) != -1) {
                         notFilteredExperiments = notFilteredExperiments.add(elem);
                     }
                 });
@@ -186,7 +174,7 @@
             }
 
             // Determine the color of the search box.
-            if(searchtext.length == 0) {
+            if (searchtext.length == 0) {
                 $("#exp-search").css("background-color", "auto");
             } else if (filtered_experiments.length > 0) {
                 $("#exp-search").css("background-color", "#EFFFDE");
@@ -202,10 +190,6 @@
         }
 
         $(document).ready(function () {
-            // Load the list of experiments.
-
-            // Having session strings in an URL is not too good, so commented out for now.
-            // var sid = $.QueryString["sid"];
 
             // Retrieve the sessionid from a cookie.
             var sid = $.cookie("sessionid");
@@ -224,23 +208,23 @@
                         // Parse the config (from the configuration.js but it is stored internally).
                         _parse_experiments_config();
 
-                        // Load & display every single experiment.
-                        $.each(experiments, function (category_name, category) {
-                            $.each(category, function (experiment_name, experiment) {
-
-                                var expConfig = _get_experiment_config(experiment_name, category_name);
-
-                                var experimentRendered = Mustache.render(experimentTemplate, {
-                                            "name": experiment_name,
-                                            "category": category_name,
-                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"],
-                                            "experiment_link": sprintf("https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s",
-                                                    escape(category_name), escape(experiment_name))
-                                        }
-                                );
-                                $("#experiment-descriptions").append(experimentRendered);
-                            });
-                        });
+                        {#                        // Load & display every single experiment.#}
+                        {#                        $.each(experiments, function (category_name, category) {#}
+                        {#                            $.each(category, function (experiment_name, experiment) {#}
+                        {##}
+                        {#                                var expConfig = _get_experiment_config(experiment_name, category_name);#}
+                        {##}
+                        {#                                var experimentRendered = Mustache.render(experimentTemplate, {#}
+                        {#                                            "name": experiment_name,#}
+                        {#                                            "category": category_name,#}
+                        {#                                            "experiment_picture": IMAGES_FOLDER + expConfig["experiment.picture"],#}
+                        {#                                            "experiment_link": sprintf("https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s",#}
+                        {#                                                    escape(category_name), escape(experiment_name))#}
+                        {#                                        }#}
+                        {#                                );#}
+                        {#                                $("#experiment-descriptions").append(experimentRendered);#}
+                        {#                            });#}
+                        {#                        });#}
 
 
                         // Load & display the categories in the menu.
