@@ -13,10 +13,12 @@ class WeblabWebException(Exception):
 class WeblabWeb(object):
     """
     Port of the weblabweb.js script to Python.
+    Each instance of WeblabWeb should only be used with a single user, because the internally-kept session
+    stores cookies, which are required due to Weblab's load distribution scheme.
     """
 
     def __init__(self):
-        pass
+        self.s = requests.Session()
 
     def _send(self, target_url, request):
         """
@@ -30,7 +32,7 @@ class WeblabWeb(object):
 
         @returns {object} JSON result
         """
-        result = requests.post(target_url, data=json.dumps(request), headers={"content-type": "application/json"})
+        result = self.s.post(target_url, data=json.dumps(request), headers={"content-type": "application/json"})
         """ @type: requests.Response """
 
         if result.status_code != 200:
@@ -63,4 +65,39 @@ class WeblabWeb(object):
 
         result = self._send(BASE_URL + "/login/json/", req)
         return result["id"]
+
+    def _get_user_information(self, sessionid):
+        """
+        Retrieves the user information that the server relates to
+        the specified session ID.
+
+        @param {str} sessionid: Sessionid of the user
+        @returns object User information
+        """
+        req = {
+            "method": "get_user_information",
+            "params": {
+                "session_id": {"id": sessionid}
+            }
+        }
+
+        result = self._send(BASE_URL + "/json/", req)
+        return result
+
+    def _list_experiments(self, sessionid):
+        """
+        Lists available experiments for the user.
+
+        @param {str} sessionid: Sessionid of the user
+        @returns object List of experiments
+        """
+        req = {
+            "method": "list_experiments",
+            "params": {
+                "session_id": {"id": sessionid}
+            }
+        }
+
+        result = self._send(BASE_URL + "/json/", req)
+        return result
 
