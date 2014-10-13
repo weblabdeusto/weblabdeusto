@@ -50,6 +50,9 @@
                             <a href="{{ "https://www.weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=%s&exp.name=%s" % (urllib.quote_plus(experiment["experiment.category"]), urllib.quote_plus(experiment["experiment.name"])) }}">
                                 <button class="btn btn-info">Reserve</button>
                             </a>
+                            <a href="#">
+                                <button class="btn btn-info reserve-now">Reserve Now</button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -209,6 +212,27 @@
             // When something is typed in the search box we apply the filter.
             $("#exp-search").bind('input propertychange', function () {
                 _filter_experiments();
+            });
+
+            // Listen for the reserve-now events.
+            $(".reserve-now").click(function(ev){
+                $exp = $(ev.target).parents(".experiment-description");
+                var category = $exp.data("category");
+                var name = $exp.data("name");
+
+                WeblabWeb.reserve_experiment(sid, name, category)
+                        .done(function(result){
+                            console.log("Reservation succeeded");
+                            console.log(result);
+                        })
+                        .fail(function(result){
+                            console.error("Reservation failed");
+                            console.error(result);
+                        })
+                        .progress(function(result){
+                            console.log("Reservation progress");
+                            console.log(result);
+                        });
             });
 
         }); // !ready
