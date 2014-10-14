@@ -11,6 +11,6 @@ script:
     - cd ../../experiments/unmanaged/http/nodejs/
     - npm install
     - mocha
-    - cd ../../; cd flask_client/testpjs
+    - cd ../../../; cd flask_client/testpjs
     - npm install
     - mocha-phantomjs -s web-security=no -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false testrunner.html

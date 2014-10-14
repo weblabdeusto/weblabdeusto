@@ -13,10 +13,12 @@ from launch_sample import inner
 condition = threading.Condition()
 event_notifier = threading.Condition()
 
+
 class Runner(threading.Thread):
     def run(self):
-        self.launcher = inner(condition = condition, event_notifier = event_notifier)
+        self.launcher = inner(condition=condition, event_notifier=event_notifier)
         self.launcher.launch()
+
 
 runner = Runner()
 runner.start()
@@ -26,7 +28,8 @@ with event_notifier:
 
 os.chdir(original_path)
 
-result = os.system("mocha-phantomjs -s web-security=no -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false testrunner.html")
+result = os.system(
+    "mocha-phantomjs -s web-security=no -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false testrunner.html")
 
 os.chdir(weblab_path)
 

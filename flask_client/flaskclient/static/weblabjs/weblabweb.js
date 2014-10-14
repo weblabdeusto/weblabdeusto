@@ -39,14 +39,14 @@ WeblabWeb = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    var BASE_URL = "//www.weblab.deusto.es/weblab";
+    this.BASE_URL = "//www.weblab.deusto.es/weblab";
     var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling requests.
 
     // For making testing possible from local files (after the various security settings
     // have been disabled).
     if(window.location != undefined) {
         if(window.location.protocol != undefined && window.location.protocol === "file:") {
-            BASE_URL = "http:" + BASE_URL;
+            this.BASE_URL = "http:" + this.BASE_URL;
         }
     }
 
@@ -139,7 +139,7 @@ WeblabWeb = new function () {
     this._login = function (account, password) {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/login/json/",
+        this._send(this.BASE_URL + "/login/json/",
             {
                 "method": "login",
                 "params": {
@@ -167,7 +167,7 @@ WeblabWeb = new function () {
     this._get_user_information = function (sessionid) {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/json/",
+        this._send(this.BASE_URL + "/json/",
             {
                 "method": "get_user_information",
                 "params": {
@@ -193,7 +193,7 @@ WeblabWeb = new function () {
     this._list_experiments = function (sessionid) {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/json/",
+        this._send(this.BASE_URL + "/json/",
             {
                 "method": "list_experiments",
                 "params": {
@@ -227,7 +227,7 @@ WeblabWeb = new function () {
     this._reserve_experiment = function (sessionid, experiment_name, experiment_category) {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/json/",
+        this._send(this.BASE_URL + "/json/",
             {
                 "method": "reserve_experiment",
                 "params": {
@@ -264,7 +264,7 @@ WeblabWeb = new function () {
     this._get_reservation_status = function (reservationid) {
         var promise = $.Deferred();
 
-        this._send(BASE_URL + "/json/",
+        this._send(this.BASE_URL + "/json/",
             {
                 "method": "get_reservation_status",
                 "params": {
