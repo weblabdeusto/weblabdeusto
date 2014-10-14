@@ -51,7 +51,7 @@ class WeblabWeb(object):
         """
         Login to the server.
 
-        @param {str} account: Accoun tname.
+        @param {str} account: Account name.
         @param {str} password: Password.
         @returns str The sessionid.
         """
