@@ -47,6 +47,8 @@ class Archimedes(Experiment):
 
         self._lock = threading.Lock()
 
+        self._workpool = None
+
         self._cfg_manager = cfg_manager
 
         # IP of the board, raspberry, beagle, or whatever.
@@ -284,6 +286,11 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
+
+        # Finish the thread pool
+        if self._workpool is not None:
+            self._workpool.terminate()
+
         return "ok"
 
 
