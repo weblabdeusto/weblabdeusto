@@ -1,3 +1,10 @@
+"""
+Launches a local Weblab instance which makes use of the launch_sample configuration, and runs
+on it the WeblabWeb tests using PhantomJS. Once the tests are run, the instance is automatically
+stopped.
+"""
+
+
 import os
 import threading
 import sys
@@ -34,11 +41,6 @@ result = os.system(
 
 os.chdir(weblab_path)
 
-if sys.argv[1] == "forever":
-    sys.exit(result)
-
-if sys.argv[2] == "wait":
-    time.sleep(int(sys.argv[3]))
 
 with condition:
     condition.notify()
