@@ -16,18 +16,21 @@
 import sys
 sys.path.append('../../src')
 
-def inner(signals = False):
+def inner(signals = False, condition = None, event_notifier = None):
     def before_shutdown():
         print "Stopping servers..."
 
     import signal
     import weblab
+    import threading
     import voodoo.gen.loader.Launcher as Launcher
     import voodoo.rt_debugger as rt_debugger
 
     rt_debugger.launch_debugger()
 
-    if signals:
+    if condition is not None:
+        waiters = ( Launcher.ConditionWait(condition), )
+    elif signals:
         waiters = (
                 Launcher.SignalWait(signal.SIGTERM),
                 Launcher.SignalWait(signal.SIGINT),
@@ -38,6 +41,12 @@ def inner(signals = False):
                 Launcher.RawInputWait("Control+C to finish.\n"),
             )
 
+    event_notifiers = (
+                 Launcher.FileNotifier("_file_notifier", "server started"),
+            )
+    if event_notifier:
+        event_notifiers += ( Launcher.ConditionNotifier(event_notifier),)
+
     launcher = Launcher.Launcher(
             '.',
             'main_machine',
@@ -45,17 +54,22 @@ def inner(signals = False):
             waiters,
             "logging.configuration.txt",
             before_shutdown,
-            (
-                 Launcher.FileNotifier("_file_notifier", "server started"),
-            )
+            event_notifiers
         )
+    launcher._wait_condition = condition
+    return launcher
+
+def launch(signals = False):
+    launcher = inner(signals = signals)
     launcher.launch()
+    return launcher
 
-try:
-    from werkzeug.serving import run_with_reloader
-except ImportError:
-    print "werkzeug.serving not installed (pip install werkzeug). If you're developing, you'll have to restart the application in every change manually."
-    inner(signals = True)
-else:
-    run_with_reloader(inner)
-
+if __name__ == '__main__':
+    try:
+        from werkzeug.serving import run_with_reloader
+    except ImportError:
+        print "werkzeug.serving not installed (pip install werkzeug). If you're developing, you'll have to restart the application in every change manually."
+        launch(signals = True)
+    else:
+        run_with_reloader(launch)
+    

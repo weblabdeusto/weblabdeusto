@@ -86,6 +86,17 @@ class RawInputWait(EventWait):
     def wait(self):
         raw_input(self.message)
 
+class ConditionWait(EventWait):
+    def __init__(self, condition = None):
+        super(ConditionWait, self).__init__()
+        if condition:
+            self.condition = condition
+        else:
+            self.condition = threading.Condition()
+    def wait(self):
+        with self.condition:
+            self.condition.wait()
+
 class TimeWait(EventWait):
     def __init__(self, seconds):
         super(TimeWait, self).__init__()
@@ -141,6 +152,20 @@ class SocketNotifier(EventNotifier):
 
     def dispose(self):
         self.s.close()
+
+class ConditionNotifier(EventNotifier):
+    def __init__(self, condition = None):
+        super(ConditionNotifier, self).__init__()
+        if condition:
+            self.condition = condition
+        else:
+            self.condition = threading.Condition()
+    def notify(self):
+        with self.condition:
+            self.condition.notify()
+
+    def dispose(self):
+        pass
 
 # We could add SignalNotifier, etc. etc.
 
