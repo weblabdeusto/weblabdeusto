@@ -1,6 +1,7 @@
 import os
 import threading
 import sys
+import time
 
 original_path = os.path.abspath(os.curdir)
 
@@ -32,6 +33,12 @@ result = os.system(
     "mocha-phantomjs -s web-security=no -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false testrunner.html")
 
 os.chdir(weblab_path)
+
+if sys.argv[1] == "forever":
+    sys.exit(result)
+
+if sys.argv[2] == "wait":
+    time.sleep(int(sys.argv[3]))
 
 with condition:
     condition.notify()

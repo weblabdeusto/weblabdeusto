@@ -13,21 +13,27 @@
 })(jQuery);
 
 
-///////////////////////////////////////////////////////////////
-//
-// WEBLAB WEB MODULE
-//
-// WeblabWeb is intended to carry the basic functions required
-// by the Weblab flask-based client to interact with the core
-// Weblab services. Thus, this library should be able to handle
-// things such as Login, Reserve or List Experiments.
-//
-// Interaction with the experiments themselves is BEYOND THE
-// SCOPE of this module.
-//
-// REQUIREMENTS: jQuery
-//
-///////////////////////////////////////////////////////////////
+
+/**
+ * WEBLAB WEB MODULE
+ *
+ * WeblabWeb is intended to carry the basic functions required
+ * by the Weblab flask-based client to interact with the core
+ * Weblab services. Thus, this library should be able to handle
+ * things such as Login, Reserve or List Experiments.
+ *
+ * Interaction with the experiments themselves is BEYOND THE
+ * SCOPE of this module.
+ *
+ * Requests are carried out through jQuery-powered AJAX requests.
+ * By default, they will be directed to the main Weblab instance,
+ * which is the one running on //www.weblab.deusto.es. However,
+ * the target URLs can be modified through setTargetURLs,
+ * setTargetURLsToTesting or setTargetURLsToStandard (which actually
+ * just resets them to the default).
+ *
+ * REQUIREMENTS: jQuery
+ */
 WeblabWeb = new function () {
 
     ///////////////////////////////////////////////////////////////
@@ -39,7 +45,10 @@ WeblabWeb = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    this.BASE_URL = "//www.weblab.deusto.es/weblab";
+
+    this.LOGIN_URL = ""; // Will be initialized through setTargetURLsToStandard.
+    this.CORE_URL = ""; // Will be initialized through setTargetURLsToStandard.
+
     var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling requests.
 
     // For making testing possible from local files (after the various security settings
@@ -49,6 +58,50 @@ WeblabWeb = new function () {
             this.BASE_URL = "http:" + this.BASE_URL;
         }
     }
+
+
+    /**
+     * Sets the URLs to which the AJAX requests will be directed.
+     * @param {str} login_url: URL of the login server (used for the login request)
+     * @param {str} core_url: URL of the core server (used for most requests)
+     *
+     * Note that by default requests will be directed to the standard Weblab instance,
+     * that is, to the Weblab instance located at //www.weblab.deusto.es/weblab. These
+     * can also be explicitly reset through setTargetURLsToStandard.
+     * @see setTargetURLsToStandard
+     *
+     * Note also that testing target URLs (for use with launch_samples.py or with the
+     * test script which relies on it) can also be set easily through setTargetURLsToTesting.
+     * @see setTargetURLsToTesting
+     */
+    this.setTargetURLs = function(login_url, core_url) {
+        this.LOGIN_URL = login_url;
+        this.CORE_URL = core_url;
+    }
+
+    /**
+     * Sets the target URLs to the standard ones. That is, the ones that will work
+     * on the main Weblab instance, which is at //www.weblab.deusto.es.
+     */
+    this.setTargetURLsToStandard = function() {
+        this.LOGIN_URL = "//www.weblab.deusto.es/weblab/login/json/";
+        this.CORE_URL = "//www.weblab.deusto.es/weblab/json/";
+    }
+
+    /**
+     * Sets the target URLs to the ones that can be used for local automated testing. That is,
+     * the ones that will work with a local Weblab instance started through the launch_sample
+     * configuration, which is the one typically used for development.
+     */
+    this.setTargetURLsToTesting = function() {
+        this.LOGIN_URL = "//localhost:18645/"; // As defined in the launch_sample config.
+        this.CORE_URL = "//localhost:18345/"; // As defined in the launch_sample config.
+    }
+
+
+    // Use these functions for initialization. Standard URLs are the default.
+    this.setTargetURLsToStandard();
+
 
     /**
      * Internal send function. It will send the request to the target URL.
@@ -139,7 +192,7 @@ WeblabWeb = new function () {
     this._login = function (account, password) {
         var promise = $.Deferred();
 
-        this._send(this.BASE_URL + "/login/json/",
+        this._send(this.LOGIN_URL,
             {
                 "method": "login",
                 "params": {
@@ -167,7 +220,7 @@ WeblabWeb = new function () {
     this._get_user_information = function (sessionid) {
         var promise = $.Deferred();
 
-        this._send(this.BASE_URL + "/json/",
+        this._send(this.CORE_URL,
             {
                 "method": "get_user_information",
                 "params": {
@@ -193,7 +246,7 @@ WeblabWeb = new function () {
     this._list_experiments = function (sessionid) {
         var promise = $.Deferred();
 
-        this._send(this.BASE_URL + "/json/",
+        this._send(this.CORE_URL,
             {
                 "method": "list_experiments",
                 "params": {
@@ -227,7 +280,7 @@ WeblabWeb = new function () {
     this._reserve_experiment = function (sessionid, experiment_name, experiment_category) {
         var promise = $.Deferred();
 
-        this._send(this.BASE_URL + "/json/",
+        this._send(this.CORE_URL,
             {
                 "method": "reserve_experiment",
                 "params": {
@@ -264,7 +317,7 @@ WeblabWeb = new function () {
     this._get_reservation_status = function (reservationid) {
         var promise = $.Deferred();
 
-        this._send(this.BASE_URL + "/json/",
+        this._send(this.CORE_URL,
             {
                 "method": "get_reservation_status",
                 "params": {

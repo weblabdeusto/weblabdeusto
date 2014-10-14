@@ -14,9 +14,15 @@
             mocha.ui('bdd');
             mocha.reporter('html');
             var should = chai.should();
+
         </script>
         <script src="test.js"></script>
         <script>
+
+            // Direct the tests to the testing weblab instance and not to the standard one
+            // (the main deployed instance).
+            WeblabWeb.setTargetURLsToTesting();
+
             if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
             else { mocha.run(); }
         </script>

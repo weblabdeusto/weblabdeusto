@@ -38,6 +38,9 @@ describe("WeblabWeb Test", function() {
         $login.done(function(sessionid) {
             WeblabWeb._get_user_information(sessionid)
                 .done(function(result) {
+
+                    console.log(result)
+
                     should.exist(result);
                     result.should.be.a("object");
 
