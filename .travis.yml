@@ -11,6 +11,6 @@ script:
     - cd ../../experiments/unmanaged/http/nodejs/
     - npm install
     - mocha
-    - cd ../../../; cd flask_client/testpjs
+    - cd ../../../../; cd flask_client/testpjs
     - npm install
     - python testweblab_launcher.js
