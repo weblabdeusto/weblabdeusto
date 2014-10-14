@@ -13,4 +13,4 @@ script:
     - mocha
     - cd ../../../../; cd flask_client/testpjs
     - npm install
-    - python testweblab_launcher.js
+    - python testweblab_launcher.py
