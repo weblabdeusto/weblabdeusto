@@ -94,6 +94,8 @@ class Archimedes(Experiment):
             threading.current_thread()._children = weakref.WeakKeyDictionary()
 
         # Allocate a small pool of worker threads to handle the requests to the board.
+        if self._workpool:
+            self._workpool.terminate()
         self._workpool = ThreadPool(len(self.archimedes_instances))
 
         current_config = self.initial_configuration.copy()
