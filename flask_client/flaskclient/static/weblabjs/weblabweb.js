@@ -42,6 +42,13 @@ WeblabWeb = new function () {
     var BASE_URL = "//www.weblab.deusto.es/weblab";
     var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling requests.
 
+    // For making testing possible from local files (after the various security settings
+    // have been disabled).
+    if(window.location != undefined) {
+        if(window.location.protocol != undefined && window.location.protocol === "file:") {
+            BASE_URL = "http:" + BASE_URL;
+        }
+    }
 
     /**
      * Internal send function. It will send the request to the target URL.

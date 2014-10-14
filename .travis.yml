@@ -7,3 +7,6 @@ install:
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
 script:
     - cd server/src; python develop.py
+    - cd ../../; cd flask_client/testpjs
+    - npm install
+    - mocha-phantomjs -s web-security=no -s localToRemoteUrlAccessEnabled=true -s webSecurityEnabled=false testrunner.html
