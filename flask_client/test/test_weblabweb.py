@@ -36,3 +36,10 @@ class TestWeblabWeb:
         print response
 
         assert_is_not_none(response)
+
+    def test_logout(self):
+        """
+        Tests that the Weblab logout method is called successfully
+        """
+        sessionid = self.weblabweb._login("demo", "demo")
+        self.weblabweb._logout(sessionid)

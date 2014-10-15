@@ -34,3 +34,20 @@ def index():
             return redirect(url_for("index"))
 
     return render_template("index.html")
+
+
+@flask_app.route("/logout",  methods=["GET", "POST"])
+def logout():
+    """
+    Logout will logout the current session and redirect to the main page.
+    """
+    sessionid = request.cookies.get("sessionid")
+    if sessionid is not None:
+        try:
+            weblabweb = WeblabWeb()
+            weblabweb._logout(sessionid)
+        except:
+            flash("Could not logout", category="warning")
+
+    return redirect(url_for("index"))
+

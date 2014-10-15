@@ -3,7 +3,7 @@ import requests
 
 
 # TODO: Make this dynamic.
-BASE_URL = "https://www.weblab.deusto.es/weblab"
+BASE_URL = "http://www.weblab.deusto.es/weblab"
 
 
 class WeblabWebException(Exception):
@@ -32,6 +32,9 @@ class WeblabWeb(object):
 
         @returns {object} JSON result
         """
+        # self.s.cookies.clear()
+        # TODO: Fix the routes issue.
+
         result = self.s.post(target_url, data=json.dumps(request), headers={"content-type": "application/json"})
         """ @type: requests.Response """
 
@@ -65,6 +68,23 @@ class WeblabWeb(object):
 
         result = self._send(BASE_URL + "/login/json/", req)
         return result["id"]
+
+    def _logout(self, sessionid):
+        """
+        Logs the user out.
+
+        @param {str} sessionid: Sessionid of the user to logout
+        @returns {None} None
+        """
+        req = {
+            "method": "logout",
+            "params": {
+                "session_id": {"id": sessionid}
+            }
+        }
+
+        result = self._send(BASE_URL + "/json/", req)
+        return None
 
     def _get_user_information(self, sessionid):
         """
