@@ -99,6 +99,8 @@ describe("WeblabWeb Test", function () {
                         exps_by_name[exp.experiment.name] = exp;
                     }
 
+                    //console.log(exps_by_name);
+
                     exps_by_name.should.have.property("submarine");
                     exps_by_name.should.have.property("robot-standard");
                     exps_by_name.should.have.property("visir");
@@ -110,6 +112,81 @@ describe("WeblabWeb Test", function () {
                 });
         });
     });
+
+    it("should support the basic _reserve request", function (done) {
+        // Login first.
+        var $login = WeblabWeb._login(valid_account, valid_password);
+        $login.done(function (sessionid) {
+            WeblabWeb._reserve_experiment(sessionid, "visir", "Visir experiments")
+                .done(function (result) {
+                    should.exist(result);
+
+                    result.status.should.equal("Reservation::waiting_confirmation");
+                    should.exist(result.reservation_id.id);
+                    should.exist(result.url);
+
+                    done();
+                })
+                .fail(function (result) {
+                    throw result;
+                });
+        });
+    }); // !it
+
+    it("should support _get_reservation_status", function (done) {
+        // Login first.
+        var $login = WeblabWeb._login(valid_account, valid_password);
+        $login.done(function (sessionid) {
+            WeblabWeb._reserve_experiment(sessionid, "visir", "Visir experiments")
+                .done(function (result) {
+                    should.exist(result);
+                    var reservation_id = result.reservation_id.id;
+
+                    WeblabWeb._get_reservation_status(reservation_id)
+                        .done(function(r){
+                            should.exist(r);
+
+                            should.exist(r.status);
+                            should.exist(r.reservation_id.id);
+                            should.exist(r.url);
+
+                            done();
+                        })
+                        .fail(function(result){
+                            throw result;
+                        });
+
+                })
+                .fail(function (result) {
+                    throw result;
+                });
+        });
+    }); // !it
+
+    it("should support the full reserve request", function (done) {
+        this.timeout(5000);
+        // Login first.
+        var $login = WeblabWeb._login(valid_account, valid_password);
+        $login.done(function (sessionid) {
+            WeblabWeb.reserve_experiment(sessionid, "robot-standard", "Robot experiments")
+                .done(function (result) {
+
+                    should.exist(result);
+                    result.status.should.equal("Reservation::confirmed");
+                    should.exist(result.url);
+                    should.exist(result.initial_configuration);
+                    should.exist(result.time);
+
+                    result.time.should.be.above(190);
+                    result.time.should.be.below(210);
+
+                    done();
+                })
+                .fail(function (result) {
+                    throw result;
+                });
+        });
+    }); // !it
 
 
 }); // !describe

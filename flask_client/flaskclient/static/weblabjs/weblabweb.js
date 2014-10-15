@@ -332,7 +332,7 @@ WeblabWeb = new function () {
             })
             .done(function (response) {
                 // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
-                console.log("Reservation status: " + response);
+                // console.log("Reservation status: " + response);
                 promise.resolve(response);
             })
             .fail(function (response) {
@@ -367,7 +367,7 @@ WeblabWeb = new function () {
      * @param {string} sessionid: Session ID of the user
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
-     * @returns {string} reservationid for the experiment
+     * @returns {object} reservation result with the status Reservation::confirmed
      * @example
      *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
@@ -387,9 +387,9 @@ WeblabWeb = new function () {
                         .done(function (result) {
                             var status = result["status"];
                             if (status === "Reservation::confirmed") {
-                                // The reservation has succeded. We report this as done, with the
-                                // status itself.
-                                promise.resolve(status);
+                                // The reservation has succeded. We report this as done with the whole
+                                // result object.
+                                promise.resolve(result);
                             }
                             else {
                                 // The reservation is not ready yet. We report the status, but we will repeat
