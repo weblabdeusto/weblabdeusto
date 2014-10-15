@@ -51,14 +51,6 @@ WeblabWeb = new function () {
 
     var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling requests.
 
-    // For making testing possible from local files (after the various security settings
-    // have been disabled).
-    if(window.location != undefined) {
-        if(window.location.protocol != undefined && window.location.protocol === "file:") {
-            this.BASE_URL = "http:" + this.BASE_URL;
-        }
-    }
-
 
     /**
      * Sets the URLs to which the AJAX requests will be directed.
@@ -73,10 +65,24 @@ WeblabWeb = new function () {
      * Note also that testing target URLs (for use with launch_samples.py or with the
      * test script which relies on it) can also be set easily through setTargetURLsToTesting.
      * @see setTargetURLsToTesting
+     *
+     * Note that if running from a local file (file:// protocol) http:// will be preppended
+     * to the URLs.
      */
     this.setTargetURLs = function(login_url, core_url) {
         this.LOGIN_URL = login_url;
         this.CORE_URL = core_url;
+
+        // For making testing possible from local files (after the various security settings
+        // have been disabled).
+        if(window.location != undefined) {
+            if(window.location.protocol != undefined && window.location.protocol === "file:") {
+                if(this.CORE_URL.indexOf("://") == -1)
+                    this.CORE_URL = "http:" + this.CORE_URL;
+                if(this.LOGIN_URL.indexOf("://") == -1)
+                    this.LOGIN_URL = "http:" + this.LOGIN_URL;
+            }
+        }
     }
 
     /**
@@ -94,8 +100,8 @@ WeblabWeb = new function () {
      * configuration, which is the one typically used for development.
      */
     this.setTargetURLsToTesting = function() {
-        this.LOGIN_URL = "//localhost:18645/"; // As defined in the launch_sample config.
-        this.CORE_URL = "//localhost:18345/"; // As defined in the launch_sample config.
+        this.LOGIN_URL = "http://localhost:18645/"; // As defined in the launch_sample config.
+        this.CORE_URL = "http://localhost:18345/"; // As defined in the launch_sample config.
     }
 
 
