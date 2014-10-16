@@ -186,7 +186,7 @@ class Aquarium(ConcurrentExperiment):
             if not ball.lower() in COLORS:
                 return "ERROR:Invalid ball color"
 
-            if not on.lower() in ('true','false'):
+            if not on.lower() in ('true', 'false'):
                 return "ERROR:Invalid state"
 
             on   = on.lower() == 'true'

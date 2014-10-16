@@ -219,18 +219,31 @@ WeblabExp = new function () {
 
 
 
-    //! Internal method to send a command to the server.
-    //!
-    this._send_command = function (command, successHandler, errorHandler) {
+    /**
+     * Internal method to send a command to the server.
+     *
+     * @param {str} command: The command to send.
+     * @returns {$.Promise} Promise with .done(result) and .fail(error). Result is the "result" key within the response.
+     *
+     * @example
+     * Example of a send_command result:
+     * {"result": {"commandstring": "{\"blue\": true, \"white\": true, \"red\": true, \"yellow\": true}"}, "is_exception": false}
+     */
+    this._send_command = function (command) {
+        var promise = $.Deferred();
         var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
 
-        this._send(request, function (success_data) {
-            console.log("Data received: " + success_data);
-            console.log(success_data);
+        this._send(request)
+            .done(function(success_data) {
+                console.log("Data received: " + success_data);
+                console.log(success_data);
+                promise.resolve(success_data);
+            })
+            .fail(function(error) {
+                promise.reject(error);
+            });
 
-            if (successHandler != undefined)
-                successHandler(success_data);
-        });
+        return promise.promise();
     }; // !_send_command
 
 
@@ -270,7 +283,7 @@ WeblabExp = new function () {
     /**
      * Sends a command to the experiment server.
      * @param {str} command: The command to send.
-     * @returns {$.Promise} Promise with done() and fail() callbacks.
+     * @returns {$.Promise} Promise with {@link sendCommand~done} and .fail(error) as callbacks.
      *
      * @example
      * this.sendCommand("TURN_LED ON")
@@ -285,14 +298,21 @@ WeblabExp = new function () {
 
         var promise = $.Deferred();
 
-        this._send_command(command, function (success) {
-            promise.resolve(success);
-        }, function (error) {
-            promise.reject(error);
-        });
+        this._send_command(command)
+            .done(function(success) {
+                promise.resolve(success.commandstring);
+            })
+            .fail(function(error) {
+                promise.reject(error);
+            });
 
         return promise.promise();
     };
+
+    /**
+     * @callback sendCommand~done
+     * @param {str} response: Response to the command
+     */
 
 
     //! Sends a command to the experiment server and prints the result to console.
