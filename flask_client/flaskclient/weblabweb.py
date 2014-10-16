@@ -20,6 +20,16 @@ class WeblabWeb(object):
     def __init__(self):
         self.s = requests.Session()
 
+
+    def _feed_cookies(self, cookies):
+        """
+        Updates the internal dictionary of cookies with the provided cookies.
+        This has been added to solve the routing issue and basically to try to
+        re-send all client cookies.
+        TODO: Modify this scheme, which is way too weird and potentially buggy.
+        """
+        self.s.cookies.update(cookies)
+
     def _send(self, target_url, request):
         """
         Internal send function. It will send the request to the target URL.
@@ -32,8 +42,6 @@ class WeblabWeb(object):
 
         @returns {object} JSON result
         """
-        # self.s.cookies.clear()
-        # TODO: Fix the routes issue.
 
         result = self.s.post(target_url, data=json.dumps(request), headers={"content-type": "application/json"})
         """ @type: requests.Response """

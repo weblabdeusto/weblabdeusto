@@ -136,7 +136,7 @@ WeblabWeb = new function () {
             "dataType": "json",
             "contentType": "application/json"
         })
-            .done(function (success) {
+            .done(function (success, status, jqXHR) {
                 // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
 
                 // Check that the internal is_exception is set to false.
@@ -161,7 +161,7 @@ WeblabWeb = new function () {
 
                 // The request, whatever it contains, was apparently successful. We call the success handler, passing
                 // the result field.
-                promise.resolve(result);
+                promise.resolve(result, status, jqXHR);
             })
             .fail(function (fail) {
                 console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + targetURL);
@@ -206,7 +206,7 @@ WeblabWeb = new function () {
                     "password": password
                 }
             }
-        ).done(function (response) {
+        ).done(function (response, status, jqXHR) {
                 // Parse the response.
                 var sessionid = response["id"];
                 promise.resolve(sessionid);

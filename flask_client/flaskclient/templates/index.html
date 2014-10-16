@@ -130,7 +130,7 @@
                 $status.attr("class", "alert alert-info");
                 $status.text("Logging in...");
                 WeblabWeb._login(username, password)
-                        .done(function (ev) {
+                        .done(function (ev, a) {
                             $status.attr("class", "alert alert-success");
                             $status.text("Logged in. Please wait...");
 

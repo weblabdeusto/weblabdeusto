@@ -56,6 +56,7 @@ def labs():
         flash("You are not logged in", category="error")
         return redirect(url_for("index"))
     weblabweb = WeblabWeb()
+    weblabweb._feed_cookies(request.cookies)
 
     experiments_list = weblabweb._list_experiments(sessionid)
     # TODO: There could be issues with the routing.
