@@ -35,10 +35,14 @@ describe("WeblabExp Test", function () {
         this.timeout(5000);
 
         // Finish the experiment so that we can reserve again for the next test.
-        WeblabExp._setReservation(reserve_result["reservation_id"]["id"]);
+        WeblabExp.setReservation(reserve_result.reservation_id.id);
         WeblabExp.finishExperiment()
             .done(function(result){
-                console.log("FINISH SUCCESS");
+
+                // The result should be an empty JSON dictionary
+                should.exist(result);
+                result.should.be.empty;
+
                 done();
             })
             .fail(function(error){
@@ -56,7 +60,6 @@ describe("WeblabExp Test", function () {
         should.exist(reserve_result);
         done();
     });
-
 
 })
 ; // !describe

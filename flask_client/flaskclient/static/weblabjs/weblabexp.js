@@ -12,17 +12,20 @@
     })(window.location.search.substr(1).split('&'))
 })(jQuery);
 
-///////////////////////////////////////////////////////////////
-//
-// WeblabExp is a library that provides a simple way to interact
-// with Weblab experiments.
-//
-// It relies on jQuery-style deferred callbacks, and is thus
-// dependent on the jQuery library.
-//
-// DEPENDENCIES: jQuery
-//
-///////////////////////////////////////////////////////////////
+
+/**
+ *
+ * WEBLAB EXP MODULE
+ *
+ * WeblabExp is a library that provides a simple way to interact
+ * with Weblab experiments.
+ *
+ * It relies on jQuery-style deferred callbacks, and is thus
+ * dependent on the jQuery library.
+ *
+ * DEPENDENCIES: jQuery
+ *
+ */
 WeblabExp = new function () {
 
     ///////////////////////////////////////////////////////////////
@@ -34,11 +37,77 @@ WeblabExp = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
-    var mTargetURL;
-    var mReservation;
+
+    this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
+    var mReservation; // Must be set through setReservation()
+
 
     var mStartHandlers = [];
     var mFinishHandlers = [];
+
+
+
+    /**
+     * Sets the target URL to which the AJAX requests will be directed. This is the
+     * URL of the Core server's JSON handler.
+     * @param {str} target_url: URL of the core server.
+     *
+     * Note that by default requests will be directed to the standard Weblab instance,
+     * that is, to the Weblab instance located at //www.weblab.deusto.es/weblab. These
+     * can also be explicitly reset through setTargetURLToStandard.
+     * @see setTargetURLToStandard
+     *
+     * Note also that testing target URL (for use with launch_samples.py or with the
+     * test script which relies on it) can also be set easily through setTargetURLToTesting.
+     * @see setTargetURLToTesting
+     *
+     * Note that if running from a local file (file:// protocol) http:// will be preppended
+     * to the URLs.
+     */
+    this.setTargetURLToStandard = function(target_url) {
+        this.CORE_URL = target_url;
+
+        // For making testing possible from local files (after the various security settings
+        // have been disabled).
+        if(window.location != undefined) {
+            if(window.location.protocol != undefined && window.location.protocol === "file:") {
+                if(this.CORE_URL.indexOf("://") == -1)
+                    this.CORE_URL = "http:" + this.CORE_URL;
+            }
+        }
+    }
+
+    /**
+     * Sets the target URLs to the standard ones. That is, the ones that will work
+     * on the main Weblab instance, which is at //www.weblab.deusto.es.
+     */
+    this.setTargetURLToStandard = function() {
+        this.CORE_URL = "//www.weblab.deusto.es/weblab/json/";
+    }
+
+    /**
+     * Sets the target URL to the one that can be used for local automated testing. That is,
+     * the ones that will work with a local Weblab instance started through the launch_sample
+     * configuration, which is the one typically used for development.
+     */
+    this.setTargetURLToTesting = function() {
+        this.CORE_URL = "http://localhost:18345";
+    }
+
+    /**
+     * Sets the reservation id to use.
+     *
+     * @param {str} reservation_id: The reservation ID to use.
+     */
+    this.setReservation = function(reservation_id) {
+        mReservation = reservation_id;
+    }
+
+
+
+    // !!!!!!!!!!!!!!
+    // AS OF NOW, RESERVATION-EXTRACTING IS NOT SUPPORTED. THESE FUNCTIONS MUST BE REVISED.
+    // !!!!!!!!!!!!!!
 
     //! Extracts the reservation id from the URL (in the hash).
     //!
@@ -57,28 +126,13 @@ WeblabExp = new function () {
     };
 
 
-    //! Gets the reservation that Weblab is using.
-    //!
-    //! @return The reservation ID.
-    this._getReservation = function () {
-        return mReservation;
-    };
 
-    //! Gets the TargetURL that we are using.
-    //!
-    //! @return The target URL.
-    this._getTargetURL = function () {
-        return mTargetURL;
-    };
 
-    this._setTargetURL = function (targetURL) {
-        mTargetURL = targetURL;
-    };
-
-    this._setReservation = function (reservation) {
-        mReservation = reservation;
-    };
-
+    /**
+     * Polls the server to check the status of the experiment.
+     *
+     * @returns {$.Promise} Promise with .done(result) and .fail(error) callbacks.
+     */
     this._poll = function () {
         var promise = $.Deferred();
         var request = {"method": "poll", "params": {"reservation_id": {"id": mReservation}}};
@@ -119,7 +173,7 @@ WeblabExp = new function () {
 
         $.ajax({
             "type": "POST",
-            "url": mTargetURL,
+            "url": this.CORE_URL,
             "data": JSON.stringify(request),
             "dataType": "json",
             "contentType": "application/json"
@@ -162,40 +216,8 @@ WeblabExp = new function () {
 
     }; // !_send
 
-    //! Internal method to check the reservation status. While the experiment is active this should return confirmed.
-    //! As of now that is in fact the only supported response, because the full reservation process is not covered
-    //! by this API.
-    this._get_reservation_status = function () {
-        var request = {"method": "get_reservation_status", "params": {"reservation_id": {"id": mReservation}}};
-
-        this._send(request, function (success_data) {
-            // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
-
-            console.log("Data received: " + success_data);
-            console.log(success_data);
-
-            var result = success_data["result"];
-            var status = result["status"];
-
-            if (status != "Reservation::confirmed") {
-                console.error("[ERROR][get_reservation_status]: Status is not Reservation::confirmed as was expected");
-                return;
-            }
 
 
-            var time = result["time"];
-            var initial_configuration = result["initial_configuration"];
-
-            // Invoke the start handlers.
-            for (var i = 0; i < mStartHandlers.length; i++) {
-                console.log("Invoking start handler");
-                mStartHandlers[i](initial_configuration, time);
-            }
-
-            // Remove the handlers so that they are not invoked again.
-            mStartHandlers = [];
-        });
-    }; // !_get_reservation
 
     //! Internal method to send a command to the server.
     //!
@@ -210,6 +232,7 @@ WeblabExp = new function () {
                 successHandler(success_data);
         });
     }; // !_send_command
+
 
     this._finished_experiment = function (successHandler) {
         var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
