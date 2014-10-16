@@ -13,9 +13,50 @@ describe("WeblabExp Test", function () {
         valid_password = "demo";
     }
 
+    var reserve_result = undefined;
+
+    before(function (done) {
+        this.timeout(5000);
+        // Login first.
+        var $login = WeblabWeb._login(valid_account, valid_password);
+        $login.done(function (sessionid) {
+            WeblabWeb.reserve_experiment(sessionid, "aquariumjs", "Aquatic experiments")
+                .done(function (result) {
+                    reserve_result = result;
+                    done();
+                })
+                .fail(function (result) {
+                    throw result;
+                });
+        });
+    });
+
+    after(function (done) {
+        this.timeout(5000);
+
+        // Finish the experiment so that we can reserve again for the next test.
+        WeblabExp._setReservation(reserve_result["reservation_id"]["id"]);
+        WeblabExp.finishExperiment()
+            .done(function(result){
+                console.log("FINISH SUCCESS");
+                done();
+            })
+            .fail(function(error){
+                throw error;
+            });
+    });
+
+
     it("should be present", function (done) {
         should.exist(WeblabWeb);
         done();
     });
 
-}); // !describe
+    it("should have reserved", function (done) {
+        should.exist(reserve_result);
+        done();
+    });
+
+
+})
+; // !describe
