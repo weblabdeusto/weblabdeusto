@@ -208,6 +208,36 @@ WeblabExp = function (frameMode) {
 
 
     /**
+     * Starts the automatic polling mechanism, which will _poll the server repeteadly.
+     * When the expeirment is over, it will automatically stop, and the finish callbacks
+     * will be invoked (unless they have been invoked by an explicit finish call already).
+     * @private
+     */
+    this._startPolling = function() {
+        var frequency = 4000; // The polling freq might be a setting somewhere. For now it's hard-coded to 4 seconds.
+
+        this._poll()
+            .done(function(result) {
+                // This means the experiment is still active. We shall check again soon, unless the experiment
+                // has been explicitly finished.
+                if (!mOnFinishPromise.state() != "resolved") {
+                    setTimeout(this._startPolling.bind(this), frequency);
+                }
+            }.bind(this))
+            .fail(function(error){
+                // Presumably, the experiment has ended. We should actually check the error to make sure it's so.
+                // TODO:
+
+                // TODO: We should also add a way to retrieve the finish information. For now an empty call.
+                mOnFinishPromise.resolve();
+
+                // TODO: How are connection failures handled??? Do we consider the experiment finished?
+            }.bind(this));
+
+    }; // !_startPolling
+
+
+    /**
      * Internal send function. It will send the request to the target URL.
      * Meant only for internal use. If an error occurs (network error, "is_exception" to true, or other) then
      * the exception will be printed to console, and nothing else will happen (as of now).
@@ -448,7 +478,7 @@ WeblabExp = function (frameMode) {
 
                 promise.resolve(success);
 
-                if(mOnFinishPromise.status != "resolved")
+                if(mOnFinishPromise.state() != "resolved")
                     mOnFinishPromise.resolve(success);
             })
             .fail(function(error) {
@@ -501,7 +531,7 @@ WeblabExp = function (frameMode) {
     */
     this.onFinish = function( finishHandler ) {
         if(finishHandler != undefined) {
-            mOnFinishPromise.done(finishHandler);
+            mOnFinishPromise.done(finishHandler.bind(this));
         }
         return mOnStartPromise.promise();
     }
