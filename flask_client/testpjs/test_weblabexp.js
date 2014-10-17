@@ -1,4 +1,5 @@
 // In case we want to test against the standard (deployed) Weblab server.
+// As of now this MUST be false, testing against the real server is not supported.
 TESTING_DEPLOYED_SERVER = false;
 
 describe("WeblabExp Test", function () {
@@ -20,7 +21,7 @@ describe("WeblabExp Test", function () {
         // Login first.
         var $login = WeblabWeb._login(valid_account, valid_password);
         $login.done(function (sessionid) {
-            WeblabWeb.reserve_experiment(sessionid, "aquariumjs", "Aquatic experiments")
+            WeblabWeb.reserve_experiment(sessionid, "ud-dummy", "Dummy experiments")
                 .done(function (result) {
                     reserve_result = result;
                     WeblabExp.setReservation(reserve_result.reservation_id.id);
@@ -60,8 +61,8 @@ describe("WeblabExp Test", function () {
         done();
     });
 
-    it("raw _send_command should succeed (get-status)", function (done) {
-        WeblabExp._send_command("get-status")
+    it("raw _send_command should succeed", function (done) {
+        WeblabExp._send_command("ChangeSwitch on 1")
             .done(function (result) {
                 should.exist(result);
                 result.should.have.property("commandstring");
@@ -69,9 +70,8 @@ describe("WeblabExp Test", function () {
                 var cmdstring = result.commandstring;
 
                 // Checks specific to the aquariumjs experiment.
-                expect(cmdstring).to.contain("blue");
-                expect(cmdstring).to.contain("white");
-                expect(cmdstring).to.contain("yellow");
+                expect(cmdstring).to.contain("Received");
+                expect(cmdstring).to.contain("ChangeSwitch");
 
                 done();
             })
@@ -96,17 +96,16 @@ describe("WeblabExp Test", function () {
 //            });
 //    });
 
-    it("sendCommand (get-status) should succeed and report the output", function (done) {
-        WeblabExp.sendCommand("get-status")
+    it("sendCommand should succeed and report the output", function (done) {
+        WeblabExp.sendCommand("ChangeSwitch on 1")
             .done(function (response) {
 
                 should.exist(response);
 
 
                 // Checks specific to the aquariumjs experiment.
-                expect(response).to.contain("blue");
-                expect(response).to.contain("white");
-                expect(response).to.contain("yellow");
+                expect(response).to.contain("Received");
+                expect(response).to.contain("ChangeSwitch");
 
                 done();
             })
