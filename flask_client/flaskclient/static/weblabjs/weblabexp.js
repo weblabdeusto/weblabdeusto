@@ -20,13 +20,35 @@
  * WeblabExp is a library that provides a simple way to interact
  * with Weblab experiments.
  *
+ * It supports two modes:
+ *
+ *  FRAME MODE: The laboratory which makes use of this module is meant to run from within the Weblab page,
+ *  on an iframe. The laboratory can be loaded without a reserve, and the Weblab page notifies through the
+ *  onStart() callbacks whenever the reserve succeeds.
+ *
+ *  FREE MODE: The laboratory which makes use of this module is meant to run on its own page. The laboratory cannot
+ *  be loaded before the reserve is done (because, as of now, reserves through this API are not supported).
+ *
+ * The mode will be automatically guessed, though it can be forced by specifying it on the WeblabExp constructor.
+ *
+ * @example:
+ * // Instance WeblabExp in FREE mode.
+ * weblabExp = new WeblabExp(false);
+ *
  * It relies on jQuery-style deferred callbacks, and is thus
  * dependent on the jQuery library.
  *
  * DEPENDENCIES: jQuery
  *
+ *
+ * Constructor.
+ *
+ * @param {bool} [frameMode]: This parameter is strictly optional. If not set (undefined) then the mode will be
+ * guessed automatically. If set to TRUE, the mode will be set to the FRAME MODE. If false, it will be set to the
+ * FREE MODE.
+ *
  */
-WeblabExp = new function () {
+WeblabExp = function (frameMode) {
 
     ///////////////////////////////////////////////////////////////
     //
@@ -37,14 +59,43 @@ WeblabExp = new function () {
     //
     ///////////////////////////////////////////////////////////////
 
+    /**
+     * FRAME mode if true, FREE mode if false.
+     * @type : bool
+     */
+    var mFrameMode;
 
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
     var mReservation; // Must be set through setReservation()
 
+    // To store callbacks for the start
+    var mOnStartPromise = $.Deferred();
+
+    // To store callbacksf or the end
+    var mOnFinishPromise = $.Deferred();
 
     var mStartHandlers = [];
     var mFinishHandlers = [];
 
+
+    /**
+     * Guesses the frame mode depending on the availability of the ReserveID.
+     * @returns {bool}: The mode (true if frame mode).
+     * @private
+     */
+    this._guessFrameMode = function() {
+        // TODO: For now we only support the frame-mode.
+        return true;
+    }
+
+
+    /**
+     * Checks whether the WeblabExp instance is set to FRAME MODE.
+     * @returns {bool} TRUE if the current mode is FRAME MODE. FALSE if the current mode is FREE MODE.
+     */
+    this.isFrameMode = function() {
+        return mFrameMode;
+    }
 
 
     /**
@@ -130,8 +181,13 @@ WeblabExp = new function () {
 
     /**
      * Polls the server to check the status of the experiment.
+     * This is a private method, intended to just poll the server and report the response.
+     * The response is not acted upon. That is, even if the experiment finished, no callbacks
+     * will be called (other than the response callback itself).
      *
      * @returns {$.Promise} Promise with .done(result) and .fail(error) callbacks.
+     *
+     * @private
      */
     this._poll = function () {
         var promise = $.Deferred();
@@ -148,7 +204,7 @@ WeblabExp = new function () {
             });
 
         return promise.promise();
-    }; //!_poll
+    }; // !_poll
 
 
     /**
@@ -160,6 +216,8 @@ WeblabExp = new function () {
      * right or not. It is assumed it is. This should be a JSON-able object and NOT a JSON string.
      *
      * @return: Promise, whose .done(result_field) or .fail will be invoked depending on the success of the request.
+     *
+     * @private
      *
      */
     this._send = function (request) {
@@ -206,7 +264,7 @@ WeblabExp = new function () {
                 promise.resolve(result, status, jqXHR);
             })
             .fail(function (fail) {
-                console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + targetURL);
+                console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + this.CORE_URL);
                 console.error(fail);
 
                 promise.reject(fail);
@@ -228,6 +286,8 @@ WeblabExp = new function () {
      * @example
      * Example of a send_command result:
      * {"result": {"commandstring": "{\"blue\": true, \"white\": true, \"red\": true, \"yellow\": true}"}, "is_exception": false}
+     *
+     * @private
      */
     this._send_command = function (command) {
         var promise = $.Deferred();
@@ -247,7 +307,15 @@ WeblabExp = new function () {
     }; // !_send_command
 
 
-    this._finished_experiment = function (successHandler) {
+    /**
+     * Internal method to finish the experiment.
+     *
+     * @returns {$.Promise} Promise with .done(result) and .fail(error). Result is the "result" key within the response.
+     *
+     * @private
+     */
+    this._finished_experiment = function () {
+        var promise = $.Deferred();
         var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
         this._send(request)
@@ -263,9 +331,13 @@ WeblabExp = new function () {
                 // Clear the finish handlers so that they are not invoked again.
                 mFinishHandlers = [];
 
-                if (successHandler != undefined)
-                    successHandler(success_data);
+                promise.resolve(success_data);
+            })
+            .fail(function(error){
+                promise.reject(error);
             });
+
+        return promise;
     };
 
 
@@ -350,76 +422,139 @@ WeblabExp = new function () {
 
 
     /**
-     * Finishes the experiment.
+     * Finishes the experiment. When the experiment is finished, the result is reported
+     * through the .done() callback, but also through the standard onFinish callbacks,
+     * which can be set through onFinish.
+     * @see onFinish
+     *
+     * The .done() callback will be invoked first, and then the onFinish ones. It is also
+     * possible that onFinish callbacks were already invoked because of a poll() result.
+     * In that case, these callbacks would NOT be invoked, but the finishExperiment done callback
+     * still would.
      *
      * @returns {$.Promise} Promise with .done and .fail callbacks.
      *
-     * TODO: .fail not yet supported.
      */
     this.finishExperiment = function () {
 
         var promise = $.Deferred();
 
-        this._finished_experiment(function (success) {
-            promise.resolve(success);
-        });
+        this._finished_experiment()
+            .done(function(success) {
+
+                // TODO: Send the right thing to the callbacks. As of now I think they just receive a JSON, which
+                // isn't right. Actually the end_data seems to also be in the post-reservation message from
+                // the reservation status message.
+
+                promise.resolve(success);
+
+                if(mOnFinishPromise.status != "resolved")
+                    mOnFinishPromise.resolve(success);
+            })
+            .fail(function(error) {
+                promise.reject(error);
+            });
 
         return promise.promise();
     };
 
-    //! addStartHandler(startHandler(initialConfiguration, timeLeft))
-    //!
-    //! Registers a start handler, which will be called when the experiment's interaction starts. Several start
-    //! handlers can be registered. They will be invoked in the order they are registered.
-    //!
-    //! @param startHandler: The start handler function. Should receive the starting configuration and the time left.
-    this.addStartHandler = function (startHandler) {
-        mStartHandlers.push(startHandler);
-    };
-
-    //! addFinishHandler(finishHandler(reason))
-    //!
-    //! Registers a finish handler, which will be called when the experiment finishes. Several end handlers can be
-    //! registered. They will be invoked in the order they are registered.
-    //!
-    //! @param finishHandler: The finish handler function. Should receive an object related to the cause, whose
-    //! exact nature is for now not specified.
-    this.addFinishHandler = function (finishHandler) {
-        mFinishHandlers.push(finishHandler);
-    };
 
 
-    //! Indicates that we are ready and that we have registered all callbacks.
-    //! Should be called to start.
-    this.ready = function () {
-        this._get_reservation_status();
+    /**
+     * onStart( startHandler ) -> promise
+     * onStart () -> promise
+     *
+     * Registers a start handler, which will be called when the experiment's interaction starts. Several start
+     * handlers can be registered. Callbacks will be executed in FIFO order, as guaranteed by jQuery Deferred rules.
+     * A start handler may not be specified. In that case, a jQuery Promise is returned, to which .done() callbacks
+     * can be freely attached.
+     *
+     * @param {function} [startHandler]: The start handler function. Should receive the starting configuration and the time left.
+     *
+     * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
+     */
+    this.onStart = function( startHandler ) {
+        if(startHandler != undefined) {
+            mOnStartPromise.done(startHandler);
+        }
+        return mOnStartPromise.promise();
+    }
+
+    /**
+     * @callback startHandler
+     * @param {object} startingConfiguration: The starting configuration of the experiment, in JSON.
+     * @param {number} timeLeft: Time left for the experiment.
+     */
+
+    /**
+     * onFinish( endHandler ) -> promise
+     * onFinish () -> promise
+     *
+     * Registers an end handler, which will be called when the experiment's interaction ends. Several end
+     * handlers can be registered. Callbacks will be executed in FIFO order, as guaranteed by jQuery Deferred rules.
+     * A finish handler may not be specified. In that case, a jQuery Promise is returned, to which .done() callbacks
+     * can be freely attached.
+     *
+     * @param {function} [startHandler]: The finish handler function.
+     *
+     * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
+    */
+    this.onFinish = function( finishHandler ) {
+        if(finishHandler != undefined) {
+            mOnFinishPromise.done(finishHandler);
+        }
+        return mOnStartPromise.promise();
+    }
+
+    /**
+     * @callback finishHandler
+     * @param {str} finishData: The data returned by the experiment after finishing.
+     */
+
+    // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
+    // Revise them.
 
 
-        // Poll every minute.
-        function poller() {
-            this._poll()
-                .done(function () {
-                    window.setTimeout(poller.bind(this), 1000 * 30);
-                }.bind(this));
-        };
-        window.setTimeout(poller.bind(this), 1000 * 30);
-    };
 
 
-    ///////////////////////////////////////////////////////////////
-    //
-    // CONSTRUCTOR
-    // The following is internal code to create the object.
-    //
-    ///////////////////////////////////////////////////////////////
 
-    // Extract the reservation id from the hash.
-    this._extractReservation();
 
-    // Extract the target URL from the hash or set a default one.
-    this._extractTargetURL();
 
-    //$.cookie("weblabsessionid", "T-Go5baSwSB3SHsO.route2");
+    /////////////////////////////////////////////
+    // THE CODE THAT FOLLOWS IS COMMENTED OUT FOR NOW AND MOST LIKELY WOULDNT WORK AS EXPECTED
+    /////////////////////////////////////////////
+
+//    //! Indicates that we are ready and that we have registered all callbacks.
+//    //! Should be called to start.
+//    this.ready = function () {
+//        this._get_reservation_status();
+//
+//
+//        // Poll every minute.
+//        function poller() {
+//            this._poll()
+//                .done(function () {
+//                    window.setTimeout(poller.bind(this), 1000 * 30);
+//                }.bind(this));
+//        };
+//        window.setTimeout(poller.bind(this), 1000 * 30);
+//    };
+//
+//
+//    ///////////////////////////////////////////////////////////////
+//    //
+//    // CONSTRUCTOR
+//    // The following is internal code to create the object.
+//    //
+//    ///////////////////////////////////////////////////////////////
+//
+//    // Extract the reservation id from the hash.
+//    this._extractReservation();
+//
+//    // Extract the target URL from the hash or set a default one.
+//    this._extractTargetURL();
+//
+//    //$.cookie("weblabsessionid", "T-Go5baSwSB3SHsO.route2");
 
 }; // !WeblabExp
 

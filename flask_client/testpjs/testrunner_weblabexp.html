@@ -23,7 +23,10 @@
             // Direct the tests to the testing weblab instance and not to the standard one
             // (the main deployed instance).
             WeblabWeb.setTargetURLsToTesting();
-            WeblabExp.setTargetURLToTesting();
+
+
+            weblabExp = new WeblabExp();
+            weblabExp.setTargetURLToTesting();
 
 
             if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
