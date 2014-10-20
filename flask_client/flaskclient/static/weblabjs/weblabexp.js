@@ -84,6 +84,32 @@ WeblabExp = function (frameMode) {
     // To keep track of the state of the object.
     var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
 
+    // Debugging mode.
+    // TODO: Not yet implemented.
+    var mDebuggingMode = false;
+    var mSendCommandResponse;
+
+    /**
+     * Enables the debugging mode, in which commands do not really send anything to the server.
+     * @see: dbgSetSendCommandResponse()
+     */
+    this.enableDebuggingMode = function() {
+        mDebuggingMode = true;
+
+        this.sendCommand = function(command) {
+            var p = $.Deferred();
+            p.resolve(mSendCommandResponse);
+            return p.promise();
+        };
+    };
+
+    /**
+     * Sets the response that sendCommand will return in debugging mode.
+     * @param {str} Response: Send command response.
+     */
+    this.dbgSetSendCommandResponse = function(response) {
+        mSendCommandResponse = response;
+    }
 
 
     /**
@@ -115,8 +141,10 @@ WeblabExp = function (frameMode) {
      * It should only be called once. Calling it twice should also trigger an exception.
      *
      * @param {str} reservation_id: The reservation ID.
+     * @param {object} initial_config: Initial configuration of the experiment, obtained from the confirmed reservation.
+     * @param {number} time: Time left for the experiment.
      */
-    this._reservationReady = function(reservation_id) {
+    this._reservationReady = function(reservation_id, time, initial_config) {
         if(this.isFrameMode == false)
             throw new Error("_reservationReady is not supported in FREE mode (only in FRAME mode)");
 
@@ -127,10 +155,7 @@ WeblabExp = function (frameMode) {
         // Set the ID.
         mReservation = reservation_id;
 
-        // Trigger the start interaction callbacks.
-        // TODO: Eventually we should pass the start data to the handlers. That data can be extracted
-        // from the reservation result, so maybe it should be provided to this func.
-        mOnStartPromise.resolve();
+        mOnStartPromise.resolve(time, initial_config);
     }
 
     /**
@@ -455,11 +480,6 @@ WeblabExp = function (frameMode) {
      */
 
 
-    //! Sends a command to the experiment server and prints the result to console.
-    //! If the command was successful it is printed to the stdout and otherwise to stderr.
-    //!
-    //! @param text: Command to send.
-
     /**
      * Sends a command to the experiment server and prints the result to the console.
      * If the command was successful it will be printed to stdout and otherwise it
@@ -540,7 +560,7 @@ WeblabExp = function (frameMode) {
      * A start handler may not be specified. In that case, a jQuery Promise is returned, to which .done() callbacks
      * can be freely attached.
      *
-     * @param {function} [startHandler]: The start handler function. Should receive the starting configuration and the time left.
+     * @param {function} [startHandler]: The start handler function. Should receive the time left and the starting configuration.
      *
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
      */
@@ -553,8 +573,8 @@ WeblabExp = function (frameMode) {
 
     /**
      * @callback startHandler
-     * @param {object} startingConfiguration: The starting configuration of the experiment, in JSON.
      * @param {number} timeLeft: Time left for the experiment.
+     * @param {object} startingConfiguration: The starting configuration of the experiment, in JSON.
      */
 
     /**
@@ -599,22 +619,7 @@ WeblabExp = function (frameMode) {
     // THE CODE THAT FOLLOWS IS COMMENTED OUT FOR NOW AND MOST LIKELY WOULDNT WORK AS EXPECTED
     /////////////////////////////////////////////
 
-//    //! Indicates that we are ready and that we have registered all callbacks.
-//    //! Should be called to start.
-//    this.ready = function () {
-//        this._get_reservation_status();
-//
-//
-//        // Poll every minute.
-//        function poller() {
-//            this._poll()
-//                .done(function () {
-//                    window.setTimeout(poller.bind(this), 1000 * 30);
-//                }.bind(this));
-//        };
-//        window.setTimeout(poller.bind(this), 1000 * 30);
-//    };
-//
+
 //
 //    ///////////////////////////////////////////////////////////////
 //    //
