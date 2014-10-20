@@ -31,6 +31,8 @@
  *
  * The mode will be automatically guessed, though it can be forced by specifying it on the WeblabExp constructor.
  *
+ * Note that this class is meant to be instanced anew for each laboratory reserve.
+ *
  * @example:
  * // Instance WeblabExp in FREE mode.
  * weblabExp = new WeblabExp(false);
@@ -65,6 +67,8 @@ WeblabExp = function (frameMode) {
      */
     var mFrameMode;
 
+    this.POLL_FREQUENCY = 4000; // Indicates how often we will poll once polling is started. Will not normally be changed.
+
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
     var mReservation; // Must be set through setReservation()
 
@@ -74,8 +78,12 @@ WeblabExp = function (frameMode) {
     // To store callbacksf or the end
     var mOnFinishPromise = $.Deferred();
 
-    var mStartHandlers = [];
-    var mFinishHandlers = [];
+    // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
+    var mPollingTimer;
+
+    // To keep track of the state of the object.
+    var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
+
 
 
     /**
@@ -97,6 +105,33 @@ WeblabExp = function (frameMode) {
         return mFrameMode;
     }
 
+
+    /**
+     * Meant to be called from the Weblab client itself whenever the reservation finishes, in FRAME mode,
+     * to provide the actual reservation ID, once it is ready.
+     * In FRAME mode it will trigger a call to the start interaction handlers.
+     * In FREE mode it shouldn't be used and it will currently trigger an exception.
+     *
+     * It should only be called once. Calling it twice should also trigger an exception.
+     *
+     * @param {str} reservation_id: The reservation ID.
+     */
+    this._reservationReady = function(reservation_id) {
+        if(this.isFrameMode == false)
+            throw new Error("_reservationReady is not supported in FREE mode (only in FRAME mode)");
+
+        if(mStartCalled == true)
+            throw new Error("_reservationReady should only be called once");
+        mStartCalled = true;
+
+        // Set the ID.
+        mReservation = reservation_id;
+
+        // Trigger the start interaction callbacks.
+        // TODO: Eventually we should pass the start data to the handlers. That data can be extracted
+        // from the reservation result, so maybe it should be provided to this func.
+        mOnStartPromise.resolve();
+    }
 
     /**
      * Sets the target URL to which the AJAX requests will be directed. This is the
@@ -147,11 +182,22 @@ WeblabExp = function (frameMode) {
 
     /**
      * Sets the reservation id to use.
+     * For internal use. Does not trigger callbacks.
      *
      * @param {str} reservation_id: The reservation ID to use.
+     * @private
      */
-    this.setReservation = function(reservation_id) {
+    this._setReservation = function(reservation_id) {
         mReservation = reservation_id;
+    }
+
+    /**
+     * Retrieves the currently assigned reservation ID.
+     * @returns {str} Reservation ID
+     * @private
+     */
+    this._getReservation = function() {
+        return mReservation;
     }
 
 
@@ -214,14 +260,14 @@ WeblabExp = function (frameMode) {
      * @private
      */
     this._startPolling = function() {
-        var frequency = 4000; // The polling freq might be a setting somewhere. For now it's hard-coded to 4 seconds.
+        var frequency = this.POLL_FREQUENCY; // The polling freq might be a setting somewhere. For now it's hard-coded to 4 seconds.
 
         this._poll()
             .done(function(result) {
                 // This means the experiment is still active. We shall check again soon, unless the experiment
                 // has been explicitly finished.
                 if (!mOnFinishPromise.state() != "resolved") {
-                    setTimeout(this._startPolling.bind(this), frequency);
+                    mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                 }
             }.bind(this))
             .fail(function(error){
@@ -353,14 +399,6 @@ WeblabExp = function (frameMode) {
                 console.log("Data received: " + success_data);
                 console.log(success_data);
 
-                // Invoke the finish handlers.
-                for (var i = 0; i < mFinishHandlers; i++) {
-                    mFinishHandlers[i]();
-                }
-
-                // Clear the finish handlers so that they are not invoked again.
-                mFinishHandlers = [];
-
                 promise.resolve(success_data);
             })
             .fail(function(error){
@@ -476,6 +514,9 @@ WeblabExp = function (frameMode) {
                 // isn't right. Actually the end_data seems to also be in the post-reservation message from
                 // the reservation status message.
 
+                // Disable the polling timer if needed.
+                clearTimeout(mPollingTimer);
+
                 promise.resolve(success);
 
                 if(mOnFinishPromise.state() != "resolved")
@@ -547,7 +588,11 @@ WeblabExp = function (frameMode) {
 
 
 
+    ///////////////////////////////////
+    // CONSTRUCTION & INITIALIZATION
+    ///////////////////////////////////
 
+    mFrameMode = this._guessFrameMode();
 
 
     /////////////////////////////////////////////

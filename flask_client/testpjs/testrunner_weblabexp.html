@@ -25,8 +25,7 @@
             WeblabWeb.setTargetURLsToTesting();
 
 
-            weblabExp = new WeblabExp();
-            weblabExp.setTargetURLToTesting();
+            // WeblabExp now sets the URLs itself.
 
 
             if (window.mochaPhantomJS) { mochaPhantomJS.run(); }

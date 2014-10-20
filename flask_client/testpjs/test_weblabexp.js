@@ -21,9 +21,6 @@ describe("WeblabExp Active-Experiment Tests", function () {
 
     var reserve_result = undefined;
 
-    // Some error-related tests depend on changes to the core URL
-    var saved_core_url;
-
     before(function (done) {
         this.timeout(5000);
         // Login first.
@@ -32,7 +29,6 @@ describe("WeblabExp Active-Experiment Tests", function () {
             WeblabWeb.reserve_experiment(sessionid, "ud-dummy", "Dummy experiments")
                 .done(function (result) {
                     reserve_result = result;
-                    weblabExp.setReservation(reserve_result.reservation_id.id);
                     done();
                 })
                 .fail(function (result) {
@@ -42,13 +38,12 @@ describe("WeblabExp Active-Experiment Tests", function () {
     });
 
     beforeEach(function(){
-        // Save the URL, in case the test will modify it.
-        saved_core_url = weblabExp.CORE_URL;
+        weblabExp = new WeblabExp();
+        weblabExp.setTargetURLToTesting();
+        weblabExp._setReservation(reserve_result.reservation_id.id);
     });
 
     afterEach(function(){
-        // Restore the URL, in case the test modified it.
-        weblabExp.CORE_URL = saved_core_url;
     });
 
 
@@ -199,6 +194,60 @@ describe("WeblabExp Active-Experiment Tests", function () {
         done();
     });
 
+    it("Start callbacks can be set", function (done) {
+        weblabExp.onStart(
+            function() {}
+        );
+
+        weblabExp.onStart()
+            .done(function(){});
+
+        done();
+    });
+
+    it("Start callbacks are called when _reservationReady is reported externally", function(done) {
+        var f1 = $.Deferred();
+        var f2 = $.Deferred();
+
+        $.when(f1, f2).done(function(df) {
+            done();
+        });
+
+        weblabExp.onStart(function(){
+            f1.resolve();
+        });
+
+        weblabExp.onStart()
+            .done(function(){
+                f2.resolve();
+            });
+
+        var reservationID = weblabExp._getReservation();
+
+        // Report the reservation. This is what the weblab client is meant to do in FRAME mode, to trigger
+        // an interaction start.
+
+        weblabExp._reservationReady(reservationID);
+    });
+
+    it("_reservationReady should throw when called twice", function(done) {
+        var reservationID = weblabExp._getReservation();
+
+        weblabExp._reservationReady(reservationID);
+
+        expect(function(){
+            weblabExp._reservationReady(reservationID) }
+        )
+            .to.throw(Error);
+
+        done();
+    });
+
+    it("default mode if no reservation is somehow present should be FRAME mode", function(done) {
+        weblabExp.isFrameMode().should.be.true;
+        done();
+    });
+
 }); // !describe
 
 
@@ -206,7 +255,7 @@ describe("WeblabExp Active-Experiment Tests", function () {
  * Before each of those tests, a full login and experiment reserve is carried out, which means they
  * are relatively slow.
  */
-describe("weblabExp Full-Process Tests", function () {
+describe("WeblabExp Full-Process Tests", function () {
 
     // That is a valid combination for the testing database.
     var valid_account = "any";
@@ -232,7 +281,6 @@ describe("weblabExp Full-Process Tests", function () {
             WeblabWeb.reserve_experiment(sessionid, "ud-dummy", "Dummy experiments")
                 .done(function (result) {
                     reserve_result = result;
-                    weblabExp.setReservation(reserve_result.reservation_id.id);
                     done();
                 })
                 .fail(function (result) {
@@ -242,13 +290,12 @@ describe("weblabExp Full-Process Tests", function () {
     });
 
     beforeEach(function(){
-        // Save the URL, in case the test will modify it.
-        saved_core_url = weblabExp.CORE_URL;
+        weblabExp = new WeblabExp();
+        weblabExp._setReservation(reserve_result.reservation_id.id);
+        weblabExp.setTargetURLToTesting();
     });
 
     afterEach(function(){
-        // Restore the URL, in case the test modified it.
-        weblabExp.CORE_URL = saved_core_url;
     });
 
 
@@ -271,12 +318,31 @@ describe("weblabExp Full-Process Tests", function () {
     });
 
 
-    // TODO: We can't test this yet.
-    // it("_startPolling should invoke poll() periodically")
+    it("_startPolling should invoke poll() periodically", function (done) {
+        this.timeout(2500);
+
+        var realPoll = weblabExp._poll;
+        weblabExp.POLL_FREQUENCY = 500;
+        var timesCalled = 0;
+
+        var successfulPolls = 0;
+
+        weblabExp._poll = function() {
+            timesCalled++;
+            return realPoll.call(weblabExp).done(function(){successfulPolls++;});
+        };
+
+        weblabExp._startPolling();
+
+        setTimeout(function() {
+            timesCalled.should.be.above(2);
+            successfulPolls.should.be.above(2);
+            done();
+        }.bind(this), 2000);
+    });
 
     // TODO: We can't test this yet.
     // it("_startPolling invokes the finish handlers if needed")
-
 
     it("finish callbacks can be apparently registered", function (done) {
         weblabExp.onFinish(function(){
@@ -290,9 +356,6 @@ describe("weblabExp Full-Process Tests", function () {
 
         done();
     });
-
-    // TODO:
-    // Can't test yet. We need to re-instance WeblabExp after each test for this.
 
     it("finishExperiment() invokes the finish callbacks", function (done) {
         // Finish invoked.
