@@ -247,3 +247,25 @@ Weblab = new function () {
     var s = document.getElementsByTagName('script')[0];
     s.parentNode.insertBefore(new_script, s);
 })();
+
+
+
+
+///////////////////////////////////////////////////
+//
+// FOR FREE-RUNNING MODE.
+//
+///////////////////////////////////////////////////
+
+if($.QueryString["free"] != undefined) {
+    console.log("[WeblabCompat]: Running with FREE MODE enabled");
+    var reservation = $.QueryString["r"];
+    var startconfig = $.QueryString["c"];
+    var url = $.QueryString["u"];
+
+    var exp = Weblab.getWeblabExp();
+    exp.setTargetURL(url);
+
+    // TODO: Values not yet fully real.
+    exp._reservationReady(reservation, 100, "{}");
+}

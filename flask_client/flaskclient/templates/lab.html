@@ -23,6 +23,7 @@
     <div class="row">
         <div class="col-lg-2 col-lg-push-5 text-center">
             <a href="#" class="btn btn-primary reserve-btn">Reserve</a>
+            <a href="#" class="btn btn-primary reserve-free-btn">Reserve Free</a>
         </div>
     </div>
 
@@ -81,6 +82,32 @@ $(document).ready(function() {
                     wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
                     wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
+                });
+    });
+
+
+    // Wait for the free-mode reserve.
+    $(".reserve-btn").click(function(ev) {
+        console.log("RESERVE PROC STARTED");
+        var sessionid = "{{ request.cookies.get("sessionid") }}";
+        var name = "{{ experiment["experiment.name"] }}";
+        var category = "{{ experiment["experiment.category"] }}";
+        WeblabWeb.reserve_experiment(sessionid, name, category)
+                .done(function(result) {
+                    console.log("RESERVATION DONE");
+                    console.log(result);
+
+                    var params = {
+                        "r": result["reservation_id"]["id"],
+                        "c": result["starting_config"],
+                        "t": result["time"],
+                        "u": "{{ url_for("redir_json", _external=True) }}"
+                    };
+                    var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}";
+                    redir += "?" + $.param(params);
+                    console.log(redir);
+
+                    location.redirect = redir;
                 });
     });
 
