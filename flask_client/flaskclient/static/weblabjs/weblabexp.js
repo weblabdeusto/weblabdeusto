@@ -175,7 +175,7 @@ WeblabExp = function (frameMode) {
      * Note that if running from a local file (file:// protocol) http:// will be preppended
      * to the URLs.
      */
-    this.setTargetURLToStandard = function(target_url) {
+    this.setTargetURL = function(target_url) {
         this.CORE_URL = target_url;
 
         // For making testing possible from local files (after the various security settings

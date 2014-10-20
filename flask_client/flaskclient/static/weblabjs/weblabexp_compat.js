@@ -144,7 +144,8 @@ Weblab = new function () {
             onStartInteractionCallback(timeLeft);
 
             // Invoke the time callback too.
-            mOnTimeCallback(timeLeft);
+            if(mOnTimeCallback)
+                mOnTimeCallback(timeLeft);
         });
     };
 

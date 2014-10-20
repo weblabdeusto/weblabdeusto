@@ -77,8 +77,10 @@ $(document).ready(function() {
 
                     var frame = $("#exp-frame")[0];
                     var wexp = frame.contentWindow.Weblab.getWeblabExp();
-                    wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
                     var url = result["url"];
+                    wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
+                    wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
+
                 });
     });
 
