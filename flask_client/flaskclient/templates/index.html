@@ -129,6 +129,7 @@
                 $status.attr("style", "visibility: auto");
                 $status.attr("class", "alert alert-info");
                 $status.text("Logging in...");
+                WeblabWeb.setTargetURLs("{{ config["LOGIN_URL"] }}", "{{ config["CORE_URL"] }}");
                 WeblabWeb._login(username, password)
                         .done(function (ev, a) {
                             $status.attr("class", "alert alert-success");
@@ -139,6 +140,8 @@
                             var sessionid = ev;
 
                             $.cookie("sessionid", sessionid);
+
+                            debugger;
 
                             WeblabWeb._get_user_information(sessionid)
                                     .done(function (info) {

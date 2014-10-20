@@ -47,8 +47,12 @@ def redir_login_json():
     Basically, all requests need to carry the proper weblabsesisonid cookie.
     (Even though the request themselves carry the session too - but not the route).
     """
+    login_url = flask_app.config.get("LOGIN_URL")
+    if login_url is None:
+        return "LOGIN URL WAS NOT SPECIFIED IN THE SERVER CONFIGURATION", 500
+
     js = request.json
-    r = requests.post("http://www.weblab.deusto.es/weblab/login/json/", data=json.dumps(js),
+    r = requests.post(login_url, data=json.dumps(js),
                       headers={"Content-type": "application/json", "Accept": "text/plain"}, cookies=request.cookies)
     """ @type: requests.Response """
 
@@ -70,8 +74,12 @@ def redir_json():
     This would normally not be necessary, but for now it is because
     of different servers & cookie / routing issues.
     """
+    core_url = flask_app.config.get("CORE_URL")
+    if core_url is None:
+        return "CORE URL WAS NOT SPECIFIED IN THE SERVER CONFIGURATION", 500
+
     js = request.json
-    r = requests.post("http://www.weblab.deusto.es/weblab/json/", data=json.dumps(js),
+    r = requests.post(core_url, data=json.dumps(js),
                       headers={"Content-type": "application/json", "Accept": "text/plain"}, cookies=request.cookies)
     """ @type: requests.Response """
 

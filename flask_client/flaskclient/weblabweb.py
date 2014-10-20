@@ -2,10 +2,6 @@ import json
 import requests
 
 
-# TODO: Make this dynamic.
-BASE_URL = "http://www.weblab.deusto.es/weblab"
-
-
 class WeblabWebException(Exception):
     pass
 
@@ -19,7 +15,45 @@ class WeblabWeb(object):
 
     def __init__(self):
         self.s = requests.Session()
+        self.core_url = None
+        self.login_url = None
+        self.set_target_urls_to_standard()
 
+    def set_target_urls(self, login_url, core_url):
+        """
+        Sets the URLs to which the AJAX requests will be directed.
+        @param {str} login_url: URL of the login server (used for the login request)
+        @param {str} core_url: URL of the core server (used for most requests)
+
+        Note that by default requests will be directed to the standard Weblab instance,
+        that is, to the Weblab instance located at //www.weblab.deusto.es/weblab. These
+        can also be explicitly reset through setTargetURLsToStandard.
+        @see set_target_urls_to_standard
+
+        Note also that testing target URLs (for use with launch_samples.py or with the
+        test script which relies on it) can also be set easily through setTargetURLsToTesting.
+        @see set_target_urls_to_testing
+        """
+        self.core_url = core_url
+        self.login_url = login_url
+
+    def set_target_urls_to_standard(self):
+        """
+        Sets the target URLs to the standard ones. That is, the ones that will work
+        on the main Weblab instance, which is at //www.weblab.deusto.es.
+        # TODO: Consider changing them to HTTPs.
+        """
+        self.login_url = "http://www.weblab.deusto.es/weblab/login/json/"
+        self.core_url = "http://www.weblab.deusto.es/weblab/json/"
+
+    def set_target_urls_to_testing(self):
+        """
+        SEts the target urls to the ones that can be used for local automated testing. That is,
+        the ones that will work with a local Weblab instance started through the launch_sample
+        configuration, which is the one typically used for development.
+        """
+        self.login_url = "http://localhost:18645/"
+        self.core_url = "http://localhost:18345/"
 
     def _feed_cookies(self, cookies):
         """
@@ -74,7 +108,7 @@ class WeblabWeb(object):
             }
         }
 
-        result = self._send(BASE_URL + "/login/json/", req)
+        result = self._send(self.login_url, req)
         return result["id"]
 
     def _logout(self, sessionid):
@@ -91,7 +125,7 @@ class WeblabWeb(object):
             }
         }
 
-        result = self._send(BASE_URL + "/json/", req)
+        result = self._send(self.core_url, req)
         return None
 
     def _get_user_information(self, sessionid):
@@ -109,7 +143,7 @@ class WeblabWeb(object):
             }
         }
 
-        result = self._send(BASE_URL + "/json/", req)
+        result = self._send(self.core_url, req)
         return result
 
     def _list_experiments(self, sessionid):
@@ -126,6 +160,6 @@ class WeblabWeb(object):
             }
         }
 
-        result = self._send(BASE_URL + "/json/", req)
+        result = self._send(self.core_url, req)
         return result
 

@@ -57,10 +57,13 @@ def labs():
         flash("You are not logged in", category="error")
         return redirect(url_for("index"))
     weblabweb = WeblabWeb()
+    weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
+
     weblabweb._feed_cookies(request.cookies)
 
     experiments_list = weblabweb._list_experiments(sessionid)
     # TODO: There could be issues with the routing.
+
 
     # Merge the data for the available experiments.
     experiments, experiments_by_category = build_experiments_list(experiments_list, config)

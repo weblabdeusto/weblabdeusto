@@ -8,6 +8,9 @@ def index():
     """
     This is actually the login method.
     """
+
+    # THIS POST WILL ONLY BE INVOKED IF JAVASCRIPT IS DISABLED.
+    # Otherwise logging is handled from JS.
     if request.method == "POST":
         # If this is a POST it is a login request.
         #
@@ -20,6 +23,7 @@ def index():
 
         try:
             weblabweb = WeblabWeb()
+            weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
             sessionid = weblabweb._login(username, password)
 
             response = make_response(redirect(url_for("labs")))
@@ -45,6 +49,7 @@ def logout():
     if sessionid is not None:
         try:
             weblabweb = WeblabWeb()
+            weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
             weblabweb._logout(sessionid)
         except:
             flash("Could not logout", category="warning")
