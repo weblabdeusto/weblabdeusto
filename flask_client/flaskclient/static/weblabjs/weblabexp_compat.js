@@ -32,14 +32,14 @@ Weblab = new function () {
 
     // For providing the actual functionality of this class.
     // @type : WeblabExp
-    var weblabExp = new WeblabExp();
+    this.weblabExp = new WeblabExp();
 
     /**
      * Accessor for the WeblabExp object. This is obviously not part of the original WeblabJS API.
      * @returns {WeblabExp}
      */
     this.getWeblabExp = function() {
-        return weblabExp;
+        return this.weblabExp;
     }
 
 
@@ -73,7 +73,7 @@ Weblab = new function () {
     //! Takes a single string as argument.
     //!
     this.sendCommand = function (text, successHandler, errorHandler) {
-        weblabExp.sendCommand(text)
+        this.weblabExp.sendCommand(text)
             .done(successHandler)
             .fail(errorHandler);
     };
@@ -106,7 +106,7 @@ Weblab = new function () {
     //!
     //! @param text: Command to send.
     this.testCommand = function (text) {
-        weblabExp.testCommand(text);
+        this.weblabExp.testCommand(text);
     };
 
 
@@ -116,7 +116,7 @@ Weblab = new function () {
     //! and disconnections.
     //!
     this.setOnEndCallback = function (onEndCallback) {
-        weblabExp.onFinish(onEndCallback);
+        this.weblabExp.onFinish(onEndCallback);
     };
 
     //! Sets the callbacks that will be invoked by default when a sendfile request
@@ -140,7 +140,7 @@ Weblab = new function () {
     //! onStartInteraction(initial_config). It is passed the initial configuration
     //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
-        weblabExp.onStart(function(timeLeft, initialConfig){
+        this.weblabExp.onStart(function(timeLeft, initialConfig){
             onStartInteractionCallback(timeLeft);
 
             // Invoke the time callback too.
@@ -180,7 +180,7 @@ Weblab = new function () {
     //! Finishes the experiment.
     //!
     this.clean = function () {
-        weblabExp.finishExperiment();
+        this.weblabExp.finishExperiment();
     };
 
     //! Returns true if the experiment is active, false otherwise.
@@ -189,7 +189,7 @@ Weblab = new function () {
     //! commands.
     //!
     this.isExperimentActive = function () {
-        return WeblabExp.onStart().state() == "resolved" && WeblabExp.onFinish().state() != "resolved";
+        return this.WeblabExp.onStart().state() == "resolved" && this.WeblabExp.onFinish().state() != "resolved";
     };
 
     //! Checks whether this interface is actually connected to the real
@@ -222,7 +222,7 @@ Weblab = new function () {
     //! @param result If false, SendCommand will invoke the failure handler.
     this.dbgSetOfflineSendCommandResponse = function (response, result) {
         // Failure handler not supported.
-        weblabExp.dbgSetSendCommandResponse(response);
+        this.weblabExp.dbgSetSendCommandResponse(response);
     }
 
 }; //! end-of class-like Weblab function

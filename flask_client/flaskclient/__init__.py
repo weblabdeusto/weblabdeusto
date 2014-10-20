@@ -13,11 +13,7 @@ flask_app.config.from_pyfile("../config.py")
 import view_index
 import view_upload
 import view_labs
-
-
-@flask_app.route("/lab.html")
-def lab():
-    return render_template("lab.html")
+import view_lab
 
 
 @flask_app.route("/contact.html")

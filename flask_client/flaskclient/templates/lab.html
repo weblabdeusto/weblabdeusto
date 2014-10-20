@@ -4,25 +4,86 @@
 {{ super() }}
 
 <div class="container">
-    <div class="col-lg-6 col-lg-push-3 text-center">
+    <div class="text-center">
         <h2>Reserve this experiment</h2>
-        <table>
-            <tr>
-                <td>Experiment:</td>
-                <td>Aquarium</td>
-            </tr>
-            <tr>
-                <td>Category:</td>
-                <td>Aquarium labs</td>
-            </tr>
-            <tr>
-                <td>Assigned time:</td>
-                <td>3 minutes, 20 seconds</td>
-            </tr>
-        </table>
-
-        <a href="" class="btn btn-primary">Reserve</a>
     </div>
+
+    <div class="row">
+        <div class="col-lg-4 col-lg-push-4 text-center well">
+            <p>
+            <strong>Experiment:</strong> {{ experiment["experiment.name"] }}
+            </p>
+
+            <p>
+            <strong>Category:</strong> {{ experiment["experiment.category"] }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-2 col-lg-push-5 text-center">
+            <a href="#" class="btn btn-primary reserve-btn">Reserve</a>
+        </div>
+    </div>
+
 </div>
 
+    {% if experiment_type == "js" %}
+    <div class="">
+        <div class="">
+            <!-- We append a rawgit base URL for testing -->
+            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"></iframe>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+
+function InjectScriptIntoFrame(url) {
+    var myIframe = document.getElementById("exp-frame");
+    var script = myIframe.contentWindow.document.createElement("script");
+    script.async = false;
+    script.defer = false;
+    script.type = "text/javascript";
+    script.src = url;
+    myIframe.contentWindow.document.body.appendChild(script);
+}
+
+{# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
+$("#exp-frame").load(function() {
+    console.log("Injecting scripts");
+    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}");
+    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}");
+});
+
+
+{# Await for the page #}
+$(document).ready(function() {
+
+    // Wait for the reserve.
+    $(".reserve-btn").click(function(ev) {
+        console.log("RESERVE PROC STARTED");
+        var sessionid = "{{ request.cookies.get("sessionid") }}";
+        var name = "{{ experiment["experiment.name"] }}";
+        var category = "{{ experiment["experiment.category"] }}";
+        WeblabWeb.reserve_experiment(sessionid, name, category)
+                .done(function(result) {
+                    console.log("RESERVATION DONE");
+                    console.log(result);
+
+                    var frame = $("#exp-frame")[0];
+                    var wexp = frame.contentWindow.Weblab.getWeblabExp();
+                    wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
+                    var url = result["url"];
+                });
+    });
+
+});
+
+
+</script>
 {% endblock %}

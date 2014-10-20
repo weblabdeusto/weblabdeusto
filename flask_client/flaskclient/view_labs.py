@@ -3,6 +3,7 @@ from flask import render_template, url_for, request, flash, redirect, json
 import urllib
 import requests
 from flaskclient import flask_app
+from flaskclient.G import G
 from flaskclient.helpers import _retrieve_configuration_js
 from flaskclient.weblabweb import WeblabWeb
 
@@ -63,5 +64,11 @@ def labs():
 
     # Merge the data for the available experiments.
     experiments, experiments_by_category = build_experiments_list(experiments_list, config)
+
+    # Store the list in a global.
+    # TODO: This should eventually be changed, it won't work in all setups and will have thread issues.
+    if G.get("sessiondata") is None:
+        G["sessiondata"] = {}
+    G["sessiondata"][sessionid] = experiments
 
     return render_template("labs.html", experiments = experiments, experiments_by_category = experiments_by_category, urllib = urllib)

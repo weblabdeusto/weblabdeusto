@@ -61,6 +61,10 @@
                                 <button class="btn btn-info reserve-redirect">Reserve (redirect)</button>
                             </a>
 
+                            <a href="{{ url_for("lab", category = experiment["experiment.category"], name = urllib.quote_plus(experiment["experiment.name"]), type = experiment["experiment_type"]) }}">
+                                <button class="btn btn-info reserve-new">RESERVE</button>
+                            </a>
+
                         </div>
                     </div>
                 </div>
