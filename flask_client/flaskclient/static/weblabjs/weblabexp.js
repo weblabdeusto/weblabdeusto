@@ -533,7 +533,7 @@ WeblabExp = function (frameMode) {
         if(finishHandler != undefined) {
             mOnFinishPromise.done(finishHandler.bind(this));
         }
-        return mOnStartPromise.promise();
+        return mOnFinishPromise.promise();
     }
 
     /**

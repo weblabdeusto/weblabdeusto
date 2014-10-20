@@ -49,8 +49,6 @@ describe("WeblabExp Active-Experiment Tests", function () {
     afterEach(function(){
         // Restore the URL, in case the test modified it.
         weblabExp.CORE_URL = saved_core_url;
-        console.log("AFTEREACH()");
-        console.log("Restored to: " + saved_core_url);
     });
 
 
@@ -251,8 +249,6 @@ describe("weblabExp Full-Process Tests", function () {
     afterEach(function(){
         // Restore the URL, in case the test modified it.
         weblabExp.CORE_URL = saved_core_url;
-        console.log("AFTEREACH()");
-        console.log("Restored to: " + saved_core_url);
     });
 
 
@@ -298,15 +294,16 @@ describe("weblabExp Full-Process Tests", function () {
     // TODO:
     // Can't test yet. We need to re-instance WeblabExp after each test for this.
 
-//    it("finishExperiment() invokes the finish callbacks", function (done) {
-//        // Finish invoked.
-//        weblabExp.onFinish()
-//            .done(function(){
-//                done();
-//            });
-//
-//        weblabExp.finishExperiment();
-//    });
+    it("finishExperiment() invokes the finish callbacks", function (done) {
+        // Finish invoked.
+        weblabExp.onFinish()
+            .done(function(){
+                done();
+            });
+
+        weblabExp.finishExperiment();
+    });
+
 
     // TODO: We can't test this yet.
     // it("finishExperiment() invokes the finish callbacks with the right args and context")
