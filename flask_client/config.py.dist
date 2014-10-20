@@ -2,3 +2,4 @@
 
 CORE_URL = ""
 LOGIN_URL = ""
+LAB_URL = ""

@@ -33,7 +33,7 @@
     <div class="">
         <div class="">
             <!-- We append a rawgit base URL for testing -->
-            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"></iframe>
+            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ config["LAB_URL"] + experiment["html.file"] }}"></iframe>
         </div>
     </div>
     {% endif %}
@@ -87,7 +87,7 @@ $(document).ready(function() {
 
 
     // Wait for the free-mode reserve.
-    $(".reserve-btn").click(function(ev) {
+    $(".reserve-free-btn").click(function(ev) {
         console.log("RESERVE PROC STARTED");
         var sessionid = "{{ request.cookies.get("sessionid") }}";
         var name = "{{ experiment["experiment.name"] }}";
@@ -101,13 +101,15 @@ $(document).ready(function() {
                         "r": result["reservation_id"]["id"],
                         "c": result["starting_config"],
                         "t": result["time"],
-                        "u": "{{ url_for("redir_json", _external=True) }}"
+                        "u": "{{ url_for("redir_json", _external=True) }}",
+                        "free": "true"
                     };
-                    var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}";
+                    //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}";
+                    var redir = "{{ config["LAB_URL"] + experiment["html.file"] }}";
                     redir += "?" + $.param(params);
                     console.log(redir);
 
-                    location.redirect = redir;
+                    window.location = redir;
                 });
     });
 

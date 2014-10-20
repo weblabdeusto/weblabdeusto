@@ -141,8 +141,6 @@
 
                             $.cookie("sessionid", sessionid);
 
-                            debugger;
-
                             WeblabWeb._get_user_information(sessionid)
                                     .done(function (info) {
                                         store.set("userinfo", JSON.stringify(info));
