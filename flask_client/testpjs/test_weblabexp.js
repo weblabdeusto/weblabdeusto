@@ -248,6 +248,16 @@ describe("WeblabExp Active-Experiment Tests", function () {
         done();
     });
 
+
+    it("should support the debugging mode sendCommand", function (done) {
+        weblabExp.enableDebuggingMode();
+        weblabExp.dbgSetSendCommandResponse("DEBUGGING MODE RESPONSE");
+        weblabExp.sendCommand("WHATEVER").done( function(response) {
+            response.should.be.equal("DEBUGGING MODE RESPONSE");
+            done();
+        });
+    });
+
 }); // !describe
 
 
