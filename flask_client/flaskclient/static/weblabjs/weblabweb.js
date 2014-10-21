@@ -367,7 +367,7 @@ WeblabWeb = new function () {
      * @param {string} sessionid: Session ID of the user
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
-     * @returns {object} reservation result with the status Reservation::confirmed
+     * @returns {object} Callback. It reports through .done(id, time, initial_config, result_object)  {@link reserve_experiment~done} or through .fail(error).
      * @example
      *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
@@ -387,9 +387,11 @@ WeblabWeb = new function () {
                         .done(function (result) {
                             var status = result["status"];
                             if (status === "Reservation::confirmed") {
-                                // The reservation has succeded. We report this as done with the whole
-                                // result object.
-                                promise.resolve(result);
+                                // The reservation has succeded. We report this as done, with certain variables.
+
+                                var time = result["time"];
+                                var startingconfig = result["initial_configuration"];
+                                promise.resolve(reservationid, time, startingconfig, result);
                             }
                             else {
                                 // The reservation is not ready yet. We report the status, but we will repeat
@@ -420,6 +422,15 @@ WeblabWeb = new function () {
 
         return promise.promise();
     }
+
+    /**
+     * @callback reserve_experiment~done
+     * @param {str} reservationid: Reservation ID.
+     * @param {number} time: Seconds left for the experiment.
+     * @param {str} initialConfig: Initial configuration for the experiment as a string, which will typically contain JSON.
+     * TODO: If it is guaranteed to contain JSON we should decode it ourselves.
+     * @param {object} result: The result object itself which the server returned.
+     */
 
 
     ///////////////////////////////////////////////////////////////

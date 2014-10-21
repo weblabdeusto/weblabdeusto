@@ -169,14 +169,21 @@ describe("WeblabWeb Test", function () {
         var $login = WeblabWeb._login(valid_account, valid_password);
         $login.done(function (sessionid) {
             WeblabWeb.reserve_experiment(sessionid, "robot-standard", "Robot experiments")
-                .done(function (result) {
+                .done(function (reservationid, time, initialConfig, result) {
 
-                    should.exist(result);
+                    reservationid.should.be.a("string");
+
+                    time.should.be.above(190);
+                    time.should.be.below(210);
+
+                    var conf = JSON.parse(initialConfig);
+                    conf.webcam.should.contain("robot");
+                    result.should.be.an("object");
+
                     result.status.should.equal("Reservation::confirmed");
                     should.exist(result.url);
                     should.exist(result.initial_configuration);
                     should.exist(result.time);
-
                     result.time.should.be.above(190);
                     result.time.should.be.below(210);
 
