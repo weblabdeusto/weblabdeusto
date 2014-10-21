@@ -6,11 +6,10 @@ install:
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
     - npm install -g mocha
+    - cd experiments/unmanaged/http/nodejs; npm install; cd ~/weblabdeusto/weblabdeusto;
+    - cd flask_client/testpjs; npm install; cd ../../;
 script:
-    - cd server/src; python develop.py
-    - cd ../../experiments/unmanaged/http/nodejs/
-    - npm install
-    - mocha
-    - cd ../../../../; cd flask_client/testpjs
-    - npm install
-    - python testweblab_launcher.py
+    - cd server/src; python develop.py; cd ../..;
+    - cd experiments/unmanaged/http/nodejs/; mocha; cd ../../../../;
+    - cd flask_client/testpjs; python testweblab_launcher.py; cd ../../;
+    - cd flask_client; nosetests test; cd ..;
