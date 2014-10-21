@@ -1,9 +1,10 @@
-{% set title="Lab - " %}
 {% extends "_logged_base.html" %}
+{% set title="Lab - " %}
 {% block body %}
+
 {{ super() }}
 
-<div class="container">
+<div class="container" id="reserve-container">
     <div class="text-center">
         <h2>Reserve this experiment</h2>
     </div>
@@ -21,19 +22,31 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-2 col-lg-push-5 text-center">
-            <a href="#" class="btn btn-primary reserve-btn">Reserve</a>
-            <a href="#" class="btn btn-primary reserve-free-btn">Reserve Free</a>
+        <div class="col-lg-2 col-lg-offset-4 text-center">
+            <a href="#" class="btn btn-primary reserve-btn" id="reserve-btn">Reserve (in Frame)</a>
+        </div>
+        <div class="col-lg-2 text-center">
+            <a href="#" class="btn btn-primary reserve-free-btn" id="reserve-free-btn">Reserve (in Window)</a>
         </div>
     </div>
-
 </div>
 
+
+<div class="container" id="finish-container" style="display: none">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this experiment</a>
+        </div>
+    </div>
+</div>
+
+
+
     {% if experiment_type == "js" %}
-    <div class="">
+    <div class="" style="padding-top: 20px">
         <div class="">
             <!-- We append a rawgit base URL for testing -->
-            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ config["LAB_URL"] + experiment["html.file"] }}"></iframe>
+            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px"></iframe>
         </div>
     </div>
     {% endif %}
@@ -42,6 +55,9 @@
 
 
 {% block scripts %}
+
+{{ super() }}
+
 <script type="text/javascript">
 
 function InjectScriptIntoFrame(url) {
@@ -62,33 +78,72 @@ $("#exp-frame").load(function() {
 });
 
 
+/**
+ * Handle certain ui actions when the experiment finishes.
+ */
+function onReserveDone() {
+    $("#reserve-container").slideUp(500);
+    $("#finish-container").slideDown(500);
+}
+
+
+/**
+ * Handle certain ui actions when the experiment finishes.
+ */
+function onExperimentFinished() {
+    // We should probably show some kind of experiment-finished message.
+
+    $("#reserve-container").slideDown(500);
+    $("#finish-container").slideUp(500);
+
+    // Reload the frame.
+    // This is particularly important at the moment because the WeblabExp compatibility library
+    // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
+    $( '#exp-frame' ).attr( 'src', function ( i, val ) { return val; });
+}
+
+
 {# Await for the page #}
 $(document).ready(function() {
-
     // Wait for the reserve.
-    $(".reserve-btn").click(function(ev) {
+    $("#reserve-btn").click(function(ev) {
         console.log("RESERVE PROC STARTED");
         var sessionid = "{{ request.cookies.get("sessionid") }}";
         var name = "{{ experiment["experiment.name"] }}";
         var category = "{{ experiment["experiment.category"] }}";
         WeblabWeb.reserve_experiment(sessionid, name, category)
-                .done(function(result) {
+                .done(function(uid, time, initial_config, result) {
+
                     console.log("RESERVATION DONE");
                     console.log(result);
 
                     var frame = $("#exp-frame")[0];
                     var wexp = frame.contentWindow.Weblab.getWeblabExp();
+                    currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                     var url = result["url"];
                     wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
                     wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
+                    // Listen also for a dispose, for other ui changes.
+                    wexp.onFinish().done(function(f){
+                        onExperimentFinished();
+                    });
+
+                    // For some ui changes.
+                    onReserveDone();
                 });
     });
 
 
+{% if experiment_type == "js" %}
+
+    $("#finish-experiment-btn").click(function(ev){
+        currentExperiment.finishExperiment();
+    });
+
     // Wait for the free-mode reserve.
-    $(".reserve-free-btn").click(function(ev) {
-        console.log("RESERVE PROC STARTED");
+    $("#reserve-free-btn").click(function(ev) {
+        console.log("FREE RESERVE PROC STARTED");
         var sessionid = "{{ request.cookies.get("sessionid") }}";
         var name = "{{ experiment["experiment.name"] }}";
         var category = "{{ experiment["experiment.category"] }}";
@@ -112,7 +167,7 @@ $(document).ready(function() {
                     window.location = redir;
                 });
     });
-
+{% endif %}
 });
 
 

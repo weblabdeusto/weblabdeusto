@@ -1,7 +1,3 @@
-/**
- * THE FILE HERE IS A COPY OF THE FILE IN NEW_CLIENT.
- */
-
 // From StackOverflow. To extract parameters from the URL (not the hash)
 (function ($) {
     $.QueryString = (function (a) {
@@ -89,30 +85,49 @@ WeblabExp = function (frameMode) {
     var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
 
     // Debugging mode.
-    // TODO: Not yet implemented.
+    // Note that debugging mode can be enabled but as of now, it can't be disabled.
     var mDebuggingMode = false;
-    var mSendCommandResponse;
+    var mDbgSendCommandResponse;
+    var mDbgSendCommandResult = true; // True success, false error.
 
     /**
      * Enables the debugging mode, in which commands do not really send anything to the server.
      * @see: dbgSetSendCommandResponse()
      */
-    this.enableDebuggingMode = function() {
+    this.enableDebuggingMode = function () {
         mDebuggingMode = true;
 
-        this.sendCommand = function(command) {
+        this.sendCommand = function (command) {
             var p = $.Deferred();
-            p.resolve(mSendCommandResponse);
+            if (mDbgSendCommandResult)
+                p.resolve(mDbgSendCommandResponse);
+            else
+                p.reject(mDbgSendCommandResponse);
             return p.promise();
         };
     };
 
     /**
-     * Sets the response that sendCommand will return in debugging mode.
-     * @param {str} Response: Send command response.
+     * Checks whether we are in debugging mode, and the sendCommands will thus be fake.
+     * @returns {bool} True if the debugging mode is enabled, false otherwise.
      */
-    this.dbgSetSendCommandResponse = function(response) {
-        mSendCommandResponse = response;
+    this.isDebuggingMode = function () {
+        return mDebuggingMode;
+    };
+
+    /**
+     * Sets the response that sendCommand will return in debugging mode.
+     * @param {str} response: Send command response.
+     * @param {bool} [result]: If true the response will be reported as a success, if false, as an error. True
+     * by default.
+     */
+    this.dbgSetSendCommandResponse = function (response, result) {
+        mDbgSendCommandResponse = response;
+
+        if (result == undefined)
+            result = true;
+
+        mDbgSendCommandResult = result;
     }
 
 
@@ -121,9 +136,11 @@ WeblabExp = function (frameMode) {
      * @returns {bool}: The mode (true if frame mode).
      * @private
      */
-    this._guessFrameMode = function() {
-        // TODO: For now we only support the frame-mode.
-        return true;
+    this._guessFrameMode = function () {
+        if ($.QueryString["free"] != undefined)
+            return false;
+        else
+            return true;
     }
 
 
@@ -131,7 +148,7 @@ WeblabExp = function (frameMode) {
      * Checks whether the WeblabExp instance is set to FRAME MODE.
      * @returns {bool} TRUE if the current mode is FRAME MODE. FALSE if the current mode is FREE MODE.
      */
-    this.isFrameMode = function() {
+    this.isFrameMode = function () {
         return mFrameMode;
     }
 
@@ -148,11 +165,11 @@ WeblabExp = function (frameMode) {
      * @param {object} initial_config: Initial configuration of the experiment, obtained from the confirmed reservation.
      * @param {number} time: Time left for the experiment.
      */
-    this._reservationReady = function(reservation_id, time, initial_config) {
-        if(this.isFrameMode == false)
+    this._reservationReady = function (reservation_id, time, initial_config) {
+        if (this.isFrameMode == false)
             throw new Error("_reservationReady is not supported in FREE mode (only in FRAME mode)");
 
-        if(mStartCalled == true)
+        if (mStartCalled == true)
             throw new Error("_reservationReady should only be called once");
         mStartCalled = true;
 
@@ -179,14 +196,14 @@ WeblabExp = function (frameMode) {
      * Note that if running from a local file (file:// protocol) http:// will be preppended
      * to the URLs.
      */
-    this.setTargetURL = function(target_url) {
+    this.setTargetURL = function (target_url) {
         this.CORE_URL = target_url;
 
         // For making testing possible from local files (after the various security settings
         // have been disabled).
-        if(window.location != undefined) {
-            if(window.location.protocol != undefined && window.location.protocol === "file:") {
-                if(this.CORE_URL.indexOf("://") == -1)
+        if (window.location != undefined) {
+            if (window.location.protocol != undefined && window.location.protocol === "file:") {
+                if (this.CORE_URL.indexOf("://") == -1)
                     this.CORE_URL = "http:" + this.CORE_URL;
             }
         }
@@ -196,7 +213,7 @@ WeblabExp = function (frameMode) {
      * Sets the target URLs to the standard ones. That is, the ones that will work
      * on the main Weblab instance, which is at //www.weblab.deusto.es.
      */
-    this.setTargetURLToStandard = function() {
+    this.setTargetURLToStandard = function () {
         this.CORE_URL = "//www.weblab.deusto.es/weblab/json/";
     }
 
@@ -205,7 +222,7 @@ WeblabExp = function (frameMode) {
      * the ones that will work with a local Weblab instance started through the launch_sample
      * configuration, which is the one typically used for development.
      */
-    this.setTargetURLToTesting = function() {
+    this.setTargetURLToTesting = function () {
         this.CORE_URL = "http://localhost:18345";
     }
 
@@ -216,7 +233,7 @@ WeblabExp = function (frameMode) {
      * @param {str} reservation_id: The reservation ID to use.
      * @private
      */
-    this._setReservation = function(reservation_id) {
+    this._setReservation = function (reservation_id) {
         mReservation = reservation_id;
     }
 
@@ -225,10 +242,9 @@ WeblabExp = function (frameMode) {
      * @returns {str} Reservation ID
      * @private
      */
-    this._getReservation = function() {
+    this._getReservation = function () {
         return mReservation;
     }
-
 
 
     // !!!!!!!!!!!!!!
@@ -250,8 +266,6 @@ WeblabExp = function (frameMode) {
         if (mTargetURL == undefined)
             mTargetURL = document.location.origin + "/weblab/json/";
     };
-
-
 
 
     /**
@@ -288,18 +302,18 @@ WeblabExp = function (frameMode) {
      * will be invoked (unless they have been invoked by an explicit finish call already).
      * @private
      */
-    this._startPolling = function() {
+    this._startPolling = function () {
         var frequency = this.POLL_FREQUENCY; // The polling freq might be a setting somewhere. For now it's hard-coded to 4 seconds.
 
         this._poll()
-            .done(function(result) {
+            .done(function (result) {
                 // This means the experiment is still active. We shall check again soon, unless the experiment
                 // has been explicitly finished.
                 if (!mOnFinishPromise.state() != "resolved") {
                     mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                 }
             }.bind(this))
-            .fail(function(error){
+            .fail(function (error) {
                 // Presumably, the experiment has ended. We should actually check the error to make sure it's so.
                 // TODO:
 
@@ -380,8 +394,6 @@ WeblabExp = function (frameMode) {
     }; // !_send
 
 
-
-
     /**
      * Internal method to send a command to the server.
      *
@@ -399,12 +411,12 @@ WeblabExp = function (frameMode) {
         var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
 
         this._send(request)
-            .done(function(success_data) {
+            .done(function (success_data) {
                 console.log("Data received: " + success_data);
                 console.log(success_data);
                 promise.resolve(success_data);
             })
-            .fail(function(error) {
+            .fail(function (error) {
                 promise.reject(error);
             });
 
@@ -430,7 +442,7 @@ WeblabExp = function (frameMode) {
 
                 promise.resolve(success_data);
             })
-            .fail(function(error){
+            .fail(function (error) {
                 promise.reject(error);
             });
 
@@ -468,10 +480,10 @@ WeblabExp = function (frameMode) {
         var promise = $.Deferred();
 
         this._send_command(command)
-            .done(function(success) {
+            .done(function (success) {
                 promise.resolve(success.commandstring);
             })
-            .fail(function(error) {
+            .fail(function (error) {
                 promise.reject(error);
             });
 
@@ -532,7 +544,7 @@ WeblabExp = function (frameMode) {
         var promise = $.Deferred();
 
         this._finished_experiment()
-            .done(function(success) {
+            .done(function (success) {
 
                 // TODO: Send the right thing to the callbacks. As of now I think they just receive a JSON, which
                 // isn't right. Actually the end_data seems to also be in the post-reservation message from
@@ -543,16 +555,15 @@ WeblabExp = function (frameMode) {
 
                 promise.resolve(success);
 
-                if(mOnFinishPromise.state() != "resolved")
+                if (mOnFinishPromise.state() != "resolved")
                     mOnFinishPromise.resolve(success);
             })
-            .fail(function(error) {
+            .fail(function (error) {
                 promise.reject(error);
             });
 
         return promise.promise();
     };
-
 
 
     /**
@@ -568,8 +579,8 @@ WeblabExp = function (frameMode) {
      *
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
      */
-    this.onStart = function( startHandler ) {
-        if(startHandler != undefined) {
+    this.onStart = function (startHandler) {
+        if (startHandler != undefined) {
             mOnStartPromise.done(startHandler);
         }
         return mOnStartPromise.promise();
@@ -593,9 +604,9 @@ WeblabExp = function (frameMode) {
      * @param {function} [startHandler]: The finish handler function.
      *
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
-    */
-    this.onFinish = function( finishHandler ) {
-        if(finishHandler != undefined) {
+     */
+    this.onFinish = function (finishHandler) {
+        if (finishHandler != undefined) {
             mOnFinishPromise.done(finishHandler.bind(this));
         }
         return mOnFinishPromise.promise();
@@ -606,17 +617,44 @@ WeblabExp = function (frameMode) {
      * @param {str} finishData: The data returned by the experiment after finishing.
      */
 
-    // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
-    // Revise them.
+        // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
+        // Revise them.
 
 
+    /**
+     * Carries out free-mode initialization. Extracts the reservation ID, the
+     * starting configuration, and the target URL, and calls the _reservationReady function.
+     * @private
+     */
+    this._handleFreeModeInit = function () {
+        console.log("[Dbg/WeblabExp]: Running with FREE MODE enabled");
+
+        var reservation = $.QueryString["r"];
+        var startconfig = $.QueryString["c"];
+        var url = $.QueryString["u"];
+        var time = $.QueryString["t"];
+        time = parseInt(time);
+
+        this.setTargetURL(url);
+
+        // TODO: Eventually, it would probably be more appropriate to pass only the reservation_id and to query
+        // the server for the other data.
+
+        this._reservationReady(reservation, time, startconfig);
+    };
 
 
     ///////////////////////////////////
     // CONSTRUCTION & INITIALIZATION
     ///////////////////////////////////
 
-    mFrameMode = this._guessFrameMode();
+    if (frameMode == undefined)
+        mFrameMode = this._guessFrameMode();
+
+    // If we are in free-mode we have to handle some free-mode-specific initialization.
+    if (mFrameMode == false) {
+        this._handleFreeModeInit();
+    }
 
 
     /////////////////////////////////////////////
