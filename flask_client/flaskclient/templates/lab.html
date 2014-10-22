@@ -46,7 +46,7 @@
     <div class="" style="padding-top: 20px">
         <div class="">
             <!-- We append a rawgit base URL for testing -->
-            <iframe id="exp-frame" width="100%" height="2000 px" src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px"></iframe>
+            <iframe id="exp-frame" width="100%" scrolling="no" src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px;"></iframe>
         </div>
     </div>
     {% endif %}
@@ -73,8 +73,10 @@ function InjectScriptIntoFrame(url) {
 {# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
 $("#exp-frame").load(function() {
     console.log("Injecting scripts");
-    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}");
-    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}");
+
+    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
+    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
+    InjectScriptIntoFrame("{{ url_for('static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
 });
 
 
@@ -137,6 +139,22 @@ $(document).ready(function() {
 
 {% if experiment_type == "js" %}
 
+    //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
+
+    // Load the iframeResizer when the frame loads.
+    $("#exp-frame").on("load", function(ev){
+        // For some reason it doesn't work without a timeout. Don't know why.
+        // TODO: Check why it doesn't work without a timeout and try to remove it.
+        // Consider also whether we actually need to do this for each reload or one time is enough.
+        // Note: Actually, maybe that is because the injected script needs to finish loading.
+        // TODO: Add some kind of callback so that we can run this when the script within the iframe finishes loading.
+        setTimeout(function(){
+            $("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false}, "#exp-frame");
+        }, 100);
+
+    });
+
+
     $("#finish-experiment-btn").click(function(ev){
         currentExperiment.finishExperiment();
     });
@@ -148,14 +166,14 @@ $(document).ready(function() {
         var name = "{{ experiment["experiment.name"] }}";
         var category = "{{ experiment["experiment.category"] }}";
         WeblabWeb.reserve_experiment(sessionid, name, category)
-                .done(function(result) {
+                .done(function(id, time, initConfig, result) {
                     console.log("RESERVATION DONE");
                     console.log(result);
 
                     var params = {
-                        "r": result["reservation_id"]["id"],
-                        "c": result["starting_config"],
-                        "t": result["time"],
+                        "r": id,
+                        "c": initConfig,
+                        "t": time,
                         "u": "{{ url_for("redir_json", _external=True) }}",
                         "free": "true"
                     };
@@ -172,4 +190,7 @@ $(document).ready(function() {
 
 
 </script>
+
+
+<script type="text/javascript" src="{{ url_for("static", filename="js/iframeResizer.min.js") }}"></script>
 {% endblock %}
