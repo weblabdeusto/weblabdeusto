@@ -3,6 +3,7 @@
         "archimedes1" : {
             "ball_mass": 32.7, // g
             "ball_diameter": 3.9, // cm
+            "ball_density": 1.05,
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.75, // cm
@@ -10,25 +11,29 @@
         },
         "archimedes2" : {
             "ball_mass": 41,
-            "ball_density": 1.31,
+            "ball_diameter": 3.9, // cm
+            "ball_density": 1.32,
             "liquid_name": "water",
             "liquid_density": 1000,
+            "liquid_diameter": 6.75, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2"
         },
         "archimedes3" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 2.8,
+            "ball_diameter": 3.9, // cm
+            "ball_density": 0.09,
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.75, // cm
-            "liquid_name": "oil",
+            "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3"
         },
         "archimedes4" : {
             "ball_mass": 30,
+            "ball_diameter": 3.9, // cm
             "ball_density": 0.96,
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 6.75, // cm
-            "liquid_name": "oil",
+            "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
         },
         "archimedes5" : {
