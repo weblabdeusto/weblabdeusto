@@ -1,3 +1,6 @@
+WEBLABEXP_DEBUG = false;
+
+
 // From StackOverflow. To extract parameters from the URL (not the hash)
 (function ($) {
     $.QueryString = (function (a) {
@@ -284,8 +287,11 @@ WeblabExp = function (frameMode) {
 
         this._send(request)
             .done(function (success) {
-                console.log("Data received: " + success);
-                console.log(success);
+
+                if(WEBLABEXP_DEBUG) {
+                    console.log("Data received: " + success);
+                    console.log(success);
+                }
                 promise.resolve(success);
             })
             .fail(function (error) {

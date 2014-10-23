@@ -71,6 +71,9 @@
 
     <script type="text/javascript">
 
+        var $reserveStatusRow = $("#reserve-status-row");
+        var $reserveStatus = $("#reserve-status");
+
         function InjectScriptIntoFrame(url) {
             var myIframe = document.getElementById("exp-frame");
             var script = myIframe.contentWindow.document.createElement("script");
@@ -126,32 +129,81 @@
         }
 
 
+        /**
+         * Reserve experiment failed.
+         */
+        function onReserveFail(error) {
+
+            // We logged out.
+            if(error.code == "JSON:Client.SessionNotFound")
+            {
+                errorStatus("You are not logged in");
+                setTimeout(function(){
+                    window.location = "{{ url_for("index") }}";
+                }, 1500);
+            }
+            else {
+                errorStatus("Failed to reserve: " + error.message)
+            }
+        }
+
+
+        /**
+         * Displays the specified reserve info status.
+         * @param {string} info: Info message that will appear in blue.
+         */
+        function infoStatus(info) {
+            $reserveStatusRow.show();
+            $reserveStatus.text(info);
+            $reserveStatus.addClass("alert-info");
+            $reserveStatus.removeClass("alert-danger");
+        }
+
+        /**
+         * Displays the specified error info status.
+         * @param {str} error: Error message that will appear in red.
+         */
+        function errorStatus(error) {
+            $reserveStatusRow.show();
+            $reserveStatus.text(error);
+            $reserveStatus.addClass("alert-danger");
+            $reserveStatus.removeClass("alert-info");
+        }
+
+
         {# Await for the page #}
         $(document).ready(function () {
 
-            var $reserveStatusRow = $("#reserve-status-row");
-            var $reserveStatus = $("#reserve-status");
-
-            // Wait for the reserve.
+            // Wait for the FRAME reserve.
             $("#reserve-frame-btn").click(function (ev) {
                 var sessionid = "{{ request.cookies.get("sessionid") }}";
                 var name = "{{ experiment["experiment.name"] }}";
                 var category = "{{ experiment["experiment.category"] }}";
 
                 $(".reserve-btn").attr("disabled", "");
-                $reserveStatusRow.show();
-                $reserveStatus.text("Reserving experiment...");
+                infoStatus("Reserving...");
 
                 WeblabWeb.reserve_experiment(sessionid, name, category)
-                        .progress(function(position, result) {
+                        .progress(function(status, position, result) {
+                            if(position != undefined) {
+                                if(position == 0)
+                                    infoStatus("Waiting in the queue. You are next.");
+                                else
+                                    infoStatus("Waiting in the queue. Your position is: " + position + ".")
 
+                                // TODO: Improve this animation.
+                                $reserveStatus.fadeOut(200).fadeIn(200);
+                            }
+                        })
+                        .fail(function(error){
+                            onReserveFail(error);
                         })
                         .done(function (uid, time, initial_config, result) {
 
                             console.log("RESERVATION DONE");
                             console.log(result);
 
-                            $reserveStatus.text("Reservation done.");
+                            infoStatus("Reservation done");
 
                             var frame = $("#exp-frame")[0];
                             var wexp = frame.contentWindow.Weblab.getWeblabExp();
@@ -201,15 +253,17 @@
                     var category = "{{ experiment["experiment.category"] }}";
 
                     $(".reserve-free-btn").attr("disabled", "");
-                    $reserveStatusRow.show();
-                    $reserveStatus.text("Reserving experiment...");
+                    infoStatus("Reserving experiment...");
 
                     WeblabWeb.reserve_experiment(sessionid, name, category)
+                            .fail(function (error){
+                                onReserveFail(error);
+                            })
                             .done(function (id, time, initConfig, result) {
                                 console.log("RESERVATION DONE");
                                 console.log(result);
 
-                                $reserveStatus.text("Reservation done.");
+                                infoStatus("Reservation done");
 
                                 var params = {
                                     "r": id,

@@ -179,6 +179,9 @@ WeblabExp = function (frameMode) {
         // Set the ID.
         mReservation = reservation_id;
 
+        // Start the polling mechanism.
+        this._startPolling();
+
         mOnStartPromise.resolve(time, initial_config);
     }
 
@@ -318,6 +321,7 @@ WeblabExp = function (frameMode) {
                 if (!mOnFinishPromise.state() != "resolved") {
                     mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                 }
+                console.log("POLL: " + result);
             }.bind(this))
             .fail(function (error) {
                 // Presumably, the experiment has ended. We should actually check the error to make sure it's so.
@@ -326,6 +330,7 @@ WeblabExp = function (frameMode) {
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
                 mOnFinishPromise.resolve();
 
+                console.log("POLL F: " + error);
                 // TODO: How are connection failures handled??? Do we consider the experiment finished?
             }.bind(this));
 
