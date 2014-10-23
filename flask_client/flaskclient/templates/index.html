@@ -3,14 +3,21 @@
 {% extends "_base.html" %}
 {% block body %}
 
-    <style>
-    body {
-        padding-top: 70px;
-    }
-    </style>
-
     <div class="container">
+
         <div class="row">
+
+            <div class="col-xs-6 col-md-5 col-lg-4">
+                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/logo.png") }}"/>
+            </div>
+
+            <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
+                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/deusto_logo.jpg") }}"/>
+            </div>
+        </div>
+
+        <div class="row">
+
             <div class="col-lg-4 well" style="padding-left: 40px; padding-right: 40px">
 
                 <form action="#" id="login-form" method="POST" class="form-horizontal" role="form">
@@ -63,7 +70,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-5 col-lg-push-3">
+            <div class="col-lg-6 col-lg-push-2">
                 <h2>WebLab-Deusto</h2>
 
                 <p>WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the
@@ -72,20 +79,54 @@
                     regarding
                     the project in the WebLab-Deusto Research Group site.</p>
 
-                <h3>Support</h3>
+                <div class="row">
 
-                <p>For any technical issue you may find, please contact us at weblab@deusto.es</p>
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/support.png") }}"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            Support
+                        </h3>
 
-                <h3>Demo</h3>
+                        <p>For any technical issue you may find, please contact us at weblab@deusto.es</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/demo.png") }}"
+                             />
+                    </div>
 
-                <p>If you do not have a user account, you can try our demo experiments with the username demo and the
-                    password
-                    demo.</p>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            Demo
+                        </h3>
 
-                <h3>Open Source</h3>
+                        <p>If you do not have a user account, you can try our demo experiments with the username demo
+                            and
+                            the
+                            password
+                            demo.
+                        </p>
+                    </div>
+                </div>
 
-                <p>WebLab-Deusto is Open Source Software, and it is available in
-                    https://github.com/weblabdeusto/weblabdeusto/</p>
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/opensource.png") }}"
+                             style="width: 100%; height: 100%"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            Open Source
+                        </h3>
+
+                        <p>WebLab-Deusto is Open Source Software, and it is available in
+                            https://github.com/weblabdeusto/weblabdeusto/</p>
+                    </div>
+                </div>
+                <!-- !row-->
             </div>
         </div>
     </div>
@@ -105,7 +146,7 @@
             var $lastSubmit = undefined;
 
             // Remember which submit is clicked.
-            $("input[type=submit]").click(function(ev){
+            $("input[type=submit]").click(function (ev) {
                 $lastSubmit = ev.target;
             });
 
@@ -118,7 +159,7 @@
 
                 var username = "";
                 var password = "";
-                if($lastSubmit.id == "guestlogin") {
+                if ($lastSubmit.id == "guestlogin") {
                     username = "demo";
                     password = "demo";
                 } else {
