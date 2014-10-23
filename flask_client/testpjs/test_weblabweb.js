@@ -143,7 +143,7 @@ describe("WeblabWeb Test", function () {
                     var reservation_id = result.reservation_id.id;
 
                     WeblabWeb._get_reservation_status(reservation_id)
-                        .done(function(r){
+                        .done(function (r) {
                             should.exist(r);
 
                             should.exist(r.status);
@@ -152,7 +152,7 @@ describe("WeblabWeb Test", function () {
 
                             done();
                         })
-                        .fail(function(result){
+                        .fail(function (result) {
                             throw result;
                         });
 
@@ -189,10 +189,54 @@ describe("WeblabWeb Test", function () {
 
                     done();
                 })
+                .progress(function(status, position, result){
+                    console.log("In progress: " + status);
+                })
                 .fail(function (result) {
                     throw result;
                 });
         });
+    }); // !it
+
+
+    it("reserve_experiment should report queue position", function (done) {
+        this.timeout(15000);
+        // Login first.
+        var $login = WeblabWeb._login(valid_account, valid_password);
+        $login.done(function (sessionid) {
+
+            WeblabWeb.reserve_experiment(sessionid, "robotarm", "Robot experiments")
+                .progress(function (status, position, result) {
+                    console.log("PROGRESS 1: " + status);
+                })
+                .fail(function (error) {
+                    throw error;
+                })
+                .done(function (reservationid, time, initialConfig, result) {
+
+                    console.log("R1.DONE");
+
+                    WeblabWeb.reserve_experiment(sessionid, "robotarm", "Robot experiments")
+                        .done(function (reservationid, time, initialConfig, result) {
+                            // TODO: Make tests independent.
+                            // throw "Second reserve shouldn't succeed";
+                            console.log("R2.DONE");
+                        })
+                        .progress(function (status, position, result) {
+                            console.log("PROG 3 " + status + " | " + position);
+                            should.exist(status);
+                            should.exist(result);
+                            if(status === "Reservation::waiting") {
+                                position.should.equal(0);
+                                done();
+                            }
+                        })
+                        .fail(function (result) {
+                            throw result;
+                        }); //! Second reserve done
+                }); //! First reserve done
+
+        }); //! login.done
     }); // !it
 
 

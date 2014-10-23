@@ -2,53 +2,64 @@
 {% set title="Lab - " %}
 {% block body %}
 
-{{ super() }}
+    {{ super() }}
 
-<div class="container" id="reserve-container">
-    <div class="text-center">
-        <h2>Reserve this experiment</h2>
-    </div>
+    <div class="container" id="reserve-container">
+        <div class="text-center">
+            <h2>Reserve this experiment</h2>
+        </div>
 
-    <div class="row">
-        <div class="col-lg-4 col-lg-push-4 text-center well">
-            <p>
-            <strong>Experiment:</strong> {{ experiment["experiment.name"] }}
-            </p>
+        <div class="row">
+            <div class="col-lg-4 col-lg-push-4 text-center well">
+                <p>
+                    <strong>Experiment:</strong> {{ experiment["experiment.name"] }}
+                </p>
 
-            <p>
-            <strong>Category:</strong> {{ experiment["experiment.category"] }}
-            </p>
+                <p>
+                    <strong>Category:</strong> {{ experiment["experiment.category"] }}
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2 col-lg-offset-4 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn" id="reserve-frame-btn">Reserve (in Frame)</a>
+            </div>
+            <div class="col-lg-2 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-free-btn" id="reserve-free-btn">Reserve (in Window)</a>
+            </div>
+        </div>
+
+        <div class="row" id="reserve-status-row" style="display: none">
+            <div class="col-lg-4 col-lg-push-4 col-md-6 col-md-push-3 col-sm-8 col-sm-push-2 col-xs-12" style="margin-top: 10px">
+                <p class="alert alert-info" style="padding: 10px" id="reserve-status" style="">
+                    Reserved
+                    {# To be filled from JS #}
+                </p>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-2 col-lg-offset-4 text-center">
-            <a href="#" class="btn btn-primary reserve-btn" id="reserve-btn">Reserve (in Frame)</a>
-        </div>
-        <div class="col-lg-2 text-center">
-            <a href="#" class="btn btn-primary reserve-free-btn" id="reserve-free-btn">Reserve (in Window)</a>
+
+    <div class="container" id="finish-container" style="display: none">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this
+                    experiment</a>
+            </div>
         </div>
     </div>
-</div>
-
-
-<div class="container" id="finish-container" style="display: none">
-    <div class="row">
-        <div class="col-lg-12 text-center">
-            <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this experiment</a>
-        </div>
-    </div>
-</div>
 
 
 
     {% if experiment_type == "js" %}
-    <div class="" style="padding-top: 20px">
-        <div class="">
-            <!-- We append a rawgit base URL for testing -->
-            <iframe id="exp-frame" width="100%" scrolling="no" src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px;"></iframe>
+        <div class="" style="padding-top: 20px">
+            <div class="">
+                <!-- We append a rawgit base URL for testing -->
+                <iframe id="exp-frame" width="100%" scrolling="no"
+                        src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px;"></iframe>
+            </div>
         </div>
-    </div>
     {% endif %}
 
 {% endblock %}
@@ -56,141 +67,171 @@
 
 {% block scripts %}
 
-{{ super() }}
+    {{ super() }}
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-function InjectScriptIntoFrame(url) {
-    var myIframe = document.getElementById("exp-frame");
-    var script = myIframe.contentWindow.document.createElement("script");
-    script.async = false;
-    script.defer = false;
-    script.type = "text/javascript";
-    script.src = url;
-    myIframe.contentWindow.document.body.appendChild(script);
-}
+        function InjectScriptIntoFrame(url) {
+            var myIframe = document.getElementById("exp-frame");
+            var script = myIframe.contentWindow.document.createElement("script");
+            script.async = false;
+            script.defer = false;
+            script.type = "text/javascript";
+            script.src = url;
+            myIframe.contentWindow.document.body.appendChild(script);
+        }
 
-{# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
-$("#exp-frame").load(function() {
-    console.log("Injecting scripts");
+        {# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
+        $("#exp-frame").load(function () {
+            console.log("Injecting scripts");
 
-    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
-    InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
-    InjectScriptIntoFrame("{{ url_for('static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
-});
-
-
-/**
- * Handle certain ui actions when the experiment finishes.
- */
-function onReserveDone() {
-    $("#reserve-container").slideUp(500);
-    $("#finish-container").slideDown(500);
-}
+            InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
+            InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
+            InjectScriptIntoFrame("{{ url_for('static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
+        });
 
 
-/**
- * Handle certain ui actions when the experiment finishes.
- */
-function onExperimentFinished() {
-    // We should probably show some kind of experiment-finished message.
+        /**
+         * Handle certain ui actions when the experiment finishes.
+         */
+        function onReserveDone() {
+            // Switch the finish and reserve containers.
+            $("#reserve-container").slideUp(500);
+            $("#finish-container").slideDown(500);
 
-    $("#reserve-container").slideDown(500);
-    $("#finish-container").slideUp(500);
+            // Re-enable the Reserve buttons, for when they are shown later.
+            $(".reserve-btn").removeAttr("disabled");
 
-    // Reload the frame.
-    // This is particularly important at the moment because the WeblabExp compatibility library
-    // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
-    $( '#exp-frame' ).attr( 'src', function ( i, val ) { return val; });
-}
+            // In a while, remove the reserve alert.
+            // Note: As of now this isn't actually seen because the whole container is hidden.
+            $("#reserve-status-row").delay(500).fadeOut(500);
+        }
 
 
-{# Await for the page #}
-$(document).ready(function() {
-    // Wait for the reserve.
-    $("#reserve-btn").click(function(ev) {
-        console.log("RESERVE PROC STARTED");
-        var sessionid = "{{ request.cookies.get("sessionid") }}";
-        var name = "{{ experiment["experiment.name"] }}";
-        var category = "{{ experiment["experiment.category"] }}";
-        WeblabWeb.reserve_experiment(sessionid, name, category)
-                .done(function(uid, time, initial_config, result) {
+        /**
+         * Handle certain ui actions when the experiment finishes.
+         */
+        function onExperimentFinished() {
+            // We should probably show some kind of experiment-finished message.
 
-                    console.log("RESERVATION DONE");
-                    console.log(result);
+            $("#reserve-container").slideDown(500);
+            $("#finish-container").slideUp(500);
 
-                    var frame = $("#exp-frame")[0];
-                    var wexp = frame.contentWindow.Weblab.getWeblabExp();
-                    currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
-                    var url = result["url"];
-                    wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
-                    wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
+            // Reload the frame.
+            // This is particularly important at the moment because the WeblabExp compatibility library
+            // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
+            $('#exp-frame').attr('src', function (i, val) {
+                return val;
+            });
+        }
 
-                    // Listen also for a dispose, for other ui changes.
-                    wexp.onFinish().done(function(f){
-                        onExperimentFinished();
-                    });
 
-                    // For some ui changes.
-                    onReserveDone();
+        {# Await for the page #}
+        $(document).ready(function () {
+
+            var $reserveStatusRow = $("#reserve-status-row");
+            var $reserveStatus = $("#reserve-status");
+
+            // Wait for the reserve.
+            $("#reserve-frame-btn").click(function (ev) {
+                var sessionid = "{{ request.cookies.get("sessionid") }}";
+                var name = "{{ experiment["experiment.name"] }}";
+                var category = "{{ experiment["experiment.category"] }}";
+
+                $(".reserve-btn").attr("disabled", "");
+                $reserveStatusRow.show();
+                $reserveStatus.text("Reserving experiment...");
+
+                WeblabWeb.reserve_experiment(sessionid, name, category)
+                        .progress(function(position, result) {
+
+                        })
+                        .done(function (uid, time, initial_config, result) {
+
+                            console.log("RESERVATION DONE");
+                            console.log(result);
+
+                            $reserveStatus.text("Reservation done.");
+
+                            var frame = $("#exp-frame")[0];
+                            var wexp = frame.contentWindow.Weblab.getWeblabExp();
+                            currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
+                            var url = result["url"];
+                            wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
+                            wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
+
+                            // Listen also for a dispose, for other ui changes.
+                            wexp.onFinish().done(function (f) {
+                                onExperimentFinished();
+                            });
+
+                            // For some ui changes.
+                            onReserveDone();
+                        });
+            });
+
+
+            {% if experiment_type == "js" %}
+
+                //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
+
+                // Load the iframeResizer when the frame loads.
+                $("#exp-frame").on("load", function (ev) {
+                    // For some reason it doesn't work without a timeout. Don't know why.
+                    // TODO: Check why it doesn't work without a timeout and try to remove it.
+                    // Consider also whether we actually need to do this for each reload or one time is enough.
+                    // Note: Actually, maybe that is because the injected script needs to finish loading.
+                    // TODO: Add some kind of callback so that we can run this when the script within the iframe finishes loading.
+                    setTimeout(function () {
+                        $("#exp-frame").iFrameResize({log: false, enablePublicMethods: true, checkOrigin: false}, "#exp-frame");
+                    }, 100);
+
                 });
-    });
 
 
-{% if experiment_type == "js" %}
-
-    //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
-
-    // Load the iframeResizer when the frame loads.
-    $("#exp-frame").on("load", function(ev){
-        // For some reason it doesn't work without a timeout. Don't know why.
-        // TODO: Check why it doesn't work without a timeout and try to remove it.
-        // Consider also whether we actually need to do this for each reload or one time is enough.
-        // Note: Actually, maybe that is because the injected script needs to finish loading.
-        // TODO: Add some kind of callback so that we can run this when the script within the iframe finishes loading.
-        setTimeout(function(){
-            $("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false}, "#exp-frame");
-        }, 100);
-
-    });
-
-
-    $("#finish-experiment-btn").click(function(ev){
-        currentExperiment.finishExperiment();
-    });
-
-    // Wait for the free-mode reserve.
-    $("#reserve-free-btn").click(function(ev) {
-        console.log("FREE RESERVE PROC STARTED");
-        var sessionid = "{{ request.cookies.get("sessionid") }}";
-        var name = "{{ experiment["experiment.name"] }}";
-        var category = "{{ experiment["experiment.category"] }}";
-        WeblabWeb.reserve_experiment(sessionid, name, category)
-                .done(function(id, time, initConfig, result) {
-                    console.log("RESERVATION DONE");
-                    console.log(result);
-
-                    var params = {
-                        "r": id,
-                        "c": initConfig,
-                        "t": time,
-                        "u": "{{ url_for("redir_json", _external=True) }}",
-                        "free": "true"
-                    };
-                    //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}";
-                    var redir = "{{ config["LAB_URL"] + experiment["html.file"] }}";
-                    redir += "?" + $.param(params);
-                    console.log(redir);
-
-                    window.location = redir;
+                $("#finish-experiment-btn").click(function (ev) {
+                    currentExperiment.finishExperiment();
                 });
-    });
-{% endif %}
-});
+
+                // Wait for the free-mode reserve.
+                $("#reserve-free-btn").click(function (ev) {
+                    console.log("FREE RESERVE PROC STARTED");
+                    var sessionid = "{{ request.cookies.get("sessionid") }}";
+                    var name = "{{ experiment["experiment.name"] }}";
+                    var category = "{{ experiment["experiment.category"] }}";
+
+                    $(".reserve-free-btn").attr("disabled", "");
+                    $reserveStatusRow.show();
+                    $reserveStatus.text("Reserving experiment...");
+
+                    WeblabWeb.reserve_experiment(sessionid, name, category)
+                            .done(function (id, time, initConfig, result) {
+                                console.log("RESERVATION DONE");
+                                console.log(result);
+
+                                $reserveStatus.text("Reservation done.");
+
+                                var params = {
+                                    "r": id,
+                                    "c": initConfig,
+                                    "t": time,
+                                    "u": "{{ url_for("redir_json", _external=True) }}",
+                                    "free": "true"
+                                };
+                                //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}";
+                                var redir = "{{ config["LAB_URL"] + experiment["html.file"] }}";
+                                redir += "?" + $.param(params);
+                                console.log(redir);
+
+                                window.location = redir;
+                            });
+                });
+            {% endif %}
+        }); //! document.ready
 
 
-</script>
+    </script>
 
 
-<script type="text/javascript" src="{{ url_for("static", filename="js/iframeResizer.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for("static", filename="js/iframeResizer.min.js") }}"></script>
 {% endblock %}

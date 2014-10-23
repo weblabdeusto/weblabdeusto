@@ -367,7 +367,8 @@ WeblabWeb = new function () {
      * @param {string} sessionid: Session ID of the user
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
-     * @returns {object} Callback. It reports through .done(id, time, initial_config, result_object)  {@link reserve_experiment~done} or through .fail(error).
+     * @returns {object} Callback. It reports through .done(id, time, initial_config, result_object)  {@link reserve_experiment~done}, through .fail(error)
+     * and through .progress(status, [queuePosition], result).
      * @example
      *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
@@ -394,9 +395,17 @@ WeblabWeb = new function () {
                                 promise.resolve(reservationid, time, startingconfig, result);
                             }
                             else {
-                                // The reservation is not ready yet. We report the status, but we will repeat
-                                // the query in a couple seconds.
-                                promise.notify(status);
+
+                                if (status === "Reservation::waiting") {
+                                    // The reservation is not ready yet. We report the status, but we will repeat
+                                    // the query in a couple seconds.
+                                    promise.notify(status, result["position"], result);
+                                }
+
+                                else
+                                {
+                                    promise.notify(status, undefined, result);
+                                }
 
                                 // Try again soon.
                                 setTimeout(check_status, RESERVE_POLLING_FREQ);
@@ -430,6 +439,13 @@ WeblabWeb = new function () {
      * @param {str} initialConfig: Initial configuration for the experiment as a string, which will typically contain JSON.
      * TODO: If it is guaranteed to contain JSON we should decode it ourselves.
      * @param {object} result: The result object itself which the server returned.
+     */
+
+    /**
+     * @callback reserve_experiement~progress
+     * @param {str} status: The status of the reserve. Will be Reservation::waiting if the queue position is available.
+     * @param {number} [queuePosition]: The position in the waiting queue. 0 means being next. Can be undefined.
+     * @param {object} result: The Result object.
      */
 
 
