@@ -27,7 +27,8 @@ def build_experiments_list(experiments_list, experiments_config):
         time_allowed = exp_data["time_allowed"]
         experiments["%s@%s" % (exp_name, category)] = {"time_allowed": time_allowed}
 
-    # Now, merge the data from experiments_config into the experiments which are available for the user
+    # Now, merge the data from experiments_config into the experiments which are available for the user.
+    # (experiments config contains the list of all experiments, not just those that the user should see).
     exps = experiments_config["experiments"]
     for exp_type, exp_list in exps.items():
         for exp_config in exp_list:
@@ -35,7 +36,7 @@ def build_experiments_list(experiments_list, experiments_config):
             if key in experiments:
                 exp_config["experiment_type"] = exp_type
                 experiments[key].update(exp_config)
-                experiments_by_category[exp_config["experiment.category"]] = experiments[key]
+                experiments_by_category[exp_config["experiment.category"]].append(experiments[key])
 
     return experiments, experiments_by_category
 
