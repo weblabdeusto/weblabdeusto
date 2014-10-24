@@ -91,5 +91,5 @@ class HttpQueryUserManager(UserManager):
 
         # We managed to send the query but the server reported some kind of error.
         # TODO: Send Permanent instead of Temporary depending on the error.
-        if code != 'ok':
+        if code.lower().strip() != 'ok' and code.lower().strip() != "done":
             raise TemporaryConfigureError("Unexpected code returned: %s" % code)
