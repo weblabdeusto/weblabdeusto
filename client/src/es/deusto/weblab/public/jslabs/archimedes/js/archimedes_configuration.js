@@ -6,7 +6,7 @@
             "ball_density": 1.05,
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1"
         },
         "archimedes2" : {
@@ -15,7 +15,7 @@
             "ball_density": 1.32,
             "liquid_name": "water",
             "liquid_density": 1000,
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2"
         },
         "archimedes3" : {
@@ -23,7 +23,7 @@
             "ball_diameter": 3.9, // cm
             "ball_density": 0.09,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3"
         },
@@ -32,7 +32,7 @@
             "ball_diameter": 3.9, // cm
             "ball_density": 0.96,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
         },
@@ -40,7 +40,7 @@
             "ball_mass": 20,
             "ball_density": 60,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5"
         },
@@ -49,7 +49,7 @@
             "ball_density": 0.79,
             "ball_diameter": 6, // cm
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6"
         },
@@ -58,7 +58,7 @@
             "ball_density": 0.66,
             "ball_diameter": 5, // cm
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.8, // cm
+            "liquid_diameter": 7, // cm
             "liquid_name": "water",
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7"
         }
