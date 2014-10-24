@@ -24,15 +24,19 @@ def index():
         try:
             weblabweb = WeblabWeb()
             weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
-            sessionid = weblabweb._login(username, password)
+            sessionid, route = weblabweb._login(username, password)
+
 
             response = make_response(redirect(url_for("labs")))
             """ @type: flask.Response """
 
             # We set it in a cookie rather than session so that is is immediately interoperable with JS
             response.set_cookie("sessionid", sessionid)
+            response.set_cookie("route"), route  # Save the route too, we need to use it from the Python-API
 
-            return redirect(url_for("labs"))
+            print "LOGGED IN WITH: (%s, %s)" % (sessionid, route)
+
+            return response
         except:
             flash("Invalid username or password", category="error")
             return redirect(url_for("index"))

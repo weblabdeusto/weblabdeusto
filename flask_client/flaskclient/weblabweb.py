@@ -98,7 +98,7 @@ class WeblabWeb(object):
 
         @param {str} account: Account name.
         @param {str} password: Password.
-        @returns str The sessionid.
+        @returns {(str, str)} The sessionid and route.
         """
         req = {
             "method": "login",
@@ -109,7 +109,7 @@ class WeblabWeb(object):
         }
 
         result = self._send(self.login_url, req)
-        return result["id"]
+        return result["id"], self.s.cookies.get("weblabsessionid").split(".")[1]
 
     def _logout(self, sessionid):
         """

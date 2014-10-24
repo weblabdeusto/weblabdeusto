@@ -1,5 +1,5 @@
 from collections import defaultdict
-from flask import render_template, url_for, request, flash, redirect, json
+from flask import render_template, url_for, request, flash, redirect, json, session
 import urllib
 import requests
 from flaskclient import flask_app
@@ -53,13 +53,16 @@ def labs():
 
     # We also want access to the experiment's list for the user.
     sessionid = request.cookies.get("sessionid", None)
+    route = request.cookies.get("route", "")
     if sessionid is None:
         flash("You are not logged in", category="error")
         return redirect(url_for("index"))
     weblabweb = WeblabWeb()
     weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
-
     weblabweb._feed_cookies(request.cookies)
+    weblabweb._feed_cookies({"weblabsessionid": "%s.%s" % (sessionid, route)})
+
+    print "LISTING EXPERIMENTS WITH: (%s, %s)" % (sessionid, route)
 
     experiments_list = weblabweb._list_experiments(sessionid)
     # TODO: There could be issues with the routing.
