@@ -285,7 +285,7 @@ Weblab = new function () {
         // If the experiment is already active then we will call this straightaway, because
         // we probably were initialized earlier than expected. Otherwise the callback
         // would never get invoked.
-        if(mIsExperimentActive())
+        if(mIsExperimentActive)
         {
             mOnStartInteractionCallback(mInitialConfig);
         }

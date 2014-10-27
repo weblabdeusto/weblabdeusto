@@ -105,6 +105,7 @@ ArchimedesExperiment = function (registry, view) {
 
                 $.each(this.instances, function (instanceid, instance) {
                     instance.handleStartInteraction();
+                    instance.cameraRefresher.start();
                 }.bind(this));
             }.bind(this));
 
