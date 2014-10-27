@@ -230,7 +230,6 @@ ArchimedesInstance = function (instanceid) {
         // Call an updateView so that view-related things are always initialized.
         this.updateView();
 
-
         this.cameraRefresher = new CameraRefresher(instanceid + "-cam1");
         this.cameraRefresher.setInterval(500);
 
