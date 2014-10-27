@@ -209,7 +209,7 @@ ArchimedesExperiment = function (registry, view) {
         }.bind(this));
 
         // Fit the bootstrap cols properly.
-        fitInstances($(".instance-column:visible").length);
+        // fitInstances($(".instance-column:visible").length);
 
         console.log("Setting length: " + $(".instance-column:visible").length);
 
