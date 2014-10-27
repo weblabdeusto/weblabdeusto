@@ -45,6 +45,7 @@ Weblab = new function () {
     var mOnTimeCallback;
     var mOnEndCallback;
     var mOnStartInteractionCallback;
+    var mInitialConfig; // Store the initial config in case we missed the call.
 
     var mDefaultFileHandlerSuccessCallback;
     var mDefaultFileHandlerErrorCallback;
@@ -82,6 +83,7 @@ Weblab = new function () {
 
     parent_wl_inst.startInteraction = function (initial_config) {
         mIsExperimentActive = true;
+        mInitialConfig = initial_config; // Store the config in case setStartInteractionCallback is called late.
         if(mOnStartInteractionCallback != undefined)
             mOnStartInteractionCallback(initial_config);
     };
@@ -271,13 +273,22 @@ Weblab = new function () {
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
-    //! interacting with the experiment.
+    //! interacting with the experiment. If the callback is set *after* the experiment
+    //! has started, then the callback will be invoked immediately.
     //!
     //! @param onStartInteractionCallback: This callback has the prototype:
     //! onStartInteraction(initial_config). It is passed the initial configuration
     //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
         mOnStartInteractionCallback = onStartInteractionCallback;
+
+        // If the experiment is already active then we will call this straightaway, because
+        // we probably were initialized earlier than expected. Otherwise the callback
+        // would never get invoked.
+        if(mIsExperimentActive())
+        {
+            mOnStartInteractionCallback(mInitialConfig);
+        }
     };
 
     //! Sets the setTime callback. This is the callback that Weblab invokes when it defines

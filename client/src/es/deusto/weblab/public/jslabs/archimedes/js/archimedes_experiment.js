@@ -19,6 +19,11 @@ ArchimedesExperiment = function (registry, view) {
     // Initializes the experiment, by creating all instances and rendering the templates.
     // Most of the initialization is done asynchronously.
     this.initialize = function () {
+
+        // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
+        if (Weblab.checkOnline() == true)
+            hideFrame();
+
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function (template) {
 
             var rendered = "";
@@ -77,6 +82,8 @@ ArchimedesExperiment = function (registry, view) {
 
 
             // Declare onStartInteraction listener.
+            // This is at times not getting called.
+            // TODO: Fix this.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
 
                 showFrame();
@@ -100,6 +107,7 @@ ArchimedesExperiment = function (registry, view) {
                     instance.handleStartInteraction();
                 }.bind(this));
             }.bind(this));
+
 
 
             Weblab.setOnEndCallback(function () {

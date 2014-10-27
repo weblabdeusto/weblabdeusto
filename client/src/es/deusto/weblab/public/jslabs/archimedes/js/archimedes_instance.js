@@ -226,9 +226,6 @@ ArchimedesInstance = function (instanceid) {
         // Create the data tables.
         this.createDataTables();
 
-        // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (Weblab.checkOnline() == true)
-            hideFrame();
 
         // Call an updateView so that view-related things are always initialized.
         this.updateView();
