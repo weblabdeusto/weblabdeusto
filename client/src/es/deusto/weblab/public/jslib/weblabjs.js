@@ -46,6 +46,7 @@ Weblab = new function () {
     var mOnEndCallback;
     var mOnStartInteractionCallback;
     var mInitialConfig; // Store the initial config in case we missed the call.
+    var mInitialTime; // Same thing, but for the setTime callback.
 
     var mDefaultFileHandlerSuccessCallback;
     var mDefaultFileHandlerErrorCallback;
@@ -77,6 +78,7 @@ Weblab = new function () {
     parent_wl_inst.version = "1.2";
 
     parent_wl_inst.setTime = function (time) {
+        mInitialTime = time;
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
     };
@@ -302,6 +304,11 @@ Weblab = new function () {
     //!
     this.setOnTimeCallback = function (onTimeCallback) {
         mOnTimeCallback = onTimeCallback;
+
+        if(mIsExperimentActive)
+        {
+            mOnTimeCallback(mInitialTime);
+        }
     };
 
     //! Sets the three Weblab callbacks at once.
