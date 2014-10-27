@@ -37,8 +37,9 @@ ArchimedesExperiment = function (registry, view) {
             // Insert it.
             $(".instances_row").html(rendered);
 
-            // Dynamically size the bootstrap columns so that it looks pretty enough.
-            fitInstances(instancesNumber);
+            // No longer done. Archimedes instances will look somewhat small on large screens but that way
+            // there won't be issues with smaller ones.
+            // fitInstances(instancesNumber);
 
             // Initialize every Archimedes instance.
             for (var instance in registry) {

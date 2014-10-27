@@ -12,7 +12,8 @@ function fitInstances(instancesNumber) {
     // Clear the classes before setting the right ones.
     col.removeAttr("class");
     col.addClass("instance-column");
-    col.addClass("col-sd-12");
+    col.addClass("col-xs-12");
+    col.addClass("col-sm-6");
     col.addClass("column");
 
     if(instancesNumber == 1) {
