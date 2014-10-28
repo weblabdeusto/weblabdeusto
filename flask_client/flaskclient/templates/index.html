@@ -22,11 +22,11 @@
 
                 <form action="#" id="login-form" method="POST" class="form-horizontal" role="form">
                     <div id="legend">
-                        <legend class="">Log in</legend>
+                        <legend class="">{{ gettext("Log in") }}</legend>
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label" for="username">Username</label>
+                        <label class="control-label" for="username">{{ gettext("Username") }}</label>
 
                         <div class="controls">
                             <input type="text" name="username" placeholder="Username" id="username"
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label" for="username">Password</label>
+                        <label class="control-label" for="username">{{ gettext("Password") }}</label>
 
                         <div class="controls">
                             <input type="password" name="password" placeholder="Password" id="password"
@@ -57,7 +57,7 @@
                     </div>
 
                     <div style="margin-top: 0px">
-                        <p style="line-height:1.2em">Some experiments allow guest access</p>
+                        <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
                         <input type="submit" href="#" id="guestlogin" class="btn btn-default" value="Log in as guest"/>
                     </div>
 
@@ -65,19 +65,19 @@
 
 
                 <div style="margin-top: 20px">
-                    <p style="line-height:1.2em">Don't have an account? Create one through Facebook</p>
-                    <a href="#" id="createaccount" class="btn btn-default">Create an account</a>
+                    <p style="line-height:1.2em">{{ gettext("Don't have an account? Create one through Facebook") }}</p>
+                    <a href="#" id="createaccount" class="btn btn-default">{{ gettext("Create an account") }}</a>
                 </div>
             </div>
 
             <div class="col-lg-6 col-lg-push-2">
-                <h2>WebLab-Deusto</h2>
+                <h2>{{ gettext("WebLab-Deusto") }}</h2>
 
-                <p>WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the
+                <p>{{ gettext("WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the
                     university,
                     having the same experience as if in traditional hands-on-lab sessions. There is more information
                     regarding
-                    the project in the WebLab-Deusto Research Group site.</p>
+                    the project in the WebLab-Deusto Research Group site.") }}</p>
 
                 <div class="row">
 
@@ -86,10 +86,10 @@
                     </div>
                     <div class="col-xs-10 wl-vertical-center">
                         <h3>
-                            Support
+                            {{ gettext("Support") }}
                         </h3>
 
-                        <p>For any technical issue you may find, please contact us at weblab@deusto.es</p>
+                        <p>{{ gettext("For any technical issue you may find, please contact us at weblab@deusto.es") }}</p>
                     </div>
                 </div>
                 <div class="row">
@@ -100,15 +100,15 @@
 
                     <div class="col-xs-10 wl-vertical-center">
                         <h3>
-                            Demo
+                            {{ gettext("Demo") }}
                         </h3>
 
-                        <p>If you do not have a user account, you can try our demo experiments with the username demo
+                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username demo
                             and
                             the
                             password
                             demo.
-                        </p>
+                        ") }}</p>
                     </div>
                 </div>
 
@@ -119,11 +119,11 @@
                     </div>
                     <div class="col-xs-10 wl-vertical-center">
                         <h3>
-                            Open Source
+{{ gettext("                            Open Source") }}
                         </h3>
 
-                        <p>WebLab-Deusto is Open Source Software, and it is available in
-                            https://github.com/weblabdeusto/weblabdeusto/</p>
+                        <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in
+                            https://github.com/weblabdeusto/weblabdeusto/") }}</p>
                     </div>
                 </div>
                 <!-- !row-->
@@ -169,12 +169,12 @@
 
                 $status.attr("style", "visibility: auto");
                 $status.attr("class", "alert alert-info");
-                $status.text("Logging in...");
+                $status.text("{{ gettext("Logging in...") }}");
                 WeblabWeb.setTargetURLs("{{ config["LOGIN_URL"] }}", "{{ config["CORE_URL"] }}");
                 WeblabWeb._login(username, password)
                         .done(function (ev, a) {
                             $status.attr("class", "alert alert-success");
-                            $status.text("Logged in. Please wait...");
+                            $status.text("{{ gettext("Logged in. Please wait...") }}");
 
                             console.log(ev);
 
@@ -195,7 +195,7 @@
                                         if (err.message != undefined) {
                                             $status.text(err.message);
                                         } else {
-                                            $status.text("Error: Failed to login.");
+                                            $status.text("{{ gettext("Error: Failed to login.") }}");
                                         }
                                     });
                         })
@@ -205,7 +205,7 @@
                             if (ev.message != undefined) {
                                 $status.text(ev.message);
                             } else {
-                                $status.text("Error: Failed to login.");
+                                $status.text("{{ gettext("Error: Failed to login.") }}");
                             }
                             console.log(ev);
                         });
@@ -226,7 +226,7 @@
                         store.set("configuration", JSON.stringify(configuration));
                     })
                     .fail(function (err, reason) {
-                        console.error("Failed to retrieve configuration");
+                        console.error("{{ gettext("Failed to retrieve configuration") }}");
                         console.error(reason);
                     });
         })();

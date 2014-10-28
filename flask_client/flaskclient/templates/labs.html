@@ -8,7 +8,7 @@
     {{ super() }}
 
     <center>
-        <h2>My Experiments</h2>
+        <h2>{{ gettext("My Experiments") }}</h2>
     </center>
 
     <div class="container">
@@ -18,12 +18,12 @@
 
             <!-- To be displayed only if no experiments match the filters -->
             <div id="no-experiments-alert" class="alert alert-info" style="display:none">
-                <h3>No experiments are available with the current filters</h3>
-                <p>
+                <h3>{{ gettext("No experiments are available with the current filters") }}</h3>
+                <p>{{ gettext("
                     No experiments are available which match the current filters. You might want to change the filters.
                     If after changing the filters the experiment you seek still does not seem to be available,
                     you may need to request access to your teacher, laboratory provider or Weblab administrator.
-                </p>
+                ") }}</p>
             </div>
 
             <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
@@ -48,7 +48,7 @@
                                 immersed into water.
                             </p>
                             <p>
-                                <strong>Experiment type:</strong> {{ experiment["experiment_type"] }}
+                                <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["experiment_type"] }}
                             </p>
 
                             <a href="{{ url_for("lab", category = experiment["experiment.category"], name = urllib.quote_plus(experiment["experiment.name"]), type = experiment["experiment_type"]) }}">
@@ -70,7 +70,7 @@
                 <div class="column col-sm-12">
                     <div id="wrapper">
                         <legend>
-                            Filter by Search
+                            {{ gettext("Filter by Search") }}
                         </legend>
 
                         <!-- Sidebar -->
@@ -78,7 +78,7 @@
                             <form action="#" class="form">
                                 <div class="form-group">
                                     <div class="input-group">
-                                        <input id="exp-search" type="Search" placeholder="Search..."
+                                        <input id="exp-search" type="Search" placeholder="{{ gettext("Search...") }}"
                                                class="form-control"/>
 
                                         <div class="input-group-btn">
@@ -99,7 +99,7 @@
                 <div class="column col-sm-12">
                     <div id="wrapper">
                         <legend>
-                            Filter by Category
+                            {{ gettext("Filter by Category") }}
                         </legend>
 
                         <!-- Sidebar -->
