@@ -179,8 +179,9 @@ WeblabExp = function (frameMode) {
         // Set the ID.
         mReservation = reservation_id;
 
+        console.log("RESOLVING START PROMISE");
         mOnStartPromise.resolve(time, initial_config);
-    }
+    };
 
     /**
      * Sets the target URL to which the AJAX requests will be directed. This is the
