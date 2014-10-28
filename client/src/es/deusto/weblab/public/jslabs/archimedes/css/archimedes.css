@@ -57,21 +57,24 @@
 
 .arch-camera {
     position: relative;
-    transform:rotate(270deg);
-    -webkit-transform: rotate(-90deg) translate(-100%, 0%) scale(1, 1);
-    -webkit-transform-origin: 0% 0%;
     z-index: 10; /* Always display over the buttons */
+
+    width: 100%;
+    height: auto;
 
     box-shadow: 0 0 2px 3px rgba(100, 40, 40, .75);
 }
 
 .arch-camera_hover {
     box-shadow: 0 0 5px 10px rgba(100, 40, 40, .75);
+    cursor: zoom-out;
+    width: 150%;
+    left: -25%;
 }
 
 .arch-img-wrapper {
     width: 95%;
-    height: 480px; /* JS-modified to meet a 640x480 aspect ratio */
+    height: auto; /* JS-modified to meet a 640x480 aspect ratio */
 }
 
 .arch-well {
