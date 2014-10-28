@@ -61,9 +61,6 @@ ArchimedesExperiment = function (registry, view) {
             // specified view.
             this.updateView();
 
-            // Fix the issue with the webcam image rotation.
-            fixImageRotation();
-
             // Enable image zooming on hover.
             enableImageZooming();
 
@@ -222,9 +219,6 @@ ArchimedesExperiment = function (registry, view) {
         // fitInstances($(".instance-column:visible").length);
 
         console.log("Setting length: " + $(".instance-column:visible").length);
-
-        // Scale the images right.
-        fixImageRotation();
     };
 
     //! Handles translation for the dynamic part of the interface.
