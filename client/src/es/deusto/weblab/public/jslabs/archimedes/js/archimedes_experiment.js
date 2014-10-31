@@ -218,6 +218,9 @@ ArchimedesExperiment = function (registry, view) {
         // Fit the bootstrap cols properly.
         // fitInstances($(".instance-column:visible").length);
 
+        // Reinitialize the client-side control to show or hide full instances.
+        initializeShownPanel();
+
         console.log("Setting length: " + $(".instance-column:visible").length);
     };
 
