@@ -79,6 +79,7 @@ Weblab = new function () {
 
     parent_wl_inst.setTime = function (time) {
         mIsExperimentActive = true;
+        console.log("[DBG]: wl_inst.setTime WITH " + time);
         mInitialTime = time;
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
@@ -305,6 +306,9 @@ Weblab = new function () {
     //!
     this.setOnTimeCallback = function (onTimeCallback) {
         mOnTimeCallback = onTimeCallback;
+
+        console.log("[DBG]: SETTING ON TIME CALLBACK WITH EXP ACTIVE? " + mIsExperimentActive);
+        console.log("INITIAL TIME AS: " + mInitialTime);
 
         if(mIsExperimentActive)
         {
