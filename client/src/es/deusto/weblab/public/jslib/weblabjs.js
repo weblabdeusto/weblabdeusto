@@ -78,6 +78,7 @@ Weblab = new function () {
     parent_wl_inst.version = "1.2";
 
     parent_wl_inst.setTime = function (time) {
+        mIsExperimentActive = true;
         mInitialTime = time;
         if(mOnTimeCallback != undefined)
             mOnTimeCallback(time);
