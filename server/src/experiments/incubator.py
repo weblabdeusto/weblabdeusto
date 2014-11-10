@@ -179,7 +179,7 @@ class StatusManager(threading.Thread):
 
         self.dbg("%s: Performing POST request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f'), url))
         if self._fake:
-            print "Request to %s faked" % location
+            self.dbg("Request to %s faked" % location)
             return None
 
         try:
@@ -199,7 +199,7 @@ class StatusManager(threading.Thread):
 
         self.dbg("%s: Performing GET request to: %s" % (datetime.datetime.now().strftime('%d-%m-%Y %H:%M:%S.%f'), url))
         if self._fake:
-            print "Request to %s faked" % location
+            self.dbg("Request to %s faked" % location)
             return 'OK:%s' % str(random.random() - 100)
 
         try:

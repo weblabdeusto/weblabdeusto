@@ -1,0 +1,235 @@
+{% set link="home" %}
+{% set title="Log in" %}
+{% extends "_base.html" %}
+{% block body %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-xs-6 col-md-5 col-lg-4">
+                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/logo.png") }}"/>
+            </div>
+
+            <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
+                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/deusto_logo.jpg") }}"/>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4 well" style="padding-left: 40px; padding-right: 40px">
+
+                <form action="#" id="login-form" method="POST" class="form-horizontal" role="form">
+                    <div id="legend">
+                        <legend class="">{{ gettext("Log in") }}</legend>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="username">{{ gettext("Username") }}</label>
+
+                        <div class="controls">
+                            <input type="text" name="username" placeholder="Username" id="username"
+                                   class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="username">{{ gettext("Password") }}</label>
+
+                        <div class="controls">
+                            <input type="password" name="password" placeholder="Password" id="password"
+                                   class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-xs-4">
+                                <input href="#" id="login" type="submit" class="btn btn-success" value="Log in »">
+                            </div>
+                            <div class="col-xs-8">
+                                <p class="alert alert-info" id="login-status" style="visibility:hidden">
+                                    {# To be filled from JS #}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 0px">
+                        <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
+                        <input type="submit" href="#" id="guestlogin" class="btn btn-default" value="Log in as guest"/>
+                    </div>
+
+                </form>
+
+
+                <div style="margin-top: 20px">
+                    <p style="line-height:1.2em">{{ gettext("Don't have an account? Create one through Facebook") }}</p>
+                    <a href="#" id="createaccount" class="btn btn-default">{{ gettext("Create an account") }}</a>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-lg-push-2">
+                <h2>{{ gettext("WebLab-Deusto") }}</h2>
+
+                <p>{{ gettext("WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the
+                    university,
+                    having the same experience as if in traditional hands-on-lab sessions. There is more information
+                    regarding
+                    the project in the WebLab-Deusto Research Group site.") }}</p>
+
+                <div class="row">
+
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/support.png") }}"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            {{ gettext("Support") }}
+                        </h3>
+
+                        <p>{{ gettext("For any technical issue you may find, please contact us at weblab@deusto.es") }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/demo.png") }}"
+                             />
+                    </div>
+
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            {{ gettext("Demo") }}
+                        </h3>
+
+                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username demo
+                            and
+                            the
+                            password
+                            demo.
+                        ") }}</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/opensource.png") }}"
+                             style="width: 100%; height: 100%"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+{{ gettext("                            Open Source") }}
+                        </h3>
+
+                        <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in
+                            https://github.com/weblabdeusto/weblabdeusto/") }}</p>
+                    </div>
+                </div>
+                <!-- !row-->
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+
+        var store = new Persist.Store("weblabweb");
+
+
+        $(document).ready(function () {
+            console.log("INITIALIZING");
+
+            var $lastSubmit = undefined;
+
+            // Remember which submit is clicked.
+            $("input[type=submit]").click(function (ev) {
+                $lastSubmit = ev.target;
+            });
+
+            $("#login-form").submit(function (ev) {
+
+                // This is only a form for the auto-enter. We do not want a submit.
+                ev.preventDefault();
+
+                var $status = $("#login-status");
+
+                var username = "";
+                var password = "";
+                if ($lastSubmit.id == "guestlogin") {
+                    username = "demo";
+                    password = "demo";
+                } else {
+                    username = $("#username").val();
+                    password = $("#password").val();
+                }
+
+                $status.attr("style", "visibility: auto");
+                $status.attr("class", "alert alert-info");
+                $status.text("{{ gettext("Logging in...") }}");
+                WeblabWeb.setTargetURLs("{{ config["LOGIN_URL"] }}", "{{ config["CORE_URL"] }}");
+                WeblabWeb._login(username, password)
+                        .done(function (ev, a) {
+                            $status.attr("class", "alert alert-success");
+                            $status.text("{{ gettext("Logged in. Please wait...") }}");
+
+                            console.log(ev);
+
+                            var sessionid = ev;
+
+                            $.cookie("sessionid", sessionid);
+
+                            WeblabWeb._get_user_information(sessionid)
+                                    .done(function (info) {
+                                        store.set("userinfo", JSON.stringify(info));
+
+                                        // We do not pass the sid here anymore because now it is done
+                                        // through persist.js.
+                                        window.location = "/labs.html";
+                                    })
+                                    .fail(function (err) {
+                                        $status.attr("class", "alert alert-danger");
+                                        if (err.message != undefined) {
+                                            $status.text(err.message);
+                                        } else {
+                                            $status.text("{{ gettext("Error: Failed to login.") }}");
+                                        }
+                                    });
+                        })
+                        .fail(function (ev) {
+                            $status.attr("class", "alert alert-danger");
+
+                            if (ev.message != undefined) {
+                                $status.text(ev.message);
+                            } else {
+                                $status.text("{{ gettext("Error: Failed to login.") }}");
+                            }
+                            console.log(ev);
+                        });
+            });
+
+
+        }); // !ready
+
+
+        // Do an AJAX query in parallel (both document loading and the query can take place at
+        // the same time).
+        (function () {
+            var doc_ready = $.Deferred();
+            $(doc_ready.resolve);
+            $.when(doc_ready, $.ajax({"url": "{{ url_for("configuration") }}"}))
+                    .done(function (ready, config, third) {
+                        configuration = config[0]; // Store it GLOBALLY.
+                        store.set("configuration", JSON.stringify(configuration));
+                    })
+                    .fail(function (err, reason) {
+                        console.error("{{ gettext("Failed to retrieve configuration") }}");
+                        console.error(reason);
+                    });
+        })();
+
+    </script>
+{% endblock %}

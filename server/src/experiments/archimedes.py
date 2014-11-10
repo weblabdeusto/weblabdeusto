@@ -47,6 +47,8 @@ class Archimedes(Experiment):
 
         self._lock = threading.Lock()
 
+        self._workpool = None
+
         self._cfg_manager = cfg_manager
 
         # IP of the board, raspberry, beagle, or whatever.
@@ -94,6 +96,8 @@ class Archimedes(Experiment):
             threading.current_thread()._children = weakref.WeakKeyDictionary()
 
         # Allocate a small pool of worker threads to handle the requests to the board.
+        if self._workpool:
+            self._workpool.terminate()
         self._workpool = ThreadPool(len(self.archimedes_instances))
 
         current_config = self.initial_configuration.copy()
@@ -282,6 +286,11 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
+
+        # Finish the thread pool
+        if self._workpool is not None:
+            self._workpool.terminate()
+
         return "ok"
 
 

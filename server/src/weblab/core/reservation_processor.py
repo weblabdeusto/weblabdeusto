@@ -137,7 +137,6 @@ class ReservationProcessor(object):
         self._reservation_session['manages_polling'] = True
 
     def finish(self):
-
         """
         Called when the experiment ends, regardless of the way. (That is, it does not matter whether the user finished
         it explicitly or not).
@@ -179,9 +178,10 @@ class ReservationProcessor(object):
     #
 
     def is_polling(self):
-
-        """Is this user in a queue or using an experiment, and therefore it should be
-        continuosly informing that it is alive? Otherwise, weblab will kick him"""
+        """
+        Is this user in a queue or using an experiment, and therefore it should be
+        continuosly informing that it is alive? Otherwise, weblab will kick him.
+        """
 
         return 'session_polling' in self._reservation_session
 

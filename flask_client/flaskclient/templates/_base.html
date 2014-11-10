@@ -9,11 +9,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <link href="assets/bootstrap3/css/bootstrap.css" rel="stylesheet">
-    <link href="assets/bootstrap3/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link href="{{ url_for("static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for("static", filename="bootstrap3/css/bootstrap-glyphicons.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for("static", filename="css/website.css") }}" rel="stylesheet"/>
     <style>
         body { 
-            padding-top: 70px; 
+            padding-top: 20px;
         }
         .spacer {
             display: inline-block;
@@ -93,7 +94,25 @@
     </div>
     -->
 
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                {% with messages = get_flashed_messages(with_categories = True) %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{% if category == 'error' %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endwith %}
+                </div>
+            </div>
+        </div>
+
+
 {% block body %}
+
+
 {% endblock %}
 
     <div class="footer">
@@ -109,8 +128,23 @@
         </div>
     </div>
 
-<script src="assets/js/jquery.js"></script>
-<script src="assets/bootstrap3/js/bootstrap.js"></script>
+<script src="{{ url_for("static", filename="js/jquery.js") }}"></script>
+<script src="{{ url_for("static", filename="bootstrap3/js/bootstrap.js") }}"></script>
+<script src="{{ url_for("static", filename="js/mustache.js") }}"></script>
+<script src="{{ url_for("static", filename="weblabjs/weblabweb.js") }}"></script>
+<script src="{{ url_for("static", filename="weblabjs/weblabexp.js") }}"></script>
+<script src="{{ url_for("static", filename="js/persist-min.js") }}"></script>
+<script src="{{ url_for("static", filename="js/md5.js") }}"></script>
+<script src="{{ url_for("static", filename="js/sprintf.min.js") }}"></script>
+<script src="{{ url_for("static", filename="js/jquery.cookie-1.4.1.min.js") }}"></script>
+
+<script type="text/javascript">
+    // We redirect all local requests through the flask server so that we can deal with
+    // the routing cookies that are currently required. This will probably change in the
+    // future.
+    WeblabWeb.LOGIN_URL = "{{ url_for("redir_login_json") }}";
+    WeblabWeb.CORE_URL = "{{ url_for("redir_json") }}";
+</script>
 
 <script type="text/javascript"> 
     var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
@@ -124,6 +158,7 @@
 </script> 
 
 {% block scripts %}
+
 {% endblock %}
 </body>
 </html>

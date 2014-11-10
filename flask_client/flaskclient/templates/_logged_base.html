@@ -1,0 +1,70 @@
+{% extends "_base.html" %}
+{% block body %}
+
+    {% raw %}
+    <script type="x-template" id="template-loggedin">
+        <div class="row">
+
+            <div class="col-xs-12 col-sm-9 pull-right" style="text-align: right"> <!-- pull-right not used because we're just aligning right -->
+                <p style="white-space: nowrap"> <!-- The nowrap is so that the log-out doesnt get a line-break -->
+                    <a href="{{ profile_url }}"><img style="display:inline-block" class="img-responsive img-rounded" src="{{ gravatar }}" width="30px"/></a>
+                    <a href="{{ profile_url }}">{{ full_name }}</a> | <a href="{{ admin_url }}"><img src="{{ admin_img }}"/></a> | <a href="{{ profile_url }}"><img src="{{ profile_img }}"/></a> | <a href="{{ logout_url }}">{{ gettext("Log out") }}</a>
+                </p>
+            </div>
+
+            <div class="col-xs-12 col-sm-3">
+                <a href="">
+                    <img id="logo" class="img-responsive" src="{{ logo_url }}"/>
+                </a>
+            </div>
+
+
+        </div> <!-- !row -->
+    </script>
+    {% endraw %}
+
+    <div class="container" id="loggedin-container">
+        <!-- LOGGED IN TEMPLATE GOES HERE - TO BE DYNAMICALLY FILLED -->
+    </div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+    <script type="text/javascript">
+
+        IMAGES_FOLDER = "//www.weblab.deusto.es/weblab/client/weblabclientlab/"
+
+        // Load the GLOBAL store.
+        store = new Persist.Store("weblabweb");
+
+        // Retrieve the configuration (as a global)
+        configuration = JSON.parse(store.get("configuration"));
+
+        // Calculate the mail hash for the Gravatar
+        mail_hash = CryptoJS.MD5();
+
+
+        $(document).ready(function() {
+            // Fill the logged in info.
+            store = new Persist.Store("weblabweb");
+            // TODO: Make local.
+            info = store.get("userinfo");
+            info = JSON.parse(info);
+            var $loggedIn = Mustache.render($("#template-loggedin").html(), {
+                "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
+                "full_name": info["full_name"],
+                "admin_img": "{{ url_for("static", filename="img/ui/administration.png") }}",
+                "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}",
+                "gravatar": "//gravatar.com/avatar/" + CryptoJS.MD5(info["email"].toLowerCase()),
+                "logout_url": "{{ url_for("logout") }}",
+                "admin_url": "http://www.weblab.deusto.es/weblab/administration/admin/",
+                "profile_url" : "http://www.weblab.deusto.es/weblab/administration/profile/"
+            });
+
+            $("#loggedin-container").append($loggedIn);
+        });
+
+    </script>
+{% endblock %}
