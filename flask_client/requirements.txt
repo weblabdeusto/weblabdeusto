@@ -11,3 +11,4 @@ wsgiref==0.1.2
 yolk==0.4.3
 Flask-BabelEx==0.9.1
 babel
+requests==2.4.3
