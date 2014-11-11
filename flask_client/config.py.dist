@@ -1,5 +1,9 @@
+# Standard server
+# CORE_URL = "http://www.weblab.deusto.es/weblab/json/"
+# LOGIN_URL = "http://www.weblab.deusto.es/weblab/login/json/"
+# LAB_URL = "http://www.weblab.deusto.es/weblab/client/weblabclientlab/"
 
-
-CORE_URL = ""
-LOGIN_URL = ""
-LAB_URL = ""
+# Localhost dev server
+CORE_URL = "http://localhost/weblab/json/"
+LOGIN_URL = "http://localhost/weblab/login/json/"
+LAB_URL = "http://localhost/weblab/client/weblabclientlab/"

@@ -2,27 +2,112 @@
 {% set title="Upload File" %}
 {% extends "_base.html" %}
 
-{% block body %}
 
-<div class="container">
+{% block styles %}
+    {{ super() }}
 
-    <div class="row">
-        <div class="col-lg-4">
-            <div id="dropbox">
-                <span class="message">Drop images here to upload.</span>
-            </div>
-        </div>
-    </div><!--!row-->
-
-</div><!--!container-->
-
+    <link href="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload.css") }}"
+          rel="stylesheet">
+    <link href="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload-ui.css") }}"
+          rel="stylesheet">
 {% endblock %}
-
-
-
 
 {% block scripts %}
-    <script type="text/javascript" src="{{ url_for("static", filename="js/jquery.filedrop.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for("static", filename="js/upload.js") }}"></script>
+
+    <script type="text/javascript"
+            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/vendor/jquery.ui.widget.js") }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/jquery.iframe-transport.js") }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/jquery.fileupload.js") }}"></script>
+
+    <script>
+        /*jslint unparam: true */
+        /*global window, $ */
+        $(function () {
+            'use strict';
+            // Change this to the location of your server-side upload handler:
+            var url = window.location.hostname === 'blueimp.github.io' ?
+                    '//jquery-file-upload.appspot.com/' : 'server/php/';
+            $('#fileupload').fileupload({
+                url: url,
+                dataType: 'json',
+                done: function (e, data) {
+                    $.each(data.result.files, function (index, file) {
+                        $('<p/>').text(file.name).appendTo('#files');
+                    });
+                },
+                progressall: function (e, data) {
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('#progress .progress-bar').css(
+                            'width',
+                                    progress + '%'
+                    );
+                }
+            }).prop('disabled', !$.support.fileInput)
+                    .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        });
+    </script>
+
 {% endblock %}
+
+
+
+
+
+
+
+{% block body %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            File to Upload
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <blockquote>
+                            <p>
+                                Please, drag & drop here the file that you want to upload for the experiment.
+                                Alternatively, you can click on the button and select the file manually.
+                            </p>
+                        </blockquote>
+                        <!-- The fileinput-button span is used to style the file input field as button -->
+
+                    <div class="btn btn-success fileinput-button" style="margin-bottom: 15px">
+                        <i class="glyphicon glyphicon-plus"></i>
+                        <span>Select file...</span>
+                        <!-- The file input field used as target for the file upload widget -->
+                        <input id="fileupload" type="file" name="files[]" multiple>
+                    </div>
+
+                        <!-- The global progress bar -->
+                        <div id="progress" class="progress">
+                            <div class="progress-bar progress-bar-success"></div>
+                        </div>
+                        <!-- The container for the uploaded files -->
+                        <div id="files" class="files"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
 
