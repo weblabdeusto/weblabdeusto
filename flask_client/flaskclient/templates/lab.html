@@ -1,6 +1,12 @@
 {% extends "_logged_base.html" %}
 {% set title="Lab - " %}
-        
+
+{% import "_upload.html" as upload %}
+
+{% block styles %}
+    {{ super() }}
+    {{ upload.styles() }}
+{% endblock %}
 
 {% block body %}
 
@@ -52,14 +58,19 @@
         </div>
     </div>
 
+    <div class="container" id="file-upload-container" style="margin-top: 20px">
+        {{ upload.content() }}
+    </div>
+
 
 
     {% if experiment_type == "js" %}
         <div class="" style="padding-top: 20px">
             <div class="">
                 <!-- We append a rawgit base URL for testing -->
-                <iframe id="exp-frame" width="100%" scrolling="no"
-                        src="{{ config["LAB_URL"] + experiment["html.file"] }}" style="border: 0px;"></iframe>
+                <iframe id="exp-frame" width="100%" scrolling="no" src="{{ config['LAB_URL'] + experiment['html.file'] }}" style="border: 0;">
+
+                </iframe>
             </div>
         </div>
     {% endif %}
@@ -70,6 +81,9 @@
 {% block scripts %}
 
     {{ super() }}
+    {{ upload.scripts() }}
+
+    {{ upload.code(config["UPLOAD_URL"]) }}
 
     <script type="text/javascript">
 

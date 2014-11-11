@@ -7,3 +7,4 @@
 CORE_URL = "http://localhost/weblab/json/"
 LOGIN_URL = "http://localhost/weblab/login/json/"
 LAB_URL = "http://localhost/weblab/client/weblabclientlab/"
+UPLOAD_URL = "http://localhost/weblab/web/upload/"
