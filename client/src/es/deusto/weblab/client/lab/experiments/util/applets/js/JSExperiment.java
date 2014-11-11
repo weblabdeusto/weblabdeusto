@@ -254,6 +254,9 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	@Override
 	public void setTime(int time) {
 		super.setTime(time);
+		
+		printLine("[DBG]: setTime callback invoked on GWT with time: " + time);
+		
 		AbstractExternalAppBasedBoard.setTimeImpl(time);
 	}
 	
@@ -288,11 +291,18 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	public void doStart(int time, String initialConfiguration) {
 		
 		printLine("[DBG]: Carrying out doStart() [This is the real start]");
+		printLine("[DBG]: Time: " + time);
+		printLine("[DBG]: initConfig: " + initialConfiguration);
 		
 		if(this.provideFileUpload)
 			tryUpload();
 		
+		// TODO: Ensure that this is called only once.
+		// Added as an attempt for a bugfix.
+		AbstractExternalAppBasedBoard.setTimeImpl(time);
 		AbstractExternalAppBasedBoard.startInteractionImpl(initialConfiguration);
+		
+		printLine("[DBG]: DoStart done.");
 	}
 	
 	/**
@@ -318,6 +328,9 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			this.startTime = time;
 			this.startInitialConfiguration = initialConfiguration;
 			this.startRequested = true;
+			
+			printLine("[DBG]: Stored start data: " + initialConfiguration);
+			printLine("[DBG]: Stored start time: " + this.startTime);
 		}
 	}
 	
