@@ -13,7 +13,7 @@
             </div>
 
             <div class="col-xs-12 col-sm-3">
-                <a href="">
+                <a href="{{ host_link }}">
                     <img id="logo" class="img-responsive" src="{{ logo_url }}"/>
                 </a>
             </div>
@@ -54,6 +54,7 @@
             info = JSON.parse(info);
             var $loggedIn = Mustache.render($("#template-loggedin").html(), {
                 "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
+                "host_link": configuration["host.entity.link"],
                 "full_name": info["full_name"],
                 "admin_img": "{{ url_for("static", filename="img/ui/administration.png") }}",
                 "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}",

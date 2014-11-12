@@ -8,11 +8,15 @@
         <div class="row">
 
             <div class="col-xs-6 col-md-5 col-lg-4">
-                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/logo.png") }}"/>
+                <a href="http://weblab.deusto.es">
+                    <img class="wl-logo" src="{{ url_for("static", filename="img/ui/logo.png") }}"/>
+                </a>
             </div>
 
             <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
-                <img class="wl-logo" src="{{ url_for("static", filename="img/ui/deusto_logo.jpg") }}"/>
+                <a href="http://www.deusto.es">
+                    <img class="wl-logo" src="{{ url_for("static", filename="img/ui/deusto_logo.jpg") }}"/>
+                </a>
             </div>
         </div>
 
@@ -95,7 +99,7 @@
                 <div class="row">
                     <div class="col-xs-2 wl-vertical-center">
                         <img class="wl-login-icon" src="{{ url_for("static", filename="img/ui/demo.png") }}"
-                             />
+                                />
                     </div>
 
                     <div class="col-xs-10 wl-vertical-center">
@@ -119,7 +123,7 @@
                     </div>
                     <div class="col-xs-10 wl-vertical-center">
                         <h3>
-{{ gettext("                            Open Source") }}
+                            {{ gettext("                            Open Source") }}
                         </h3>
 
                         <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in
