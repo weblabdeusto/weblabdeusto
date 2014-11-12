@@ -1,7 +1,6 @@
 import re
 import requests
-
-
+from . import flask_app
 
 
 def _retrieve_configuration_js():
@@ -13,7 +12,7 @@ def _retrieve_configuration_js():
     @see configuration
     @rtype str
     """
-    config = requests.get("https://www.weblab.deusto.es/weblab/client/weblabclientlab/configuration.js")
+    config = requests.get(flask_app.config["LAB_URL"] + "configuration.js")
     js = config.content
 
     def remove_comments(string):
