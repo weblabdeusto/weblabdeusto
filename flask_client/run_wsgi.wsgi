@@ -20,3 +20,6 @@ import logging
 file_handler = logging.FileHandler(filename='errors.log')
 file_handler.setLevel(logging.INFO)
 flask_app.logger.addHandler(file_handler)
+
+
+application = flask_app
