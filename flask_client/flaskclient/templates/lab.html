@@ -106,7 +106,7 @@
 
     {# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
     $("#exp-frame").load(function () {
-        console.log("Injecting scripts");
+        console.debug("Injecting scripts");
 
         InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
         InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
