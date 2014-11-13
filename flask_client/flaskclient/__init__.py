@@ -64,7 +64,7 @@ def redir_login_json():
     response.set_cookie("weblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("loginweblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("route", r.cookies["weblabsessionid"].split(".")[1])
-    response.set_cookie("sessionid", r.cookies["weblabsesionid"].split(".")[0])
+    response.set_cookie("sessionid", r.cookies["weblabsessionid"].split(".")[0])
 
     logging.debug("REDIR_LOGIN_JSON carried out with cookies: %r" % r.cookies)
 
@@ -94,7 +94,7 @@ def redir_json():
     response.set_cookie("weblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("loginweblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("route", r.cookies["weblabsessionid"].split(".")[1])
-    response.set_cookie("sessionid", r.cookies["weblabsesionid"].split(".")[0])
+    response.set_cookie("sessionid", r.cookies["weblabsessionid"].split(".")[0])
 
     logging.debug("REDIR_JSON carried out with cookies: %r" % r.cookies)
 
