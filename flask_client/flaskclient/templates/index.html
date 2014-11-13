@@ -192,7 +192,10 @@
 
                                         // We do not pass the sid here anymore because now it is done
                                         // through persist.js.
-                                        window.location = "labs.html";
+
+                                        // TODO: Currently we cannot do a relative redirect because our index is actually
+                                        // the root, which means that with and without the / bar the result would be different.
+                                        window.location = "{{ url_for("labs") }}";
                                     })
                                     .fail(function (err) {
                                         $status.attr("class", "alert alert-danger");
