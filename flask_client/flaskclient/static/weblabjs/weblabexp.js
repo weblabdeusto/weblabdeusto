@@ -131,7 +131,7 @@ WeblabExp = function (frameMode) {
             result = true;
 
         mDbgSendCommandResult = result;
-    }
+    };
 
 
     /**
@@ -144,7 +144,7 @@ WeblabExp = function (frameMode) {
             return false;
         else
             return true;
-    }
+    };
 
 
     /**
@@ -153,7 +153,7 @@ WeblabExp = function (frameMode) {
      */
     this.isFrameMode = function () {
         return mFrameMode;
-    }
+    };
 
 
     /**
@@ -183,7 +183,7 @@ WeblabExp = function (frameMode) {
         this._startPolling();
 
         mOnStartPromise.resolve(time, initial_config);
-    }
+    };
 
     /**
      * Sets the target URL to which the AJAX requests will be directed. This is the
@@ -213,7 +213,7 @@ WeblabExp = function (frameMode) {
                     this.CORE_URL = "http:" + this.CORE_URL;
             }
         }
-    }
+    };
 
     /**
      * Sets the target URLs to the standard ones. That is, the ones that will work
@@ -221,7 +221,7 @@ WeblabExp = function (frameMode) {
      */
     this.setTargetURLToStandard = function () {
         this.CORE_URL = "//www.weblab.deusto.es/weblab/json/";
-    }
+    };
 
     /**
      * Sets the target URL to the one that can be used for local automated testing. That is,
@@ -230,7 +230,7 @@ WeblabExp = function (frameMode) {
      */
     this.setTargetURLToTesting = function () {
         this.CORE_URL = "http://localhost:18345";
-    }
+    };
 
     /**
      * Sets the reservation id to use.
@@ -241,7 +241,7 @@ WeblabExp = function (frameMode) {
      */
     this._setReservation = function (reservation_id) {
         mReservation = reservation_id;
-    }
+    };
 
     /**
      * Retrieves the currently assigned reservation ID.
@@ -250,7 +250,7 @@ WeblabExp = function (frameMode) {
      */
     this._getReservation = function () {
         return mReservation;
-    }
+    };
 
 
     // !!!!!!!!!!!!!!
@@ -292,8 +292,8 @@ WeblabExp = function (frameMode) {
             .done(function (success) {
 
                 if(WEBLABEXP_DEBUG) {
-                    console.log("Data received: " + success);
-                    console.log(success);
+                    console.debug("Data received: " + success);
+                    console.debug(success);
                 }
                 promise.resolve(success);
             })
@@ -321,7 +321,7 @@ WeblabExp = function (frameMode) {
                 if (!mOnFinishPromise.state() != "resolved") {
                     mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                 }
-                console.log("POLL: " + result);
+                console.debug("POLL: " + result);
             }.bind(this))
             .fail(function (error) {
                 // Presumably, the experiment has ended. We should actually check the error to make sure it's so.
@@ -330,7 +330,7 @@ WeblabExp = function (frameMode) {
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
                 mOnFinishPromise.resolve();
 
-                console.log("POLL F: " + error);
+                console.debug("POLL F: " + error);
                 // TODO: How are connection failures handled??? Do we consider the experiment finished?
             }.bind(this));
 
@@ -423,8 +423,8 @@ WeblabExp = function (frameMode) {
 
         this._send(request)
             .done(function (success_data) {
-                console.log("Data received: " + success_data);
-                console.log(success_data);
+                console.debug("Data received: " + success_data);
+                console.debug(success_data);
                 promise.resolve(success_data);
             })
             .fail(function (error) {
@@ -448,8 +448,8 @@ WeblabExp = function (frameMode) {
 
         this._send(request)
             .done(function (success_data) {
-                console.log("Data received: " + success_data);
-                console.log(success_data);
+                console.debug("Data received: " + success_data);
+                console.debug(success_data);
 
                 promise.resolve(success_data);
             })
@@ -480,10 +480,10 @@ WeblabExp = function (frameMode) {
      * @example
      * this.sendCommand("TURN_LED ON")
      *   .done(function(result) {
-     *      console.log("LED IS: " + result);
+     *      console.debug("LED IS: " + result);
      *   })
      *   .fail(function(error) {
-     *      console.log("Failed to turn LED ON". Cause: " + error);
+     *      console.debug("Failed to turn LED ON". Cause: " + error);
      *   });
      */
     this.sendCommand = function (command) {
@@ -524,7 +524,7 @@ WeblabExp = function (frameMode) {
 
         this.sendCommand(command)
             .done(function (success) {
-                console.log("SUCCESS: " + success);
+                console.debug("SUCCESS: " + success);
                 promise.resolve(success);
             })
             .fail(function (error) {
@@ -638,7 +638,7 @@ WeblabExp = function (frameMode) {
      * @private
      */
     this._handleFreeModeInit = function () {
-        console.log("[Dbg/WeblabExp]: Running with FREE MODE enabled");
+        console.info("[WeblabExp]: Running with FREE MODE enabled");
 
         var reservation = $.QueryString["r"];
         var startconfig = $.QueryString["c"];

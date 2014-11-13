@@ -1,3 +1,7 @@
+
+console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility module for the old WeblabJS");
+
+
 /**
  *
  * WEBLAB EXP COMPATIBILITY MODULE
@@ -40,7 +44,7 @@ Weblab = new function () {
      */
     this.getWeblabExp = function() {
         return this.weblabExp;
-    }
+    };
 
 
 
@@ -140,12 +144,19 @@ Weblab = new function () {
     //! onStartInteraction(initial_config). It is passed the initial configuration
     //! dictionary provided by the server.
     this.setOnStartInteractionCallback = function (onStartInteractionCallback) {
+        console.debug("Registered START interaction callback");
         this.weblabExp.onStart(function(timeLeft, initialConfig){
-            onStartInteractionCallback(timeLeft);
+            console.debug("INVOKING legacy START callback");
+            console.debug("Initial config: " + initialConfig);
+            console.debug("Time left: " + timeLeft);
+            onStartInteractionCallback(initialConfig);
 
             // Invoke the time callback too.
-            if(mOnTimeCallback)
+            if(mOnTimeCallback) {
+                console.debug("INVOKING legacy TIME callback");
+                console.debug("Time left: " + timeLeft);
                 mOnTimeCallback(timeLeft);
+            }
         });
     };
 
@@ -229,6 +240,9 @@ Weblab = new function () {
 }; //! end-of class-like Weblab function
 
 (function() {
+
+    console.debug("Injecting the frame resizer script")
+
     var script_tags = document.getElementsByTagName("script");
     var relative_path = "";
     var script_element;
