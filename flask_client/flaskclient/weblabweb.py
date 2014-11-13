@@ -109,7 +109,10 @@ class WeblabWeb(object):
         }
 
         result = self._send(self.login_url, req)
-        return result["id"], self.s.cookies.get("weblabsessionid").split(".")[1]
+
+        sid, route = result["id"], self.s.cookies.get("weblabsessionid").split(".")[1]
+
+        return sid, route
 
     def _logout(self, sessionid):
         """

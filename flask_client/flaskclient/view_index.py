@@ -32,7 +32,7 @@ def index():
 
             # We set it in a cookie rather than session so that is is immediately interoperable with JS
             response.set_cookie("sessionid", sessionid)
-            response.set_cookie("route"), route  # Save the route too, we need to use it from the Python-API
+            response.set_cookie("route", route) # Save the route too, we need to use it from the Python-API
 
             print "LOGGED IN WITH: (%s, %s)" % (sessionid, route)
 
