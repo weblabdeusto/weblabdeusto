@@ -186,6 +186,8 @@
 
                             $.cookie("sessionid", sessionid);
 
+                            console.log(sprintf("[DBG]: Logged in from JS with weblabsessionid=%s sessionid=%s route=%s loginweblabsessionid=%s", $.cookie("weblabsessionid"), $.cookie("sessionid"), $.cookie("route"), $.cookie("loginweblabsessionid")));
+
                             WeblabWeb._get_user_information(sessionid)
                                     .done(function (info) {
                                         store.set("userinfo", JSON.stringify(info));

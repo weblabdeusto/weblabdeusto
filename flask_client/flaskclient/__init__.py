@@ -1,3 +1,4 @@
+import logging
 from flask import render_template, Response, request, json
 import requests
 
@@ -64,6 +65,8 @@ def redir_login_json():
     response.set_cookie("loginweblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("route", r.cookies["weblabsessionid"].split(".")[1])
 
+    logging.debug("REDIR_LOGIN_JSON carried out with cookies: %r" % r.cookies)
+
     return response
 
 
@@ -90,6 +93,8 @@ def redir_json():
     response.set_cookie("weblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("loginweblabsessionid", r.cookies["weblabsessionid"])
     response.set_cookie("route", r.cookies["weblabsessionid"].split(".")[1])
+
+    logging.debug("REDIR_JSON carried out with cookies: %r" % r.cookies)
 
     return response
 
