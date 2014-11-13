@@ -313,7 +313,7 @@
 
 
                             // Replace TIME_REMAINING if present. Seems to be somewhat standard.
-                            url = url.replace("TIME_REMAINING", time);
+                            url = url.replace("TIME_REMAINING", Math.floor(time));
 
                             if(url == undefined) {
                                 console.error("EXPERIMENT DOES NOT SEEM TO BE OF REDIRECT TYPE: NO URL PROVIDED.");

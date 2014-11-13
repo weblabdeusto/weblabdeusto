@@ -184,7 +184,11 @@
 
                             var sessionid = ev;
 
-                            $.cookie("sessionid", sessionid);
+                            // TODO: Hard-coding the path could actually fail if the weblab instance was not set at root.
+                            // It was added because there used to be a bug where the python redirectors would set cookies
+                            // on the root path while this function would set cookies on the local client path.
+                            // Maybe the whole sessionid could actually be removed.
+                            $.cookie("sessionid", sessionid, {path: "/"});
 
                             console.log(sprintf("[DBG]: Logged in from JS with weblabsessionid=%s sessionid=%s route=%s loginweblabsessionid=%s", $.cookie("weblabsessionid"), $.cookie("sessionid"), $.cookie("route"), $.cookie("loginweblabsessionid")));
 
