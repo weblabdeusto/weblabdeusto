@@ -174,7 +174,7 @@
                 $status.attr("style", "visibility: auto");
                 $status.attr("class", "alert alert-info");
                 $status.text("{{ gettext("Logging in...") }}");
-                WeblabWeb.setTargetURLs("{{ config["LOGIN_URL"] }}", "{{ config["CORE_URL"] }}");
+                WeblabWeb.setTargetURLs("{{ url_for("redir_login_json") }}", "{{ url_for("redir_json") }}");
                 WeblabWeb._login(username, password)
                         .done(function (ev, a) {
                             $status.attr("class", "alert alert-success");
