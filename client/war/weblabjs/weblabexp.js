@@ -140,10 +140,15 @@ WeblabExp = function (frameMode) {
      * @private
      */
     this._guessFrameMode = function () {
-        if ($.QueryString["free"] != undefined)
-            return false;
+        var mode;
+        if($.QueryString["free"] != undefined)
+            mode = false;
         else
-            return true;
+            mode = true;
+
+        console.debug("Guess Frame Mode: " + mode);
+
+        return mode;
     };
 
 
@@ -169,7 +174,11 @@ WeblabExp = function (frameMode) {
      * @param {number} time: Time left for the experiment.
      */
     this._reservationReady = function (reservation_id, time, initial_config) {
-        if (this.isFrameMode == false)
+
+        console.debug("[reservationReady] ReservationReady called");
+        console.debug("Frame Mode: " + this.isFrameMode());
+
+        if (this.isFrameMode() == false)
             throw new Error("_reservationReady is not supported in FREE mode (only in FRAME mode)");
 
         if (mStartCalled == true)
@@ -181,6 +190,8 @@ WeblabExp = function (frameMode) {
 
         // Start the polling mechanism.
         this._startPolling();
+
+        console.debug("[reservationReady] Resolving START promise on ReservationReady");
 
         mOnStartPromise.resolve(time, initial_config);
     };

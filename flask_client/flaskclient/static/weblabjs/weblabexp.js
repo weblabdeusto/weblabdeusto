@@ -147,6 +147,8 @@ WeblabExp = function (frameMode) {
             mode = true;
 
         console.debug("Guess Frame Mode: " + mode);
+
+        return mode;
     };
 
 
