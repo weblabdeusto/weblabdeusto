@@ -201,7 +201,8 @@
 
                                         // TODO: Currently we cannot do a relative redirect because our index is actually
                                         // the root, which means that with and without the / bar the result would be different.
-                                        window.location = "{{ url_for("labs") }}";
+
+                                        window.location = "{{ (request.args.get("next") or url_for("labs")) | safe }}";
                                     })
                                     .fail(function (err) {
                                         $status.attr("class", "alert alert-danger");

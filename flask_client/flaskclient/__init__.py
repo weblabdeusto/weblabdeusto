@@ -8,6 +8,7 @@ flask_app = build_flask_app()
 flask_app.config.from_pyfile("../config.py")
 
 from flaskclient.helpers import _retrieve_configuration_js
+from flaskclient.helpers import get_experiments_data
 
 # Import the different flask_views. This needs to be exactly here because
 # otherwise the @flask_app notation wouldn't work.
