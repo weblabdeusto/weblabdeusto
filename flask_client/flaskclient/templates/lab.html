@@ -95,13 +95,13 @@
     var $reserveStatus = $("#reserve-status");
 
     function InjectScriptIntoFrame(url) {
-        var myIframe = document.getElementById("exp-frame");
+        myIframe = document.getElementById("exp-frame");
         var script = myIframe.contentWindow.document.createElement("script");
         script.async = false;
         script.defer = false;
         script.type = "text/javascript";
         script.src = url;
-        myIframe.contentWindow.document.body.appendChild(script);
+        myIframe.contentWindow.document.head.appendChild(script);
     }
 
     {# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}

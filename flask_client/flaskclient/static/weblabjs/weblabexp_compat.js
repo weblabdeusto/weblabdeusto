@@ -1,5 +1,5 @@
 
-console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility module for the old WeblabJS");
+console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility module for the old WeblabJS (v2)");
 
 
 /**
@@ -19,6 +19,9 @@ console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility modul
  *
  *
  */
+
+WeblabOld = Weblab;
+
 Weblab = new function () {
 
 
@@ -138,7 +141,10 @@ Weblab = new function () {
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
-    //! interacting with the experiment.
+    //! interacting with the experiment. THIS METHOD WILL SOMETIMES NOT BE USED because
+    //! if this library is injected then the callback will be set in the OLD WeblabJS
+    //! library. For this reason, in the end of this script we append a custom callback
+    //! that will invoke the old callback.
     //!
     //! @param onStartInteractionCallback: This callback has the prototype:
     //! onStartInteraction(initial_config). It is passed the initial configuration
@@ -238,6 +244,15 @@ Weblab = new function () {
     }
 
 }; //! end-of class-like Weblab function
+
+
+Weblab.weblabExp.onStart().done(function(time, initialConfig) {
+    console.debug("Trying to invoke TRUE LEGACY startInteraction and setTime functions, in case they were set before the compatibility layer was loaded");
+    parent_wl_inst.startInteraction(initialConfig);
+    parent_wl_inst.setTime(Math.round(time));
+    console.debug("TRUE LEGACY invokation finished (only if they were actually set)");
+});
+
 
 (function() {
 

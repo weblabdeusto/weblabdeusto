@@ -1,5 +1,5 @@
 
-console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility module for the old WeblabJS");
+console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility module for the old WeblabJS (v2)");
 
 
 /**
@@ -19,6 +19,9 @@ console.debug("Loaded the weblabexp_compat module (WeblabExp compatibility modul
  *
  *
  */
+
+WeblabOld = Weblab;
+
 Weblab = new function () {
 
 
@@ -150,6 +153,12 @@ Weblab = new function () {
             console.debug("Initial config: " + initialConfig);
             console.debug("Time left: " + timeLeft);
             onStartInteractionCallback(initialConfig);
+
+            if(parent_wl_inst != undefined) {
+                // Invoke callbacks which may have been pre-set on the old WeblabJS lib.
+                console.debug("INVOKING preset START callbacks");
+                parent_wl_inst.startInteraction(initialConfig);
+            }
 
             // Invoke the time callback too.
             if(mOnTimeCallback) {

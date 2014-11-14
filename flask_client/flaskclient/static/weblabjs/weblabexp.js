@@ -170,8 +170,8 @@ WeblabExp = function (frameMode) {
      * It should only be called once. Calling it twice should also trigger an exception.
      *
      * @param {str} reservation_id: The reservation ID.
+     * @param {number} time: Time left for the experiment. If not an int, it will be rounded from the float.
      * @param {object} initial_config: Initial configuration of the experiment, obtained from the confirmed reservation.
-     * @param {number} time: Time left for the experiment.
      */
     this._reservationReady = function (reservation_id, time, initial_config) {
 
@@ -193,7 +193,7 @@ WeblabExp = function (frameMode) {
 
         console.debug("[reservationReady] Resolving START promise on ReservationReady");
 
-        mOnStartPromise.resolve(time, initial_config);
+        mOnStartPromise.resolve(Math.round(time), initial_config);
     };
 
     /**
