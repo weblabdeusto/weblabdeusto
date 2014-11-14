@@ -1,5 +1,5 @@
 from flask import render_template, request, flash, redirect, url_for, session, make_response, Response
-from flaskclient import flask_app
+from flaskclient.flask_app import flask_app
 from flaskclient.weblabweb import WeblabWeb
 
 

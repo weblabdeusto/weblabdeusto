@@ -1,5 +1,5 @@
 from flask import render_template, request
-from flaskclient import flask_app
+from flaskclient.flask_app import flask_app
 
 
 @flask_app.route("/upload", methods=["GET", "POST"])

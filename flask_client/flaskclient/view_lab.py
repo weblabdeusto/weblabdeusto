@@ -1,11 +1,9 @@
-from collections import defaultdict
 import logging
-from flask import render_template, url_for, request, flash, redirect, json, session
-import urllib
-import requests
-from flaskclient import flask_app
-from flaskclient.G import G
-from flaskclient.helpers import _retrieve_configuration_js, get_redirect_target, get_experiments_data
+
+from flask import render_template, url_for, request, flash, redirect
+
+from flaskclient.flask_app import flask_app
+from flaskclient.helpers import get_experiments_data
 from flaskclient.weblabweb import WeblabWeb, WeblabWebException
 
 

@@ -12,7 +12,7 @@ sys.stdout = open('stdout.txt', 'w', 0)
 sys.stderr = open('stderr.txt', 'w', 0)
 
 
-from flaskclient import flask_app
+from flaskclient.flask_app import flask_app
 flask_app.config.from_object('config')
 flask_app.config["DEBUG"] = False;
 

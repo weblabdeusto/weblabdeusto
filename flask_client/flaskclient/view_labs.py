@@ -1,12 +1,9 @@
-from collections import defaultdict
-from flask import render_template, url_for, request, flash, redirect, json, session
 import urllib
-import requests
-from flaskclient import flask_app, get_experiments_data, _retrieve_configuration_js
-from flaskclient.G import G
-from flaskclient.helpers import build_experiments_list
-from flaskclient.weblabweb import WeblabWeb
 
+from flask import render_template, url_for, request, flash, redirect
+
+from flaskclient.flask_app import flask_app
+from flaskclient.helpers import get_experiments_data
 
 
 @flask_app.route("/labs.html")
@@ -23,4 +20,5 @@ def labs():
 
     experiments, experiments_by_category = get_experiments_data(sessionid, route)
 
-    return render_template("labs.html", experiments = experiments, experiments_by_category = experiments_by_category, urllib = urllib)
+    return render_template("labs.html", experiments=experiments, experiments_by_category=experiments_by_category,
+                           urllib=urllib)

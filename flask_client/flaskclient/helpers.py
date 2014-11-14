@@ -3,7 +3,7 @@ import re
 from urlparse import urlparse, urljoin
 from flask import request, url_for, redirect, json
 import requests
-from . import flask_app
+from flaskclient.flask_app import flask_app
 from flaskclient.weblabweb import WeblabWeb
 
 
