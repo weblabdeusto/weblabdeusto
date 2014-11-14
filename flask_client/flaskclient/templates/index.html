@@ -203,8 +203,11 @@
                                         // the root, which means that with and without the / bar the result would be different.
 
                                         {# We enforce an absolute path for security #}
-                                        debugger;
-                                        window.location = "{{ url_for("index", _external=True) + ((request.args.get("next") or url_for("labs")) | safe)[1:] }}";
+                                        {% if not request.args.get("next") %}
+                                        window.location = "{{ url_for("labs") }}";
+                                        {% else %}
+                                        window.location = "{{ url_for("index", _external=True) + request.args.get("next")[1:] | safe }}";
+                                        {% endif %}
                                     })
                                     .fail(function (err) {
                                         $status.attr("class", "alert alert-danger");
