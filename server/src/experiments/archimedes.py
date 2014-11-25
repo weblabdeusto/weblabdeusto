@@ -10,58 +10,65 @@
 # This software consists of contributions made by many individuals,
 # listed below:
 #
-# Author: Luis Rodriguez <luis.rodriguezgil@deusto.es>
+# Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
 import base64
 
-import os
 import traceback
-import unittest
 import urllib2
 import json
 import threading
-import datetime
-import time
-import StringIO
-import subprocess
+import weakref
 from voodoo import log
 
-from weblab.util import data_filename
-from voodoo.log import logged
 from voodoo.lock import locked
+from voodoo.log import logged
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
 
 #module_directory = os.path.join(*__name__.split('.')[:-1])
 
 
+from multiprocessing.pool import ThreadPool
+
+
+DEFAULT_ARCHIMEDES_BOARD_TIMEOUT = 2
+
+
 class Archimedes(Experiment):
+    """
+    The archimedes experiment. Unittests for this class can be found in the test folder (test_archimedes).
+    """
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(Archimedes, self).__init__(*args, **kwargs)
 
-        self.DEBUG = True
+        self.DEBUG = False
 
         self._lock = threading.Lock()
 
-        self._cfg_manager    = cfg_manager
+        self._workpool = None
+
+        self._cfg_manager = cfg_manager
 
         # IP of the board, raspberry, beagle, or whatever.
         # self.board_location    = self._cfg_manager.get_value('archimedes_board_location', 'http://192.168.0.161:2001/')
 
         self.archimedes_instances = self._cfg_manager.get_value('archimedes_instances')
 
-        self.webcams_info    = self._cfg_manager.get_value('webcams_info', [])
+        self.board_timeout = self._cfg_manager.get_value('archimedes_board_timeout', DEFAULT_ARCHIMEDES_BOARD_TIMEOUT)
+
+        self.webcams_info = self._cfg_manager.get_value('webcams_info', [])
         self.real_device = self._cfg_manager.get_value("archimedes_real_device", True)
 
-        self.opener          = urllib2.build_opener(urllib2.ProxyHandler({}))
+        self.opener = urllib2.build_opener(urllib2.ProxyHandler({}))
 
         self.initial_configuration = {}
         for pos, webcam_config in enumerate(self.webcams_info):
             num = pos + 1
-            webcam_url   = webcam_config.get('webcam_url')
-            mjpeg_url    = webcam_config.get('mjpeg_url')
-            mjpeg_width  = webcam_config.get('mjpeg_width')
+            webcam_url = webcam_config.get('webcam_url')
+            mjpeg_url = webcam_config.get('mjpeg_url')
+            mjpeg_width = webcam_config.get('mjpeg_width')
             mjpeg_height = webcam_config.get('mjpeg_height')
 
             if webcam_url is not None:
@@ -83,11 +90,66 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes] do_start_experiment called"
 
+        # Work around for a Python bug in ThreadPool. It has actually been fixed in latest
+        # python versions.
+        if not hasattr(threading.current_thread(), "_children"):
+            threading.current_thread()._children = weakref.WeakKeyDictionary()
+
+        # Allocate a small pool of worker threads to handle the requests to the board.
+        if self._workpool:
+            self._workpool.terminate()
+        self._workpool = ThreadPool(len(self.archimedes_instances))
+
         current_config = self.initial_configuration.copy()
 
         # The client initial data is meant to contain a structure that defines what the client should show.
-        return json.dumps({"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
+        return json.dumps(
+            {"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
 
+
+    def handle_command_allinfo(self, command):
+        """
+        Handles an ALLINFO command, which has the format: ALLINFO:instance1:instance2...
+        @param {str} command: The command.
+        """
+        boards = command.split(":")[1:]
+        response = {}
+
+        # Carry out the operation in parallel.
+        infos = self._workpool.map(self.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
+        for i in range(len(boards)):
+            response[boards[i]] = infos[i]
+
+        return json.dumps(response)
+
+    def obtain_board_info(self, board):
+        """
+        Obtains the info for a specific board by carrying out an HTTP request to it.
+        @param board: The URL / IP to the board.
+        @return: json-able data object with the info for the specified board. A string containing
+        the word ERROR if a problem occurs.
+        """
+        if board is None:
+            info = "ERROR"
+
+        info = {}
+
+        load = self._send(board, "load")
+        level = self._send(board, "level")
+
+        if load == "ERROR":
+            info["load"] = "ERROR"
+        else:
+            num = load.split("=")[1]
+            info["load"] = num
+
+        if level == "ERROR":
+            info["level"] = "ERROR"
+        else:
+            num = level.split("=")[1]
+            info["level"] = num
+
+        return info
 
 
     @Override(Experiment)
@@ -118,31 +180,7 @@ class Archimedes(Experiment):
         # HANDLE NON-INSTANCE-SPECIFIC COMMANDS
         # We expect a command like: "ALLINFO:archimedes1:archimedes2"
         if command.startswith("ALLINFO"):
-            boards = command.split(":")[1:]
-            response = {}
-            for b in boards:
-                target = self.archimedes_instances.get(b)
-                if target is None:
-                    response[b] = "ERROR"
-
-                response[b] = {}
-
-                load = self._send(target, "load")
-                level = self._send(target, "level")
-
-                if load == "ERROR":
-                    response[b]["load"] = "ERROR"
-                else:
-                    num = load.split("=")[1]
-                    response[b]["load"] = num
-
-                if level == "ERROR":
-                    response[b]["level"] = "ERROR"
-                else:
-                    num = level.split("=")[1]
-                    response[b]["level"] = num
-            return json.dumps(response)
-
+            return self.handle_command_allinfo(command)
 
 
         # HANDLE INSTANCE-SPECIFIC COMMANDS
@@ -193,17 +231,17 @@ class Archimedes(Experiment):
     def _send(self, board_location, command):
         if self.real_device:
             try:
-                print "[Archimedes]: Sending to board: ", command
+                if self.DEBUG: print "[Archimedes]: Sending to board: ", command
 
                 if not board_location.endswith("/"):
                     board_location += "/"
 
-                return self.opener.open(board_location + command).read()
+                return self.opener.open(board_location + command, timeout=self.board_timeout).read()
             except:
                 log.log(Archimedes, log.level.Error, "Error: " + traceback.format_exc())
                 return "ERROR"
         else:
-            print "[Archimedes]: Simulating request: ", command
+            if self.DEBUG: print "[Archimedes]: Simulating request: ", command
             return self.simulate_instance_reply_to_command(command)
 
     def simulate_instance_reply_to_command(self, command):
@@ -249,98 +287,11 @@ class Archimedes(Experiment):
         """
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
+
+        # Finish the thread pool
+        if self._workpool is not None:
+            self._workpool.terminate()
+
         return "ok"
-
-
-
-
-########################################################
-# UNIT TESTS. Should eventually be moved somewhere else.
-########################################################
-
-from voodoo.configuration import ConfigurationManager
-from voodoo.sessions.session_id import SessionId
-
-
-class TestArchimedes(unittest.TestCase):
-
-    def setUp(self):
-        # Initialize the experiment for testing.
-        # We set the archimedes_real_device setting to False so that
-        # it doesn't attempt to contact the real ip.
-        self.cfg_manager = ConfigurationManager()
-        self.cfg_manager._set_value("archimedes_real_device", False)
-        self.cfg_manager._set_value("archimedes_instances", {"default": "http://localhost:8000"})
-        self.experiment = Archimedes(None, None, self.cfg_manager)
-        self.lab_session_id = SessionId('my-session-id')
-
-    def tearDown(self):
-        pass
-
-    def test_start(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-
-    def test_unknown_instance(self):
-        """
-        Check that it replies an error if the instance isn't in the config.
-        """
-        self.cfg_manager = ConfigurationManager()
-        self.cfg_manager._set_value("archimedes_instances", {"first": "http://localhost:8000"})
-        self.experiment = Archimedes(None, None, self.cfg_manager)
-        start = self.experiment.do_start_experiment("{}", "{}")
-
-        up_resp = self.experiment.do_send_command_to_device("UP")
-        assert up_resp.startswith("ERROR:")
-
-        up_resp = self.experiment.do_send_command_to_device("default:UP")
-        assert up_resp.startswith("ERROR:")
-
-    def test_control_ball_commands(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-        up_resp = self.experiment.do_send_command_to_device("UP")
-        down_resp = self.experiment.do_send_command_to_device("DOWN")
-        slow_resp = self.experiment.do_send_command_to_device("SLOW")
-
-    def test_basic_data_commands(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-        level_resp = self.experiment.do_send_command_to_device("LEVEL")
-        assert float(level_resp) == 1200
-
-        load_resp = self.experiment.do_send_command_to_device("LOAD")
-        assert float(load_resp) == 1300
-
-    def test_advanced_data_commands(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-        image_resp = self.experiment.do_send_command_to_device("IMAGE")
-        dec = base64.b64decode(image_resp)
-        assert len(dec) > 100
-
-        plot_resp = self.experiment.do_send_command_to_device("PLOT")
-        print plot_resp
-
-        f = file("/tmp/img.html", "w+")
-        f.write("""
-            <html><body><img alt="embedded" src="data:image/jpg;base64,%s"/></body></html>
-            """ % (image_resp)
-        )
-        f.close()
-
-    def test_explicit_instance_commands(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-        up_resp = self.experiment.do_send_command_to_device("default:UP")
-        down_resp = self.experiment.do_send_command_to_device("default:DOWN")
-        slow_resp = self.experiment.do_send_command_to_device("default:SLOW")
-        level_resp = self.experiment.do_send_command_to_device("default:LEVEL")
-        assert float(level_resp) == 1200
-        load_resp = self.experiment.do_send_command_to_device("default:LOAD")
-        assert float(load_resp) == 1300
-
-    def test_allinfo_command(self):
-        start = self.experiment.do_start_experiment("{}", "{}")
-        resp = self.experiment.do_send_command_to_device("ALLINFO:default")
-        r = json.loads(resp)
-        assert float(r["default"]["level"]) == 1200
-        assert float(r["default"]["load"]) == 1300
-
 
 

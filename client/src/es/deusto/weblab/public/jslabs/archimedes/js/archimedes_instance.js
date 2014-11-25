@@ -12,6 +12,10 @@ ArchimedesInstance = function (instanceid) {
         "ball.weight": 0
     };
 
+    // If an instance is paused then it is generally not being shown, and webcam and commands
+    // should not be refreshed / sent.
+    this.paused = false;
+
     // Simple utility function to retrieve a CSS selector for an
     // instance-specific ID.
     function getidselect(id) {
@@ -33,6 +37,19 @@ ArchimedesInstance = function (instanceid) {
         // TODO: Remove this.
         //this._retrieveLoadController.stop();
         //this._retrieveLevelController.stop();
+    };
+
+
+    // Pauses this instance (stops refreshing webcam, etc)
+    this.pause = function() {
+        this.cameraRefresher.stop();
+        this.paused = true;
+    };
+
+    // resumes this instance (refreshes webcam again, etc)
+    this.resume = function() {
+        this.cameraRefresher.start();
+        this.paused = false;
     };
 
 
@@ -209,16 +226,12 @@ ArchimedesInstance = function (instanceid) {
         // Create the data tables.
         this.createDataTables();
 
-        // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (Weblab.checkOnline() == true)
-            hideFrame();
 
         // Call an updateView so that view-related things are always initialized.
         this.updateView();
 
         this.cameraRefresher = new CameraRefresher(instanceid + "-cam1");
-        this.cameraRefresher.setInterval(2000);
-        this.cameraRefresher.start();
+        this.cameraRefresher.setInterval(500);
 
         // Create the timer for later.
         timerDisplayer = new TimerDisplayer(instanceid + "-timer");

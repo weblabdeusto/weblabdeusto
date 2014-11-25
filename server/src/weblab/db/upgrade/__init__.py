@@ -64,6 +64,13 @@ class DbParticularUpgrader(object):
     alembic_path = None
 
     def __init__(self, url):
+        if url.startswith('mysql://'):
+            try:
+                import MySQLdb
+            except ImportError:
+                import pymysql_sa
+                pymysql_sa.make_default_mysql_dialect()
+
         self.url = url
         self.config = Config(os.path.join(self.alembic_path, "alembic.ini"))
         self.config.set_main_option("script_location", self.alembic_path)

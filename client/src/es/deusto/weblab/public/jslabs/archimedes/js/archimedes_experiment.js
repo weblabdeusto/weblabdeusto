@@ -1,3 +1,5 @@
+REFRESH_DATA_INTERVAL = 1000;
+
 //! CLASS meant to contain the experiment and the logic that is not
 //! specific to an instance. It will handle the creation of the appropriate
 //! Archimedes Instances.
@@ -17,6 +19,11 @@ ArchimedesExperiment = function (registry, view) {
     // Initializes the experiment, by creating all instances and rendering the templates.
     // Most of the initialization is done asynchronously.
     this.initialize = function () {
+
+        // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
+        if (Weblab.checkOnline() == true)
+            hideFrame();
+
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function (template) {
 
             var rendered = "";
@@ -35,8 +42,9 @@ ArchimedesExperiment = function (registry, view) {
             // Insert it.
             $(".instances_row").html(rendered);
 
-            // Dynamically size the bootstrap columns so that it looks pretty enough.
-            fitInstances(instancesNumber);
+            // No longer done. Archimedes instances will look somewhat small on large screens but that way
+            // there won't be issues with smaller ones.
+            // fitInstances(instancesNumber);
 
             // Initialize every Archimedes instance.
             for (var instance in registry) {
@@ -52,9 +60,6 @@ ArchimedesExperiment = function (registry, view) {
             // Hides those components that should not be shown according to the
             // specified view.
             this.updateView();
-
-            // Fix the issue with the webcam image rotation.
-            fixImageRotation();
 
             // Enable image zooming on hover.
             enableImageZooming();
@@ -74,7 +79,11 @@ ArchimedesExperiment = function (registry, view) {
 
 
             // Declare onStartInteraction listener.
+            // This is at times not getting called.
+            // TODO: Fix this.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
+
+                showFrame();
 
                 if(typeof(initial_config) === "string") {
                     var config = JSON.parse(initial_config);
@@ -91,12 +100,13 @@ ArchimedesExperiment = function (registry, view) {
 
                 this.startRefreshingData();
 
-                showFrame();
-
                 $.each(this.instances, function (instanceid, instance) {
                     instance.handleStartInteraction();
+                    var data = Registry[instanceid];
+                    instance.cameraRefresher.start(data.webcam);
                 }.bind(this));
             }.bind(this));
+
 
 
             Weblab.setOnEndCallback(function () {
@@ -120,8 +130,16 @@ ArchimedesExperiment = function (registry, view) {
     this.startRefreshingData = function() {
         var that = this;
         var command = "ALLINFO";
+
+        var that = this;
         $.each(View, function(name, data) {
-            command += ":" + name;
+            var instance = that.instances[name];
+
+            // Do not request updates for paused instances.
+            if(instance.paused == false)
+            {
+                command += ":" + name;
+            }
         });
 
         Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
@@ -150,7 +168,7 @@ ArchimedesExperiment = function (registry, view) {
                 });
 
                 // Invoke a refresh again in some seconds.
-                that._refresh_timer = setTimeout(that.startRefreshingData, 3000);
+                that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
             },
             function() {
                 console.error("[Error]: Refreshing data");
@@ -198,12 +216,12 @@ ArchimedesExperiment = function (registry, view) {
         }.bind(this));
 
         // Fit the bootstrap cols properly.
-        fitInstances($(".instance-column:visible").length);
+        // fitInstances($(".instance-column:visible").length);
+
+        // Reinitialize the client-side control to show or hide full instances.
+        initializeShownPanel();
 
         console.log("Setting length: " + $(".instance-column:visible").length);
-
-        // Scale the images right.
-        fixImageRotation();
     };
 
     //! Handles translation for the dynamic part of the interface.
