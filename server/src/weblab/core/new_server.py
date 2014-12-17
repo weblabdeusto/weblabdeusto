@@ -68,7 +68,7 @@ class WebLab(object):
         return wrapper
 
     def apply_routes(self, flask_app):
-        self.json = flask_app.route("/json/", methods = ['GET', 'POST'])(self._json)
+        self.json = flask_app.route("/", methods = ['GET', 'POST'])(self._json)
         for path in self.routes:
             self._create_wrapper(path, flask_app)
 
@@ -104,9 +104,9 @@ class WebLab(object):
 # 
 # # TO TEST:
 # # >>> import json
-# # >>> requests.post("http://localhost:5000/json/", data = json.dumps({'method' : 'list_uses' })).json()
+# # >>> requests.post("http://localhost:5000/", data = json.dumps({'method' : 'list_uses' })).json()
 # # [u'use_id1', u'use_id2']
-# # >>> requests.post("http://localhost:5000/json/", data = json.dumps({'method' : 'list_use', 'arguments' : {'id' : 'use_id1'} })).text
+# # >>> requests.post("http://localhost:5000/", data = json.dumps({'method' : 'list_use', 'arguments' : {'id' : 'use_id1'} })).text
 # # u'Uses of id: use_id1'
 # 
 # 

@@ -2,6 +2,7 @@ import threading
 import wsgiref.simple_server
 import urlparse
 import SocketServer
+from collections import OrderedDict
 
 import voodoo.log as log
 import voodoo.counter as counter
@@ -17,6 +18,28 @@ class WsgiApp(object):
     def __call__(self, environ, start_response):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         yield 'Hello World\n'
+
+class WsgiProxy(object):
+    def __init__(self, ordered_routes = None):
+        if ordered_routes:
+            self.ordered_routes = ordered_routes
+        else:
+            self.ordered_routes = OrderedDict()
+
+    def __setitem__(self, route, method):
+        self.ordered_routes[route] = method
+
+    def __call__(self, environ, start_response):
+        TOKEN = 'weblab'
+        path = environ['PATH_INFO']
+        relative_path = path[path.find(TOKEN) + len(TOKEN):]
+
+        for route in self.ordered_routes:
+            if relative_path.startswith(route):
+                return self.ordered_routes[route](environ, start_response)
+
+        start_response('404 Not Found', [('Content-Type', 'text/plain')])
+        return 'Path not found'
 
 class WrappedWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
 
