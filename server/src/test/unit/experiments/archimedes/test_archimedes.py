@@ -34,10 +34,7 @@ class TestArchimedes(unittest.TestCase):
         self.lab_session_id = SessionId('my-session-id')
 
     def tearDown(self):
-        pass
-
-    def test_nothing(self):
-        pass
+        self.experiment.do_dispose()
 
     def test_start(self):
         start = self.experiment.do_start_experiment("{}", "{}")
