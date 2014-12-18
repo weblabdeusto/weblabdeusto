@@ -1,5 +1,6 @@
 server_admin = 'weblab@deusto.es'
 debug_mode   = True
+flask_debug = True
 
 # db_engine = 'sqlite'
 db_engine = 'mysql'

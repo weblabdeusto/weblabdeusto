@@ -59,6 +59,8 @@ import voodoo.resources_manager as ResourceManager
 
 from weblab.admin.web.server import AdminRemoteFacadeServer
 
+from weblab.core.new_server import WebLab
+
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
         what_session       = "Core Users ",
@@ -113,6 +115,29 @@ def update_session_id(func):
             ctx.session_id = session_id.id
         return func(self, session_id, *args, **kwargs)
     return wrapper
+
+def ng_load_user_processor(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        server = weblab.ctx.server_instance
+        session_id = SessionId(weblab.ctx.session_id)
+        session = server._session_manager.get_session(session_id)
+        weblab.ctx.user_processor = server._load_user(session)
+        try:
+            return func(*args, **kwargs)
+        finally:
+            weblab.ctx.user_processor.update_latest_timestamp()
+            server._session_manager.modify_session(session_id, session)
+
+    return wrapper
+
+weblab = WebLab()
+
+@weblab.route("/experiments/")
+@ng_load_user_processor
+def list_experiments():
+    print weblab.ctx.user_processor.list_experiments()
+    return ":-)"
 
 class UserProcessingServer(object):
     """
@@ -206,6 +231,9 @@ class UserProcessingServer(object):
                 facade_server = FacadeClass(self, cfg_manager)
                 self._facade_servers.append(facade_server)
                 facade_server.start()
+
+                if hasattr(facade_server, 'application') and hasattr(facade_server.application, 'app'):
+                    weblab.apply_routes(facade_server.application.app, '/weblab/administration', self)
 
         #
         # Start checking times
