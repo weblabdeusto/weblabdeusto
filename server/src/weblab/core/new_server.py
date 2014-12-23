@@ -1,14 +1,118 @@
 import json
+import types
+import datetime
 import traceback
 import threading
 
 from functools import wraps
 from collections import OrderedDict
 
-from flask import Flask, request
+from flask import Flask, request, Response
 
 from voodoo.log import log, level, log_exc
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
+import weblab.configuration_doc as configuration_doc
+
+# TODO: clean these imports
+import weblab.core.login.exc as LoginErrors
+import weblab.core.exc as coreExc
+import weblab.exc as WebLabErrors
+import voodoo.gen.exceptions.exceptions as VoodooErrors
+import weblab.login.comm.codes as LFCodes
+import weblab.core.comm.codes as UPFCodes
+
+def simplify_response(response, limit = 15, counter = 0):
+    """
+    Recursively serializes the response into a JSON dictionary. Because the response object could actually
+    contain cyclic references, we limit the maximum depth.
+    """
+    if counter == limit:
+        return None
+    if isinstance(response, (basestring, int, long, float, bool)):
+        return response
+    if isinstance(response, (list, tuple)):
+        new_response = []
+        for i in response:
+            new_response.append(simplify_response(i, limit, counter + 1,))
+        return new_response
+    if isinstance(response, dict):
+        new_response = {}
+        for i in response:
+            new_response[i] = simplify_response(response[i], limit, counter + 1)
+        return new_response
+    if isinstance(response, (datetime.datetime, datetime.date, datetime.time)):
+        return response.isoformat()
+    ret = {}
+    for attr in [ a for a in dir(response) if not a.startswith('_') ]:
+        if not hasattr(response.__class__, attr):
+            attr_value = getattr(response, attr)
+            if not isinstance(attr_value, types.FunctionType) and not isinstance(attr_value, types.MethodType):
+                ret[attr] = simplify_response(attr_value, limit, counter + 1)
+    return ret
+
+EXCEPTIONS = (
+        #
+        # EXCEPTION                                   CODE                                               PROPAGATE TO CLIENT
+        #
+        (LoginErrors.InvalidCredentialsError, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, True),
+        (LoginErrors.LoginError,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,               False),
+        (coreExc.SessionNotFoundError,        UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
+        (coreExc.NoCurrentReservationError,   UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
+        (coreExc.UnknownExperimentIdError,    UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
+        (coreExc.WebLabCoreError,             UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (WebLabErrors.WebLabError,            UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
+        (VoodooErrors.GeneratorError,         UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
+        (Exception,                           UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
+
+    )
+
+for i, (exc, _, _) in enumerate(EXCEPTIONS):
+    for exc2, _, _ in EXCEPTIONS[i + 1:]:
+        if issubclass(exc2, exc):
+            raise AssertionError("In Facade Exceptions the order is important. There can't be any exception that is a subclass of a previous exception. In this case %s is before %s" % (exc, exc2))
+
+
+UNEXPECTED_ERROR_MESSAGE_TEMPLATE               = "Unexpected error ocurred in WebLab-Deusto. Please contact the administrator at %s"
+SERVER_ADMIN_EMAIL                              = 'server_admin'
+DEFAULT_SERVER_ADMIN_EMAIL                      = '<server_admin not set>'
+
+def _raise_exception(code, msg):
+    formatted_exc = traceback.format_exc()
+    propagate = _global_context.current_weblab.ctx.config.get_doc_value(configuration_doc.PROPAGATE_STACK_TRACES_TO_CLIENT)
+    if propagate:
+        msg = str(msg) + "; Traceback: " + formatted_exc
+
+    if request.args.get('indent'):
+        indent = 4
+    else:
+        indent = None
+    return Response(json.dumps({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg }, indent = indent), mimetype = 'application/json')
+
+def check_exceptions(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            weblab = _global_context.current_weblab
+            config = weblab.ctx.config
+            weblab_class = weblab.ctx.server_instance
+            for exc, code, propagate in EXCEPTIONS:
+                if issubclass(e.__class__, exc):
+                    if propagate or config.get_doc_value(configuration_doc.DEBUG_MODE):
+                        log(weblab_class, level.Info,
+                                "%s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
+                        log_exc(weblab_class, level.Debug)
+                        traceback.print_exc()
+                        return _raise_exception(code, e.args[0])
+                    else:
+                        # WebLabInternalServerError
+                        log(weblab_class, level.Warning,
+                                "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
+                        log_exc(weblab_class, log.level.Info)
+                        return _raise_exception(RemoteFacadeManagerCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
+
+    return wrapper
 
 def get_json():
     if request.json is not None:
@@ -26,6 +130,8 @@ def get_json():
             log_exc(__name__, level.Info)
             return None
 
+_global_context = threading.local()
+
 class WebLab(object):
     def __init__(self):
         self.methods = OrderedDict() # {
@@ -38,17 +144,26 @@ class WebLab(object):
         self.ctx = self.context # Alias
 
     def __enter__(self, *args, **kwargs):
+        _global_context.current_weblab = self
+        self.context.config = self.context.server_instance._cfg_manager
+
         if not hasattr(self.context, 'reservation_id'):
-            self.context.reservation_id = request.args.get('reservation_id')
+            reservation_id = request.headers.get('X-WebLab-reservation-id')
+            if not reservation_id:
+                reservation_id = request.args.get('reservation_id')
+            self.context.reservation_id = reservation_id
         
         if not hasattr(self.context, 'session_id'):
-            session_id = request.cookies.get('weblabsessionid')
-            if session_id:
-                if '.' in session_id:
-                    session_id = session_id.split('.')[0]
-                self.context.session_id = session_id
-            else:
-                self.context.session_id = request.args.get('session_id')
+            session_id = request.headers.get('X-WebLab-session-id')
+            if not session_id:
+                session_id = request.cookies.get('weblabsessionid')
+                if session_id:
+                    if '.' in session_id:
+                        session_id = session_id.split('.')[0]
+                else:
+                    session_id = request.args.get('session_id')
+
+            self.context.session_id = session_id
 
     def __exit__(self, *args, **kwargs):
         pass
@@ -66,14 +181,14 @@ class WebLab(object):
                 parameters = contents.get('params', {})
 
                 if 'reservation_id' in parameters:
-                    self.context.reservation_id = parameters['reservation_id']
+                    self.context.reservation_id = parameters.pop('reservation_id')
 
                 if 'session_id' in parameters:
-                    self.context.session_id = parameters['session_id']
+                    self.context.session_id = parameters.pop('session_id')
 
+                self.context.app = flask_app
+                self.context.server_instance = server_instance
                 with self:
-                    self.context.app = flask_app
-                    self.context.server_instance = server_instance
                     return self.methods[method](**parameters)
             else:
                 # TODO
@@ -82,8 +197,11 @@ class WebLab(object):
             # TODO
             return "Hi there. This should be a list of services or something..."
         
-    def route(self, path, methods = ['GET']):
+    def route(self, path, methods = ['GET'], exc = False):
         def wrapper(func):
+            if exc:
+                func = check_exceptions(func)
+
             if func.__name__ in self.methods:
                 log(WebLab, level.Error, "Overriding %s" % func.__name__)
 
@@ -93,6 +211,19 @@ class WebLab(object):
             self.routes[path] = (func, path, methods)
             return func
         return wrapper
+
+    def jsonify(self, obj, limit = 15, wrap_ok = True):
+        simplified_obj = simplify_response(obj, limit = limit)
+        if wrap_ok:
+            simplified_obj = {
+                'result' : simplified_obj,
+                'is_exception' : False
+            }
+        indent = request.args.get('indent', None)
+        if indent:
+            indent = 4
+        serialized = json.dumps(simplified_obj, indent = indent)
+        return Response(serialized, mimetype = 'application/json') 
 
     def apply_routes(self, flask_app, base_path = '', server_instance = None):
         if base_path == '/':

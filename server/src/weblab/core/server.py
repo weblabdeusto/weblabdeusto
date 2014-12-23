@@ -20,6 +20,8 @@ import time
 import threading
 import urlparse
 
+from flask import request
+
 from functools import wraps
 
 import weblab.configuration_doc as configuration_doc
@@ -52,6 +54,7 @@ from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
 
 from voodoo.sessions.checker import check_session
+from voodoo.sessions.exc import SessionNotFoundError
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType
 
@@ -121,23 +124,171 @@ def ng_load_user_processor(func):
     def wrapper(*args, **kwargs):
         server = weblab.ctx.server_instance
         session_id = SessionId(weblab.ctx.session_id)
-        session = server._session_manager.get_session(session_id)
-        weblab.ctx.user_processor = server._load_user(session)
         try:
-            return func(*args, **kwargs)
+            session = server._session_manager.get_session_locking(session_id)
+        except SessionNotFoundError:
+            raise coreExc.SessionNotFoundError("Core Users session not found")
+
+        try:
+            weblab.ctx.user_session = session
+            weblab.ctx.user_processor = server._load_user(session)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                weblab.ctx.user_processor.update_latest_timestamp()
         finally:
-            weblab.ctx.user_processor.update_latest_timestamp()
-            server._session_manager.modify_session(session_id, session)
+            server._session_manager.modify_session_unlocking(session_id, session)
 
     return wrapper
 
+def ng_load_reservation_processor(func):
+    """decorator that loads the reservation_processor given the reservation_id"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        server = weblab.ctx.server_instance
+        session_id = SessionId(weblab.ctx.session_id)
+        try:
+            session = server._reservations_session_manager.get_session_locking(session_id)
+        except SessionNotFoundError:
+            raise coreExc.SessionNotFoundError("Core Reservations session not found")
+
+        try:
+            weblab.ctx.reservation_session = session
+            weblab.ctx.reservation_processor = server._load_reservation(session)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                weblab.ctx.reservation_processor.update_latest_timestamp()
+        finally:
+            server._reservations_session_manager.modify_session_unlocking(session_id, session)
+
+    return wrapper
+
+
 weblab = WebLab()
 
-@weblab.route("/experiments/")
+# TODO:
+# - Store cookies
+# - Update session id
+
+# >>> requests.post("http://localhost/weblab/administration/", data = json.dumps({'method' : 'login', 'params' : { 'username' : 'any', 'password' : 'password'}})).text
+
+# 
+# 
+#  Login methods
+# 
+# 
+@weblab.route("/login/", exc = True)
+def login(username = None, password = None):
+    if username is None:
+        if request.method == 'GET':
+            username = request.args.get('username')
+            password = request.args.get('password')
+    result = weblab.ctx.server_instance._login_manager.login(username, password)
+    return weblab.jsonify(result)
+
+@weblab.route("/login/external/<system>/", methods = [ 'POST'], exc = True)
+def extensible_login(self, system, credentials = None):
+    result = weblab.ctx.server_instance._login_manager.extensible_login(system, credentials)
+    return weblab.jsonify(result)
+
+@weblab.route("/login/external/<system>/grant/", methods = [ 'POST' ], exc = True)
+def grant_external_credentials(self, username = None, password = None, system = None, credentials = None):
+    result = weblab.ctx.server_instance._login_manager.grant_external_credentials(username, password, system, credentials)
+    return weblab.jsonify(result)
+
+@weblab.route("/login/external/create/create/", methods = [ 'POST' ], exc = True)
+def create_external_user(self, system = None, credentials = None):
+    result = weblab.ctx.server_instance._login_manager.create_external_user(system, credentials)
+    return weblab.jsonify(result)
+
+
+# 
+# User operations
+# 
+@weblab.route("/user/experiments/", exc = True)
 @ng_load_user_processor
 def list_experiments():
-    print weblab.ctx.user_processor.list_experiments()
-    return ":-)"
+    experiments = weblab.ctx.user_processor.list_experiments()
+    return weblab.jsonify(experiments)
+
+@weblab.route("/user/info/", exc = True)
+@ng_load_user_processor
+def get_user_information():
+    user_information = weblab.ctx.user_processor.get_user_information()
+    if weblab.ctx.user_processor.is_admin():
+        # TODO: add core_server_url to weblab context
+        admin_url = weblab.ctx.server_instance.core_server_url + "administration/admin/"
+
+        try:
+            user_information.admin_url = urlparse.urlparse(admin_url).path
+        except:
+            user_information.admin_url = admin_url
+    else:
+        user_information.admin_url = ""
+    return weblab.jsonify(user_information)
+
+@weblab.route("/user/reservation_id/", exc = True)
+@ng_load_user_processor
+def get_reservation_id_by_session_id():
+    response = weblab.ctx.user_session.get('reservation_id')
+    return weblab.jsonify(response)
+
+@weblab.route("/user/reservation/<reservation_id>/")
+@ng_load_user_processor
+def get_experiment_use_by_id(reservation_id = None):
+    response = weblab.ctx.user_processor.get_experiment_use_by_id(reservation_id)
+    return weblab.jsonify(response)
+
+@weblab.route("/user/reservations/")
+@ng_load_user_processor
+def get_experiment_uses_by_id(reservation_ids = None):
+    response = weblab.ctx.user_processor.get_experiment_uses_by_id(reservation_ids)
+    return weblab.jsonify(response)
+
+@weblab.route("/user/permissions/")
+@ng_load_user_processor
+def get_user_permissions():
+    response = weblab.ctx.user_processor.get_user_permissions()
+    return weblab.jsonify(response)
+
+@weblab.route("/user/reservations/create")
+def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None, client_address = None):
+    # TODO
+    return weblab.jsonify(response)
+
+@weblab.route("/user/logout/", exc = True)
+def logout():
+    server_instance = weblab.ctx.server_instance
+    session_id = SessionId(weblab.ctx.session_id)
+
+    if server_instance._session_manager.has_session(session_id):
+        session        = server_instance._session_manager.get_session(session_id)
+
+        user_processor = server_instance._load_user(session)
+
+        reservation_id = session.get('reservation_id')
+        if reservation_id is not None and not user_processor.is_access_forward_enabled():
+            #
+            # If "is_access_forward_enabled", the user (or more commonly, entity) can log out without
+            # finishing his current reservation
+            #
+            # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
+            # with queues it might not make sense, depending on the particular type of experiment.
+            #
+            reservation_session = server_instance._reservations_session_manager.get_session(SessionId(reservation_id))
+            reservation_processor = server_instance._load_reservation(reservation_session)
+            reservation_processor.finish()
+            server_instance._alive_users_collection.remove_user(reservation_id)
+
+        user_processor.logout()
+        user_processor.update_latest_timestamp()
+
+        server_instance._session_manager.delete_session(session_id)
+        return weblab.jsonify({})
+    else:
+        raise coreExc.SessionNotFoundError( "User Processing Server session not found")
+
 
 class UserProcessingServer(object):
     """
