@@ -170,6 +170,8 @@ weblab = WebLab()
 # TODO:
 # - Store cookies
 # - Update session id
+# - REST API CSRF
+# - logged(log.level.Info, except_for, max_size)
 
 # >>> requests.post("http://localhost/weblab/administration/", data = json.dumps({'method' : 'login', 'params' : { 'username' : 'any', 'password' : 'password'}})).text
 
@@ -178,41 +180,36 @@ weblab = WebLab()
 #  Login methods
 # 
 # 
-@weblab.route("/login/", exc = True)
+@weblab.route('/login/')
 def login(username = None, password = None):
     if username is None:
         if request.method == 'GET':
             username = request.args.get('username')
             password = request.args.get('password')
-    result = weblab.ctx.server_instance._login_manager.login(username, password)
-    return weblab.jsonify(result)
+    return weblab.ctx.server_instance._login_manager.login(username, password)
 
-@weblab.route("/login/external/<system>/", methods = [ 'POST'], exc = True)
+@weblab.route('/login/external/<system>/', methods = [ 'POST'])
 def extensible_login(self, system, credentials = None):
-    result = weblab.ctx.server_instance._login_manager.extensible_login(system, credentials)
-    return weblab.jsonify(result)
+    return weblab.ctx.server_instance._login_manager.extensible_login(system, credentials)
 
-@weblab.route("/login/external/<system>/grant/", methods = [ 'POST' ], exc = True)
+@weblab.route('/login/external/<system>/grant/', methods = [ 'POST' ])
 def grant_external_credentials(self, username = None, password = None, system = None, credentials = None):
-    result = weblab.ctx.server_instance._login_manager.grant_external_credentials(username, password, system, credentials)
-    return weblab.jsonify(result)
+    return weblab.ctx.server_instance._login_manager.grant_external_credentials(username, password, system, credentials)
 
-@weblab.route("/login/external/create/create/", methods = [ 'POST' ], exc = True)
+@weblab.route('/login/external/create/create/', methods = [ 'POST' ])
 def create_external_user(self, system = None, credentials = None):
-    result = weblab.ctx.server_instance._login_manager.create_external_user(system, credentials)
-    return weblab.jsonify(result)
+    return weblab.ctx.server_instance._login_manager.create_external_user(system, credentials)
 
 
 # 
 # User operations
 # 
-@weblab.route("/user/experiments/", exc = True)
+@weblab.route('/user/experiments/')
 @ng_load_user_processor
 def list_experiments():
-    experiments = weblab.ctx.user_processor.list_experiments()
-    return weblab.jsonify(experiments)
+    return weblab.ctx.user_processor.list_experiments()
 
-@weblab.route("/user/info/", exc = True)
+@weblab.route('/user/info/')
 @ng_load_user_processor
 def get_user_information():
     user_information = weblab.ctx.user_processor.get_user_information()
@@ -226,38 +223,68 @@ def get_user_information():
             user_information.admin_url = admin_url
     else:
         user_information.admin_url = ""
-    return weblab.jsonify(user_information)
+    return user_information
 
-@weblab.route("/user/reservation_id/", exc = True)
+@weblab.route('/user/reservation_id/')
 @ng_load_user_processor
 def get_reservation_id_by_session_id():
-    response = weblab.ctx.user_session.get('reservation_id')
-    return weblab.jsonify(response)
+    return weblab.ctx.user_session.get('reservation_id')
 
-@weblab.route("/user/reservation/<reservation_id>/")
+@weblab.route('/user/reservation/<reservation_id>/')
 @ng_load_user_processor
 def get_experiment_use_by_id(reservation_id = None):
-    response = weblab.ctx.user_processor.get_experiment_use_by_id(reservation_id)
-    return weblab.jsonify(response)
+    return weblab.ctx.user_processor.get_experiment_use_by_id(reservation_id)
 
-@weblab.route("/user/reservations/")
+@weblab.route('/user/reservations/<reservation_ids>/')
 @ng_load_user_processor
 def get_experiment_uses_by_id(reservation_ids = None):
-    response = weblab.ctx.user_processor.get_experiment_uses_by_id(reservation_ids)
-    return weblab.jsonify(response)
+    if isinstance(reservation_ids, basestring):
+        reservation_ids = reservation_ids.split(',')
+    return weblab.ctx.user_processor.get_experiment_uses_by_id(reservation_ids)
 
-@weblab.route("/user/permissions/")
+@weblab.route('/user/permissions/')
 @ng_load_user_processor
 def get_user_permissions():
-    response = weblab.ctx.user_processor.get_user_permissions()
-    return weblab.jsonify(response)
+    return weblab.ctx.user_processor.get_user_permissions()
 
-@weblab.route("/user/reservations/create")
+@weblab.route('/user/reservations/', methods = [ 'POST' ])
+@ng_load_user_processor
 def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None, client_address = None):
-    # TODO
-    return weblab.jsonify(response)
+    server = weblab.ctx.server_instance
+    # core_server_universal_id should be copied
+    status = weblab.ctx.user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, server_instance.core_server_universal_id)
 
-@weblab.route("/user/logout/", exc = True)
+    if status == 'replicated':
+        return Reservation.NullReservation()
+
+    reservation_id         = status.reservation_id.split(';')[0]
+    reservation_session_id = SessionId(reservation_id)
+
+    server._alive_users_collection.add_user(reservation_session_id)
+
+    session_id = server._reservations_session_manager.create_session(reservation_id)
+
+    initial_session = {
+                    'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
+                    'latest_timestamp'   : 0,
+                    'experiment_id'      : experiment_id,
+                    'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
+                    'reservation_id'     : reservation_session_id,
+                    'federated'          : False,
+                }
+    reservation_processor = server._load_reservation(initial_session)
+    reservation_processor.update_latest_timestamp()
+
+    if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
+        reservation_processor.process_reserved_status(status)
+
+    if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_REMOTE:
+        reservation_processor.process_reserved_remote_status(status)
+
+    server._reservations_session_manager.modify_session(session_id, initial_session)
+    return Reservation.Reservation.translate_reservation( status )
+
+@weblab.route('/user/logout/', methods = ['POST'])
 def logout():
     server_instance = weblab.ctx.server_instance
     session_id = SessionId(weblab.ctx.session_id)
@@ -285,10 +312,112 @@ def logout():
         user_processor.update_latest_timestamp()
 
         server_instance._session_manager.delete_session(session_id)
-        return weblab.jsonify({})
+        return {}
     else:
         raise coreExc.SessionNotFoundError( "User Processing Server session not found")
 
+
+#
+#
+# Reservation operations
+#
+# 
+
+@weblab.route('/reservation/finish/', methods = ['POST'])
+@ng_load_reservation_processor
+def finished_experiment():
+    reservation_session_id = weblab.ctx.reservation_processor.get_reservation_session_id()
+    weblab.ctx.server_instance._alive_users_collection.remove_user(reservation_session_id)
+    return weblab.ctx.reservation_processor.finish()
+
+@weblab.route('/reservation/file/', methods = ['POST'])
+@ng_load_reservation_processor
+def send_file(file_content, file_info):
+    """ send_file(file_content, file_info)
+
+    Sends file to the experiment.
+    """
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    return reservation_processor.send_file( file_content, file_info )
+
+@weblab.route('/reservation/command/', methods = ['POST'])
+@ng_load_reservation_processor
+def send_command(command):
+    """ send_command(command)
+
+    send_command sends an abstract string <command> which will be unpacked by the
+    experiment.
+    """
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    return reservation_processor.send_command( command )
+
+@weblab.route('/reservation/file/async/', methods = ['POST'])
+@ng_load_reservation_processor
+def send_async_file(file_content, file_info):
+    """
+    send_async_file(session_id, file_content, file_info)
+    Sends a file asynchronously to the experiment. The response
+    will not be the real one, but rather, a request_id identifying
+    the asynchronous query.
+    @param session Session
+    @param file_content Contents of the file.
+    @param file_info File information of the file.
+    @see check_async_command_status
+    """
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    return reservation_processor.send_async_file( file_content, file_info )
+
+@weblab.route('/reservation/file/async/status')
+@ng_load_reservation_processor
+def check_async_command_status(request_identifiers):
+    """
+    check_async_command_status(session_id, request_identifiers)
+    Checks the status of several asynchronous commands.
+
+    @param session: Session id
+    @param request_identifiers: A list of the request identifiers of the
+    requests to check.
+    @return: Dictionary by request-id of the tuples: (status, content)
+    """
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    return reservation_processor.check_async_command_status( request_identifiers )
+
+@weblab.route('/reservation/command/async/', methods = ['POST'])
+@ng_load_reservation_processor
+def send_async_command(command):
+    """
+    send_async_command(session_id, command)
+
+    send_async_command sends an abstract string <command> which will be unpacked by the
+    experiment, and run asynchronously on its own thread. Its status may be checked through
+    check_async_command_status.
+    """
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    return reservation_processor.send_async_command( command )
+
+@weblab.route('/reservation/info/')
+@ng_load_reservation_processor
+def get_reservation_info(self, reservation_processor, session):
+    return weblab.ctx.reservation_processor.get_info()
+
+
+@weblab.route('/reservation/poll/')
+@ng_load_reservation_processor
+def poll(self, session):
+    reservation_processor = weblab.ctx.reservation_processor
+    return weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+
+@weblab.route('/reservation/status/')
+@ng_load_reservation_processor
+def get_reservation_status(self, reservation_processor, session):
+    reservation_processor = weblab.ctx.reservation_processor
+    weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
+    return reservation_processor.get_status()
 
 class UserProcessingServer(object):
     """
@@ -389,7 +518,12 @@ class UserProcessingServer(object):
         #
         # Start checking times
         #
-        self._initialize_checker_timer()
+        checking_time = self._cfg_manager.get_value(CHECKING_TIME_NAME, DEFAULT_CHECKING_TIME)
+        timer = threading.Timer(checking_time, self._renew_checker_timer)
+        timer.setName(counter.next_name("ups-checker-timer"))
+        timer.setDaemon(True)
+        timer.start()
+        _resource_manager.add_resource(timer)
 
 
 
@@ -447,11 +581,6 @@ class UserProcessingServer(object):
                 reservation_processor.get_session()
             )
 
-    def _check_other_sessions_finished(self):
-        expired_users = self._alive_users_collection.check_expired_users()
-        if len(expired_users) > 0:
-            self._purge_expired_users(expired_users)
-
     @threaded(_resource_manager)
     def _purge_expired_users(self, expired_users):
         for expired_reservation in expired_users:
@@ -469,18 +598,13 @@ class UserProcessingServer(object):
                     "Exception freeing experiment of %s: %s" % (expired_reservation, e))
                 log.log_exc( UserProcessingServer, log.level.Warning)
 
-    def _initialize_checker_timer(self):
-        checking_time = self._cfg_manager.get_value(CHECKING_TIME_NAME, DEFAULT_CHECKING_TIME)
-        timer = threading.Timer(checking_time, self._renew_checker_timer)
-        timer.setName(counter.next_name("ups-checker-timer"))
-        timer.setDaemon(True)
-        timer.start()
-        _resource_manager.add_resource(timer)
-
     def _renew_checker_timer(self):
         checking_time = self._cfg_manager.get_value(CHECKING_TIME_NAME, DEFAULT_CHECKING_TIME)
         while not self._stopping:
-            self._check_other_sessions_finished()
+            expired_users = self._alive_users_collection.check_expired_users()
+            if len(expired_users) > 0:
+                self._purge_expired_users(expired_users)
+
             time.sleep(checking_time)
 
     # # # # # # # # # # # #

@@ -52,10 +52,10 @@ def simplify_response(response, limit = 15, counter = 0):
 
 EXCEPTIONS = (
         #
-        # EXCEPTION                                   CODE                                               PROPAGATE TO CLIENT
+        # EXCEPTION                                   CODE                                           PROPAGATE TO CLIENT
         #
-        (LoginErrors.InvalidCredentialsError, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE, True),
-        (LoginErrors.LoginError,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,               False),
+        (LoginErrors.InvalidCredentialsError, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,     True),
+        (LoginErrors.LoginError,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,                   False),
         (coreExc.SessionNotFoundError,        UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
         (coreExc.NoCurrentReservationError,   UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
         (coreExc.UnknownExperimentIdError,    UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
@@ -171,6 +171,11 @@ class WebLab(object):
     def _error(self, msg, code):
         return {"message": msg, "code": code, "is_exception": True}
 
+    def _wrap_response(self, response):
+        if isinstance(response, Response):
+            return response
+        return self.jsonify(response)
+
     def _json(self, flask_app, server_instance):
         if request.method == 'POST':
             contents = get_json()
@@ -181,23 +186,29 @@ class WebLab(object):
                 parameters = contents.get('params', {})
 
                 if 'reservation_id' in parameters:
-                    self.context.reservation_id = parameters.pop('reservation_id')
+                    reservation_id = parameters.pop('reservation_id')
+                    if isinstance(reservation_id, dict) and 'id' in reservation_id:
+                        reservation_id = reservation_id['id']
+                    self.context.reservation_id = reservation_id
 
                 if 'session_id' in parameters:
-                    self.context.session_id = parameters.pop('session_id')
+                    session_id = parameters.pop('session_id')
+                    if isinstance(session_id, dict) and 'id' in session_id:
+                        session_id = session_id['id']
+                    self.context.session_id = session_id
 
                 self.context.app = flask_app
                 self.context.server_instance = server_instance
                 with self:
-                    return self.methods[method](**parameters)
+                    return self._wrap_response(self.methods[method](**parameters))
             else:
                 # TODO
                 return "Not a valid JSON..."
         else:
             # TODO
-            return "Hi there. This should be a list of services or something..."
+            return "Hi there. This should be a list of services or something (%s)..." % ', '.join(self.methods)
         
-    def route(self, path, methods = ['GET'], exc = False):
+    def route(self, path, methods = ['GET'], exc = True):
         def wrapper(func):
             if exc:
                 func = check_exceptions(func)
@@ -228,7 +239,7 @@ class WebLab(object):
     def apply_routes(self, flask_app, base_path = '', server_instance = None):
         if base_path == '/':
             base_path = ''
-        self.json = flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(flask_app, server_instance) )
+        flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(flask_app, server_instance) )
         for path in self.routes:
             self._create_wrapper(base_path, path, flask_app, server_instance)
 
@@ -240,10 +251,7 @@ class WebLab(object):
             self.context.server_instance = server_instance
             with self:
                 result = func(*args, **kwargs)
-                if isinstance(result, dict):
-                    return json.dumps(result)
-                else:
-                    return result
+                return self._wrap_response(result)
 
         flask_app.route(base_path + path, methods = methods)(weblab_wrapper)
 
