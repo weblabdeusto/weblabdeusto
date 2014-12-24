@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Archimedes Experiment</title>
 
@@ -102,15 +102,22 @@
         initializeShownPanel();
     });
 
-    //! Initializes the ShownPanel.
+    //! Initializes the ShownPanel. This can be reinitialized when the View changes with no issues.
     //!
-    //! This provides a way to easily hide or show instances. This system is independent from the standard VIEW system,
-    //! which could lead to unexpected interactions between both. The systems should probably be merged somehow in the future.
-    //! As of now it is loaded at the start from the Registry. Maybe it should use the View, but then it should be refreshed
-    //! whenever the View changes.
+    //! This provides a way to easily hide or show instances. It uses the global View object to choose which buttons to display.
+    //! Whenever the View changes, this needs to be called again.
+    //! Instances will be displayed only if they are visible.
     function initializeShownPanel()
     {
-        $.each(Registry, function(name, entry) {
+        // Remove existing buttons, so that we can safely call this function repeteadly when the view updates.
+        $("#shownpanel").children().remove();
+
+        $.each(View, function(name, entry) {
+
+            if(!$("#" + name + "-experiment-instance").is(":visible")) {
+                return true;
+            }
+
             var rendered = Mustache.render($("#shown-button-template").html(), {text: name, id: "show-" + name, instance: name});
             $("#shownpanel").append($(rendered));
         });
