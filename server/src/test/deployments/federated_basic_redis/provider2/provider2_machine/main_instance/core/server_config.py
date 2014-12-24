@@ -3,7 +3,8 @@ core_store_students_programs_path = 'files_stored'
 core_experiment_poll_time         = 350 # seconds
 
 # Ports
-
+login_facade_json_port   = 38645
+login_web_facade_port    = 38745
 core_facade_json_port   = 38345
 
 admin_facade_json_port   = 38545

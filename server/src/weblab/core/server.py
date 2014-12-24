@@ -20,7 +20,7 @@ import time
 import threading
 import urlparse
 
-from flask import request
+from flask import Flask, request
 
 from functools import wraps
 
@@ -32,6 +32,7 @@ import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
 
 from weblab.core.login.manager import LoginManager
+from weblab.core.wsgi_manager import WebLabWsgiServer
 import weblab.data.server_type as ServerType
 
 from weblab.comm.context import get_context
@@ -419,6 +420,13 @@ def get_reservation_status():
     weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
     return reservation_processor.get_status()
 
+class WebLabFlaskServer(WebLabWsgiServer):
+    def __init__(self, server, cfg_manager):
+        self.app = Flask(__name__)
+        super(WebLabFlaskServer, self).__init__(cfg_manager, self.app)
+        weblab.apply_routes(self.app, '/weblab/json', server)
+        weblab.apply_routes(self.app, '/weblab/login/json', server)
+
 class UserProcessingServer(object):
     """
     The UserProcessingServer will receive client requests, which will be forwarded
@@ -426,7 +434,7 @@ class UserProcessingServer(object):
     """
 
     FACADE_SERVERS = (
-                        UserProcessingFacadeServer.UserProcessingRemoteFacadeServer,
+                        WebLabFlaskServer,
                         AdminRemoteFacadeServer,
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
@@ -506,16 +514,15 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
-        self._admin_app = None
+        self._facade_app = None # TODO: REMOVE ME
         if not dont_start:
             for FacadeClass in self.FACADE_SERVERS:
                 facade_server = FacadeClass(self, cfg_manager)
                 self._facade_servers.append(facade_server)
                 facade_server.start()
 
-                if hasattr(facade_server, 'application') and hasattr(facade_server.application, 'app'):
-                    weblab.apply_routes(facade_server.application.app, '/weblab/administration', self)
-                    self._admin_app = facade_server.application.app
+                if hasattr(facade_server, 'app'):
+                    self._facade_app = facade_server.app
 
         #
         # Start checking times
@@ -545,7 +552,7 @@ class UserProcessingServer(object):
 
     @logged(log.level.Info, except_for='password')
     def do_login(self, username, password):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self):
                 return login(username, password)
 
@@ -637,28 +644,28 @@ class UserProcessingServer(object):
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def logout(self, session_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return logout()
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def list_experiments(self, session_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return list_experiments()
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_user_information(self, session_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_user_information()
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_reservation_id_by_session_id(self, session_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_reservation_id_by_session_id()
 
@@ -669,35 +676,35 @@ class UserProcessingServer(object):
     # TODO: remove me
     @logged(log.level.Info)
     def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data, client_address):
-         with self._admin_app.test_request_context():
+         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return reserve_experiment(experiment_id, client_initial_data, consumer_data, client_address)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def finished_experiment(self, reservation_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return finished_experiment()
 
     # TODO: REMOVE ME
     @logged(log.level.Info, except_for=(('file_content',2),))
     def send_file(self, reservation_id, file_content, file_info):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_file(file_content, file_info)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def send_command(self, reservation_id, command):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_command(command)
 
     # TODO: REMOVE ME
     @logged(log.level.Info, except_for=(('file_content',2),))
     def send_async_file(self, reservation_id, file_content, file_info):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_async_file(file_content, file_info)
 
@@ -705,21 +712,21 @@ class UserProcessingServer(object):
     # TODO: This method should now be finished. Will need to be verified, though.
     @logged(log.level.Info)
     def check_async_command_status(self, reservation_id, request_identifiers):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return check_async_command_status(request_identifiers)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def send_async_command(self, reservation_id, command):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_async_command(command)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_reservation_info(self, reservation_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return get_reservation_info()
 
@@ -727,35 +734,35 @@ class UserProcessingServer(object):
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def poll(self, reservation_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return poll()
 
     # TODO: REMOVE ME
     @logged(log.level.Info, max_size = 1000)
     def get_reservation_status(self, reservation_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return get_reservation_status()
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_experiment_use_by_id(self, session_id, reservation_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_experiment_use_by_id(reservation_id)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_experiment_uses_by_id(self, session_id, reservation_ids):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_experiment_uses_by_id(reservation_ids)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)
     def get_user_permissions(self, session_id):
-        with self._admin_app.test_request_context():
+        with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_user_permissions()
 

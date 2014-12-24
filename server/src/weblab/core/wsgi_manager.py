@@ -108,23 +108,40 @@ class WebLabWsgiServer(object):
             server_route   = the_server_route
             location       = the_location
 
-        timeout = cfg_manager.get_doc_value(configuration_doc.FACADE_TIMEOUT)
-        listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_BIND)
-        port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_PORT)
-
         script_name = core_server_url_parsed.path.split('/weblab')[0]
-        self._server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        self._server.socket.settimeout(timeout)
-        self._server_thread = ServerThread(self._server, timeout)
+        timeout = cfg_manager.get_doc_value(configuration_doc.FACADE_TIMEOUT)
+
+        # TODO: Remove JSON, make generic, and single (no two but one)
+        listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_BIND)
+        port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_PORT)
+
+        core_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+        core_server.socket.settimeout(timeout)
+        core_server_thread = ServerThread(core_server, timeout)
+
+        listen  = cfg_manager.get_doc_value(configuration_doc.LOGIN_FACADE_JSON_BIND)
+        port    = cfg_manager.get_doc_value(configuration_doc.LOGIN_FACADE_JSON_PORT)
+
+        login_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+        login_server.socket.settimeout(timeout)
+        login_server_thread = ServerThread(login_server, timeout)
+
+        self._servers = [core_server, login_server]
+        self._server_threads = [core_server_thread, login_server_thread]
+
 
     def start(self):
-        self._server_thread.start()
-        _resource_manager.add_resource(self._server_thread)
+        for server_thread in self._server_threads:
+            server_thread.start()
+            _resource_manager.add_resource(server_thread)
 
     def cancel(self):
         self.stop()
 
     def stop(self):
-        self._server.shutdown()
-        self._server_thread.join()
+        for server in self._servers:
+            server.shutdown()
+            server.socket.close()
+        for server_thread in self._server_threads:
+            server_thread.join()
 

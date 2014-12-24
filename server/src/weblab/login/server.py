@@ -45,7 +45,8 @@ import weblab.data.server_type as ServerType
 
 class LoginServer(object):
 
-    FACADE_SERVERS = ( LoginFacadeServer.LoginRemoteFacadeServer, wsgi_server.LoginWsgiRemoteFacadeServer )
+    FACADE_SERVERS = ( # LoginFacadeServer.LoginRemoteFacadeServer, 
+                        wsgi_server.LoginWsgiRemoteFacadeServer, )
 
     def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(LoginServer,self).__init__(*args, **kwargs)
