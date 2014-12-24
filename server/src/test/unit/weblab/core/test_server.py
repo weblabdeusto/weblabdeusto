@@ -21,10 +21,12 @@ import time
 
 import mocker
 
+from   test.util.wlcontext import wlcontext
 from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.core.server    as UserProcessingServer
+import weblab.core.server as core_api
 import weblab.core.user_processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
@@ -100,7 +102,8 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         sess = session_manager.get_session(sess_id)
         self.assertEquals(sess['db_session_id'].username, db_sess_id.username)
-        self.ups.logout(sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            core_api.logout()
 
     def test_list_experiments(self):
         # student1
