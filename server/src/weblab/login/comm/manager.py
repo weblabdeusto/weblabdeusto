@@ -15,7 +15,6 @@
 
 from voodoo.log import logged
 import weblab.comm.manager as RFM
-import weblab.data.client_address as ClientAddress
 
 import weblab.core.login.exc as LoginErrors
 import weblab.exc as WebLabErrors
@@ -46,7 +45,7 @@ class AbstractLoginRemoteFacadeManager(RFM.AbstractRemoteFacadeManager):
         current_client_address = self._get_client_address()
         addresses_calling_this_method = self._cfg_manager.get_value(ADDRESSES_CALLING_LOGIN_BASED_ON_CLIENT_ADDRESS, DEFAULT_ADDRESSES_CALLING_LOGIN_BASED_ON_CLIENT_ADDRESS)
         if current_client_address in addresses_calling_this_method:
-            return self._login_impl( username, ClientAddress.ClientAddress(client_address) )
+            return self._login_impl( username ) # TODO
         else:
             return self._raise_exception(
                     LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,

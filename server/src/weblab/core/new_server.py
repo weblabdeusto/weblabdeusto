@@ -146,6 +146,9 @@ class WebLab(object):
     def __enter__(self, *args, **kwargs):
         _global_context.current_weblab = self
         self.context.config = self.context.server_instance._cfg_manager
+        
+        self.context.client_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
+        self.context.user_agent = request.user_agent.string
 
         if not hasattr(self.context, 'reservation_id'):
             reservation_id = request.headers.get('X-WebLab-reservation-id')
@@ -164,6 +167,34 @@ class WebLab(object):
                     session_id = request.args.get('session_id')
 
             self.context.session_id = session_id
+    
+    @property
+    def user_agent(self):
+        return getattr(self.context, 'user_agent', '<user agent not found>')
+
+    @property
+    def reservation_id(self):
+        return getattr(self.context, 'reservation_id')
+
+    @property
+    def session_id(self):
+        return getattr(self.context, 'session_id')
+
+    @property
+    def config(self):
+        return getattr(self.context, 'config')
+
+    @property
+    def client_address(self):
+        return getattr(self.context, 'client_address')
+
+    @property
+    def server_instance(self):
+        return getattr(self.context, 'server_instance')
+
+    @property
+    def app(self):
+        return getattr(self.context, 'app')
 
     def __exit__(self, *args, **kwargs):
         pass
@@ -197,17 +228,18 @@ class WebLab(object):
                     return json.dumps(msg = "Method not recognized", code = WEBLAB_GENERAL_EXCEPTION_CODE)
                 parameters = contents.get('params', {})
 
-                if 'reservation_id' in parameters:
-                    reservation_id = parameters.pop('reservation_id')
-                    if isinstance(reservation_id, dict) and 'id' in reservation_id:
-                        reservation_id = reservation_id['id']
-                    self.context.reservation_id = reservation_id
-
                 if 'session_id' in parameters:
                     session_id = parameters.pop('session_id')
                     if isinstance(session_id, dict) and 'id' in session_id:
                         session_id = session_id['id']
                     self.context.session_id = session_id
+                    # elif: if you receive (session_id='foo', reservation_id='bar'), don't use reservation_id
+                    # this happens in get_experiment_use_by_id, for example
+                elif 'reservation_id' in parameters:
+                    reservation_id = parameters.pop('reservation_id')
+                    if isinstance(reservation_id, dict) and 'id' in reservation_id:
+                        reservation_id = reservation_id['id']
+                    self.context.reservation_id = reservation_id
 
                 self.context.app = flask_app
                 self.context.server_instance = server_instance
@@ -222,10 +254,19 @@ class WebLab(object):
         
     def route(self, path, methods = ['GET'], exc = True):
         def wrapper(func):
+            @wraps(func)
+            def wrapped(*args, **kwargs):
+                # TODO: DEPRECATE THIS: IN THE FUTURE, EVERYTHING ARE DICTS
+                args_dict = [ simplify_response(arg) for arg in args ]
+                kwargs_dict = dict(( (k, simplify_response(v)) for k, v in kwargs.iteritems() ))
+                return func(*args_dict, **kwargs_dict)
+
+            wrapped_func = wrapped
+
             if exc:
-                exc_func = check_exceptions(func)
+                exc_func = check_exceptions(wrapped_func)
             else:
-                exc_func = func
+                exc_func = wrapped_func
 
             if func.__name__ in self.methods:
                 log(WebLab, level.Error, "Overriding %s" % func.__name__)
@@ -234,7 +275,7 @@ class WebLab(object):
             if path in self.routes:
                 log(WebLab, level.Error, "Overriding %s" % path)
             self.routes[path] = (exc_func, path, methods)
-            return func
+            return wrapped_func
         return wrapper
 
     def jsonify(self, obj, limit = 15, wrap_ok = True):

@@ -14,7 +14,6 @@
 #
 
 import weblab.comm.web_server as WebFacadeServer
-import weblab.data.client_address as ClientAddress
 import weblab.comm.context as RemoteFacadeContext
 from weblab.data.experiments import ExperimentId
 from voodoo.sessions.session_id import SessionId
@@ -49,10 +48,8 @@ class Direct2ExperimentMethod(WebFacadeServer.Method):
         experiment_id = ExperimentId.parse(experiment_id_str)
         session_id = SessionId(session_id_str)
 
-        address = RemoteFacadeContext.get_context().get_ip_address()
-        client_address = ClientAddress.ClientAddress(address)
         try:
-            reservation_id = self.server.reserve_experiment(session_id, experiment_id, "{}", "{}", client_address)
+            reservation_id = self.server.reserve_experiment(session_id, experiment_id, "{}", "{}")
         except Exception:
             return HTML_ERROR_TEMPLATE
 

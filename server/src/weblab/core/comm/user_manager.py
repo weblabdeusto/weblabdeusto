@@ -19,7 +19,6 @@ import voodoo.sessions.session_id as SessionId
 import weblab.comm.manager as RFM
 
 import weblab.data.command as Command
-import weblab.data.client_address as ClientAddress
 from weblab.data.experiments import ExperimentId
 
 import weblab.core.exc as coreExc
@@ -65,11 +64,10 @@ class AbstractUserProcessingRemoteFacadeManager(RFM.AbstractRemoteFacadeManager)
         """ reserve_experiment(session_id, experiment_id, client_initial_data) -> Reservation
             raises SessionNotFoundError, NoAvailableExperimentFoundError
         """
-        current_client_address = ClientAddress.ClientAddress(self._get_client_address())
         sess_id = self._parse_session_id(session_id)
         exp_id  = self._parse_experiment_id(experiment_id)
 
-        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, consumer_data, current_client_address)
+        reservation_status = self._server.reserve_experiment(sess_id, exp_id, client_initial_data, consumer_data)
         return reservation_status
 
     @logged()

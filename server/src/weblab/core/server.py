@@ -30,6 +30,8 @@ from voodoo.log import logged
 import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
+from weblab.data.experiments import ExperimentId
+from weblab.data.command import Command
 
 from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
@@ -62,8 +64,6 @@ import voodoo.sessions.session_type as SessionType
 import voodoo.resources_manager as ResourceManager
 
 from weblab.admin.web.server import AdminRemoteFacadeServer
-
-from weblab.core.new_server import WebLab
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -165,14 +165,14 @@ def ng_load_reservation_processor(func):
 
     return wrapper
 
-
-weblab = WebLab()
+from weblab.core.wl import weblab
 
 # TODO:
 # - Store cookies
 # - Update session id
 # - REST API CSRF
 # - logged(log.level.Info, except_for, max_size)
+# - Remove old context
 
 # >>> requests.post("http://localhost/weblab/administration/", data = json.dumps({'method' : 'login', 'params' : { 'username' : 'any', 'password' : 'password'}})).text
 
@@ -234,14 +234,14 @@ def get_reservation_id_by_session_id():
 @weblab.route('/user/reservation/<reservation_id>/')
 @ng_load_user_processor
 def get_experiment_use_by_id(reservation_id = None):
-    return weblab.ctx.user_processor.get_experiment_use_by_id(reservation_id)
+    return weblab.ctx.user_processor.get_experiment_use_by_id(SessionId(reservation_id['id']))
 
 @weblab.route('/user/reservations/<reservation_ids>/')
 @ng_load_user_processor
 def get_experiment_uses_by_id(reservation_ids = None):
     if isinstance(reservation_ids, basestring):
-        reservation_ids = reservation_ids.split(',')
-    return weblab.ctx.user_processor.get_experiment_uses_by_id(reservation_ids)
+        reservation_ids = [ {'id' : reservation_id} for reservation_id in reservation_ids.split(',') ]
+    return weblab.ctx.user_processor.get_experiment_uses_by_id([ SessionId(reservation_id['id']) for reservation_id in reservation_ids ])
 
 @weblab.route('/user/permissions/')
 @ng_load_user_processor
@@ -250,9 +250,11 @@ def get_user_permissions():
 
 @weblab.route('/user/reservations/', methods = [ 'POST' ])
 @ng_load_user_processor
-def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None, client_address = None):
+def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None):
     server = weblab.ctx.server_instance
+    client_address = weblab.ctx.client_address
     # core_server_universal_id should be copied
+    experiment_id = ExperimentId(experiment_id['exp_name'], experiment_id['cat_name'])
     status = weblab.ctx.user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, server.core_server_universal_id)
 
     if status == 'replicated':
@@ -352,7 +354,7 @@ def send_command(command):
     """
     reservation_processor = weblab.ctx.reservation_processor
     weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
-    return reservation_processor.send_command( command )
+    return reservation_processor.send_command( Command(command['commandstring']) )
 
 @weblab.route('/reservation/file/async/', methods = ['POST'])
 @ng_load_reservation_processor
@@ -399,7 +401,7 @@ def send_async_command(command):
     """
     reservation_processor = weblab.ctx.reservation_processor
     weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
-    return reservation_processor.send_async_command( command )
+    return reservation_processor.send_async_command( Command(command['commandstring']) )
 
 @weblab.route('/reservation/info/')
 @ng_load_reservation_processor
@@ -675,10 +677,10 @@ class UserProcessingServer(object):
 
     # TODO: remove me
     @logged(log.level.Info)
-    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data, client_address):
+    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
          with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
-                return reserve_experiment(experiment_id, client_initial_data, consumer_data, client_address)
+                return reserve_experiment(experiment_id, client_initial_data, consumer_data)
 
     # TODO: REMOVE ME
     @logged(log.level.Info)

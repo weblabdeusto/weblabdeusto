@@ -41,7 +41,6 @@ import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_exported_methods
 import voodoo.sessions.session_type as SessionType
-import weblab.data.client_address as ClientAddress
 import weblab.data.command as Command
 import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
@@ -560,7 +559,6 @@ class Case001TestCase(object):
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
             )
 
         reservation_id = status.reservation_id
@@ -724,7 +722,6 @@ class Case001TestCase(object):
                 session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
             )
 
         reservation_id = status.reservation_id
@@ -867,7 +864,6 @@ class Case001TestCase(object):
                 user1_session_id,
                 fpga_experiments[0].to_experiment_id(),
                 "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
             )
 
         user1_reservation_id = status.reservation_id
@@ -890,7 +886,6 @@ class Case001TestCase(object):
                 user2_session_id,
                 pld_experiments[0].to_experiment_id(),
                 "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
             )
 
         user2_reservation_id = status.reservation_id

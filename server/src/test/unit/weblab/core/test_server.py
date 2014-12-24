@@ -31,7 +31,6 @@ import weblab.core.coordinator.confirmer   as Confirmer
 import voodoo.configuration      as ConfigurationManager
 from weblab.data import ValidDatabaseSessionId
 import weblab.data.server_type                         as ServerType
-import weblab.data.client_address                      as ClientAddress
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
@@ -165,10 +164,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.count(0, 1)
         self.mocker.replay()
 
-        reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
+        reservation = self.ups.reserve_experiment( sess_id, exp_id, "{}", "{}")
 
         reservation_info = self.ups.get_reservation_info(reservation.reservation_id)
         self.assertEquals('ud-dummy', reservation_info.exp_name)
@@ -185,8 +181,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.assertRaises(
             coreExc.UnknownExperimentIdError,
             self.ups.reserve_experiment,
-            sess_id, exp_id, "{}", "{}", ClientAddress.ClientAddress("127.0.0.1")
-        )
+            sess_id, exp_id, "{}", "{}" )
 
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
 
@@ -200,9 +195,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.replay()
 
         reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
+            sess_id, exp_id, "{}", "{}")
 
         self.assertTrue( isinstance(reservation,Reservation.Reservation))
 
@@ -279,8 +272,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.replay()
 
         reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"))
+            sess_id, exp_id, "{}", "{}")
         return reservation.reservation_id
 
 

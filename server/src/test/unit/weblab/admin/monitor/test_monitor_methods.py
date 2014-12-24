@@ -36,7 +36,6 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.server_type                         as ServerType
-import weblab.data.client_address                      as ClientAddress
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.core.coordinator.resource import Resource
@@ -170,7 +169,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result )
 
-        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}")
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
@@ -201,7 +200,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}")
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         self.assertNotEquals(None, reservation_id)
@@ -212,7 +211,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}")
 
         reservation_session_id = status.reservation_id
 

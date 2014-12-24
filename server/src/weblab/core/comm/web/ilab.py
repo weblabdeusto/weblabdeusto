@@ -19,7 +19,6 @@ import traceback
 from voodoo.sessions.session_id import SessionId
 
 from weblab.data.experiments import ExperimentId
-import weblab.data.client_address as ClientAddress
 
 import weblab.comm.web_server as WebFacadeServer
 from weblab.core.coordinator.clients.ilab_batch import RequestSerializer
@@ -91,7 +90,7 @@ class ILabMethod(WebFacadeServer.Method):
             'operation' : 'get_lab_configuration',
         }
         # TODO: client address
-        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}', ClientAddress.ClientAddress(''))
+        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}')
         lab_configuration = reservation_status.initial_data
         return self.serializer.generate_lab_configuration_response(lab_configuration)
 
@@ -101,7 +100,7 @@ class ILabMethod(WebFacadeServer.Method):
             'operation' : 'submit',
             'payload'   : experiment_specification
         }
-        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}', ClientAddress.ClientAddress(''))
+        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}')
         self.other_cookies = ['weblab_reservation_id=%s; path=/' % reservation_status.reservation_id.id]
 
         return """<?xml version="1.0" encoding="utf-8"?>
