@@ -168,6 +168,18 @@ class WebLab(object):
     def __exit__(self, *args, **kwargs):
         pass
 
+    def __call__(self, server_instance = None, session_id = None, reservation_id = None):
+        # To be able to run:
+        # with weblab(session_id = 'foo'):
+        #      something
+        if session_id:
+            self.context.session_id = session_id
+        if reservation_id:
+            self.context.reservation_id = reservation_id
+        if server_instance:
+            self.context.server_instance = server_instance
+        return self
+
     def _error(self, msg, code):
         return {"message": msg, "code": code, "is_exception": True}
 
@@ -211,15 +223,17 @@ class WebLab(object):
     def route(self, path, methods = ['GET'], exc = True):
         def wrapper(func):
             if exc:
-                func = check_exceptions(func)
+                exc_func = check_exceptions(func)
+            else:
+                exc_func = func
 
             if func.__name__ in self.methods:
                 log(WebLab, level.Error, "Overriding %s" % func.__name__)
 
-            self.methods[func.__name__] = func
+            self.methods[func.__name__] = exc_func
             if path in self.routes:
                 log(WebLab, level.Error, "Overriding %s" % path)
-            self.routes[path] = (func, path, methods)
+            self.routes[path] = (exc_func, path, methods)
             return func
         return wrapper
 

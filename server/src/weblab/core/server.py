@@ -146,9 +146,9 @@ def ng_load_reservation_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab.ctx.server_instance
-        session_id = SessionId(weblab.ctx.session_id)
+        reservation_id = SessionId(weblab.ctx.reservation_id.split(';')[0])
         try:
-            session = server._reservations_session_manager.get_session_locking(session_id)
+            session = server._reservations_session_manager.get_session_locking(reservation_id)
         except SessionNotFoundError:
             raise coreExc.SessionNotFoundError("Core Reservations session not found")
 
@@ -160,7 +160,7 @@ def ng_load_reservation_processor(func):
             finally:
                 weblab.ctx.reservation_processor.update_latest_timestamp()
         finally:
-            server._reservations_session_manager.modify_session_unlocking(session_id, session)
+            server._reservations_session_manager.modify_session_unlocking(reservation_id, session)
 
     return wrapper
 
@@ -252,7 +252,7 @@ def get_user_permissions():
 def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None, client_address = None):
     server = weblab.ctx.server_instance
     # core_server_universal_id should be copied
-    status = weblab.ctx.user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, server_instance.core_server_universal_id)
+    status = weblab.ctx.user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address, server.core_server_universal_id)
 
     if status == 'replicated':
         return Reservation.NullReservation()
@@ -268,7 +268,7 @@ def reserve_experiment(experiment_id = None, client_initial_data = None, consume
                     'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
                     'latest_timestamp'   : 0,
                     'experiment_id'      : experiment_id,
-                    'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
+                    'creator_session_id' : weblab.ctx.user_session['session_id'], # Useful for monitor; should not be used
                     'reservation_id'     : reservation_session_id,
                     'federated'          : False,
                 }
@@ -402,19 +402,19 @@ def send_async_command(command):
 
 @weblab.route('/reservation/info/')
 @ng_load_reservation_processor
-def get_reservation_info(self, reservation_processor, session):
+def get_reservation_info():
     return weblab.ctx.reservation_processor.get_info()
 
 
 @weblab.route('/reservation/poll/')
 @ng_load_reservation_processor
-def poll(self, session):
+def poll():
     reservation_processor = weblab.ctx.reservation_processor
     return weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
 
 @weblab.route('/reservation/status/')
 @ng_load_reservation_processor
-def get_reservation_status(self, reservation_processor, session):
+def get_reservation_status():
     reservation_processor = weblab.ctx.reservation_processor
     weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
     return reservation_processor.get_status()
@@ -506,6 +506,7 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
 
         self._facade_servers = []
+        self._admin_app = None
         if not dont_start:
             for FacadeClass in self.FACADE_SERVERS:
                 facade_server = FacadeClass(self, cfg_manager)
@@ -514,6 +515,7 @@ class UserProcessingServer(object):
 
                 if hasattr(facade_server, 'application') and hasattr(facade_server.application, 'app'):
                     weblab.apply_routes(facade_server.application.app, '/weblab/administration', self)
+                    self._admin_app = facade_server.application.app
 
         #
         # Start checking times
@@ -543,15 +545,21 @@ class UserProcessingServer(object):
 
     @logged(log.level.Info, except_for='password')
     def do_login(self, username, password):
-        return self._login_manager.login(username, password)
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self):
+                return login(username, password)
 
     def do_extensible_login(self, system, credentials):
+        print "Extensible login"
         return self._login_manager.extensible_login(system, credentials)
 
     def do_grant_external_credentials(self, username, password, system, credentials):
+        print "Grant external credentials"
+        return self._login_manager.extensible_login(system, credentials)
         return self._login_manager.grant_external_credentials(username, password, system, credentials)
 
     def do_create_external_user(self, system, credentials):
+        print "Create external user"
         return self._login_manager.create_external_user(system, credentials)
 
     # TODO </TO BE REMOVED>
@@ -626,228 +634,128 @@ class UserProcessingServer(object):
         self._session_manager.modify_session(session_id,initial_session)
         return session_id, self._server_route
 
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
     def logout(self, session_id):
-        if self._session_manager.has_session(session_id):
-            session        = self._session_manager.get_session(session_id)
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return logout()
 
-            user_processor = self._load_user(session)
-
-            reservation_id = session.get('reservation_id')
-            if reservation_id is not None and not user_processor.is_access_forward_enabled():
-                #
-                # If "is_access_forward_enabled", the user (or more commonly, entity) can log out without
-                # finishing his current reservation
-                #
-                # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
-                # with queues it might not make sense, depending on the particular type of experiment.
-                #
-                reservation_session = self._reservations_session_manager.get_session(SessionId(reservation_id))
-                reservation_processor = self._load_reservation(reservation_session)
-                reservation_processor.finish()
-                self._alive_users_collection.remove_user(reservation_id)
-
-            user_processor.logout()
-            user_processor.update_latest_timestamp()
-
-            self._session_manager.delete_session(session_id)
-        else:
-            raise coreExc.SessionNotFoundError( "User Processing Server session not found")
-
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @update_session_id
-    @check_session(**check_session_params)
-    @load_user_processor
-    def list_experiments(self, user_processor, session):
-        return user_processor.list_experiments()
+    def list_experiments(self, session_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return list_experiments()
 
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @update_session_id
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_user_information(self, user_processor, session):
-        user_information = user_processor.get_user_information()
-        if user_processor.is_admin():
-            admin_url = self.core_server_url + "administration/admin/"
+    def get_user_information(self, session_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return get_user_information()
 
-            try:
-                user_information.admin_url = urlparse.urlparse(admin_url).path
-            except:
-                user_information.admin_url = admin_url
-        else:
-            user_information.admin_url = ""
-        return user_information
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @update_session_id
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_reservation_id_by_session_id(self, user_processor, session):
-        return session.get('reservation_id')
+    def get_reservation_id_by_session_id(self, session_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return get_reservation_id_by_session_id()
 
     # # # # # # # # # # # # # # # # #
     # Experiment related operations #
     # # # # # # # # # # # # # # # # #
 
+    # TODO: remove me
     @logged(log.level.Info)
-    @update_session_id
-    @check_session(**check_session_params)
-    @load_user_processor
-    def reserve_experiment(self, user_processor, session, experiment_id, client_initial_data, consumer_data, client_address):
-        status = user_processor.reserve_experiment( experiment_id, client_initial_data, consumer_data, client_address,
-                                        self.core_server_universal_id)
+    def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data, client_address):
+         with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return reserve_experiment(experiment_id, client_initial_data, consumer_data, client_address)
 
-        if status == 'replicated':
-            return Reservation.NullReservation()
-
-        reservation_id         = status.reservation_id.split(';')[0]
-        reservation_session_id = SessionId(reservation_id)
-
-        self._alive_users_collection.add_user(reservation_session_id)
-
-        session_id = self._reservations_session_manager.create_session(reservation_id)
-
-        initial_session = {
-                        'session_polling'    : (time.time(), ReservationProcessor.EXPIRATION_TIME_NOT_SET),
-                        'latest_timestamp'   : 0,
-                        'experiment_id'      : experiment_id,
-                        'creator_session_id' : session['session_id'], # Useful for monitor; should not be used
-                        'reservation_id'     : reservation_session_id,
-                        'federated'          : False,
-                    }
-        reservation_processor = self._load_reservation(initial_session)
-        reservation_processor.update_latest_timestamp()
-
-        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_LOCAL:
-            reservation_processor.process_reserved_status(status)
-
-        if status.status == WebLabSchedulingStatus.WebLabSchedulingStatus.RESERVED_REMOTE:
-            reservation_processor.process_reserved_remote_status(status)
-
-        self._reservations_session_manager.modify_session(session_id, initial_session)
-        return Reservation.Reservation.translate_reservation( status )
-
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def finished_experiment(self, reservation_processor, session):
-        reservation_session_id = reservation_processor.get_reservation_session_id()
-        self._alive_users_collection.remove_user(reservation_session_id)
-        return reservation_processor.finish()
+    def finished_experiment(self, reservation_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return finished_experiment()
 
-
+    # TODO: REMOVE ME
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def send_file(self, reservation_processor, session, file_content, file_info):
-        """ send_file(session_id, file_content, file_info)
+    def send_file(self, reservation_id, file_content, file_info):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return send_file(file_content, file_info)
 
-        Sends file to the experiment.
-        """
-        self._check_reservation_not_expired_and_poll( reservation_processor )
-        return reservation_processor.send_file( file_content, file_info )
-
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def send_command(self, reservation_processor, session, command):
-        """ send_command(session_id, command)
+    def send_command(self, reservation_id, command):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return send_command(command)
 
-        send_command sends an abstract string <command> which will be unpacked by the
-        experiment.
-        """
-        self._check_reservation_not_expired_and_poll( reservation_processor )
-        return reservation_processor.send_command( command )
-
+    # TODO: REMOVE ME
     @logged(log.level.Info, except_for=(('file_content',2),))
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def send_async_file(self, reservation_processor, session, file_content, file_info):
-        """
-        send_async_file(session_id, file_content, file_info)
-        Sends a file asynchronously to the experiment. The response
-        will not be the real one, but rather, a request_id identifying
-        the asynchronous query.
-        @param session Session
-        @param file_content Contents of the file.
-        @param file_info File information of the file.
-        @see check_async_command_status
-        """
-        self._check_reservation_not_expired_and_poll( reservation_processor )
-        return reservation_processor.send_async_file( file_content, file_info )
+    def send_async_file(self, reservation_id, file_content, file_info):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return send_async_file(file_content, file_info)
 
+    # TODO: REMOVE ME
     # TODO: This method should now be finished. Will need to be verified, though.
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def check_async_command_status(self, reservation_processor, session, request_identifiers):
-        """
-        check_async_command_status(session_id, request_identifiers)
-        Checks the status of several asynchronous commands.
+    def check_async_command_status(self, reservation_id, request_identifiers):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return check_async_command_status(request_identifiers)
 
-        @param session: Session id
-        @param request_identifiers: A list of the request identifiers of the
-        requests to check.
-        @return: Dictionary by request-id of the tuples: (status, content)
-        """
-        self._check_reservation_not_expired_and_poll( reservation_processor )
-        return reservation_processor.check_async_command_status( request_identifiers )
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def send_async_command(self, reservation_processor, session, command):
-        """
-        send_async_command(session_id, command)
+    def send_async_command(self, reservation_id, command):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return send_async_command(command)
 
-        send_async_command sends an abstract string <command> which will be unpacked by the
-        experiment, and run asynchronously on its own thread. Its status may be checked through
-        check_async_command_status.
-        """
-        self._check_reservation_not_expired_and_poll( reservation_processor )
-        return reservation_processor.send_async_command( command )
-
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def get_reservation_info(self, reservation_processor, session):
-        return reservation_processor.get_info()
+    def get_reservation_info(self, reservation_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return get_reservation_info()
 
 
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_reservation_session_params)
-    def poll(self, session):
-        reservation_processor = self._load_reservation(session)
-        self._check_reservation_not_expired_and_poll( reservation_processor )
+    def poll(self, reservation_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return poll()
 
-
+    # TODO: REMOVE ME
     @logged(log.level.Info, max_size = 1000)
-    @check_session(**check_reservation_session_params)
-    @load_reservation_processor
-    def get_reservation_status(self, reservation_processor, session):
-        self._check_reservation_not_expired_and_poll( reservation_processor, False )
-        return reservation_processor.get_status()
+    def get_reservation_status(self, reservation_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, reservation_id = reservation_id.id):
+                return get_reservation_status()
 
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_experiment_use_by_id(self, user_processor, session, reservation_id):
-        return user_processor.get_experiment_use_by_id(reservation_id)
+    def get_experiment_use_by_id(self, session_id, reservation_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return get_experiment_use_by_id(reservation_id)
 
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_experiment_uses_by_id(self, user_processor, session, reservation_ids):
-        return user_processor.get_experiment_uses_by_id(reservation_ids)
+    def get_experiment_uses_by_id(self, session_id, reservation_ids):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return get_experiment_uses_by_id(reservation_ids)
 
+    # TODO: REMOVE ME
     @logged(log.level.Info)
-    @check_session(**check_session_params)
-    @load_user_processor
-    def get_user_permissions(self, user_processor, session):
-        return user_processor.get_user_permissions()
+    def get_user_permissions(self, session_id):
+        with self._admin_app.test_request_context():
+            with weblab(server_instance = self, session_id = session_id.id):
+                return get_user_permissions()
 
