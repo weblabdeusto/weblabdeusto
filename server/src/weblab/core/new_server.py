@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from flask import Flask, request, Response
 
-from voodoo.log import log, level, log_exc
+from voodoo.log import log, level, log_exc, logged
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.configuration_doc as configuration_doc
 
@@ -103,7 +103,6 @@ def check_exceptions(func):
                         log(weblab_class, level.Info,
                                 "%s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
                         log_exc(weblab_class, level.Debug)
-                        traceback.print_exc()
                         return _raise_exception(code, e.args[0])
                     else:
                         # WebLabInternalServerError
@@ -168,6 +167,9 @@ class WebLab(object):
 
             self.context.session_id = session_id
     
+    def __exit__(self, *args, **kwargs):
+        pass
+
     @property
     def user_agent(self):
         return getattr(self.context, 'user_agent', '<user agent not found>')
@@ -195,9 +197,6 @@ class WebLab(object):
     @property
     def app(self):
         return getattr(self.context, 'app')
-
-    def __exit__(self, *args, **kwargs):
-        pass
 
     def __call__(self, server_instance = None, session_id = None, reservation_id = None):
         # To be able to run:
@@ -252,7 +251,7 @@ class WebLab(object):
             # TODO
             return "Hi there. This should be a list of services or something (%s)..." % ', '.join(self.methods)
         
-    def route(self, path, methods = ['GET'], exc = True):
+    def route(self, path, methods = ['GET'], exc = True, logging = True, log_level = level.Info, dont_log = None, max_log_size = None):
         def wrapper(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
@@ -262,6 +261,13 @@ class WebLab(object):
                 return func(*args_dict, **kwargs_dict)
 
             wrapped_func = wrapped
+            logged_kwargs = {'is_class_method' : False}
+            if dont_log:
+                logged_kwargs['except_for'] = dont_log
+            if max_log_size is not None:
+                logged_kwargs['max_size'] = max_log_size
+            logged_decorator = logged(log_level, **logged_kwargs)
+            wrapped_func = logged_decorator(wrapped_func)
 
             if exc:
                 exc_func = check_exceptions(wrapped_func)

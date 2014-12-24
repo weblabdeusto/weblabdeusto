@@ -21,6 +21,7 @@ import random
 import logging
 import threading
 import new
+from functools import wraps
 from voodoo.cache import fast_cache
 
 class level(object):
@@ -82,7 +83,7 @@ def _get_logger(logger_name):
 # This code defers the logging requests to a thread pool
 # It's experimental code, so by default it's not enabled
 
-def logged(level='debug', except_for=None, max_size = 250):
+def logged(level='debug', except_for=None, max_size = 250, is_class_method = True):
     """
     logged([except_for]) -> function
 
@@ -320,31 +321,54 @@ def logged(level='debug', except_for=None, max_size = 250):
                             'finish_time'   : strtime
                         }
 
-        def wrapped(self,*args, **kargs):
-            logger_name = _get_full_class_name(self.__class__, f)
-            logger = _get_logger(logger_name)
-            if not logger.isEnabledFor(logging_level):
-                return f(self, *args, **kargs)
+        if is_class_method:
+            @wraps(f)
+            def wrapped(self,*args, **kargs):
+                logger_name = _get_full_class_name(self.__class__, f)
+                logger = _get_logger(logger_name)
+                if not logger.isEnabledFor(logging_level):
+                    return f(self, *args, **kargs)
 
-            log_writer = getattr(logger, levelname)
+                log_writer = getattr(logger, levelname)
 
-            entry  = LogEntry()
-            header = HeaderLine(entry, log_writer)
-            header.log(args, kargs)
-            try:
-                result = f(self,*args,**kargs)
-            except:
-                footer_exc = FooterExcLine(entry, log_writer)
-                footer_exc.log()
-                raise
-            else:
-                footer_return = FooterReturnLine(entry, log_writer)
-                footer_return.log(result)
+                entry  = LogEntry()
+                header = HeaderLine(entry, log_writer)
+                header.log(args, kargs)
+                try:
+                    result = f(self,*args,**kargs)
+                except:
+                    footer_exc = FooterExcLine(entry, log_writer)
+                    footer_exc.log()
+                    raise
+                else:
+                    footer_return = FooterReturnLine(entry, log_writer)
+                    footer_return.log(result)
 
-            return result
+                return result
+        else: # For functions
+            @wraps(f)
+            def wrapped(*args, **kargs):
+                logger_name = f.__module__
+                logger = _get_logger(logger_name)
+                if not logger.isEnabledFor(logging_level):
+                    return f(*args, **kargs)
 
-        wrapped.__doc__ = f.__doc__
-        wrapped.__name__ = f.__name__
+                log_writer = getattr(logger, levelname)
+
+                entry  = LogEntry()
+                header = HeaderLine(entry, log_writer)
+                header.log(args, kargs)
+                try:
+                    result = f(*args,**kargs)
+                except:
+                    footer_exc = FooterExcLine(entry, log_writer)
+                    footer_exc.log()
+                    raise
+                else:
+                    footer_return = FooterReturnLine(entry, log_writer)
+                    footer_return.log(result)
+
+                return result
         return wrapped
     return real_logger
 
