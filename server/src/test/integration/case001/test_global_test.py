@@ -14,6 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+from test.util.wlcontext import wlcontext
 from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -52,6 +53,7 @@ import weblab.core.alive_users    as AliveUsersCollection
 import weblab.core.reservations             as Reservation
 import weblab.core.server    as UserProcessingServer
 import weblab.core.user_processor           as UserProcessor
+import weblab.core.server as core_api
 
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
@@ -480,7 +482,7 @@ class Case001TestCase(object):
         self._single_use()
         self._single_use()
 
-    def _wait_async_done(self, session_id, reqids):
+    def _wait_async_done(self, reqids):
         """
         _wait_async_done(session_id, reqids)
         Helper methods that waits for the specified asynchronous requests to be finished,
@@ -492,7 +494,7 @@ class Case001TestCase(object):
         # Wait until send_async_file query is actually finished.
         reqsl = list(reqids)
         while len(reqsl) > 0:
-            requests = self.real_ups.check_async_command_status(session_id, tuple(reqsl))
+            requests = core_api.check_async_command_status(tuple(reqsl))
             self.assertEquals(len(reqsl), len(requests))
             for rid, req in requests.iteritems():
                 status = req[0]
@@ -502,7 +504,7 @@ class Case001TestCase(object):
                     reqsl.remove(rid)
 
 
-    def _get_async_response(self, session_id, reqid):
+    def _get_async_response(self, reqid):
         """
         _get_async_response(reqids)
         Helper method that synchronously gets the response for the specified async request, asserting that
@@ -512,7 +514,7 @@ class Case001TestCase(object):
         """
         # Wait until send_async_file query is actually finished.
         while True:
-            requests = self.real_ups.check_async_command_status(session_id, (reqid,))
+            requests = core_api.check_async_command_status((reqid,))
             self.assertEquals(1, len(requests))
             self.assertTrue(reqid in requests)
             req = requests[reqid]
@@ -528,148 +530,132 @@ class Case001TestCase(object):
         self.fake_serial_port1.clear()
         self.fake_serial_port2.clear()
 
-        session_id = self.real_login.login('student1','password')
+        with wlcontext(self.real_ups):
+            session_id = core_api.login('student1','password')
 
-        user_information = self.real_ups.get_user_information(session_id)
-        self.assertEquals(
-                'student1',
-                user_information.login
-            )
+        with wlcontext(self.real_ups, session_id = session_id):
+            user_information = core_api.get_user_information()
+            self.assertEquals( 'student1', user_information.login )
 
-        self.assertEquals(
-                'Name of student 1',
-                user_information.full_name
-            )
-        self.assertEquals(
-                'weblab@deusto.es',
-                user_information.email
-            )
+            self.assertEquals( 'Name of student 1', user_information.full_name )
+            self.assertEquals( 'weblab@deusto.es', user_information.email )
 
-        experiments = self.real_ups.list_experiments(session_id)
-        self.assertEquals( 5, len(experiments))
+            experiments = core_api.list_experiments()
+            self.assertEquals( 5, len(experiments))
 
-        fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals(
-                len(fpga_experiments),
-                1
-            )
+            fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments), 1 )
 
-        # reserve it
-        status = self.real_ups.reserve_experiment(
-                session_id,
-                fpga_experiments[0].to_experiment_id(),
-                "{}", "{}",
-            )
+            # reserve it
+            status = core_api.reserve_experiment( fpga_experiments[0].to_experiment_id(), "{}", "{}" )
 
-        reservation_id = status.reservation_id
+            reservation_id = status.reservation_id
 
-        # wait until it is reserved
-        short_time = 0.1
+            # wait until it is reserved
+            short_time = 0.1
 
-        # Time extended from 9.0 to 15.0 because at times the test failed, possibly for that reason.
-        times      = 15.0 / short_time
+            # Time extended from 9.0 to 15.0 because at times the test failed, possibly for that reason.
+            times      = 15.0 / short_time
 
-        while times > 0:
-            time.sleep(short_time)
-            new_status = self.real_ups.get_reservation_status(reservation_id)
-            if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
-                break
-            times -= 1
-        reservation = self.real_ups.get_reservation_status(
-                        reservation_id
-                    )
-        self.assertTrue(
-                isinstance(
-                    reservation,
-                    Reservation.ConfirmedReservation
-                ),
-                "Reservation %s is not Confirmed, as expected by this time" % reservation
-            )
+        with wlcontext(self.real_ups, reservation_id = reservation_id):
+
+            while times > 0:
+                time.sleep(short_time)
+                new_status = core_api.get_reservation_status()
+                if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
+                    break
+                times -= 1
+            reservation = core_api.get_reservation_status()
+            self.assertTrue(
+                    isinstance( reservation, Reservation.ConfirmedReservation ),
+                    "Reservation %s is not Confirmed, as expected by this time" % reservation
+                )
 
 
 
-        # send the program again, but asynchronously. Though this should work, it is not really very customary
-        # to send_file more than once in the same session. In fact, it is a feature which might get removed in
-        # the future. When/if that happens, this will need to be modified.
-        CONTENT = "content of the program FPGA"
-        reqid = self.real_ups.send_async_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
+            # send the program again, but asynchronously. Though this should work, it is not really very customary
+            # to send_file more than once in the same session. In fact, it is a feature which might get removed in
+            # the future. When/if that happens, this will need to be modified.
+            CONTENT = "content of the program FPGA"
+            reqid = core_api.send_async_file(ExperimentUtil.serialize(CONTENT), 'program')
 
-        # Wait until send_async_file query is actually finished.
-        #self._get_async_response(session_id, reqid)
-        self._wait_async_done(reservation_id, (reqid,))
+            # Wait until send_async_file query is actually finished.
+            #self._get_async_response(session_id, reqid)
+            self._wait_async_done((reqid,))
 
-        # We need to wait for the programming to finish, while at the same
-        # time making sure that the tests don't dead-lock.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            reqid = self.real_ups.send_async_command(reservation_id, Command.Command("STATE"))
-            respcmd = self._get_async_response(reservation_id, reqid)
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish, while at the same
+            # time making sure that the tests don't dead-lock.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                reqid = core_api.send_async_command(Command.Command("STATE"))
+                respcmd = self._get_async_response(reqid)
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
 
-        reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ChangeSwitch on 0"))
-        self._wait_async_done(reservation_id, (reqid,))
+            reqid = core_api.send_async_command(Command.Command("ChangeSwitch on 0"))
+            self._wait_async_done((reqid,))
 
-        reqid = self.real_ups.send_async_command(reservation_id, Command.Command("ClockActivation on 250"))
-        self._wait_async_done(reservation_id, (reqid,))
+            reqid = core_api.send_async_command(Command.Command("ClockActivation on 250"))
+            self._wait_async_done((reqid,))
 
-        # Checking the commands sent
-        # Note that the number of paths is 2 now that we send a file twice (sync and async).
-        self.assertEquals(
-                1,
-                len(self.fake_impact1._paths)
-            )
-        self.assertEquals(
-                0,
-                len(self.fake_impact2._paths)
-            )
+            # Checking the commands sent
+            # Note that the number of paths is 2 now that we send a file twice (sync and async).
+            self.assertEquals(
+                    1,
+                    len(self.fake_impact1._paths)
+                )
+            self.assertEquals(
+                    0,
+                    len(self.fake_impact2._paths)
+                )
 
-        self.assertEquals(
-                CONTENT,
-                self.fake_impact1._paths[0]
-            )
+            self.assertEquals(
+                    CONTENT,
+                    self.fake_impact1._paths[0]
+                )
 
-        initial_open = 1
-        initial_send = 1
-        initial_close = 1
-        initial_total = initial_open + initial_send + initial_close
+            initial_open = 1
+            initial_send = 1
+            initial_close = 1
+            initial_total = initial_open + initial_send + initial_close
 
-        # ChangeSwitch on 0
-        self.assertEquals(
-                (0 + initial_total,1),
-                self.fake_serial_port1.dict['open'][0 + initial_open]
-            )
-        self.assertEquals(
-                (1 + initial_total,1),
-                self.fake_serial_port1.dict['send'][0 + initial_send]
-            )
-        self.assertEquals(
-                (2 + initial_total,None),
-                self.fake_serial_port1.dict['close'][0 + initial_close]
-            )
+            # ChangeSwitch on 0
+            self.assertEquals(
+                    (0 + initial_total,1),
+                    self.fake_serial_port1.dict['open'][0 + initial_open]
+                )
+            self.assertEquals(
+                    (1 + initial_total,1),
+                    self.fake_serial_port1.dict['send'][0 + initial_send]
+                )
+            self.assertEquals(
+                    (2 + initial_total,None),
+                    self.fake_serial_port1.dict['close'][0 + initial_close]
+                )
 
-        # ClockActivation on 250
-        self.assertEquals(
-                (3 + initial_total,1),
-                self.fake_serial_port1.dict['open'][1 + initial_open]
-            )
-        self.assertEquals(
-                (4 + initial_total,32),
-                self.fake_serial_port1.dict['send'][1 + initial_send]
-            )
+            # ClockActivation on 250
+            self.assertEquals(
+                    (3 + initial_total,1),
+                    self.fake_serial_port1.dict['open'][1 + initial_open]
+                )
+            self.assertEquals(
+                    (4 + initial_total,32),
+                    self.fake_serial_port1.dict['send'][1 + initial_send]
+                )
 
-        self.assertEquals(
-                (5 + initial_total,None),
-                self.fake_serial_port1.dict['close'][1 + initial_close]
-            )
+            self.assertEquals(
+                    (5 + initial_total,None),
+                    self.fake_serial_port1.dict['close'][1 + initial_close]
+                )
 
         if logout:
-            self.real_ups.logout(session_id)
+            with wlcontext(self.real_ups, session_id = session_id):
+                core_api.logout()
 
 
     def _single_use(self, logout = True, plus_async_use = True):
@@ -691,145 +677,127 @@ class Case001TestCase(object):
         self.fake_serial_port1.clear()
         self.fake_serial_port2.clear()
 
-        session_id = self.real_login.login('student1','password')
+        with wlcontext(self.real_ups):
+            session_id = core_api.login('student1','password')
+    
+        with wlcontext(self.real_ups, session_id = session_id):
+            user_information = core_api.get_user_information()
+            self.assertEquals( 'student1', user_information.login) 
+            self.assertEquals( 'Name of student 1', user_information.full_name)
+            self.assertEquals( 'weblab@deusto.es', user_information.email)
 
-        user_information = self.real_ups.get_user_information(session_id)
-        self.assertEquals(
-                'student1',
-                user_information.login
-            )
+            experiments = core_api.list_experiments()
+            self.assertEquals( 5, len(experiments))
 
-        self.assertEquals(
-                'Name of student 1',
-                user_information.full_name
-            )
-        self.assertEquals(
-                'weblab@deusto.es',
-                user_information.email
-            )
+            fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments), 1)
 
-        experiments = self.real_ups.list_experiments(session_id)
-        self.assertEquals( 5, len(experiments))
+            # reserve it
+            status = core_api.reserve_experiment(fpga_experiments[0].to_experiment_id(), "{}", "{}")
 
-        fpga_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals(
-                len(fpga_experiments),
-                1
-            )
+            reservation_id = status.reservation_id
 
-        # reserve it
-        status = self.real_ups.reserve_experiment(
-                session_id,
-                fpga_experiments[0].to_experiment_id(),
-                "{}", "{}",
-            )
+            # wait until it is reserved
+            short_time = 0.1
+            times      = 13.0 / short_time
 
-        reservation_id = status.reservation_id
+        with wlcontext(self.real_ups, reservation_id = reservation_id):
 
-        # wait until it is reserved
-        short_time = 0.1
-        times      = 13.0 / short_time
-
-        while times > 0:
-            new_status = self.real_ups.get_reservation_status(reservation_id)
-            if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
-                break
-            times -= 1
-            time.sleep(short_time)
-        reservation = self.real_ups.get_reservation_status(
-                        reservation_id
-                    )
-        self.assertTrue(
-                isinstance(
-                    reservation,
-                    Reservation.ConfirmedReservation
-                ),
-                "Reservation %s is not Confirmed, as expected by this time" % reservation
-            )
+            while times > 0:
+                new_status = core_api.get_reservation_status()
+                if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
+                    break
+                times -= 1
+                time.sleep(short_time)
+            reservation = core_api.get_reservation_status()
+            self.assertTrue(
+                    isinstance(reservation, Reservation.ConfirmedReservation),
+                    "Reservation %s is not Confirmed, as expected by this time" % reservation
+                )
 
 
-        # send a program synchronously (the "traditional" way)
-        CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
+            # send a program synchronously (the "traditional" way)
+            CONTENT = "content of the program FPGA"
+            core_api.send_file(ExperimentUtil.serialize(CONTENT), 'program')
 
-        # We need to wait for the programming to finish, while at the same
-        # time making sure that the tests don't dead-lock.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish, while at the same
+            # time making sure that the tests don't dead-lock.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
-
-
-        # We need to wait for the programming to finish, while at the same
-        # time making sure that the tests don't dead-lock.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(reservation_id, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
-
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
 
-        self.real_ups.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(reservation_id, Command.Command("ClockActivation on 250"))
+            # We need to wait for the programming to finish, while at the same
+            # time making sure that the tests don't dead-lock.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Checking the commands sent
-        # Note that the number of paths is 2 now that we send a file twice (sync and async).
-        self.assertEquals(
-                1,
-                len(self.fake_impact1._paths)
-            )
-        self.assertEquals(
-                0,
-                len(self.fake_impact2._paths)
-            )
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
-        self.assertEquals(
-                CONTENT,
-                self.fake_impact1._paths[0]
-            )
 
-        initial_open = 1
-        initial_send = 1
-        initial_close = 1
-        initial_total = initial_open + initial_send + initial_close
+            core_api.send_command(Command.Command("ChangeSwitch on 0"))
+            core_api.send_command(Command.Command("ClockActivation on 250"))
 
-        # ChangeSwitch on 0
-        self.assertEquals(
-                (0 + initial_total,1),
-                self.fake_serial_port1.dict['open'][0 + initial_open]
-            )
-        self.assertEquals(
-                (1 + initial_total,1),
-                self.fake_serial_port1.dict['send'][0 + initial_send]
-            )
-        self.assertEquals(
-                (2 + initial_total,None),
-                self.fake_serial_port1.dict['close'][0 + initial_close]
-            )
+            # Checking the commands sent
+            # Note that the number of paths is 2 now that we send a file twice (sync and async).
+            self.assertEquals(
+                    1,
+                    len(self.fake_impact1._paths)
+                )
+            self.assertEquals(
+                    0,
+                    len(self.fake_impact2._paths)
+                )
 
-        # ClockActivation on 250
-        self.assertEquals(
-                (3 + initial_total,1),
-                self.fake_serial_port1.dict['open'][1 + initial_open]
-            )
-        self.assertEquals(
-                (4 + initial_total,32),
-                self.fake_serial_port1.dict['send'][1 + initial_send]
-            )
+            self.assertEquals(
+                    CONTENT,
+                    self.fake_impact1._paths[0]
+                )
 
-        self.assertEquals(
-                (5 + initial_total,None),
-                self.fake_serial_port1.dict['close'][1 + initial_close]
-            )
+            initial_open = 1
+            initial_send = 1
+            initial_close = 1
+            initial_total = initial_open + initial_send + initial_close
+
+            # ChangeSwitch on 0
+            self.assertEquals(
+                    (0 + initial_total,1),
+                    self.fake_serial_port1.dict['open'][0 + initial_open]
+                )
+            self.assertEquals(
+                    (1 + initial_total,1),
+                    self.fake_serial_port1.dict['send'][0 + initial_send]
+                )
+            self.assertEquals(
+                    (2 + initial_total,None),
+                    self.fake_serial_port1.dict['close'][0 + initial_close]
+                )
+
+            # ClockActivation on 250
+            self.assertEquals(
+                    (3 + initial_total,1),
+                    self.fake_serial_port1.dict['open'][1 + initial_open]
+                )
+            self.assertEquals(
+                    (4 + initial_total,32),
+                    self.fake_serial_port1.dict['send'][1 + initial_send]
+                )
+
+            self.assertEquals(
+                    (5 + initial_total,None),
+                    self.fake_serial_port1.dict['close'][1 + initial_close]
+                )
 
 
 #         end session
@@ -837,7 +805,8 @@ class Case001TestCase(object):
 #         checking the commands sent. If it was that way for a reason, it might be
 #         necessary to change it in the future.
         if logout:
-            self.real_ups.logout(session_id)
+            with wlcontext(self.real_ups, session_id = session_id):
+                core_api.logout()
 
 
 
@@ -846,136 +815,108 @@ class Case001TestCase(object):
     @uses_module(UserProcessor)
     @uses_module(ServerSOAP)
     def test_two_multiple_uses_of_different_devices(self):
-        user1_session_id = self.real_login.login('student1','password')
-        user1_experiments = self.real_ups.list_experiments(user1_session_id)
-        self.assertEquals(
-                5,
-                len(user1_experiments)
-            )
+        with wlcontext(self.real_ups):
+            user1_session_id = core_api.login('student1','password')
 
-        fpga_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals(
-                len(fpga_experiments),
-                1
-            )
+        with wlcontext(self.real_ups, session_id = user1_session_id):
+            user1_experiments = core_api.list_experiments()
+            self.assertEquals( 5, len(user1_experiments))
 
-        # reserve it
-        status = self.real_ups.reserve_experiment(
-                user1_session_id,
-                fpga_experiments[0].to_experiment_id(),
-                "{}", "{}",
-            )
+            fpga_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments), 1)
 
-        user1_reservation_id = status.reservation_id
+            # reserve it
+            status = core_api.reserve_experiment( fpga_experiments[0].to_experiment_id(), "{}", "{}")
 
-        user2_session_id = self.real_login.login('student2','password')
-        user2_experiments = self.real_ups.list_experiments(user2_session_id)
-        self.assertEquals(
-                7,
-                len(user2_experiments)
-            )
+            user1_reservation_id = status.reservation_id
 
-        pld_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'ud-pld' ]
-        self.assertEquals(
-                len(pld_experiments),
-                1
-            )
+        with wlcontext(self.real_ups):
+            user2_session_id = core_api.login('student2','password')
 
-        # reserve it
-        status = self.real_ups.reserve_experiment(
-                user2_session_id,
-                pld_experiments[0].to_experiment_id(),
-                "{}", "{}",
-            )
+        with wlcontext(self.real_ups, session_id = user2_session_id):
+            user2_experiments = core_api.list_experiments()
+            self.assertEquals( 7, len(user2_experiments))
 
-        user2_reservation_id = status.reservation_id
+            pld_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'ud-pld' ]
+            self.assertEquals( len(pld_experiments), 1)
+
+            # reserve it
+            status = core_api.reserve_experiment(pld_experiments[0].to_experiment_id(), "{}", "{}")
+
+            user2_reservation_id = status.reservation_id
 
         short_time = 0.1
         times      = 9.0 / short_time
 
         while times > 0:
             time.sleep(short_time)
-            new_status1 = self.real_ups.get_reservation_status(user1_reservation_id)
-            new_status2 = self.real_ups.get_reservation_status(user2_reservation_id)
+            with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
+                new_status1 = core_api.get_reservation_status()
+
+            with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
+                new_status2 = core_api.get_reservation_status()
+
             if not isinstance(new_status1, Reservation.WaitingConfirmationReservation):
                 if not isinstance(new_status2, Reservation.WaitingConfirmationReservation):
                     break
             times -= 1
 
-        self.assertTrue(
-                isinstance(
-                    self.real_ups.get_reservation_status(
-                        user1_reservation_id
-                    ),
-                    Reservation.ConfirmedReservation
-                )
-            )
+        with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
+            self.assertTrue(isinstance(core_api.get_reservation_status(), Reservation.ConfirmedReservation))
+    
+        with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
+            self.assertTrue(isinstance(core_api.get_reservation_status(), Reservation.ConfirmedReservation))
 
-        self.assertTrue(
-                isinstance(
-                    self.real_ups.get_reservation_status(
-                        user2_reservation_id
-                    ),
-                    Reservation.ConfirmedReservation
-                )
-            )
 
-        # send a program
-        CONTENT1 = "content of the program FPGA"
-        self.real_ups.send_file(user1_reservation_id, ExperimentUtil.serialize(CONTENT1), 'program')
+        with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
+            # send a program
+            CONTENT1 = "content of the program FPGA"
+            core_api.send_file(ExperimentUtil.serialize(CONTENT1), 'program')
 
-        # We need to wait for the programming to finish.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
-        self.real_ups.send_command(user1_reservation_id, Command.Command("ChangeSwitch off 1"))
-        self.real_ups.send_command(user1_reservation_id, Command.Command("ClockActivation on 250"))
+            core_api.send_command(Command.Command("ChangeSwitch off 1"))
+            core_api.send_command(Command.Command("ClockActivation on 250"))
 
-        CONTENT2 = "content of the program PLD"
-        self.real_ups.send_file(user2_reservation_id, ExperimentUtil.serialize(CONTENT2), 'program')
+        with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
+            CONTENT2 = "content of the program PLD"
+            core_api.send_file(ExperimentUtil.serialize(CONTENT2), 'program')
 
-        # We need to wait for the programming to finish.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(user1_reservation_id, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
-        self.real_ups.send_command(user2_reservation_id, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(user2_reservation_id, Command.Command("ClockActivation on 250"))
+            core_api.send_command(Command.Command("ChangeSwitch on 0"))
+            core_api.send_command(Command.Command("ClockActivation on 250"))
 
         # end session
-        self.real_ups.logout(user1_session_id)
-        self.real_ups.logout(user2_session_id)
+        with wlcontext(self.real_ups, session_id = user1_session_id):
+            core_api.logout()
+
+        with wlcontext(self.real_ups, session_id = user2_session_id):
+            core_api.logout()
 
         # Checking the commands sent
-        self.assertEquals(
-                1,
-                len(self.fake_impact1._paths)
-            )
-        self.assertEquals(
-                1,
-                len(self.fake_impact2._paths)
-            )
-        self.assertEquals(
-                CONTENT1,
-                self.fake_impact1._paths[0]
-            )
-        self.assertEquals(
-                CONTENT2,
-                self.fake_impact2._paths[0]
-            )
+        self.assertEquals( 1, len(self.fake_impact1._paths))
+        self.assertEquals( 1, len(self.fake_impact2._paths))
+        self.assertEquals( CONTENT1, self.fake_impact1._paths[0])
+        self.assertEquals( CONTENT2, self.fake_impact2._paths[0])
 
         initial_open  = 1
         initial_send  = 1
