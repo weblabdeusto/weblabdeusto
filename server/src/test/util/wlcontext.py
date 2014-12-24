@@ -33,7 +33,12 @@ class wlcontext(object):
         self.local.weblab = weblab(**kwargs)
         self.local.weblab.__enter__()
 
+    initialize = __enter__
+
     def __exit__(self, exc_type, exc_value, traceback):
         self.local.weblab.__exit__(exc_type, exc_value, traceback)
         self.local.request_context.__exit__(exc_type, exc_value, traceback)
+
+    def dispose(self):
+        self.__exit__(None, None, None)
 

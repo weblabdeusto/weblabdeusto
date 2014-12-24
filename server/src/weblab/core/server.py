@@ -399,6 +399,18 @@ class WebLabFlaskServer(WebLabWsgiServer):
         weblab.apply_routes(self.app, '/weblab/json', server)
         weblab.apply_routes(self.app, '/weblab/login/json', server)
 
+def deprecated(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        import traceback
+        test_methods = [ '%s at %s' % (method, f) for (f, _, method, _) in traceback.extract_stack() if method.startswith('test_') ]
+        print 
+        print "Calling old %s" % func.__name__, ', '.join(test_methods)
+        return func(*args, **kwargs)
+
+    return wrapped
+        
+
 class UserProcessingServer(object):
     """
     The UserProcessingServer will receive client requests, which will be forwarded
@@ -521,21 +533,24 @@ class UserProcessingServer(object):
             facade_server.stop()
 
     # TODO TO BE REMOVED
-
+    @deprecated
     def do_login(self, username, password):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self):
                 return login(username, password)
 
+    @deprecated
     def do_extensible_login(self, system, credentials):
         print "Extensible login"
         return self._login_manager.extensible_login(system, credentials)
 
+    @deprecated
     def do_grant_external_credentials(self, username, password, system, credentials):
         print "Grant external credentials"
         return self._login_manager.extensible_login(system, credentials)
         return self._login_manager.grant_external_credentials(username, password, system, credentials)
 
+    @deprecated
     def do_create_external_user(self, system, credentials):
         print "Create external user"
         return self._login_manager.create_external_user(system, credentials)
@@ -611,24 +626,28 @@ class UserProcessingServer(object):
         return session_id, self._server_route
 
     # TODO: REMOVE ME
+    @deprecated
     def logout(self, session_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return logout()
 
     # TODO: REMOVE ME
+    @deprecated
     def list_experiments(self, session_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return list_experiments()
 
     # TODO: REMOVE ME
+    @deprecated
     def get_user_information(self, session_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_user_information()
 
     # TODO: REMOVE ME
+    @deprecated
     def get_reservation_id_by_session_id(self, session_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
@@ -639,34 +658,35 @@ class UserProcessingServer(object):
     # # # # # # # # # # # # # # # # #
 
     # TODO: remove me
+    @deprecated
     def reserve_experiment(self, session_id, experiment_id, client_initial_data, consumer_data):
-        import traceback
-        test_methods = [ '%s at %s' % (method, f) for (f, _, method, _) in traceback.extract_stack() if method.startswith('test_') ]
-        print 
-        print "Calling old reserve_experiment", ', '.join(test_methods)
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return reserve_experiment(experiment_id, client_initial_data, consumer_data)
 
     # TODO: REMOVE ME
+    @deprecated
     def finished_experiment(self, reservation_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return finished_experiment()
 
     # TODO: REMOVE ME
+    @deprecated
     def send_file(self, reservation_id, file_content, file_info):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_file(file_content, file_info)
 
     # TODO: REMOVE ME
+    @deprecated
     def send_command(self, reservation_id, command):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_command(command)
 
     # TODO: REMOVE ME
+    @deprecated
     def send_async_file(self, reservation_id, file_content, file_info):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
@@ -674,18 +694,21 @@ class UserProcessingServer(object):
 
     # TODO: REMOVE ME
     # TODO: This method should now be finished. Will need to be verified, though.
+    @deprecated
     def check_async_command_status(self, reservation_id, request_identifiers):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return check_async_command_status(request_identifiers)
 
     # TODO: REMOVE ME
+    @deprecated
     def send_async_command(self, reservation_id, command):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return send_async_command(command)
 
     # TODO: REMOVE ME
+    @deprecated
     def get_reservation_info(self, reservation_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
@@ -693,30 +716,35 @@ class UserProcessingServer(object):
 
 
     # TODO: REMOVE ME
+    @deprecated
     def poll(self, reservation_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return poll()
 
     # TODO: REMOVE ME
+    @deprecated
     def get_reservation_status(self, reservation_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, reservation_id = reservation_id.id):
                 return get_reservation_status()
 
     # TODO: REMOVE ME
+    @deprecated
     def get_experiment_use_by_id(self, session_id, reservation_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_experiment_use_by_id(reservation_id)
 
     # TODO: REMOVE ME
+    @deprecated
     def get_experiment_uses_by_id(self, session_id, reservation_ids):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
                 return get_experiment_uses_by_id(reservation_ids)
 
     # TODO: REMOVE ME
+    @deprecated
     def get_user_permissions(self, session_id):
         with self._facade_app.test_request_context():
             with weblab(server_instance = self, session_id = session_id.id):
