@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from test.util.wlcontext import wlcontext
 from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -47,7 +48,8 @@ import weblab.lab.server as LaboratoryServer
 import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
-import weblab.core.server    as UserProcessingServer
+import weblab.core.server as UserProcessingServer
+import weblab.core.server as core_api
 import weblab.core.user_processor       as UserProcessor
 import weblab.core.exc             as core_exc
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
@@ -459,195 +461,159 @@ class Case002TestCase(object):
         self.fake_serial_port2.clear()
 
         # 6 users get into the system
-        session_id1 = self.real_login.login('student1','password')
-        session_id2 = self.real_login.login('student2','password')
-        session_id3 = self.real_login.login('student3','password')
-        session_id4 = self.real_login.login('student4','password')
-        session_id5 = self.real_login.login('student5','password')
-        session_id6 = self.real_login.login('student6','password')
+        with wlcontext(self.real_ups):
+            session_id1 = core_api.login('student1','password')
+        with wlcontext(self.real_ups):
+            session_id2 = core_api.login('student2','password')
+        with wlcontext(self.real_ups):
+            session_id3 = core_api.login('student3','password')
+        with wlcontext(self.real_ups):
+            session_id4 = core_api.login('student4','password')
+        with wlcontext(self.real_ups):
+            session_id5 = core_api.login('student5','password')
+        with wlcontext(self.real_ups):
+            session_id6 = core_api.login('student6','password')
 
         # they all have access to the ud-fpga experiment
-        experiments1 = self.real_ups.list_experiments(session_id1)
-        fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments1), 1 )
+        with wlcontext(self.real_ups, session_id = session_id1):
+            experiments1 = core_api.list_experiments()
+            fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments1), 1 )
 
-        experiments2 = self.real_ups.list_experiments(session_id2)
-        fpga_experiments2 = [ exp.experiment for exp in experiments2 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments2), 1 )
+        with wlcontext(self.real_ups, session_id = session_id2):
+            experiments2 = core_api.list_experiments()
+            fpga_experiments2 = [ exp.experiment for exp in experiments2 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments2), 1 )
 
-        experiments3 = self.real_ups.list_experiments(session_id3)
-        fpga_experiments3 = [ exp.experiment for exp in experiments3 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments3), 1 )
+        with wlcontext(self.real_ups, session_id = session_id3):
+            experiments3 = core_api.list_experiments()
+            fpga_experiments3 = [ exp.experiment for exp in experiments3 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments3), 1 )
 
-        experiments4 = self.real_ups.list_experiments(session_id4)
-        fpga_experiments4 = [ exp.experiment for exp in experiments4 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments4), 1 )
+        with wlcontext(self.real_ups, session_id = session_id4):
+            experiments4 = core_api.list_experiments()
+            fpga_experiments4 = [ exp.experiment for exp in experiments4 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments4), 1 )
 
-        experiments5 = self.real_ups.list_experiments(session_id5)
-        fpga_experiments5 = [ exp.experiment for exp in experiments5 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments5), 1 )
+        with wlcontext(self.real_ups, session_id = session_id5):
+            experiments5 = core_api.list_experiments()
+            fpga_experiments5 = [ exp.experiment for exp in experiments5 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments5), 1 )
 
-        experiments6 = self.real_ups.list_experiments(session_id6)
-        fpga_experiments6 = [ exp.experiment for exp in experiments6 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments6), 1 )
+        with wlcontext(self.real_ups, session_id = session_id6):
+            experiments6 = core_api.list_experiments()
+            fpga_experiments6 = [ exp.experiment for exp in experiments6 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments6), 1 )
 
 
         # 3 users try to reserve the experiment
-        status1 = self.real_ups.reserve_experiment(
-                session_id1,
-                fpga_experiments1[0].to_experiment_id(),
-                "{}", "{}",
-            )
+        with wlcontext(self.real_ups, session_id = session_id1):
+            status1 = core_api.reserve_experiment(fpga_experiments1[0].to_experiment_id(), "{}", "{}")
+            reservation_id1 = status1.reservation_id
 
-        reservation_id1 = status1.reservation_id
-
-        status2 = self.real_ups.reserve_experiment(
-                session_id2,
-                fpga_experiments2[0].to_experiment_id(),
-                "{}", "{}",
-            )
-
-        reservation_id2 = status2.reservation_id
-
-        status3 = self.real_ups.reserve_experiment(
-                session_id3,
-                fpga_experiments3[0].to_experiment_id(),
-                "{}", "{}",
-            )
-
-        reservation_id3 = status3.reservation_id
+        with wlcontext(self.real_ups, session_id = session_id2):
+            status2 = core_api.reserve_experiment(fpga_experiments2[0].to_experiment_id(), "{}", "{}")
+            reservation_id2 = status2.reservation_id
+    
+        with wlcontext(self.real_ups, session_id = session_id3):
+            status3 = core_api.reserve_experiment(fpga_experiments3[0].to_experiment_id(), "{}", "{}")
+            reservation_id3 = status3.reservation_id
 
         # wait until it is reserved
         short_time = 0.1
         times      = 10.0 / short_time
 
-        while times > 0:
-            time.sleep(short_time)
-            new_status = self.real_ups.get_reservation_status(reservation_id1)
-            if not isinstance(new_status, Reservation.WaitingConfirmationReservation):
-                break
-            times -= 1
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            while times > 0:
+                time.sleep(short_time)
+                new_status = core_api.get_reservation_status()
+                if not isinstance(new_status, Reservation.WaitingConfirmationReservation):
+                    break
+                times -= 1
 
-        # first user got the device. The other two are in WaitingReservation
-        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
-        self.assertTrue(
-                isinstance(
-                    reservation1,
-                    Reservation.ConfirmedReservation
-                )
-            )
+            # first user got the device. The other two are in WaitingReservation
+            reservation1 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation1, Reservation.ConfirmedReservation))
 
-        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
-        self.assertTrue(
-                isinstance(
-                    reservation2,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 0, reservation2.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            reservation2 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation2, Reservation.WaitingReservation))
+            self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
-        self.assertTrue(
-                isinstance(
-                    reservation3,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 1, reservation3.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id3):
+            reservation3 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation3, Reservation.WaitingReservation))
+            self.assertEquals( 1, reservation3.position)
 
-        # Another user tries to reserve the experiment. He goes to the WaitingReservation, position 2
-        status4 = self.real_ups.reserve_experiment(
-                session_id4,
-                fpga_experiments4[0].to_experiment_id(),
-                "{}", "{}",
-            )
+        with wlcontext(self.real_ups, session_id = session_id4):
+            # Another user tries to reserve the experiment. He goes to the WaitingReservation, position 2
+            status4 = core_api.reserve_experiment(fpga_experiments4[0].to_experiment_id(), "{}", "{}")
 
-        reservation_id4 = status4.reservation_id
+            reservation_id4 = status4.reservation_id
 
-        reservation4 = self.real_ups.get_reservation_status( reservation_id4 )
-        self.assertTrue(
-                isinstance(
-                    reservation4,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 2, reservation4.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id4):
+            reservation4 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation4, Reservation.WaitingReservation))
+            self.assertEquals( 2, reservation4.position)
 
-        # The state of other users does not change
-        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
-        self.assertTrue(
-                isinstance(
-                    reservation1,
-                    Reservation.ConfirmedReservation
-                )
-            )
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            # The state of other users does not change
+            reservation1 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation1, Reservation.ConfirmedReservation))
 
-        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
-        self.assertTrue(
-                isinstance(
-                    reservation2,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 0, reservation2.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            reservation2 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation2, Reservation.WaitingReservation))
+            self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
-        self.assertTrue(
-                isinstance(
-                    reservation3,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 1, reservation3.position )
+        with wlcontext(self.real_ups, reservation_id = reservation_id3):
+            reservation3 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation3, Reservation.WaitingReservation))
+            self.assertEquals( 1, reservation3.position )
 
-        # The user number 2 frees the experiment
-        self.real_ups.finished_experiment(reservation_id2)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            # The user number 2 frees the experiment
+            core_api.finished_experiment()
 
-        # Whenever he tries to do poll or send_command, he receives an exception
-        try:
-            self.real_ups.poll(reservation_id2)
-            self.real_ups.poll(reservation_id2)
-            self.real_ups.poll(reservation_id2)
-        except core_exc.NoCurrentReservationError:
-            pass # All right :-)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            # Whenever he tries to do poll or send_command, he receives an exception
+            try:
+                core_api.poll()
+                core_api.poll()
+                core_api.poll()
+            except core_exc.NoCurrentReservationError:
+                pass # All right :-)
 
-        # send a program
-        CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(reservation_id1, ExperimentUtil.serialize(CONTENT), 'program')
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            # send a program
+            CONTENT = "content of the program FPGA"
+            core_api.send_file(ExperimentUtil.serialize(CONTENT), 'program')
 
 
-        # We need to wait for the programming to finish.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(reservation_id1, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
 
-        self.real_ups.send_command(reservation_id1, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(reservation_id1, Command.Command("ClockActivation on 250"))
+            core_api.send_command(Command.Command("ChangeSwitch on 0"))
+            core_api.send_command(Command.Command("ClockActivation on 250"))
 
-        # end session
-        self.real_ups.logout(session_id1)
+        with wlcontext(self.real_ups, session_id = session_id1):
+            # end session
+            core_api.logout()
 
         # Checking the commands sent
-        self.assertEquals(
-                1,
-                len(self.fake_impact1._paths)
-            )
-        self.assertEquals(
-                0,
-                len(self.fake_impact2._paths)
-            )
+        self.assertEquals(1, len(self.fake_impact1._paths))
+        self.assertEquals(0, len(self.fake_impact2._paths))
 
-        self.assertEquals(
-                CONTENT,
-                self.fake_impact1._paths[0]
-            )
+        self.assertEquals(CONTENT, self.fake_impact1._paths[0])
 
         initial_open = 1
         initial_send = 1
