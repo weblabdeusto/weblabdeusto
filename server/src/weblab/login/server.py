@@ -71,23 +71,3 @@ class LoginServer(object):
         for server in self._facade_servers:
             server.stop()
 
-    @logged(log.level.Info, except_for='password')
-    def login(self, username, password):
-        ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
-        return ups_server.login(username, password)
-
-    @logged(log.level.Info)
-    def extensible_login(self, system, credentials):
-        ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
-        return ups_server.extensible_login(system, credentials)
-
-    @logged(log.level.Info, except_for="password")
-    def grant_external_credentials(self, username, password, system, credentials):
-        ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
-        return ups_server.grant_external_credentials(username, password, system, credentials)
-
-    @logged(log.level.Info)
-    def create_external_user(self, system, credentials):
-        ups_server = self._locator.get_easy_server(ServerType.UserProcessing)
-        return ups_server.create_external_user(system, credentials)
-
