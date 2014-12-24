@@ -17,12 +17,14 @@ import unittest
 
 import time
 
+from   test.util.wlcontext import wlcontext
 from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.admin.monitor.monitor_methods           as methods
 import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
+import weblab.core.server    as core_api
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
@@ -168,8 +170,9 @@ class MonitorMethodsTestCase(unittest.TestCase):
         #
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result )
-
-        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}")
+        
+        with wlcontext(self.ups, session_id = sess_id):
+            status = core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
@@ -200,7 +203,8 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}")
+        with wlcontext(self.ups, session_id = sess_id):
+            core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         self.assertNotEquals(None, reservation_id)
@@ -211,26 +215,27 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}")
+        with wlcontext(self.ups, session_id = sess_id):
+            status = core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
-        reservation_session_id = status.reservation_id
+            reservation_session_id = status.reservation_id
+            
+            with wlcontext(self.ups, reservation_id = reservation_session_id, session_id = sess_id):
+                status = core_api.get_reservation_status()
+                self.assertNotEquals( None, status )
 
-        status = self.ups.get_reservation_status(reservation_session_id)
-        self.assertNotEquals( None, status )
+                reservation_id = methods.get_reservation_id.call(sess_id.id)
+                methods.kickout_from_coordinator.call(reservation_id)
 
-        reservation_id = methods.get_reservation_id.call(sess_id.id)
-        methods.kickout_from_coordinator.call(reservation_id)
-
-        self.assertRaises( core_exc.NoCurrentReservationError, self.ups.get_reservation_status, reservation_session_id )
+                self.assertRaises( core_exc.NoCurrentReservationError, core_api.get_reservation_status)
 
     def test_kickout_from_ups(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         methods.kickout_from_ups.call(sess_id.id)
-
-        self.assertRaises( core_exc.SessionNotFoundError,
-                self.ups.get_reservation_status, sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            self.assertRaises( core_exc.SessionNotFoundError, core_api.get_reservation_status)
 
 class FakeLocator(object):
     def __init__(self):
