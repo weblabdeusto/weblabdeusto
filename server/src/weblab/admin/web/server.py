@@ -77,7 +77,7 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
 
     def initialize(self):
         listen, port = self._retrieve_configuration()
-        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        the_server_route = self._configuration_manager.get_doc_value( self._rfs.FACADE_SERVER_ROUTE)
         core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
         if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
@@ -98,7 +98,7 @@ ADMIN_FACADE_JSON_LISTEN                    = 'admin_facade_json_bind'
 DEFAULT_ADMIN_FACADE_JSON_LISTEN            = ''
 ADMIN_FACADE_JSON_PORT                      = 'admin_facade_json_port'
 
-from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+from weblab.configuration_doc import CORE_FACADE_SERVER_ROUTE
 
 class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     SERVERS = (RemoteFacadeServerWSGI,)
@@ -107,8 +107,7 @@ class AdminRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     FACADE_WSGI_LISTEN           = ADMIN_FACADE_JSON_LISTEN
     DEFAULT_FACADE_WSGI_LISTEN   = DEFAULT_ADMIN_FACADE_JSON_LISTEN
 
-    FACADE_SERVER_ROUTE          = USER_PROCESSING_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE         = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+    FACADE_SERVER_ROUTE          = CORE_FACADE_SERVER_ROUTE
 
     def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
         self.application = AdministrationApplication(configuration_manager, server)

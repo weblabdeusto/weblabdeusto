@@ -75,7 +75,7 @@ class RemoteFacadeServerWSGI(abstract_server.AbstractProtocolRemoteFacadeServer)
 
     def initialize(self):
         listen, port = self._retrieve_configuration()
-        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        the_server_route = self._configuration_manager.get_doc_value( self._rfs.FACADE_SERVER_ROUTE)
         core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )
         if core_server_url.startswith('http://') or core_server_url.startswith('https://'):
             without_protocol = '//'.join(core_server_url.split('//')[1:])
@@ -97,7 +97,7 @@ DEFAULT_WEB_FACADE_LISTEN            = ''
 
 WEB_FACADE_PORT                      = 'login_web_facade_port'
 
-from weblab.login.comm.server import LOGIN_FACADE_SERVER_ROUTE, DEFAULT_LOGIN_SERVER_ROUTE
+from weblab.configuration_doc import LOGIN_FACADE_SERVER_ROUTE
 
 class LoginWsgiRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     SERVERS = (RemoteFacadeServerWSGI,)
@@ -107,7 +107,6 @@ class LoginWsgiRemoteFacadeServer(abstract_server.AbstractRemoteFacadeServer):
     DEFAULT_FACADE_WSGI_LISTEN   = DEFAULT_WEB_FACADE_LISTEN
 
     FACADE_SERVER_ROUTE          = LOGIN_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE         = DEFAULT_LOGIN_SERVER_ROUTE
 
     def _create_wsgi_remote_facade_manager(self, server, configuration_manager):
         self.application = LoginApp(configuration_manager, server)

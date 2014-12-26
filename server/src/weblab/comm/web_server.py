@@ -339,7 +339,7 @@ class WebProtocolRemoteFacadeServer(RFS.AbstractProtocolRemoteFacadeServer):
 
     def initialize(self):
         listen, port = self._retrieve_configuration()
-        the_server_route = self._configuration_manager.get_value( self._rfs.FACADE_SERVER_ROUTE, self._rfs.DEFAULT_SERVER_ROUTE )
+        the_server_route = self._configuration_manager.get_doc_value( self._rfs.FACADE_SERVER_ROUTE)
         timeout = self.get_timeout()
         server = self._rfm
         core_server_url  = self._configuration_manager.get_value( 'core_server_url', '' )

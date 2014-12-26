@@ -24,7 +24,7 @@ from weblab.core.comm.web.visir             import VisirMethod
 from weblab.core.comm.web.language          import LanguageMethod
 from weblab.core.comm.web.direct2experiment import Direct2ExperimentMethod
 
-from weblab.core.comm.user_server import USER_PROCESSING_FACADE_SERVER_ROUTE, DEFAULT_USER_PROCESSING_SERVER_ROUTE
+from weblab.configuration_doc import CORE_FACADE_SERVER_ROUTE
 
 
 WEB_FACADE_LISTEN                    = 'core_web_facade_bind'
@@ -48,8 +48,7 @@ class UserProcessingWebRemoteFacadeServer(WebFacadeServer.WebRemoteFacadeServer)
     DEFAULT_FACADE_WEB_LISTEN  = DEFAULT_WEB_FACADE_LISTEN
     FACADE_WEB_PORT            = WEB_FACADE_PORT
 
-    FACADE_SERVER_ROUTE        = USER_PROCESSING_FACADE_SERVER_ROUTE
-    DEFAULT_SERVER_ROUTE       = DEFAULT_USER_PROCESSING_SERVER_ROUTE
+    FACADE_SERVER_ROUTE        = CORE_FACADE_SERVER_ROUTE
 
     SERVERS = (UserProcessingWebProtocolRemoteFacadeServer,)
 

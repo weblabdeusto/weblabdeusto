@@ -47,7 +47,6 @@ from weblab.core.db import DatabaseGateway
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
-import weblab.core.comm.user_server as UserProcessingFacadeServer
 import weblab.core.comm.web_server as WebFacadeServer
 
 from voodoo.gen.caller_checker import caller_check
@@ -137,10 +136,8 @@ def ng_load_reservation_processor(func):
 from weblab.core.wl import weblab
 
 # TODO:
-# - Store cookies
 # - Update session id
 # - REST API CSRF
-# - Remove old context
 
 # >>> requests.post("http://localhost/weblab/administration/", data = json.dumps({'method' : 'login', 'params' : { 'username' : 'any', 'password' : 'password'}})).text
 
@@ -495,7 +492,7 @@ class UserProcessingServer(object):
         # Initialize facade (comm) servers
         #
 
-        self._server_route   = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
+        self._server_route   = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
 
         self._facade_servers = []
         self._facade_app = None # TODO: REMOVE ME

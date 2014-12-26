@@ -23,8 +23,7 @@ from voodoo.typechecker import typecheck
 from voodoo.sessions.session_id import SessionId
 import voodoo.resources_manager as ResourceManager
 
-import weblab.core.comm.user_server as UserProcessingFacadeServer
-
+import weblab.configuration_doc as configuration_doc
 from weblab.data.experiments import ExperimentUsage
 
 import weblab.core.exc as core_exc
@@ -81,7 +80,7 @@ class UserProcessor(object):
         self._coordinator     = coordinator
         self._db_manager      = db_manager
         self._commands_store  = commands_store
-        self._server_route    = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
+        self._server_route    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
         self.time_module      = time_module
 
     def list_experiments(self):
