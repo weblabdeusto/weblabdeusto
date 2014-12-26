@@ -39,8 +39,7 @@ except ImportError:
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
-
-    return admin_app.AdministrationApplication.INSTANCE
+    return admin_app.GLOBAL_APP_INSTANCE
 
 
 class AdministratorView(BaseView):
@@ -52,7 +51,6 @@ class AdministratorView(BaseView):
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
         return super(AdministratorView, self)._handle_view(name, **kwargs)
-
 
 class MyProfileView(AdministratorView):
     @expose()
@@ -1224,7 +1222,7 @@ class HomeView(AdminIndexView):
         return self.render("admin-index.html")
 
     def is_accessible(self):
-        return get_app_instance().INSTANCE.is_admin()
+        return get_app_instance().is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():

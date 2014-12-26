@@ -14,12 +14,15 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
 
+import os
 import sys
 import uuid
 import time
 import threading
 import urlparse
 
+import logging
+from logging.handlers import RotatingFileHandler
 from flask import Flask, request
 
 from functools import wraps
@@ -59,7 +62,7 @@ import voodoo.sessions.session_type as SessionType
 
 import voodoo.resources_manager as ResourceManager
 
-from weblab.admin.web.server import AdminRemoteFacadeServer
+from weblab.admin.web.app import AdministrationApplication
 
 check_session_params = dict(
         exception_to_raise = coreExc.SessionNotFoundError,
@@ -391,22 +394,36 @@ def get_reservation_status():
 
 class WebLabFlaskServer(WebLabWsgiServer):
     def __init__(self, server, cfg_manager):
+        core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
+        self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
+
         self.app = Flask(__name__)
+        self.app.config['SECRET_KEY'] = os.urandom(32)
+        self.app.config['APPLICATION_ROOT'] = self.script_name
+        self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
+        self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
+        flask_debug = cfg_manager.get_value('flask_debug', False)
+        if flask_debug:
+            print >> sys.stderr, "*" * 50
+            print >> sys.stderr, "WARNING " * 5
+            print >> sys.stderr, "flask_admin is set to True. This is an important security bug. Do not use it in production mode, only for bugfixing!!!"
+            print >> sys.stderr, "WARNING " * 5
+            print >> sys.stderr, "*" * 50
+        self.app.config['DEBUG'] = flask_debug
+        if os.path.exists('logs'):
+            f = os.path.join('logs','admin_app.log')
+        else:
+            f = 'admin_app.log'
+        file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
+        file_handler.setLevel(logging.WARNING)
+        self.app.logger.addHandler(file_handler)
+
         super(WebLabFlaskServer, self).__init__(cfg_manager, self.app)
+
         weblab.apply_routes(self.app, '/weblab/json', server)
         weblab.apply_routes(self.app, '/weblab/login/json', server)
-
-def deprecated(func):
-    @wraps(func)
-    def wrapped(*args, **kwargs):
-        import traceback
-        test_methods = [ '%s at %s' % (method, f) for (f, _, method, _) in traceback.extract_stack() if method.startswith('test_') ]
-        print 
-        print "Calling old %s" % func.__name__, ', '.join(test_methods)
-        return func(*args, **kwargs)
-
-    return wrapped
         
+        self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
 class UserProcessingServer(object):
     """
@@ -416,7 +433,6 @@ class UserProcessingServer(object):
 
     FACADE_SERVERS = (
                         WebLabFlaskServer,
-                        AdminRemoteFacadeServer,
                         WebFacadeServer.UserProcessingWebRemoteFacadeServer
                     )
 
