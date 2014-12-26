@@ -147,7 +147,16 @@ class WebLab(object):
         self.context.config = self.context.server_instance._cfg_manager
         
         self.context.client_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
+        self.context.ip_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
         self.context.user_agent = request.user_agent.string
+        referer = request.referrer or ''
+        self.context.referer = referer
+        self.context.locale  = request.headers.get('weblabdeusto-locale', '')
+        if request.headers.get('weblabdeusto-client') == 'weblabdeusto-web-mobile':
+            self.context.is_mobile = True
+        else:
+            self.context.is_mobile = referer.find('mobile=true') >= 0 or referer.find('mobile=yes') >= 0
+        self.context.is_facebook = referer.find('facebook=true') >= 0 or referer.find('facebook=yes') >= 0
 
         if not hasattr(self.context, 'reservation_id'):
             reservation_id = request.headers.get('X-WebLab-reservation-id')
@@ -179,8 +188,28 @@ class WebLab(object):
         return getattr(self.context, 'reservation_id')
 
     @property
+    def referer(self):
+        return getattr(self.context, 'referer')
+
+    @property
+    def locale(self):
+        return getattr(self.context, 'locale')
+
+    @property
+    def is_mobile(self):
+        return getattr(self.context, 'is_mobile')
+
+    @property
+    def is_facebook(self):
+        return getattr(self.context, 'is_facebook')
+
+    @property
     def session_id(self):
         return getattr(self.context, 'session_id')
+
+    @property
+    def ip_address(self):
+        return getattr(self.context, 'ip_address')
 
     @property
     def config(self):
