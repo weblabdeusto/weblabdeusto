@@ -155,7 +155,9 @@ def login(username = None, password = None):
         if request.method == 'GET':
             username = request.args.get('username')
             password = request.args.get('password')
-    return weblab.ctx.server_instance._login_manager.login(username, password)
+    session_id = weblab.ctx.server_instance._login_manager.login(username, password)
+    weblab.ctx.session_id = session_id.id
+    return session_id
 
 @weblab.route('/login/external/<system>/', methods = [ 'POST'])
 def extensible_login(self, system, credentials = None):

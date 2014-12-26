@@ -24,9 +24,9 @@ import voodoo.sessions.session_id as SessionId
 import test.unit.configuration as configuration
 import voodoo.configuration as ConfigurationManager
 
+import weblab.core.new_server as NEW_SERVER
 import weblab.core.comm.user_manager as UserProcessingFacadeManager
 import weblab.comm.codes as RFCodes
-import weblab.comm.manager as RFM
 import weblab.core.comm.codes as UserProcessingRFCodes
 import weblab.core.reservations as Reservation
 
@@ -101,8 +101,8 @@ class UserProcessingFacadeManagerJSONTestCase(unittest.TestCase):
 
         self.mock_ups = MockUPS()
 
-        server_admin_mail = self.cfg_manager.get_value(RFM.SERVER_ADMIN_EMAIL, RFM.DEFAULT_SERVER_ADMIN_EMAIL)
-        self.weblab_general_error_message = RFM.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail
+        server_admin_mail = self.cfg_manager.get_value(NEW_SERVER.SERVER_ADMIN_EMAIL, NEW_SERVER.DEFAULT_SERVER_ADMIN_EMAIL)
+        self.weblab_general_error_message = NEW_SERVER.UNEXPECTED_ERROR_MESSAGE_TEMPLATE % server_admin_mail
 
         self.rfm = UserProcessingFacadeManager.UserProcessingRemoteFacadeManagerJSON(
                 self.cfg_manager,

@@ -1,5 +1,6 @@
 import json
 import types
+import urlparse
 import datetime
 import traceback
 import threading
@@ -256,9 +257,11 @@ class WebLab(object):
         if request.method == 'POST':
             contents = get_json()
             if contents:
+                if 'method' not in contents:
+                    return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Missing 'method' attr")
                 method = contents['method']
                 if method not in self.methods:
-                    return json.dumps(msg = "Method not recognized", code = WEBLAB_GENERAL_EXCEPTION_CODE)
+                    return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Method not recognized")
                 parameters = contents.get('params', {})
 
                 if 'session_id' in parameters:
@@ -279,11 +282,26 @@ class WebLab(object):
                 with self:
                     return self._wrap_response(self.methods[method](**parameters))
             else:
-                # TODO
-                return "Not a valid JSON..."
+                return _raise_exception(WEBLAB_GENERAL_EXCEPTION_CODE, "Couldn't deserialize message")
         else:
-            # TODO
-            return "Hi there. This should be a list of services or something (%s)..." % ', '.join(self.methods)
+            response = """<html>
+            <head>
+                <title>WebLab-Deusto JSON service</title>
+            </head>
+            <body>
+                Welcome to the WebLab-Deusto service through JSON. Available methods:
+                <ul>
+            """
+
+            for method_name in self.methods:
+                method = self.methods[method_name]
+                response += """<li><b>%s</b>: %s</li>\n""" % (method_name, method.__doc__ or '')
+
+            response += """</ul>
+            </body>
+            </html>
+            """
+            return response
         
     def route(self, path, methods = ['GET'], exc = True, logging = True, log_level = level.Info, dont_log = None, max_log_size = None):
         def wrapper(func):
@@ -329,7 +347,18 @@ class WebLab(object):
         if indent:
             indent = 4
         serialized = json.dumps(simplified_obj, indent = indent)
-        return Response(serialized, mimetype = 'application/json') 
+        response = Response(serialized, mimetype = 'application/json')
+
+        if self.session_id:
+            core_server_url  = self.config.get_value( 'core_server_url', '' )
+            location = urlparse.urlparse(core_server_url).path or '/weblab/'
+            route = self.context.server_instance._server_route
+            session_id_cookie = '%s.%s' % (self.session_id, route)
+            now = datetime.datetime.now()
+            response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = location)
+            response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = location)
+
+        return response
 
     def apply_routes(self, flask_app, base_path = '', server_instance = None):
         if base_path == '/':
@@ -350,34 +379,3 @@ class WebLab(object):
 
         flask_app.route(base_path + path, methods = methods)(weblab_wrapper)
 
-# weblab = WebLab()
-# 
-# @weblab.route("/laboratories/", methods = ['GET', 'POST'])
-# def list_laboratories():
-#     print weblab.context.reservation_id
-#     return "Listing laboratories..."
-# 
-# @weblab.route("/uses/", methods = ['GET', 'POST'])
-# def list_uses():
-#     print weblab.context.reservation_id
-#     return json.dumps([ 'use_id1', 'use_id2' ])
-# 
-# @weblab.route("/uses/<id>/", methods = ['GET', 'POST'])
-# def list_use(id):
-#     print weblab.context.reservation_id
-#     return "Uses of id: %s" % id
-# 
-# 
-# # Later on
-# app = Flask(__name__)
-# weblab.apply_routes(app)
-# 
-# # TO TEST:
-# # >>> import json
-# # >>> requests.post("http://localhost:5000/", data = json.dumps({'method' : 'list_uses' })).json()
-# # [u'use_id1', u'use_id2']
-# # >>> requests.post("http://localhost:5000/", data = json.dumps({'method' : 'list_use', 'arguments' : {'id' : 'use_id1'} })).text
-# # u'Uses of id: use_id1'
-# 
-# 
-# app.run(debug = True)

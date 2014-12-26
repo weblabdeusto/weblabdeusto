@@ -30,7 +30,6 @@ import voodoo.log as log
 import voodoo.counter as counter
 import voodoo.resources_manager as ResourceManager
 
-import weblab.comm.manager as RemoteFacadeManager
 from weblab.comm.context import get_context, create_context, delete_context
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.comm.exc as FacadeErrors
@@ -152,10 +151,6 @@ class JsonHttpHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             # with the parameters from the dictionary we just built.
             try:
                 return_value = method(**newparams)
-            except RemoteFacadeManager.JSONError as jsone:
-                response = jsone.args[0]
-                self.finish_error(response)
-                return
             except Exception as e:
                 response = {"is_exception":True,"code":WEBLAB_GENERAL_EXCEPTION_CODE,"message":"Unexpected exception: %s" % e}
                 self.finish_error(response)
