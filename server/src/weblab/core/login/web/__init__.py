@@ -14,11 +14,12 @@
 #
 
 import urlparse
-from weblab.comm.context import get_context
 
 from werkzeug import HTTP_STATUS_CODES
 
 from abc import ABCMeta, abstractmethod
+
+from weblab.core.wl import weblab
 
 class ExternalSystemManager(object):
 
@@ -87,12 +88,8 @@ class WebPlugin(object):
         return ('Set-Cookie', 'weblabsessionid=%s; path=%s' % (self.weblab_session, self.location))
 
     @property
-    def context(self):
-        return get_context()
-
-    @property
     def headers(self):
-        return get_context().headers
+        return weblab.headers
 
     @property
     def uri(self):

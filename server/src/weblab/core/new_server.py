@@ -142,10 +142,11 @@ class WebLab(object):
         self.context = threading.local()
         self.ctx = self.context # Alias
 
-    def __enter__(self, *args, **kwargs):
+    def __enter__(self):
         _global_context.current_weblab = self
         self.context.config = self.context.server_instance._cfg_manager
         
+        self.context.headers = request.headers
         self.context.client_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
         self.context.ip_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
         self.context.user_agent = request.user_agent.string
@@ -186,6 +187,10 @@ class WebLab(object):
     @property
     def reservation_id(self):
         return getattr(self.context, 'reservation_id')
+
+    @property
+    def headers(self):
+        return getattr(self.context, 'headers')
 
     @property
     def referer(self):

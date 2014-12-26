@@ -14,7 +14,6 @@
 #
 
 import weblab.comm.web_server as WebFacadeServer
-import weblab.comm.context as RemoteFacadeContext
 from weblab.data.experiments import ExperimentId
 from voodoo.sessions.session_id import SessionId
 from voodoo.log import logged

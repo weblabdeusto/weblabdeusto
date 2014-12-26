@@ -36,8 +36,6 @@ from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
 import weblab.data.server_type as ServerType
 
-from weblab.comm.context import get_context
-
 import weblab.core.reservations as Reservation
 import weblab.core.data_retriever as TemporalInformationRetriever
 import weblab.core.user_processor as UserProcessor
