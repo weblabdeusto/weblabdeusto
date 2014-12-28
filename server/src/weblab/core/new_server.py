@@ -11,7 +11,7 @@ from collections import OrderedDict
 from flask import request, Response
 
 from voodoo.log import log, level, log_exc, logged
-import weblab.comm.codes as ErrorCodes
+import weblab.core.codes as ErrorCodes
 import weblab.configuration_doc as configuration_doc
 
 # TODO: clean these imports
