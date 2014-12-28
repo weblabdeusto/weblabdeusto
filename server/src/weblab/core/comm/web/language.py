@@ -14,19 +14,14 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
-import weblab.comm.web_server as WebFacadeServer
+from flask import request
+from weblab.core.comm.web import weblab_api
 
-class LanguageMethod(WebFacadeServer.Method):
-    path = '/language/'
-
-    def avoid_weblab_cookies(self):
-        return True
-
-    def run(self):
-        accept_language = self.req.headers.get('Accept-Language')
-        if accept_language is None:
-            return 'var acceptLanguageHeader = null;'
-        else:
-            return 'var acceptLanguageHeader = "%s";' % accept_language
-
+@weblab_api.route_web('/language/')
+def language():
+    accept_language = request.headers.get('Accept-Language')
+    if accept_language is None:
+        return 'var acceptLanguageHeader = null;'
+    else:
+        return 'var acceptLanguageHeader = "%s";' % accept_language
 

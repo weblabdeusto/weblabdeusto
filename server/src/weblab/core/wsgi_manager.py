@@ -144,8 +144,15 @@ class WebLabWsgiServer(object):
         login_web_server.socket.settimeout(timeout)
         login_web_server_thread = ServerThread(login_web_server, timeout)
 
-        self._servers = [core_server, login_server, admin_server, login_web_server]
-        self._server_threads = [core_server_thread, login_server_thread, admin_server_thread, login_web_server_thread]
+        listen  = cfg_manager.get_value('core_web_facade_bind', '')
+        port    = cfg_manager.get_value('core_web_facade_port')
+
+        core_web_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+        core_web_server.socket.settimeout(timeout)
+        core_web_server_thread = ServerThread(core_web_server, timeout)
+
+        self._servers = [core_server, login_server, admin_server, login_web_server, core_web_server]
+        self._server_threads = [core_server_thread, login_server_thread, admin_server_thread, login_web_server_thread, core_web_server_thread]
 
 
     def start(self):
@@ -160,6 +167,7 @@ class WebLabWsgiServer(object):
         for server in self._servers:
             server.shutdown()
             server.socket.close()
+
         for server_thread in self._server_threads:
             server_thread.join()
 

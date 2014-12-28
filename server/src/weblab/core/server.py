@@ -50,6 +50,8 @@ import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
 import weblab.core.comm.web_server as WebFacadeServer
+import weblab.core.comm.web as web
+assert web is not None # Avoid warnings
 
 from voodoo.threaded import threaded
 
@@ -437,10 +439,7 @@ class UserProcessingServer(object):
     to an appropriate UserProcessor for the specified session identifier.
     """
 
-    FACADE_SERVERS = (
-                        WebLabFlaskServer,
-                        WebFacadeServer.UserProcessingWebRemoteFacadeServer
-                    )
+    FACADE_SERVERS = ( WebLabFlaskServer, )
 
     def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
