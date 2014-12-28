@@ -18,7 +18,6 @@ from flask import request, render_template, make_response
 from weblab.core.wl import weblab_api
 
 import urllib
-from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 
 RESERVATION_ID   = 'reservation_id'
@@ -27,8 +26,8 @@ LOCALE           = 'locale'
 FORMAT_PARAMETER = 'format'
 WIDGET           = 'widget'
 
-@weblab_api.route_web('/client/')
-def client(self):
+@weblab_api.route_web('/client/', methods = ['GET', 'POST'])
+def client():
     """
     If there is a GET argument named %(reservation_id)s, it will take it and resend it as a
     POST argument. If it was passed through the history, then it will be again sent as a
@@ -87,9 +86,9 @@ def client(self):
     weblab_api.fill_session_cookie(response, partial_reservation_id)
 
     # Finally, if it was passed as a POST argument, generate the proper client address
-    reservation_session_id = SessionId(reservation_id.split(';')[0])
+    weblab_api.ctx.reservation_id = reservation_id.split(';')[0]
     try:
-        experiment_id = core_api.get_reservation_info(reservation_session_id)
+        experiment_id = core_api.get_reservation_info()
     except SessionNotFoundError:
         response.response = render_template('core_web/client_error.html', reservation_id = reservation_id)
         return response

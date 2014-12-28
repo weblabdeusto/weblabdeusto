@@ -30,3 +30,6 @@ assert language is not None # avoid warnings
 
 import client
 assert client is not None # avoid warnings
+
+import direct2experiment
+assert direct2experiment is not None # avoid warnings

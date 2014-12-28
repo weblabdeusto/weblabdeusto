@@ -49,7 +49,6 @@ from weblab.core.db import DatabaseGateway
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
-import weblab.core.comm.web_server as WebFacadeServer
 import weblab.core.comm.web as web
 assert web is not None # Avoid warnings
 

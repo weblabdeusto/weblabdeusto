@@ -13,11 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import weblab.comm.web_server as WebFacadeServer
+import traceback
+from flask import redirect
+from weblab.core.comm.web import weblab_api, get_argument
+
 from weblab.data.experiments import ExperimentId
-from voodoo.sessions.session_id import SessionId
-from voodoo.log import logged
-import voodoo.log as log
 
 EXPERIMENT_ID       = "experiment_id"
 SESSION_ID          = "session_id"
@@ -32,28 +32,26 @@ administrator.
 """
 
 
-class Direct2ExperimentMethod(WebFacadeServer.Method):
-    path = '/direct2experiment/'
+@weblab_api.route_web('/direct2experiment/', methods = ['GET', 'POST'])
+def direct2experiment():
+    import weblab.core.server as core_api
 
-    @logged(log.level.Info)
-    def run(self):
-        experiment_id_str = self.get_argument(EXPERIMENT_ID)
-        if experiment_id_str is None:
-            return "%s argument is missing" % EXPERIMENT_ID
-        session_id_str = self.get_argument(SESSION_ID)
-        if session_id_str is None:
-            return "%s argument is missing" % EXPERIMENT_ID
+    experiment_id_str = get_argument(EXPERIMENT_ID)
+    if experiment_id_str is None:
+        return "%s argument is missing" % EXPERIMENT_ID
+    session_id_str = get_argument(SESSION_ID)
+    if session_id_str is None:
+        return "%s argument is missing" % EXPERIMENT_ID
 
-        experiment_id = ExperimentId.parse(experiment_id_str)
-        session_id = SessionId(session_id_str)
+    experiment_id = ExperimentId.parse(experiment_id_str)
+    weblab_api.context.session_id = session_id_str
 
-        try:
-            reservation_id = self.server.reserve_experiment(session_id, experiment_id, "{}", "{}")
-        except Exception:
-            return HTML_ERROR_TEMPLATE
+    try:
+        reservation_id = core_api.reserve_experiment(experiment_id, "{}", "{}")
+    except Exception:
+        traceback.print_exc()
+        return HTML_ERROR_TEMPLATE
 
-        new_location = "../../client/federated.html#reservation_id=%s" % reservation_id.reservation_id.id
-        self.set_status(302)
-        self.add_other_header('Location', new_location)
-        return """<html><body><a href="%s">Click here</a></body></html>""" % new_location
+    new_location = "../../client/federated.html#reservation_id=%s" % reservation_id.reservation_id.id
+    return redirect(new_location)
 
