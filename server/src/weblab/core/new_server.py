@@ -5,7 +5,7 @@ import datetime
 import traceback
 import threading
 
-from functools import wraps
+from functools import wraps, partial
 from collections import OrderedDict
 
 from flask import Flask, request, Response
@@ -131,21 +131,35 @@ def get_json():
             return None
 
 _global_context = threading.local()
+DEFAULT = object()
 
-class WebLab(object):
-    def __init__(self):
-        self.methods = OrderedDict() # {
-        #   method_name : function
-        #}
-        self.routes = OrderedDict() # {
-        #   path : (func, path, methods)
-        # }
+class WebLabAPI(object):
+    def __init__(self, web_contexts = None, api_contexts = None):
+        self.apis = set(api_contexts or ()).union(['api'])
+        self.web_contexts = set(web_contexts or ()).union(self.apis)
+
+        self.methods = {} 
+        self.routes = {}
+        for web_context in self.web_contexts:
+            self.methods[web_context] = OrderedDict() # {
+            #   method_name : function
+            #}
+
+            self.routes[web_context] = OrderedDict() # {
+            #   path : (func, path, methods)
+            # }
+
+            route_method = partial(self.route, web_context)
+            setattr(self, 'route_%s' % web_context, route_method)
+
+            apply_routes_method = partial(self.apply_routes, web_context)
+            setattr(self, 'apply_routes_%s' % web_context, apply_routes_method)
+
         self.context = threading.local()
         self.ctx = self.context # Alias
 
     def __enter__(self):
         _global_context.current_weblab = self
-        self.context.config = self.context.server_instance._cfg_manager
         
         self.context.headers = request.headers
         self.context.client_address = request.headers.get('X-Forwarded-For') or ('<unknown client. retrieved from %s>' % request.remote_addr)
@@ -253,14 +267,14 @@ class WebLab(object):
             return response
         return self.jsonify(response)
 
-    def _json(self, flask_app, server_instance):
+    def _json(self, web_context, flask_app, instance_args):
         if request.method == 'POST':
             contents = get_json()
             if contents:
                 if 'method' not in contents:
                     return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Missing 'method' attr")
                 method = contents['method']
-                if method not in self.methods:
+                if method not in self.methods[web_context]:
                     return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Method not recognized")
                 parameters = contents.get('params', {})
 
@@ -277,10 +291,11 @@ class WebLab(object):
                         reservation_id = reservation_id['id']
                     self.context.reservation_id = reservation_id
 
-                self.context.app = flask_app
-                self.context.server_instance = server_instance
+                for name, value in instance_args.iteritems():
+                    setattr(self.context, name, value)
+
                 with self:
-                    return self._wrap_response(self.methods[method](**parameters))
+                    return self._wrap_response(self.methods[web_context][method](**parameters))
             else:
                 return _raise_exception(WEBLAB_GENERAL_EXCEPTION_CODE, "Couldn't deserialize message")
         else:
@@ -293,8 +308,8 @@ class WebLab(object):
                 <ul>
             """
 
-            for method_name in self.methods:
-                method = self.methods[method_name]
+            for method_name in self.methods[web_context]:
+                method = self.methods[web_context][method_name]
                 response += """<li><b>%s</b>: %s</li>\n""" % (method_name, method.__doc__ or '')
 
             response += """</ul>
@@ -303,7 +318,7 @@ class WebLab(object):
             """
             return response
         
-    def route(self, path, methods = ['GET'], exc = True, logging = True, log_level = level.Info, dont_log = None, max_log_size = None):
+    def route(self, web_context, path, methods = ['GET'], exc = True, logging = True, log_level = level.Info, dont_log = None, max_log_size = None):
         def wrapper(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
@@ -326,13 +341,14 @@ class WebLab(object):
             else:
                 exc_func = wrapped_func
 
-            if func.__name__ in self.methods:
+            if func.__name__ in self.methods[web_context]:
                 log(WebLab, level.Error, "Overriding %s" % func.__name__)
 
-            self.methods[func.__name__] = exc_func
-            if path in self.routes:
+            self.methods[web_context][func.__name__] = exc_func
+            if path in self.routes[web_context]:
                 log(WebLab, level.Error, "Overriding %s" % path)
-            self.routes[path] = (exc_func, path, methods)
+            self.routes[web_context][path] = (exc_func, path, methods)
+            self.routes[web_context][path] = (exc_func, path, methods)
             return wrapped_func
         return wrapper
 
@@ -350,32 +366,47 @@ class WebLab(object):
         response = Response(serialized, mimetype = 'application/json')
 
         if self.session_id:
-            core_server_url  = self.config.get_value( 'core_server_url', '' )
-            location = urlparse.urlparse(core_server_url).path or '/weblab/'
-            route = self.context.server_instance._server_route
-            session_id_cookie = '%s.%s' % (self.session_id, route)
+            session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
             now = datetime.datetime.now()
-            response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = location)
-            response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = location)
+            response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
+            response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
 
         return response
 
-    def apply_routes(self, flask_app, base_path = '', server_instance = None):
+    def apply_routes(self, web_context, flask_app, server_instance = None, base_path = ''):
         if base_path == '/':
             base_path = ''
-        flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(flask_app, server_instance) )
-        for path in self.routes:
-            self._create_wrapper(base_path, path, flask_app, server_instance)
 
-    def _create_wrapper(self, base_path, path, flask_app, server_instance):
-        func, path, methods = self.routes[path]
+        config = server_instance._cfg_manager
+        core_server_url = config.get_value( 'core_server_url', '' )
+
+        instance_args = dict(
+            config = config,
+            app = flask_app,
+            server_instance = server_instance,
+            core_server_url = core_server_url,
+            location = urlparse.urlparse(core_server_url).path or '/weblab/',
+            route = server_instance._server_route,
+        )
+
+        if web_context in self.apis:
+            flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(web_context, flask_app, instance_args) )
+        for path in self.routes[web_context]:
+            self._create_wrapper(base_path, path, flask_app, web_context, instance_args)
+
+    def _create_wrapper(self, base_path, path, flask_app, web_context, instance_args):
+        func, path, methods = self.routes[web_context][path]
+
         @wraps(func)
         def weblab_wrapper(*args, **kwargs):
-            self.context.app = flask_app
-            self.context.server_instance = server_instance
+            for name, value in instance_args.iteritems():
+                setattr(self.context, name, value) 
             with self:
                 result = func(*args, **kwargs)
-                return self._wrap_response(result)
+                if web_context in self.apis:
+                    result = self._wrap_response(result)
+                
+                return result
 
         flask_app.route(base_path + path, methods = methods)(weblab_wrapper)
 

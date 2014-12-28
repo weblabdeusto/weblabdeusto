@@ -33,7 +33,7 @@ from weblab.core.coordinator.status import WebLabSchedulingStatus
 
 from weblab.data.experiments import RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
 
-from weblab.core.wl import weblab
+from weblab.core.wl import weblab_api
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -122,11 +122,11 @@ class UserProcessor(object):
         self._session['experiment_id'] = experiment_id
 
         reservation_info = self._session['reservation_information'] = {}
-        reservation_info['user_agent']     = weblab.user_agent
-        reservation_info['referer']        = weblab.referer
-        reservation_info['mobile']         = weblab.is_mobile
-        reservation_info['locale']         = weblab.locale
-        reservation_info['facebook']       = weblab.is_facebook
+        reservation_info['user_agent']     = weblab_api.user_agent
+        reservation_info['referer']        = weblab_api.referer
+        reservation_info['mobile']         = weblab_api.is_mobile
+        reservation_info['locale']         = weblab_api.locale
+        reservation_info['facebook']       = weblab_api.is_facebook
         reservation_info['route']          = self._server_route or 'no-route-found'
         reservation_info['from_ip']        = client_address
         reservation_info['from_direct_ip'] = client_address

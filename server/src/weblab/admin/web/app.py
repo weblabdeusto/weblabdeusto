@@ -26,7 +26,7 @@ from weblab.db import db
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
 
-from weblab.core.wl import weblab as wl
+from weblab.core.wl import weblab_api
 
 class BackView(BaseView):
     @expose()
@@ -133,7 +133,7 @@ class AdministrationApplication(object):
 
         try:
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
-            with wl(self.ups, session_id = session_id):
+            with weblab_api(self.ups, session_id = session_id):
                 try:
                     permissions = weblab.core.server.get_user_permissions()
                 except SessionNotFoundError:
@@ -155,12 +155,12 @@ class AdministrationApplication(object):
     def get_permissions(self):
         if self.bypass_authz:
             session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId('student1', 'administrator'))
-            with wl(self.ups, session_id = session_id.id):
+            with weblab_api(self.ups, session_id = session_id.id):
                 return weblab.core.server.get_user_permissions()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         try:
-            with wl(self.ups, session_id = session_id):
+            with weblab_api(self.ups, session_id = session_id):
                 return weblab.core.server.get_user_permissions()
         except:
             traceback.print_exc()
@@ -169,12 +169,12 @@ class AdministrationApplication(object):
     def get_user_information(self):
         if self.bypass_authz:
             session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId('student1', 'administrator'))
-            with wl(self.ups, session_id = session_id.id):
+            with weblab_api(self.ups, session_id = session_id.id):
                 return weblab.core.server.get_user_information()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         try:
-            with wl(self.ups, session_id = session_id):
+            with weblab_api(self.ups, session_id = session_id):
                 return weblab.core.server.get_user_information()
         except SessionNotFoundError:
             return None

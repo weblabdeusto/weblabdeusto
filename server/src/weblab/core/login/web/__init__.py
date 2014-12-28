@@ -13,13 +13,22 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from weblab.core.wl import weblab_api
+from flask import request
+
+def get_argument(name, default = None):
+    value = request.args.get(name)
+    if value is None: 
+        if request.method == 'POST':
+            return request.form.get(name, default)
+        return default
+    return value
+
 import urlparse
 
 from werkzeug import HTTP_STATUS_CODES
 
 from abc import ABCMeta, abstractmethod
-
-from weblab.core.wl import weblab
 
 class ExternalSystemManager(object):
 
@@ -89,7 +98,7 @@ class WebPlugin(object):
 
     @property
     def headers(self):
-        return weblab.headers
+        return weblab_api.headers
 
     @property
     def uri(self):

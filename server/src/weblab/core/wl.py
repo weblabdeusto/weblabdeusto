@@ -1,3 +1,4 @@
-from weblab.core.new_server import WebLab
+from weblab.core.new_server import WebLabAPI
 
-weblab = WebLab()
+weblab_api = WebLabAPI(['login_web', 'web'])
+

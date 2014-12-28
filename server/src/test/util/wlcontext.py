@@ -1,5 +1,5 @@
 import threading
-from weblab.core.wl import weblab
+from weblab.core.wl import weblab_api
 
 """
 The target is to forget all the internal things of weblab / Flask and be able
@@ -30,13 +30,13 @@ class wlcontext(object):
                 kwargs['reservation_id'] = self.reservation_id
             else:
                 kwargs['reservation_id'] = self.reservation_id.id
-        self.local.weblab = weblab(**kwargs)
-        self.local.weblab.__enter__()
+        self.local.weblab_api = weblab_api(**kwargs)
+        self.local.weblab_api.__enter__()
 
     initialize = __enter__
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.local.weblab.__exit__(exc_type, exc_value, traceback)
+        self.local.weblab_api.__exit__(exc_type, exc_value, traceback)
         self.local.request_context.__exit__(exc_type, exc_value, traceback)
 
     def dispose(self):
