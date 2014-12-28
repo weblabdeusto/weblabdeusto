@@ -152,15 +152,9 @@ class WebPlugin(object):
 import login
 assert login is not None # avoid warnings
 
-from weblab.core.login.web.facebook   import FacebookPlugin, FacebookManager
+from weblab.core.login.web.facebook   import FacebookManager
 from weblab.core.login.web.openid_web import OpenIdPlugin, OpenIdManager
 from weblab.core.login.web.uned_sso   import UnedSSOManager
-
-WEB_PLUGINS = [
-    FacebookPlugin,
-    OpenIdPlugin,
-    # Your plug-in here
-]
 
 EXTERNAL_MANAGERS = {
     FacebookManager.NAME : FacebookManager(),

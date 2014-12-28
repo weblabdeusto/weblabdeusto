@@ -14,13 +14,6 @@
 #
 
 try:
-    from urlparse import parse_qsl as url_parse_qsl
-    parse_qsl = url_parse_qsl
-except ImportError:
-    from cgi import parse_qsl as cgi_parse_qsl
-    parse_qsl = cgi_parse_qsl
-
-try:
     from openid.store import memstore
     from openid.consumer import consumer
     from openid.oidutil import appendArgs
@@ -30,6 +23,7 @@ except ImportError:
 else:
     OPENID_AVAILABLE = True
 
+from urlparse import parse_qsl
 import urlparse
 import traceback
 from Cookie import SimpleCookie
@@ -37,6 +31,7 @@ from Cookie import SimpleCookie
 import voodoo.log as log
 from voodoo.log import logged
 
+from weblab.core.login.web import weblab_api, get_argument 
 import weblab.core.login.exc as LoginErrors
 from weblab.core.login.web import WebPlugin, ExternalSystemManager
 
@@ -66,6 +61,8 @@ class OpenIdManager(ExternalSystemManager):
 
     def get_user_id(self, credentials):
         return OpenIdPlugin.get_user_id(credentials)
+
+
 
 class OpenIdPlugin(WebPlugin):
 
@@ -225,7 +222,7 @@ class OpenIdPlugin(WebPlugin):
             return ""
 
         def run_withoutopenid(self, environ, start_response):
-            return self.build_response("python-openid not found")
+            return self.build_response("python-openid not found / not installed")
 
         __call__ = run_withoutopenid
         get_user_id = get_user_id_withoutopenid

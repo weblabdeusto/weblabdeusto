@@ -15,10 +15,8 @@
 
 import urlparse
 
-from weblab.core.login.web import WEB_PLUGINS
 from werkzeug import Request
 
-from weblab.comm.context import create_context, delete_context
 from weblab.configuration_doc import LOGIN_FACADE_SERVER_ROUTE, CORE_SERVER_URL
 
 class LoginApp(object):
@@ -34,26 +32,7 @@ class LoginApp(object):
         else:
             self.location     = '/weblab/'
 
-        for PluginClass in WEB_PLUGINS:
-            PluginClass.initialize(cfg_manager, self.server_route)
-
     def __call__(self, environ, start_response):
-
-        TOKEN = 'login/web'
-
-        path = environ['PATH_INFO']
-        relative_path = path[path.find(TOKEN) + len(TOKEN):]
-
-        request = Request(environ)
-        create_context(self.server, environ['REMOTE_ADDR'], request.headers)
-        try:
-            for PluginClass in WEB_PLUGINS:
-                if relative_path.startswith(PluginClass.path or 'url.not.provided'):
-                    plugin = PluginClass(self.cfg_manager, self.server, environ, start_response, self.server_route, self.location)
-                    return plugin(environ, start_response)
-        finally:
-            delete_context()
-
         # Otherwise
         start_response("404 Not Found", [('Content-Type','text/plain')])
         return ["No plug-in registered for that path."]

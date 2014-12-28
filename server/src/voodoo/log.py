@@ -234,8 +234,8 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                                     replaced = True
 
                         if not replaced:
-                            print >> sys.stderr, "Warning!!! Function %s didn't receive a parameter %s" % (f, parameter)
-                            self.fake_args  = ('<error: all hidden because the parameter %s was not found>' % parameter,)
+                            print >> sys.stderr, "Warning!!! Function %s didn't receive a parameter %s" % (f, repr(parameter))
+                            self.fake_args  = ('<error: all hidden because the parameter %s was not found>' % repr(parameter),)
                             self.fake_kargs = {}
                 else:
                     self.fake_args = args
