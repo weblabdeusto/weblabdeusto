@@ -8,7 +8,7 @@ import threading
 from functools import wraps, partial
 from collections import OrderedDict
 
-from flask import Flask, request, Response
+from flask import request, Response
 
 from voodoo.log import log, level, log_exc, logged
 from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
@@ -110,7 +110,7 @@ def check_exceptions(func):
                         log(weblab_class, level.Warning,
                                 "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
                         log_exc(weblab_class, log.level.Info)
-                        return _raise_exception(RemoteFacadeManagerCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
+                        return _raise_exception(WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
     return wrapper
 
@@ -369,11 +369,11 @@ class WebLabAPI(object):
                 exc_func = wrapped_func
 
             if func.__name__ in self.methods[web_context]:
-                log(WebLab, level.Error, "Overriding %s" % func.__name__)
+                log(WebLabAPI, level.Error, "Overriding %s" % func.__name__)
 
             self.methods[web_context][func.__name__] = exc_func
             if path in self.routes[web_context]:
-                log(WebLab, level.Error, "Overriding %s" % path)
+                log(WebLabAPI, level.Error, "Overriding %s" % path)
             self.routes[web_context][path] = (exc_func, path, methods)
             self.routes[web_context][path] = (exc_func, path, methods)
             return wrapped_func

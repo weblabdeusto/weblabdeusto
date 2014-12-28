@@ -32,11 +32,6 @@ The LoginServer manages both interfaces.
 """
 
 import voodoo.log as log
-from voodoo.log import logged
-
-import weblab.login.comm.wsgi_server as wsgi_server
-
-import weblab.data.server_type as ServerType
 
 # TODO list:
 # - Remove this file completely

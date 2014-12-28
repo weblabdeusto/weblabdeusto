@@ -15,7 +15,7 @@
 
 import datetime
 import traceback
-from flask import request, make_response
+from flask import make_response
 
 from weblab.core.login.web import weblab_api, get_argument 
 from weblab.core.login.exc import InvalidCredentialsError

@@ -1,10 +1,6 @@
-import os
 import sys
 import urlparse
 import traceback
-
-import logging
-from logging.handlers import RotatingFileHandler
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -12,10 +8,8 @@ from flask import Flask, request, redirect
 from flask.ext.admin import Admin, BaseView, expose
 
 if __name__ == '__main__':
-    import sys
     sys.path.insert(0, '.')
 
-from voodoo.sessions.session_id import SessionId
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.core.server 

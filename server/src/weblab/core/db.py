@@ -14,11 +14,9 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-from functools import wraps
 import numbers
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import desc
 
 import voodoo.log as log
 from voodoo.log import logged

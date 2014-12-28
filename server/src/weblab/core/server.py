@@ -37,7 +37,6 @@ from weblab.data.command import Command
 
 from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
-import weblab.data.server_type as ServerType
 
 import weblab.core.reservations as Reservation
 import weblab.core.data_retriever as TemporalInformationRetriever
@@ -52,10 +51,8 @@ import weblab.core.coordinator.status as WebLabSchedulingStatus
 import weblab.core.exc as coreExc
 import weblab.core.comm.web_server as WebFacadeServer
 
-from voodoo.gen.caller_checker import caller_check
 from voodoo.threaded import threaded
 
-from voodoo.sessions.checker import check_session
 from voodoo.sessions.exc import SessionNotFoundError
 import voodoo.sessions.manager as SessionManager
 import voodoo.sessions.session_type as SessionType

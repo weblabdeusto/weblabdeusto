@@ -13,21 +13,15 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import sys
 import threading
-import SocketServer
 
 import weblab.configuration_doc as configuration_doc
 
 import datetime
-import types
 
-import voodoo.log as log
 import voodoo.counter as counter
 import voodoo.resources_manager as ResourceManager
 
-from weblab.comm.context import get_context, create_context, delete_context
-from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
 import weblab.comm.exc as FacadeErrors
 import voodoo.configuration as ConfigurationErrors
 

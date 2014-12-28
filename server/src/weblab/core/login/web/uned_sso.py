@@ -13,18 +13,16 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import json
 import urllib
-import urllib2
 import base64
 
 import voodoo.log as log
 from voodoo.log import logged
 
 from flask import request, make_response, redirect
-from weblab.core.login.web import weblab_api, get_argument 
+from weblab.core.login.web import weblab_api
 
-from weblab.core.login.web import WebPlugin, ExternalSystemManager
+from weblab.core.login.web import ExternalSystemManager
 import weblab.core.login.exc as LoginErrors
 
 from weblab.data.dto.users import User
