@@ -23,7 +23,7 @@ import urlparse
 
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, request
+from flask import Flask, Blueprint, request
 
 from functools import wraps
 
@@ -91,7 +91,7 @@ WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 # This could be refactored so the first time it's called weblab.user_processor, it is generated, and if it's been generated in the context, it is also removed (update_latest_timestamp) on the wrap_func()
 # Alternatively, we could remove the user_processors (which indeed makes more sense)
-def ng_load_user_processor(func):
+def load_user_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab.ctx.server_instance
@@ -113,7 +113,7 @@ def ng_load_user_processor(func):
 
     return wrapper
 
-def ng_load_reservation_processor(func):
+def load_reservation_processor(func):
     """decorator that loads the reservation_processor given the reservation_id"""
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -176,12 +176,12 @@ def create_external_user(self, system = None, credentials = None):
 # User operations
 # 
 @weblab.route('/user/experiments/')
-@ng_load_user_processor
+@load_user_processor
 def list_experiments():
     return weblab.ctx.user_processor.list_experiments()
 
 @weblab.route('/user/info/')
-@ng_load_user_processor
+@load_user_processor
 def get_user_information():
     user_information = weblab.ctx.user_processor.get_user_information()
     if weblab.ctx.user_processor.is_admin():
@@ -197,29 +197,29 @@ def get_user_information():
     return user_information
 
 @weblab.route('/user/reservation_id/')
-@ng_load_user_processor
+@load_user_processor
 def get_reservation_id_by_session_id():
     return weblab.ctx.user_session.get('reservation_id')
 
 @weblab.route('/user/reservation/<reservation_id>/')
-@ng_load_user_processor
+@load_user_processor
 def get_experiment_use_by_id(reservation_id = None):
     return weblab.ctx.user_processor.get_experiment_use_by_id(SessionId(reservation_id['id']))
 
 @weblab.route('/user/reservations/<reservation_ids>/')
-@ng_load_user_processor
+@load_user_processor
 def get_experiment_uses_by_id(reservation_ids = None):
     if isinstance(reservation_ids, basestring):
         reservation_ids = [ {'id' : reservation_id} for reservation_id in reservation_ids.split(',') ]
     return weblab.ctx.user_processor.get_experiment_uses_by_id([ SessionId(reservation_id['id']) for reservation_id in reservation_ids ])
 
 @weblab.route('/user/permissions/')
-@ng_load_user_processor
+@load_user_processor
 def get_user_permissions():
     return weblab.ctx.user_processor.get_user_permissions()
 
 @weblab.route('/user/reservations/', methods = [ 'POST' ])
-@ng_load_user_processor
+@load_user_processor
 def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None):
     server = weblab.ctx.server_instance
     client_address = weblab.ctx.client_address
@@ -297,14 +297,14 @@ def logout():
 # 
 
 @weblab.route('/reservation/finish/', methods = ['POST'])
-@ng_load_reservation_processor
+@load_reservation_processor
 def finished_experiment():
     reservation_session_id = weblab.ctx.reservation_processor.get_reservation_session_id()
     weblab.ctx.server_instance._alive_users_collection.remove_user(reservation_session_id)
     return weblab.ctx.reservation_processor.finish()
 
 @weblab.route('/reservation/file/', methods = ['POST'], dont_log = ('file_content', 0))
-@ng_load_reservation_processor
+@load_reservation_processor
 def send_file(file_content = None, file_info = None):
     """ send_file(file_content, file_info)
 
@@ -315,7 +315,7 @@ def send_file(file_content = None, file_info = None):
     return reservation_processor.send_file( file_content, file_info )
 
 @weblab.route('/reservation/command/', methods = ['POST'])
-@ng_load_reservation_processor
+@load_reservation_processor
 def send_command(command):
     """ send_command(command)
 
@@ -327,7 +327,7 @@ def send_command(command):
     return reservation_processor.send_command( Command(command['commandstring']) )
 
 @weblab.route('/reservation/file/async/', methods = ['POST'], dont_log = ('file_content', 0))
-@ng_load_reservation_processor
+@load_reservation_processor
 def send_async_file(file_content, file_info):
     """
     send_async_file(session_id, file_content, file_info)
@@ -344,7 +344,7 @@ def send_async_file(file_content, file_info):
     return reservation_processor.send_async_file( file_content, file_info )
 
 @weblab.route('/reservation/file/async/status')
-@ng_load_reservation_processor
+@load_reservation_processor
 def check_async_command_status(request_identifiers):
     """
     check_async_command_status(session_id, request_identifiers)
@@ -360,7 +360,7 @@ def check_async_command_status(request_identifiers):
     return reservation_processor.check_async_command_status( request_identifiers )
 
 @weblab.route('/reservation/command/async/', methods = ['POST'])
-@ng_load_reservation_processor
+@load_reservation_processor
 def send_async_command(command):
     """
     send_async_command(session_id, command)
@@ -374,19 +374,19 @@ def send_async_command(command):
     return reservation_processor.send_async_command( Command(command['commandstring']) )
 
 @weblab.route('/reservation/info/')
-@ng_load_reservation_processor
+@load_reservation_processor
 def get_reservation_info():
     return weblab.ctx.reservation_processor.get_info()
 
 
 @weblab.route('/reservation/poll/')
-@ng_load_reservation_processor
+@load_reservation_processor
 def poll():
     reservation_processor = weblab.ctx.reservation_processor
     return weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
 
 @weblab.route('/reservation/status/', max_log_size = 1000)
-@ng_load_reservation_processor
+@load_reservation_processor
 def get_reservation_status():
     reservation_processor = weblab.ctx.reservation_processor
     weblab.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
@@ -420,8 +420,12 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         super(WebLabFlaskServer, self).__init__(cfg_manager, self.app)
 
-        weblab.apply_routes(self.app, '/weblab/json', server)
-        weblab.apply_routes(self.app, '/weblab/login/json', server)
+        json_api = Blueprint('/weblab/', __name__)
+
+        weblab.apply_routes(json_api, '', server)
+
+        self.app.register_blueprint(json_api, url_prefix = '/weblab/json')
+        self.app.register_blueprint(json_api, url_prefix = '/weblab/login/json')
         
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 

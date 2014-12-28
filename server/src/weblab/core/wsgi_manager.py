@@ -137,8 +137,15 @@ class WebLabWsgiServer(object):
         login_server.socket.settimeout(timeout)
         login_server_thread = ServerThread(login_server, timeout)
 
-        self._servers = [core_server, login_server, admin_server]
-        self._server_threads = [core_server_thread, login_server_thread, admin_server_thread]
+        listen  = cfg_manager.get_value('login_web_facade_bind', '')
+        port    = cfg_manager.get_value('login_web_facade_port')
+
+        login_web_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+        login_web_server.socket.settimeout(timeout)
+        login_web_server_thread = ServerThread(login_web_server, timeout)
+
+        self._servers = [core_server, login_server, admin_server, login_web_server]
+        self._server_threads = [core_server_thread, login_server_thread, admin_server_thread, login_web_server_thread]
 
 
     def start(self):
