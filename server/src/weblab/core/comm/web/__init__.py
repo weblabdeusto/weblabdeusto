@@ -37,3 +37,6 @@ assert direct2experiment is not None # avoid warnings
 import ilab
 assert ilab is not None # avoid warnings
 
+import labview
+assert labview is not None # avoid warnings
+

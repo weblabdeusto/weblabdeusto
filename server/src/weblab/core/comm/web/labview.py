@@ -13,9 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from voodoo.sessions.session_id import SessionId
-import weblab.comm.web_server as WebFacadeServer
+from weblab.core.comm.web import get_argument
+from weblab.core.wl import weblab_api
+
 import weblab.data.command as Command
+
 SESSION_ID = 'session_id'
 
 HTML_TEMPLATE="""<?xml version="1.0"?>
@@ -28,42 +30,27 @@ HTML_TEMPLATE="""<?xml version="1.0"?>
 </html>
 """
 
-class LabViewMethod(WebFacadeServer.Method):
-    path = '/labview/'
-
-    def run(self):
-        """
-        run()
-        @return HTML defined above, with the success or failure response.
-        """
-        try:
-            session_id = self._check_arguments()
-            sid = SessionId(session_id)
-            result = self.server.send_command(sid, Command.Command("get_html"))
-        except LabViewError as lve:
-            message = lve.args[0]
+@weblab_api.route_web('/labview/')
+def labview():
+    import weblab.core.server as core_api
+    try:
+        reservation_id = get_argument(SESSION_ID)
+        if reservation_id is None:
             return HTML_TEMPLATE % {
-                        'MESSAGE' : "Failed to load LabVIEW experiment. Reason: %s." % message
-                    }
-        except Exception as e:
-            message = e.args[0]
-            return HTML_TEMPLATE % {
-                        'MESSAGE' : "Failed to load LabVIEW experiment. Reason: %s. Call the administrator to fix it." % message
-                    }
-        else:
-            resultstr = result.commandstring
-            print "[DBG] Returning result from labview: " + resultstr
-            return HTML_TEMPLATE % {
-                        'MESSAGE' : resultstr
+                        'MESSAGE' : "Failed to load LabVIEW experiment. Reason: %s argument not provided!." % SESSION_ID
                     }
 
-    def _check_arguments(self):
-        session_id = self.get_argument(SESSION_ID)
-        if session_id is None:
-            raise LabViewError("%s argument not provided!" % SESSION_ID)
-
-        return session_id
-
-class LabViewError(Exception):
-    pass
+        weblab_api.ctx.reservation_id = reservation_id
+        result = core_api.send_command(Command.Command("get_html"))
+    except Exception as e:
+        message = e.args[0]
+        return HTML_TEMPLATE % {
+                    'MESSAGE' : "Failed to load LabVIEW experiment. Reason: %s. Call the administrator to fix it." % message
+                }
+    else:
+        resultstr = result.commandstring
+        print "[DBG] Returning result from labview: " + resultstr
+        return HTML_TEMPLATE % {
+                    'MESSAGE' : resultstr
+                }
 
