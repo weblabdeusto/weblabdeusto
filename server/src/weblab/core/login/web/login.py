@@ -14,14 +14,14 @@
 #
 
 import datetime
-from flask import request, make_response
 import traceback
+from flask import request, make_response
 
-from weblab.core.login.web import WebPlugin, weblab_api, get_argument 
+from weblab.core.login.web import weblab_api, get_argument 
 from weblab.core.login.exc import InvalidCredentialsError
 
-USERNAME="username"
-PASSWORD="password"
+USERNAME='username'
+PASSWORD='password'
 
 @weblab_api.route_login_web('/login/', methods = ['GET', 'POST'])
 def login():
@@ -30,7 +30,7 @@ def login():
     password = get_argument(PASSWORD, 'not provided')
 
     if username is None:
-        return "%s argument not provided!" % USERNAME
+        return make_response("%s argument not provided!" % USERNAME, 400)
 
     try:
         session_id = core_api.login(username, password)
@@ -47,27 +47,4 @@ def login():
         response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = weblab_api.ctx.location)
 
         return response
-
-class LoginPlugin(WebPlugin):
-
-    path = '/login/'
-
-    def __call__(self, environ, start_response):
-
-        username = self.get_argument(USERNAME)
-
-        if username is None:
-            return self.build_response("%s argument not provided!" % USERNAME)
-
-        password = self.get_argument(PASSWORD) or 'not provided'
-        try:
-            session_id = self.server.login(username, password)
-        except InvalidCredentialsError:
-            return self.build_response("Invalid username or password", code = 403)
-        except:
-            traceback.print_exc()
-            return self.build_response("There was an unexpected error while logging in.", code = 500)
-        else:
-            self.replace_session(session_id.id)
-            return self.build_response("%s;%s" % (session_id.id, self.weblab_cookie))
 

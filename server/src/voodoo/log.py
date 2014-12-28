@@ -198,7 +198,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
 
             def _build_fake_args(self, args, kargs):
                 # args doesn't include "self"
-                if except_for != None:
+                if except_for is not None:
                     self.fake_args = list(args)
                     self.fake_kargs = kargs.copy()
 
@@ -210,8 +210,8 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                     for parameter in except_for_parameters:
                         replaced = False
                         if isinstance(parameter, int):
-                            if len(args) <= parameter - 1:
-                                self.fake_args[parameter - 1] = '<hidden>'
+                            if len(args) < parameter:
+                                self.fake_args[parameter] = '<hidden>'
                                 replaced = True
                         else:
                             if isinstance(parameter, basestring):
@@ -229,8 +229,8 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                                 else:
                                     position = given_position
 
-                                if position >= 0 and len(args) > position - 1:
-                                    self.fake_args[position - 1] = '<hidden>'
+                                if position >= 0 and len(args) > position:
+                                    self.fake_args[position] = '<hidden>'
                                     replaced = True
 
                         if not replaced:

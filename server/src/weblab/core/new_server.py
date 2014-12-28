@@ -257,7 +257,7 @@ class WebLabAPI(object):
             self.context.reservation_id = reservation_id
         if server_instance:
             self.context.server_instance = server_instance
-            for name, value in self._get_instance_args(server_instance, None):
+            for name, value in self._get_instance_args(server_instance, None).iteritems():
                 setattr(self.context, name, value)
 
         return self

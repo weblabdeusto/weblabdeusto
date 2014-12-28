@@ -23,7 +23,7 @@ class LoginManager(object):
         self._db = db
         self._core_server = core_server
 
-    @logged(log.level.Info, except_for='password')
+    @logged(log.level.Info, except_for=(('password',1),))
     def login(self, username, password):
         """ do_login(username, password) -> SessionId
 
@@ -134,7 +134,7 @@ class LoginManager(object):
         return external_user_id, external_user
 
 
-    @logged(log.level.Info, except_for="password")
+    @logged(log.level.Info, except_for=(("password",1),))
     def grant_external_credentials(self, username, password, system, credentials):
         """ Links an existing user to the new user. """
 

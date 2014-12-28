@@ -149,7 +149,7 @@ from weblab.core.wl import weblab_api
 #  Login methods
 # 
 # 
-@weblab_api.route_api('/login/', dont_log = 'password')
+@weblab_api.route_api('/login/', dont_log = (('password', 1), ))
 def login(username = None, password = None):
     if username is None:
         if request.method == 'GET':
@@ -302,7 +302,7 @@ def finished_experiment():
     weblab_api.ctx.server_instance._alive_users_collection.remove_user(reservation_session_id)
     return weblab_api.ctx.reservation_processor.finish()
 
-@weblab_api.route_api('/reservation/file/', methods = ['POST'], dont_log = ('file_content', 0))
+@weblab_api.route_api('/reservation/file/', methods = ['POST'], dont_log = (('file_content', 0),))
 @load_reservation_processor
 def send_file(file_content = None, file_info = None):
     """ send_file(file_content, file_info)
@@ -325,7 +325,7 @@ def send_command(command):
     weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
     return reservation_processor.send_command( Command(command['commandstring']) )
 
-@weblab_api.route_api('/reservation/file/async/', methods = ['POST'], dont_log = ('file_content', 0))
+@weblab_api.route_api('/reservation/file/async/', methods = ['POST'], dont_log = (('file_content', 0),))
 @load_reservation_processor
 def send_async_file(file_content, file_info):
     """
