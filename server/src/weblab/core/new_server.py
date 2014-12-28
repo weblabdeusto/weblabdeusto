@@ -199,51 +199,51 @@ class WebLabAPI(object):
 
     @property
     def reservation_id(self):
-        return getattr(self.context, 'reservation_id')
+        return getattr(self.context, 'reservation_id', None)
 
     @property
     def headers(self):
-        return getattr(self.context, 'headers')
+        return getattr(self.context, 'headers', None)
 
     @property
     def referer(self):
-        return getattr(self.context, 'referer')
+        return getattr(self.context, 'referer', None)
 
     @property
     def locale(self):
-        return getattr(self.context, 'locale')
+        return getattr(self.context, 'locale', None)
 
     @property
     def is_mobile(self):
-        return getattr(self.context, 'is_mobile')
+        return getattr(self.context, 'is_mobile', None)
 
     @property
     def is_facebook(self):
-        return getattr(self.context, 'is_facebook')
+        return getattr(self.context, 'is_facebook', None)
 
     @property
     def session_id(self):
-        return getattr(self.context, 'session_id')
+        return getattr(self.context, 'session_id', None)
 
     @property
     def ip_address(self):
-        return getattr(self.context, 'ip_address')
+        return getattr(self.context, 'ip_address', None)
 
     @property
     def config(self):
-        return getattr(self.context, 'config')
+        return getattr(self.context, 'config', None)
 
     @property
     def client_address(self):
-        return getattr(self.context, 'client_address')
+        return getattr(self.context, 'client_address', None)
 
     @property
     def server_instance(self):
-        return getattr(self.context, 'server_instance')
+        return getattr(self.context, 'server_instance', None)
 
     @property
     def app(self):
-        return getattr(self.context, 'app')
+        return getattr(self.context, 'app', None)
 
     def __call__(self, server_instance = None, session_id = None, reservation_id = None):
         # To be able to run:
