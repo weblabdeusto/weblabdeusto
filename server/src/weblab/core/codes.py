@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-# These codes are common to weblab.login.comm and weblab.core.comm
 WEBLAB_GENERAL_EXCEPTION_CODE = 'Server.WebLab'
 VOODOO_GENERAL_EXCEPTION_CODE = 'Server.Voodoo'
 PYTHON_GENERAL_EXCEPTION_CODE = 'Server.Python'

@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from weblab.core.comm.web import get_argument
+from weblab.core.web import get_argument
 from weblab.core.wl import weblab_api
 
 import weblab.data.command as Command

@@ -49,7 +49,7 @@ from weblab.core.db import DatabaseGateway
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
-import weblab.core.comm.web as web
+import weblab.core.web as web
 assert web is not None # Avoid warnings
 
 from voodoo.threaded import threaded

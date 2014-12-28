@@ -15,7 +15,7 @@
 
 import traceback
 from flask import redirect
-from weblab.core.comm.web import weblab_api, get_argument
+from weblab.core.web import weblab_api, get_argument
 
 from weblab.data.experiments import ExperimentId
 
