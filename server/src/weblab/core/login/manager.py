@@ -6,10 +6,10 @@ from voodoo.log import logged
 
 from weblab.core.login.web import EXTERNAL_MANAGERS
 
+from weblab.core.wl import weblab_api
 import weblab.core.login.exc as LoginErrors
 from weblab.core.exc import DbUserNotFoundError
 from weblab.data import ValidDatabaseSessionId
-import weblab.comm.context as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
 NOT_LINKABLE_USERS = 'login_not_linkable_users'
@@ -87,12 +87,10 @@ class LoginManager(object):
 
     def _reserve_session(self, db_session_id):
         session_id, server_route = self._core_server.do_reserve_session(db_session_id)
-        context = RemoteFacadeContext.get_context()
-        context.route = server_route
         if hasattr(session_id, 'id'):
-            context.session_id = session_id.id
+            weblab_api.ctx.session_id = session_id.id
         else:
-            context.session_id = session_id
+            weblab_api.ctx.session_id = session_id
         return session_id
 
     @logged(log.level.Info)
