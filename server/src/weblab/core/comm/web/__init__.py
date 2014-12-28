@@ -14,6 +14,7 @@
 #
 
 from weblab.core.wl import weblab_api
+assert weblab_api is not None # avoid warnings
 from flask import request
 
 def get_argument(name, default = None):
@@ -26,3 +27,6 @@ def get_argument(name, default = None):
 
 import language
 assert language is not None # avoid warnings
+
+import client
+assert client is not None # avoid warnings

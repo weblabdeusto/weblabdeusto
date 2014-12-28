@@ -15,6 +15,7 @@
 
 from abc import ABCMeta, abstractmethod
 from weblab.core.wl import weblab_api
+assert weblab_api is not None # avoid warnings
 from flask import request
 
 def get_argument(name, default = None):

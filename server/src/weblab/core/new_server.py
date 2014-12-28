@@ -392,10 +392,14 @@ class WebLabAPI(object):
 
         if self.session_id:
             session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
-            now = datetime.datetime.now()
-            response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
-            response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
+            self.fill_session_cookie(response, session_id_cookie)
 
+        return response
+
+    def fill_session_cookie(self, response, value):
+        now = datetime.datetime.now()
+        response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
+        response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
         return response
 
     def apply_routes(self, web_context, flask_app, server_instance = None, base_path = ''):

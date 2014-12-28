@@ -13,7 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-import datetime
 import traceback
 from flask import make_response
 
@@ -42,9 +41,6 @@ def login():
     else:
         response = make_response("%s;%s" % (session_id.id, weblab_api.ctx.route))
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
-        now = datetime.datetime.now()
-        response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = weblab_api.ctx.location)
-        response.set_cookie('loginweblabsessionid', session_id_cookie, expires = now + datetime.timedelta(hours = 1), path = weblab_api.ctx.location)
-
+        weblab_api.fill_session_cookie(response, session_id_cookie)
         return response
 

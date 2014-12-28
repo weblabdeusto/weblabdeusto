@@ -15,7 +15,7 @@
 #
 
 from flask import request
-from weblab.core.comm.web import weblab_api
+from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/language/')
 def language():
