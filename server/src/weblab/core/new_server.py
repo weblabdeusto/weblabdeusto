@@ -11,7 +11,7 @@ from collections import OrderedDict
 from flask import request, Response
 
 from voodoo.log import log, level, log_exc, logged
-from weblab.comm.codes import WEBLAB_GENERAL_EXCEPTION_CODE
+import weblab.comm.codes as ErrorCodes
 import weblab.configuration_doc as configuration_doc
 
 # TODO: clean these imports
@@ -19,8 +19,6 @@ import weblab.core.login.exc as LoginErrors
 import weblab.core.exc as coreExc
 import weblab.exc as WebLabErrors
 import voodoo.gen.exceptions.exceptions as VoodooErrors
-import weblab.login.comm.codes as LFCodes
-import weblab.core.comm.codes as UPFCodes
 
 def simplify_response(response, limit = 15, counter = 0):
     """
@@ -55,15 +53,15 @@ EXCEPTIONS = (
         #
         # EXCEPTION                                   CODE                                           PROPAGATE TO CLIENT
         #
-        (LoginErrors.InvalidCredentialsError, LFCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,     True),
-        (LoginErrors.LoginError,              LFCodes.LOGIN_SERVER_EXCEPTION_CODE,                   False),
-        (coreExc.SessionNotFoundError,        UPFCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
-        (coreExc.NoCurrentReservationError,   UPFCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
-        (coreExc.UnknownExperimentIdError,    UPFCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
-        (coreExc.WebLabCoreError,             UPFCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
-        (WebLabErrors.WebLabError,            UPFCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
-        (VoodooErrors.GeneratorError,         UPFCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
-        (Exception,                           UPFCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
+        (LoginErrors.InvalidCredentialsError, ErrorCodes.CLIENT_INVALID_CREDENTIALS_EXCEPTION_CODE,     True),
+        (LoginErrors.LoginError,              ErrorCodes.LOGIN_SERVER_EXCEPTION_CODE,                   False),
+        (coreExc.SessionNotFoundError,        ErrorCodes.CLIENT_SESSION_NOT_FOUND_EXCEPTION_CODE,      True),
+        (coreExc.NoCurrentReservationError,   ErrorCodes.CLIENT_NO_CURRENT_RESERVATION_EXCEPTION_CODE, True),
+        (coreExc.UnknownExperimentIdError,    ErrorCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
+        (coreExc.WebLabCoreError,             ErrorCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
+        (WebLabErrors.WebLabError,            ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
+        (VoodooErrors.GeneratorError,         ErrorCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
+        (Exception,                           ErrorCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
 
     )
 
@@ -110,7 +108,7 @@ def check_exceptions(func):
                         log(weblab_class, level.Warning,
                                 "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
                         log_exc(weblab_class, log.level.Info)
-                        return _raise_exception(WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
+                        return _raise_exception(ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
     return wrapper
 
@@ -288,10 +286,10 @@ class WebLabAPI(object):
             contents = get_json()
             if contents:
                 if 'method' not in contents:
-                    return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Missing 'method' attr")
+                    return _raise_exception(code = ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Missing 'method' attr")
                 method = contents['method']
                 if method not in self.methods[web_context]:
-                    return _raise_exception(code = WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Method not recognized")
+                    return _raise_exception(code = ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, msg = "Method not recognized")
                 parameters = contents.get('params', {})
 
                 if 'session_id' in parameters:
@@ -313,7 +311,7 @@ class WebLabAPI(object):
                 with self:
                     return self._wrap_response(self.methods[web_context][method](**parameters))
             else:
-                return _raise_exception(WEBLAB_GENERAL_EXCEPTION_CODE, "Couldn't deserialize message")
+                return _raise_exception(ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, "Couldn't deserialize message")
         else:
             response = """<html>
             <head>
