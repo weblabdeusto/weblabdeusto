@@ -41,7 +41,6 @@ def login():
         return make_response("There was an unexpected error while logging in.", 500)
     else:
         response = make_response("%s;%s" % (session_id.id, weblab_api.ctx.route))
-
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
         now = datetime.datetime.now()
         response.set_cookie('weblabsessionid', session_id_cookie, expires = now + datetime.timedelta(days = 100), path = weblab_api.ctx.location)

@@ -257,7 +257,23 @@ class WebLabAPI(object):
             self.context.reservation_id = reservation_id
         if server_instance:
             self.context.server_instance = server_instance
+            for name, value in self._get_instance_args(server_instance, None):
+                setattr(self.context, name, value)
+
         return self
+
+    def _get_instance_args(self, server_instance, flask_app):
+        config = server_instance._cfg_manager
+        core_server_url = config.get_value( 'core_server_url', '' )
+
+        return dict(
+            config = config,
+            app = flask_app,
+            server_instance = server_instance,
+            core_server_url = core_server_url,
+            location = urlparse.urlparse(core_server_url).path or '/weblab/',
+            route = server_instance._server_route,
+        )
 
     def _error(self, msg, code):
         return {"message": msg, "code": code, "is_exception": True}
@@ -318,7 +334,7 @@ class WebLabAPI(object):
             """
             return response
         
-    def route(self, web_context, path, methods = ['GET'], exc = True, logging = True, log_level = level.Info, dont_log = None, max_log_size = None):
+    def route(self, web_context, path, methods = ['GET'], exc = DEFAULT, logging = DEFAULT, log_level = level.Info, dont_log = None, max_log_size = None):
         def wrapper(func):
             @wraps(func)
             def wrapped(*args, **kwargs):
@@ -327,16 +343,27 @@ class WebLabAPI(object):
                 kwargs_dict = dict(( (k, simplify_response(v)) for k, v in kwargs.iteritems() ))
                 return func(*args_dict, **kwargs_dict)
 
-            wrapped_func = wrapped
-            logged_kwargs = {'is_class_method' : False}
-            if dont_log:
-                logged_kwargs['except_for'] = dont_log
-            if max_log_size is not None:
-                logged_kwargs['max_size'] = max_log_size
-            logged_decorator = logged(log_level, **logged_kwargs)
-            wrapped_func = logged_decorator(wrapped_func)
+            if logging == DEFAULT:
+                must_log = web_context in self.apis
+            else:
+                must_log = logging
 
-            if exc:
+            if exc == DEFAULT:
+                capture_exc = web_context in self.apis
+            else:
+                capture_exc = exc
+
+            wrapped_func = wrapped
+            if must_log:
+                logged_kwargs = {'is_class_method' : False}
+                if dont_log:
+                    logged_kwargs['except_for'] = dont_log
+                if max_log_size is not None:
+                    logged_kwargs['max_size'] = max_log_size
+                logged_decorator = logged(log_level, **logged_kwargs)
+                wrapped_func = logged_decorator(wrapped_func)
+
+            if capture_exc:
                 exc_func = check_exceptions(wrapped_func)
             else:
                 exc_func = wrapped_func
@@ -377,17 +404,7 @@ class WebLabAPI(object):
         if base_path == '/':
             base_path = ''
 
-        config = server_instance._cfg_manager
-        core_server_url = config.get_value( 'core_server_url', '' )
-
-        instance_args = dict(
-            config = config,
-            app = flask_app,
-            server_instance = server_instance,
-            core_server_url = core_server_url,
-            location = urlparse.urlparse(core_server_url).path or '/weblab/',
-            route = server_instance._server_route,
-        )
+        instance_args = self._get_instance_args(server_instance, flask_app)
 
         if web_context in self.apis:
             flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(web_context, flask_app, instance_args) )
