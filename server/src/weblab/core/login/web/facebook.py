@@ -16,7 +16,7 @@
 import json
 import urllib2
 import base64
-from flask import make_response, render_template
+from flask import make_response, render_template, request
 
 import voodoo.log as log
 from voodoo.log import logged
