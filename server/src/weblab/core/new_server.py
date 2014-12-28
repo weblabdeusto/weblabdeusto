@@ -176,6 +176,8 @@ class WebLabAPI(object):
             reservation_id = request.headers.get('X-WebLab-reservation-id')
             if not reservation_id:
                 reservation_id = request.args.get('reservation_id')
+            if not reservation_id:
+                reservation_id = request.cookies.get('weblab_reservation_id')
             self.context.reservation_id = reservation_id
         
         if not hasattr(self.context, 'session_id'):

@@ -33,3 +33,7 @@ assert client is not None # avoid warnings
 
 import direct2experiment
 assert direct2experiment is not None # avoid warnings
+
+import ilab
+assert ilab is not None # avoid warnings
+

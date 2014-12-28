@@ -13,97 +13,81 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from flask import request, make_response
+from weblab.core.wl import weblab_api
+
 import json
 import traceback
 
-from voodoo.sessions.session_id import SessionId
-
 from weblab.data.experiments import ExperimentId
 
-import weblab.comm.web_server as WebFacadeServer
 from weblab.core.coordinator.clients.ilab_batch import RequestSerializer
 
-class ILabMethod(WebFacadeServer.Method):
-    path = '/ilab/'
+serializer = RequestSerializer()
 
-    def __init__(self, *args, **kwargs):
-        super(ILabMethod, self).__init__(*args, **kwargs)
-        self.other_cookies = []
+@weblab_api.route_web('/ilab/')
+def ilab():
+    import weblab.core.server as core_api
 
-    def run(self):
-        self.serializer = RequestSerializer()
-        action = self.req.headers.get('SOAPAction')
-        if action is None:
-            return "No SOAPAction provided"
+    action = request.headers.get('SOAPAction')
+    if action is None:
+        return "No SOAPAction provided"
 
-        cookies = self.req.headers.getheader('cookie')
+    if weblab_api.ctx.session_id is None:
+        return "Not logged in!"
 
-        self.sess_id = None
-        self.reservation_id = None
-        for cur_cookie in (cookies or '').split('; '):
-            if cur_cookie.startswith("weblabsessionid="):
-                self.sess_id = SessionId('.'.join(cur_cookie[len('weblabsessionid='):].split('.')[:-1]))
-            if cur_cookie.startswith('weblab_reservation_id='):
-                self.reservation_id = SessionId(cur_cookie[len('weblab_reservation_id='):].split('.')[0])
+    if weblab_api.ctx.reservation_id is None:
+        try:
+            reservation_id_str = core_api.get_reservation_id_by_session_id()
+            weblab_api.ctx.reservation_id = reservation_id_str
+        except:
+            traceback.print_exc()
 
-        if self.reservation_id is None and self.sess_id is not None:
-            try:
-                reservation_id_str = self.server.get_reservation_id_by_session_id(self.sess_id)
-                if reservation_id_str is not None:
-                    self.reservation_id = SessionId(reservation_id_str)
-            except:
-                traceback.print_exc()
-                self.reservation_id = None
+    methods = {
+        '"http://ilab.mit.edu/GetLabConfiguration"'      : process_GetLabConfiguration,
+        '"http://ilab.mit.edu/Submit"'                   : process_Submit,
+        '"http://ilab.mit.edu/GetExperimentStatus"'      : process_GetExperimentStatus,
+        '"http://ilab.mit.edu/RetrieveResult"'           : process_RetrieveResult,
+        '"http://ilab.mit.edu/SaveAnnotation"'           : process_SaveAnnotation,
+        '"http://ilab.mit.edu/ListAllClientItems"'       : process_ListAllClientItems,
+        '"http://ilab.mit.edu/LoadClientItem"'           : process_LoadClientItem,
+        '"http://ilab.mit.edu/SaveClientItem"'           : process_SaveClientItem,
+        '"http://ilab.mit.edu/GetExperimentInformation"' : process_GetExperimentInformation,
+    }
 
-        if self.sess_id is None:
-            return "Not logged in!"
+    if not action in methods:
+        return "Action not found"
 
-        length = int(self.req.headers.getheader('content-length'))
-        self.payload = self.req.rfile.read(length)
+    response = make_response(methods[action]())
+    response.content_type = 'text/xml'
+    if hasattr(weblab_api.ctx, 'other_cookies'):
+        for name, value in weblab_api.ctx.other_cookies:
+            response.set_cookie(name, value, path = weblab_api.ctx.location)
+    return response
 
-        methods = {
-            '"http://ilab.mit.edu/GetLabConfiguration"'      : self.process_GetLabConfiguration,
-            '"http://ilab.mit.edu/Submit"'                   : self.process_Submit,
-            '"http://ilab.mit.edu/GetExperimentStatus"'      : self.process_GetExperimentStatus,
-            '"http://ilab.mit.edu/RetrieveResult"'           : self.process_RetrieveResult,
-            '"http://ilab.mit.edu/SaveAnnotation"'           : self.process_SaveAnnotation,
-            '"http://ilab.mit.edu/ListAllClientItems"'       : self.process_ListAllClientItems,
-            '"http://ilab.mit.edu/LoadClientItem"'           : self.process_LoadClientItem,
-            '"http://ilab.mit.edu/SaveClientItem"'           : self.process_SaveClientItem,
-            '"http://ilab.mit.edu/GetExperimentInformation"' : self.process_GetExperimentInformation,
-        }
+def process_GetLabConfiguration(self):
+    import weblab.core.server as core_api
 
-        if not action in methods:
-            return "Action not found"
+    lab_server_id = serializer.parse_get_lab_configuration_request(request.data)
+    ilab_request = {
+        'operation' : 'get_lab_configuration',
+    }
+    # TODO: client address
+    reservation_status = core_api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
+    lab_configuration = reservation_status.initial_data
+    return serializer.generate_lab_configuration_response(lab_configuration)
 
-        return methods[action]()
+def process_Submit(self):
+    import weblab.core.server as core_api
+    lab_server_id, experiment_specification, _, _ = serializer.parse_submit_request(request.data)
+    ilab_request = {
+        'operation' : 'submit',
+        'payload'   : experiment_specification
+    }
+    reservation_status = core_api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
+    weblab_api.ctx.other_cookies = {'weblab_reservation_id' : reservation_status.reservation_id.id}
 
-    def get_content_type(self):
-        return "text/xml"
-
-    def get_other_cookies(self):
-        return self.other_cookies
-
-    def process_GetLabConfiguration(self):
-        lab_server_id = self.serializer.parse_get_lab_configuration_request(self.payload)
-        request = {
-            'operation' : 'get_lab_configuration',
-        }
-        # TODO: client address
-        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}')
-        lab_configuration = reservation_status.initial_data
-        return self.serializer.generate_lab_configuration_response(lab_configuration)
-
-    def process_Submit(self):
-        lab_server_id, experiment_specification, _, _ = self.serializer.parse_submit_request(self.payload)
-        request = {
-            'operation' : 'submit',
-            'payload'   : experiment_specification
-        }
-        reservation_status = self.server.reserve_experiment(self.sess_id, ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(request), '{}')
-        self.other_cookies = ['weblab_reservation_id=%s; path=/' % reservation_status.reservation_id.id]
-
-        return """<?xml version="1.0" encoding="utf-8"?>
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <soap:Body>
 <SubmitResponse xmlns="http://ilab.mit.edu">
@@ -124,24 +108,25 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Body>
 </soap:Envelope>""" % reservation_status.position
 
-    def process_GetExperimentStatus(self):
-        if self.reservation_id is None:
-            return "Reservation id not found in cookie"
+def process_GetExperimentStatus(self):
+    import weblab.core.server as core_api
+    if self.reservation_id is None:
+        return "Reservation id not found in cookie"
 
-        reservation_status = self.server.get_reservation_status(self.reservation_id)
-        if reservation_status.status == "Reservation::waiting":
-            length = reservation_status.position
-            status = 1
-        elif reservation_status.status == "Reservation::waiting_confirmation":
-            length = 0
-            status = 2
-        elif reservation_status.status == "Reservation::post_reservation":
-            length = 0
-            status = 3
-        else:
-            raise Exception("Unexpected status in get_experimen_status: %s" % reservation_status.status)
+    reservation_status = core_api.get_reservation_status()
+    if reservation_status.status == "Reservation::waiting":
+        length = reservation_status.position
+        status = 1
+    elif reservation_status.status == "Reservation::waiting_confirmation":
+        length = 0
+        status = 2
+    elif reservation_status.status == "Reservation::post_reservation":
+        length = 0
+        status = 3
+    else:
+        raise Exception("Unexpected status in get_experimen_status: %s" % reservation_status.status)
 
-        return """<?xml version="1.0" encoding="utf-8"?>
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <soap:Body>
 <GetExperimentStatusResponse xmlns="http://ilab.mit.edu">
@@ -161,58 +146,59 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Body>
 </soap:Envelope>""" % (status, length)
 
-    def process_RetrieveResult(self):
-        if self.reservation_id is None:
-            return "Reservation id not found in cookie"
+def process_RetrieveResult(self):
+    import weblab.core.server as core_api
+    if self.reservation_id is None:
+        return "Reservation id not found in cookie"
 
-        reservation_status = self.server.get_reservation_status(self.reservation_id)
-        try:
-            response = json.loads(reservation_status.initial_data)
-        except:
-            return "Error occurred: %s" % reservation_status.initial_data
+    reservation_status = core_api.get_reservation_status()
+    try:
+        response = json.loads(reservation_status.initial_data)
+    except:
+        return "Error occurred: %s" % reservation_status.initial_data
 
-        code       = response['code']
-        results    = response['results']
-        xmlResults = response['xmlResults']
+    code       = response['code']
+    results    = response['results']
+    xmlResults = response['xmlResults']
 
-        return self.serializer.generate_retrieve_result_response(code, results, xmlResults)
+    return serializer.generate_retrieve_result_response(code, results, xmlResults)
 
-    ###############################################################
-    #
-    # Methods not implemented in WebLab-Deusto
-    #
-    def process_GetExperimentInformation(self):
-        return """<?xml version="1.0" encoding="utf-8"?>
+###############################################################
+#
+# Methods not implemented in WebLab-Deusto
+#
+def process_GetExperimentInformation(self):
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <GetExperimentInformationResponse xmlns="http://ilab.mit.edu">
-      <GetExperimentInformationResult>
-        <ExperimentInformation>
-          <experimentID>61</experimentID>
-          <labServerID>15</labServerID>
-          <userID>5</userID>
-          <effectiveGroupID>5</effectiveGroupID>
-          <submissionTime>2007-09-27T12:00:00Z</submissionTime>
-          <completionTime>2007-09-27T12:00:00Z</completionTime>
-          <expirationTime>2007-09-27T12:00:00Z</expirationTime>
-          <minTimeToLive>5.0</minTimeToLive>
-          <priorityHint>5</priorityHint>
-          <statusCode>3</statusCode>
-          <validationWarningMessages/>
-          <validationErrorMessage>string</validationErrorMessage>
-          <executionWarningMessages/>
-          <executionErrorMessage/>
-          <annotation/>
-          <xmlResultExtension/>
-          <xmlBlobExtension/>
-        </ExperimentInformation>
-      </GetExperimentInformationResult>
-    </GetExperimentInformationResponse>
-  </soap:Body>
+<soap:Body>
+<GetExperimentInformationResponse xmlns="http://ilab.mit.edu">
+  <GetExperimentInformationResult>
+    <ExperimentInformation>
+      <experimentID>61</experimentID>
+      <labServerID>15</labServerID>
+      <userID>5</userID>
+      <effectiveGroupID>5</effectiveGroupID>
+      <submissionTime>2007-09-27T12:00:00Z</submissionTime>
+      <completionTime>2007-09-27T12:00:00Z</completionTime>
+      <expirationTime>2007-09-27T12:00:00Z</expirationTime>
+      <minTimeToLive>5.0</minTimeToLive>
+      <priorityHint>5</priorityHint>
+      <statusCode>3</statusCode>
+      <validationWarningMessages/>
+      <validationErrorMessage>string</validationErrorMessage>
+      <executionWarningMessages/>
+      <executionErrorMessage/>
+      <annotation/>
+      <xmlResultExtension/>
+      <xmlBlobExtension/>
+    </ExperimentInformation>
+  </GetExperimentInformationResult>
+</GetExperimentInformationResponse>
+</soap:Body>
 </soap:Envelope>"""
 
-    def process_SaveAnnotation(self):
-        return """<?xml version="1.0" encoding="utf-8"?>
+def process_SaveAnnotation(self):
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <soap:Body>
 <SaveAnnotationResponse xmlns="http://ilab.mit.edu">
@@ -221,8 +207,8 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Body>
 </soap:Envelope>"""
 
-    def process_ListAllClientItems(self):
-        return """<?xml version="1.0" encoding="utf-8"?>
+def process_ListAllClientItems(self):
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <soap:Body>
 <ListAllClientItemsResponse xmlns="http://ilab.mit.edu">
@@ -232,14 +218,14 @@ class ILabMethod(WebFacadeServer.Method):
 </soap:Body>
 </soap:Envelope>"""
 
-    def process_SaveClientItem(self):
-        return """<?xml version="1.0" encoding="utf-8"?>
+def process_SaveClientItem(self):
+    return """<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <SaveClientItemResponse xmlns="http://ilab.mit.edu" />
-  </soap:Body>
+<soap:Body>
+<SaveClientItemResponse xmlns="http://ilab.mit.edu" />
+</soap:Body>
 </soap:Envelope>"""
 
-    def process_LoadClientItem(self):
-        return "load client item"
+def process_LoadClientItem(self):
+    return "load client item"
 
