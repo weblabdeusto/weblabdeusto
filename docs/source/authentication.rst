@@ -186,13 +186,13 @@ Simple
 
 All the protocols implemented using the *Simple* approach are located in the
 `weblab.login.simple
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/simple>`_
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/core/login/simple>`_
 package. On it, you will see different modules, one per each system. The most
 simple plug-in would be the following:
 
 .. code-block:: python
 
-    from weblab.login.simple import SimpleAuthnUserAuth
+    from weblab.core.login.simple import SimpleAuthnUserAuth
 
     class MyPluginUserAuth(SimpleAuthnUserAuth):
 
@@ -223,16 +223,16 @@ simple plug-in would be the following:
 
 Once this class is created and is located in the proper module, the last lines of
 the `weblab/login/simple/__init__.py
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/simple/__init__.py>`_
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/core/login/simple/__init__.py>`_
 to register the plug-in. In this example:
 
 .. code-block:: python
 
-    from weblab.login.simple.db_auth import WebLabDbUserAuth
-    from weblab.login.simple.ldap_auth import LdapUserAuth
-    from weblab.login.simple.ip_auth import TrustedIpAddressesUserAuth
+    from weblab.core.login.simple.db_auth import WebLabDbUserAuth
+    from weblab.core.login.simple.ldap_auth import LdapUserAuth
+    from weblab.core.login.simple.ip_auth import TrustedIpAddressesUserAuth
     # Just added
-    from weblab.login.simple.my_plugin import MyPluginUserAuth
+    from weblab.core.login.simple.my_plugin import MyPluginUserAuth
 
     SIMPLE_PLUGINS = {
         WebLabDbUserAuth.NAME           : WebLabDbUserAuth,
@@ -252,13 +252,14 @@ Web protocol systems
 So as to support those systems using a login subsystem that requires an external
 protocol, a slightly more complicated process is required. You may find examples
 in the `weblab.login.web
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/web>`_
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/core/login/web>`_
 package. As you will notice, two classes are required, so the most simple
 system that you can implement is the following:
 
 .. code-block:: python
 
-    from weblab.login.web import WebPlugin, ExternalSystemManager
+    from weblab.core.login.web import ExternalSystemManager, weblab_api
+    import weblab.core.server as core_api
 
     from weblab.data.dto.users import User
     from weblab.data.dto.users import StudentRole
@@ -286,46 +287,35 @@ system that you can implement is the following:
             # login is "13122142321@myplugin"
             return login.split('@')[0]
 
-    class MyPlugin(WebPlugin):
-        path = '/my/'
+    @weblab_api.route_login_web('/my/')
+    def my_web():
+        """ This is a complete Flask-compliant system, although 
+        some methods are inherited from WebPlugin that make it 
+        easier to work with. """
 
-        def __call__(self, environ, start_response):
-            """ This is a complete WSGI-compliant system, although 
-            some methods are inherited from WebPlugin that make it 
-            easier to work with. """
+        # Here you can contact other URLs or provide multiple 
+        # different methods.
 
-            # Here you can contact other URLs or provide multiple 
-            # different methods.
+        # Once you have something to check credentials with
+        # such as tokens or whatever, you may call the following 
+        # method:
+        session_id = core_api.extensible_login(MyManager.NAME, whatever_token)
 
-            # Once you have something to check credentials with
-            # such as tokens or whatever, you may call the following 
-            # method:
-            session_id = self.server.extensible_login(MyManager.NAME, whatever_token)
-
-            # And you may pass it however you want to the final user:
-            return self.build_response("<html><body><b>This HTML content will be "
-                "displayed %s</b></html>" % session_id.id, content_type = "text/html", 
-                code = 200)
+        # And you may pass it however you want to the final user:
+        return ("<html><body><b>This HTML content will be "
+            "displayed %s</b></html>" % session_id.id)
 
 Once you write the WSGI-compliant web application, you can register it in the last lines of
-the `weblab/login/web/__init__.py
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/login/web/__init__.py>`_
+the `weblab/core/login/web/__init__.py
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/server/src/weblab/core/login/web/__init__.py>`_
 as follows:
 
 .. code-block:: python
 
-    from weblab.login.web.login      import LoginPlugin
-    from weblab.login.web.facebook   import FacebookPlugin, FacebookManager
-    from weblab.login.web.openid_web import OpenIdPlugin,   OpenIDManager
-    from weblab.login.web.myplugin   import MyPlugin,       MyManager
-
-    WEB_PLUGINS = [
-        LoginPlugin,
-        FacebookPlugin,
-        OpenIdPlugin,
-        # Your plug-in here
-        MyPlugin,
-    ]
+    from weblab.core.login.web.login      import LoginPlugin
+    from weblab.core.login.web.facebook   import FacebookManager
+    from weblab.core.login.web.openid_web import OpenIDManager
+    from weblab.core.login.web.myplugin   import MyManager
 
     EXTERNAL_MANAGERS = {
         FacebookManager.NAME : FacebookManager(),
