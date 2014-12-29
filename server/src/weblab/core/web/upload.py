@@ -19,7 +19,6 @@ from flask import request
 
 from weblab.core.web import weblab_api, get_argument
 from weblab.core.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
-from voodoo.sessions.session_id import SessionId
 import weblab.experiment.util as Util
 
 FILE_SENT = 'file_sent'

@@ -2,7 +2,6 @@ import time
 import traceback
 
 import voodoo.log as log
-from voodoo.log import logged
 
 from weblab.core.login.web import EXTERNAL_MANAGERS
 
@@ -23,7 +22,6 @@ class LoginManager(object):
         self._db = db
         self._core_server = core_server
 
-    @logged(log.level.Info, except_for=(('password',1),))
     def login(self, username, password):
         """ do_login(username, password) -> SessionId
 
@@ -93,7 +91,6 @@ class LoginManager(object):
             weblab_api.ctx.session_id = session_id
         return session_id
 
-    @logged(log.level.Info)
     def extensible_login(self, system, credentials):
         """ The extensible login system receives a system (e.g. FACEBOOK, or OPENID), and checks
         that with that system and certain credentials (in a particular format) identifies the user.
@@ -132,7 +129,6 @@ class LoginManager(object):
         return external_user_id, external_user
 
 
-    @logged(log.level.Info, except_for=(("password",1),))
     def grant_external_credentials(self, username, password, system, credentials):
         """ Links an existing user to the new user. """
 
@@ -149,7 +145,6 @@ class LoginManager(object):
         self._db.grant_external_credentials(username, external_user_id, system)
         return self._reserve_session(local_db_session_id)
 
-    @logged(log.level.Info)
     def create_external_user(self, system, credentials):
         """ Create a new user using an external system. """
 
