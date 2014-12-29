@@ -43,3 +43,6 @@ assert labview is not None # avoid warnings
 import upload
 assert upload is not None # avoid warnings
 
+import visir
+assert visir is not None # avoid warnings
+
