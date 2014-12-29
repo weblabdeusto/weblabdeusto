@@ -40,3 +40,6 @@ assert ilab is not None # avoid warnings
 import labview
 assert labview is not None # avoid warnings
 
+import upload
+assert upload is not None # avoid warnings
+
