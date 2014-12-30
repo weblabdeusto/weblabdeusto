@@ -47,7 +47,6 @@ import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.lab.server as LaboratoryServer
-import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.alive_users    as AliveUsersCollection
 import weblab.core.reservations             as Reservation
@@ -122,7 +121,6 @@ class Case001TestCase(object):
 
         map.add_new_machine('WL_MACHINE1')
         map.add_new_instance('WL_MACHINE1','WL_SERVER1')
-        map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'login1',       ServerType.Login, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'ups1',         ServerType.UserProcessing, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ServerType.Coordinator, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1',  ServerType.Laboratory, ())
@@ -133,7 +131,6 @@ class Case001TestCase(object):
             # They all have Direct
 
             # 1st: address
-            address1 = map['WL_MACHINE1']['WL_SERVER1']['login1'].address
             address2 = map['WL_MACHINE1']['WL_SERVER1']['ups1'].address
             address3 = map['WL_MACHINE1']['WL_SERVER1']['coordinator1'].address
             address5 = map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address
@@ -141,7 +138,6 @@ class Case001TestCase(object):
             address8 = map['WL_MACHINE1']['WL_SERVER1']['experiment2'].address
 
             # 2nd: network
-            direct_network1 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address1))
             direct_network2 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address2))
             direct_network3 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address3))
             direct_network5 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address5))
@@ -149,7 +145,6 @@ class Case001TestCase(object):
             direct_network8 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address8))
 
             # 3rd: accesses
-            access_direct1 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network1,))
             access_direct2 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network2,))
             access_direct3 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network3,))
             access_direct5 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network5,))
@@ -157,7 +152,6 @@ class Case001TestCase(object):
             access_direct8 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network8,))
 
             # 4th: appending accesses
-            map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'login1', ( access_direct1, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'ups1', ( access_direct2, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ( access_direct3, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1', ( access_direct5, ))
@@ -168,7 +162,6 @@ class Case001TestCase(object):
             # They all have SOAP
 
             # 1st: address
-            address1 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT1)
             address2 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT2)
             address3 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT3)
             address5 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT5)
@@ -176,7 +169,6 @@ class Case001TestCase(object):
             address8 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT8)
 
             # 2nd: network
-            soap_network1 = SOAPNetwork.SOAPNetwork( address1 )
             soap_network2 = SOAPNetwork.SOAPNetwork( address2 )
             soap_network3 = SOAPNetwork.SOAPNetwork( address3 )
             soap_network5 = SOAPNetwork.SOAPNetwork( address5 )
@@ -184,7 +176,6 @@ class Case001TestCase(object):
             soap_network8 = SOAPNetwork.SOAPNetwork( address8 )
 
             # 3rd: accesses
-            access_soap1 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network1,) )
             access_soap2 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network2,) )
             access_soap3 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network3,) )
             access_soap5 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network5,) )
@@ -192,7 +183,6 @@ class Case001TestCase(object):
             access_soap8 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network8,) )
 
             # 4th: appending accesses
-            map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'login1', ( access_soap1, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'ups1', ( access_soap2, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ( access_soap3, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1', ( access_soap5, ))
@@ -238,7 +228,6 @@ class Case001TestCase(object):
             ServerType,
             {
                 ServerType.Coordinator :    voodoo_exported_methods.coordinator,
-                ServerType.Login :          weblab_exported_methods.Login,
                 ServerType.UserProcessing : weblab_exported_methods.UserProcessing,
                 ServerType.Proxy :          weblab_exported_methods.Proxy,
                 ServerType.Laboratory :     weblab_exported_methods.Laboratory,
@@ -263,32 +252,6 @@ class Case001TestCase(object):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
         return cfg_manager
-
-    def generate_login_server(self, protocols, cfg_manager):
-        login_coord_address = CoordAddress.CoordAddress.translate_address("login1:WL_SERVER1@WL_MACHINE1")
-        locator = self.generate_locator()
-
-        generated_login_server = ServerSkel.factory(
-                self.generate_configuration_server(),
-                protocols,
-                weblab_exported_methods.Login
-            )
-
-        class RealLoginServer(LoginServer.LoginServer,generated_login_server):
-            def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
-                LoginServer.LoginServer.__init__(self, coord_address, locator, cfg_manager, *args, **kargs)
-
-        real_login_server = RealLoginServer(
-                login_coord_address,
-                locator,
-                cfg_manager,
-                Direct = (login_coord_address.address,),
-                SOAP   = ('',PORT1)
-            )
-        real_login_server.start()
-
-        login_client = locator.get_server(ServerType.Login, None)
-        return login_client, real_login_server
 
     def generate_core_server(self, cfg_manager, protocols):
         ups_coord_address = CoordAddress.CoordAddress.translate_address("ups1:WL_SERVER1@WL_MACHINE1")
@@ -415,13 +378,7 @@ class Case001TestCase(object):
         self.real_servers.append(self.coordinator_server)
 
         self.locator                   = None
-        self.login_server, reals       = self.generate_login_server(
-                                protocols,
-                                self.cfg_manager
-                            )
-        self.real_login = reals
 
-        self.real_servers.append(reals)
         self.core_server, reals    = self.generate_core_server(
                                 self.cfg_manager,
                                 protocols
