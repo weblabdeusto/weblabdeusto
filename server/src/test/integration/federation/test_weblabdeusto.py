@@ -50,13 +50,13 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         self.provider1_handler = self.server_loader.load_instance( PROVIDER1_CONFIG_PATH,  'provider1_machine', 'main_instance' )
         self.provider2_handler = self.server_loader.load_instance( PROVIDER2_CONFIG_PATH,  'provider2_machine', 'main_instance' )
 
-        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18645 )
+        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
         self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
 
-        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28645 )
+        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
         self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
 
-        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38645 )
+        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
         self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
 
         # dummy1: deployed in consumer, provider1, provider2

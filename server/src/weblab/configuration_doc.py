@@ -188,16 +188,12 @@ CORE_FACADE = (CORE_SERVER, 'Facade')
 DESCRIPTIONS[CORE_FACADE] = """Here you can customize the general web services consumed by the clients. Stuff like which ports will be used, etc."""
 
 CORE_FACADE_SERVER_ROUTE            = 'core_facade_server_route'
-CORE_FACADE_JSON_BIND               = 'core_facade_json_bind'
-CORE_FACADE_JSON_PORT               = 'core_facade_json_port'
 
 CORE_FACADE_BIND                    = 'core_facade_bind'
 CORE_FACADE_PORT                    = 'core_facade_port'
 
 _sorted_variables.extend([
     (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, basestring, '',                 """Binding address for the JSON facade at Core Server""")),
-    (CORE_FACADE_JSON_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the JSON facade at Core Server""")),
     (CORE_FACADE_BIND,                    _Argument(CORE_FACADE, basestring, '',                 """Binding address for the main facade at Core server""")), 
     (CORE_FACADE_PORT,                    _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the main facade at Core Server""")),
 ])
@@ -250,14 +246,10 @@ DESCRIPTIONS[LOGIN_FACADE] = """The login facade configuration variables are use
 
 LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
 LOGIN_FACADE_SERVER_ROUTE            = 'login_facade_server_route'
-LOGIN_FACADE_JSON_BIND               = 'login_facade_json_bind'
-LOGIN_FACADE_JSON_PORT               = 'login_facade_json_port'
 
 _sorted_variables.extend([
     (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
     (LOGIN_FACADE_SERVER_ROUTE,            _Argument(LOGIN_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the JSON facade at Login Server""")), 
-    (LOGIN_FACADE_JSON_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the JSON facade at Login Server""")), 
 ])
 
 

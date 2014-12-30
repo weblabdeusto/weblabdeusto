@@ -20,28 +20,6 @@ class WsgiApp(object):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         yield 'Hello World\n'
 
-class WsgiProxy(object):
-    def __init__(self, ordered_routes = None):
-        if ordered_routes:
-            self.ordered_routes = ordered_routes
-        else:
-            self.ordered_routes = OrderedDict()
-
-    def __setitem__(self, route, method):
-        self.ordered_routes[route] = method
-
-    def __call__(self, environ, start_response):
-        TOKEN = 'weblab'
-        path = environ['PATH_INFO']
-        relative_path = path[path.find(TOKEN) + len(TOKEN):]
-
-        for route in self.ordered_routes:
-            if relative_path.startswith(route):
-                return self.ordered_routes[route](environ, start_response)
-
-        start_response('404 Not Found', [('Content-Type', 'text/plain')])
-        return 'Path not found'
-
 class WrappedWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
 
     def get_environ(self):
@@ -112,9 +90,8 @@ class WebLabWsgiServer(object):
         script_name = core_server_url_parsed.path.split('/weblab')[0]
         timeout = cfg_manager.get_doc_value(configuration_doc.FACADE_TIMEOUT)
 
-        # TODO: Remove JSON, make generic, and single (no three but one)
-        listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_BIND)
-        port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_PORT)
+        listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_BIND)
+        port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_PORT)
 
         if cfg_manager.get_value('flask_debug', False):
             print >> sys.stderr, "Using a different server (relying on Flask rather than on Python's WsgiHttpServer)"

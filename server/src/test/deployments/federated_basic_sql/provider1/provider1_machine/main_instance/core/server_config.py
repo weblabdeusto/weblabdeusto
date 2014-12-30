@@ -3,17 +3,13 @@ core_store_students_programs_path = 'files_stored'
 core_experiment_poll_time         = 350 # seconds
 
 # Ports
-login_facade_json_port   = 28645
-login_web_facade_port    = 28745
-core_facade_json_port   = 28345
+core_facade_port   = 28345
 
-admin_facade_json_port   = 28545
 
-core_web_facade_port   = 29745
 core_facade_server_route = 'provider1-route'
 
 # Will only work in JSON in this config file :-(
-core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
+core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_port
 
 # Scheduling
 
@@ -35,7 +31,6 @@ core_coordinator_external_servers = {
 
 _provider2_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
                                     'baseurl' : 'http://127.0.0.1:38345/weblab/',
-                                    'login_baseurl' : 'http://127.0.0.1:38645/weblab/',
                                     'username' : 'provider1',
                                     'password' : 'password',
                             })

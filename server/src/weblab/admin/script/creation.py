@@ -1369,7 +1369,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(core_dir, 'server_config.py'), 'w').write((
         "core_coordinator_clean   = %(clean)r\n"
         "core_facade_server_route = %(route)r\n"
-        "core_facade_json_port    = %(json)r\n"
+        "core_facade_port    = %(json)r\n"
         "core_web_facade_port     = %(web)r\n"
         "admin_facade_json_port   = %(admin)r\n") % core_config)
 

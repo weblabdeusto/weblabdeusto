@@ -3,16 +3,12 @@ core_store_students_programs_path = 'files_stored'
 core_experiment_poll_time         = 350 # seconds
 
 # Ports
-login_facade_json_port   = 38645
-login_web_facade_port    = 38745
-core_facade_json_port   = 38345
+core_facade_port   = 38345
 
-admin_facade_json_port   = 38545
 
-core_web_facade_port   = 39745
 core_facade_server_route = 'provider2-route'
 
-core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
+core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_port
 
 # Scheduling
 
@@ -33,7 +29,6 @@ core_coordinator_external_servers = {
 
 _provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
                                     'baseurl' : 'http://127.0.0.1:28345/weblab/',
-                                    'login_baseurl' : 'http://127.0.0.1:28645/weblab/',
                                     'username' : 'provider2',
                                     'password' : 'password',
                             })
