@@ -1,3 +1,4 @@
+import sys
 import threading
 import wsgiref.simple_server
 import urlparse
@@ -93,10 +94,6 @@ class ServerThread(threading.Thread):
         finally:
             _resource_manager.remove_resource(self)
 
-ADMIN_FACADE_JSON_LISTEN                    = 'admin_facade_json_bind'
-DEFAULT_ADMIN_FACADE_JSON_LISTEN            = ''
-ADMIN_FACADE_JSON_PORT                      = 'admin_facade_json_port'
-
 class WebLabWsgiServer(object):
     def __init__(self, cfg_manager, application):
         the_server_route = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
@@ -119,41 +116,17 @@ class WebLabWsgiServer(object):
         listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_BIND)
         port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_JSON_PORT)
 
-        core_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        core_server.socket.settimeout(timeout)
-        core_server_thread = ServerThread(core_server, timeout)
+        if cfg_manager.get_value('flask_debug', False):
+            print >> sys.stderr, "Using a different server (relying on Flask rather than on Python's WsgiHttpServer)"
+            core_server = None
+            core_server_thread = threading.Thread(target = application.run, kwargs = { 'port' : port, 'debug' : True, 'use_reloader' : False })
+        else:
+            core_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+            core_server.socket.settimeout(timeout)
+            core_server_thread = ServerThread(core_server, timeout)
 
-        listen  = cfg_manager.get_value(ADMIN_FACADE_JSON_LISTEN, '')
-        port    = cfg_manager.get_value(ADMIN_FACADE_JSON_PORT)
-
-        admin_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        admin_server.socket.settimeout(timeout)
-        admin_server_thread = ServerThread(admin_server, timeout)
-
-        listen  = cfg_manager.get_doc_value(configuration_doc.LOGIN_FACADE_JSON_BIND)
-        port    = cfg_manager.get_doc_value(configuration_doc.LOGIN_FACADE_JSON_PORT)
-
-        login_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        login_server.socket.settimeout(timeout)
-        login_server_thread = ServerThread(login_server, timeout)
-
-        listen  = cfg_manager.get_value('login_web_facade_bind', '')
-        port    = cfg_manager.get_value('login_web_facade_port')
-
-        login_web_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        login_web_server.socket.settimeout(timeout)
-        login_web_server_thread = ServerThread(login_web_server, timeout)
-
-        listen  = cfg_manager.get_value('core_web_facade_bind', '')
-        port    = cfg_manager.get_value('core_web_facade_port')
-
-        core_web_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        core_web_server.socket.settimeout(timeout)
-        core_web_server_thread = ServerThread(core_web_server, timeout)
-
-        self._servers = [core_server, login_server, admin_server, login_web_server, core_web_server]
-        self._server_threads = [core_server_thread, login_server_thread, admin_server_thread, login_web_server_thread, core_web_server_thread]
-
+        self._servers = [core_server]
+        self._server_threads = [core_server_thread]
 
     def start(self):
         for server_thread in self._server_threads:
@@ -165,8 +138,9 @@ class WebLabWsgiServer(object):
 
     def stop(self):
         for server in self._servers:
-            server.shutdown()
-            server.socket.close()
+            if server is not None:
+                server.shutdown()
+                server.socket.close()
 
         for server_thread in self._server_threads:
             server_thread.join()

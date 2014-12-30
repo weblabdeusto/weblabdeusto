@@ -15,7 +15,7 @@ import weblab.permissions as permissions
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
-    return admin_app.AdministrationApplication.ADMIN_APP_INSTANCE
+    return admin_app.GLOBAL_APP_INSTANCE
 
 class ProfileEditForm(Form):
     full_name   = DisabledTextField(u"Full name:")
