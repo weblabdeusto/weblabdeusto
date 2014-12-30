@@ -85,7 +85,14 @@ def _raise_exception(code, msg):
         indent = 4
     else:
         indent = None
-    return Response(json.dumps({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg }, indent = indent), mimetype = 'application/json')
+
+    try:
+        msg = unicode(msg)
+    except:
+        msg = u"Message could not be decoded"
+
+    response = Response(json.dumps({ 'is_exception' : True, 'code' : 'JSON:' + code, 'message' : msg }, indent = indent), mimetype = 'application/json')
+    return response
 
 def check_exceptions(func):
     @wraps(func)
