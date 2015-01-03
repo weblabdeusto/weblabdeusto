@@ -1,26 +1,29 @@
 import os
+import sys
 import urlparse
 import traceback
-
-import logging
-from logging.handlers import RotatingFileHandler
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from flask import Flask, request, redirect, url_for
 from flask.ext.admin import Admin, BaseView, expose
 
-from voodoo.sessions.session_id import SessionId
+if __name__ == '__main__':
+    sys.path.insert(0, '.')
+
 from weblab.core.exc import SessionNotFoundError
 
+import weblab.core.server 
 import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
-from weblab.db.gateway import AbstractDatabaseGateway
+from weblab.db import db
 
 import weblab.admin.web as web
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
 import weblab.admin.web.instructor_views as instructor_views
+
+from weblab.core.wl import weblab_api
 
 class BackView(BaseView):
     @expose()
@@ -36,37 +39,27 @@ class RedirectView(BaseView):
     def index(self):
         return redirect(url_for(self.url_token))
 
-class AdministrationApplication(AbstractDatabaseGateway):
+GLOBAL_APP_INSTANCE = None
 
-    INSTANCE = None
+class AdministrationApplication(object):
 
-    def __init__(self, cfg_manager, ups, bypass_authz = False):
+    def __init__(self, app, cfg_manager, ups, bypass_authz = False):
+        super(AdministrationApplication, self).__init__()
+        import weblab.admin.web.app as app_module
+        app_module.GLOBAL_APP_INSTANCE = self
 
-        super(AdministrationApplication, self).__init__(cfg_manager)
+        self.cfg_manager = cfg_manager
+        db.initialize(cfg_manager)
 
         self.ups = ups
 
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=db.engine))
 
         files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
         self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
 
-        self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.app.config['APPLICATION_ROOT'] = self.script_name
-        self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
-        self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
-
-        if os.path.exists('logs'):
-            f = os.path.join('logs','admin_app.log')
-        else:
-            f = 'admin_app.log'
-
-              
-        file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
-        file_handler.setLevel(logging.WARNING)
-        self.app.logger.addHandler(file_handler)
+        self.app = app
 
         static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
@@ -159,19 +152,19 @@ class AdministrationApplication(AbstractDatabaseGateway):
         #  Other
         # 
         self.bypass_authz = bypass_authz
-        AdministrationApplication.INSTANCE = self
 
     def is_admin(self):
         if self.bypass_authz:
             return True
 
         try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
-            try:
-                permissions = self.ups.get_user_permissions(session_id)
-            except SessionNotFoundError:
-                # Gotcha
-                return False
+            session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
+            with weblab_api(self.ups, session_id = session_id):
+                try:
+                    permissions = weblab.core.server.get_user_permissions()
+                except SessionNotFoundError:
+                    # Gotcha
+                    return False
 
             admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
             if len(admin_permissions) == 0:
@@ -190,9 +183,10 @@ class AdministrationApplication(AbstractDatabaseGateway):
             return 'admin'
 
         try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+            session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
             try:
-                user_info = self.ups.get_user_information(session_id)
+                with weblab_api(self.ups, session_id = session_id):
+                    user_info = weblab.core.server.get_user_information()
             except SessionNotFoundError:
                 # Gotcha
                 traceback.print_exc()
@@ -218,11 +212,13 @@ class AdministrationApplication(AbstractDatabaseGateway):
     def get_permissions(self):
         if self.bypass_authz:
             session_id, _ = self._reserve_fake_session()
-            return self.ups.get_user_permissions(session_id.id)
+            with weblab_api(self.ups, session_id = session_id.id):
+                return weblab.core.server.get_user_permissions()
 
+        session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
-            return self.ups.get_user_permissions(session_id)
+            with weblab_api(self.ups, session_id = session_id):
+                return weblab.core.server.get_user_permissions()
         except:
             traceback.print_exc()
             return None
@@ -230,11 +226,37 @@ class AdministrationApplication(AbstractDatabaseGateway):
     def get_user_information(self):
         if self.bypass_authz:
             session_id, _ = self._reserve_fake_session()
-            return self.ups.get_user_information(session_id.id)
+            with weblab_api(self.ups, session_id = session_id.id):
+                return weblab.core.server.get_user_information()
 
-        session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+        session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         try:
-            return self.ups.get_user_information(session_id)
+            with weblab_api(self.ups, session_id = session_id):
+                return weblab.core.server.get_user_information()
         except SessionNotFoundError:
             return None
+
+#############################################
+# 
+# The code below is only used for testing
+# 
+
+if __name__ == '__main__':
+    from voodoo.configuration import ConfigurationManager
+    from weblab.core.server import UserProcessingServer
+    cfg_manager = ConfigurationManager()
+    cfg_manager.append_path('test/unit/configuration.py')
+
+    ups = UserProcessingServer(None, None, cfg_manager, dont_start = True)
+
+    app = Flask('weblab.core.server')
+
+    DEBUG = True
+    admin_app = AdministrationApplication(app, cfg_manager, ups, bypass_authz = True)
+
+    @admin_app.app.route('/')
+    def index():
+        return redirect('/weblab/administration/admin')
+
+    admin_app.app.run(debug=True, host = '0.0.0.0')
 

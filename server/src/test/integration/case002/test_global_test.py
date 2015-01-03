@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from test.util.wlcontext import wlcontext
 from test.util.ports import new as new_port
 from test.util.module_disposer import uses_module, case_uses_module
 from experiments.ud_xilinx.command_senders import SerialPortCommandSender
@@ -39,16 +40,15 @@ import voodoo.gen.protocols.SOAP.ServerSOAP as ServerSOAP
 import voodoo.gen.registry.server_registry as ServerRegistry
 import voodoo.methods as voodoo_exported_methods
 import voodoo.sessions.session_type as SessionType
-import weblab.data.client_address as ClientAddress
 import weblab.data.command as Command
 import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
 import experiments.ud_xilinx.server as UdXilinxExperiment
 import weblab.lab.server as LaboratoryServer
-import weblab.login.server as LoginServer
 import weblab.methods as weblab_exported_methods
 import weblab.core.reservations as Reservation
-import weblab.core.server    as UserProcessingServer
+import weblab.core.server as UserProcessingServer
+import weblab.core.server as core_api
 import weblab.core.user_processor       as UserProcessor
 import weblab.core.exc             as core_exc
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
@@ -117,7 +117,6 @@ class Case002TestCase(object):
 
         map.add_new_machine('WL_MACHINE1')
         map.add_new_instance('WL_MACHINE1','WL_SERVER1')
-        map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'login1',       ServerType.Login, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'ups1',         ServerType.UserProcessing, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ServerType.Coordinator, ())
         map.add_new_server( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1',  ServerType.Laboratory, ())
@@ -128,7 +127,6 @@ class Case002TestCase(object):
             # They all have Direct
 
             # 1st: address
-            address1 = map['WL_MACHINE1']['WL_SERVER1']['login1'].address
             address2 = map['WL_MACHINE1']['WL_SERVER1']['ups1'].address
             address3 = map['WL_MACHINE1']['WL_SERVER1']['coordinator1'].address
             address5 = map['WL_MACHINE1']['WL_SERVER1']['laboratory1'].address
@@ -136,7 +134,6 @@ class Case002TestCase(object):
             address8 = map['WL_MACHINE1']['WL_SERVER1']['experiment2'].address
 
             # 2nd: network
-            direct_network1 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address1))
             direct_network2 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address2))
             direct_network3 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address3))
             direct_network5 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address5))
@@ -144,7 +141,6 @@ class Case002TestCase(object):
             direct_network8 = DirectNetwork.DirectNetwork( DirectAddress.from_coord_address(address8))
 
             # 3rd: accesses
-            access_direct1 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network1,))
             access_direct2 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network2,))
             access_direct3 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network3,))
             access_direct5 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network5,))
@@ -152,7 +148,6 @@ class Case002TestCase(object):
             access_direct8 = Access.Access( Protocols.Direct, AccessLevel.instance,(direct_network8,))
 
             # 4th: appending accesses
-            map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'login1', ( access_direct1, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'ups1', ( access_direct2, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ( access_direct3, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1', ( access_direct5, ))
@@ -163,7 +158,6 @@ class Case002TestCase(object):
             # They all have SOAP
 
             # 1st: address
-            address1 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT1)
             address2 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT2)
             address3 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT3)
             address5 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT5)
@@ -171,7 +165,6 @@ class Case002TestCase(object):
             address8 = SOAPAddress.Address('127.0.0.1:%s@NETWORK' % PORT8)
 
             # 2nd: network
-            soap_network1 = SOAPNetwork.SOAPNetwork( address1 )
             soap_network2 = SOAPNetwork.SOAPNetwork( address2 )
             soap_network3 = SOAPNetwork.SOAPNetwork( address3 )
             soap_network5 = SOAPNetwork.SOAPNetwork( address5 )
@@ -179,7 +172,6 @@ class Case002TestCase(object):
             soap_network8 = SOAPNetwork.SOAPNetwork( address8 )
 
             # 3rd: accesses
-            access_soap1 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network1,) )
             access_soap2 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network2,) )
             access_soap3 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network3,) )
             access_soap5 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network5,) )
@@ -187,7 +179,6 @@ class Case002TestCase(object):
             access_soap8 = Access.Access( Protocols.SOAP, AccessLevel.network,(soap_network8,) )
 
             # 4th: appending accesses
-            map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'login1', ( access_soap1, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'ups1', ( access_soap2, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'coordinator1', ( access_soap3, ))
             map.append_accesses( 'WL_MACHINE1', 'WL_SERVER1', 'laboratory1', ( access_soap5, ))
@@ -233,7 +224,6 @@ class Case002TestCase(object):
             ServerType,
             {
                 ServerType.Coordinator :       voodoo_exported_methods.coordinator,
-                ServerType.Login :             weblab_exported_methods.Login,
                 ServerType.UserProcessing :    weblab_exported_methods.UserProcessing,
                 ServerType.Proxy :             weblab_exported_methods.Proxy,
                 ServerType.Laboratory :        weblab_exported_methods.Laboratory,
@@ -257,32 +247,6 @@ class Case002TestCase(object):
         cfg_manager= ConfigurationManager.ConfigurationManager()
         cfg_manager.append_module(configuration)
         return cfg_manager
-
-    def generate_login_server(self, protocols, cfg_manager):
-        login_coord_address = CoordAddress.CoordAddress.translate_address("login1:WL_SERVER1@WL_MACHINE1")
-        locator = self.generate_locator()
-
-        generated_login_server = ServerSkel.factory(
-                self.generate_configuration_server(),
-                protocols,
-                weblab_exported_methods.Login
-            )
-
-        class RealLoginServer(LoginServer.LoginServer,generated_login_server):
-            def __init__(self, coord_address, locator, cfg_manager, *args,**kargs):
-                LoginServer.LoginServer.__init__(self, coord_address, locator, cfg_manager, *args, **kargs)
-
-        real_login_server = RealLoginServer(
-                login_coord_address,
-                locator,
-                cfg_manager,
-                Direct = (login_coord_address.address,),
-                SOAP   = ('',new_port())
-            )
-        real_login_server.start()
-
-        login_client = locator.get_server(ServerType.Login, None)
-        return login_client, real_login_server
 
     def generate_core_server(self, cfg_manager, protocols):
         ups_coord_address = CoordAddress.CoordAddress.translate_address("ups1:WL_SERVER1@WL_MACHINE1")
@@ -408,13 +372,7 @@ class Case002TestCase(object):
         self.real_servers.append(self.coordinator_server)
 
         self.locator                   = None
-        self.login_server, reals       = self.generate_login_server(
-                                protocols,
-                                self.cfg_manager
-                            )
-        self.real_login = reals
 
-        self.real_servers.append(reals)
         self.core_server, reals    = self.generate_core_server(
                                 self.cfg_manager,
                                 protocols
@@ -460,199 +418,159 @@ class Case002TestCase(object):
         self.fake_serial_port2.clear()
 
         # 6 users get into the system
-        session_id1 = self.real_login.login('student1','password')
-        session_id2 = self.real_login.login('student2','password')
-        session_id3 = self.real_login.login('student3','password')
-        session_id4 = self.real_login.login('student4','password')
-        session_id5 = self.real_login.login('student5','password')
-        session_id6 = self.real_login.login('student6','password')
+        with wlcontext(self.real_ups):
+            session_id1 = core_api.login('student1','password')
+        with wlcontext(self.real_ups):
+            session_id2 = core_api.login('student2','password')
+        with wlcontext(self.real_ups):
+            session_id3 = core_api.login('student3','password')
+        with wlcontext(self.real_ups):
+            session_id4 = core_api.login('student4','password')
+        with wlcontext(self.real_ups):
+            session_id5 = core_api.login('student5','password')
+        with wlcontext(self.real_ups):
+            session_id6 = core_api.login('student6','password')
 
         # they all have access to the ud-fpga experiment
-        experiments1 = self.real_ups.list_experiments(session_id1)
-        fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments1), 1 )
+        with wlcontext(self.real_ups, session_id = session_id1):
+            experiments1 = core_api.list_experiments()
+            fpga_experiments1 = [ exp.experiment for exp in experiments1 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments1), 1 )
 
-        experiments2 = self.real_ups.list_experiments(session_id2)
-        fpga_experiments2 = [ exp.experiment for exp in experiments2 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments2), 1 )
+        with wlcontext(self.real_ups, session_id = session_id2):
+            experiments2 = core_api.list_experiments()
+            fpga_experiments2 = [ exp.experiment for exp in experiments2 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments2), 1 )
 
-        experiments3 = self.real_ups.list_experiments(session_id3)
-        fpga_experiments3 = [ exp.experiment for exp in experiments3 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments3), 1 )
+        with wlcontext(self.real_ups, session_id = session_id3):
+            experiments3 = core_api.list_experiments()
+            fpga_experiments3 = [ exp.experiment for exp in experiments3 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments3), 1 )
 
-        experiments4 = self.real_ups.list_experiments(session_id4)
-        fpga_experiments4 = [ exp.experiment for exp in experiments4 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments4), 1 )
+        with wlcontext(self.real_ups, session_id = session_id4):
+            experiments4 = core_api.list_experiments()
+            fpga_experiments4 = [ exp.experiment for exp in experiments4 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments4), 1 )
 
-        experiments5 = self.real_ups.list_experiments(session_id5)
-        fpga_experiments5 = [ exp.experiment for exp in experiments5 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments5), 1 )
+        with wlcontext(self.real_ups, session_id = session_id5):
+            experiments5 = core_api.list_experiments()
+            fpga_experiments5 = [ exp.experiment for exp in experiments5 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments5), 1 )
 
-        experiments6 = self.real_ups.list_experiments(session_id6)
-        fpga_experiments6 = [ exp.experiment for exp in experiments6 if exp.experiment.name == 'ud-fpga' ]
-        self.assertEquals( len(fpga_experiments6), 1 )
+        with wlcontext(self.real_ups, session_id = session_id6):
+            experiments6 = core_api.list_experiments()
+            fpga_experiments6 = [ exp.experiment for exp in experiments6 if exp.experiment.name == 'ud-fpga' ]
+            self.assertEquals( len(fpga_experiments6), 1 )
 
 
         # 3 users try to reserve the experiment
-        status1 = self.real_ups.reserve_experiment(
-                session_id1,
-                fpga_experiments1[0].to_experiment_id(),
-                "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        with wlcontext(self.real_ups, session_id = session_id1):
+            status1 = core_api.reserve_experiment(fpga_experiments1[0].to_experiment_id(), "{}", "{}")
+            reservation_id1 = status1.reservation_id
 
-        reservation_id1 = status1.reservation_id
-
-        status2 = self.real_ups.reserve_experiment(
-                session_id2,
-                fpga_experiments2[0].to_experiment_id(),
-                "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
-
-        reservation_id2 = status2.reservation_id
-
-        status3 = self.real_ups.reserve_experiment(
-                session_id3,
-                fpga_experiments3[0].to_experiment_id(),
-                "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
-
-        reservation_id3 = status3.reservation_id
+        with wlcontext(self.real_ups, session_id = session_id2):
+            status2 = core_api.reserve_experiment(fpga_experiments2[0].to_experiment_id(), "{}", "{}")
+            reservation_id2 = status2.reservation_id
+    
+        with wlcontext(self.real_ups, session_id = session_id3):
+            status3 = core_api.reserve_experiment(fpga_experiments3[0].to_experiment_id(), "{}", "{}")
+            reservation_id3 = status3.reservation_id
 
         # wait until it is reserved
         short_time = 0.1
         times      = 10.0 / short_time
 
-        while times > 0:
-            time.sleep(short_time)
-            new_status = self.real_ups.get_reservation_status(reservation_id1)
-            if not isinstance(new_status, Reservation.WaitingConfirmationReservation):
-                break
-            times -= 1
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            while times > 0:
+                time.sleep(short_time)
+                new_status = core_api.get_reservation_status()
+                if not isinstance(new_status, Reservation.WaitingConfirmationReservation):
+                    break
+                times -= 1
 
-        # first user got the device. The other two are in WaitingReservation
-        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
-        self.assertTrue(
-                isinstance(
-                    reservation1,
-                    Reservation.ConfirmedReservation
-                )
-            )
+            # first user got the device. The other two are in WaitingReservation
+            reservation1 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation1, Reservation.ConfirmedReservation))
 
-        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
-        self.assertTrue(
-                isinstance(
-                    reservation2,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 0, reservation2.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            reservation2 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation2, Reservation.WaitingReservation))
+            self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
-        self.assertTrue(
-                isinstance(
-                    reservation3,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 1, reservation3.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id3):
+            reservation3 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation3, Reservation.WaitingReservation))
+            self.assertEquals( 1, reservation3.position)
 
-        # Another user tries to reserve the experiment. He goes to the WaitingReservation, position 2
-        status4 = self.real_ups.reserve_experiment(
-                session_id4,
-                fpga_experiments4[0].to_experiment_id(),
-                "{}", "{}",
-                ClientAddress.ClientAddress("127.0.0.1")
-            )
+        with wlcontext(self.real_ups, session_id = session_id4):
+            # Another user tries to reserve the experiment. He goes to the WaitingReservation, position 2
+            status4 = core_api.reserve_experiment(fpga_experiments4[0].to_experiment_id(), "{}", "{}")
 
-        reservation_id4 = status4.reservation_id
+            reservation_id4 = status4.reservation_id
 
-        reservation4 = self.real_ups.get_reservation_status( reservation_id4 )
-        self.assertTrue(
-                isinstance(
-                    reservation4,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 2, reservation4.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id4):
+            reservation4 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation4, Reservation.WaitingReservation))
+            self.assertEquals( 2, reservation4.position)
 
-        # The state of other users does not change
-        reservation1 = self.real_ups.get_reservation_status( reservation_id1 )
-        self.assertTrue(
-                isinstance(
-                    reservation1,
-                    Reservation.ConfirmedReservation
-                )
-            )
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            # The state of other users does not change
+            reservation1 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation1, Reservation.ConfirmedReservation))
 
-        reservation2 = self.real_ups.get_reservation_status( reservation_id2 )
-        self.assertTrue(
-                isinstance(
-                    reservation2,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 0, reservation2.position)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            reservation2 = core_api.get_reservation_status()
+            self.assertTrue(isinstance( reservation2, Reservation.WaitingReservation))
+            self.assertEquals( 0, reservation2.position)
 
-        reservation3 = self.real_ups.get_reservation_status( reservation_id3 )
-        self.assertTrue(
-                isinstance(
-                    reservation3,
-                    Reservation.WaitingReservation
-                )
-            )
-        self.assertEquals( 1, reservation3.position )
+        with wlcontext(self.real_ups, reservation_id = reservation_id3):
+            reservation3 = core_api.get_reservation_status()
+            self.assertTrue(isinstance(reservation3, Reservation.WaitingReservation))
+            self.assertEquals( 1, reservation3.position )
 
-        # The user number 2 frees the experiment
-        self.real_ups.finished_experiment(reservation_id2)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            # The user number 2 frees the experiment
+            core_api.finished_experiment()
 
-        # Whenever he tries to do poll or send_command, he receives an exception
-        try:
-            self.real_ups.poll(reservation_id2)
-            self.real_ups.poll(reservation_id2)
-            self.real_ups.poll(reservation_id2)
-        except core_exc.NoCurrentReservationError:
-            pass # All right :-)
+        with wlcontext(self.real_ups, reservation_id = reservation_id2):
+            # Whenever he tries to do poll or send_command, he receives an exception
+            try:
+                core_api.poll()
+                core_api.poll()
+                core_api.poll()
+            except core_exc.NoCurrentReservationError:
+                pass # All right :-)
 
-        # send a program
-        CONTENT = "content of the program FPGA"
-        self.real_ups.send_file(reservation_id1, ExperimentUtil.serialize(CONTENT), 'program')
+        with wlcontext(self.real_ups, reservation_id = reservation_id1):
+            # send a program
+            CONTENT = "content of the program FPGA"
+            core_api.send_file(ExperimentUtil.serialize(CONTENT), 'program')
 
 
-        # We need to wait for the programming to finish.
-        start_time = time.time()
-        response = "STATE=not_ready"
-        while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-            respcmd = self.real_ups.send_command(reservation_id1, Command.Command("STATE"))
-            response = respcmd.get_command_string()
-            time.sleep(0.2)
+            # We need to wait for the programming to finish.
+            start_time = time.time()
+            response = "STATE=not_ready"
+            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
+                respcmd = core_api.send_command(Command.Command("STATE"))
+                response = respcmd.get_command_string()
+                time.sleep(0.2)
 
-        # Check that the current state is "Ready"
-        self.assertEquals("STATE=ready", response)
+            # Check that the current state is "Ready"
+            self.assertEquals("STATE=ready", response)
 
 
-        self.real_ups.send_command(reservation_id1, Command.Command("ChangeSwitch on 0"))
-        self.real_ups.send_command(reservation_id1, Command.Command("ClockActivation on 250"))
+            core_api.send_command(Command.Command("ChangeSwitch on 0"))
+            core_api.send_command(Command.Command("ClockActivation on 250"))
 
-        # end session
-        self.real_ups.logout(session_id1)
+        with wlcontext(self.real_ups, session_id = session_id1):
+            # end session
+            core_api.logout()
 
         # Checking the commands sent
-        self.assertEquals(
-                1,
-                len(self.fake_impact1._paths)
-            )
-        self.assertEquals(
-                0,
-                len(self.fake_impact2._paths)
-            )
+        self.assertEquals(1, len(self.fake_impact1._paths))
+        self.assertEquals(0, len(self.fake_impact2._paths))
 
-        self.assertEquals(
-                CONTENT,
-                self.fake_impact1._paths[0]
-            )
+        self.assertEquals(CONTENT, self.fake_impact1._paths[0])
 
         initial_open = 1
         initial_send = 1

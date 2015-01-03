@@ -214,7 +214,7 @@ CameraRefresher = function (img_id) {
 
     //! Starts refreshing the specified URL.
     //!
-    //! @param url URL to refresh. A timestamp will be appended to each request to avoid caching issues.
+    //! @param {str} url URL to refresh. A timestamp will be appended to each request to avoid caching issues.
     //! Can be undefined or null. If undefined or null, the current image source will be used as the URL
     //! to refresh.
     this.start = function (url) {

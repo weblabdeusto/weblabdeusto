@@ -15,15 +15,9 @@
 
 # This is the visible API of each server of the WebLab
 
-Login = []
-
 UserProcessing = [
         # TO BE REMOVED: ALL
         'reserve_session',
-        'login',
-        'extensible_login',
-        'grant_external_credentials',
-        'create_external_user',
     ]
 
 Proxy = [

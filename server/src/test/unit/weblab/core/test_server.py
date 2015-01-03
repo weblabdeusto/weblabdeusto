@@ -21,17 +21,18 @@ import time
 
 import mocker
 
+from   test.util.wlcontext import wlcontext
 from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.core.server    as UserProcessingServer
+import weblab.core.server as core_api
 import weblab.core.user_processor           as UserProcessor
 import weblab.core.reservations             as Reservation
 import weblab.core.coordinator.confirmer   as Confirmer
 import voodoo.configuration      as ConfigurationManager
 from weblab.data import ValidDatabaseSessionId
 import weblab.data.server_type                         as ServerType
-import weblab.data.client_address                      as ClientAddress
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.core.coordinator.config_parser as CoordinationConfigurationParser
@@ -101,62 +102,66 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         sess = session_manager.get_session(sess_id)
         self.assertEquals(sess['db_session_id'].username, db_sess_id.username)
-        self.ups.logout(sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            core_api.logout()
 
     def test_list_experiments(self):
         # student1
         db_sess_id1 = ValidDatabaseSessionId('student1', "student")
         sess_id1, _ = self.ups.do_reserve_session(db_sess_id1)
 
-        experiments = self.ups.list_experiments(sess_id1)
-        self.assertEquals(5, len(experiments) )
+        with wlcontext(self.ups, session_id = sess_id1):
+            experiments = core_api.list_experiments()
 
-        experiment_names = list(( experiment.experiment.name for experiment in experiments ))
-        self.assertTrue( 'ud-dummy' in experiment_names )
-        self.assertTrue( 'ud-logic' in experiment_names )
-        self.assertTrue( 'ud-fpga' in experiment_names )
-        self.assertTrue( 'flashdummy' in experiment_names )
-        self.assertTrue( 'javadummy' in experiment_names )
+            self.assertEquals(5, len(experiments) )
 
-        self.ups.logout(sess_id1)
+            experiment_names = list(( experiment.experiment.name for experiment in experiments ))
+            self.assertTrue( 'ud-dummy' in experiment_names )
+            self.assertTrue( 'ud-logic' in experiment_names )
+            self.assertTrue( 'ud-fpga' in experiment_names )
+            self.assertTrue( 'flashdummy' in experiment_names )
+            self.assertTrue( 'javadummy' in experiment_names )
+
+            core_api.logout()
 
         # student2
         db_sess_id2 = ValidDatabaseSessionId('student2', "student")
         sess_id2, _ = self.ups.do_reserve_session(db_sess_id2)
 
-        experiments = self.ups.list_experiments(sess_id2)
-        self.assertEquals(7, len(experiments) )
+        with wlcontext(self.ups, session_id = sess_id2):
+            experiments = core_api.list_experiments()
+            self.assertEquals(7, len(experiments) )
 
-        experiment_names = list(( experiment.experiment.name for experiment in experiments ))
-        self.assertTrue( 'ud-dummy' in experiment_names )
-        self.assertTrue( 'ud-fpga' in experiment_names )
-        self.assertTrue( 'ud-pld' in experiment_names )
-        self.assertTrue( 'ud-gpib' in experiment_names )
-        self.assertTrue( 'ud-logic' in experiment_names )
-        self.assertTrue( 'javadummy' in experiment_names )
-        self.assertTrue( 'flashdummy' in experiment_names )
+            experiment_names = list(( experiment.experiment.name for experiment in experiments ))
+            self.assertTrue( 'ud-dummy' in experiment_names )
+            self.assertTrue( 'ud-fpga' in experiment_names )
+            self.assertTrue( 'ud-pld' in experiment_names )
+            self.assertTrue( 'ud-gpib' in experiment_names )
+            self.assertTrue( 'ud-logic' in experiment_names )
+            self.assertTrue( 'javadummy' in experiment_names )
+            self.assertTrue( 'flashdummy' in experiment_names )
 
-        self.ups.logout(sess_id2)
+            core_api.logout()
 
     def test_get_user_information(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
-        user = self.ups.get_user_information(sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            user = core_api.get_user_information()
 
-        self.assertEquals("student2",user.login)
-        self.assertEquals("Name of student 2",user.full_name)
-        self.assertEquals("weblab@deusto.es",user.email)
+            self.assertEquals("student2",user.login)
+            self.assertEquals("Name of student 2",user.full_name)
+            self.assertEquals("weblab@deusto.es",user.email)
 
-        self.ups.logout(sess_id)
+            core_api.logout()
 
     def test_get_reservation_info(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
-
         lab_sess_id = SessionId.SessionId("lab_session_id")
+
         self.lab_mock.reserve_experiment(exp_id, "{}")
         self.mocker.result(lab_sess_id)
         self.mocker.count(0, 1)
@@ -165,48 +170,46 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.count(0, 1)
         self.mocker.replay()
 
-        reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
+        with wlcontext(self.ups, session_id = sess_id):
+            reservation = core_api.reserve_experiment( exp_id, "{}", "{}")
 
-        reservation_info = self.ups.get_reservation_info(reservation.reservation_id)
-        self.assertEquals('ud-dummy', reservation_info.exp_name)
-        self.assertEquals('Dummy experiments', reservation_info.cat_name)
+        with wlcontext(self.ups, reservation_id = reservation.reservation_id):
+            reservation_info = core_api.get_reservation_info()
+            self.assertEquals('ud-dummy', reservation_info.exp_name)
+            self.assertEquals('Dummy experiments', reservation_info.cat_name)
 
-        self.ups.logout(sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            core_api.logout()
 
     def test_reserve_experiment(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
 
         exp_id = ExperimentId('this does not experiment','this neither')
+        
+        with wlcontext(self.ups, session_id = sess_id):
+            self.assertRaises(
+                coreExc.UnknownExperimentIdError,
+                core_api.reserve_experiment, exp_id, "{}", "{}" )
 
-        self.assertRaises(
-            coreExc.UnknownExperimentIdError,
-            self.ups.reserve_experiment,
-            sess_id, exp_id, "{}", "{}", ClientAddress.ClientAddress("127.0.0.1")
-        )
+            exp_id = ExperimentId('ud-dummy','Dummy experiments')
 
-        exp_id = ExperimentId('ud-dummy','Dummy experiments')
+            lab_sess_id = SessionId.SessionId("lab_session_id")
 
-        lab_sess_id = SessionId.SessionId("lab_session_id")
-        self.lab_mock.reserve_experiment(exp_id, "{}")
-        self.mocker.result(lab_sess_id)
-        self.mocker.count(0, 1)
-        self.lab_mock.resolve_experiment_address(lab_sess_id)
-        self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
-        self.mocker.count(0, 1)
-        self.mocker.replay()
+            self.lab_mock.reserve_experiment(exp_id, "{}")
+            self.mocker.result(lab_sess_id)
+            self.mocker.count(0, 1)
+            self.lab_mock.resolve_experiment_address(lab_sess_id)
+            self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+            self.mocker.count(0, 1)
+            self.mocker.replay()
 
-        reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1")
-        )
 
-        self.assertTrue( isinstance(reservation,Reservation.Reservation))
+            reservation = core_api.reserve_experiment(exp_id, "{}", "{}")
 
-        self.ups.logout(sess_id)
+            self.assertTrue( isinstance(reservation,Reservation.Reservation))
+
+            core_api.logout()
 
     def test_get_experiment_use_by_id_found(self):
         reservations, usages = self._store_two_reservations()
@@ -214,13 +217,14 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        finished_result = self.ups.get_experiment_use_by_id(sess_id, reservations[0])
+        with wlcontext(self.ups, session_id = sess_id):
+            finished_result = core_api.get_experiment_use_by_id(reservations[0])
 
-        self.assertTrue( finished_result.is_finished() )
+            self.assertTrue( finished_result.is_finished() )
 
-        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        finished_result.experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), finished_result)
+            # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+            finished_result.experiment_use.experiment_use_id = None
+            self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), finished_result)
 
 
     def test_get_experiment_uses_by_id_found(self):
@@ -229,17 +233,18 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, reservations)
-        
-        self.assertEquals(2, len(experiment_results))
+        with wlcontext(self.ups, session_id = sess_id):
+            experiment_results = core_api.get_experiment_uses_by_id(reservations)
+            
+            self.assertEquals(2, len(experiment_results))
 
-        self.assertTrue( experiment_results[0].is_finished() )
-        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        experiment_results[0].experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
+            self.assertTrue( experiment_results[0].is_finished() )
+            # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+            experiment_results[0].experiment_use.experiment_use_id = None
+            self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
-        # reservation_id2 is for student2, and the session is for student1, so it is forbidden
-        self.assertTrue(experiment_results[1].is_forbidden())
+            # reservation_id2 is for student2, and the session is for student1, so it is forbidden
+            self.assertTrue(experiment_results[1].is_forbidden())
 
     def test_get_experiment_uses_by_id_notfound(self):
         reservations, usages = self._store_two_reservations()
@@ -250,38 +255,37 @@ class UserProcessingServerTestCase(unittest.TestCase):
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        experiment_results = self.ups.get_experiment_uses_by_id(sess_id, (reservations[0], reservation1, reservation2))
+        with wlcontext(self.ups, session_id = sess_id):
+            experiment_results = core_api.get_experiment_uses_by_id((reservations[0], reservation1, reservation2))
 
-        self.assertEquals(3, len(experiment_results))
+            self.assertEquals(3, len(experiment_results))
 
-        # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
-        self.assertTrue(experiment_results[0].is_finished())
-        experiment_results[0].experiment_use.experiment_use_id = None
-        self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
+            # reservation_id1 is for student1, so it returns a real object (with a real experiment_use_id)
+            self.assertTrue(experiment_results[0].is_finished())
+            experiment_results[0].experiment_use.experiment_use_id = None
+            self.assertEquals(FinishedReservationResult(usages[0].load_files('.')), experiment_results[0])
 
-        # reservation_id2 is for student2, and the session is for student1, so it returns None
-        self.assertTrue( experiment_results[1].is_alive() )
-        self.assertTrue( experiment_results[2].is_alive() )
+            # reservation_id2 is for student2, and the session is for student1, so it returns None
+            self.assertTrue( experiment_results[1].is_alive() )
+            self.assertTrue( experiment_results[2].is_alive() )
 
     def _reserve_experiment(self):
         db_sess_id = ValidDatabaseSessionId('student1', "student")
         sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            exp_id = ExperimentId('ud-dummy','Dummy experiments')
 
-        exp_id = ExperimentId('ud-dummy','Dummy experiments')
+            lab_sess_id = SessionId.SessionId("lab_session_id")
+            self.lab_mock.reserve_experiment(exp_id, "{}")
+            self.mocker.result(lab_sess_id)
+            self.mocker.count(0, 1)
+            self.lab_mock.resolve_experiment_address(lab_sess_id)
+            self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+            self.mocker.count(0, 1)
+            self.mocker.replay()
 
-        lab_sess_id = SessionId.SessionId("lab_session_id")
-        self.lab_mock.reserve_experiment(exp_id, "{}")
-        self.mocker.result(lab_sess_id)
-        self.mocker.count(0, 1)
-        self.lab_mock.resolve_experiment_address(lab_sess_id)
-        self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
-        self.mocker.count(0, 1)
-        self.mocker.replay()
-
-        reservation = self.ups.reserve_experiment(
-            sess_id, exp_id, "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"))
-        return reservation.reservation_id
+            reservation = core_api.reserve_experiment(exp_id, "{}", "{}")
+            return reservation.reservation_id
 
 
     def _store_two_reservations(self):

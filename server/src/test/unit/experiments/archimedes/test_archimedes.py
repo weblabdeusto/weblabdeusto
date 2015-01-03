@@ -15,6 +15,8 @@
 import base64
 import json
 import unittest
+import threading
+import time
 from experiments.archimedes import Archimedes
 
 from voodoo.configuration import ConfigurationManager
@@ -34,10 +36,7 @@ class TestArchimedes(unittest.TestCase):
         self.lab_session_id = SessionId('my-session-id')
 
     def tearDown(self):
-        pass
-
-    def test_nothing(self):
-        pass
+        self.experiment.do_dispose()
 
     def test_start(self):
         start = self.experiment.do_start_experiment("{}", "{}")
@@ -116,6 +115,17 @@ class TestArchimedes(unittest.TestCase):
         assert float(r["second"]["level"]) == 1200
         assert float(r["second"]["load"]) == 1300
 
+    def test_dispose_cleans_threads(self):
+        """
+        Archimedes Start creates a thread pool. Ensure that calling Dispose clears every thread.
+        """
+        initialThreads = len(threading.enumerate())
+        self.experiment.do_start_experiment("{}", "{}")
+        self.experiment.do_dispose()
+        time.sleep(0.5)
+        afterThreads = len(threading.enumerate())
+
+        self.assertEqual(initialThreads, afterThreads, "all threads destroyed")
 
 
 def suite():

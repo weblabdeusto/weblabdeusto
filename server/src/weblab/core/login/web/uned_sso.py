@@ -19,8 +19,10 @@ import base64
 import voodoo.log as log
 from voodoo.log import logged
 
+from flask import request, make_response, redirect
+from weblab.core.login.web import weblab_api
 
-from weblab.core.login.web import WebPlugin, ExternalSystemManager
+from weblab.core.login.web import ExternalSystemManager
 import weblab.core.login.exc as LoginErrors
 
 from weblab.data.dto.users import User
@@ -33,7 +35,8 @@ except ImportError:
 else:
     M2CRYPTO_AVAILABLE = True
 
-PEM_FILE_PATH = ''
+PEM_FILE_PATH = None
+UNED_SSO = None
 
 def process_cookie(original_message):
     unquoted_message = urllib.unquote(original_message)
@@ -43,7 +46,7 @@ def process_cookie(original_message):
     signature = base64.decodestring(base64_signature)
     
     try:
-        pem = open(PEM_FILE_PATH).read()
+        pem = open(PEM_FILE_PATH or '').read()
     except:
         raise Exception("Could not open PEM file")
 
@@ -72,7 +75,6 @@ def process_cookie(original_message):
 class UnedSSOManager(ExternalSystemManager):
 
     NAME = 'UNED-SSO'
-    PEM_FILE_PATH = ''
 
     @logged(log.level.Warning)
     def get_user(self, credentials):
@@ -93,52 +95,39 @@ class UnedSSOManager(ExternalSystemManager):
 
         return self.get_user(credentials).email
 
+@weblab_api.route_login_web('/unedsso/')
+def uned_sso():
+    import weblab.core.server as core_api
+    
+    # Initialize global variables if not previously done
+    global PEM_FILE_PATH, UNED_SSO
+    if PEM_FILE_PATH is None:
+        PEM_FILE_PATH = weblab_api.config.get_value('uned_sso_public_key_path', '')
+        UNED_SSO = weblab_api.config.get_value('uned_sso', False)
 
-class UnedSSOPlugin(WebPlugin):
-    path = '/unedsso/'
+    # Reject user if UNED_SSO is not available
+    if not UNED_SSO:
+        return make_response("<html><body>UNED SSO system disabled</body></html>", content_type = 'text/html')
 
-    def __init__(self, *args, **kwargs):
-        super(UnedSSOPlugin, self).__init__(*args, **kwargs)
+    if not M2CRYPTO_AVAILABLE:
+        return make_response("<html><body>M2Crypto module not available</body></html>", content_type = 'text/html')
 
-        global PEM_FILE_PATH
-        PEM_FILE_PATH = self.cfg_manager.get_value('uned_sso_public_key_path', '')
+    payload = request.cookies.get('usuarioUNEDv2', '')
 
-    def __call__(self, environ, start_response):
-        uned_sso = self.cfg_manager.get_value('uned_sso', False)
-
-        if not uned_sso:
-            return self.build_response("<html><body>UNED SSO system disabled</body></html>")
-
-        if not M2CRYPTO_AVAILABLE:
-            return self.build_response("<html><body>M2Crypto module not available</body></html>", content_type = 'text/html')
-
-        cookies = environ.get('HTTP_COOKIE', '').split('; ')
-        payload = ''
-        for cookie in cookies:
-            if cookie.startswith('usuarioUNEDv2='):
-                payload = '='.join(cookie.split('=')[1:])
-
-        if payload:
+    if payload:
+        try:
+            session_id = core_api.extensible_login(UnedSSOManager.NAME, payload)
+        except LoginErrors.InvalidCredentialsError:
             try:
-                session_id = self.server.extensible_login(UnedSSOManager.NAME, payload)
-            except LoginErrors.InvalidCredentialsError:
-                try:
-                    _, email = process_cookie(payload)
-                except:
-                    return self.build_response("Invalid cookie found!")
-                else:
-                    return self.build_response("%s: you were verified, but you are not registered in this WebLab-Deusto instance. Contact the administrator." % email)
+                _, email = process_cookie(payload)
+            except:
+                return "Invalid cookie found!"
             else:
-                return self._show_weblab(session_id)
+                return "%s: you were verified, but you are not registered in this WebLab-Deusto instance. Contact the administrator." % email
         else:
-            url = self.cfg_manager.get_value('core_server_url', 'core_server_url NOT SET')
-            current_url = url + 'login/web/unedsso/'
-            return self.build_response("Redirecting to sso.uned.es...", code = 302, headers = [('Location', 'https://sso.uned.es/sso/index.aspx?URL=' + current_url)])
-
-    def _show_weblab(self, session_id):
-        base_url = self.cfg_manager.get_value('core_server_url', 'core_server_url NOT SET')
-        base_client_url = base_url + "client/"
-        url = '%s#session_id=%s;%s.%s' % (base_client_url, session_id.id, session_id.id, self.server_route)
-        return self.build_response("Redirecting to WebLab-Deusto...", code = 302, headers = [('Location', url)])
-
+            base_client_url = weblab_api.ctx.core_server_url + "client/"
+            url = '%s#session_id=%s;%s.%s' % (base_client_url, session_id.id, session_id.id, weblab_api.ctx.route)
+            return redirect(url)
+    else:
+        return redirect('https://sso.uned.es/sso/index.aspx?URL=' + request.url)
 

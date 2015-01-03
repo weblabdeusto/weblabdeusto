@@ -30,7 +30,6 @@ import weblab.core.reservations as Reservation
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
-import weblab.data.client_address as ClientAddress
 
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
@@ -97,7 +96,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         if faking_response:
             self._fake_simple_lab_response()
 
-        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", "127.0.0.1", 'uuid')
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
                     SessionId.SessionId(status.reservation_id.split(';')[0]),

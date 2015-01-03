@@ -1,7 +1,9 @@
+import sys
 import threading
 import wsgiref.simple_server
 import urlparse
 import SocketServer
+from collections import OrderedDict
 
 import voodoo.log as log
 import voodoo.counter as counter
@@ -85,23 +87,38 @@ class WebLabWsgiServer(object):
             server_route   = the_server_route
             location       = the_location
 
+        script_name = core_server_url_parsed.path.split('/weblab')[0]
         timeout = cfg_manager.get_doc_value(configuration_doc.FACADE_TIMEOUT)
+
         listen  = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_BIND)
         port    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_PORT)
 
-        script_name = core_server_url_parsed.path.split('/weblab')[0]
-        self._server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
-        self._server.socket.settimeout(timeout)
-        self._server_thread = ServerThread(self._server, timeout)
+        if cfg_manager.get_value('flask_debug', False):
+            print >> sys.stderr, "Using a different server (relying on Flask rather than on Python's WsgiHttpServer)"
+            core_server = None
+            core_server_thread = threading.Thread(target = application.run, kwargs = { 'port' : port, 'debug' : True, 'use_reloader' : False })
+        else:
+            core_server = WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application)
+            core_server.socket.settimeout(timeout)
+            core_server_thread = ServerThread(core_server, timeout)
+
+        self._servers = [core_server]
+        self._server_threads = [core_server_thread]
 
     def start(self):
-        self._server_thread.start()
-        _resource_manager.add_resource(self._server_thread)
+        for server_thread in self._server_threads:
+            server_thread.start()
+            _resource_manager.add_resource(server_thread)
 
     def cancel(self):
         self.stop()
 
     def stop(self):
-        self._server.shutdown()
-        self._server_thread.join()
+        for server in self._servers:
+            if server is not None:
+                server.shutdown()
+                server.socket.close()
+
+        for server_thread in self._server_threads:
+            server_thread.join()
 

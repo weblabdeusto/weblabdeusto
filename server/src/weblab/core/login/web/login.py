@@ -14,33 +14,33 @@
 #
 
 import traceback
+from flask import make_response
 
-from weblab.core.login.web import WebPlugin 
+from weblab.core.login.web import weblab_api, get_argument 
 from weblab.core.login.exc import InvalidCredentialsError
 
-USERNAME="username"
-PASSWORD="password"
+USERNAME='username'
+PASSWORD='password'
 
-class LoginPlugin(WebPlugin):
+@weblab_api.route_login_web('/login/', methods = ['GET', 'POST'])
+def login():
+    import weblab.core.server as core_api
+    username = get_argument(USERNAME)
+    password = get_argument(PASSWORD, 'not provided')
 
-    path = '/login/'
+    if username is None:
+        return make_response("%s argument not provided!" % USERNAME, 400)
 
-    def __call__(self, environ, start_response):
-
-        username = self.get_argument(USERNAME)
-
-        if username is None:
-            return self.build_response("%s argument not provided!" % USERNAME)
-
-        password = self.get_argument(PASSWORD) or 'not provided'
-        try:
-            session_id = self.server.login(username, password)
-        except InvalidCredentialsError:
-            return self.build_response("Invalid username or password", code = 403)
-        except:
-            traceback.print_exc()
-            return self.build_response("There was an unexpected error while logging in.", code = 500)
-        else:
-            self.replace_session(session_id.id)
-            return self.build_response("%s;%s" % (session_id.id, self.weblab_cookie))
+    try:
+        session_id = core_api.login(username, password)
+    except InvalidCredentialsError:
+        return make_response("Invalid username or password", 403)
+    except:
+        traceback.print_exc()
+        return make_response("There was an unexpected error while logging in.", 500)
+    else:
+        response = make_response("%s;%s" % (session_id.id, weblab_api.ctx.route))
+        session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
+        weblab_api.fill_session_cookie(response, session_id_cookie)
+        return response
 

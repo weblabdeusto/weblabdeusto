@@ -6,6 +6,5 @@
 >
 	<user>weblab</user>
 
-	<server>login</server>
 	<server>core</server>
 </servers>

@@ -14,19 +14,16 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-from functools import wraps
 import numbers
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import desc
 
 import voodoo.log as log
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
 
+from weblab.db import db
 import weblab.db.model as model
-
-import weblab.db.gateway as dbGateway
 
 from weblab.data import ValidDatabaseSessionId
 from weblab.data.command import Command
@@ -38,12 +35,14 @@ import weblab.permissions as permissions
 
 DEFAULT_VALUE = object()
 
-class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
+class DatabaseGateway(object):
 
     forbidden_access = 'forbidden_access'
 
     def __init__(self, cfg_manager):
-        super(DatabaseGateway, self).__init__(cfg_manager)
+        super(DatabaseGateway, self).__init__()
+        self.cfg_manager = cfg_manager
+        self.Session, self.engine = db.initialize(cfg_manager)
 
     @typecheck(basestring)
     @logged()

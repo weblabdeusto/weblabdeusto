@@ -20,7 +20,7 @@ from weblab.core.login.simple import SimpleAuthnUserAuth
 #        Trusted Ip addresses
 # 
 
-from weblab.comm.context import get_context
+from weblab.core.wl import weblab_api
 
 class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
 
@@ -34,7 +34,7 @@ class TrustedIpAddressesUserAuth(SimpleAuthnUserAuth):
             self.addresses += [ ip.strip() for ip in user_auth_configuration.split(',') ]
 
     def authenticate(self, login, password):
-        return get_context().ip_address in self.addresses
+        return weblab_api.ip_address in self.addresses
 
     def __repr__(self):
         return "TrustedIpAddressesUserAuth(configuration=%r)" % self.addresses

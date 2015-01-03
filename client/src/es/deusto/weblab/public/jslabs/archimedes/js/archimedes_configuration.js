@@ -1,59 +1,66 @@
 
     var Registry = {
         "archimedes1" : {
-            "ball_mass": 31, // g
-            "ball_diameter": 4, // cm
+            "ball_mass": 32.7, // g
+            "ball_diameter": 3.9, // cm
+            "ball_density": 1.05,
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1"
+            "liquid_diameter": 7, // cm
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
-            "ball_mass": 20,
-            "ball_density": 40,
+            "ball_mass": 41,
+            "ball_diameter": 3.9, // cm
+            "ball_density": 1.32,
             "liquid_name": "water",
-            "liquid_density": 15,
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2"
+            "liquid_density": 1000,
+            "liquid_diameter": 7, // cm
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
         },
         "archimedes3" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 2.8,
+            "ball_diameter": 3.9, // cm
+            "ball_density": 0.09,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3"
+            "liquid_diameter": 7, // cm
+            "liquid_name": "water",
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate"
         },
         "archimedes4" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 30,
+            "ball_diameter": 3.9, // cm
+            "ball_density": 0.96,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4"
+            "liquid_diameter": 7, // cm
+            "liquid_name": "water",
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
         "archimedes5" : {
             "ball_mass": 20,
             "ball_density": 60,
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5"
+            "liquid_diameter": 7, // cm
+            "liquid_name": "water",
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
         },
         "archimedes6" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 89.1,
+            "ball_density": 0.79,
+            "ball_diameter": 6, // cm
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6"
+            "liquid_diameter": 7, // cm
+            "liquid_name": "water",
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate"
         },
         "archimedes7" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 43.3,
+            "ball_density": 0.66,
+            "ball_diameter": 5, // cm
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 6.5, // cm
-            "liquid_name": "oil",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7"
+            "liquid_diameter": 7, // cm
+            "liquid_name": "water",
+            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7_rotate"
         }
     };
 

@@ -83,7 +83,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
         this.cssWidth = cssWidth;
         this.cssHeight = cssHeight;
 		
-		System.out.println("[DBG]: Creating JSExperiment: " + this);
+		printLine("[DBG]: Creating JSExperiment: " + this);
 		
 		JSExperiment.staticSelf = this;
 		
@@ -144,7 +144,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		else
 			System.out.println("cssHeight not set to auto. Not running iframeResizer");
 		
-		System.out.println("[DBG] The iframe finished loading. " + staticSelf);
+		printLine("[DBG] The iframe finished loading. " + staticSelf);
 		
 		staticSelf.frameLoaded = true;
 	
@@ -152,7 +152,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		// been invoked, but we weren't able to really() start because the
 		// frame hadn't been loaded yet. We will do it now.
 		if(staticSelf.startRequested) {
-			System.out.println("[DBG]: Start had been requested. We will doStart next.");
+			printLine("[DBG]: Start had been requested. We will doStart next.");
 			staticSelf.doStart(staticSelf.startTime, staticSelf.startInitialConfiguration);
 			
 			// Important to set startRequested to false, so that this method can be freely
@@ -254,6 +254,9 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	@Override
 	public void setTime(int time) {
 		super.setTime(time);
+		
+		printLine("[DBG]: setTime callback invoked on GWT with time: " + time);
+		
 		AbstractExternalAppBasedBoard.setTimeImpl(time);
 	}
 	
@@ -287,12 +290,19 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 */
 	public void doStart(int time, String initialConfiguration) {
 		
-		System.out.println("[DBG]: Carrying out doStart() [This is the real start]");
+		printLine("[DBG]: Carrying out doStart() [This is the real start]");
+		printLine("[DBG]: Time: " + time);
+		printLine("[DBG]: initConfig: " + initialConfiguration);
 		
 		if(this.provideFileUpload)
 			tryUpload();
 		
+		// TODO: Ensure that this is called only once.
+		// Added as an attempt for a bugfix.
+		AbstractExternalAppBasedBoard.setTimeImpl(time);
 		AbstractExternalAppBasedBoard.startInteractionImpl(initialConfiguration);
+		
+		printLine("[DBG]: DoStart done.");
 	}
 	
 	/**
@@ -304,7 +314,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	@Override
 	public void start(int time, String initialConfiguration) {
 		
-		System.out.println("[DBG]: Carrying out start() [Maybe we will really start, or defer it]" + this);
+		printLine("[DBG]: Carrying out start() [Maybe we will really start, or defer it]" + this);
 		
 		// If the frame has been loaded, we're ready to start.
 		if(this.frameLoaded)
@@ -314,12 +324,33 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		// We store the arguments, and wait for the onReady callback, 
 		// which will in this case call us.
 		else {
-			System.out.println("[DBG]: Storing start data for later.");
+			printLine("[DBG]: Storing start data for later.");
 			this.startTime = time;
 			this.startInitialConfiguration = initialConfiguration;
 			this.startRequested = true;
+			
+			printLine("[DBG]: Stored start data: " + initialConfiguration);
+			printLine("[DBG]: Stored start time: " + this.startTime);
 		}
 	}
+	
+	
+	/**
+	* Prints a line through both System.out.println and native console.log and GWT.log.
+	*/
+	public static void printLine( String line ) {
+		System.out.println(line);
+		consoleLog(line);
+		GWT.log(line);
+	}
+	
+	public static native void consoleLog( String message) /*-{
+		try {
+		    if(DEBUGGWT == true)
+			    console.log( "[GDBG]:" + message );
+		} catch (e) {
+		}
+	}-*/;
 	
 	
 	public static native void wlSendCommand()/*-{
@@ -331,13 +362,13 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	    
 	    @Override
 	    public void onSuccess(ResponseCommand response) {
-	    	GWT.log("The file was sent");
+	    	printLine("The file was sent");
 	    	handleFileResponse(response.getCommandString(), 0);
 	    }
 
 	    @Override
 	    public void onFailure(CommException e) {
-	    	GWT.log("It was not possible to send the file");
+	    	printLine("It was not possible to send the file");
 	    	handleFileError(e.getMessage(), 0);
 	    }
 	    
@@ -373,15 +404,15 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			//if(extension.toLowerCase().equals("vhd"))
 			//	this.synthesizingMode = true;
 			
-			GWT.log("Now trying to send file");
+			printLine("Now trying to send file");
 			
 			this.boardController.sendFile(this.uploadStructure, this.sendFileCallback);
 			
-			GWT.log("sendFile was run");
+			printLine("sendFile was run");
 			
 			//this.loadStartControls();
 		} else {
-			GWT.log("The user did not really choose a file");
+			printLine("The user did not really choose a file");
 		}
 		
 		return didChooseFile;

@@ -16,12 +16,13 @@
 import json
 import urllib2
 import base64
+from flask import make_response, render_template, request
 
 import voodoo.log as log
 from voodoo.log import logged
 
-
-from weblab.core.login.web import WebPlugin, ExternalSystemManager
+from weblab.core.login.web import weblab_api, get_argument 
+from weblab.core.login.web import ExternalSystemManager
 import weblab.core.login.exc as LoginErrors
 
 from weblab.data.dto.users import User
@@ -73,142 +74,74 @@ class FacebookManager(ExternalSystemManager):
         # login is "13122142321@facebook"
         return login.split('@')[0]
 
+@weblab_api.route_login_web('/facebook/', methods = ['GET', 'POST'])
+def facebook():
+    import weblab.core.server as core_api
+    signed_request = get_argument(REQUEST_FIELD)
 
-class FacebookPlugin(WebPlugin):
-    path = '/facebook/'
+    if signed_request is None:
+        facebook_app = weblab_api.config.get_value(FACEBOOK_APP_PROPERTY, None)
+        if facebook_app is None:
+            return "<html><body>%s not set. Contact administrator</body></html>" % FACEBOOK_APP_PROPERTY
+        return "<html><body><script>top.location.href='%s';</script></body></html>" % facebook_app
 
-    def __call__(self, environ, start_response):
-        signed_request = self.get_argument(REQUEST_FIELD)
-        if signed_request is None:
-            facebook_app = self.cfg_manager.get_value(FACEBOOK_APP_PROPERTY, None)
-            if facebook_app is None:
-                return self.build_response("<html><body>%s not set. Contact administrator</body></html>" % FACEBOOK_APP_PROPERTY, content_type = 'text/html')
-            return self.build_response("<html><body><script>top.location.href='%s';</script></body></html>" % facebook_app, content_type = 'text/html')
+    payload = signed_request[signed_request.find('.') + 1:]
+    payload = payload.replace('-','+').replace('_','/')
+    payload = payload + "=="
+    json_content = base64.decodestring(payload)
+    data = json.loads(json_content)
+    if 'user_id' not in data:
+        base_auth_url = weblab_api.config.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
+        facebook_app_id = weblab_api.config.get_value(APP_ID_PROPERTY)
+        canvas_url = weblab_api.config.get_value(CANVAS_URL_PROPERTY)
 
-        payload = signed_request[signed_request.find('.') + 1:]
-        payload = payload.replace('-','+').replace('_','/')
-        payload = payload + "=="
-        json_content = base64.decodestring(payload)
-        data = json.loads(json_content)
-        if 'user_id' not in data:
-            base_auth_url = self.cfg_manager.get_value(AUTH_URL_PROPERTY, DEFAULT_AUTH_URL)
-            facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
-            canvas_url = self.cfg_manager.get_value(CANVAS_URL_PROPERTY)
+        auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
 
-            auth_url = base_auth_url % (facebook_app_id, urllib2.quote(canvas_url))
+        return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
 
-            return self.build_response("<html><body><script>top.location.href='%s';</script></body></html>" % auth_url)
+    try:
+        session_id = core_api.extensible_login(FacebookManager.NAME, signed_request)
+    except LoginErrors.InvalidCredentialsError:
+        return _handle_unauthenticated_clients(signed_request)
 
+    return _show_weblab(session_id, signed_request)
+
+def _show_weblab(session_id, signed_request):
+    payload = signed_request[signed_request.find('.') + 1:]
+    payload = payload.replace('-','+').replace('_','/')
+    payload = payload + "=="
+    json_content = base64.decodestring(payload)
+    data = json.loads(json_content)
+    locale = ''
+    if 'user' in data:
+        if 'locale' in data['user']:
+            locale = "&locale=%s" % data['user']['locale']
+
+    client_address = weblab_api.config.get_value(CLIENT_ADDRESS_PROPERTY, "%s NOT SET" % CLIENT_ADDRESS_PROPERTY)
+    facebook_app_id = weblab_api.config.get_value(APP_ID_PROPERTY)
+
+    return render_template('login_web/facebook_weblab.html', 
+                client_address = client_address, session_id = '%s;%s' % (session_id.id, weblab_api.ctx.route), 
+                locale = locale, facebook_app_id = facebook_app_id)
+
+def _handle_unauthenticated_clients(signed_request):
+    import weblab.core.server as core_api
+    if get_argument('op','').lower() in ('create', 'link'):
         try:
-            session_id = self.server.extensible_login(FacebookManager.NAME, signed_request)
+            if get_argument('op','').lower() == 'create':
+                session_id = core_api.create_external_user(FacebookManager.NAME, signed_request)
+            else: # get_argument('op','').lower() == 'link'
+                username = get_argument('username')
+                password = get_argument('password')
+                session_id = core_api.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
-            return self._handle_unauthenticated_clients(signed_request)
-
-        return self._show_weblab(session_id, signed_request)
-
-    def _show_weblab(self, session_id, signed_request):
-        payload = signed_request[signed_request.find('.') + 1:]
-        payload = payload.replace('-','+').replace('_','/')
-        payload = payload + "=="
-        json_content = base64.decodestring(payload)
-        data = json.loads(json_content)
-        locale = ''
-        if 'user' in data:
-            if 'locale' in data['user']:
-                locale = "&locale=%s" % data['user']['locale']
-
-        client_address = self.cfg_manager.get_value(CLIENT_ADDRESS_PROPERTY, "%s NOT SET" % CLIENT_ADDRESS_PROPERTY)
-        facebook_app_id = self.cfg_manager.get_value(APP_ID_PROPERTY)
-
-        return self.build_response("""<html>
-                       <head>
-                            <script>
-                                function recalculate_height(){
-                                    var ifr = document.getElementById('weblab_iframe');
-                                    if(ifr.contentWindow.document.body != null){
-                                        var h = ifr.contentWindow.document.body.scrollHeight;
-                                        ifr.height = h;
-                                    }
-                                    setTimeout("recalculate_height();", 200);
-                                }
-                            </script>
-                       </head>
-                    <body>
-                         <div id="fb-root">
-                            <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="yes" src="%s?session_id=%s&facebook=true&mobile=no&%s">
-                            </ifame>
-                         </div>
-                        <script src="http://connect.facebook.net/en_US/all.js"></script>
-                        <script>
-                            FB.init({
-                                appId  : "%s",
-                                channelUrl  : 'https://www.weblab.deusto.es/weblab/channel.html'  // custom channel
-                            });
-                                setTimeout("recalculate_height();", 200);
-                        </script>
-
-                    </body>
-                </html>
-            """ % (client_address, '%s;%s' % (session_id.id, self.weblab_cookie), locale, facebook_app_id), content_type = 'text/html')
-
-    def _handle_linking_accounts(self, signed_request):
-        username = self.get_argument('username')
-        password = self.get_argument('password')
-        try:
-            session_id = self.server.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
-        except LoginErrors.InvalidCredentialsError:
-            return self.build_response("Invalid username or password!", code = 403)
+            return make_response("Invalid username or password!", 403)
         else:
-            return self._show_weblab(session_id, signed_request)
+            return _show_weblab(session_id, signed_request)
 
-    def _handle_creating_accounts(self, signed_request):
-        try:
-            session_id = self.server.create_external_user(FacebookManager.NAME, signed_request)
-        except LoginErrors.InvalidCredentialsError:
-            return self.build_response("Invalid username or password!", code = 403)
-        else:
-            return self._show_weblab(session_id, signed_request)
+    link_uri = request.url + '?op=link'
+    create_uri = request.url + '?op=create'
 
-
-    def _handle_unauthenticated_clients(self, signed_request):
-        if self.get_argument('op','').lower() == 'create':
-            return self._handle_creating_accounts(signed_request)
-        if self.get_argument('op','').lower() == 'link':
-            return self._handle_linking_accounts(signed_request)
-
-        link_uri = self.uri + '?op=link'
-        create_uri = self.uri + '?op=create'
-
-        return self.build_response("""<html>
-                <head>
-                    <style>
-                        body{
-                            font: 14px normal "Lucida Grande", Arial;
-                        }
-                    </style>
-                </head>
-                <body>
-                <center><img src="../../../logo.png"></center>
-                <p>It seems that your Facebook account has not been linked with a WebLab-Deusto account, or that you don't have a WebLab-Deusto account.</p>
-                <br>
-                <h2>Already have a WebLab-Deusto account?</h2>
-                <p>If you have an account in the University of Deusto and you'd like to link your facebook account (highly recommendable), fill your credentials and press <i>Link</i> to link both accounts so as to use WebLab-Deusto. Doing this you will be able to use the same experiments you use in WebLab-Deusto from Facebook.</p>
-                <center><form method="POST" action="%(LINK_URI)s">
-                Username: <input type="text" name="username"></input><br/>
-                Password: <input type="password" name="password"></input><br/>
-                <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
-                <input type="submit" value="Link"></input>
-                </form></center>
-                <br>
-                <h2>New to WebLab-Deusto?</h2>
-                <p><a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> is an <a href="http://code.google.com/p/weblabdeusto/">Open Source</a> Remote Laboratory developed in the <a href="http://www.deusto.es/">University of Deusto</a>. Students access experiments physically located in the University from any point in the Internet, just as they would in a hands-on-lab session.
-                <p>If you don't have a WebLab-Deusto account but you'd like to see it, click on <i>Create</i> and you'll have a new account with permissions to the default demos we have deployed, with safe experiments that we know that final users will not be able to break.</p>
-                <center> <form method="POST" action="%(CREATE_URI)s">
-                    <input type="hidden" name="signed_request" value="%(SIGNED_REQUEST)s"></input>
-                    <input type="submit" value="Create"></input>
-                </form> </center>
-            </body></html>""" % {
-                        'LINK_URI' : link_uri,
-                        'CREATE_URI' : create_uri,
-                        'SIGNED_REQUEST' : signed_request,
-                    }, content_type = 'text/html')
+    return render_template('login_web/facebook_unauthenticated.html', 
+                    link_uri = link_uri, create_uri = create_uri,
+                    signed_request = signed_request)

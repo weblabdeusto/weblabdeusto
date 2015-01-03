@@ -34,50 +34,53 @@ from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParame
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
-        student1 = gateway._get_user(session, 'student1')
+        try:
+            student1 = gateway._get_user(session, 'student1')
 
-        initial_usage = ExperimentUsage()
-        initial_usage.start_date    = time.time()
-        initial_usage.end_date      = time.time()
-        initial_usage.from_ip       = "130.206.138.16"
-        initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
-        initial_usage.reservation_id = reservation_id
+            initial_usage = ExperimentUsage()
+            initial_usage.start_date    = time.time()
+            initial_usage.end_date      = time.time()
+            initial_usage.from_ip       = "130.206.138.16"
+            initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
+            initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+            initial_usage.reservation_id = reservation_id
 
-        file1 = FileSent(
-                    'path/to/file1',
-                    '{sha}12345',
-                    time.time()
-            )
+            file1 = FileSent(
+                        'path/to/file1',
+                        '{sha}12345',
+                        time.time()
+                )
 
-        file2 = FileSent(
-                    'path/to/file2',
-                    '{sha}123456',
-                    time.time(),
-                    Command.Command('response'),
-                    time.time(),
-                    file_info = 'program'
-            )
+            file2 = FileSent(
+                        'path/to/file2',
+                        '{sha}123456',
+                        time.time(),
+                        Command.Command('response'),
+                        time.time(),
+                        file_info = 'program'
+                )
 
-        command1 = CommandSent(
-                    Command.Command("your command1"),
-                    time.time()
-            )
+            command1 = CommandSent(
+                        Command.Command("your command1"),
+                        time.time()
+                )
 
-        command2 = CommandSent(
-                    Command.Command("your command2"),
-                    time.time(),
-                    Command.Command("your response2"),
-                    time.time()
-            )
+            command2 = CommandSent(
+                        Command.Command("your command2"),
+                        time.time(),
+                        Command.Command("your response2"),
+                        time.time()
+                )
 
-        initial_usage.append_command(command1)
-        initial_usage.append_command(command2)
-        initial_usage.append_file(file1)
-        initial_usage.append_file(file2)
-        initial_usage.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id }
-        gateway.store_experiment_usage(student1.login, initial_usage)
-        return student1, initial_usage, command1, command2, file1, file2
+            initial_usage.append_command(command1)
+            initial_usage.append_command(command2)
+            initial_usage.append_file(file1)
+            initial_usage.append_file(file2)
+            initial_usage.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
+            gateway.store_experiment_usage(student1.login, initial_usage)
+            return student1, initial_usage, command1, command2, file1, file2
+        finally:
+            session.close()
 
 class DatabaseGatewayTestCase(unittest.TestCase):
     """Note: Methods tested from UserProcessingServer won't be tested again here."""
@@ -87,6 +90,10 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration)
         self.gateway = DatabaseGateway.create_gateway(cfg_manager)
         self.gateway._delete_all_uses()
+        self.session = self.gateway.Session()
+
+    def tearDown(self):
+        self.session.close()
 
     def test_get_user_by_name(self):
         self.assertRaises(
@@ -155,8 +162,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_add_command(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -239,8 +245,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("finish",       full_usage2.commands[1].response.commandstring)
 
     def test_update_command(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
 
@@ -278,8 +283,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_finish_experiment_usage(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -358,8 +362,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_add_file(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -436,8 +439,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
 
     def test_update_file(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -506,9 +508,8 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
 
     def test_gather_permissions(self):
-        session = self.gateway.Session()
-        student2 = self.gateway._get_user(session, "student2")
-        permissions = self.gateway._gather_permissions(session, student2, "experiment_allowed")
+        student2 = self.gateway._get_user(self.session, "student2")
+        permissions = self.gateway._gather_permissions(self.session, student2, "experiment_allowed")
 
         # PLD (User Permissions)
         pld_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-pld"]
@@ -519,11 +520,11 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(first_permission.get_parameter('experiment_permanent_id').value,'ud-pld')
         self.assertEquals(first_permission.get_parameter('experiment_category_id').value, 'PLD experiments')
         self.assertEquals(first_permission.get_parameter('time_allowed').value, '100')
-        self.assertEquals(self.gateway._get_float_parameter_from_permission(session, first_permission, 'time_allowed'), 100.0)
+        self.assertEquals(self.gateway._get_float_parameter_from_permission(self.session, first_permission, 'time_allowed'), 100.0)
         self.assertRaises(
                 InvalidPermissionParameterFormatError,
                 self.gateway._get_float_parameter_from_permission,
-                session,
+                self.session,
                 first_permission,
                 'experiment_permanent_id'
             )

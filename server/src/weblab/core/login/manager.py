@@ -2,14 +2,13 @@ import time
 import traceback
 
 import voodoo.log as log
-from voodoo.log import logged
 
 from weblab.core.login.web import EXTERNAL_MANAGERS
 
+from weblab.core.wl import weblab_api
 import weblab.core.login.exc as LoginErrors
 from weblab.core.exc import DbUserNotFoundError
 from weblab.data import ValidDatabaseSessionId
-import weblab.comm.context as RemoteFacadeContext
 
 LOGIN_FAILED_DELAY = 5
 NOT_LINKABLE_USERS = 'login_not_linkable_users'
@@ -23,7 +22,6 @@ class LoginManager(object):
         self._db = db
         self._core_server = core_server
 
-    @logged(log.level.Info, except_for='password')
     def login(self, username, password):
         """ do_login(username, password) -> SessionId
 
@@ -87,15 +85,12 @@ class LoginManager(object):
 
     def _reserve_session(self, db_session_id):
         session_id, server_route = self._core_server.do_reserve_session(db_session_id)
-        context = RemoteFacadeContext.get_context()
-        context.route = server_route
         if hasattr(session_id, 'id'):
-            context.session_id = session_id.id
+            weblab_api.ctx.session_id = session_id.id
         else:
-            context.session_id = session_id
+            weblab_api.ctx.session_id = session_id
         return session_id
 
-    @logged(log.level.Info)
     def extensible_login(self, system, credentials):
         """ The extensible login system receives a system (e.g. FACEBOOK, or OPENID), and checks
         that with that system and certain credentials (in a particular format) identifies the user.
@@ -134,7 +129,6 @@ class LoginManager(object):
         return external_user_id, external_user
 
 
-    @logged(log.level.Info, except_for="password")
     def grant_external_credentials(self, username, password, system, credentials):
         """ Links an existing user to the new user. """
 
@@ -151,7 +145,6 @@ class LoginManager(object):
         self._db.grant_external_credentials(username, external_user_id, system)
         return self._reserve_session(local_db_session_id)
 
-    @logged(log.level.Info)
     def create_external_user(self, system, credentials):
         """ Create a new user using an external system. """
 

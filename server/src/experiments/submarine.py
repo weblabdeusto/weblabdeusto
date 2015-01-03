@@ -64,7 +64,7 @@ class Submarine(Experiment):
         self._feed_lock      = threading.Lock()
         self._latest_feed_time = datetime.datetime.now()
 
-        self.debug           = self._cfg_manager.get_value('debug', True)
+        self.debug           = self._cfg_manager.get_value('debug', False)
         self.debug_dir       = self._cfg_manager.get_value('debug_dir', None)
         self.real_device     = self._cfg_manager.get_value('real_device', True)
         self.lights_on_time  = self._cfg_manager.get_value('lights_on_time',  10)
@@ -331,7 +331,7 @@ class Submarine(Experiment):
                 if self.backward:
                     msg = "duplicated" # Already sent
                 elif self.forward:
-                    msg = "warning: something incompatible previously sent" # Forward sent; ignore message
+                    msg = "warning: something incompatible previously sent"  # Forward sent; ignore message
                 else:
                     self.backward = True
                     self._send(command)
@@ -345,7 +345,8 @@ class Submarine(Experiment):
         if self.real_device:
             return self.opener.open(self.pic_location, command).read()
         else:
-            print "Simulating request...",command
+            if self.debug:
+                print "Simulating request...", command
             if command == 'STATE':
                 return "{ 'light' : true, 'temp' : 27.4 }"
             else:

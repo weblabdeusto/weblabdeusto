@@ -23,6 +23,7 @@ class WsgiManagerTest(unittest.TestCase):
         self.cfg_manager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
         self.current_port = new_port()
+        # TODO
         self.cfg_manager._set_value(configuration_doc.CORE_FACADE_PORT, self.current_port)
 
         app = HelloWorldApp()

@@ -21,7 +21,7 @@ from .community import best_partition
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
-    return admin_app.AdministrationApplication.INSTANCE
+    return admin_app.GLOBAL_APP_INSTANCE
 
 def is_instructor():
     is_admin = get_app_instance().is_admin()

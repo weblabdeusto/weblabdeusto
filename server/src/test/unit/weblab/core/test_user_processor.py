@@ -30,7 +30,6 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 import weblab.data.server_type as ServerType
-import weblab.data.client_address as ClientAddress
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.data.dto.users as Group
@@ -94,9 +93,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_unknown_experiment_category(self):
@@ -104,9 +101,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_experiment_not_found(self):
@@ -116,16 +111,13 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.NoAvailableExperimentFoundError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_experiment_waiting_confirmation(self):
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
-                    "{}", "{}",
-                    ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
+                    "{}", "{}", "127.0.0.1", 'uuid')
         self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
 
     def test_reserve_experiment_repeated_uuid(self):
@@ -134,8 +126,7 @@ class UserProcessorTestCase(unittest.TestCase):
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
-                    ClientAddress.ClientAddress("127.0.0.1"), uuid
-                )
+                    "127.0.0.1", uuid)
         self.assertEquals( 'replicated', status )
 
 

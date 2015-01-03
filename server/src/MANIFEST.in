@@ -1,4 +1,5 @@
 recursive-include weblab/admin/web/templates *
+recursive-include weblab/core/templates *
 recursive-include weblab/admin/web/static *
 recursive-include voodoo/gen/loader/xsd *
 recursive-include weblab/login/comm *

@@ -22,9 +22,7 @@ from voodoo.typechecker import typecheck
 from voodoo.sessions.session_id import SessionId
 import voodoo.resources_manager as ResourceManager
 
-import weblab.comm.context as RemoteFacadeContext
-import weblab.core.comm.user_server as UserProcessingFacadeServer
-
+import weblab.configuration_doc as configuration_doc
 from weblab.data.experiments import ExperimentUsage
 
 import weblab.core.exc as core_exc
@@ -33,6 +31,8 @@ import weblab.core.coordinator.exc as coord_exc
 from weblab.core.coordinator.status import WebLabSchedulingStatus
 
 from weblab.data.experiments import RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
+
+from weblab.core.wl import weblab_api
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
@@ -55,7 +55,7 @@ class UserProcessor(object):
         self._coordinator     = coordinator
         self._db_manager      = db_manager
         self._commands_store  = commands_store
-        self._server_route    = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
+        self._server_route    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
         self.time_module      = time_module
 
     @property
@@ -94,23 +94,21 @@ class UserProcessor(object):
 
     def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address, core_server_universal_id ):
 
-        context = RemoteFacadeContext.get_context()
-
         # Put user information in the session
         self.get_user_information()
 
         self._session['experiment_id'] = experiment_id
 
         reservation_info = self._session['reservation_information'] = {}
-        reservation_info['user_agent']     = context.get_user_agent()
-        reservation_info['referer']        = context.get_referer()
-        reservation_info['mobile']         = context.is_mobile()
-        reservation_info['locale']         = context.get_locale()
-        reservation_info['facebook']       = context.is_facebook()
+        reservation_info['user_agent']     = weblab_api.user_agent
+        reservation_info['referer']        = weblab_api.referer
+        reservation_info['mobile']         = weblab_api.is_mobile
+        reservation_info['locale']         = weblab_api.locale
+        reservation_info['facebook']       = weblab_api.is_facebook
         reservation_info['route']          = self._server_route or 'no-route-found'
-        reservation_info['from_ip']        = client_address.client_address
-        reservation_info['from_direct_ip'] = client_address.client_address
         reservation_info['username']       = self.username
+        reservation_info['from_ip']        = client_address
+        reservation_info['from_direct_ip'] = client_address
 #        reservation_info['full_name']      = self._session['user_information'].full_name
         reservation_info['role']           = self._session['db_session_id'].role
 
