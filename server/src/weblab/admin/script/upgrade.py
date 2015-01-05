@@ -294,7 +294,11 @@ class RemoveOldWebAndLoginPorts(Upgrader):
 
         simple_server_config = open(simple_server_config_filename).read()
 
-        # TODO: Verify there is no issue with trailing / in administration/
+        # TODO: Verify there is no issue with trailing / in administration/ in Apache
+        simple_server_config = simple_server_config.replace('weblab/json,', 'weblab/json/,')
+        simple_server_config = simple_server_config.replace('weblab/web,', 'weblab/web/,')
+        simple_server_config = simple_server_config.replace('weblab/login/json,', 'weblab/login/json/,')
+        simple_server_config = simple_server_config.replace('weblab/login/web,', 'weblab/login/web/,')
 
         for new_port, old_ports in replacement_pairs.iteritems():
             for old_port in old_ports:
@@ -306,7 +310,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
         
         # Step 4: login files
         for login_replacement, core_replacement in login_replacements.iteritems():
-            print " - Upgrading %s" % core_replacement
+            print " - Upgrading %s" % os.path.abspath(core_replacement)
             # Steps 4.1 & 4.2: Copy configuration to core/server_config.py & clean
             lines = []
             TO_REMOVE = ('login_facade_server_route', 'login_facade_json_port', 'login_web_facade_port', 'core_web_facade_port', 'admin_facade_json_port')
@@ -347,5 +351,5 @@ class RemoveOldWebAndLoginPorts(Upgrader):
                 contents = contents.replace('<server>login</server>', '')
                 open(parent_config_xml, 'w').write(contents)
 
-        print "Finished migrating old login and web ports"
+        print "Old login and web ports migration completed."
 
