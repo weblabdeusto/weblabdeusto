@@ -1,0 +1,133 @@
+{% extends 'weblab-master.html' %}
+{% block head %}
+<link href="{{ url_for('admin.static', filename='select2/select2.css') }}" rel="stylesheet">
+<style>
+    textarea {
+        width : 500px;
+        height: 100px;
+    }
+
+    .form-horizontal .controls {
+        margin-left: 210px;
+    }
+
+    .form-horizontal .control-label {
+        width: 200px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+<div class="row">
+    <div class="span9 offset1">
+        <br/>
+        <h1>Add experiment</h1>
+        <br/>
+        <br/>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+            {{ render_field(form.category, True) }}
+            <div class="control-group ">
+                <div class="controls">
+                    Or <a href={{ url_for('experiments/categories.create_view', url = request.url) }}>create a new category</a>.
+                </div>
+            </div>
+            {{ render_field(form.name, True) }}
+            {{ render_field(form.client, True) }}
+            {{ render_field(form.start_date) }}
+            {{ render_field(form.end_date) }}
+
+            {{ render_field(form.experiment_info_description) }}
+            {{ render_field(form.experiment_html) }}
+            {{ render_field(form.experiment_link) }}
+            {{ render_field(form.experiment_picture) }}
+            {{ render_field(form.experiment_show_reserve_button) }}
+
+            <div id="client_parameters">
+            </div>
+
+            <div id="dynamic_parameters">
+            </div>
+
+            <div class="control-group ">
+                <div class="controls">
+                    <a href="#" class="btn" onclick="return createDynamicParameter('string');">+ a..z</a>
+                    <a href="#" class="btn" onclick="return createDynamicParameter('integer');">+ 0..9</a>
+                    <a href="#" class="btn" onclick="return createDynamicParameter('bool');">+ <i class="icon-check"></i></a>
+                </div>
+            </div>
+
+            <fieldset>
+                <div class="form-actions">
+                    <a href="{{ url_for('.index_view') }}" =type="submit" class="btn btn-danger">Back</a>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form.js') }}"></script>
+    <script>
+        function createParameter(id, label, description, type, dynamic) {
+            var block = $("<div class='control-group'></div>");
+            var labelBlock;
+            if (dynamic) {
+                labelBlock = $("<div class='control-label'><input placeholder='Parameter name...' width='4' type='text' class='input-medium'></input></div>");
+            } else {
+                labelBlock = $("<label class='control-label'></label>");
+                labelBlock.text(label);
+                labelBlock.attr("id", id);
+            }
+            block.append(labelBlock);
+
+            var inputType;
+            if (type == "string" || type == "integer") {
+                inputType = "text";
+            } else {
+                inputType = "checkbox";
+            }
+
+            var controlsBlock = $("<div class='controls'></div>");
+
+            var inputBlock = $("<input type='" + inputType + "'>");
+            var helpBlock = $("<p class='help-block'></p>");
+            helpBlock.text(description);
+
+            controlsBlock.append(inputBlock);
+            controlsBlock.append(helpBlock);
+
+            block.append(controlsBlock);
+            return block;
+        }
+
+        function createDynamicParameter(type) {
+            var param = createParameter("adfas", "", "New parameter", type, true);
+            $("#dynamic_parameters").append(param);
+            return false;
+        }
+
+        function createNamedParameter(id, parameter) {
+            return createParameter(id, parameter['name'], parameter['description'], parameter['type'], false);
+        }
+
+        var CLIENT_PARAMETERS = {{ client_parameters|safe }};
+        $("#client").change(function() {
+            var selectedClient = $("#client option:selected").text();
+            var parameters = CLIENT_PARAMETERS[selectedClient];
+            $("#client_parameters").empty();
+            $(parameters).each(function(index, value) {
+                var newParameter = createNamedParameter("TODO", value);
+                $("#client_parameters").append(newParameter);
+            });
+        });
+    </script>
+{% endblock %}
+

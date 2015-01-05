@@ -23,7 +23,7 @@ import urlparse
 
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, Blueprint, request
+from flask import Flask, Blueprint, request, escape
 
 from functools import wraps
 
@@ -410,6 +410,20 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
+
+        # Mostly for debugging purposes, this snippet will print the site-map so that we can check
+        # which methods we are routing.
+        @self.app.route("/site-map")
+        def site_map():
+            lines = []
+            for rule in self.app.url_map.iter_rules():
+                line = str(escape(repr(rule)))
+                lines.append(line)
+
+            ret = "<br>".join(lines)
+            return ret
+
+
         flask_debug = cfg_manager.get_value('flask_debug', False)
         if flask_debug:
             print >> sys.stderr, "*" * 50

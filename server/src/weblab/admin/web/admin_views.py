@@ -20,7 +20,7 @@ except:
 
 from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
-from wtforms.fields.html5 import URLField
+from wtforms.fields.html5 import URLField, DateField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
@@ -838,6 +838,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'experiments')
     column_filters = ( 'name', )
+    form_excluded_columns = ('experiments',)
 
     column_formatters = dict(
         experiments=lambda v, co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
@@ -914,9 +915,9 @@ class ExperimentClientParameter(InlineFormAdmin):
 
         return valid
 
+# TODO: Remove me
 
-
-class ExperimentPanel(AdministratorModelView):
+class OldExperimentPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
     form_excluded_columns = 'user_uses',
@@ -966,6 +967,78 @@ class ExperimentPanel(AdministratorModelView):
                 # For 10 years (for example)
                 form.end_date.data = now.replace(year = now.year + 10)
         return form
+
+class ExperimentCreationForm(Form):
+    category = Select2Field(u"Category", validators = [ Required() ])
+    name = TextField("Name", description = "Name for this experiment", validators = [Required()])
+    client = Select2Field(u"Client", description = "Client to be used", default = 'blank', validators = [ Required() ])
+    start_date = DateField("Start date", description = "When the laboratory is going to start being used")
+    end_date = DateField("End date", description = "When the laboratory is not going to be used anymore")
+
+    # Client parameters
+    experiment_info_description = TextField("Description", description = "Experiment description")
+    experiment_html = TextField("HTML", description = "HTML to be displayed under the experiment")
+    experiment_link = URLField("Link", description = "Link to be provided next to the lab (e.g., docs)")
+    experiment_picture = TextField("Picture", description = "Address to a logo of the laboratory")
+    experiment_show_reserve_button = BooleanField("Show reserve button", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+
+ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
+
+def get_js_client_parameters():
+    clients = {}
+    for client, value in CLIENTS.iteritems():
+        new_parameters = []
+        for parameter, parameter_value in value['parameters'].iteritems():
+            if parameter not in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                new_parameters.append({
+                    'name' : parameter,
+                    'type' : parameter_value['type'],
+                    'description' : parameter_value['description'],
+                })
+        clients[client] = new_parameters
+                
+    return json.dumps(clients, indent = 4)
+
+class ExperimentPanel(AdministratorModelView):
+
+    column_searchable_list = ('name',)
+    column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
+    form_excluded_columns = 'user_uses',
+    column_filters = ('name', 'category')
+    form_overrides = dict( client = Select2Field )
+
+    column_formatters = dict(
+        category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
+        uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
+    )
+
+    INSTANCE = None
+
+    def __init__(self, session, **kwargs):
+        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
+
+        self.name_filter_number = get_filter_number(self, u'Experiment.name')
+        self.category_filter_number = get_filter_number(self, u'Category.name')
+        ExperimentPanel.INSTANCE = self
+
+    @expose('/new/', methods = ['GET', 'POST'] )
+    def create_view(self, *args, **kwargs):
+        form = ExperimentCreationForm()
+        form.category.choices = [ (cat.id, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
+        form.client.choices = [ (c, c) for c in CLIENTS ]
+
+        now = datetime.datetime.now()
+        default_start_date = now
+        default_end_date = now.replace(year = now.year + 10)
+
+        form.start_date.data = default_start_date
+        form.end_date.data = default_end_date
+        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters())
+
+    @expose('/edit/')
+    def edit_view(self, *args, **kwargs):
+        return ":-D"
+
 
 class SchedulerForm(Form):
     name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])

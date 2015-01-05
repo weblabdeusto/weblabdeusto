@@ -5,7 +5,7 @@ import traceback
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, escape
 from flask.ext.admin import Admin, BaseView, expose
 
 if __name__ == '__main__':
@@ -251,6 +251,16 @@ if __name__ == '__main__':
     ups = UserProcessingServer(None, None, cfg_manager, dont_start = True)
 
     app = Flask('weblab.core.server')
+    app.config['SECRET_KEY'] = os.urandom(32)
+    @app.route("/site-map")
+    def site_map():
+        lines = []
+        for rule in app.url_map.iter_rules():
+            line = str(escape(repr(rule)))
+            lines.append(line)
+
+        ret = "<br>".join(lines)
+        return ret
 
     DEBUG = True
     admin_app = AdministrationApplication(app, cfg_manager, ups, bypass_authz = True)
