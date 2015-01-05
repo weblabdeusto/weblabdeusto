@@ -77,7 +77,7 @@ SERVER_CONFIG_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
 </server>
 """
 
-SERVER_VALID_TYPE           = "test.unit.voodoo.gen.loader.ServerType::Login"
+SERVER_VALID_TYPE           = "test.unit.voodoo.gen.loader.ServerType::Login2"
 SERVER_VALID_METHODS        = "test.unit.voodoo.gen.loader.APItype1::methods"
 SERVER_VALID_IMPLEMENTATION = "test.unit.voodoo.gen.loader.ServerSample.Server"
 
@@ -192,7 +192,7 @@ class ServerParserTestCase(unittest.TestCase):
             self.server_parser._parse_from_stream,
             StringIO.StringIO(
                 SERVER_CONFIG_SAMPLE % {
-                    'type'           : SERVER_VALID_TYPE.replace('::Login','::doesnotexist'),
+                    'type'           : SERVER_VALID_TYPE.replace('::Login2','::doesnotexist'),
                     'methods'        : SERVER_VALID_METHODS,
                     'implementation' : SERVER_VALID_IMPLEMENTATION,
                 }
@@ -263,7 +263,7 @@ class ServerParserTestCase(unittest.TestCase):
                 parsed_server.implementation
             )
         self.assertEquals(
-                ServerType.Login,
+                ServerType.Login2,
                 parsed_server.server_type
             )
         self.assertEquals(
