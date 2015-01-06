@@ -999,6 +999,8 @@ def get_js_client_parameters():
                 
     return json.dumps(clients, indent = 4)
 
+SimpleClientParam = collections.namedtuple('SimpleClientParam', ['name', 'type', 'value'])
+
 class ExperimentPanel(AdministratorModelView):
 
     column_searchable_list = ('name',)
@@ -1033,11 +1035,63 @@ class ExperimentPanel(AdministratorModelView):
 
         form.start_date.data = default_start_date
         form.end_date.data = default_end_date
+        if request.method == 'POST':
+            print request.form
         return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters())
 
-    @expose('/edit/')
-    def edit_view(self, *args, **kwargs):
-        return ":-D"
+    @expose('/edit/', methods = ['GET', 'POST'])
+    def edit_view(self):
+        exp_id = request.args.get('id', -1)
+        experiment = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
+        if not experiment:
+            return "Experiment not found"
+
+        print request.form
+
+        form = ExperimentCreationForm(formdata = request.form, obj = experiment)
+        form.category.choices = [ (cat.id, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
+        form.client.choices = [ (c, c) for c in CLIENTS ]
+
+        existing_client_parameters = CLIENTS[experiment.client]['parameters']
+    
+        dynamic_parameters = []
+        static_parameters = []
+
+        client_parameters = [ SimpleClientParam(name = p.parameter_name, type = p.parameter_type, value = p.value) 
+                            for p in experiment.client_parameters ]
+        
+        # TODO
+        # If editing and not finished, change client_parameters and use
+        # those new parameters. Also add errors!
+
+        for parameter in client_parameters:
+            param_obj = {
+                'name'  : parameter.name,
+                'type'  : parameter.type,
+                'value' : parameter.value
+            }
+
+            if parameter.name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                if parameter.name == 'experiment.info.description':
+                    form.experiment_info_description.data = parameter.value
+                elif parameter.name == 'html':
+                    form.experiment_html.data = parameter.value
+                elif parameter.name == 'experiment.info.link':
+                    form.experiment_link.data = parameter.value
+                elif parameter.name == 'experiment.reserve.button.shown':
+                    form.experiment_show_reserve_button.data = parameter.value
+                elif parameter.name == 'experiment.picture':
+                    form.experiment_picture.data = parameter.value
+                else:
+                    print >> sys.stderr, "Error: parameter in ALREADY_PROVIDED_CLIENT_PARAMETERS but not in the parameter management"
+            elif parameter.name in existing_client_parameters:
+                static_parameters.append(param_obj)
+            else:
+                dynamic_parameters.append(param_obj)
+        
+        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
+                static_parameters = json.dumps(static_parameters, indent = 4), 
+                dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
 
 class SchedulerForm(Form):

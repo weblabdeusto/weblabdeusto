@@ -55,9 +55,9 @@
 
             <div class="control-group ">
                 <div class="controls">
-                    <a href="#" class="btn" onclick="return createDynamicParameter('string');">+ a..z</a>
-                    <a href="#" class="btn" onclick="return createDynamicParameter('integer');">+ 0..9</a>
-                    <a href="#" class="btn" onclick="return createDynamicParameter('bool');">+ <i class="icon-check"></i></a>
+                    <a href="#" class="btn" onclick="return createDynamicParameter('string', '');">+ a..z</a>
+                    <a href="#" class="btn" onclick="return createDynamicParameter('integer', '');">+ 0..9</a>
+                    <a href="#" class="btn" onclick="return createDynamicParameter('bool', '');">+ <i class="icon-check"></i></a>
                 </div>
             </div>
 
@@ -76,57 +76,93 @@
 {% block tail %}
     <script src="{{ url_for('admin.static', filename='admin/js/form.js') }}"></script>
     <script>
-        function createParameter(id, label, description, type, dynamic) {
+        function createParameter(id, label, description, type, dynamic, value) {
             var block = $("<div class='control-group'></div>");
             var labelBlock;
+            var name_id = "name_" + id;
             if (dynamic) {
-                labelBlock = $("<div class='control-label'><input placeholder='Parameter name...' width='4' type='text' class='input-medium'></input></div>");
+                var type_id = "type_" + id;
+                labelBlock = $("<div class='control-label'><input id='" + name_id + "' name='" + name_id + "' placeholder='Parameter name...' width='4' type='text' class='input-medium' value='" + label + "'></input><input type='hidden' name='" + type_id + "' id='" + type_id + "' value='" + type + "'></div>");
             } else {
                 labelBlock = $("<label class='control-label'></label>");
                 labelBlock.text(label);
-                labelBlock.attr("id", id);
+                labelBlock.attr("for", id);
+                labelBlock.append("<input type='hidden' name='" + name_id + "' value='" + label + "'>");
             }
             block.append(labelBlock);
 
-            var inputType;
-            if (type == "string" || type == "integer") {
-                inputType = "text";
-            } else {
-                inputType = "checkbox";
-            }
-
             var controlsBlock = $("<div class='controls'></div>");
 
-            var inputBlock = $("<input type='" + inputType + "'>");
+            var inputBlock; 
+            if (type == "string" || type == "integer") {
+                inputBlock = $("<input id='" + id + "' name='" + id + "' type='text'>");
+                inputBlock.attr('value', value);
+            } else {
+                inputBlock = $("<input id='" + id + "' name='" + id + "' type='checkbox'>");
+                if (value == 'true' || value == true)
+                    inputBlock.attr('checked', 'checked');
+            }
             var helpBlock = $("<p class='help-block'></p>");
             helpBlock.text(description);
 
+
             controlsBlock.append(inputBlock);
+            if (dynamic) {
+                var removeButton = $("<a class='btn' style='margin-left: 10px' href='#'><i class='icon-remove-circle'></i></a>");
+                removeButton.click(function() {
+                    block.remove();
+                    return false;
+                });
+            }
+            controlsBlock.append(removeButton);
             controlsBlock.append(helpBlock);
 
             block.append(controlsBlock);
             return block;
         }
 
-        function createDynamicParameter(type) {
-            var param = createParameter("adfas", "", "New parameter", type, true);
+        function createDynamicParameter(type, value, label) {
+            STARTING_POINT += 1;
+            var identifier = "dynamic_" + STARTING_POINT;
+            if (label == undefined)
+                label = "";
+            var param = createParameter(identifier, label, "New parameter", type, true, value);
             $("#dynamic_parameters").append(param);
             return false;
         }
 
-        function createNamedParameter(id, parameter) {
-            return createParameter(id, parameter['name'], parameter['description'], parameter['type'], false);
+        function createNamedParameter(parameter) {
+            var id = "parameters_" + parameter['name'].replace(".","_").replace(" ","_");
+            return createParameter(id, parameter['name'], parameter['description'], parameter['type'], false, '');
         }
 
         var CLIENT_PARAMETERS = {{ client_parameters|safe }};
+        var STARTING_POINT = 0;
+
         $("#client").change(function() {
             var selectedClient = $("#client option:selected").text();
             var parameters = CLIENT_PARAMETERS[selectedClient];
             $("#client_parameters").empty();
             $(parameters).each(function(index, value) {
-                var newParameter = createNamedParameter("TODO", value);
+                var newParameter = createNamedParameter(value);
                 $("#client_parameters").append(newParameter);
             });
+        });
+        $("#client").change();
+
+        var static_parameters = {{ static_parameters|safe }};
+        $(static_parameters).each(function(index, value) {
+            var selector = $("#parameters_" + value['name'].replace('.','_').replace(' ','_'));
+            if (value['type'] == 'bool') {
+                if (value['value'])
+                    selector.attr('checked', 'checked');
+            } else {
+                selector.attr('value', value['value']);
+            }
+        });
+        var dynamic_parameters = {{ dynamic_parameters|safe }};
+        $(dynamic_parameters).each(function(index, value) {
+            createDynamicParameter(value["type"], value["value"], value["name"]);
         });
     </script>
 {% endblock %}
