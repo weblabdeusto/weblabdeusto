@@ -15,10 +15,7 @@
 
 # This is the visible API of each server of the WebLab
 
-UserProcessing = [
-        # TO BE REMOVED: ALL
-        'reserve_session',
-    ]
+UserProcessing = []
 
 Proxy = [
         'enable_access',
