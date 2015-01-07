@@ -97,8 +97,6 @@ class UnedSSOManager(ExternalSystemManager):
 
 @weblab_api.route_login_web('/unedsso/')
 def uned_sso():
-    import weblab.core.server as core_api
-    
     # Initialize global variables if not previously done
     global PEM_FILE_PATH, UNED_SSO
     if PEM_FILE_PATH is None:
@@ -116,7 +114,7 @@ def uned_sso():
 
     if payload:
         try:
-            session_id = core_api.extensible_login(UnedSSOManager.NAME, payload)
+            session_id = weblab_api.api.extensible_login(UnedSSOManager.NAME, payload)
         except LoginErrors.InvalidCredentialsError:
             try:
                 _, email = process_cookie(payload)

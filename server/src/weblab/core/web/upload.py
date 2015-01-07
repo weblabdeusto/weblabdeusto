@@ -52,7 +52,6 @@ def upload():
     send_async_file depending on this last one.
     @return HTML defined above, with the success or failure response.
     """
-    import weblab.core.server as core_api
     try:
         file_info, file_sent, session_id, is_async = _check_arguments()
         file_content = Util.serialize(file_sent)
@@ -60,9 +59,9 @@ def upload():
         weblab_api.ctx.reservation_id = session_id
 
         if not is_async:
-            result = core_api.send_file(file_content, file_info)
+            result = weblab_api.api.send_file(file_content, file_info)
         else:
-            result = core_api.send_async_file(file_content, file_info)
+            result = weblab_api.api.send_async_file(file_content, file_info)
 
     except FileUploadError as fue:
         code, message = fue.args

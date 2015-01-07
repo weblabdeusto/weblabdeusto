@@ -183,8 +183,6 @@ def intercept_save():
     return response
 
 def intercept_library(content, mimetype):
-    import weblab.core.server as core_api
-
     session_id = request.cookies.get('weblabsessionid')
     if session_id:
         weblab_api.ctx.session_id = session_id
@@ -194,7 +192,7 @@ def intercept_library(content, mimetype):
         weblab_api.ctx.reservation_id = reservation_id
 
     try:
-        response = core_api.send_command(Command("GIVE_ME_LIBRARY"))
+        response = weblab_api.api.send_command(Command("GIVE_ME_LIBRARY"))
     except:
         pass
     else:
@@ -203,7 +201,7 @@ def intercept_library(content, mimetype):
 
     if reservation_id is None and session_id is not None:
         try:
-            reservation_id_str = core_api.get_reservation_id_by_session_id()
+            reservation_id_str = weblab_api.api.get_reservation_id_by_session_id()
             if reservation_id_str is not None:
                 weblab_api.ctx.reservation_id = reservation_id_str
         except:
@@ -211,7 +209,7 @@ def intercept_library(content, mimetype):
 
     if reservation_id is not None:
         try:
-            response = core_api.send_command( Command("GIVE_ME_LIBRARY") )
+            response = weblab_api.api.send_command( Command("GIVE_ME_LIBRARY") )
         except:
             failed = True
             traceback.print_exc()

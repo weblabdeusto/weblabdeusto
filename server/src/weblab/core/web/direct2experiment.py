@@ -34,8 +34,6 @@ administrator.
 
 @weblab_api.route_web('/direct2experiment/', methods = ['GET', 'POST'])
 def direct2experiment():
-    import weblab.core.server as core_api
-
     experiment_id_str = get_argument(EXPERIMENT_ID)
     if experiment_id_str is None:
         return "%s argument is missing" % EXPERIMENT_ID
@@ -47,7 +45,7 @@ def direct2experiment():
     weblab_api.context.session_id = session_id_str
 
     try:
-        reservation_id = core_api.reserve_experiment(experiment_id, "{}", "{}")
+        reservation_id = weblab_api.api.reserve_experiment(experiment_id, "{}", "{}")
     except Exception:
         traceback.print_exc()
         return HTML_ERROR_TEMPLATE

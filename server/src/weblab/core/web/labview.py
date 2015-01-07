@@ -32,7 +32,6 @@ HTML_TEMPLATE="""<?xml version="1.0"?>
 
 @weblab_api.route_web('/labview/')
 def labview():
-    import weblab.core.server as core_api
     try:
         reservation_id = get_argument(SESSION_ID)
         if reservation_id is None:
@@ -41,7 +40,7 @@ def labview():
                     }
 
         weblab_api.ctx.reservation_id = reservation_id
-        result = core_api.send_command(Command.Command("get_html"))
+        result = weblab_api.api.send_command(Command.Command("get_html"))
     except Exception as e:
         message = e.args[0]
         return HTML_TEMPLATE % {

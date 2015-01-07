@@ -27,8 +27,6 @@ serializer = RequestSerializer()
 
 @weblab_api.route_web('/ilab/')
 def ilab():
-    import weblab.core.server as core_api
-
     action = request.headers.get('SOAPAction')
     if action is None:
         return "No SOAPAction provided"
@@ -38,7 +36,7 @@ def ilab():
 
     if weblab_api.ctx.reservation_id is None:
         try:
-            reservation_id_str = core_api.get_reservation_id_by_session_id()
+            reservation_id_str = weblab_api.api.get_reservation_id_by_session_id()
             weblab_api.ctx.reservation_id = reservation_id_str
         except:
             traceback.print_exc()
@@ -66,25 +64,22 @@ def ilab():
     return response
 
 def process_GetLabConfiguration(self):
-    import weblab.core.server as core_api
-
     lab_server_id = serializer.parse_get_lab_configuration_request(request.data)
     ilab_request = {
         'operation' : 'get_lab_configuration',
     }
     # TODO: client address
-    reservation_status = core_api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
+    reservation_status = weblab_api.api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
     lab_configuration = reservation_status.initial_data
     return serializer.generate_lab_configuration_response(lab_configuration)
 
 def process_Submit(self):
-    import weblab.core.server as core_api
     lab_server_id, experiment_specification, _, _ = serializer.parse_submit_request(request.data)
     ilab_request = {
         'operation' : 'submit',
         'payload'   : experiment_specification
     }
-    reservation_status = core_api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
+    reservation_status = weblab_api.api.reserve_experiment(ExperimentId(lab_server_id, 'iLab experiments'), json.dumps(ilab_request), '{}')
     weblab_api.ctx.other_cookies = {'weblab_reservation_id' : reservation_status.reservation_id.id}
 
     return """<?xml version="1.0" encoding="utf-8"?>
@@ -109,11 +104,10 @@ def process_Submit(self):
 </soap:Envelope>""" % reservation_status.position
 
 def process_GetExperimentStatus(self):
-    import weblab.core.server as core_api
     if self.reservation_id is None:
         return "Reservation id not found in cookie"
 
-    reservation_status = core_api.get_reservation_status()
+    reservation_status = weblab_api.api.get_reservation_status()
     if reservation_status.status == "Reservation::waiting":
         length = reservation_status.position
         status = 1
@@ -147,11 +141,10 @@ def process_GetExperimentStatus(self):
 </soap:Envelope>""" % (status, length)
 
 def process_RetrieveResult(self):
-    import weblab.core.server as core_api
     if self.reservation_id is None:
         return "Reservation id not found in cookie"
 
-    reservation_status = core_api.get_reservation_status()
+    reservation_status = weblab_api.api.get_reservation_status()
     try:
         response = json.loads(reservation_status.initial_data)
     except:

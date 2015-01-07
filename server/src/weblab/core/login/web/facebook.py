@@ -76,7 +76,6 @@ class FacebookManager(ExternalSystemManager):
 
 @weblab_api.route_login_web('/facebook/', methods = ['GET', 'POST'])
 def facebook():
-    import weblab.core.server as core_api
     signed_request = get_argument(REQUEST_FIELD)
 
     if signed_request is None:
@@ -100,7 +99,7 @@ def facebook():
         return "<html><body><script>top.location.href='%s';</script></body></html>" % auth_url
 
     try:
-        session_id = core_api.extensible_login(FacebookManager.NAME, signed_request)
+        session_id = weblab_api.api.extensible_login(FacebookManager.NAME, signed_request)
     except LoginErrors.InvalidCredentialsError:
         return _handle_unauthenticated_clients(signed_request)
 
@@ -125,15 +124,14 @@ def _show_weblab(session_id, signed_request):
                 locale = locale, facebook_app_id = facebook_app_id)
 
 def _handle_unauthenticated_clients(signed_request):
-    import weblab.core.server as core_api
     if get_argument('op','').lower() in ('create', 'link'):
         try:
             if get_argument('op','').lower() == 'create':
-                session_id = core_api.create_external_user(FacebookManager.NAME, signed_request)
+                session_id = weblab_api.api.create_external_user(FacebookManager.NAME, signed_request)
             else: # get_argument('op','').lower() == 'link'
                 username = get_argument('username')
                 password = get_argument('password')
-                session_id = core_api.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
+                session_id = weblab_api.api.grant_external_credentials(username, password, FacebookManager.NAME, signed_request)
         except LoginErrors.InvalidCredentialsError:
             return make_response("Invalid username or password!", 403)
         else:

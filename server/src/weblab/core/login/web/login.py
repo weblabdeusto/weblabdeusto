@@ -24,7 +24,6 @@ PASSWORD='password'
 
 @weblab_api.route_login_web('/login/', methods = ['GET', 'POST'])
 def login():
-    import weblab.core.server as core_api
     username = get_argument(USERNAME)
     password = get_argument(PASSWORD, 'not provided')
 
@@ -32,7 +31,7 @@ def login():
         return make_response("%s argument not provided!" % USERNAME, 400)
 
     try:
-        session_id = core_api.login(username, password)
+        session_id = weblab_api.api.login(username, password)
     except InvalidCredentialsError:
         return make_response("Invalid username or password", 403)
     except:

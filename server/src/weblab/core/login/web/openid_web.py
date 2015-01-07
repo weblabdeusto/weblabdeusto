@@ -180,8 +180,6 @@ def openid_verify():
 
 @weblab_api.route_login_web('/openid/process', methods = ['GET', 'POST'])
 def openid_process():
-    import weblab.core.server as core_api
-
     if not OPENID_AVAILABLE:
         return "python-openid not found / not installed. Contact administrator."
 
@@ -194,7 +192,7 @@ def openid_process():
     if info.status == consumer.SUCCESS:
         session['validated'] = info.identity_url
         try:
-            session_id = core_api.extensible_login(OpenIdManager.NAME,'%s' % session['id'])
+            session_id = weblab_api.api.extensible_login(OpenIdManager.NAME,'%s' % session['id'])
         except LoginErrors.LoginError:
             return "Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators"
         client_url = weblab_api.ctx.core_server_url + 'client/'

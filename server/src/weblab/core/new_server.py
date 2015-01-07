@@ -138,14 +138,40 @@ def get_json():
 _global_context = threading.local()
 DEFAULT = object()
 
+class APIProxy(object):
+    def __init__(self, methods):
+        self._methods = methods
+
+    def __getattr__(self, name):
+        if name in self._methods:
+            return self._methods[name]
+
+        raise AttributeError("%s not found" % name)
+
 class WebLabAPI(object):
     def __init__(self, web_contexts = None, api_contexts = None):
         self.apis = set(api_contexts or ()).union(['api'])
         self.web_contexts = set(web_contexts or ()).union(self.apis)
 
+        self.raw_methods = {}
         self.methods = {} 
         self.routes = {}
+        self.context = threading.local()
+        self.ctx = self.context # Alias
+
         for web_context in self.web_contexts:
+            self.raw_methods[web_context] = {
+                # method_name : function
+            }
+
+            if hasattr(self, web_context):
+                raise Exception("Invalid context name: %s. Name already used as attribute." % web_context)
+
+            if hasattr(WebLabAPI, web_context):
+                raise Exception("Invalid context name: %s. Name already used in the class." % web_context)
+
+            setattr(self, web_context, APIProxy(self.raw_methods[web_context]))
+
             self.methods[web_context] = OrderedDict() # {
             #   method_name : function
             #}
@@ -159,9 +185,6 @@ class WebLabAPI(object):
 
             apply_routes_method = partial(self.apply_routes, web_context)
             setattr(self, 'apply_routes_%s' % web_context, apply_routes_method)
-
-        self.context = threading.local()
-        self.ctx = self.context # Alias
 
     def __enter__(self):
         _global_context.current_weblab = self
@@ -388,6 +411,7 @@ class WebLabAPI(object):
                 log(WebLabAPI, level.Error, "Overriding %s" % path)
             self.routes[web_context][path] = (exc_func, path, methods)
             self.routes[web_context][path] = (exc_func, path, methods)
+            self.raw_methods[web_context][func.__name__] = wrapped_func
             return wrapped_func
         return wrapper
 

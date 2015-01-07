@@ -35,8 +35,6 @@ def client():
     to the client, using the proper current structure.
     """ % { 'reservation_id' : RESERVATION_ID }
 
-    import weblab.core.server as core_api
-
     # If it is passed as a GET argument, send it as POST
     reservation_id = request.args.get(RESERVATION_ID)
     back_url       = request.args.get(BACK_URL)
@@ -88,7 +86,7 @@ def client():
     # Finally, if it was passed as a POST argument, generate the proper client address
     weblab_api.ctx.reservation_id = reservation_id.split(';')[0]
     try:
-        experiment_id = core_api.get_reservation_info()
+        experiment_id = weblab_api.api.get_reservation_info()
     except SessionNotFoundError:
         response.response = render_template('core_web/client_error.html', reservation_id = reservation_id)
         return response
