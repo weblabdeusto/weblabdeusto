@@ -254,6 +254,10 @@ class WebLabAPI(object):
     def app(self):
         return getattr(self.context, 'app', None)
 
+    @property
+    def db(self):
+        return getattr(self.context, 'db', None)
+
     def __call__(self, server_instance = None, session_id = None, reservation_id = None):
         # To be able to run:
         # with weblab(session_id = 'foo'):
@@ -280,6 +284,7 @@ class WebLabAPI(object):
             core_server_url = core_server_url,
             location = urlparse.urlparse(core_server_url).path or '/weblab/',
             route = server_instance._server_route,
+            db = server_instance._db_manager,
         )
 
     def _error(self, msg, code):

@@ -46,3 +46,6 @@ assert upload is not None # avoid warnings
 import visir
 assert visir is not None # avoid warnings
 
+import configuration
+assert configuration is not None # avoid warnings
+
