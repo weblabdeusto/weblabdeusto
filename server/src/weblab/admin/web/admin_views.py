@@ -854,121 +854,6 @@ class ExperimentCategoryPanel(AdministratorModelView):
 
         ExperimentCategoryPanel.INSTANCE = self
 
-class ExperimentClientParameter(InlineFormAdmin):
-    
-    _all_possible_parameters = set()
-    for _params in [ c['parameters'] for c in CLIENTS.values() ]:
-        _all_possible_parameters.update(_params)
-
-    _parameter_types = 'bool', 'string', 'integer', 'floating'
-
-    parameter_name_choices = zip(sorted(_all_possible_parameters), sorted(_all_possible_parameters))
-    parameter_type_choices = zip(sorted(_parameter_types), sorted(_parameter_types))
-
-    form_overrides = dict(parameter_name = Select2Field, parameter_type = Select2Field)
-    form_args = dict(parameter_name = dict(choices = parameter_name_choices, default = 'experiment.picture'), 
-                     parameter_type = dict(choices = parameter_type_choices, default = 'string'))
-
-
-    def postprocess_form(self, form_class):
-        original_validate = form_class.validate
-        def validate_wrapper(self):
-            if ExperimentClientParameter.validate_parameters(self):
-                return original_validate(self)
-            return False
-        form_class.validate = validate_wrapper
-        return form_class
-
-    @staticmethod
-    def validate_parameters(form):
-        parameter_type = form.parameter_type.data
-        parameter_value = form.value.data
-        parameter_name = form.parameter_name.data
-
-        valid = True
-
-        if parameter_type == 'bool':
-            if parameter_value.lower() not in ('true', 'false'):
-                form.value.errors = ["Invalid value for a boolean type: %s. Only true or false are permitted." % parameter_value ]
-                valid = False
-        elif parameter_type == 'integer':
-            try:
-                int(parameter_value)
-            except:
-                form.value.errors = ["Invalid value for an integer type: %s" % parameter_value ]
-                valid = False
-        elif parameter_type == 'floating':
-            try:
-                float(parameter_value)
-            except:
-                form.value.errors = [ "Invalid value for a float type: %s" % parameter_value ]
-                valid = False
-        # else: Strings are always fine :-)
-
-        potential_types = set()
-        for client in CLIENTS:
-            for parameter, parameter_value in CLIENTS[client]['parameters'].iteritems():
-                if parameter == parameter_name:
-                    potential_types.add(parameter_value['type'])
-        if parameter_type not in potential_types:
-            form.parameter_type.errors = ["Invalid type. Expected %s" % ', '.join(potential_types)]
-            valid = False
-
-        return valid
-
-# TODO: Remove me
-
-class OldExperimentPanel(AdministratorModelView):
-    column_searchable_list = ('name',)
-    column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
-    form_excluded_columns = 'user_uses',
-    column_filters = ('name', 'category')
-    form_overrides = dict( client = Select2Field )
-
-    description_html = "<br><p>Parameters per client:</p><ul>"
-    default_parameters = "experiment.info.description", "experiment.picture", "experiment.info.link", "experiment.reserve.button.shown"
-    description_html += "<li><b>All:</b> %s</li>" % (', '.join(default_parameters))
-    description_html += "</ul><ul>"
-    for c in CLIENTS:
-        client_parameters = [ p for p in CLIENTS[c]['parameters'] if p not in default_parameters]
-        if len(client_parameters):
-            description_html += "<li><b>%s:</b> " % c
-            description_html += ', '.join(client_parameters)
-            description_html += "</li>"
-    description_html += "</ul>"
-
-    client_choices = [ (c, c) for c in CLIENTS ]
-    form_args = dict(
-            client = dict(choices = client_choices, validators=[Required()], default = 'blank', description = Markup(description_html))
-        )
-
-    column_formatters = dict(
-        category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
-        uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
-    )
-
-    inline_models = (ExperimentClientParameter(model.DbExperimentClientParameter),)
-
-    INSTANCE = None
-
-    def __init__(self, session, **kwargs):
-        super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
-
-        self.name_filter_number = get_filter_number(self, u'Experiment.name')
-        self.category_filter_number = get_filter_number(self, u'Category.name')
-        ExperimentPanel.INSTANCE = self
-
-    def create_form(self, obj = None):
-        form = super(ExperimentPanel, self).create_form(obj)
-        if obj is None:
-            now = datetime.datetime.now()
-            if form.start_date.data is None:
-                form.start_date.data = now
-            if form.end_date.data is None:
-                # For 10 years (for example)
-                form.end_date.data = now.replace(year = now.year + 10)
-        return form
-
 class ExperimentCreationForm(Form):
     category = Select2Field(u"Category", validators = [ Required() ])
     name = TextField("Name", description = "Name for this experiment", validators = [Required()])
@@ -977,11 +862,11 @@ class ExperimentCreationForm(Form):
     end_date = DateField("End date", description = "When the laboratory is not going to be used anymore")
 
     # Client parameters
-    experiment_info_description = TextField("Description", description = "Experiment description")
-    experiment_html = TextField("HTML", description = "HTML to be displayed under the experiment")
-    experiment_link = URLField("Link", description = "Link to be provided next to the lab (e.g., docs)")
-    experiment_picture = TextField("Picture", description = "Address to a logo of the laboratory")
-    experiment_show_reserve_button = BooleanField("Show reserve button", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+    experiment_info_description = TextField("experiment.info.description", description = "Experiment description")
+    experiment_html = TextField("html", description = "HTML to be displayed under the experiment")
+    experiment_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
+    experiment_picture = TextField("experiment.picture", description = "Address to a logo of the laboratory")
+    experiment_show_reserve_button = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
 
 ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
 
@@ -1024,21 +909,96 @@ class ExperimentPanel(AdministratorModelView):
         self.category_filter_number = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
 
-    @expose('/new/', methods = ['GET', 'POST'] )
-    def create_view(self, *args, **kwargs):
-        form = ExperimentCreationForm()
+    def _create_form(self, obj):
+        form = ExperimentCreationForm(formdata = request.form, obj = obj)
         form.category.choices = [ (cat.id, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
         form.client.choices = [ (c, c) for c in CLIENTS ]
+        return form
 
-        now = datetime.datetime.now()
-        default_start_date = now
-        default_end_date = now.replace(year = now.year + 10)
+    def _get_parameters(self, client_name):
+        return CLIENTS.get(client_name, {}).get('parameters', [])
 
-        form.start_date.data = default_start_date
-        form.end_date.data = default_end_date
+    def _extract_form_parameters(self):
+        static_parameters = []
+        dynamic_parameters = []
+
+        client = request.form.get('client')
+        existing_client_parameters = self._get_parameters(client)
+
+        errors = False
+
+        for key in sorted(request.form.keys()):
+            if key.startswith('parameters_'):
+                value = request.form.get(u'value_' + key, 'false')
+                name = request.form[u'name_' + key]
+                ptype = existing_client_parameters[name]['type']
+                if ptype == 'bool':
+                    value = value.lower() in ('on', 'true')
+                static_parameters.append({
+                    'name'  : name,
+                    'type'  : ptype,
+                    'value' : value,
+                    'error' : None
+                })
+            elif key.startswith('dynamic_'):
+                value = request.form.get(u'value_' + key, 'false')
+                name = request.form[u'name_' + key]
+                ptype = request.form[u'type_' + key]
+                if ptype == 'bool':
+                    value = value.lower() in ('on', 'true')
+                dynamic_parameters.append({
+                    'name'  : name,
+                    'type'  : ptype,
+                    'value' : value,
+                    'error' : None
+                })
+
+        all_parameters = static_parameters + dynamic_parameters
+
+        # Check that you don't put a string on an integer or so
+        for parameter in all_parameters:
+            if parameter['value']:
+                try:
+                    if parameter['type'] == 'integer':
+                        int(parameter['value'])
+                    elif parameter['type'] == 'floating':
+                        float(parameter['value'])
+                except ValueError:
+                    parameter['error'] = "Invalid %s" % parameter['type']
+                    errors = True
+        
+        # Check that you don't use an existing name
+        for pos, parameter in enumerate(all_parameters):
+            if parameter['name'] in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                parameter['error'] = "Repeated name!"
+                errors = True
+
+            for parameter2 in all_parameters[pos + 1:]:
+                if parameter['name'] == parameter2['name']:
+                    parameter['error'] = "Repeated name!"
+                    parameter2['error'] = "Repeated name!"
+                    errors = True
+
+        return static_parameters, dynamic_parameters, errors
+
+    @expose('/new/', methods = ['GET', 'POST'] )
+    def create_view(self, *args, **kwargs):
+        form = self._create_form(obj = None)
+
         if request.method == 'POST':
-            print request.form
-        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters())
+            static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
+        else:
+            now = datetime.datetime.now()
+            default_start_date = now
+            default_end_date = now.replace(year = now.year + 10)
+
+            form.start_date.data = default_start_date
+            form.end_date.data = default_end_date
+            static_parameters = []
+            dynamic_parameters = []
+
+        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
+                                static_parameters = static_parameters, dynamic_parameters = dynamic_parameters)
 
     @expose('/edit/', methods = ['GET', 'POST'])
     def edit_view(self):
@@ -1047,48 +1007,50 @@ class ExperimentPanel(AdministratorModelView):
         if not experiment:
             return "Experiment not found"
 
-        print request.form
+        form = self._create_form(obj = experiment)
 
-        form = ExperimentCreationForm(formdata = request.form, obj = experiment)
-        form.category.choices = [ (cat.id, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
-        form.client.choices = [ (c, c) for c in CLIENTS ]
-
-        existing_client_parameters = CLIENTS[experiment.client]['parameters']
-    
         dynamic_parameters = []
         static_parameters = []
 
-        client_parameters = [ SimpleClientParam(name = p.parameter_name, type = p.parameter_type, value = p.value) 
-                            for p in experiment.client_parameters ]
-        
-        # TODO
-        # If editing and not finished, change client_parameters and use
-        # those new parameters. Also add errors!
+        if request.method == 'GET':
+            existing_client_parameters = self._get_parameters(experiment.client)
 
-        for parameter in client_parameters:
-            param_obj = {
-                'name'  : parameter.name,
-                'type'  : parameter.type,
-                'value' : parameter.value
-            }
+            client_parameters = [ SimpleClientParam(name = p.parameter_name, type = p.parameter_type, value = p.value) 
+                                    for p in experiment.client_parameters ]
 
-            if parameter.name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
-                if parameter.name == 'experiment.info.description':
-                    form.experiment_info_description.data = parameter.value
-                elif parameter.name == 'html':
-                    form.experiment_html.data = parameter.value
-                elif parameter.name == 'experiment.info.link':
-                    form.experiment_link.data = parameter.value
-                elif parameter.name == 'experiment.reserve.button.shown':
-                    form.experiment_show_reserve_button.data = parameter.value
-                elif parameter.name == 'experiment.picture':
-                    form.experiment_picture.data = parameter.value
+            # TODO
+            # If editing and not finished, change client_parameters and use
+            # those new parameters. Also add errors!
+
+            for parameter in client_parameters:
+                param_obj = {
+                    'name'  : parameter.name,
+                    'type'  : parameter.type,
+                    'value' : parameter.value,
+                    'error' : None
+                }
+                if parameter.type == 'bool':
+                    param_obj['value'] = parameter.value.lower() in ('true', 'on')
+
+                if parameter.name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                    if parameter.name == 'experiment.info.description':
+                        form.experiment_info_description.data = parameter.value
+                    elif parameter.name == 'html':
+                        form.experiment_html.data = parameter.value
+                    elif parameter.name == 'experiment.info.link':
+                        form.experiment_link.data = parameter.value
+                    elif parameter.name == 'experiment.reserve.button.shown':
+                        form.experiment_show_reserve_button.data = parameter.value
+                    elif parameter.name == 'experiment.picture':
+                        form.experiment_picture.data = parameter.value
+                    else:
+                        print >> sys.stderr, "Error: parameter in ALREADY_PROVIDED_CLIENT_PARAMETERS but not in the parameter management"
+                elif parameter.name in existing_client_parameters:
+                    static_parameters.append(param_obj)
                 else:
-                    print >> sys.stderr, "Error: parameter in ALREADY_PROVIDED_CLIENT_PARAMETERS but not in the parameter management"
-            elif parameter.name in existing_client_parameters:
-                static_parameters.append(param_obj)
-            else:
-                dynamic_parameters.append(param_obj)
+                    dynamic_parameters.append(param_obj)
+        else:
+            static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
         
         return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
                 static_parameters = json.dumps(static_parameters, indent = 4), 
