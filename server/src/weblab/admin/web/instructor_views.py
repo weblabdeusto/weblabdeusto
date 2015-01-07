@@ -4,12 +4,12 @@ import json
 import random
 import datetime
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from StringIO import StringIO
 
 import networkx as nx
 
-from flask import redirect, request, flash, Response
+from flask import redirect, request, Response
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
@@ -247,8 +247,6 @@ def generate_timetable(days_data):
     #         23 : 1413
     #    }
     # }
-    timetables = {}
-    max_values = {}
     timetable = {
         'format' : '%i',
         'hours' : defaultdict(dict),
@@ -331,8 +329,8 @@ def generate_links(session, condition):
         file_hash = use['file_hash']
         login = use['login']
         # login = 'user%s' % user_id
-        full_name = use['full_name']
         start_date = use['start_date']
+        # full_name = use['full_name']
         # user_id_cache[user_id] = u'%s (%s)' % (full_name, login)
         user_id_cache[user_id] = login
         hashes[file_hash].append((use_id, user_id, start_date, login))

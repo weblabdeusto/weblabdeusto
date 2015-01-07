@@ -3,7 +3,6 @@ import threading
 import wsgiref.simple_server
 import urlparse
 import SocketServer
-from collections import OrderedDict
 
 import voodoo.log as log
 import voodoo.counter as counter

@@ -1,5 +1,5 @@
 from wtforms import TextField, PasswordField
-from wtforms.widgets import HTMLString, PasswordInput, Select
+from wtforms.widgets import PasswordInput
 
 from flask.ext.admin.contrib.sqla.fields import QuerySelectField
 

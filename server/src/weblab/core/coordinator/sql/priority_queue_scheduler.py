@@ -21,7 +21,6 @@ import random
 from voodoo.log import logged
 import voodoo.log as log
 
-import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
 from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
@@ -188,7 +187,7 @@ class PriorityQueueScheduler(Scheduler):
                 if concrete_current_reservation.exp_info:
                     exp_info                 = json.loads(concrete_current_reservation.exp_info)
                 else:
-                    epx_info                 = {}
+                    exp_info                 = {}
                 initial_configuration        = concrete_current_reservation.initial_configuration
                 initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
 

@@ -28,13 +28,9 @@ else:
     LDAP_AVAILABLE = True
 
 from voodoo.sessions.session_id import SessionId
-import weblab.data.server_type as ServerType
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
 import voodoo.configuration      as ConfigurationManager
-
-import weblab.methods as weblab_methods
 
 import weblab.core.login.manager as login_manager
 from weblab.core.server import UserProcessingServer

@@ -39,7 +39,7 @@ import sqlalchemy
 from weblab.util import data_filename
 
 import weblab.db.model as Model
-from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
+from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
 

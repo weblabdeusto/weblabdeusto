@@ -247,10 +247,6 @@ def upgrade():
                 use_labels = True 
         ).order_by(uue.c.id)
 
-    permissions_cache = {
-        # (user_id, exp_name, cat_name) : [ permission1, permission2 ]
-    }
-
     skipped = []
 
     total_uses_count = op.get_bind().execute(sql.select([sa.func.count(uue.c.id)]))

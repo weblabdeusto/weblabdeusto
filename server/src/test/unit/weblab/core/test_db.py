@@ -16,7 +16,6 @@
 
 import unittest
 import time
-import datetime
 
 import test.unit.configuration as configuration
 

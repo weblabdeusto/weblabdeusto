@@ -94,7 +94,6 @@ class WebLabDeustoClient(object):
         for external_experiment in experiment_list:
             category = ExperimentCategory(external_experiment['experiment']['category']['name'])
             # 2012-04-10T15:22:38
-            fmt = "%Y-%m-%dT%H:%M:%S"
             start_date = datetime.datetime.strptime(external_experiment['experiment']['start_date'], "%Y-%m-%dT%H:%M:%S")
             end_date   = datetime.datetime.strptime(external_experiment['experiment']['end_date'], "%Y-%m-%dT%H:%M:%S")
             if 'client' in external_experiment['experiment']:

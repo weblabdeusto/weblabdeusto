@@ -24,8 +24,6 @@ down_revision = None
 #
 
 
-from alembic import op
-import sqlalchemy as sa
 from sqlalchemy.schema import MetaData
 
 def add_priority_to_permission_parameter(m):

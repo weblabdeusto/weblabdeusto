@@ -21,7 +21,6 @@ import signal
 
 from optparse import OptionParser
 
-from weblab.admin.cli.controller import DbConfiguration
 from weblab.admin.script.upgrade import check_updated
 from weblab.admin.script.utils import check_dir_exists, run_with_config
 from voodoo.gen.loader.ConfigurationParser import GlobalParser

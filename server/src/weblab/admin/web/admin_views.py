@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import sha
 import time
 import json
@@ -32,7 +33,7 @@ from flask.ext.wtf import Form
 
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
-from flask.ext.admin.form import Select2Field, rules
+from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
 
 import weblab.configuration_doc as configuration_doc

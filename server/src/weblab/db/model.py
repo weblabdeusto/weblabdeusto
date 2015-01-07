@@ -20,7 +20,7 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, PrimaryKeyConstraint, Table, Index
+from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 

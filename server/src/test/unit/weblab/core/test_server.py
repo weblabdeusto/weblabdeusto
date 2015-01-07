@@ -16,7 +16,6 @@
 
 import os
 import unittest
-import datetime
 import time
 
 import mocker

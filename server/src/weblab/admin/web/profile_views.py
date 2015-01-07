@@ -40,7 +40,6 @@ class ProfileEditView(BaseView):
         
         facebook_id = ''
 
-        user_auths = {}
         change_password = True
         password_auth = None
         facebook_auth = None
