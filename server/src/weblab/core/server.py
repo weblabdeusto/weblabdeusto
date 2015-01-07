@@ -77,9 +77,6 @@ check_reservation_session_params = dict(
 
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
-LIST_EXPERIMENTS_CACHE_TIME     = 15 #seconds
-GET_USER_INFORMATION_CACHE_TIME = 15 #seconds
-
 CHECKING_TIME_NAME    = 'core_checking_time'
 DEFAULT_CHECKING_TIME = 3 # seconds
 
