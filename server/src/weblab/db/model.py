@@ -418,6 +418,7 @@ class DbExperiment(Base):
                 else:
                     print "Unknown Experiment Client Parameter type %s" % param.parameter_type
             except (ValueError, TypeError) as e:
+                assert e is not None # avoid pyflakes
                 traceback.print_exc()
                 continue
                 

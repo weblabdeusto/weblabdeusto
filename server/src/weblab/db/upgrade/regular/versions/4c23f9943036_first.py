@@ -24,8 +24,6 @@ down_revision = None
 #
 
 
-from sqlalchemy.schema import MetaData
-
 def add_priority_to_permission_parameter(m):
     pass
 
