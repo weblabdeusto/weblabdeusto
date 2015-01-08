@@ -126,7 +126,7 @@ def get_session():
     session['id'] = sid
     return session
 
-def get_consumer(self):
+def get_consumer():
     return consumer.Consumer(get_session(), STORE)
 
 @weblab_api.route_login_web('/openid/verify', methods = ['GET', 'POST'])
@@ -165,7 +165,7 @@ def openid_verify():
             return make_response("No OpenID services found. contact with administrator", 500)
         else:
             trust_root = request.host
-            return_to = url_for('openid_process', _external = True)
+            return_to = url_for('.openid_process', _external = True)
             if current_request.shouldSendRedirect():
                 redirect_url = current_request.redirectURL( trust_root, return_to, immediate = False)
                 return redirect(redirect_url) 
