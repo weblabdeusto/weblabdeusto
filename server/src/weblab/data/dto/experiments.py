@@ -30,13 +30,14 @@ class Experiment(object):
 
     __metaclass__ = Representable
 
-    def __init__(self, name, category, start_date, end_date, id=None):
+    def __init__(self, name, category, start_date, end_date, client, id=None):
         super(Experiment,self).__init__()
 
         self.name       = unicode(name)
         self.category   = category
         self.start_date = start_date
         self.end_date   = end_date
+        self.client     = client
         self.id         = id
 
     def get_experiment_instance_id(self):
@@ -47,6 +48,15 @@ class Experiment(object):
 
     def get_unique_name(self):
         return self.name + "@" + self.category.name
+
+class ExperimentClient(object):
+
+    __metaclass__ = Representable
+
+    # basestring, dict
+    def __init__(self, client_id, configuration):
+        self.client_id     = client_id
+        self.configuration = configuration
 
 class ExperimentUse(object):
 
@@ -69,7 +79,7 @@ class ExperimentAllowed(object):
 
     __metaclass__ = Representable
 
-    def __init__(self, experiment, time_allowed, priority, initialization_in_accounting, permanent_id):
+    def __init__(self, experiment, time_allowed, priority, initialization_in_accounting, permanent_id, permission_id, permission_scope):
 
         super(ExperimentAllowed,self).__init__()
         self.experiment                   = experiment
@@ -77,5 +87,7 @@ class ExperimentAllowed(object):
         self.priority                     = priority
         self.initialization_in_accounting = initialization_in_accounting
         self.permanent_id                 = permanent_id
+        self.permission_id                = permission_id
+        self.permission_scope             = permission_scope
 
 

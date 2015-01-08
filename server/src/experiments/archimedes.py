@@ -285,6 +285,8 @@ class Archimedes(Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
+        self._workpool.close()
+        self._workpool.terminate()
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
 

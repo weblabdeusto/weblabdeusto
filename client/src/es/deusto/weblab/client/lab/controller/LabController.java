@@ -24,6 +24,11 @@ import java.util.Map;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
@@ -33,6 +38,7 @@ import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.Window.ClosingHandler;
 
 import es.deusto.weblab.client.HistoryProperties;
+import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.WebLabLabLoader;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
@@ -41,6 +47,8 @@ import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.comm.exceptions.core.SessionNotFoundException;
 import es.deusto.weblab.client.comm.exceptions.login.LoginException;
 import es.deusto.weblab.client.configuration.IConfigurationManager;
+import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
+import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.dto.NullSessionID;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
@@ -298,32 +306,63 @@ public class LabController implements ILabController {
 		
 		this.currentSession = null;
 		setReservationId(reservationId.getRealId());
-		
-		final IBoardBaseController boardBaseController = new BoardBaseController(this);
-	    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
-	    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
-			
-			@Override
-			public void onFailure(Throwable e) {
-				LabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
-				e.printStackTrace();
-			}
-			
-			@Override
-			public void onExperimentLoaded(ExperimentBase experimentBase) {
-				// Show the experiment
-				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
-				final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
-				LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase, true);
-				experimentBase.initializeReserved();
-				LabController.this.sessionVariables.showExperiment();
+
+		final String baseLocation = this.configurationManager.getProperty(WebLabClient.BASE_LOCATION, WebLabClient.DEFAULT_BASE_LOCATION);
+		final String path = baseLocation + this.configurationManager.getProperty("experiments.service.path", "/weblab/web/experiments.js");
+
+		final RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, path);
+		try {
+			builder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request, Response response) {
+					try {
+						ExperimentFactory.loadExperiments(response.getText());
+					} catch (InvalidConfigurationValueException e1) {
+						LabController.this.uimanager.onError("Error parsing full list configuration: " + e1.getMessage());
+						return;
+					} catch (ConfigurationKeyNotFoundException e1) {
+						LabController.this.uimanager.onError("Error parsing full list configuration: " + e1.getMessage());
+						return;
+					}
+					
+					final IBoardBaseController boardBaseController = new BoardBaseController(LabController.this);
+				    final ExperimentFactory factory = new ExperimentFactory(boardBaseController);
+				    final IExperimentLoadedCallback experimentLoadedCallback = new IExperimentLoadedCallback() {
+						
+						@Override
+						public void onFailure(Throwable e) {
+							LabController.this.uimanager.onError("Couldn't instantiate experiment: " + e.getMessage());
+							e.printStackTrace();
+						}
+						
+						@Override
+						public void onExperimentLoaded(ExperimentBase experimentBase) {
+							// Show the experiment
+							LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+							final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
+							LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase, true);
+							experimentBase.initializeReserved();
+							LabController.this.sessionVariables.showExperiment();
+							
+							// And start in the queue
+							final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
+							LabController.this.communications.getReservationStatus(reservationId, reservationStatusCallback);
+						}
+					};
+				    factory.experimentFactory(experimentId, experimentLoadedCallback, LabController.this.isMobile);
+				}
+
+				@Override
+				public void onError(Request request, Throwable exception) {
+					LabController.this.uimanager.onError("Error requesting " + path);
+				}
 				
-				// And start in the queue
-				final ReservationStatusCallback reservationStatusCallback = createReservationStatusCallback(experimentId);
-				LabController.this.communications.getReservationStatus(reservationId, reservationStatusCallback);
-			}
-		};
-	    factory.experimentFactory(experimentId, experimentLoadedCallback, this.isMobile);
+			});
+		} catch (RequestException e1) {
+			this.uimanager.onError("Could not access " + path);
+			e1.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -368,6 +407,12 @@ public class LabController implements ILabController {
 			@Override
 			public void onSuccess(ExperimentAllowed[] experimentsAllowed) {
 				LabController.this.experimentsAllowed = experimentsAllowed;
+				try { 
+					ExperimentFactory.fillWithExperimentAllowed(experimentsAllowed);
+				} catch (InvalidConfigurationValueException e) {
+					LabController.this.uimanager.onError(e.getMessage());
+					return;
+				}
 				loadUserHomeWindow();
 			}
 			

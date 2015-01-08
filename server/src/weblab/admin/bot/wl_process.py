@@ -91,14 +91,6 @@ class WebLabProcess(object):
                 matches &= current_content.find("JSON service") > 0
                 running.append('json')
 
-            for port in self.ports['json_login']:
-                json_login_url = 'http://%s:%s%s/weblab/login/json/' % (self.host, port, self.base_location)
-                if self.verbose:
-                    print json_login_url
-                current_content = urllib2.urlopen(json_login_url).read()
-                matches &= current_content.find("JSON service") > 0
-                running.append('json_login')
-
             return matches, 'not matches'
         except Exception:
             sio = StringIO.StringIO()

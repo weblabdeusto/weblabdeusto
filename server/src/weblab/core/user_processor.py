@@ -18,14 +18,11 @@ import time as time_module
 import json
 
 import voodoo.log as log
-from voodoo.cache import cache
 from voodoo.typechecker import typecheck
 from voodoo.sessions.session_id import SessionId
 import voodoo.resources_manager as ResourceManager
 
-import weblab.comm.context as RemoteFacadeContext
-import weblab.core.comm.user_server as UserProcessingFacadeServer
-
+import weblab.configuration_doc as configuration_doc
 from weblab.data.experiments import ExperimentUsage
 
 import weblab.core.exc as core_exc
@@ -35,63 +32,12 @@ from weblab.core.coordinator.status import WebLabSchedulingStatus
 
 from weblab.data.experiments import RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
 
-_resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
+from weblab.core.wl import weblab_api
 
-#TODO: configuration
-LIST_EXPERIMENTS_CACHE_TIME     = 15  # seconds
-GET_GROUPS_CACHE_TIME           = 15  # seconds
-GET_ROLES_CACHE_TIME            = 15  # seconds
-GET_USERS_CACHE_TIME            = 15  # seconds
-GET_EXPERIMENTS_CACHE_TIME      = 15  # seconds
-GET_EXPERIMENT_USES_CACHE_TIME  = 15  # seconds
-GET_USER_INFORMATION_CACHE_TIME = 200 # seconds
-GET_USER_PERMISSIONS_CACHE_TIME = 200 # seconds
-GET_PERMISSION_TYPES_CACHE_TIME = 200 # seconds
-DEFAULT_EXPERIMENT_POLL_TIME    = 350  # seconds
-EXPERIMENT_POLL_TIME            = 'core_experiment_poll_time'
+_resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
 SERVER_UUIDS   = 'server_uuid'
-
-# The following methods will be used from within the Processor itself.
-#
-
-@cache(LIST_EXPERIMENTS_CACHE_TIME, _resource_manager)
-def list_experiments(db_manager, db_session_id):
-    return db_manager.list_experiments(db_session_id.username)
-
-@cache(GET_USER_INFORMATION_CACHE_TIME, _resource_manager)
-def get_user_information(db_manager, db_session_id):
-    return db_manager.get_user_by_name(db_session_id.username)
-
-@cache(GET_GROUPS_CACHE_TIME, _resource_manager)
-def get_groups(db_manager, db_session_id, parent_id):
-    return db_manager.get_groups(db_session_id.username, parent_id)
-
-@cache(GET_ROLES_CACHE_TIME, _resource_manager)
-def get_roles(db_manager, db_session_id):
-    return db_manager.get_roles(db_session_id.username)
-
-@cache(GET_USERS_CACHE_TIME, _resource_manager)
-def get_users(db_manager, db_session_id):
-    """ Retrieves the users from the database, through the database manager. """
-    return db_manager.get_users(db_session_id.username)
-
-@cache(GET_EXPERIMENTS_CACHE_TIME, _resource_manager)
-def get_experiments(db_manager, db_session_id):
-    return db_manager.get_experiments(db_session_id.username)
-
-@cache(GET_EXPERIMENT_USES_CACHE_TIME, _resource_manager)
-def get_experiment_uses(db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-    return db_manager.get_experiment_uses(db_session_id.username, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
-@cache(GET_USER_PERMISSIONS_CACHE_TIME, _resource_manager)
-def get_user_permissions(db_manager, db_session_id):
-    return db_manager.get_user_permissions(db_session_id.username)
-
-@cache(GET_PERMISSION_TYPES_CACHE_TIME, _resource_manager)
-def get_permission_types(db_manager, db_session_id):
-    return db_manager.get_permission_types(db_session_id.username)
 
 class UserProcessor(object):
     """
@@ -109,19 +55,21 @@ class UserProcessor(object):
         self._coordinator     = coordinator
         self._db_manager      = db_manager
         self._commands_store  = commands_store
-        self._server_route    = cfg_manager.get_value(UserProcessingFacadeServer.USER_PROCESSING_FACADE_SERVER_ROUTE, UserProcessingFacadeServer.DEFAULT_USER_PROCESSING_SERVER_ROUTE)
+        self._server_route    = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
         self.time_module      = time_module
 
+    @property
+    def username(self):
+        return self._session['db_session_id'].username
+
     def list_experiments(self):
-        db_session_id         = self._session['db_session_id']
-        return list_experiments(self._db_manager, db_session_id)
+        return self._db_manager.list_experiments(self.username)
 
     def get_user_information(self):
         if 'user_information' in self._session:
             return self._session['user_information']
 
-        db_session_id               = self._session['db_session_id']
-        user_information            = get_user_information(self._db_manager, db_session_id)
+        user_information            = self._db_manager.get_user_by_name(self.username)
         self._session['user_information'] = user_information
         return user_information
 
@@ -132,12 +80,13 @@ class UserProcessor(object):
         return self._session['session_id']
 
     def is_access_forward_enabled(self):
-        db_session_id               = self._session['db_session_id']
-        return self._db_manager.is_access_forward(db_session_id.username)
+        return self._db_manager.is_access_forward(self.username)
 
     def is_admin(self):
-        db_session_id               = self._session['db_session_id']
-        return self._db_manager.is_admin(db_session_id.username)
+        return self._db_manager.is_admin(self.username)
+
+    def is_instructor(self):
+        return self._db_manager.is_instructor(self.username)
 
     #
     # Experiments
@@ -145,23 +94,21 @@ class UserProcessor(object):
 
     def reserve_experiment(self, experiment_id, serialized_client_initial_data, serialized_consumer_data, client_address, core_server_universal_id ):
 
-        context = RemoteFacadeContext.get_context()
-
         # Put user information in the session
         self.get_user_information()
 
         self._session['experiment_id'] = experiment_id
 
         reservation_info = self._session['reservation_information'] = {}
-        reservation_info['user_agent']     = context.get_user_agent()
-        reservation_info['referer']        = context.get_referer()
-        reservation_info['mobile']         = context.is_mobile()
-        reservation_info['locale']         = context.get_locale()
-        reservation_info['facebook']       = context.is_facebook()
+        reservation_info['user_agent']     = weblab_api.user_agent
+        reservation_info['referer']        = weblab_api.referer
+        reservation_info['mobile']         = weblab_api.is_mobile
+        reservation_info['locale']         = weblab_api.locale
+        reservation_info['facebook']       = weblab_api.is_facebook
         reservation_info['route']          = self._server_route or 'no-route-found'
-        reservation_info['from_ip']        = client_address.client_address
-        reservation_info['from_direct_ip'] = client_address.client_address
-        reservation_info['username']       = self._session['db_session_id'].username
+        reservation_info['username']       = self.username
+        reservation_info['from_ip']        = client_address
+        reservation_info['from_direct_ip'] = client_address
 #        reservation_info['full_name']      = self._session['user_information'].full_name
         reservation_info['role']           = self._session['db_session_id'].role
 
@@ -190,11 +137,7 @@ class UserProcessor(object):
             consumer_data = {}
 
 
-        experiments = [
-                exp for exp in self.list_experiments()
-                if exp.experiment.name           == experiment_id.exp_name
-                and exp.experiment.category.name == experiment_id.cat_name
-            ]
+        experiments = self._db_manager.list_experiments(self.username, experiment_id.exp_name, experiment_id.cat_name)
 
         if len(experiments) == 0:
             raise core_exc.UnknownExperimentIdError( "User can't access that experiment (or that experiment type does not exist)" )
@@ -215,6 +158,8 @@ class UserProcessor(object):
             #
             # Don't take into account initialization unless both agree
             initialization_in_accounting = experiment_allowed.initialization_in_accounting and consumer_data.get('initialization_in_accounting', experiment_allowed.initialization_in_accounting)
+            reservation_info['permission_scope'] = experiment_allowed.permission_scope
+            reservation_info['permission_id']    = experiment_allowed.permission_id
 
             status, reservation_id    = self._coordinator.reserve_experiment(
                     experiment_allowed.experiment.to_experiment_id(),
@@ -251,15 +196,13 @@ class UserProcessor(object):
 
     @typecheck(SessionId)
     def get_experiment_use_by_id(self, reservation_id):
-        db_session_id   = self._session['db_session_id']
-        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0])])
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0])])
         experiment_use  = experiment_uses[0]
         return self._process_use(experiment_use, reservation_id)
 
     @typecheck(typecheck.ITERATION(SessionId))
     def get_experiment_uses_by_id(self, reservation_ids):
-        db_session_id   = self._session['db_session_id']
-        experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0]) for reservation_id in reservation_ids])
+        experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0]) for reservation_id in reservation_ids])
 
         results = []
         cancelled_results = []
@@ -274,7 +217,7 @@ class UserProcessor(object):
             # between the moment we asked for results and the moment we stored the results.
             # Just in case, we check again those results
 
-            tentatively_cancelled_experiment_uses = self._db_manager.get_experiment_uses_by_id(db_session_id.username, [SessionId(reservation_id.id.split(';')[0]) for pos, reservation_id in cancelled_results])
+            tentatively_cancelled_experiment_uses = self._db_manager.get_experiment_uses_by_id(self.username, [SessionId(reservation_id.id.split(';')[0]) for pos, reservation_id in cancelled_results])
             for (pos, reservation_id), tentatively_cancelled_use in zip(cancelled_results, tentatively_cancelled_experiment_uses):
                 # Only process the use if the use is now not None
                 if tentatively_cancelled_use is not None:
@@ -311,39 +254,6 @@ class UserProcessor(object):
             log.log(UserProcessor, log.level.Debug, "Reservation %s is cancelled due to expired session: %s" % (reservation_id, ese))
             return CancelledReservationResult()
 
-
-    #
-    # admin service
-    #
-
-    def get_users(self):
-        """
-        Retrieves the users from the database itself.
-        """
-        db_session_id        = self._session['db_session_id']
-        return get_users(self._db_manager, db_session_id)
-
-    def get_groups(self, parent_id=None):
-        db_session_id         = self._session['db_session_id']
-        return get_groups(self._db_manager, db_session_id, parent_id)
-
-    def get_roles(self):
-        db_session_id         = self._session['db_session_id']
-        return get_roles(self._db_manager, db_session_id)
-
-    def get_experiments(self):
-        db_session_id         = self._session['db_session_id']
-        return get_experiments(self._db_manager, db_session_id)
-
-    def get_experiment_uses(self, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        db_session_id         = self._session['db_session_id']
-        return get_experiment_uses(self._db_manager, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by)
-
     def get_user_permissions(self):
-        db_session_id         = self._session['db_session_id']
-        return get_user_permissions(self._db_manager, db_session_id)
-
-    def get_permission_types(self):
-        db_session_id         = self._session['db_session_id']
-        return get_permission_types(self._db_manager, db_session_id)
+        return self._db_manager.get_user_permissions(self.username)
 

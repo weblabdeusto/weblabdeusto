@@ -22,8 +22,580 @@ import hashlib
 
 from sqlalchemy.orm import sessionmaker
 
+from weblab.db.upgrade import DbRegularUpgrader
 import weblab.db.model as Model
 import weblab.permissions as permissions
+
+
+
+def _add_params(session, experiment):
+    client_config = CONFIG_JS[experiment.client]
+
+    experiment_config = {}
+    for experiment_client in client_config:
+        if (experiment_client['experiment.name'] == experiment.name and 
+                experiment_client['experiment.category'] == experiment.category.name ):
+                experiment_config = experiment_client
+                break
+
+    for key, value in experiment_config.iteritems():
+        if key in ("experiment.name", "experiment.category"):
+            continue
+
+        if isinstance(value, bool):
+            key_type = 'bool'
+        elif isinstance(value, int):
+            key_type = 'integer'
+        elif isinstance(value, float):
+            key_type = 'floating'
+        else:
+            key_type = 'string'
+
+        param = Model.DbExperimentClientParameter(experiment, key, key_type, unicode(value))
+        session.add(param)
+
+    session.commit()
+
+# 
+# Original JavaScript configuration
+# 
+CONFIG_JS = { 
+					"flash" : [
+					           {
+					        	   "experiment.name"     : "flashdummy",
+					        	   "experiment.category" : "Dummy experiments",
+					        	   "experiment.picture"	 : "/img/experiments/flash.jpg",
+					        	   "page.footer"	 : "",
+					        	   "flash.timeout"       : 20,
+					        	   "width"               : 500,
+					        	   "height"              : 350,
+					        	   "swf.file"            : "WeblabFlashSample.swf",
+					        	   "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                       		   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
+	                        	   "experiment.info.description" : "description"
+	                       		}
+	                       ],
+	                "java" : [
+	                          {
+	                        	  "experiment.name"      : "javadummy",
+	                        	  "experiment.category"  : "Dummy experiments",
+	                        	  "experiment.picture"   : "/img/experiments/java.jpg",
+	                        	  "width"                : 500,
+	                        	  "height"               : 350,
+	                        	  "jar.file"             : "WeblabJavaSample.jar",
+	                        	  "code"                 : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+	                        	  "message"             : "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+	                          	  "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
+	                        	  "experiment.info.description" : "description"
+	                          }
+	                       ],
+	                "js"	: [
+	                    	   {
+	                    		   "experiment.name"		: "jsdummy",
+	                    		   "experiment.category"	: "Dummy experiments",
+	                    		   "experiment.picture"		: "/img/experiments/java.jpg",
+	                    		   "width"					: 500,
+	                    		   "height"					: 350,
+	                    		   "provide.file.upload"	: True,
+	                    		   "html.file"				: "jstest.html"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "aquariumjs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/aquarium.png",
+	                    		   "width"					: 1024,
+	                    		   "height"					: 1000,
+	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+								   "experiment.info.description" : "description"
+	                    	   },	
+ 				   {
+					   "experiment.name"		: "archimedes",
+					   "experiment.category"	: "Aquatic experiments",
+					   "experiment.picture"         : "/img/experiments/aquarium.png",
+                                           "cssWidth"                   : "1024",
+                                           "cssHeight"                  : "1000",
+                                           "html.file"                  : "jslabs/archimedes/archimedes.html"
+				   },
+        	                   {
+	                    		   "experiment.name"		: "submarinejs",
+	                    		   "experiment.category"	: "Aquatic experiments",
+	                    		   "experiment.picture"		: "/img/experiments/submarine.png",
+	                    		   "cssWidth"					: "1024",
+	                    		   "cssHeight"					: "1000",
+	                    		   "html.file"				: "jslabs/submarine/submarine.html",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+								   "experiment.info.description" : "description"
+	                    	   },
+	                    	   {
+	                    		   "experiment.name"		: "jsfpga",
+	                    		   "experiment.category"	: "FPGA experiments",
+	                    		   "experiment.picture"		: "/img/experiments/xilinx.jpg",
+	                    		   "width"					: "800",
+	                    		   "height"					: "600",
+	                    		   "provide.file.upload"	: True,
+	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
+	                    	   },
+							   {
+								   "experiment.name"		: "visir-html5",
+								   "experiment.category"	: "Visir experiments",
+								   "experiment.picture"		: "/img/experiments/visir.jpg",
+								   "cssWidth"				: "805",
+								   "cssHeight"				: "520",
+								   "provide.file.upload"	: False,
+								   "html.file"				: "visir-html5/visir.html"
+							   }
+	                       ],
+	                "vm"    : [
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "Dummy experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "ud-linux-vm",
+	                        	   "experiment.category" : "VM experiments",
+	                        	   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab",
+	                        	   "experiment.info.description" : "description"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"     : "ud-win-vm",
+	                        	   "experiment.category" : "VM experiments"
+	                           },
+	                           {
+	                        	   "experiment.picture"	 : "/img/experiments/virtualbox.jpg",
+	                        	   "experiment.name"	 : "vm-win",
+	                               "experiment.category" : "Dummy experiments"
+	                           }
+	                       ],
+	                "labview": [
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "testone",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "blink-led",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "prototyping-board-01",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-config",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-experiment",
+	                            	"experiment.category" : "LabVIEW experiments",
+	                            	"send.file"           : True
+	                            },
+	                            {
+		                        	"experiment.picture"  : "/img/experiments/labview.jpg",
+	                            	"experiment.name"     : "fpga-board-bit",
+	                            	"experiment.category" : "LabVIEW experiments"
+	                            }
+	                       ],
+	                "xilinx" : [
+							  {
+								   "experiment.name"     : "ud-test-pld1",
+								   "experiment.category" : "PLD experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "is.demo"             : True
+							  },
+							  {
+								   "experiment.name"     : "ud-test-pld2",
+								   "experiment.category" : "PLD experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "is.demo"             : True
+							  },
+							  {
+								   "experiment.name"     : "ud-demo-pld",
+								   "experiment.category" : "PLD experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "is.demo"             : True,
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#cpld",
+								   "experiment.info.description" : "description"
+							  },
+							  {
+								   "experiment.name"     : "ud-demo-fpga",
+								   "experiment.category" : "FPGA experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "is.demo"             : True,
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
+								   "experiment.info.description" : "description"
+							  },
+							  {
+								   "experiment.name"     : "ud-demo-xilinx",
+								   "experiment.category" : "Xilinx experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "is.demo"             : True,
+								   "is.multiresource.demo" : True,
+								   "experiment.info.link" : "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx",
+								   "experiment.info.description" : "description"
+							  },
+							  {
+								   "experiment.name"     : "ud-fpga",
+								   "experiment.category" : "FPGA experiments",
+								   "experiment.picture"   : "/img/experiments/xilinx.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
+								   "experiment.info.description" : "description"
+							  },
+							  {
+								  "experiment.name"      : "ud-pld",
+								  "experiment.category"  : "PLD experiments",
+								  "experiment.picture"   : "/img/experiments/xilinx.jpg"
+							  },
+							  {
+								  "experiment.name"      : "ud-pld-1",
+								  "experiment.category"  : "PLD experiments",
+								  "experiment.picture"   : "/img/experiments/xilinx.jpg"
+							  },
+							  {
+								  "experiment.name"      : "ud-pld-2",
+								  "experiment.category"  : "PLD experiments",
+								  "experiment.picture"   : "/img/experiments/xilinx.jpg"
+							  }
+						   ],
+					"dummy" : [
+							   {
+								   "experiment.name"     : "ud-dummy",
+								   "experiment.category" : "Dummy experiments"
+							   },
+							   {
+								   "experiment.name"     : "dummy",
+								   "experiment.category" : "Dummy experiments"
+							   },
+							   {
+								   "experiment.name"     : "dummy1",
+								   "experiment.category" : "Dummy experiments"
+							   },
+							   {
+								   "experiment.name"     : "dummy2",
+								   "experiment.category" : "Dummy experiments"
+							   },
+							   {
+								   "experiment.name"     : "dummy3",
+								   "experiment.category" : "Dummy experiments"
+							   },
+							   {
+								   "experiment.name"     : "dummy4",
+								   "experiment.category" : "Dummy experiments"
+							   }
+						   ],
+					"dummybatch" : [
+								   {
+									   "experiment.name"     : "ud-dummy-batch",
+									   "experiment.category" : "Dummy experiments"
+								   }
+						],
+					"robot-standard" : [
+								{
+								   "experiment.name" : "robot-standard",
+								   "experiment.category" : "Robot experiments",
+								   "experiment.picture"	 : "/img/experiments/robot.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+								   "experiment.info.description" : "description"
+								}
+							],
+					"robot-movement" : [
+								{
+									"experiment.name" : "robot-movement",
+									"experiment.picture" : "/img/experiments/robot.jpg",
+									"experiment.category" : "Robot experiments",
+									"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+									"experiment.info.description" : "description"
+								}
+							],
+					"robot-maze" : [
+										{
+											"experiment.name" : "robot-maze",
+											"experiment.picture" : "/img/experiments/robot.jpg",
+											"experiment.category" : "Robot experiments"
+										}
+									],
+					"submarine" : [
+										{
+											"experiment.name" : "submarine",
+											"experiment.picture" : "/img/experiments/submarine.png",
+											"experiment.category" : "Submarine experiments",
+											"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+											"experiment.info.description" : "description"
+										},
+										{
+											"experiment.name" : "submarine",
+											"experiment.picture" : "/img/experiments/submarine.png",
+											"experiment.category" : "Aquatic experiments",
+											"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+											"experiment.info.description" : "description"
+										}
+									],
+					"aquarium" : [
+									{
+										"experiment.name" : "aquarium",
+										"experiment.picture" : "/img/experiments/aquarium.png",
+										"experiment.category" : "Aquatic experiments",
+										"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+										"experiment.info.description" : "description"
+									}
+							 ],
+					"robot-proglist" : [
+								{
+									"experiment.name" : "robot-proglist",
+									"experiment.picture"  : "/img/experiments/robot.jpg",
+									"experiment.category" : "Robot experiments",
+									"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
+									"experiment.info.description" : "description"
+								}
+							],
+					"robotarm" : [
+										{
+											"experiment.name" : "robotarm",
+											"experiment.picture"  : "/img/experiments/robot.jpg",
+											"experiment.category" : "Robot experiments",
+											"experiment.info.description" : "description"
+										}
+									],
+					"blank" : [
+							   {
+								   "experiment.name"     : "external-robot-movement",
+								   "experiment.category" : "Robot experiments",
+								   "experiment.picture"  : "/img/experiments/robot.jpg",
+								   "html"                : "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client."
+							   }
+							],
+					"visir" : [
+							   {
+								   "experiment.name"      : "Fisica-1",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "Fisica-2",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "Fisica-3",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "Fisica-1-PXI",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "Fisica-2-PXI",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "Fisica-3-PXI",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visirtest",
+								   "experiment.category"  : "Dummy experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir-lesson2",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "lxi_visir",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir-student",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir-uned",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir-fed-balance",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"      : "visir-fed-balance-multiple",
+								   "experiment.category"  : "Visir experiments",
+								   "experiment.picture"   : "/img/experiments/visir.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+								   "experiment.info.description" : "description"
+							   }
+						   ],
+					"logic" : [
+							   {
+								   "experiment.name"     : "ud-logic",
+								   "experiment.category" : "PIC experiments",
+								   "experiment.picture"   : "/img/experiments/logic.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"     : "ud-logic",
+								   "experiment.category" : "Dummy experiments",
+								   "experiment.picture"   : "/img/experiments/logic.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+								   "experiment.info.description" : "description"
+							   },
+							   {
+								   "experiment.name"     : "logic",
+								   "experiment.category" : "Games",
+								   "experiment.picture"   : "/img/experiments/logic.jpg",
+								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+								   "experiment.info.description" : "description"
+							   }
+						   ],
+					"binary" : [
+								{
+								   "experiment.name"     : "ud-binary",
+								   "experiment.category" : "PLD experiments",
+								   "experiment.picture"   : "/img/experiments/binary.jpg"
+								},
+								{
+								   "experiment.name"     : "binary",
+								   "experiment.category" : "Games",
+								   "experiment.picture"   : "/img/experiments/binary.jpg"
+								}
+						   ],
+					"gpib"   : [
+								{
+								   "experiment.name"     : "ud-gpib",
+								   "experiment.category" : "GPIB experiments"
+								}
+						   ],
+					"gpib1" : [
+								{
+								   "experiment.name"     : "ud-gpib1",
+								   "experiment.category" : "GPIB experiments"
+								}
+							],
+					"gpib2" : [
+							   {
+								   "experiment.name"     : "ud-gpib2",
+								   "experiment.category" : "GPIB experiments"
+							   }
+							],
+					"pic18"	: [
+								{
+								   "experiment.name"	 : "ud-pic18",
+								   "experiment.category" : "PIC experiments",
+								   "experiment.picture"  : "/img/experiments/microchip.jpg"
+								},
+								{
+								   "experiment.name"	 : "ud-test-pic18-1",
+								   "experiment.category" : "PIC experiments",
+								   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : True
+								},
+								{
+								   "experiment.name"	 : "ud-test-pic18-2",
+								   "experiment.category" : "PIC experiments",
+								   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : True
+								},
+								{
+								   "experiment.name"	 : "ud-test-pic18-3",
+								   "experiment.category" : "PIC experiments",
+								   "experiment.picture"  : "/img/experiments/microchip.jpg",
+								   "is.demo"             : True
+	                			}
+	                		],
+	                "unr-physics" : [
+	                            {
+		                			"experiment.name"	 : "unr-physics",
+		                			"experiment.category" : "Physics experiments",
+		                			"experiment.picture"  : "/img/experiments/unr.jpg"
+	                            }
+	                        ],
+                    "ilab-batch" : [
+                                {
+                                	"experiment.reserve.button.shown" : False,
+	                        	    "experiment.picture"              : "/img/experiments/MIT.jpg",
+                                    "experiment.name"                 : "microelectronics",
+                                    "experiment.category"             : "iLab experiments",
+                                    "archive"                         : "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+                                    "code"                            : "weblab.client.graphicalUI.GraphicalApplet",
+                                    "lab_server_id"                   : "microelectronics",
+                                    "service_broker"                  : "http://www.weblab.deusto.es/weblab/web/ilab/"
+                                }
+                            ],
+                     "control-app" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/bulb.png",
+                                    "experiment.name"                 : "control-app",
+                                    "experiment.category"             : "Control experiments"
+                                }
+                            ],
+                    "redirect" : [
+                                     {
+                                         "experiment.name"                 : "http",
+                                         "experiment.category"             : "HTTP experiments"
+                                     }
+                                 ],
+                     "incubator" : [
+                                {
+	                        	    "experiment.picture"              : "/img/experiments/incubator.jpg",
+                                	"experiment.name"                 : "incubator",
+                                	"experiment.category"             : "Farm experiments",
+                                    "experiment.reserve.button.shown" : False,
+                                	"html"                            : "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results."
+                                }
+                            ]
+		}
 
 def insert_required_initial_data(engine):
     session = sessionmaker(bind=engine)
@@ -36,8 +608,8 @@ def insert_required_initial_data(engine):
     administrator = Model.DbRole("administrator")
     session.add(administrator)
 
-    professor = Model.DbRole("professor")
-    session.add(professor)
+    instructor = Model.DbRole("instructor")
+    session.add(instructor)
 
     student = Model.DbRole("student")
     session.add(student)
@@ -83,6 +655,10 @@ def insert_required_initial_data(engine):
     administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(administrator_admin_panel_access_p1)
 
+    upgrader = DbRegularUpgrader(str(engine.url))
+    session.execute(
+        Model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+    )
     session.commit()
 
 
@@ -125,7 +701,7 @@ def populate_weblab_tests(engine, tests):
     session.add(auth_facebook)
 
     administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
-    professor     = session.query(Model.DbRole).filter_by(name='professor').one()
+    instructor    = session.query(Model.DbRole).filter_by(name='instructor').one()
     student       = session.query(Model.DbRole).filter_by(name='student').one()
     federated     = session.query(Model.DbRole).filter_by(name='federated').one()
 
@@ -145,14 +721,14 @@ def populate_weblab_tests(engine, tests):
     any = Model.DbUser("any", "Name of any", "weblab@deusto.es", None, student)
     session.add(any)
 
-    prof1 = Model.DbUser("prof1", "Name of professor 1", "weblab@deusto.es", None, professor)
-    session.add(prof1)
+    prof1 = Model.DbUser("prof1", "Name of instructor 1", "weblab@deusto.es", None, instructor)
+    session.add(prof1)    
 
-    prof2 = Model.DbUser("prof2", "Name of professor 2", "weblab@deusto.es", None, professor)
-    session.add(prof2)
+    prof2 = Model.DbUser("prof2", "Name of instructor 2", "weblab@deusto.es", None, instructor)
+    session.add(prof2)    
 
-    prof3 = Model.DbUser("prof3", "Name of professor 3", "weblab@deusto.es", None, professor)
-    session.add(prof3)
+    prof3 = Model.DbUser("prof3", "Name of instructor 3", "weblab@deusto.es", None, instructor)
+    session.add(prof3)    
 
     student1 = Model.DbUser("student1", "Name of student 1", "weblab@deusto.es", None, student)
     session.add(student1)
@@ -335,135 +911,175 @@ def populate_weblab_tests(engine, tests):
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
 
-    dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date)
+    dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date, 'dummy')
     session.add(dummy)
+    _add_params(session, dummy)
 
-    dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date)
+    dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date, 'dummybatch')
     session.add(dummy_batch)
+    _add_params(session, dummy_batch)
 
     archimedes = Model.DbExperiment("archimedes", cat_aquatic, start_date, end_date)
     session.add(archimedes)
 
-    dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date)
+    dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date, 'dummy')
     session.add(dummy1)
+    _add_params(session, dummy1)
 
-    dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date)
+    dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date, 'dummy')
     session.add(dummy2)
+    _add_params(session, dummy2)
 
     if tests != '2':
-        dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date)
+        dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date, 'dummy')
         session.add(dummy3)
+        _add_params(session, dummy3)
     else:
-        dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date)
+        dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date, 'dummy')
         session.add(dummy3_with_other_name)
+        _add_params(session, dummy3_with_other_name)
 
-    dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date)
+    dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date, 'dummy')
     session.add(dummy4)
+    _add_params(session, dummy4)
 
-    flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date)
+    flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date, 'flash')
     session.add(flashdummy)
+    _add_params(session, flashdummy)
 
-    javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date)
+    javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date, 'java')
     session.add(javadummy)
-
-    jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date)
+    _add_params(session, javadummy)
+    
+    jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date, 'js')
     session.add(jsdummy)
-
-    jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date)
+    _add_params(session, jsdummy)
+    
+    jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date, 'js')
     session.add(jsfpga)
+    _add_params(session, jsfpga)
 
-    visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date)
+    visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date, 'js')
     session.add(visir_html5)
 
-    logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date)
+    logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date, 'logic')
     session.add(logic)
+    _add_params(session, logic)
 
-    binary = Model.DbExperiment("binary", cat_games, start_date, end_date)
+    binary = Model.DbExperiment("binary", cat_games, start_date, end_date, 'binary')
     session.add(binary)
+    _add_params(session, binary)
 
-    unr_physics = Model.DbExperiment("unr-physics", cat_physics, start_date, end_date)
+    unr_physics = Model.DbExperiment("unr-physics", cat_physics, start_date, end_date, 'unr-physics')
     session.add(unr_physics)
+    _add_params(session, unr_physics)
 
-    controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date)
+    controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date, 'control-app')
     session.add(controlapp)
+    _add_params(session, controlapp)
 
-    incubator = Model.DbExperiment("incubator", cat_farm, start_date, end_date)
+    incubator = Model.DbExperiment("incubator", cat_farm, start_date, end_date, 'incubator')
     session.add(incubator)
+    _add_params(session, incubator)
 
-    pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date)
+    pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date, 'xilinx')
     session.add(pld)
+    _add_params(session, pld)
 
-    demo_pld = Model.DbExperiment("ud-demo-pld", cat_pld, start_date, end_date)
+    demo_pld = Model.DbExperiment("ud-demo-pld", cat_pld, start_date, end_date, 'xilinx')
     session.add(demo_pld)
+    _add_params(session, demo_pld)
 
-    pld2 = Model.DbExperiment("ud-pld2", cat_pld, start_date, end_date)
+    pld2 = Model.DbExperiment("ud-pld2", cat_pld, start_date, end_date, 'xilinx')
     session.add(pld2)
+    _add_params(session, pld2)
 
-    fpga = Model.DbExperiment("ud-fpga", cat_fpga, start_date, end_date)
+    fpga = Model.DbExperiment("ud-fpga", cat_fpga, start_date, end_date, 'xilinx')
     session.add(fpga)
+    _add_params(session, fpga)
 
-    demo_fpga = Model.DbExperiment("ud-demo-fpga", cat_fpga, start_date, end_date)
+    demo_fpga = Model.DbExperiment("ud-demo-fpga", cat_fpga, start_date, end_date, 'xilinx')
     session.add(demo_fpga)
+    _add_params(session, demo_fpga)
 
-    demo_xilinx = Model.DbExperiment("ud-demo-xilinx", cat_xilinx, start_date, end_date)
+    demo_xilinx = Model.DbExperiment("ud-demo-xilinx", cat_xilinx, start_date, end_date, 'xilinx')
     session.add(demo_xilinx)
+    _add_params(session, demo_xilinx)
 
-    gpib = Model.DbExperiment("ud-gpib", cat_gpib, start_date, end_date)
+    gpib = Model.DbExperiment("ud-gpib", cat_gpib, start_date, end_date, 'gpib')
     session.add(gpib)
+    _add_params(session, gpib)
 
-    visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date)
+    visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date, 'visir')
     session.add(visirtest)
+    _add_params(session, visirtest)
 
-    visir = Model.DbExperiment("visir", cat_visir, start_date, end_date)
+    visir = Model.DbExperiment("visir", cat_visir, start_date, end_date, 'visir')
     session.add(visir)
+    _add_params(session, visir)
 
-    vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date)
+    vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date, 'vm')
     session.add(vm)
+    _add_params(session, vm)
 
-    vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date)
+    vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date, 'vm')
     session.add(vm_win)
+    _add_params(session, vm_win)
 
-    blink_led = Model.DbExperiment("blink-led", cat_labview, start_date, end_date)
+    blink_led = Model.DbExperiment("blink-led", cat_labview, start_date, end_date, 'labview')
     session.add(blink_led)
+    _add_params(session, blink_led)
 
-    submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date)
+    submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date, 'submarine')
     session.add(submarine)
-
-    http = Model.DbExperiment("http", cat_http, start_date, end_date)
+    _add_params(session, submarine)
+    
+    http = Model.DbExperiment("http", cat_http, start_date, end_date, 'redirect')
     session.add(http)
+    _add_params(session, http)
 
-    aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date)
+    aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date, 'aquarium')
     session.add(aquarium)
+    _add_params(session, aquarium)
 
-    aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date)
+    aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date, 'js')
+    _add_params(session, aquarium)
     session.add(aquariumjs)
 
-    submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date)
+    submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date, 'js')
     session.add(submarinejs)
 
-    rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date)
+    rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date, 'robotarm')
     session.add(rob_arm)
+    _add_params(session, rob_arm)
 
-    rob_maz = Model.DbExperiment("robot-maze", cat_robot, start_date, end_date)
+    rob_maz = Model.DbExperiment("robot-maze", cat_robot, start_date, end_date, 'robot-maze')
     session.add(rob_maz)
+    _add_params(session, rob_maz)
 
-    rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date)
+    rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date, 'robot-standard')
     session.add(rob_std)
+    _add_params(session, rob_std)
 
-    rob_mov = Model.DbExperiment("robot-movement", cat_robot, start_date, end_date)
+    rob_mov = Model.DbExperiment("robot-movement", cat_robot, start_date, end_date, 'robot-movement')
     session.add(rob_mov)
+    _add_params(session, rob_mov)
 
-    ext_rob_mov = Model.DbExperiment("external-robot-movement", cat_robot, start_date, end_date)
+    ext_rob_mov = Model.DbExperiment("external-robot-movement", cat_robot, start_date, end_date, 'blank')
     session.add(ext_rob_mov)
+    _add_params(session, ext_rob_mov)
 
-    rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date)
+    rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date, 'robot-proglist')
     session.add(rob_proglist)
+    _add_params(session, rob_proglist)
 
-    microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date)
+    microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date, 'ilab-batch')
     session.add(microelectronics)
-
-    pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date)
+    _add_params(session, microelectronics)
+    
+    pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date, 'pic18')
     session.add(pic18)
+    _add_params(session, pic18)
 
     # Permissions
     
@@ -599,7 +1215,7 @@ def populate_weblab_tests(engine, tests):
     session.add(gp_course0809_logic_allowed)
     gp_course0809_logic_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p1, "ud-logic")
     session.add(gp_course0809_logic_allowed_p1)
-    gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "Dummy experiments")
+    gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "PIC experiments")
     session.add(gp_course0809_logic_allowed_p2)
     gp_course0809_logic_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p3, "150")
     session.add(gp_course0809_logic_allowed_p3)
@@ -1322,13 +1938,13 @@ def generate_create_database(engine_str):
     else:
         return None
 
-def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None):
+def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None, role = 'student'):
     session = sessionmaker()
 
-    student       = session.query(Model.DbRole).filter_by(name='student').one()
+    role = session.query(Model.DbRole).filter_by(name=role).one()
     weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
 
-    user    = Model.DbUser(login, user_name, mail, None, student)
+    user    = Model.DbUser(login, user_name, mail, None, role)
     session.add(user)
 
     user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
@@ -1353,7 +1969,7 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
     session.commit()
     session.close()
 
-def add_experiment(sessionmaker, category_name, experiment_name):
+def add_experiment(sessionmaker, category_name, experiment_name, client):
     session = sessionmaker()
     existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
     if existing_category is None:
@@ -1366,7 +1982,8 @@ def add_experiment(sessionmaker, category_name, experiment_name):
     # So leap years are not a problem
     end_date = start_date.replace(year=start_date.year+12)
 
-    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date)
+    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date, client)
+    _add_params(session, experiment)
     session.add(experiment)
     session.commit()
     session.close()
@@ -1423,8 +2040,8 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     session.close()
 
 
-def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed):
-    add_experiment(sessionmaker, category_name, experiment_name)
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, client, group_name, time_allowed):
+    add_experiment(sessionmaker, category_name, experiment_name, client)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
 
 def _password2sha(password, randomstuff = None):

@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Widget;
 import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
+import es.deusto.weblab.client.experiments.ilab_batch.ILabBatchCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
@@ -45,10 +46,10 @@ public class ILabBatchExperiment extends ExperimentBase {
 	@Override
 	public void initialize(){
 		try{
-			final String archive       = this.configurationRetriever.getProperty("archive");
-			final String code          = this.configurationRetriever.getProperty("code");
-			final String labServerId   = this.configurationRetriever.getProperty("lab_server_id");
-			final String serviceBroker = WebLabClient.baseLocation + this.configurationRetriever.getProperty("service_broker", "/weblab/web/ilab/");
+			final String archive       = this.configurationRetriever.getProperty(ILabBatchCreatorFactory.ARCHIVE);
+			final String code          = this.configurationRetriever.getProperty(ILabBatchCreatorFactory.CODE);
+			final String labServerId   = this.configurationRetriever.getProperty(ILabBatchCreatorFactory.LAB_SERVER_ID);
+			final String serviceBroker = WebLabClient.baseLocation + this.configurationRetriever.getProperty(ILabBatchCreatorFactory.SERVICE_BROKER);
 			
 			final String message = i18n.thisLaboratoryIsManagedByJavaAppletILAB();
 			

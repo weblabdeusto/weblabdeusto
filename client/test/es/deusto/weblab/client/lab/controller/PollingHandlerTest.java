@@ -24,6 +24,8 @@ import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFound
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
 import es.deusto.weblab.client.lab.controller.IPetitionsController;
 import es.deusto.weblab.client.lab.controller.PetitionNode;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 
 public class PollingHandlerTest extends GWTTestCase  {
 	
@@ -66,6 +68,54 @@ public class PollingHandlerTest extends GWTTestCase  {
 				String experimentType)
 				throws InvalidConfigurationValueException {
 			throw new IllegalStateException("getExperimentsConfiguration(String) should not be called");
+		}
+
+		@Override
+		public int getIntProperty(ExperimentParameter parameter)
+				throws ConfigurationKeyNotFoundException,
+				InvalidConfigurationValueException {
+			return 0;
+		}
+
+		@Override
+		public int getIntProperty(ExperimentParameterDefault parameter) {
+			return 0;
+		}
+
+		@Override
+		public boolean getBoolProperty(ExperimentParameter parameter)
+				throws ConfigurationKeyNotFoundException,
+				InvalidConfigurationValueException {
+			return false;
+		}
+
+		@Override
+		public boolean getBoolProperty(ExperimentParameterDefault parameter) {
+			return false;
+		}
+
+		@Override
+		public String getProperty(ExperimentParameter parameter)
+				throws ConfigurationKeyNotFoundException,
+				InvalidConfigurationValueException {
+			return null;
+		}
+
+		@Override
+		public String getProperty(ExperimentParameterDefault parameter) {
+			return null;
+		}
+
+		@Override
+		public double getDoubleProperty(ExperimentParameter parameter)
+				throws ConfigurationKeyNotFoundException,
+				InvalidConfigurationValueException {
+			return 0;
+		}
+
+		@Override
+		public double getDoubleProperty(ExperimentParameterDefault parameter) {
+			return 0;
 		}		
 	}
 	

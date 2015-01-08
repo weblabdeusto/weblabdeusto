@@ -36,6 +36,7 @@ import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -68,12 +69,6 @@ public class Pic18Experiment extends ExperimentBase{
 	}
 
 	private static final PIC18UiBinder uiBinder = GWT.create(PIC18UiBinder.class);
-	
-	private static final String DEMO_PROPERTY                         = "is.demo";
-	private static final boolean DEFAULT_DEMO                         = false;
-	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY          = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME           = 400;
 	
 	private final int DEFAULT_EXPECTED_PROGRAMMING_TIME = 25000;
 
@@ -164,18 +159,8 @@ public class Pic18Experiment extends ExperimentBase{
 	}
 	
 	private boolean isDemo(){
-		return this.configurationRetriever.getBoolProperty(
-				Pic18Experiment.DEMO_PROPERTY, 
-				Pic18Experiment.DEFAULT_DEMO
-			);
+		return this.configurationRetriever.getBoolProperty(Pic18CreatorFactory.IS_DEMO);
 	}
-	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-				Pic18Experiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-				Pic18Experiment.DEFAULT_WEBCAM_REFRESH_TIME
-			);
-	}	
 	
 	/**
 	 * Will find those interactive widgets that are defined on UiBinder
@@ -222,7 +207,7 @@ public class Pic18Experiment extends ExperimentBase{
 	 */
 	private void createProvidedWidgets() {
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 		
 		this.timer = new WlTimer(false);
 		

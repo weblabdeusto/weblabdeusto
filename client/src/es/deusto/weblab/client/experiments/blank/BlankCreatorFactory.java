@@ -22,12 +22,16 @@ import es.deusto.weblab.client.experiments.blank.ui.BlankExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 
-public class BlankCreatorFactory  implements IExperimentCreatorFactory {
+public class BlankCreatorFactory  implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static ExperimentParameterDefault HTML_CONTENTS = new ExperimentParameterDefault("html", "HTML contents", "");
 	private final MobileSupport mobileSupport;
 	
 	public BlankCreatorFactory(MobileSupport mobileSupport){
@@ -64,5 +68,10 @@ public class BlankCreatorFactory  implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+	
+	@Override
+	public ExperimentParameter [] getParameters() {
+		return new ExperimentParameter [] { HTML_CONTENTS };
 	}
 }

@@ -25,9 +25,8 @@ import es.deusto.weblab.client.lab.comm.ILabCommunication;
 import es.deusto.weblab.client.lab.comm.LabCommunication;
 import es.deusto.weblab.client.lab.controller.ILabController;
 import es.deusto.weblab.client.lab.controller.IValidSessionCallback;
-import es.deusto.weblab.client.lab.controller.PollingHandler;
 import es.deusto.weblab.client.lab.controller.LabController;
-import es.deusto.weblab.client.lab.experiments.ExperimentFactory;
+import es.deusto.weblab.client.lab.controller.PollingHandler;
 import es.deusto.weblab.client.lab.ui.LabThemeBase;
 import es.deusto.weblab.client.lab.ui.LabThemeFactory;
 import es.deusto.weblab.client.lab.ui.LabThemeFactory.IWlLabThemeLoadedCallback;
@@ -54,14 +53,6 @@ public class WebLabLabLoader {
 		
 		// We need to initialize the AudioManager singleton
 		AudioManager.initialize(this.configurationManager);
-		
-		try{
-			ExperimentFactory.loadExperiments(this.configurationManager);
-		}catch(final Exception e){
-			this.weblabClient.showError("Error checking experiments: " + e.getMessage());
-			e.printStackTrace();
-			return;
-		}
 		
 		final ILabCommunication communications = new LabCommunication(
 				this.configurationManager

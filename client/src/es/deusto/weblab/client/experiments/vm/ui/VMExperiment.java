@@ -30,6 +30,7 @@ import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.vm.VMCreatorFactory;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
@@ -43,12 +44,6 @@ import es.deusto.weblab.client.ui.widgets.WlWaitingLabel;
 
 public class VMExperiment extends ExperimentBase {
 	
-	private static final String DEFAULT_VNC_HEIGHT = "900";
-	private static final String DEFAULT_VNC_WIDTH  = "1152";
-
-	private static final String VNC_WIDTH  = "vnc.width";
-	private static final String VNC_HEIGHT = "vnc.height";
-
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -261,8 +256,8 @@ public class VMExperiment extends ExperimentBase {
 		final String archive = GWT.getModuleBaseURL() + "vnc/tightvncviewer.jar";
 		final String code = "VncViewer.class";
 		
-		final String width  = this.configurationRetriever.getProperty(VNC_WIDTH,  DEFAULT_VNC_WIDTH);
-		final String height = this.configurationRetriever.getProperty(VNC_HEIGHT, DEFAULT_VNC_HEIGHT);
+		final String width  = this.configurationRetriever.getProperty(VMCreatorFactory.VNC_WIDTH);
+		final String height = this.configurationRetriever.getProperty(VMCreatorFactory.VNC_HEIGHT);
 		
 		final String [] tokens = this.fullURLPassword.split(" ");
 		// "vnc://host:port/   with password:  asdf"

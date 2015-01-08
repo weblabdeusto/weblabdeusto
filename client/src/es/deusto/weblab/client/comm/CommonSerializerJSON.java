@@ -171,6 +171,9 @@ public class CommonSerializerJSON implements ICommonSerializer {
 		String adminUrl = this.json2string(jsonUser.get("admin_url"), true);
 		if(adminUrl == null)
 			adminUrl = "";
+		String instructorUrl = this.json2string(jsonUser.get("instructor_url"), true);
+		if(instructorUrl == null)
+			instructorUrl = "";
 		
 	    final JSONValue roleValue = jsonUser.get("role");
 	    if(roleValue == null)
@@ -180,7 +183,7 @@ public class CommonSerializerJSON implements ICommonSerializer {
 	    	throw new SerializationException("Expected JSON Object as Role, found: " + roleValue);
 	    final Role role = this.parseRole(jsonRole);
 	    	    
-		return new User(login, fullName, email, role, adminUrl);
+		return new User(login, fullName, email, role, adminUrl, instructorUrl);
 	}
 
 	protected JSONString parseResultString(String response) 

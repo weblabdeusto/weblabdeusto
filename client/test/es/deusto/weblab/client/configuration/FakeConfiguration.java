@@ -19,6 +19,8 @@ import java.util.Map;
 
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 
 public class FakeConfiguration implements IConfigurationManager {
 
@@ -114,5 +116,61 @@ public class FakeConfiguration implements IConfigurationManager {
 			retrievers[i] = new FakeConfiguration(localMap);
 		}
 		return retrievers;
+	}
+
+	@Override
+	public int getIntProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getIntProperty(ExperimentParameterDefault parameter) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean getBoolProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean getBoolProperty(ExperimentParameterDefault parameter) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String getProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getProperty(ExperimentParameterDefault parameter) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getDoubleProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double getDoubleProperty(ExperimentParameterDefault parameter) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
