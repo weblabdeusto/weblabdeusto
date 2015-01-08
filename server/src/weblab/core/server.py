@@ -425,7 +425,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         if flask_debug:
             print >> sys.stderr, "*" * 50
             print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "flask_admin is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
+            print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
             print >> sys.stderr, "WARNING " * 5
             print >> sys.stderr, "*" * 50
         self.app.config['DEBUG'] = flask_debug
