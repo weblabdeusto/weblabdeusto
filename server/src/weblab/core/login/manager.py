@@ -120,7 +120,7 @@ class LoginManager(object):
         if not system in EXTERNAL_MANAGERS:
             raise LoginErrors.LoginError("Invalid system!")
 
-        external_user_id = self._web_protocol_auth[system].get_user_id(credentials)
+        external_user_id = EXTERNAL_MANAGERS[system].get_user_id(credentials)
         if external_user_id == "":
             raise LoginErrors.InvalidCredentialsError(
                 "Invalid username or password!"

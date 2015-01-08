@@ -78,6 +78,7 @@ DOMAINS = {}
 def initialize():
     global INITIALIZED, HOST, CLIENT_URL, BASE_OPENID_URL, SESSIONS, DOMAINS, STORE
     if not INITIALIZED:
+        INITIALIZED = True
         STORE = memstore.MemoryStore()
         DOMAINS = weblab_api.config.get_value(DOMAINS_PROPERTY, DEFAULT_DOMAINS_PROPERTY) or {}
         SESSIONS = {}
@@ -126,7 +127,7 @@ def get_session():
     session['id'] = sid
     return session
 
-def get_consumer(self):
+def get_consumer():
     return consumer.Consumer(get_session(), STORE)
 
 @weblab_api.route_login_web('/openid/verify', methods = ['GET', 'POST'])
@@ -165,7 +166,7 @@ def openid_verify():
             return make_response("No OpenID services found. contact with administrator", 500)
         else:
             trust_root = request.host
-            return_to = url_for('openid_process', _external = True)
+            return_to = url_for('.openid_process', _external = True)
             if current_request.shouldSendRedirect():
                 redirect_url = current_request.redirectURL( trust_root, return_to, immediate = False)
                 return redirect(redirect_url) 
@@ -196,7 +197,7 @@ def openid_process():
         except LoginErrors.LoginError:
             return "Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators"
         client_url = weblab_api.ctx.core_server_url + 'client/'
-        full_client_url = "%s?session_id=%s;%s" % (client_url, session_id.id, weblab_api.ctx.route)
+        full_client_url = "%s?session_id=%s;%s.%s" % (client_url, session_id.id, session_id.id, weblab_api.ctx.route)
         return redirect(full_client_url)
     else:
         return make_response("failed to authenticate! %s; %s" % (info.status, info.message if hasattr(info, 'message') else ''), 403)

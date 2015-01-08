@@ -155,15 +155,15 @@ def login(username = None, password = None):
     return session_id
 
 @weblab_api.route_api('/login/external/<system>/', methods = [ 'POST'])
-def extensible_login(self, system, credentials = None):
+def extensible_login(system, credentials = None):
     return weblab_api.ctx.server_instance._login_manager.extensible_login(system, credentials)
 
 @weblab_api.route_api('/login/external/<system>/grant/', methods = [ 'POST' ])
-def grant_external_credentials(self, username = None, password = None, system = None, credentials = None):
+def grant_external_credentials(username = None, password = None, system = None, credentials = None):
     return weblab_api.ctx.server_instance._login_manager.grant_external_credentials(username, password, system, credentials)
 
 @weblab_api.route_api('/login/external/create/create/', methods = [ 'POST' ])
-def create_external_user(self, system = None, credentials = None):
+def create_external_user(system = None, credentials = None):
     return weblab_api.ctx.server_instance._login_manager.create_external_user(system, credentials)
 
 
@@ -425,7 +425,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         if flask_debug:
             print >> sys.stderr, "*" * 50
             print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "flask_admin is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
+            print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
             print >> sys.stderr, "WARNING " * 5
             print >> sys.stderr, "*" * 50
         self.app.config['DEBUG'] = flask_debug

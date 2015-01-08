@@ -350,6 +350,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
                         'login_facade_json_bind', 
                         
                         'login_facade_xmlrpc_bind',
+                        'login_facade_xmlrpc_port',
                         'login_facade_soap_bind', 
                         'login_facade_soap_port', 
                         'login_facade_soap_service_name', 
