@@ -13,8 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-# import sys
-# from functools import wraps
+import re
+from functools import wraps
 
 ##########################################################
 #
@@ -38,4 +38,15 @@ def apply():
     for patch in patches:
         patch()
 
+@patch
+def add_braces_to_openid_regex():
+    try:
+        import openid.urinorm as urinorm
+    except ImportError:
+        return
+
+    if hasattr(urinorm, 'uri_illegal_char_re'):
+        if urinorm.uri_illegal_char_re.search("{"):
+            # Invalid regexp for RedIRIS. Try to avoid it.
+            urinorm.uri_illegal_char_re = re.compile(urinorm.uri_illegal_char_re.pattern.replace('A-Z', 'A-Z{}'))
 

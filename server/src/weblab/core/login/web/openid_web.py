@@ -78,6 +78,7 @@ DOMAINS = {}
 def initialize():
     global INITIALIZED, HOST, CLIENT_URL, BASE_OPENID_URL, SESSIONS, DOMAINS, STORE
     if not INITIALIZED:
+        INITIALIZED = True
         STORE = memstore.MemoryStore()
         DOMAINS = weblab_api.config.get_value(DOMAINS_PROPERTY, DEFAULT_DOMAINS_PROPERTY) or {}
         SESSIONS = {}
@@ -196,7 +197,7 @@ def openid_process():
         except LoginErrors.LoginError:
             return "Successfully authenticated; however your account does not seem to be registered in WebLab-Deusto. Do please contact with administrators"
         client_url = weblab_api.ctx.core_server_url + 'client/'
-        full_client_url = "%s?session_id=%s;%s" % (client_url, session_id.id, weblab_api.ctx.route)
+        full_client_url = "%s?session_id=%s;%s.%s" % (client_url, session_id.id, session_id.id, weblab_api.ctx.route)
         return redirect(full_client_url)
     else:
         return make_response("failed to authenticate! %s; %s" % (info.status, info.message if hasattr(info, 'message') else ''), 403)
