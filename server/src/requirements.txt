@@ -16,7 +16,7 @@
 # 
 
 # We use 0.8.100 to avoid the 0.9.0betas (which are < 0.8)
-SQLAlchemy<0.8.100
+SQLAlchemy<0.8.100,>0.8.0
 
 
 # 
@@ -49,3 +49,5 @@ Flask==0.10
 alembic<0.6
 
 networkx==1.8.1
+
+PyYAML==3.11
