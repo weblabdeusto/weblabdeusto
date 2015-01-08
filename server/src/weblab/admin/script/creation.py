@@ -2351,16 +2351,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     new_lines = uncomment_json(lines)
     configuration_js_data = json.loads(''.join(new_lines))
 
-#     TODO: move this to the database
-#     configuration_js['experiments'] = configuration_js_data['experiments']
-#     dummy_list = list(configuration_js['experiments']['dummy'])
-#     found      = False
-#     for element in dummy_list:
-#         if element['experiment.name'] == options[Creation.DUMMY_NAME]:
-#             found = True
-#     if not found:
-#         dummy_list.append({'experiment.name' : options[Creation.DUMMY_NAME], 'experiment.category' : options[Creation.DUMMY_CATEGORY_NAME] })
-#     configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
     configuration_js['sound.enabled']                  = False
