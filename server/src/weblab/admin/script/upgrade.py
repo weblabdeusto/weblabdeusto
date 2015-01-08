@@ -27,6 +27,8 @@ import weblab.db.model as model
 from weblab.admin.cli.controller import DbConfiguration
 from weblab.admin.script.utils import run_with_config
 
+import xml.dom.minidom as minidom
+
 from weblab.db.upgrade import DbUpgrader
 
 #########################################################################################
@@ -49,12 +51,14 @@ def weblab_upgrade(directory):
     run_with_config(directory, on_dir)
 
 def check_updated(directory, configuration_files):
+    updated = True
     for upgrader_kls in Upgrader.upgraders():
         upgrader = upgrader_kls(directory, configuration_files)
         if not upgrader.check_updated():
-            return False
+            updated = False
+            # Don't break / return here. We want to display all the settings
 
-    return True
+    return updated
 
 def upgrade(directory, configuration_files):
     print "The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database)."
@@ -73,6 +77,11 @@ class Upgrader(object):
     def __init__(self, directory, configuration_files):
         self.directory = directory
         self.configuration_files = configuration_files
+    
+    @classmethod
+    def get_priority(self):
+        """ The higher, the later it will be applied """
+        return 0
 
     @abc.abstractmethod
     def check_updated(self):
@@ -93,7 +102,10 @@ class Upgrader(object):
             else:
                 for child_upgrader in upgrader.upgraders():
                     upgraders.append(child_upgrader)
-        return upgraders
+
+        upgraders_priority = [ (upgrader, upgrader.get_priority()) for upgrader in upgraders ]
+        upgraders_priority.sort(lambda (u1, p1), (u2, p2) : cmp(p1, p2))
+        return [ upgrader for (upgrader, priority) in upgraders_priority ]
 
 class DatabaseUpgrader(Upgrader):
 
@@ -102,9 +114,12 @@ class DatabaseUpgrader(Upgrader):
         regular_url = db_conf.build_url()
         coord_url   = db_conf.build_coord_url()
         self.upgrader = DbUpgrader(regular_url, coord_url)
-
+    
     def check_updated(self):
-        return self.upgrader.check_updated()
+        updated = self.upgrader.check_updated()
+        if not updated:
+            print " - The database requires some changes and is going to be upgraded."
+        return updated
 
     def upgrade(self):
         print "Upgrading database."
@@ -120,7 +135,12 @@ class ConfigurationExperiments2db(Upgrader):
             self.config = json.load(open(self.config_js))
         else:
             self.config = {}
-       
+
+    @classmethod
+    def get_priority(self):
+        """ After database """
+        return 1
+      
     def check_updated(self):
         # In the future, this file will not exist.
         if not os.path.exists(self.config_js):
@@ -129,6 +149,7 @@ class ConfigurationExperiments2db(Upgrader):
         # But if it exists and it has an 'experiments' section, it has 
         # not been upgraded.
         if 'experiments' in self.config:
+            print " - configuration.js contains experiments. The experiments in the configuration.js are going to be migrated to the database."
             return False
 
         return True
@@ -193,6 +214,11 @@ class RemoveOldWebAndLoginPorts(Upgrader):
         self.directory = directory
         self.configuration_files = configuration_files
 
+    @classmethod
+    def get_priority(self):
+        """ After configuration.js has been parsed """
+        return 2
+
     def check_updated(self):
         """ True => it's upgraded. False => needs to be upgraded """
         login_config_files = [ f for f in self.configuration_files if '/login/' in f ]
@@ -200,6 +226,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
             with open(fname) as f:
                 for line in f:
                     if line.startswith(('login_facade_json_port', 'login_facade_web_port')):
+                        print " - login server is going to be removed, as well as certain port configurations. Everything you have in login will be now part of core."
                         return False
         return True
 
@@ -375,3 +402,186 @@ class RemoveOldWebAndLoginPorts(Upgrader):
 
         print "Old login and web ports migration completed."
 
+
+class RemoveXmlsAndAddYaml(Upgrader):
+    def __init__(self, directory, configuration_files):
+        self.directory = directory
+        self.configuration_files = configuration_files
+        self.yml_file = os.path.join(self.directory, 'configuration.yml')
+
+    @classmethod
+    def get_priority(self):
+        """ After login has been removed """
+        return 3
+
+    def check_updated(self):
+        """ True => it's upgraded. False => needs to be upgraded """
+        if os.path.exists(self.yml_file):
+            print " - The existing infrastructure of configuration.xml and directories is going to be simplified into a single configuration.yml file."
+            return False # TODO True
+        return False
+
+    def _update_with_config(self, config, base_dir, node):
+        files = []
+        for config_node in node.getElementsByTagName('configuration'):
+            file_name = config_node.getAttribute('file')
+            full_path = os.path.join(base_dir, file_name)
+            files.append(full_path)
+
+        if len(files) == 1:
+            fglobals = {}
+            flocals = {}
+            replace = False
+            try:
+                execfile(files[0], fglobals, flocals)
+            except:
+                pass
+            else:
+                if len(flocals) <= 3:
+                    replace = True
+                    for value in flocals.values():
+                        if not isinstance(value, int) and not isinstance(value, float) and not isinstance(value, basestring):
+                            replace = False
+                        elif isinstance(value, basestring) and len(value) > 80:
+                            replace = False
+                    for name in flocals:
+                        if 'password' in name or 'passwd' in name or 'secret' in name:
+                            replace = False
+
+            if replace:
+                if flocals:
+                    config['config'] = flocals
+            else:
+                config['config_file'] = files[0]
+        elif len(files) > 1:
+            config['config_files'] = files
+
+    def upgrade(self):
+        global_config = {
+            # if single file:
+            #   'config_file' : 'filename.py',
+            # if multiple:
+            #   'config_files' : [ ... ],
+            # 'hosts' : {
+            #    'main' : {
+            #        # If present
+            #        'host' : '127.0.0.1',
+            #        'runner' : 'launch_plunder.py'
+            #        'config_file/files' : ...
+            #        'processes' : { 
+            #            'process1' : {
+            #                 # 'config_file/files': ...
+            #                 'components' : { # list or dictionary
+            #                     # 'config_file/files': ...
+            #                     'laboratory' : {
+            #                         'type' : 'laboratory'
+            #                         'impl' : '...',
+            #                         # config_file/files,
+            #                         'protocols': {
+            #                              # 'bind' : ''
+            #                              'port' : 12345,
+            #                              'xmlrpc' : {
+            #                                  'path' : '/RPC2'
+            #                              }
+            #                         }
+            #                     }
+            #                 }
+            #            }
+            #        }
+            #    }
+            # }
+        }
+        
+        protocol_regex = re.compile("(.*):([0-9]*)(.*)@.*")
+
+        global_config_xml = os.path.join(self.directory, 'configuration.xml')
+        global_config_xml_node = minidom.parse(global_config_xml)
+        self._update_with_config(global_config, '.', global_config_xml_node)
+
+        for machine in global_config_xml_node.getElementsByTagName('machine'):
+            host_name = machine.firstChild.nodeValue
+            host_config = global_config.setdefault('hosts', {})[host_name] = {}
+
+            machine_config_xml = os.path.join(self.directory, host_name, 'configuration.xml')
+            machine_config_xml_node = minidom.parse(machine_config_xml)
+            self._update_with_config(host_config, host_name, machine_config_xml_node)
+
+            for instance in machine_config_xml_node.getElementsByTagName('instance'):
+                process_name = instance.firstChild.nodeValue 
+                process_config = host_config.setdefault('processes', {})[process_name] = {}
+
+                instance_config_xml = os.path.join(self.directory, host_name, process_name, 'configuration.xml')
+                instance_config_xml_node = minidom.parse(instance_config_xml)
+                self._update_with_config(process_config, os.path.join(host_name, process_name), instance_config_xml_node)
+                
+                for server in instance_config_xml_node.getElementsByTagName('server'):
+
+                    component_name = server.firstChild.nodeValue
+                    component_config = process_config.setdefault('components', {})[component_name] = {}
+
+                    server_config_xml = os.path.join(self.directory, host_name, process_name, component_name, 'configuration.xml')
+                    server_config_xml_node = minidom.parse(server_config_xml)
+                    self._update_with_config(component_config, os.path.join(host_name, process_name, component_name), server_config_xml_node)
+                    
+                    method_name = server_config_xml_node.getElementsByTagName('methods')[0].firstChild.nodeValue
+                    server_types = {
+                        'weblab.methods::UserProcessing' : 'core',
+                        'weblab.methods::Laboratory' : 'laboratory',
+                        'weblab.methods::Experiment' : 'experiment'
+                    }
+                    server_type = server_types[method_name]
+                    component_config['type'] = server_type
+                    if server_type not in ('laboratory', 'core'):
+                        implementation = server_config_xml_node.getElementsByTagName('implementation')[0].firstChild.nodeValue
+                        component_config['class'] = implementation
+                    
+                    # Core does not have any method. Any protocol (e.g., SOAP, XML-RPC or so) assigned to it is an error
+                    if server_type != 'core':
+                        for protocol_node in server_config_xml_node.getElementsByTagName('protocol'):
+                            protocol_name = protocol_node.getAttribute('name')
+                            if protocol_name == 'Direct':
+                                continue # Implicitly, every server supports direct
+
+                            coordinations = []
+                            hosts = set()
+                            ports = set()
+                            paths = set()
+                            for coordination_node in protocol_node.getElementsByTagName('coordination'):
+                                address = coordination_node.getElementsByTagName('parameter')[0].getAttribute('value')
+                                host_ip, port, path = protocol_regex.match(address).groups()
+                                hosts.add(host_ip)
+                                ports.add(port)
+                                paths.add(path)
+                                coordinations.append({ 'host' : host_ip, 'port' : port, 'path' : path })
+                            
+                            if coordinations:
+                                # If it was established by somebody else, put it
+                                current_host_ip = host_config.get('host')
+                                if current_host_ip:
+                                    hosts.add(current_host_ip)
+                                
+                                hosts = list(hosts)
+                                non_localhost = [ h for h in hosts if h not in ('localhost', '127.0.0.1')]
+                                if non_localhost:
+                                    host_config['host'] = non_localhost[0]
+                                else:
+                                    host_config['host'] = hosts[0]
+
+                                component_config.setdefault('protocols', {})['port'] = int(list(ports)[0])
+
+                                protocol_name = 'http' if protocol_name == 'SOAP' else 'xmlrpc'
+                                component_config['protocols'][protocol_name] = {}
+                                paths = [ path for path in paths if path ]
+                                if paths:
+                                    component_config['protocols'][protocol_name]['path'] = paths[0]
+                    
+        import pprint
+        pprint.pprint(global_config)
+
+        print 
+        print "-" * 80
+        print
+
+        import yaml
+        global_config = eval(repr(global_config).replace("u'", "'").replace('u"','"'))
+        print yaml.dump(global_config, width = 5, default_flow_style=False)
