@@ -313,7 +313,29 @@ class RemoveOldWebAndLoginPorts(Upgrader):
             print " - Upgrading %s" % os.path.abspath(core_replacement)
             # Steps 4.1 & 4.2: Copy configuration to core/server_config.py & clean
             lines = []
-            TO_REMOVE = ('login_facade_server_route', 'login_facade_json_port', 'login_web_facade_port', 'core_web_facade_port', 'admin_facade_json_port')
+            TO_REMOVE = (
+                        'login_facade_server_route', 
+                        'login_facade_json_port', 
+                        'login_web_facade_port', 
+
+                        'core_web_facade_port', 
+                        'admin_facade_json_port', 
+                        'login_facade_json_bind', 
+                        
+                        'login_facade_xmlrpc_bind',
+                        'login_facade_soap_bind', 
+                        'login_facade_soap_port', 
+                        'login_facade_soap_service_name', 
+
+                        'core_facade_soap_bind',
+                        'core_facade_soap_port',
+                        'core_facade_soap_service_name',
+
+                        'core_facade_xmlrpc_bind', 
+                        'core_facade_xmlrpc_port',
+
+                        'core_facade_json_bind'
+                )
 
             for line in open(core_replacement):
                 variable_name = line.split(' ')[0].split('=')[0]
