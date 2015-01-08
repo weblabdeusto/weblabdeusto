@@ -863,10 +863,10 @@ class ExperimentCreationForm(Form):
 
     # Client parameters
     experiment_info_description = TextField("experiment.info.description", description = "Experiment description")
-    experiment_html = TextField("html", description = "HTML to be displayed under the experiment")
-    experiment_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
+    html = TextField("html", description = "HTML to be displayed under the experiment")
+    experiment_info_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
     experiment_picture = TextField("experiment.picture", description = "Address to a logo of the laboratory")
-    experiment_show_reserve_button = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
 
 ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
 
@@ -884,8 +884,6 @@ def get_js_client_parameters():
         clients[client] = new_parameters
                 
     return json.dumps(clients, indent = 4)
-
-SimpleClientParam = collections.namedtuple('SimpleClientParam', ['name', 'type', 'value'])
 
 class ExperimentPanel(AdministratorModelView):
 
@@ -911,7 +909,7 @@ class ExperimentPanel(AdministratorModelView):
 
     def _create_form(self, obj):
         form = ExperimentCreationForm(formdata = request.form, obj = obj)
-        form.category.choices = [ (cat.id, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
+        form.category.choices = [ (cat.name, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
         form.client.choices = [ (c, c) for c in CLIENTS ]
         return form
 
@@ -956,7 +954,12 @@ class ExperimentPanel(AdministratorModelView):
         all_parameters = static_parameters + dynamic_parameters
 
         # Check that you don't put a string on an integer or so
+        # And that there must be a name
         for parameter in all_parameters:
+            if not parameter['name']:
+                parameter['error'] = "Emptry property name"
+                errors = True
+
             if parameter['value']:
                 try:
                     if parameter['type'] == 'integer':
@@ -987,6 +990,41 @@ class ExperimentPanel(AdministratorModelView):
 
         if request.method == 'POST':
             static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
+            if form.validate_on_submit() and not errors:
+                db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
+                if db_cat is None:
+                    form.category.errors = ["Category doesn't exist"]
+                else:
+                    existing_exp = self.session.query(model.DbExperiment).filter_by(name = form.name.data, category = db_cat).first()
+                    if existing_exp:
+                        form.name.errors = ['Name already taken']
+                    else:
+                        # Everything correct
+                        db_exp = model.DbExperiment(name = form.name.data, category = db_cat,start_date = form.start_date.data, end_date = form.end_date.data, client = form.client.data)
+                        self.session.add(db_exp)
+
+                        for client_param in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                            field = getattr(form, client_param.replace('.', '_'))
+                            if field.data or field.data == False:
+                                # There is no integer
+                                dtype = 'bool' if isinstance(field.data, bool) else 'string'
+                                db_param = model.DbExperimentClientParameter(db_exp, 
+                                        parameter_name = client_param, parameter_type = dtype, value = unicode(field.data))
+                                self.session.add(db_param)
+
+                        for p in (static_parameters + dynamic_parameters):
+                            db_param = model.DbExperimentClientParameter(db_exp, 
+                                    parameter_name = p['name'], parameter_type = p['type'], value = unicode(p['value']))
+                            self.session.add(db_param)
+                        
+                        try:
+                            self.session.commit()
+                        except:
+                            self.session.rollback()
+                            traceback.print_exc()
+                            flash("Error commiting data", "error")
+                        else:
+                            return redirect(url_for('.index_view'))
         else:
             now = datetime.datetime.now()
             default_start_date = now
@@ -998,59 +1036,98 @@ class ExperimentPanel(AdministratorModelView):
             dynamic_parameters = []
 
         return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
-                                static_parameters = static_parameters, dynamic_parameters = dynamic_parameters)
+                                static_parameters = json.dumps(static_parameters, indent = 4), 
+                                dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
     @expose('/edit/', methods = ['GET', 'POST'])
     def edit_view(self):
         exp_id = request.args.get('id', -1)
-        experiment = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
-        if not experiment:
+        db_exp = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
+        if not db_exp:
             return "Experiment not found"
 
-        form = self._create_form(obj = experiment)
+        form = self._create_form(obj = db_exp)
 
         dynamic_parameters = []
         static_parameters = []
 
         if request.method == 'GET':
-            existing_client_parameters = self._get_parameters(experiment.client)
+            existing_client_parameters = self._get_parameters(db_exp.client)
 
-            client_parameters = [ SimpleClientParam(name = p.parameter_name, type = p.parameter_type, value = p.value) 
-                                    for p in experiment.client_parameters ]
-
-            # TODO
-            # If editing and not finished, change client_parameters and use
-            # those new parameters. Also add errors!
-
-            for parameter in client_parameters:
+            for parameter in db_exp.client_parameters:
                 param_obj = {
-                    'name'  : parameter.name,
-                    'type'  : parameter.type,
+                    'name'  : parameter.parameter_name,
+                    'type'  : parameter.parameter_type,
                     'value' : parameter.value,
                     'error' : None
                 }
-                if parameter.type == 'bool':
+                if parameter.parameter_type == 'bool':
                     param_obj['value'] = parameter.value.lower() in ('true', 'on')
 
-                if parameter.name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
-                    if parameter.name == 'experiment.info.description':
-                        form.experiment_info_description.data = parameter.value
-                    elif parameter.name == 'html':
-                        form.experiment_html.data = parameter.value
-                    elif parameter.name == 'experiment.info.link':
-                        form.experiment_link.data = parameter.value
-                    elif parameter.name == 'experiment.reserve.button.shown':
-                        form.experiment_show_reserve_button.data = parameter.value
-                    elif parameter.name == 'experiment.picture':
-                        form.experiment_picture.data = parameter.value
-                    else:
-                        print >> sys.stderr, "Error: parameter in ALREADY_PROVIDED_CLIENT_PARAMETERS but not in the parameter management"
-                elif parameter.name in existing_client_parameters:
+                if parameter.parameter_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                    field = getattr(form, parameter.parameter_name.replace('.','_'))
+                    field.data = parameter.value
+                elif parameter.parameter_name in existing_client_parameters:
                     static_parameters.append(param_obj)
                 else:
                     dynamic_parameters.append(param_obj)
         else:
             static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
+            if form.validate_on_submit() and not errors:
+                db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
+                if db_cat:
+                    db_exp.category = db_cat
+                    db_exp.name = form.name.data
+                    db_exp.start_date = form.start_date.data
+                    db_exp.end_date = form.end_date.data
+                    db_exp.client = form.client.data
+
+                    already_provided_parameters = []
+                    for param_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                        field = getattr(form, param_name.replace('.', '_'))
+                        if field.data or field.data == False:
+                            dtype = 'bool' if type(field.data) == 'bool' else 'string'
+                            already_provided_parameters.append({ 'name' : param_name, 'type' : dtype, 'value' : field.data })
+
+                    all_parameters = already_provided_parameters + static_parameters + dynamic_parameters
+                    all_parameters_by_name = {}
+                    for param in all_parameters[::-1]:
+                        all_parameters_by_name[param['name']] = param
+
+                    existing_parameters = db_exp.client_parameters
+                    existing_parameters_by_name = {}
+                    for param in existing_parameters:
+                        existing_parameters_by_name[param.parameter_name] = param
+
+                    # First remove parameters not existing anymore
+                    for existing_param in existing_parameters_by_name:
+                        if existing_param not in all_parameters_by_name:
+                            self.session.delete(existing_parameters_by_name[existing_param])
+                    
+                    # Then update existing parameters and add new parameters
+                    for param_name, param in all_parameters_by_name.iteritems():
+                        # If already exists, update it
+                        if param_name in existing_parameters_by_name:
+                            db_param = existing_parameters_by_name[param_name]
+                            db_param.parameter_type = param['type']
+                            db_param.value = unicode(param['value'])
+                            self.session.add(db_param)
+                        else: # If it doesn't exist, add it
+                            db_param = model.DbExperimentClientParameter(db_exp, 
+                                        parameter_name = param_name, parameter_type = param['type'], value = unicode(param['value']))
+                            self.session.add(db_param)
+                    
+                    self.session.add(db_exp)
+                    try:
+                        self.session.commit()
+                    except:
+                        self.session.rollback()
+                        traceback.print_exc()
+                        flash("Error commiting changes. Contact admin.", "error")
+                    else:
+                        flash("Changes saved")
+                else:
+                    flash("Category not found", "error")
         
         return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
                 static_parameters = json.dumps(static_parameters, indent = 4), 
