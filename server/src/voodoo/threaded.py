@@ -22,8 +22,7 @@ import voodoo.counter as counter
 
 class _ThreadedFunc(threading.Thread):
     def __init__(self, func, otherself, args, kargs, resource_manager, logging):
-        super(_ThreadedFunc,self).__init__()
-        self.setName(counter.next_name("_ThreadedFunc_for_" + func.__name__))
+        super(_ThreadedFunc,self).__init__(name = counter.next_name("_ThreadedFunc_for_" + func.__name__))
         self._self             = otherself
         self._args             = args
         self._kargs            = kargs

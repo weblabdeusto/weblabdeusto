@@ -36,13 +36,7 @@ class TestArchimedes(unittest.TestCase):
         self.lab_session_id = SessionId('my-session-id')
 
     def tearDown(self):
-        # Clean-up threads if they weren't cleaned by the experiment itself.
-        if self.experiment is not None:
-            if self.experiment._workpool is not None:
-                self.experiment._workpool.terminate()
-
-    def test_nothing(self):
-        pass
+        self.experiment.do_dispose()
 
     def test_start(self):
         start = self.experiment.do_start_experiment("{}", "{}")

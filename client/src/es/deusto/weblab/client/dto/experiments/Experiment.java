@@ -15,7 +15,6 @@ package es.deusto.weblab.client.dto.experiments;
 
 import java.util.Date;
 
-
 public class Experiment{
 
 	private int id;
@@ -23,6 +22,7 @@ public class Experiment{
 	private Category category;
 	private Date startDate;
 	private Date endDate;
+	private ExperimentClient client;
 	
 	public Experiment(){}
 	
@@ -74,6 +74,14 @@ public class Experiment{
 	
 	public String getUniqueName() {
 		return this.name + "@" + this.category.getCategory();
+	}
+	
+	public ExperimentClient getClient() {
+		return this.client;
+	}
+	
+	public void setClient(ExperimentClient client) {
+		this.client = client;
 	}
 	
 	@Override

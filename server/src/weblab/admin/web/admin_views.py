@@ -1,23 +1,37 @@
 import os
 import re
+import sys
 import sha
 import time
+import json
 import random
+import urlparse
 import datetime
 import traceback
 import threading
+import collections
 
+from weblab.util import data_filename
+
+try:
+    CLIENTS = json.load(open(data_filename(os.path.join('weblab', 'clients.json'))))
+except:
+    print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
+    raise
+
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
-from wtforms.validators import Email, Regexp
+from wtforms.fields.html5 import URLField, DateField
+from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.orm import joinedload
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-from flask.ext.wtf import Form, TextField, TextAreaField, Required, URL, PasswordField, NumberRange, SelectField, ValidationError
+from flask.ext.wtf import Form
 
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
@@ -36,11 +50,11 @@ try:
 except ImportError:
     LdapGatewayClass = None
 
+from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
-
-    return admin_app.AdministrationApplication.INSTANCE
+    return admin_app.GLOBAL_APP_INSTANCE
 
 
 class AdministratorView(BaseView):
@@ -52,7 +66,6 @@ class AdministratorView(BaseView):
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
         return super(AdministratorView, self)._handle_view(name, **kwargs)
-
 
 class MyProfileView(AdministratorView):
     @expose()
@@ -157,10 +170,10 @@ def _password2sha(password):
 class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
     column_searchable_list = ('full_name', 'login')
-    column_filters = ( 'full_name', 'login', 'role', 'email'
+    column_filters = ( 'full_name', 'login', 'role', 'email', 
                      ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
 
-    form_excluded_columns = 'avatar',
+    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
 
     column_descriptions = dict(login='Username (all letters, dots and numbers)',
@@ -436,7 +449,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -464,7 +479,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -487,7 +504,9 @@ class UsersAddingView(AdministratorView):
                 try:
                     self.session.commit()
                 except:
+                    traceback.print_exc()
                     flash("Errors occurred while adding users")
+                    self.session.rollback()
                 else:
                     return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
@@ -498,6 +517,7 @@ class UsersAddingView(AdministratorView):
 class GroupsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'parent', 'users', 'permissions')
+    form_columns = ('name', 'parent', 'users')
 
     column_filters = ( ('name',)
                        + generate_filter_any(model.DbUser.login.property.columns[0], 'User login', model.DbGroup.users)
@@ -819,6 +839,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'experiments')
     column_filters = ( 'name', )
+    form_excluded_columns = ('experiments',)
 
     column_formatters = dict(
         experiments=lambda v, co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
@@ -833,12 +854,44 @@ class ExperimentCategoryPanel(AdministratorModelView):
 
         ExperimentCategoryPanel.INSTANCE = self
 
+class ExperimentCreationForm(Form):
+    category = Select2Field(u"Category", validators = [ Required() ])
+    name = TextField("Name", description = "Name for this experiment", validators = [Required()])
+    client = Select2Field(u"Client", description = "Client to be used", default = 'blank', validators = [ Required() ])
+    start_date = DateField("Start date", description = "When the laboratory is going to start being used")
+    end_date = DateField("End date", description = "When the laboratory is not going to be used anymore")
+
+    # Client parameters
+    experiment_info_description = TextField("experiment.info.description", description = "Experiment description")
+    html = TextField("html", description = "HTML to be displayed under the experiment")
+    experiment_info_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
+    experiment_picture = TextField("experiment.picture", description = "Address to a logo of the laboratory")
+    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+
+ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
+
+def get_js_client_parameters():
+    clients = {}
+    for client, value in CLIENTS.iteritems():
+        new_parameters = []
+        for parameter, parameter_value in value['parameters'].iteritems():
+            if parameter not in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                new_parameters.append({
+                    'name' : parameter,
+                    'type' : parameter_value['type'],
+                    'description' : parameter_value['description'],
+                })
+        clients[client] = new_parameters
+                
+    return json.dumps(clients, indent = 4)
 
 class ExperimentPanel(AdministratorModelView):
-    column_searchable_list = ('name',)
-    column_list = ('category', 'name', 'start_date', 'end_date', 'uses')
 
+    column_searchable_list = ('name',)
+    column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
+    form_excluded_columns = 'user_uses',
     column_filters = ('name', 'category')
+    form_overrides = dict( client = Select2Field )
 
     column_formatters = dict(
         category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
@@ -854,6 +907,655 @@ class ExperimentPanel(AdministratorModelView):
         self.category_filter_number = get_filter_number(self, u'Category.name')
         ExperimentPanel.INSTANCE = self
 
+    def _create_form(self, obj):
+        form = ExperimentCreationForm(formdata = request.form, obj = obj)
+        form.category.choices = [ (cat.name, cat.name) for cat in self.session.query(model.DbExperimentCategory).order_by(desc('id')).all() ]
+        form.client.choices = [ (c, c) for c in CLIENTS ]
+        return form
+
+    def _get_parameters(self, client_name):
+        return CLIENTS.get(client_name, {}).get('parameters', [])
+
+    def _extract_form_parameters(self):
+        static_parameters = []
+        dynamic_parameters = []
+
+        client = request.form.get('client')
+        existing_client_parameters = self._get_parameters(client)
+
+        errors = False
+
+        for key in sorted(request.form.keys()):
+            if key.startswith('parameters_'):
+                value = request.form.get(u'value_' + key, 'false')
+                name = request.form[u'name_' + key]
+                ptype = existing_client_parameters[name]['type']
+                if ptype == 'bool':
+                    value = value.lower() in ('on', 'true')
+                static_parameters.append({
+                    'name'  : name,
+                    'type'  : ptype,
+                    'value' : value,
+                    'error' : None
+                })
+            elif key.startswith('dynamic_'):
+                value = request.form.get(u'value_' + key, 'false')
+                name = request.form[u'name_' + key]
+                ptype = request.form[u'type_' + key]
+                if ptype == 'bool':
+                    value = value.lower() in ('on', 'true')
+                dynamic_parameters.append({
+                    'name'  : name,
+                    'type'  : ptype,
+                    'value' : value,
+                    'error' : None
+                })
+
+        all_parameters = static_parameters + dynamic_parameters
+
+        # Check that you don't put a string on an integer or so
+        # And that there must be a name
+        for parameter in all_parameters:
+            if not parameter['name']:
+                parameter['error'] = "Emptry property name"
+                errors = True
+
+            if parameter['value']:
+                try:
+                    if parameter['type'] == 'integer':
+                        int(parameter['value'])
+                    elif parameter['type'] == 'floating':
+                        float(parameter['value'])
+                except ValueError:
+                    parameter['error'] = "Invalid %s" % parameter['type']
+                    errors = True
+        
+        # Check that you don't use an existing name
+        for pos, parameter in enumerate(all_parameters):
+            if parameter['name'] in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                parameter['error'] = "Repeated name!"
+                errors = True
+
+            for parameter2 in all_parameters[pos + 1:]:
+                if parameter['name'] == parameter2['name']:
+                    parameter['error'] = "Repeated name!"
+                    parameter2['error'] = "Repeated name!"
+                    errors = True
+
+        return static_parameters, dynamic_parameters, errors
+
+    @expose('/new/', methods = ['GET', 'POST'] )
+    def create_view(self, *args, **kwargs):
+        form = self._create_form(obj = None)
+
+        if request.method == 'POST':
+            static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
+            if form.validate_on_submit() and not errors:
+                db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
+                if db_cat is None:
+                    form.category.errors = ["Category doesn't exist"]
+                else:
+                    existing_exp = self.session.query(model.DbExperiment).filter_by(name = form.name.data, category = db_cat).first()
+                    if existing_exp:
+                        form.name.errors = ['Name already taken']
+                    else:
+                        # Everything correct
+                        db_exp = model.DbExperiment(name = form.name.data, category = db_cat,start_date = form.start_date.data, end_date = form.end_date.data, client = form.client.data)
+                        self.session.add(db_exp)
+
+                        for client_param in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                            field = getattr(form, client_param.replace('.', '_'))
+                            if field.data or field.data == False:
+                                # There is no integer
+                                dtype = 'bool' if isinstance(field.data, bool) else 'string'
+                                db_param = model.DbExperimentClientParameter(db_exp, 
+                                        parameter_name = client_param, parameter_type = dtype, value = unicode(field.data))
+                                self.session.add(db_param)
+
+                        for p in (static_parameters + dynamic_parameters):
+                            db_param = model.DbExperimentClientParameter(db_exp, 
+                                    parameter_name = p['name'], parameter_type = p['type'], value = unicode(p['value']))
+                            self.session.add(db_param)
+                        
+                        try:
+                            self.session.commit()
+                        except:
+                            self.session.rollback()
+                            traceback.print_exc()
+                            flash("Error commiting data", "error")
+                        else:
+                            return redirect(url_for('.index_view'))
+        else:
+            now = datetime.datetime.now()
+            default_start_date = now
+            default_end_date = now.replace(year = now.year + 10)
+
+            form.start_date.data = default_start_date
+            form.end_date.data = default_end_date
+            static_parameters = []
+            dynamic_parameters = []
+
+        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
+                                static_parameters = json.dumps(static_parameters, indent = 4), 
+                                dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
+
+    @expose('/edit/', methods = ['GET', 'POST'])
+    def edit_view(self):
+        exp_id = request.args.get('id', -1)
+        db_exp = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
+        if not db_exp:
+            return "Experiment not found"
+
+        form = self._create_form(obj = db_exp)
+
+        dynamic_parameters = []
+        static_parameters = []
+
+        if request.method == 'GET':
+            existing_client_parameters = self._get_parameters(db_exp.client)
+
+            for parameter in db_exp.client_parameters:
+                param_obj = {
+                    'name'  : parameter.parameter_name,
+                    'type'  : parameter.parameter_type,
+                    'value' : parameter.value,
+                    'error' : None
+                }
+                if parameter.parameter_type == 'bool':
+                    param_obj['value'] = parameter.value.lower() in ('true', 'on')
+
+                if parameter.parameter_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                    field = getattr(form, parameter.parameter_name.replace('.','_'))
+                    field.data = parameter.value
+                elif parameter.parameter_name in existing_client_parameters:
+                    static_parameters.append(param_obj)
+                else:
+                    dynamic_parameters.append(param_obj)
+        else:
+            static_parameters, dynamic_parameters, errors = self._extract_form_parameters()
+            if form.validate_on_submit() and not errors:
+                db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
+                if db_cat:
+                    db_exp.category = db_cat
+                    db_exp.name = form.name.data
+                    db_exp.start_date = form.start_date.data
+                    db_exp.end_date = form.end_date.data
+                    db_exp.client = form.client.data
+
+                    already_provided_parameters = []
+                    for param_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
+                        field = getattr(form, param_name.replace('.', '_'))
+                        if field.data or field.data == False:
+                            dtype = 'bool' if type(field.data) == 'bool' else 'string'
+                            already_provided_parameters.append({ 'name' : param_name, 'type' : dtype, 'value' : field.data })
+
+                    all_parameters = already_provided_parameters + static_parameters + dynamic_parameters
+                    all_parameters_by_name = {}
+                    for param in all_parameters[::-1]:
+                        all_parameters_by_name[param['name']] = param
+
+                    existing_parameters = db_exp.client_parameters
+                    existing_parameters_by_name = {}
+                    for param in existing_parameters:
+                        existing_parameters_by_name[param.parameter_name] = param
+
+                    # First remove parameters not existing anymore
+                    for existing_param in existing_parameters_by_name:
+                        if existing_param not in all_parameters_by_name:
+                            self.session.delete(existing_parameters_by_name[existing_param])
+                    
+                    # Then update existing parameters and add new parameters
+                    for param_name, param in all_parameters_by_name.iteritems():
+                        # If already exists, update it
+                        if param_name in existing_parameters_by_name:
+                            db_param = existing_parameters_by_name[param_name]
+                            db_param.parameter_type = param['type']
+                            db_param.value = unicode(param['value'])
+                            self.session.add(db_param)
+                        else: # If it doesn't exist, add it
+                            db_param = model.DbExperimentClientParameter(db_exp, 
+                                        parameter_name = param_name, parameter_type = param['type'], value = unicode(param['value']))
+                            self.session.add(db_param)
+                    
+                    self.session.add(db_exp)
+                    try:
+                        self.session.commit()
+                    except:
+                        self.session.rollback()
+                        traceback.print_exc()
+                        flash("Error commiting changes. Contact admin.", "error")
+                    else:
+                        flash("Changes saved")
+                else:
+                    flash("Category not found", "error")
+        
+        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
+                static_parameters = json.dumps(static_parameters, indent = 4), 
+                dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
+
+
+class SchedulerForm(Form):
+    name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])
+
+class PQueueForm(SchedulerForm):
+    randomize_instances = BooleanField("Randomize experiments", description = "First available slot is always the same or there is an internal random process")
+
+PQueueObject = collections.namedtuple('PQueueObject', ['name', 'randomize_instances'])
+
+class ExternalWebLabForm(SchedulerForm):
+    base_url = URLField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
+    username = TextField("Username", description = "Username of the remote system", validators = [Required()])
+    password = PasswordField("Password", description = "Password of the remote system", validators = [])
+
+class ILabBatchForm(SchedulerForm):
+    lab_server_url = URLField("Web service URL", description = "Example: http://weblab2.mit.edu/services/WebLabService.asmx", validators = [Required(), URL()])
+    identifier     = TextField("Identifier", description = "Fake Service Broker identifier", validators = [Required()])
+    passkey        = TextField("Passkey", description = "Remote Service broker passkey", validators = [Required()])
+
+class RemoveForm(Form):
+    identifier = HiddenField()
+
+class AddExperimentForm(Form):
+    experiment_identifier = Select2Field("Experiment to add")
+
+class SchedulerPanel(AdministratorModelView):
+    
+    column_list = ('name', 'summary', 'scheduler_type', 'is_external')
+
+    def __init__(self, session, **kwargs):
+        super(SchedulerPanel, self).__init__(model.DbScheduler, session, **kwargs)
+
+    @expose('/create/')
+    def create_view(self):
+        return self.render("admin-scheduler-create.html")
+
+    @expose('/create/pqueue/', ['GET', 'POST'])
+    def create_pqueue_view(self):
+        return self._edit_pqueue_view(url_for('.create_view'))
+
+    def _edit_pqueue_view(self, back, obj = None, scheduler = None):
+        form = PQueueForm(formdata = request.form, obj = obj)
+        if form.validate_on_submit():
+            if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                # Populate config
+                if scheduler is None:
+                    config = {}
+                else:
+                    config = json.loads(scheduler.config)
+                config['randomize_instances'] = form.randomize_instances.data
+                summary = "Queue for %s" % form.name.data
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'PRIORITY_QUEUE', config = json.dumps(config), is_external = False)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    traceback.print_exc()
+                    flash("Error adding resource", "error")
+                    self.session.rollback()
+                else:
+                    flash("Scheduler saved", "success")
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+
+        return self.render("admin-scheduler-create-pqueue.html", form = form, back = back)
+        
+
+    @expose('/create/weblab/', ['GET', 'POST'])
+    def create_weblab_view(self):
+        return self._edit_weblab_view(url_for('.create_view'))
+
+    def _edit_weblab_view(self, back, form_kwargs = None, scheduler = None):
+        if form_kwargs is None:
+            form_kwargs = {}
+        if self.is_action('weblab-create'):
+            form = ExternalWebLabForm(prefix='weblab_create', **form_kwargs)
+        else:
+            form = ExternalWebLabForm(formdata = None, prefix='weblab_create', **form_kwargs)
+
+        if self.is_action('weblab-create') and form.validate_on_submit():
+            if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                # Populate config
+                if scheduler is None:
+                    config = {}
+                else:
+                    config = json.loads(scheduler.config)
+                config['base_url'] = form.base_url.data
+                config['username'] = form.username.data
+                if form.password.data or 'password' not in config:
+                    config['password'] = form.password.data
+
+                parsed = urlparse.urlparse(form.base_url.data)
+                summary = "WebLab-Deusto at %s" % parsed.hostname
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    traceback.print_exc()
+                    flash("Error adding resource", "error")
+                    self.session.rollback()
+                else:
+                    flash("Scheduler saved", "success")
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+
+        if scheduler:
+            config = json.loads(scheduler.config)
+            try:
+                client = WebLabDeustoClient(config['base_url'])
+                session_id = client.login(config['username'], config['password'])
+                experiments_allowed = client.list_experiments(session_id)
+            except:
+                flash("Invalid configuration (or server down)", "error")
+                traceback.print_exc()
+                experiments_allowed = []
+            
+            # 
+            # WebLab-Deusto returns a list of available experiments.
+            # 
+            # Each experiment can be either:
+            # a) Mapped to one or multiple existing experiments (in which case, there
+            #    will be an entry where the config is the code)
+            # b) Not mapped to any one
+            # 
+            # If the experiment has the same name or not is irrelevant. This way, if
+            # the user changes the experiment in the admin in the local system, there
+            # is no issue. And in every case (even if there is an experiment), it 
+            # must be possible to add new experiments (except for if all are assigned 
+            # to the laboratory, which would be weird).
+            # 
+
+            existing_experiment_ids = set()
+            reverse_experiments_map = {
+                # config : [ scheduler_experiment_entry1, scheduler_experiment_entry2 ]
+            }
+            for entry in scheduler.external_experiments:
+                existing_experiment_ids.add(unicode(entry.experiment))
+                if entry.config in reverse_experiments_map:
+                    reverse_experiments_map[entry.config].append(entry)
+                else:
+                    reverse_experiments_map[entry.config] = [entry]
+    
+            experiments = self.session.query(model.DbExperiment).all()
+            choices = [ unicode(exp) for exp in experiments if unicode(exp) not in existing_experiment_ids]
+            if request.form:
+                experiment_to_be_added = request.form.get(u'%s-experiment_identifier' % self.get_action())
+            else:
+                experiment_to_be_added = None
+            
+            retrieved_experiment_ids = set()
+            all_experiments = []
+            for exp_allowed in experiments_allowed:
+                experiment_id = unicode(exp_allowed.experiment.get_unique_name())
+                retrieved_experiment_ids.add(experiment_id)
+
+                # Show all the already mapped experiments
+                for entry in reverse_experiments_map.get(experiment_id, []):
+                    prefix = 'remove_%s' % entry.id
+                    if self.is_action(prefix):
+                        remove_form = RemoveForm(identifier = unicode(entry.id), prefix = prefix)
+                    else:
+                        remove_form = RemoveForm(formdata = None, identifier = unicode(entry.id), prefix = prefix)
+                    
+                    if self.is_action(prefix) and remove_form.validate_on_submit():
+                        self.session.delete(entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error removing experiment", "error")
+                            self.session.rollback()
+                            break
+                        else:
+                            return redirect(request.url)
+                    else:
+                        exp_data = {
+                            'experiment' : experiment_id,
+                            'local_name' : unicode(entry.experiment),
+                            'action'     : 'remove',
+                            'form'       : remove_form,
+                            'prefix'     : prefix,
+                        }
+                        all_experiments.append(exp_data)
+
+                # Then, show experiments to be added.
+                if choices:
+                    prefix = 'add_%s' % experiment_id
+                    if self.is_action(prefix):
+                        add_form = AddExperimentForm(prefix = prefix)
+                    else:
+                        add_form = AddExperimentForm(formdata = None, prefix = prefix)
+
+                    updated_choices = choices[:]
+                    add_form.experiment_identifier.choices = zip(updated_choices, updated_choices)
+                    
+                    if self.is_action(prefix) and add_form.validate_on_submit():
+                        experiment_to_register = add_form.experiment_identifier.data
+                        for experiment in experiments:
+                            if experiment_to_register == unicode(experiment):
+                                entry = model.DbSchedulerExternalExperimentEntry(experiment = experiment, scheduler = scheduler, config = experiment_id)
+                                self.session.add(entry)
+                                try:
+                                    self.session.commit()
+                                except:
+                                    traceback.print_exc()
+                                    flash("Error registering weblab experiment", "error")
+                                    self.session.rollback()
+                                    break
+                                else:
+                                    return redirect(request.url)
+
+                    exp_data = {
+                        'experiment' : experiment_id,
+                        'action'     : 'add',
+                        'form'       : add_form,
+                        'prefix'     : prefix,
+                    }
+                    all_experiments.append(exp_data)
+            
+            # 
+            # It may happen that some experiments existed in the past in the
+            # foreign system and not anymore. Here we list them, and enable
+            # the administrator to remove them.
+            # 
+            misconfigured_experiments = self.session.query(model.DbSchedulerExternalExperimentEntry).filter(model.DbSchedulerExternalExperimentEntry.config.notin_(retrieved_experiment_ids)).all()
+
+            all_misconfigured_experiments = []
+            for entry in misconfigured_experiments:
+                prefix = 'remove_%s' % entry.id
+                if self.is_action(prefix):
+                    remove_form = RemoveForm(identifier = unicode(entry.id), prefix = prefix)
+                else:
+                    remove_form = RemoveForm(formdata = None, identifier = unicode(entry.id), prefix = prefix)
+                
+                if self.is_action(prefix) and remove_form.validate_on_submit():
+                    self.session.delete(entry)
+                    try:
+                        self.session.commit()
+                    except:
+                        traceback.print_exc()
+                        flash("Error removing experiment", "error")
+                        self.session.rollback()
+                        break
+                    else:
+                        return redirect(request.url)
+                else:
+                    exp_data = {
+                        'experiment' : unicode(entry.config),
+                        'local_name' : unicode(entry.experiment),
+                        'action'     : 'remove',
+                        'form'       : remove_form,
+                        'prefix'     : prefix,
+                    }
+                    all_misconfigured_experiments.append(exp_data)
+
+        else:
+            all_experiments = []
+            all_misconfigured_experiments = []
+        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
+
+    @expose('/create/ilab/', ['GET', 'POST'])
+    def create_ilab_view(self):    
+        return self._edit_ilab_view(url_for('.create_view'))
+
+    def is_action(self, name):
+        return request.form and request.form.get('action') == name
+
+    def get_action(self):
+        if request.form:
+            return request.form.get('action', '')
+        return ''
+
+    def _edit_ilab_view(self, back, form_kwargs = None, scheduler = None):
+        if form_kwargs is None:
+            form_kwargs = {}
+
+        experiments = self.session.query(model.DbExperiment).all()
+
+        if self.is_action('form-add'):
+            form = ILabBatchForm(prefix = "ilab_create", **form_kwargs)
+        else:
+            form = ILabBatchForm(formdata = None, prefix = "ilab_create", **form_kwargs)
+        
+        if self.is_action('form-add') and form.validate_on_submit():
+            if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
+                form.name.errors = ["Repeated name"]
+            else:
+                # Populate config
+                if scheduler is None:
+                    config = {}
+                else:
+                    config = json.loads(scheduler.config)
+                config['lab_server_url'] = form.lab_server_url.data
+                config['identifier'] = form.identifier.data
+                config['passkey'] = form.passkey.data
+
+                parsed = urlparse.urlparse(form.lab_server_url.data)
+                summary = "iLab batch at %s" % parsed.hostname
+
+                if scheduler is None:
+                    scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'ILAB_BATCH_QUEUE', config = json.dumps(config), is_external = True)
+                else:
+                    scheduler.name = form.name.data
+                    scheduler.summary = summary
+
+                self.session.add(scheduler)
+                try:
+                    self.session.commit()
+                except:
+                    traceback.print_exc()
+                    flash("Error adding resource", "error")
+                    self.session.rollback()
+                else:
+                    flash("Scheduler saved", "success")
+                    return redirect(url_for('.edit_view', id = scheduler.id))
+
+        if scheduler:
+            external_experiments = [ unicode(exp.experiment) for exp in scheduler.external_experiments ]
+            external_experiments_objects = [ exp.experiment for exp in scheduler.external_experiments ]
+            choices = [ unicode(exp) for exp in experiments if exp not in external_experiments_objects ]
+
+            if self.is_action('form-register'):
+                add_form = AddExperimentForm(prefix = 'add_ilab')
+            else:
+                add_form = AddExperimentForm(formdata = None, prefix = 'add_ilab')
+            add_form.experiment_identifier.choices = zip(choices, choices)
+            if self.is_action('form-register') and add_form.validate_on_submit():
+                experiment_to_register = add_form.experiment_identifier.data
+                for experiment in experiments:
+                    if experiment_to_register == unicode(experiment) and unicode(experiment) not in external_experiments:
+                        entry = model.DbSchedulerExternalExperimentEntry(experiment = experiment, scheduler = scheduler, config = "")
+                        self.session.add(entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error registering ilab experiment", "error")
+                            self.session.rollback()
+                            break
+                        choices.remove(unicode(experiment))
+                        add_form.experiment_identifier.choices = zip(choices, choices)
+                        break
+
+            registered_experiments = []
+            if experiments:
+
+                for registered_experiment_entry in scheduler.external_experiments[:]:
+                    prefix = 'remove_ilab_%s' % unicode(registered_experiment_entry.experiment)
+
+                    if self.is_action(prefix):
+                        remove_form = RemoveForm(identifier = unicode(registered_experiment_entry.experiment), prefix = prefix)
+                    else:
+                        remove_form = RemoveForm(formdata = None, identifier = unicode(registered_experiment_entry.experiment), prefix = prefix)
+
+                    if self.is_action(prefix) and remove_form.validate_on_submit():
+                        self.session.delete(registered_experiment_entry)
+                        try:
+                            self.session.commit()
+                        except:
+                            traceback.print_exc()
+                            flash("Error removing experiment", "error")
+                            self.session.rollback()
+                            break
+                    else:
+                        registered_experiments.append({
+                            'name'   : unicode(registered_experiment_entry.experiment),
+                            'form'   : remove_form,
+                            'prefix' : prefix
+                        })
+        else:
+            add_form = None
+            registered_experiments = []
+
+        return self.render("admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
+
+
+    @expose('/edit/', ['GET', 'POST'])
+    def edit_view(self):
+        id = request.args.get('id')
+        if id is None:
+            flash("No id provided", "error")
+            return redirect(url_for('.index_view'))
+        scheduler = self.session.query(model.DbScheduler).filter_by(id = id).first()
+        if scheduler is None:
+            flash("Id provided does not exist", "error")
+            return redirect(url_for('.index_view'))
+
+        back = url_for('.index_view')
+        config = json.loads(scheduler.config)
+        if scheduler.scheduler_type == 'EXTERNAL_WEBLAB_DEUSTO':
+            form_kwargs = dict(name = scheduler.name, base_url = config['base_url'], username = config['username'], password = config['password'])
+            return self._edit_weblab_view(back, form_kwargs, scheduler)
+        elif scheduler.scheduler_type == 'PRIORITY_QUEUE':
+            obj = PQueueObject(name = scheduler.name, randomize_instances = config['randomize_instances'])
+            return self._edit_pqueue_view(back, obj, scheduler)
+        elif scheduler.scheduler_type == 'ILAB_BATCH_QUEUE':
+            form_kwargs = dict(name = scheduler.name, lab_server_url = config['lab_server_url'], identifier = config['identifier'], passkey = config['passkey'])
+            return self._edit_ilab_view(back, form_kwargs, scheduler)
+
+        return ":-O Editing"
+
+    @expose('/resources/')
+    def resources(self):
+        return ":-)"
+
+    @expose('/experiment/resources/')
+    def experiment_resources(self):
+        return ":-)"
 
 def display_parameters(view, context, permission, p):
     parameters = u''
@@ -1022,7 +1724,7 @@ class PermissionsAddingView(AdministratorView):
             elif form.recipients.data == 'group':
                 return redirect(url_for('.groups', permission_type=form.permission_types.data))
 
-        return self.render("admin-permissions.html", form=form)
+        return self.render("admin-permissions.html", form=form, permission_types = permissions.permission_types)
 
     def _get_permission_form(self, permission_type, recipient_type, recipient_resolver, DbPermissionClass,
                              DbPermissionParameterClass):
@@ -1124,6 +1826,29 @@ class PermissionsAddingView(AdministratorView):
                     db_permission.parameters.append(db_parameter)
                     session.add(db_parameter)
 
+        elif permission_type == permissions.INSTRUCTOR_OF_GROUP:
+
+            class ParticularPermissionForm(ParentPermissionForm):
+                parameter_list = ['target_group']
+
+                target_group = Select2Field(u'Target group', description="Group to be instructed")
+
+                def __init__(self, *args, **kwargs):
+                    super(ParticularPermissionForm, self).__init__(*args, **kwargs)
+                    self.target_group.choices = [
+                                (unicode(group.id), group.name)
+                                for group in session.query(model.DbGroup).all() ]
+
+                def get_permanent_id(self):
+                    recipient = recipient_resolver(self.recipients.data)
+                    name = self.target_group.data
+                    return u'%s::group-%s::%s' % (permission_type, name, recipient)
+
+                def add_parameters(self, db_permission):
+                    db_parameter = DbPermissionParameterClass(db_permission, permissions.TARGET_GROUP,
+                                                              self.target_group.data)
+                    db_permission.parameters.append(db_parameter)
+                    session.add(db_parameter)
 
         ###################################################################################
         # 
@@ -1224,7 +1949,7 @@ class HomeView(AdminIndexView):
         return self.render("admin-index.html")
 
     def is_accessible(self):
-        return get_app_instance().INSTANCE.is_admin()
+        return get_app_instance().is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():

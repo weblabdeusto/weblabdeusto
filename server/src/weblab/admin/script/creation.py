@@ -39,7 +39,7 @@ import sqlalchemy
 from weblab.util import data_filename
 
 import weblab.db.model as Model
-from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
+from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
 
@@ -876,7 +876,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, DbRegularUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", Model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
 
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)
@@ -890,29 +890,29 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     group_name = 'Administrators'
     deploy.add_group(Session, group_name)
     deploy.grant_admin_panel_on_group(Session, group_name)
-    deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL])
+    deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL], role = 'administrator')
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
     # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'dummy', group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
-    deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', group_name, 200)
+    deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', 'blank', group_name, 200)
 
     if options[Creation.ADD_FEDERATED_SUBMARINE]:
-        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', 'blank', group_name, 200)
 
     # visir@Visir experiments (optional)
     if options[Creation.VISIR_SERVER] or options[Creation.ADD_FEDERATED_VISIR]:
-        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], group_name, 1800)
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], 'visir', group_name, 1800)
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], 'vm', group_name, 200)
 
     # logic@PIC experiments (optional)
     if options[Creation.LOGIC_SERVER] or options[Creation.ADD_FEDERATED_LOGIC]:
-        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', group_name, 1800)
+        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'logic', group_name, 1800)
 
     ###########################################
     #
@@ -1156,7 +1156,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
                         "                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
-                        "                                    'login_baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
                         "                                    'username' : 'weblabfed',\n"
                         "                                    'password' : 'password',\n"
                         "                                    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}\n"
@@ -1223,7 +1222,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     ports = {
         'core'  : [],
-        'login' : [],
     }
 
     current_port = options[Creation.START_PORTS]
@@ -1245,7 +1243,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """>\n"""
         """    <user>weblab</user>\n"""
         """\n"""
-        """    <server>login</server>\n"""
         """    <server>core</server>\n""")
 
         if options[Creation.INLINE_LAB_SERV]:
@@ -1272,60 +1269,16 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if not os.path.exists(core_dir):
             os.mkdir(core_dir)
 
-        login_dir = os.path.join(core_instance_dir, 'login')
-        if not os.path.exists(login_dir):
-            os.mkdir(login_dir)
-
-
-        open(os.path.join(login_dir, 'configuration.xml'), 'w').write(
-        """<?xml version="1.0" encoding="UTF-8"?>"""
-        """<server\n"""
-        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-        """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-        """>\n"""
-        """\n"""
-        """    <configuration file="server_config.py" />\n"""
-        """\n"""
-        """    <type>weblab.data.server_type::Login</type>\n"""
-        """    <methods>weblab.methods::Login</methods>\n"""
-        """\n"""
-        """    <implementation>weblab.login.server.LoginServer</implementation>\n"""
-        """\n"""
-        """    <protocols>\n"""
-        """        <protocol name="Direct">\n"""
-        """            <coordinations>\n"""
-        """                <coordination></coordination>\n"""
-        """            </coordinations>\n"""
-        """            <creation></creation>\n"""
-        """        </protocol>\n"""
-        """    </protocols>\n"""
-        """</server>\n""")
-
-        login_config = {
-            'json'   : current_port + 0,
-            'web'    : current_port + 1,
-            'route'  : 'route%s' % core_number,
-        }
-        ports['login'].append(login_config)
-
         core_config = {
-            'json'   : current_port + 2,
-            'web'    : current_port + 3,
-            'admin'  : current_port + 4,
+            'json'   : current_port,
             'route'  : 'route%s' % core_number,
             'clean'  : core_number == 1
         }
         ports['core'].append(core_config)
 
-        core_port = current_port + 5
+        core_port = current_port + 1
 
-        current_port += 6
-
-        open(os.path.join(login_dir, 'server_config.py'), 'w').write((
-        "login_facade_server_route = %(route)r\n"
-        "login_facade_json_port    = %(json)r\n"
-        "login_web_facade_port     = %(web)r\n") % login_config)
+        current_port += 2
 
         open(os.path.join(core_dir, 'configuration.xml'), 'w').write(
         """<?xml version="1.0" encoding="UTF-8"?>"""
@@ -1369,9 +1322,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(core_dir, 'server_config.py'), 'w').write((
         "core_coordinator_clean   = %(clean)r\n"
         "core_facade_server_route = %(route)r\n"
-        "core_facade_json_port    = %(json)r\n"
-        "core_web_facade_port     = %(web)r\n"
-        "admin_facade_json_port   = %(admin)r\n") % core_config)
+        "core_facade_port    = %(json)r\n") % core_config)
 
     for n in range(1, options[Creation.LAB_COPIES] + 1):
         laboratory_instance_name = 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
@@ -2072,13 +2023,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             if core_protocol_configuration:
                 protocol_configuration.append(core_protocol_configuration)
         debugging_config += """    %r : %r, \n""" % (protocol, protocol_configuration)
-
-        protocol_configuration = []
-        for login_configuration in ports['login']:
-            login_protocol_configuration = login_configuration.get(protocol, None)
-            if login_protocol_configuration:
-                protocol_configuration.append(login_protocol_configuration)
-        debugging_config += """    %r : %r, \n""" % (protocol + '_login', protocol_configuration)
     debugging_config += "}\n"
 
 
@@ -2274,7 +2218,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     for core_configuration in ports['core']:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json,' % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json/,' % d
     proxy_paths.append(('%(root)s/weblab/json/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
@@ -2283,7 +2227,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        d = { 'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/web/,' % d
     proxy_paths.append(('%(root)s/weblab/web/', proxy_path))
@@ -2294,7 +2238,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     proxy_path = "proxy-sessions:weblabsessionid:"
     for core_configuration in ports['core']:
-        d = { 'port' : core_configuration['admin'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
     proxy_paths.append(('%(root)s/weblab/administration', proxy_path))
@@ -2305,10 +2249,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
 
     proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['login']:
+    for core_configuration in ports['core']:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json,' % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json/,' % d
     proxy_paths.append(('%(root)s/weblab/login/json/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
@@ -2316,10 +2260,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_web>\n"""
 
     proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['login']:
-        d = { 'port' : core_configuration['web'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
+    for core_configuration in ports['core']:
+        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/web,' % d
+        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/web/,' % d
     proxy_paths.append(('%(root)s/weblab/login/web/', proxy_path))
 
     apache_conf += """</Proxy>\n"""
@@ -2406,16 +2350,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
     new_lines = uncomment_json(lines)
     configuration_js_data = json.loads(''.join(new_lines))
-    configuration_js['experiments']                    = configuration_js_data['experiments']
 
-    dummy_list = list(configuration_js['experiments']['dummy'])
-    found      = False
-    for element in dummy_list:
-        if element['experiment.name'] == options[Creation.DUMMY_NAME]:
-            found = True
-    if not found:
-        dummy_list.append({'experiment.name' : options[Creation.DUMMY_NAME], 'experiment.category' : options[Creation.DUMMY_CATEGORY_NAME] })
-    configuration_js['experiments']['dummy']           = dummy_list
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
     configuration_js['sound.enabled']                  = False

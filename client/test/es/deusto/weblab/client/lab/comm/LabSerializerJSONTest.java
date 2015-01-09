@@ -17,7 +17,11 @@ package es.deusto.weblab.client.lab.comm;
 import junit.framework.Assert;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.junit.client.GWTTestCase;
 
 import es.deusto.weblab.client.comm.exceptions.SerializationException;
@@ -648,14 +652,97 @@ public class LabSerializerJSONTest extends GWTTestCase{
 	}
 
 	public void testParseListExperimentsResponse() throws Exception{
+		/*
+		{
+		    "result": [
+		        {
+		            "experiment": {
+		                "category": {
+		                    "name": "Dummy experiments"
+		                }, 
+		                "name": "ud-dummy", 
+		                "end_date": "2008-01-01", 
+		                "start_date": "2007-01-01",
+				"client": {
+		                    "configuration": {
+		                          "myboolean.true" : true,
+		                          "myboolean.false" : false,
+		                          "myint" : 5,
+		                          "myfloat" : 10.0,
+		                          "mystring" : "hi"
+		                     }, 
+		                    "client_id": "dummy"
+		                }
+		            }, 
+		            "time_allowed": 30.0
+		        }, 
+		        {
+		            "experiment": {
+		                "category": {
+		                    "name": "FPGA experiments"
+		                }, 
+		                "name": "ud-fpga", 
+		                "end_date": "2006-01-01", 
+		                "start_date": "2005-01-01",
+				"client": {
+		                    "configuration": {
+		                        "experiment.info.description": "description", 
+		                        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga", 
+		                        "experiment.picture": "/img/experiments/xilinx.jpg"
+		                    }, 
+		                    "client_id": "xilinx"
+		                }		
+		            }, 
+		            "time_allowed": 30.0
+		        }
+		    ], 
+		    "is_exception": false
+		}
+		 */
 		final ILabSerializer weblabSerializer = new LabSerializerJSON();
 		final ExperimentAllowed [] experiments = weblabSerializer.parseListExperimentsResponse(
 			"{\"result\": [" +
-				"{\"experiment\": {\"category\": {\"name\": \"Dummy experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
-					"\"name\": \"ud-dummy\", \"end_date\": \"2008-01-01\", \"start_date\": \"2007-01-01\"}, \"time_allowed\": 30.0}, " +
-				"{\"experiment\": {\"category\": {\"name\": \"FPGA experiments\"}, \"owner\": \"porduna@tecnologico.deusto.es\", " +
-					"\"name\": \"ud-fpga\", \"end_date\": \"2006-01-01\", \"start_date\": \"2005-01-01\"}, \"time_allowed\": 30.0}" +
-			"], \"is_exception\": false}"
+			"		{" +
+			"			\"experiment\": " +
+			"			{" +
+			"				\"category\": {\"name\": \"Dummy experiments\"}, " +
+			"				\"client\": {" +
+			"					\"configuration\": {" +
+			"						\"mystring\": \"hi\", " +
+			"						\"myboolean.true\": true, " +
+			"						\"myint\": 5, " +
+			"						\"myboolean.false\": false, " +
+			"						\"myfloat\": 10.5" +
+			"					}, " +
+			"					\"client_id\": \"dummy\"" +
+			"				}, " +
+			"				\"name\": \"ud-dummy\", " +
+			"				\"end_date\": \"2008-01-01\", " +
+			"				\"start_date\": \"2007-01-01\"" +
+			"			}, " +
+			"			\"time_allowed\": 30.0" +
+			"		}, " +
+			"		{" +
+			"			\"experiment\": " +
+			"			{" +
+			"				\"category\": {\"name\": \"FPGA experiments\"}, " +
+			"				\"client\": {" +
+			"					\"configuration\": {" +
+			"						\"experiment.info.description\": \"description\", " +
+			"						\"experiment.info.link\": \"http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga\", " +
+			"						\"experiment.picture\": \"/img/experiments/xilinx.jpg\"" +
+			"					}, " +
+			"					\"client_id\": \"xilinx\"" +
+			"				}, " +
+			"				\"name\": \"ud-fpga\", " +
+			"				\"end_date\": \"2006-01-01\", " +
+			"				\"start_date\": \"2005-01-01\"" +
+			"			}, " +
+			"			\"time_allowed\": 30.0" +
+			"		}" +
+			"	], " +
+			"	\"is_exception\": false" +
+			"}"
 		);
 		
 		Assert.assertEquals(2, experiments.length);
@@ -664,6 +751,12 @@ public class LabSerializerJSONTest extends GWTTestCase{
 		Assert.assertEquals(30,                              experiments[0].getTimeAllowed());
 		Assert.assertEquals("ud-dummy",                      experiments[0].getExperiment().getName());
 		Assert.assertEquals("Dummy experiments",             experiments[0].getExperiment().getCategory().getCategory());
+		Assert.assertEquals("dummy",                         experiments[0].getExperiment().getClient().getClientId());
+		Assert.assertEquals(new JSONString("hi"),            experiments[0].getExperiment().getClient().get("mystring"));
+		Assert.assertEquals(JSONBoolean.getInstance(true),   experiments[0].getExperiment().getClient().get("myboolean.true"));
+		Assert.assertEquals(JSONBoolean.getInstance(false),  experiments[0].getExperiment().getClient().get("myboolean.false"));
+		Assert.assertEquals(new JSONNumber(5.0),             experiments[0].getExperiment().getClient().get("myint"));
+		Assert.assertEquals(new JSONNumber(10.5f),           experiments[0].getExperiment().getClient().get("myfloat"));
 		
 		final long timezoneOffset = DateTimeFormat.getFormat("yyyy-MM-dd").parse("1970-01-01").getTime();
 		

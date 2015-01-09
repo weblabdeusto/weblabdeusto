@@ -4,16 +4,14 @@ core_experiment_poll_time         = 350 # seconds
 
 # Ports
 
-core_facade_json_port   = 18345
+core_facade_port   = 18345
 
-admin_facade_json_port   = 18545
 
-core_web_facade_port   = 19745
 
 core_facade_server_route = 'consumer-route'
 
 # Will only work in JSON in this config file :-(
-core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_json_port
+core_server_url = 'http://127.0.0.1:%s/weblab/' % core_facade_port
 
 # Scheduling
 
@@ -38,7 +36,6 @@ core_coordinator_external_servers = {
 
 _provider1_scheduling_config = ("EXTERNAL_WEBLAB_DEUSTO", {
                                     'baseurl' : 'http://127.0.0.1:28345/weblab/',
-                                    'login_baseurl' : 'http://127.0.0.1:28645/weblab/',
                                     'username' : 'consumer1',
                                     'password' : 'password',
                                     'experiments_map' : {'dummy3@Dummy experiments' : 'dummy3_with_other_name@Dummy experiments'}

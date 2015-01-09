@@ -28,6 +28,12 @@ class Permission(object):
     def add_parameter(self, parameter):
         self.parameters.append(parameter)
 
+    def get_parameter_value(self, name, default_value = None):
+        for param in self.parameters:
+            if param.name == name:
+                return param.value
+        return default_value
+
     def __repr__(self):
         return "Permission(name = %r, parameters = %r)" % (
                 self.name,

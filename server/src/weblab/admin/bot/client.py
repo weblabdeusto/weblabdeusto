@@ -24,9 +24,9 @@ import cookielib
 
 import voodoo.sessions.session_id as SessionId
 import weblab.core.reservations as Reservation
+from weblab.core.new_server import simplify_response
 import weblab.data.command as Command
-import weblab.comm.server as RemoteFacadeServer
-from weblab.data.dto.experiments import Experiment, ExperimentCategory
+from weblab.data.dto.experiments import Experiment, ExperimentClient, ExperimentCategory
 from weblab.data.dto.users import User
 
 from exc import InvalidUserOrPasswordError
@@ -237,7 +237,8 @@ class AbstractBotDict(AbstractBot):
         experiments = []
         for experiment in [ holder['experiment'] for holder in experiment_list_holders]:
             category = ExperimentCategory(experiment['category']['name'])
-            exp = Experiment(experiment['name'], category, experiment['start_date'], experiment['end_date'])
+            client = ExperimentClient(experiment['client']['client_id'], experiment['client']['configuration'])
+            exp = Experiment(experiment['name'], category, experiment['start_date'], experiment['end_date'], client)
             experiments.append(exp)
         return experiments
 
@@ -268,7 +269,7 @@ class BotJSON(AbstractBotDict):
     def _call(self, method, **kwargs):
         params = {}
         for key in kwargs:
-            parsed_response = RemoteFacadeServer.simplify_response(kwargs[key])
+            parsed_response = simplify_response(kwargs[key])
             params[key] = parsed_response
         whole_request = json.dumps({
                             "method" : method,

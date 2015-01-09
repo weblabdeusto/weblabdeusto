@@ -47,7 +47,7 @@ public class WlWebcamFirefox extends WlWebcam {
 	private final HorizontalPanel choicePanel;
 	
 	public WlWebcamFirefox(){
-		this(WlWebcam.DEFAULT_REFRESH_TIME, WlWebcam.DEFAULT_IMAGE_URL);
+		this(WlWebcam.WEBCAM_REFRESH_TIME.getIntDefaultValue(), WlWebcam.DEFAULT_IMAGE_URL);
 	}
 	
 	public WlWebcamFirefox(int time){

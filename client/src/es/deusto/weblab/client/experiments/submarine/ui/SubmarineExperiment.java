@@ -76,10 +76,6 @@ public class SubmarineExperiment extends ExperimentBase {
 	private static final String DOWN_ON  = "DOWN ON";
 	private static final String DOWN_OFF = "DOWN OFF";
 
-
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -370,18 +366,10 @@ public class SubmarineExperiment extends ExperimentBase {
 		this.timer = new WlTimer(false);	
 		
 		this.webcam1 = GWT.create(WlWebcam.class);
-		this.webcam1.setTime(this.getWebcamRefreshingTime());
+		this.webcam1.setTime(this.configurationRetriever);
 		this.webcam2 = GWT.create(WlWebcam.class);
-		this.webcam2.setTime(this.getWebcamRefreshingTime());
+		this.webcam2.setTime(this.configurationRetriever);
 	}
-	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-			SubmarineExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-			SubmarineExperiment.DEFAULT_WEBCAM_REFRESH_TIME
-		);
-	}	
-	
 
 	/**
 	 * The initialize function gets called on the "reserve" stage,

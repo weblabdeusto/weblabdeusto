@@ -16,6 +16,8 @@ package es.deusto.weblab.client.configuration;
 
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 
 /**
  * Retrieve configuration arguments. See {@link ConfigurationManager} to see where it is
@@ -35,13 +37,32 @@ public interface IConfigurationRetriever {
 		throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
 
 	/**
-	 * Retrieve an integer configuration argument, passing a default value
+	 * Retrieve an integer configuration argument, without a default value
 	 * 
 	 * @param key Name of the argument
 	 * @param def Default argument if the key is not present or it is present with a wrong value (not int)
 	 * @return Value of the configuration argument
 	 */
 	public int getIntProperty(String key, int def);
+
+	/**
+	 * Retrieve an integer configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public int getIntProperty(ExperimentParameter parameter) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
+
+	/**
+	 * Retrieve an integer configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public int getIntProperty(ExperimentParameterDefault parameter);
+
 
 	/**
 	 * Retrieve a boolean configuration argument
@@ -63,6 +84,25 @@ public interface IConfigurationRetriever {
 	 * @return Value of the configuration argument
 	 */
 	public boolean getBoolProperty(String key, boolean def);
+
+
+	/**
+	 * Retrieve an boolean configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public boolean getBoolProperty(ExperimentParameter parameter) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
+
+	/**
+	 * Retrieve an boolean configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public boolean getBoolProperty(ExperimentParameterDefault parameter);
 
 	
 	/**
@@ -86,4 +126,40 @@ public interface IConfigurationRetriever {
 	 */
 	public String getProperty(String key, String def);
 	
+	/**
+	 * Retrieve an string configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public String getProperty(ExperimentParameter parameter) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
+
+	/**
+	 * Retrieve an string configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public String getProperty(ExperimentParameterDefault parameter);
+	
+	/**
+	 * Retrieve an integer configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public double getDoubleProperty(ExperimentParameter parameter) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException;
+
+	/**
+	 * Retrieve an float configuration argument
+	 * 
+	 * @param parameter Name of the argument
+	 * @throws ConfigurationKeyNotFoundException The key is not present
+	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
+	 */
+	public double getDoubleProperty(ExperimentParameterDefault parameter);
+
 }

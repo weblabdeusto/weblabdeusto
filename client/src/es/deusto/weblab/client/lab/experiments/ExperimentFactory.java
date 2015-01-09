@@ -13,13 +13,26 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
-import es.deusto.weblab.client.configuration.IConfigurationManager;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
+
+import es.deusto.weblab.client.configuration.ConfigurationManager;
+import es.deusto.weblab.client.configuration.ConfigurationRetriever;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
+import es.deusto.weblab.client.dto.experiments.Experiment;
+import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
+import es.deusto.weblab.client.dto.experiments.ExperimentClient;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentInstanciationException;
@@ -73,17 +86,34 @@ public class ExperimentFactory {
     	callback.onFailure(new ExperimentNotFoundException("Experiment " + experimentID + " not implemented in the client"));
 	}
 	
-	public static void loadExperiments(IConfigurationManager configurationManager) throws InvalidConfigurationValueException, ConfigurationKeyNotFoundException{
+	public static void loadExperiments(String text) throws InvalidConfigurationValueException, ConfigurationKeyNotFoundException{
+		final JSONObject experimentsTree = JSONParser.parseLenient(text).isObject();
+		
+		
 		final Set<String> alreadyTriedCreatorFactories = new HashSet<String>();
 		final Set<String> alreadyRegisteredExperiments = new HashSet<String>();
-		
+
+		EntryRegistry.entries.clear();
 		try{
 			for(IExperimentCreatorFactory creatorFactory : EntryRegistry.creatorFactories){
 				if(alreadyTriedCreatorFactories.contains(creatorFactory.getCodeName()))
 					throw new InvalidConfigurationValueException("CreatorFactory codename: " + creatorFactory.getCodeName() + " already used before " + creatorFactory.getClass().getName());
 				
 				alreadyTriedCreatorFactories.add(creatorFactory.getCodeName());
-				for(IConfigurationRetriever configurationRetriever : configurationManager.getExperimentsConfiguration(creatorFactory.getCodeName())){
+				final JSONValue potentialConfigurations = experimentsTree.get(creatorFactory.getCodeName());
+				if (potentialConfigurations == null) {
+					// The configuration is not available in the configuration file passed.
+					continue;
+				}
+				final JSONArray configurations = potentialConfigurations.isArray();
+				for(int i = 0; i < configurations.size(); ++i){
+					final JSONObject currentConfiguration = configurations.get(i).isObject();
+					final Map<String, JSONValue> currentConfigurationMap = new HashMap<String, JSONValue>();
+					for(String key : currentConfiguration.keySet())
+						currentConfigurationMap.put(key, currentConfiguration.get(key));
+					
+					final ConfigurationRetriever configurationRetriever = new ConfigurationRetriever(currentConfigurationMap, ConfigurationManager.INSTANCE);
+					
 					final String experimentName     = configurationRetriever.getProperty("experiment.name");
 					final String experimentCategory = configurationRetriever.getProperty("experiment.category");
 					
@@ -97,10 +127,69 @@ public class ExperimentFactory {
 					EntryRegistry.entries.add(entry);
 				}
 			}
-		}catch(ExperimentCreatorInstanciationException exc){
+		} catch (ExperimentCreatorInstanciationException exc){
 			throw new InvalidConfigurationValueException("Misconfigured experiment: " + exc.getMessage(), exc);
+		} catch (NullPointerException exc) {
+			throw new InvalidConfigurationValueException("Misconfigured experiment: " + exc.getMessage() + " some null value.", exc);
 		}
 	}
+	
+	public static void fillWithExperimentAllowed(ExperimentAllowed [] experiments) throws InvalidConfigurationValueException{
+		EntryRegistry.entries.clear();
+		
+		final List<String> invalidClients = new Vector<String>();
+		final List<String> errorCreatingExperiments = new Vector<String>();
+		
+		for(ExperimentAllowed experimentAllowed : experiments) {
+			final Experiment experiment = experimentAllowed.getExperiment();
+			final ExperimentClient client = experiment.getClient();
+			
+			IExperimentCreatorFactory currentFactory = null;
+			for(IExperimentCreatorFactory factory : EntryRegistry.creatorFactories) {
+				if(factory.getCodeName().equals(client.getClientId())) {
+					currentFactory = factory;
+					break;
+				}
+			}
+			if (currentFactory == null) {
+				invalidClients.add(client.getClientId());
+				continue;
+			}
+			
+			final Map<String, JSONValue> configurationValues = new HashMap<String, JSONValue>();
+			for(String key : client.keySet())
+				configurationValues.put(key, client.get(key));
+			
+			final IConfigurationRetriever configurationRetriever = new ConfigurationRetriever(configurationValues, ConfigurationManager.INSTANCE);
+			
+			ExperimentCreator creator;
+			try {
+				creator = currentFactory.createExperimentCreator(configurationRetriever);
+			} catch (ExperimentCreatorInstanciationException e) {
+				errorCreatingExperiments.add(e.getMessage());
+				e.printStackTrace();
+				continue;
+			}
+			
+			final ExperimentEntry entry = new ExperimentEntry(experiment.getCategory().getCategory(), experiment.getName(), creator, configurationRetriever);
+			EntryRegistry.entries.add(entry);
+		}
+		
+		if (invalidClients.size() > 0) {
+			String invalidClientMessage = "The following clients could not be loaded since they are not registered. Contact the administrator or recompile the client. ";
+			for(String client : invalidClients) 
+				invalidClientMessage += client + "; ";
+			throw new InvalidConfigurationValueException(invalidClientMessage);
+		}
+		
+		if(errorCreatingExperiments.size() > 0) {
+			String errorCreatingClientMessage = "There were errors creating the following experiments: ";
+			for(String error : errorCreatingExperiments)
+				errorCreatingClientMessage += error + "; ";
+			throw new InvalidConfigurationValueException(errorCreatingClientMessage);
+		}
+	}
+
 	
 	public static IConfigurationRetriever getExperimentConfigurationRetriever(ExperimentID experimentId){
 		//System.out.println("DBG: Now listing entries");

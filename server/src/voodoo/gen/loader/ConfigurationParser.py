@@ -78,11 +78,19 @@ class ServerParser(AbstractParser):
         protocols_nodes     = LoaderUtilities.find_node(file_path, server_node, 'protocols')
 
         # Parse nodes
-        configurations     = self._parse_configurations(directory, configuration_nodes)
-        server_type        = self._parse_server_type(server_type_node)
-        server_type_module = self._parse_server_type_module(server_type_node)
-        methods            = self._parse_methods(methods_node)
-        implementation     = self._parse_implementation(implementation_node)
+        configurations      = self._parse_configurations(directory, configuration_nodes)
+        server_type_name    = self._get_server_type_name(server_type_node)
+        if server_type_name == 'Login':
+            # Support reading old configurations
+            server_type = 'Login'
+            server_type_module = None
+            methods = []
+            implementation = None
+        else:
+            server_type        = self._parse_server_type(server_type_node)
+            server_type_module = self._parse_server_type_module(server_type_node)
+            methods            = self._parse_methods(methods_node)
+            implementation     = self._parse_implementation(implementation_node)
         restrictions       = self._parse_restrictions(directory, restrictions_nodes)
         protocols          = self._parse_protocols(file_path, protocols_nodes, address)
 
@@ -115,6 +123,16 @@ class ServerParser(AbstractParser):
 
     def _parse_methods(self, methods_node):
         return self._retrieve_variable(methods_node)
+
+    def _get_server_type_name(self, format_node):
+        text_value = LoaderUtilities.obtain_text_safe(format_node)
+        if text_value.count('::') != 1:
+            raise LoaderErrors.InvalidConfigurationError(
+                        'Unknown format: %s. module::variable expected' % text_value
+                    )
+
+        module_name, variable = text_value.split('::')
+        return variable
 
     def _retrieve_variable(self, format_node):
         text_value = LoaderUtilities.obtain_text_safe(format_node)
@@ -259,6 +277,8 @@ class AbstractConfigPlusLevelParser(AbstractParser):
                 LoaderUtilities.obtain_text_safe(sub_level_node)
                 for sub_level_node in sub_level_nodes
             ]
+#        if 'login' in sub_level_names:
+#            sub_level_names.remove('login')
 
         sub_level_parser = self.PARSER()
         sub_levels_configurations = {}

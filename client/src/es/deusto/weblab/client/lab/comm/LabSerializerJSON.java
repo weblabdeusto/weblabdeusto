@@ -15,6 +15,8 @@
 
 package es.deusto.weblab.client.lab.comm;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
@@ -39,6 +41,7 @@ import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
+import es.deusto.weblab.client.dto.experiments.ExperimentClient;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
@@ -166,6 +169,20 @@ public class LabSerializerJSON extends CommonSerializerJSON implements ILabSeria
 		    final Experiment experiment = new Experiment();
 		    experiment.setCategory(category);
 		    experiment.setName(this.json2string(jsonExperiment.get("name")));
+		    
+		    if(jsonExperiment.get("client") != null) {
+			    final JSONObject client = jsonExperiment.get("client").isObject();
+	
+			    final Map<String, JSONValue> clientConfiguration = new HashMap<String, JSONValue>(); 
+			    final ExperimentClient experimentClient = new ExperimentClient(this.json2string(client.get("client_id")), clientConfiguration);
+			    experiment.setClient(experimentClient);
+			    
+			    final JSONObject clientConfigurationObject = client.get("configuration").isObject();
+			    for(final String key : clientConfigurationObject.keySet()) {
+			    	final JSONValue confValue = clientConfigurationObject.get(key);
+			    	clientConfiguration.put(key, confValue);
+			    }
+		    }
 		    
 		    final String startDateString = this.json2string(jsonExperiment.get("start_date"));
 		    final String endDateString   = this.json2string(jsonExperiment.get("end_date"));

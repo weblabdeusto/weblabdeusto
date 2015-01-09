@@ -14,7 +14,6 @@
 #
 
 Coordinator    = 'Coordinator' # Voodoo Coordinator; it will always be there
-Login          = 'Login'
 UserProcessing = 'UserProcessing'
 Proxy          = 'Proxy'
 Laboratory     = 'Laboratory'

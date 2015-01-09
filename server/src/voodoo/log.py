@@ -21,6 +21,7 @@ import random
 import logging
 import threading
 import new
+from functools import wraps
 from voodoo.cache import fast_cache
 
 class level(object):
@@ -82,7 +83,7 @@ def _get_logger(logger_name):
 # This code defers the logging requests to a thread pool
 # It's experimental code, so by default it's not enabled
 
-def logged(level='debug', except_for=None, max_size = 250):
+def logged(level='debug', except_for=None, max_size = 250, is_class_method = True):
     """
     logged([except_for]) -> function
 
@@ -197,7 +198,7 @@ def logged(level='debug', except_for=None, max_size = 250):
 
             def _build_fake_args(self, args, kargs):
                 # args doesn't include "self"
-                if except_for != None:
+                if except_for is not None:
                     self.fake_args = list(args)
                     self.fake_kargs = kargs.copy()
 
@@ -209,8 +210,8 @@ def logged(level='debug', except_for=None, max_size = 250):
                     for parameter in except_for_parameters:
                         replaced = False
                         if isinstance(parameter, int):
-                            if len(args) <= parameter - 1:
-                                self.fake_args[parameter - 1] = '<hidden>'
+                            if len(args) < parameter:
+                                self.fake_args[parameter] = '<hidden>'
                                 replaced = True
                         else:
                             if isinstance(parameter, basestring):
@@ -228,13 +229,13 @@ def logged(level='debug', except_for=None, max_size = 250):
                                 else:
                                     position = given_position
 
-                                if position >= 0 and len(args) > position - 1:
-                                    self.fake_args[position - 1] = '<hidden>'
+                                if position >= 0 and len(args) > position:
+                                    self.fake_args[position] = '<hidden>'
                                     replaced = True
 
                         if not replaced:
-                            print >> sys.stderr, "Warning!!! Function %s didn't receive a parameter %s" % (f, parameter)
-                            self.fake_args  = ('<error: all hidden because the parameter %s was not found>' % parameter,)
+                            print >> sys.stderr, "Warning!!! Function %s didn't receive a parameter %s" % (f, repr(parameter))
+                            self.fake_args  = ('<error: all hidden because the parameter %s was not found>' % repr(parameter),)
                             self.fake_kargs = {}
                 else:
                     self.fake_args = args
@@ -320,31 +321,54 @@ def logged(level='debug', except_for=None, max_size = 250):
                             'finish_time'   : strtime
                         }
 
-        def wrapped(self,*args, **kargs):
-            logger_name = _get_full_class_name(self.__class__, f)
-            logger = _get_logger(logger_name)
-            if not logger.isEnabledFor(logging_level):
-                return f(self, *args, **kargs)
+        if is_class_method:
+            @wraps(f)
+            def wrapped(self,*args, **kargs):
+                logger_name = _get_full_class_name(self.__class__, f)
+                logger = _get_logger(logger_name)
+                if not logger.isEnabledFor(logging_level):
+                    return f(self, *args, **kargs)
 
-            log_writer = getattr(logger, levelname)
+                log_writer = getattr(logger, levelname)
 
-            entry  = LogEntry()
-            header = HeaderLine(entry, log_writer)
-            header.log(args, kargs)
-            try:
-                result = f(self,*args,**kargs)
-            except:
-                footer_exc = FooterExcLine(entry, log_writer)
-                footer_exc.log()
-                raise
-            else:
-                footer_return = FooterReturnLine(entry, log_writer)
-                footer_return.log(result)
+                entry  = LogEntry()
+                header = HeaderLine(entry, log_writer)
+                header.log(args, kargs)
+                try:
+                    result = f(self,*args,**kargs)
+                except:
+                    footer_exc = FooterExcLine(entry, log_writer)
+                    footer_exc.log()
+                    raise
+                else:
+                    footer_return = FooterReturnLine(entry, log_writer)
+                    footer_return.log(result)
 
-            return result
+                return result
+        else: # For functions
+            @wraps(f)
+            def wrapped(*args, **kargs):
+                logger_name = f.__module__
+                logger = _get_logger(logger_name)
+                if not logger.isEnabledFor(logging_level):
+                    return f(*args, **kargs)
 
-        wrapped.__doc__ = f.__doc__
-        wrapped.__name__ = f.__name__
+                log_writer = getattr(logger, levelname)
+
+                entry  = LogEntry()
+                header = HeaderLine(entry, log_writer)
+                header.log(args, kargs)
+                try:
+                    result = f(*args,**kargs)
+                except:
+                    footer_exc = FooterExcLine(entry, log_writer)
+                    footer_exc.log()
+                    raise
+                else:
+                    footer_return = FooterReturnLine(entry, log_writer)
+                    footer_return.log(result)
+
+                return result
         return wrapped
     return real_logger
 

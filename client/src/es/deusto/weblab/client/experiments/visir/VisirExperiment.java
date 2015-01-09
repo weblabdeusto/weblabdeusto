@@ -16,7 +16,6 @@ package es.deusto.weblab.client.experiments.visir;
 
 import java.util.List;
 
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
@@ -51,11 +50,6 @@ public class VisirExperiment extends FlashExperiment {
 		instance = this;
 	}
 	
-	@Override
-	protected int getDefaultFlashTimeout() {
-		return 60; // Increase the time for VISIR, since sometimes it becomes a high value
-	}
-
 	@Override
 	protected String getDefaultFlashTimeoutMessage(String errorMessage) {
 		return i18n.flashTimeout(errorMessage);

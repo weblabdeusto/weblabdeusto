@@ -10,8 +10,7 @@
 	<configuration file="server_config.py" />
 
 	<!-- What type of server is this? -->
-	<!-- <type>weblab.data.ServerType::Login</type> -->
-	<type>test.unit.voodoo.gen.loader.ServerType::Login</type>
+	<type>test.unit.voodoo.gen.loader.ServerType::Login2</type>
 	<methods>test.unit.voodoo.gen.loader.APItype1::methods</methods>
 
 	<!-- Implementation: a python path saying which class will implement the methods of the API -->

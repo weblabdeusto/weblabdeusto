@@ -1,0 +1,29 @@
+<html>
+   <head>
+        <script>
+            function recalculate_height(){
+                var ifr = document.getElementById('weblab_iframe');
+                if(ifr.contentWindow.document.body != null){
+                    var h = ifr.contentWindow.document.body.scrollHeight;
+                    ifr.height = h;
+                }
+                setTimeout("recalculate_height();", 200);
+            }
+        </script>
+   </head>
+   <body>
+         <div id="fb-root">
+            <iframe width="100%%" frameborder="0" height="100%%" id="weblab_iframe" scrolling="yes" src="{{ client_address }}?session_id={{ session_id }}&facebook=true&mobile=no&{{ locale }}">
+            </ifame>
+         </div>
+        <script src="http://connect.facebook.net/en_US/all.js"></script>
+        <script>
+            FB.init({
+                appId  : "{{ facebook_app_id }}",
+                channelUrl  : 'https://www.weblab.deusto.es/weblab/channel.html'  // custom channel
+            });
+                setTimeout("recalculate_height();", 200);
+        </script>
+
+   </body>
+</html>

@@ -14,52 +14,35 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
-from functools import wraps
 import numbers
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import desc
 
+import voodoo.log as log
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
 
+from weblab.db import db
 import weblab.db.model as model
 
-import weblab.db.gateway as dbGateway
-
+from weblab.data import ValidDatabaseSessionId
 from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 
-import weblab.db.exc as DbErrors
+import weblab.core.exc as DbErrors
 import weblab.permissions as permissions
-
-def admin_panel_operation(func):
-    """It checks if the requesting user has the admin_panel_access permission with full_privileges (temporal policy)."""
-
-    @wraps(func)
-    def wrapper(self, user_login, *args, **kargs):
-        session = self.Session()
-        try:
-            user = self._get_user(session, user_login)
-            admin_panel_access_permissions = self._gather_permissions(session, user, "admin_panel_access")
-            if len(admin_panel_access_permissions) > 0:
-                # The only requirement for now is to have full_privileges, this will be changed in further versions
-                if self._get_bool_parameter_from_permission(session, admin_panel_access_permissions[0], "full_privileges"):
-                    return func(self, user_login, *args, **kargs)
-            return ()
-        finally:
-            session.close()
-    return wrapper
 
 DEFAULT_VALUE = object()
 
-class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
+class DatabaseGateway(object):
 
     forbidden_access = 'forbidden_access'
 
     def __init__(self, cfg_manager):
-        super(DatabaseGateway, self).__init__(cfg_manager)
+        super(DatabaseGateway, self).__init__()
+        self.cfg_manager = cfg_manager
+        self.Session, self.engine = db.initialize(cfg_manager)
 
     @typecheck(basestring)
     @logged()
@@ -70,28 +53,54 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-
-    @typecheck(basestring)
     @logged()
-    def list_experiments(self, user_login):
+    def list_clients(self):
+        """Lists the ExperimentClients """
+        session = self.Session()
+        try:
+            clients = {}
+            for experiment in session.query(model.DbExperiment).all():
+                exp = experiment.to_business()
+                clients[exp.name, exp.category.name] = exp.client
+            return clients
+        finally:
+            session.close()
+
+    # @typecheck(basestring, (basestring, None), (basestring, None))
+    @logged()
+    def list_experiments(self, user_login, exp_name = None, cat_name = None):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permissions = self._gather_permissions(session, user, 'experiment_allowed')
+            user_permissions = self._gather_permissions(session, user, 'experiment_allowed')
 
             grouped_experiments = {}
-            for permission in permissions:
+            for permission in user_permissions:
                 p_permanent_id                 = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
                 p_category_id                  = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
                 p_time_allowed                 = self._get_float_parameter_from_permission(session, permission, 'time_allowed')
                 p_priority                     = self._get_int_parameter_from_permission(session, permission, 'priority', ExperimentAllowed.DEFAULT_PRIORITY)
                 p_initialization_in_accounting = self._get_bool_parameter_from_permission(session, permission, 'initialization_in_accounting', ExperimentAllowed.DEFAULT_INITIALIZATION_IN_ACCOUNTING)
-
-                experiment = session.query(model.DbExperiment).filter_by(name=p_permanent_id).filter(model.DbExperimentCategory.name==p_category_id).first()
-                if experiment is None:
+                
+                # If a filter is passed, ignore those permissions on other experiments
+                if cat_name is not None and exp_name is not None:
+                    if p_category_id != cat_name or p_permanent_id != exp_name:
+                        continue
+                experiments = [ exp for exp in session.query(model.DbExperiment).filter_by(name=p_permanent_id).all() if exp.category.name == p_category_id ]
+                if len(experiments) == 0:
                     continue
 
-                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id)
+                experiment = experiments[0]
+
+                if isinstance(permission, model.DbUserPermission):
+                    permission_scope = 'user'
+                elif isinstance(permission, model.DbGroupPermission):
+                    permission_scope = 'group'
+                elif isinstance(permission, model.DbRolePermission):
+                    permission_scope = 'role'
+                else:
+                    permission_scope = 'unknown'
+                experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id, permission.id, permission_scope)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
                 if experiment_unique_id in grouped_experiments:
@@ -119,8 +128,8 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permissions = self._gather_permissions(session, user, 'access_forward')
-            return len(permissions) > 0
+            user_permissions = self._gather_permissions(session, user, 'access_forward')
+            return len(user_permissions) > 0
         finally:
             session.close()
 
@@ -130,8 +139,20 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
-            permissions = self._gather_permissions(session, user, 'admin_panel_access')
-            return len(permissions) > 0
+            user_permissions = self._gather_permissions(session, user, 'admin_panel_access')
+            return len(user_permissions) > 0
+        finally:
+            session.close()
+
+    @typecheck(basestring)
+    @logged()
+    def is_instructor(self, user_login):
+        session = self.Session()
+        try:
+            user = self._get_user(session, user_login)
+            admin_permissions = self._gather_permissions(session, user, 'admin_panel_access')
+            instructor_permissions = self._gather_permissions(session, user, 'instructor_of_group')
+            return user.role.name == 'instructor' or len(admin_permissions) > 0 or len(instructor_permissions) > 0
         finally:
             session.close()
 
@@ -148,7 +169,7 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                         experiment_usage.from_ip,
                         experiment_usage.coord_address.address,
                         experiment_usage.reservation_id,
-                        experiment_usage.end_date
+                        experiment_usage.end_date,
                 )
             session.add(use)
             # TODO: The c.response of an standard command is an object with
@@ -193,6 +214,15 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
                                 saved.response.commandstring,
                                 saved.timestamp_after
                             ))
+            
+            permission_scope = experiment_usage.request_info.pop('permission_scope')
+            permission_id = experiment_usage.request_info.pop('permission_id')
+            if permission_scope == 'group':
+                use.group_permission_id = permission_id
+            elif permission_scope == 'user':
+                use.user_permission_id = permission_id
+            elif permission_scope == 'role':
+                use.role_permission_id = permission_id
 
             for reservation_info_key in experiment_usage.request_info:
                 db_key = session.query(model.DbUserUsedExperimentProperty).filter_by(name = reservation_info_key).first()
@@ -399,75 +429,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
-    @admin_panel_operation
-    @logged()
-    def get_groups(self, user_login, parent_id=None):
-        """ The user's permissions are not checked at the moment """
-
-        def get_dto_children_recursively(groups):
-            dto_groups = []
-            for group in groups:
-                dto_group = group.to_dto()
-                if len(group.children) > 0:
-                    dto_group.set_children(get_dto_children_recursively(group.children))
-                dto_groups.append(dto_group)
-            return dto_groups
-
-        session = self.Session()
-        try:
-            groups = session.query(model.DbGroup).filter_by(parent_id=parent_id).order_by(model.DbGroup.name).all()
-            dto_groups = get_dto_children_recursively(groups)
-            return tuple(dto_groups)
-        finally:
-            session.close()
-
-    @admin_panel_operation
-    @logged()
-    def get_users(self, user_login):
-        """ Retrieves every user from the database """
-
-        session = self.Session()
-        try:
-            users = session.query(model.DbUser).all()
-            # TODO: Consider sorting users.
-            dto_users = [ user.to_dto() for user in users ]
-            return tuple(dto_users)
-        finally:
-            session.close()
-
-    @admin_panel_operation
-    @logged()
-    def get_roles(self, user_login):
-        """ Retrieves every role from the database """
-        session = self.Session()
-        try:
-            roles = session.query(model.DbRole).all()
-            dto_roles = [role.to_dto() for role in roles]
-            return tuple(dto_roles)
-        finally:
-            session.close()
-
-
-    @admin_panel_operation
-    @logged()
-    def get_experiments(self, user_login):
-        """ All the experiments are returned by the moment """
-
-        def sort_by_category_and_exp_name(exp1, exp2):
-            if exp1.category.name != exp2.category.name:
-                return cmp(exp1.category.name, exp2.category.name)
-            else:
-                return cmp(exp1.name, exp2.name)
-
-        session = self.Session()
-        try:
-            experiments = session.query(model.DbExperiment).all()
-            experiments.sort(cmp=sort_by_category_and_exp_name)
-            dto_experiments = [ experiment.to_dto() for experiment in experiments ]
-            return tuple(dto_experiments)
-        finally:
-            session.close()
-
     @logged()
     def get_experiment_uses_by_id(self, user_login, reservation_ids):
         """ Retrieve the full information of these reservation_ids, if the user has permissions to do so. By default
@@ -493,112 +454,6 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
             session.close()
 
         return results
-
-    @admin_panel_operation
-    @logged()
-    def get_experiment_uses(self, user_login, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        """ All the experiment uses are returned by the moment. Filters are optional (they may be null), but if
-        applied the results should chang.e The result is represented as (dto_objects, total_number_of_registers) """
-
-        session = self.Session()
-        try:
-            query_object = session.query(model.DbUserUsedExperiment)
-
-            # Applying filters
-
-            if from_date is not None:
-                query_object = query_object.filter(model.DbUserUsedExperiment.end_date >= from_date)
-            if to_date is not None:
-                query_object = query_object.filter(model.DbUserUsedExperiment.start_date <= to_date)
-            if experiment_id is not None:
-                query_object = query_object.filter(model.DbUserUsedExperiment.experiment_id == experiment_id)
-
-            if group_id is not None:
-                def get_children_recursively(groups):
-                    new_groups = groups[:]
-                    for group in groups:
-                        new_groups.extend(get_children_recursively(group.children))
-                    return [ group for group in new_groups ]
-
-                parent_groups = session.query(model.DbGroup).filter(model.DbGroup.id == group_id).all()
-                group_ids = [ group.id for group in get_children_recursively(parent_groups) ]
-
-                groups = session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids)).subquery()
-                users = session.query(model.DbUser)
-                users_in_group = users.join((groups, model.DbUser.groups)).subquery()
-                query_object = query_object.join((users_in_group, model.DbUserUsedExperiment.user))
-
-            # Sorting
-            if sort_by is not None and len(sort_by) > 0:
-                # Lists instead of sets, since the order of elements inside matters (first add Experiment, only then Category)
-                tables_to_join = []
-                sorters = []
-
-                for current_sort_by in sort_by:
-                    if current_sort_by in ('start_date','-start_date','end_date','-end_date','origin','-origin','id','-id'):
-                        if current_sort_by.startswith('-'):
-                            sorters.append(desc(getattr(model.DbUserUsedExperiment, current_sort_by[1:])))
-                        else:
-                            sorters.append(getattr(model.DbUserUsedExperiment, current_sort_by))
-
-                    elif current_sort_by in ('agent_login', '-agent_login', 'agent_name', '-agent_name', 'agent_email', '-agent_email'):
-                        tables_to_join.append((model.DbUser, model.DbUserUsedExperiment.user))
-                        if current_sort_by.endswith('agent_login'):
-                            sorter = model.DbUser.login
-                        elif current_sort_by.endswith('agent_name'):
-                            sorter = model.DbUser.full_name
-                        else: # current_sort_by.endswith('agent_email')
-                            sorter = model.DbUser.email
-
-                        if current_sort_by.startswith('-'):
-                            sorters.append(desc(sorter))
-                        else:
-                            sorters.append(sorter)
-
-                    elif current_sort_by in ('experiment_name', '-experiment_name'):
-                        tables_to_join.append((model.DbExperiment, model.DbUserUsedExperiment.experiment))
-                        if current_sort_by.startswith('-'):
-                            sorters.append(desc(model.DbExperiment.name))
-                        else:
-                            sorters.append(model.DbExperiment.name)
-
-                    elif current_sort_by in ('experiment_category', '-experiment_category'):
-                        tables_to_join.append((model.DbExperiment, model.DbUserUsedExperiment.experiment))
-                        tables_to_join.append((model.DbExperimentCategory, model.DbExperiment.category))
-                        if current_sort_by.startswith('-'):
-                            sorters.append(desc(model.DbExperimentCategory.name))
-                        else:
-                            sorters.append(model.DbExperimentCategory.name)
-
-                while len(tables_to_join) > 0:
-                    table, field = tables_to_join.pop(0)
-                    # Just in case it was added twice, for instance if sorting by experiment name *and* category name
-                    if (table,field) in tables_to_join:
-                        tables_to_join.remove((table,field))
-                    query_object = query_object.join((table, field))
-
-                query_object = query_object.order_by(*sorters) # Apply all sorters in order
-
-
-            # Counting
-
-            total_number = query_object.count()
-
-            if start_row is not None:
-                starting = start_row
-            else:
-                starting = 0
-            if end_row is not None:
-                ending = end_row
-            else:
-                ending = total_number
-
-            experiment_uses = query_object[starting:ending]
-
-            dto_experiment_uses = [ experiment_use.to_dto() for experiment_use in experiment_uses ]
-            return tuple(dto_experiment_uses), total_number
-        finally:
-            session.close()
 
     @logged()
     def get_user_permissions(self, user_login):
@@ -731,6 +586,119 @@ class DatabaseGateway(dbGateway.AbstractDatabaseGateway):
         finally:
             session.close()
 
+    @logged()
+    def retrieve_role_and_user_auths(self, username):
+        """ Retrieve the role and user auths for a given username."""
+        session = self.Session()
+        try:
+            try:
+                user = session.query(model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % username)
+
+            all_user_auths = session.query(model.DbUserAuth).filter_by(user=user).all()
+            
+            # 
+            sorted_user_auths = sorted(all_user_auths, lambda x, y: cmp(x.auth.priority, y.auth.priority))
+            if len(sorted_user_auths) > 0:
+                return user.role.name, [ user_auth.to_business() for user_auth in sorted_user_auths ]
+            else:
+                raise DbErrors.DbNoUserAuthNorPasswordFoundError(
+                        "No UserAuth found"
+                    )
+        finally:
+            session.close()
+
+    @logged()
+    def check_external_credentials(self, external_id, system):
+        """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting
+        the system, return the first username that matches with that user_id. The method will
+        expect that the system uses something that starts by the id"""
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(model.DbAuthType).filter_by(name=system).one()
+                if len(auth_type.auths) == 0:
+                    raise DbErrors.DbUserNotFoundError("No instance of system '%s' found in database." % system)
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
+
+            try:
+                user_auth = session.query(model.DbUserAuth).filter(model.DbUserAuth.auth_id.in_([auth.id for auth in auth_type.auths]), model.DbUserAuth.configuration==external_id).one()
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % external_id)
+
+            user = user_auth.user
+            return ValidDatabaseSessionId( user.login, user.role.name)
+        finally:
+            session.close()
+
+    ###########################################################################
+    ##################   grant_external_credentials   #########################
+    ###########################################################################
+    @logged()
+    def grant_external_credentials(self, username, external_id, system):
+        """ Given a system and an external_id, grant access with those credentials for user user_id. Before calling
+        this method, the system has checked that this user is the owner of external_id and of user_id"""
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(model.DbAuthType).filter_by(name=system).one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
+
+            try:
+                user = session.query(model.DbUser).filter_by(login=username).one()
+            except NoResultFound:
+                raise DbErrors.DbUserNotFoundError("User '%s' not found in database" % user)
+
+            for user_auth in user.auths:
+                if user_auth.auth == auth:
+                    raise DbErrors.DbUserNotFoundError("User '%s' already has credentials in system %s" % (username, system))
+
+            user_auth = model.DbUserAuth(user = user, auth = auth, configuration=str(external_id))
+            session.add(user_auth)
+            session.commit()
+        finally:
+            session.close()
+
+    #####################################################################
+    ##################   create_external_user   #########################
+    #####################################################################
+    @logged()
+    def create_external_user(self, external_user, external_id, system, group_names):
+        session = self.Session()
+        try:
+            try:
+                auth_type = session.query(model.DbAuthType).filter_by(name=system).one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("System '%s' not found in database" % system)
+
+            groups = []
+            for group_name in group_names:
+                try:
+                    group = session.query(model.DbGroup).filter_by(name=group_name).one()
+                except NoResultFound:
+                    raise DbErrors.DbUserNotFoundError("Group '%s' not found in database" % group_name)
+                groups.append(group)
+
+            try:
+                role = session.query(model.DbRole).filter_by(name=external_user.role.name).one()
+                user = model.DbUser(external_user.login, external_user.full_name, external_user.email, role = role)
+                user_auth = model.DbUserAuth(user, auth, configuration = external_id)
+                for group in groups:
+                    group.users.append(user)
+                session.add(user)
+                session.add(user_auth)
+                session.commit()
+            except Exception as e:
+                log.log( DatabaseGateway, log.level.Warning, "Couldn't create user: %s" % e)
+                log.log_exc(DatabaseGateway, log.level.Info)
+                raise DbErrors.DatabaseError("Couldn't create user! Contact administrator")
+        finally:
+            session.close()
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

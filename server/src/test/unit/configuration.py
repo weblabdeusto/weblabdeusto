@@ -64,6 +64,7 @@ db_driver   = "MySQLdb"
 db_host     = "localhost"
 db_database = "WebLabTests"
 db_prefix   = "wl_"
+db_echo     = False
 
 weblab_db_username = 'weblab'
 weblab_db_password = 'weblab'
@@ -119,17 +120,10 @@ core_experiment_poll_time = 15 # seconds
 # RemoteFacade configuration #
 ##############################
 
-core_facade_json_bind      = ''
-core_facade_json_port        = 18345
+core_facade_bind      = ''
+core_facade_port        = 18345
 
-admin_facade_json_port       = 19545
-
-core_web_facade_port         = 19645
-
-login_facade_json_bind      = ''
-login_facade_json_port        = 18445
-
-login_web_facade_port         = 19945
+core_facade_port = 18346
 
 ########################
 # Xilinx Configuration #

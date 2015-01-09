@@ -20,14 +20,21 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
+import es.deusto.weblab.client.lab.experiments.util.applets.AbstractCreatorFactory;
 
-public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
+public class FlashAppCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameterDefault FLASH_TIMEOUT = new ExperimentParameterDefault("flash.timeout", "Time given for Flash to load", 40);
+	public static final ExperimentParameter SWF_FILE = new ExperimentParameter("swf.file", ExperimentParameter.Type.string, "SWF file");
+	
 	@Override
 	public String getCodeName() {
 		return "flash";
@@ -41,10 +48,10 @@ public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
 		final String message;
 		
 		try{
-			width   = configurationRetriever.getIntProperty("width");
-			height  = configurationRetriever.getIntProperty("height");
-			swfFile = configurationRetriever.getProperty("swf.file");
-			message = configurationRetriever.getProperty("message");
+			width   = configurationRetriever.getIntProperty(AbstractCreatorFactory.WIDTH);
+			height  = configurationRetriever.getIntProperty(AbstractCreatorFactory.HEIGHT);
+			swfFile = configurationRetriever.getProperty(SWF_FILE);
+			message = configurationRetriever.getProperty(AbstractCreatorFactory.MESSAGE);
 		}catch(ConfigurationException icve){
 			throw new ExperimentCreatorInstanciationException("Misconfigured experiment: " + getCodeName() + ": " + icve.getMessage(), icve);
 		}
@@ -71,4 +78,9 @@ public class FlashAppCreatorFactory implements IExperimentCreatorFactory {
 		};
 	}
 
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter [] { AbstractCreatorFactory.WIDTH, AbstractCreatorFactory.HEIGHT, AbstractCreatorFactory.MESSAGE, AbstractCreatorFactory.PAGE_FOOTER,
+											SWF_FILE, FLASH_TIMEOUT};
+	}
 }

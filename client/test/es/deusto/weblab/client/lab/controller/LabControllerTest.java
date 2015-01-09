@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import junit.framework.Assert;
 
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.History;
 
@@ -37,6 +38,7 @@ import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.Experiment;
 import es.deusto.weblab.client.dto.experiments.ExperimentAllowed;
+import es.deusto.weblab.client.dto.experiments.ExperimentClient;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.dto.reservations.ConfirmedReservationStatus;
 import es.deusto.weblab.client.dto.reservations.WaitingConfirmationReservationStatus;
@@ -91,7 +93,7 @@ public class LabControllerTest  extends GWTTestCase{
 	}
 	
 	public void testLoginSucceeded() throws Exception{
-		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "");
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "", "");
 
 		final LabController controller = this.createController();
 		
@@ -324,6 +326,7 @@ public class LabControllerTest  extends GWTTestCase{
 		final Experiment experiment = new Experiment();
 		experiment.setCategory(new Category("Dummy experiments"));
 		experiment.setName("ud-dummy");
+		experiment.setClient(new ExperimentClient("dummy", new HashMap<String, JSONValue>()));
 		return experiment;
 	}	
 	
@@ -343,7 +346,7 @@ public class LabControllerTest  extends GWTTestCase{
 		Methods m;
 		List<Methods> v;
 		
-		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "");
+		final User user = new User("porduna", "Pablo Orduña Fernández", "porduna@tecnologico.deusto.es", new Role("student"), "", "");
 		
 		// Data creation
 		final SessionID sessionID = new SessionID("something");
