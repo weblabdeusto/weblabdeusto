@@ -21,11 +21,10 @@ import random
 from voodoo.log import logged
 import voodoo.log as log
 
-import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
+from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
 import voodoo.sessions.session_id as SessionId
@@ -188,7 +187,7 @@ class PriorityQueueScheduler(Scheduler):
                 if concrete_current_reservation.exp_info:
                     exp_info                 = json.loads(concrete_current_reservation.exp_info)
                 else:
-                    epx_info                 = {}
+                    exp_info                 = {}
                 initial_configuration        = concrete_current_reservation.initial_configuration
                 initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
 
@@ -584,7 +583,7 @@ class PriorityQueueScheduler(Scheduler):
             if reservations_removed:
                 try:
                     session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError as e:
+                except ConcurrentModificationError as e:
                     log.log(
                         PriorityQueueScheduler, log.level.Warning,
                         "IntegrityError: %s" % e )
@@ -616,7 +615,7 @@ class PriorityQueueScheduler(Scheduler):
                 session.delete(current_resource_slot)
 
             session.commit()
-        except sqlalchemy.exceptions.ConcurrentModificationError:
+        except ConcurrentModificationError:
             pass # Another process is cleaning concurrently
         finally:
             session.close()

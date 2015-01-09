@@ -20,12 +20,18 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.experiments.labview.ui.LabViewExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 
-public class LabVIEWCreatorFactory implements IExperimentCreatorFactory {
+public class LabVIEWCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
+	
+	public static final ExperimentParameterDefault SEND_FILE = new ExperimentParameterDefault("send.file", "Send file or not", false);
+	
 	@Override
 	public String getCodeName() {
 		return "labview";
@@ -51,5 +57,9 @@ public class LabVIEWCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter [] { SEND_FILE };
 	}
 }

@@ -59,10 +59,6 @@ public class RobotArmExperiment extends ExperimentBase {
 	private static final String GRIP_OPEN = "GRIP_OPEN";
 	private static final String GRIP_CLOSE = "GRIP_CLOSE";
 
-
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -101,7 +97,7 @@ public class RobotArmExperiment extends ExperimentBase {
 	@UiField Image gripOpen;
 	
 	private final Map<String, Image> buttons;
-	private int moveNumber = 0;
+	// private int moveNumber = 0;
 	private boolean buttonsEnabled = true;
 	
 	@UiField(provided = true) WlWebcam webcam;
@@ -160,16 +156,8 @@ public class RobotArmExperiment extends ExperimentBase {
 		this.timer = new WlTimer(false);	
 		
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 	}
-	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-			RobotArmExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotArmExperiment.DEFAULT_WEBCAM_REFRESH_TIME
-		);
-	}	
-	
 
 	/**
 	 * The initialize function gets called on the "reserve" stage,

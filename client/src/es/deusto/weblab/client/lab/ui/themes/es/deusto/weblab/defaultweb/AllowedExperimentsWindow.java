@@ -81,9 +81,11 @@ class AllowedExperimentsWindow extends BaseWindow {
 	@UiField Label separatorLabel;
 	@UiField Label separatorLabel2;
 	@UiField Label separatorLabel3;
-	@UiField WlAHref administrationLink;
 	@UiField WlAHref profileLink;
+	@UiField WlAHref administrationLink;
 	@UiField Label separatorLabelAdministration;
+	@UiField WlAHref instructorLink;
+	@UiField Label separatorLabelInstructor;
 	@UiField HorizontalPanel headerPanel;
 	@UiField WlAHref institutionLink;
 
@@ -185,6 +187,12 @@ class AllowedExperimentsWindow extends BaseWindow {
 	    		this.administrationLink.setVisible(true);
 	    		this.administrationLink.setHref(this.user.getAdminUrl());
 	    		this.separatorLabelAdministration.setVisible(true);
+	    	}
+	    	if(this.user.getInstructorUrl() != null && !this.user.getInstructorUrl().equals("")) {
+                this.instructorLink.setTarget("_top");
+	    		this.instructorLink.setVisible(true);
+	    		this.instructorLink.setHref(this.user.getInstructorUrl());
+	    		this.separatorLabelInstructor.setVisible(true);
 	    	}
 	    	this.profileLink.setHref(WebLabClient.PROFILE_URL);
 	    }

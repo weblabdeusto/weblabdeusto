@@ -21,8 +21,7 @@ import signal
 
 from optparse import OptionParser
 
-from weblab.admin.cli.controller import DbConfiguration
-from weblab.db.upgrade import DbUpgrader
+from weblab.admin.script.upgrade import check_updated
 from weblab.admin.script.utils import check_dir_exists, run_with_config
 from voodoo.gen.loader.ConfigurationParser import GlobalParser
 
@@ -62,14 +61,7 @@ def weblab_start(directory):
 
     check_dir_exists(directory, parser)
 
-    def on_dir(directory, configuration_files):
-        db_conf = DbConfiguration(configuration_files)
-        regular_url = db_conf.build_url()
-        coord_url   = db_conf.build_coord_url()
-        upgrader = DbUpgrader(regular_url, coord_url)
-        return upgrader.check_updated()
-
-    if not run_with_config(directory, on_dir):
+    if not run_with_config(directory, check_updated):
         print >> sys.stderr, "Error: WebLab-Deusto instance outdated! You may have updated WebLab-Deusto recently. Run: weblab-admin.py upgrade %s" % directory
         sys.exit(-1)
 

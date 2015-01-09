@@ -33,10 +33,12 @@ public class ConfigurationManager extends ConfigurationRetriever implements ICon
 
 	private final String configurationPath;
 	private final IConfigurationLoadedCallback callback;
+	public static ConfigurationManager INSTANCE;
 		
 	public ConfigurationManager(String path, IConfigurationLoadedCallback callback){
 		this.configurationPath = path;
 		this.callback = callback;
+		INSTANCE = this;
 	}
 	
 	public void start(){

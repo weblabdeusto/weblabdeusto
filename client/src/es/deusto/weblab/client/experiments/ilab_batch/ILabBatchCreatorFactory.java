@@ -22,11 +22,19 @@ import es.deusto.weblab.client.experiments.ilab_batch.ui.ILabBatchExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
-public class ILabBatchCreatorFactory implements IExperimentCreatorFactory {
+public class ILabBatchCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameter ARCHIVE = new ExperimentParameter("archive", ExperimentParameter.Type.string, "iLab archive file");
+	public static final ExperimentParameter CODE = new ExperimentParameter("code", ExperimentParameter.Type.string, "iLab class file");
+	public static final ExperimentParameter LAB_SERVER_ID = new ExperimentParameter("lab_server_id", ExperimentParameter.Type.string, "iLab lab server id");
+	public static final ExperimentParameterDefault SERVICE_BROKER = new ExperimentParameterDefault("service_broker", "iLab Service Broker relative URL", "/weblab/web/ilab/");
+	
 	@Override
 	public String getCodeName() {
 		return "ilab-batch";
@@ -53,5 +61,10 @@ public class ILabBatchCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter[] { ARCHIVE, CODE, LAB_SERVER_ID, SERVICE_BROKER };
 	}
 }

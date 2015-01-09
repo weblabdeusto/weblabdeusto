@@ -24,10 +24,6 @@ down_revision = None
 #
 
 
-from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.schema import MetaData
-
 def add_priority_to_permission_parameter(m):
     pass
 
@@ -109,9 +105,9 @@ def remove_permission_type(m):
     pass
 
 def upgrade():
-    m = MetaData()
-    m.reflect(op.get_bind())
-
+    # m = MetaData()
+    # m.reflect(op.get_bind())
+    pass
     # remove_applicable_permission_types(m)
 
 

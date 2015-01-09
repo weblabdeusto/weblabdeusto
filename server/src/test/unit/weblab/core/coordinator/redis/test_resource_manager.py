@@ -60,9 +60,9 @@ class ResourcesManagerTestCase(unittest.TestCase):
         self.assertEquals(1, len(resources))
 
         resource = resources[0]
-        self.assertEquals("type", resources[0].resource_type)
+        self.assertEquals("type", resource.resource_type)
 
-        self.assertEquals('instance', resources[0].resource_instance)
+        self.assertEquals('instance', resource.resource_instance)
 
         # TODO XXX 
         # slot = resource_instance.slot

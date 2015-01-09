@@ -67,6 +67,7 @@ class DbParticularUpgrader(object):
         if url.startswith('mysql://'):
             try:
                 import MySQLdb
+                assert MySQLdb is not None # avoid warnings
             except ImportError:
                 import pymysql_sa
                 pymysql_sa.make_default_mysql_dialect()

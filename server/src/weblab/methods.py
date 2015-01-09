@@ -15,11 +15,7 @@
 
 # This is the visible API of each server of the WebLab
 
-Login = []
-
-UserProcessing = [
-        'reserve_session'
-    ]
+UserProcessing = []
 
 Proxy = [
         'enable_access',
@@ -40,6 +36,7 @@ Laboratory = [
         'check_experiments_resources',
         'experiment_is_up_and_running',
         'should_experiment_finish',
+        'list_experiments',
     ]
 
 Translator = [

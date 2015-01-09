@@ -10,13 +10,10 @@ core_experiment_poll_time         = 30 # seconds
 # Core Server Facade configuration #
 ####################################
 
-core_facade_soap_port   = 10123
-core_facade_xmlrpc_port = 19345
-core_facade_json_port   = 18345
+core_facade_port   = 18345
 
-admin_facade_json_port   = 18545
 
-core_web_facade_port   = 19745
+
 
 ######################################
 # Core Server Database configuration #
@@ -137,3 +134,16 @@ core_universal_identifier_human = 'server at university X'
 
 core_server_url = 'http://localhost/weblab/'
 
+#####################################
+# Login Server Facade configuration #
+#####################################
+
+
+#######################################
+# Login Server Database configuration #
+#######################################
+
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'
+
+uned_sso = True

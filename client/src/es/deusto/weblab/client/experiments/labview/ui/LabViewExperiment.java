@@ -29,6 +29,7 @@ import es.deusto.weblab.client.WebLabClient;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
@@ -50,7 +51,7 @@ public class LabViewExperiment extends ExperimentBase {
 		super(configurationRetriever, boardController);
 		this.timer.setStyleName("wl-time_remaining");
 		this.openPopupButton.setVisible(false);
-		this.sendFile = this.configurationRetriever.getBoolProperty("send.file", false);
+		this.sendFile = this.configurationRetriever.getBoolProperty(LabVIEWCreatorFactory.SEND_FILE);
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
 	}

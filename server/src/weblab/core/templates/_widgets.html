@@ -1,0 +1,538 @@
+{% macro show_groups(tree, groups, node = None) %}
+    <ul>
+    {% for group in tree[node] %}
+        {% if group in groups %}
+        <li><a href="{{ url_for('stats/groups.group_stats', group_id = group.id) }}">{{ group.name }}</a>
+        {% else %}
+        <li>{{ group.name }}
+        {% endif %}
+        {% if group in tree %}
+            {{ show_groups(tree, groups, group) }}
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% endmacro %}
+
+{% macro timetable(data, show_empty = False, first_letter = True) %}
+     <table class="table table-bordered" style="table-layout: fixed">
+        <thead>
+            <tr>
+                <th></th>
+                <th class="text-center">{% if first_letter %}M{% else %}Monday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}Tuesday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}W{% else %}Wednesday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}Thursday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}F{% else %}Friday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}Saturday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}Sunday{% endif %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set days = 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' %}
+            {% for hour_number in range(24) %}
+                {% set hour = ('%s' % hour_number).zfill(2) %}
+
+                {% if show_empty or hour not in data.get('empty_hours', []) %}
+                <tr>
+                    <th>{{ hour }}:00</th>
+                    {% for day in days %}
+                        {% if hour in data['hours'] and day in data['hours'][hour] %}
+                            <td class="text-center" style="background-color: #{{ data['hours'][hour][day]['color'] }}">{{ data.get('format', '%.2f') % data['hours'][hour][day]['value'] }}</td>
+                        {% else %}
+                            <td class="text-center" style="background-color: #ffffff"></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}
+
+{% macro timeline(headers, data, table_id, format = '%.2f') %}
+    {% if data|length == 0 %}
+        <div class="alert alert-danger text-center">
+            <h1>No data available</h1>
+            <p>The timeline is empty</p>
+        </div>
+    {% endif %}
+    <table id="{{ table_id }}">
+        <tfoot>
+            <tr>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr>
+                {% for col in data %}
+                    <td>{{ format % col }}</td>
+                {% endfor %} 
+            </tr>
+        </tbody>
+    </table>
+    <div id="holder_{{ table_id }}"></div>
+
+{% endmacro %}
+
+{% macro timeline_scripts(skip_raphael = False) %}
+    {% if not skip_raphael %}
+        <script src="{{ url_for('instructor.static', filename='js/raphael-min.js') }}"></script>
+    {% endif %}
+    <script src="{{ url_for('instructor.static', filename='js/raphael-analytics.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/raphael-popup.js') }}"></script>
+{% endmacro %}
+
+{% macro timeline_load(table_id, name = None) %}
+    <script>
+        {% if name %}
+            loadTimetable("{{ table_id }}", "{{ name }}");
+        {% else %}
+            loadTimetable("{{ table_id }}");
+        {% endif %}
+    </script>
+{% endmacro %}
+
+{% macro timeline_bars(name) %}
+    <div class="{{ name }}"></div>
+{% endmacro %}
+
+{% macro timeline_bars_scripts(skip_d3 = False) %}
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+{% if not skip_d3 %}
+<script src="{{ url_for('instructor.static', filename='js/d3.v3.min.js') }}"></script>
+{% endif %}
+{% endmacro %}
+
+{% macro timeline_bars_load(name, user_data) %}
+
+<script>
+(function() {
+
+    var margin = {top: 20, right: 20, bottom: 200, left: 80},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+    var y = d3.scale.linear()
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10, "");
+
+    var svg = d3.select(".{{ name }}").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var data = {{ user_data|safe }};
+      x.domain(data.map(function(d) { return d.header; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis).selectAll("text")  
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", function(d) {
+                return "rotate(-65)" 
+                });
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("");
+
+      svg.selectAll(".bar")
+          .data(data)
+          .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.header); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); });
+
+    function type(d) {
+      d.value = +d.value;
+      return d;
+    }
+
+})();
+</script>
+{% endmacro %}
+
+
+{% macro calendar_day(name) %}
+    <div class="{{ name }}"></div>
+{% endmacro %}
+
+{% macro calendar_day_scripts(skip_d3 = False) %}
+<style>
+
+.day {
+  fill: #fff;
+  stroke: #ccc;
+}
+
+.month {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.RdYlGn .q0-11{fill:rgb(165,0,38)}
+.RdYlGn .q1-11{fill:rgb(215,48,39)}
+.RdYlGn .q2-11{fill:rgb(244,109,67)}
+.RdYlGn .q3-11{fill:rgb(253,174,97)}
+.RdYlGn .q4-11{fill:rgb(254,224,139)}
+.RdYlGn .q5-11{fill:rgb(255,255,191)}
+.RdYlGn .q6-11{fill:rgb(217,239,139)}
+.RdYlGn .q7-11{fill:rgb(166,217,106)}
+.RdYlGn .q8-11{fill:rgb(102,189,99)}
+.RdYlGn .q9-11{fill:rgb(26,152,80)}
+.RdYlGn .q10-11{fill:rgb(0,104,55)}
+
+</style>
+{% if not skip_d3 %}
+<script src="{{ url_for('instructor.static', filename='js/d3.v3.min.js') }}"></script>
+{% endif %}
+{% endmacro %}
+
+{% macro calendar_day_load(name, days_data) %}
+<style>
+{{ name }} {
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+</style>
+<script>
+(function(){
+    var days_data = {{ days_data|safe }};
+
+    var max_value = 0;
+    $(days_data).each(function(pos, day_data) {
+        if (day_data['value'] > max_value)
+            max_value = day_data['value'];
+    });
+
+    var width = 960,
+        height = 136,
+        cellSize = 17; // cell size
+
+    var day = d3.time.format("%w"),
+        week = d3.time.format("%U"), // %U => Sunday first; %W => monday first
+        percent = d3.format(".0"),
+        format = d3.time.format("%Y-%m-%d");
+
+    var color = d3.scale.quantize()
+        .domain([max_value, 0])
+        .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+
+    var svg = d3.select(".{{ name }}").selectAll("svg")
+        .data(d3.range(days_data[0]['year'], days_data[days_data.length - 1]['year'] + 1))
+      .enter().append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("class", "RdYlGn")
+      .append("g")
+        .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+        // Monday??? - 1 TODO
+
+    svg.append("text")
+        .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d; });
+
+    var rect = svg.selectAll(".day")
+        .data(function(d) { return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+      .enter().append("rect")
+        .attr("class", "day")
+        .attr("width", cellSize)
+        .attr("height", cellSize)
+        .attr("x", function(d) { return week(d) * cellSize; })
+        .attr("y", function(d) { return day(d) * cellSize; })
+        .datum(format);
+
+    rect.append("title")
+        .text(function(d) { return d; });
+
+    svg.selectAll(".month")
+        .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+      .enter().append("path")
+        .attr("class", "month")
+        .attr("d", monthPath);
+
+
+      var data = d3.nest()
+        .key(function(d) { return d.date; })
+        .rollup(function(d) { return d[0].value; }) 
+        .map(days_data);
+
+      rect.filter(function(d) { return d in data; })
+          .attr("class", function(d) { return "day " + color(data[d]); })
+        .select("title")
+          .text(function(d) { return d + ": " + percent(data[d]); });
+
+    function monthPath(t0) {
+      var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+          d0 = +day(t0), w0 = +week(t0),
+          d1 = +day(t1), w1 = +week(t1);
+      return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+          + "H" + w0 * cellSize + "V" + (7 * cellSize + 0) // Monday??? TODO
+          + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+          + "H" + (w1 + 1) * cellSize + "V" + 0
+          + "H" + (w0 + 1) * cellSize + "Z";
+    }
+
+    d3.select(self.frameElement).style("height", "2910px");
+})();
+</script>
+{% endmacro %}
+
+{% macro calendar(month) %}
+        <div class="col-lg-4 text-center">
+            <h4><a href="{{ month['link'] }}">{{ month['name'] }} {{ month['year'] }}</a></h4>
+            <table class="table table-border table-hover">
+                <tr>
+                    <td></td>
+                    <td class="weekday">S</td>
+                    <td class="weekday">M</td>
+                    <td class="weekday">T</td>
+                    <td class="weekday">W</td>
+                    <td class="weekday">T</td>
+                    <td class="weekday">F</td>
+                    <td class="weekday">S</td>
+                </tr>
+                {% for week in month['weeks'] %}
+                    <tr style="{% if week['selected'] %}background: #afa{% endif %}">
+                        <td class="week_number"><a href="{{ week['link'] }}">{{ week['number'] }}</a></td>
+                        <td class="{% if week['sunday']['active'] %}dayon{% else %}dayoff{% endif %} sunday">{{ week['sunday']['day'] }}</td>
+                        <td class="{% if week['monday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['monday']['day'] }}</td>
+                        <td class="{% if week['tuesday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['tuesday']['day'] }}</td>
+                        <td class="{% if week['wednesday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['wednesday']['day'] }}</td>
+                        <td class="{% if week['thursday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['thursday']['day'] }}</td>
+                        <td class="{% if week['friday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['friday']['day'] }}</td>
+                        <td class="{% if week['saturday']['active'] %}dayon{% else %}dayoff{% endif %}">{{ week['saturday']['day'] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+{% endmacro %}
+
+
+{% macro calendar_scripts() %}
+    <style>
+        .week_number {
+            font-weight: bold;
+        }
+        .dayoff {
+            color: #aaa;
+        }
+        .sunday {
+            color: #f00;
+        }
+        .dayoff.sunday {
+            color: #faa;
+        }
+        .weekday {
+            font-weight: bold;
+        }
+    </style>
+
+{% endmacro %}
+
+{% macro sna(id = '') %}
+
+    <button class="btn" id="stop-layout_{{ id }}">Stop Layout</button>
+
+    <div class="span12 sigma-parent" id="sigma-example-parent_{{ id }}">
+        <div class="sigma-expand" id="sigma-example_{{ id }}">
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro sna_scripts() %}
+    <script src="{{ url_for('instructor.static', filename='js/sigma.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/sigma.parseGexf.js') }}"></script>
+    <script src="{{ url_for('instructor.static', filename='js/sigma.forceatlas2.js') }}"></script>
+{% endmacro %}
+
+{% macro sna_load(gefx_file, id = '') %}
+<script type="text/javascript">function init() {
+  // Instanciate sigma.js and customize rendering :
+  var sigInst = sigma.init(document.getElementById('sigma-example_{{ id }}')).drawingProperties({
+    defaultLabelColor: '#000',
+    defaultLabelSize: 14,
+    defaultLabelBGColor: '#000',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 6,
+    defaultEdgeType: 'curve',
+    defaultEdgeArrow: 'target'
+  }).graphProperties({
+    minNodeSize: 10,
+    maxNodeSize: 20,
+    minEdgeSize: 5,
+    maxEdgeSize: 5,
+    sideMargin: 50
+  }).mouseProperties({
+    maxRatio: 32
+  });
+
+  // Parse a GEXF encoded file to fill the graph
+  // (requires "sigma.parseGexf.js" to be included)
+  sigInst.parseGexf("{{ gefx_file }}");
+  
+  // Draw the graph :
+  //sigInst.draw();
+
+  sigInst.startForceAtlas2();
+  
+   var isRunning = true;
+   var clickFunction = function(){
+        if(isRunning){
+            isRunning = false;
+            sigInst.stopForceAtlas2();
+            document.getElementById('stop-layout_{{ id }}').childNodes[0].nodeValue = 'Start Layout';
+        }else{
+            isRunning = true;
+            sigInst.startForceAtlas2();
+            document.getElementById('stop-layout_{{ id }}').childNodes[0].nodeValue = 'Stop Layout';
+        }
+   };
+   document.getElementById('stop-layout_{{ id }}').addEventListener('click', clickFunction ,true);
+
+   setTimeout(clickFunction, 1500);
+}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+
+<style type="text/css">
+  /* sigma.js context : */
+  .sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #eee;
+    height: 800px;
+  }
+  .sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+  .buttons-container{
+    padding-bottom: 8px;
+    padding-top: 12px;
+  }
+</style>
+{% endmacro %}
+
+{% macro multitimeline(name) %}
+    <div id="multitimeline_{{ name }}" style="height: 500px">
+        <svg></svg>
+    </div>
+{% endmacro %}
+
+{% macro multitimeline_scripts(skip_d3 = False, skip_nvd3 = False) %}
+    {% if not skip_d3 %}
+        <script src="{{ url_for('instructor.static', filename='js/d3.v3.min.js') }}"></script>
+    {% endif %}
+    {% if not skip_nvd3 %}
+        <link href="{{ url_for('instructor.static', filename='css/nv.d3.css') }}" rel="stylesheet">
+        <script src="{{ url_for('instructor.static', filename='js/nv.d3.js') }}"></script>    
+    {% endif %}
+{% endmacro %}
+
+{% macro multitimeline_load(name, data) %}
+    <script>
+        /* 
+            data format: [
+                {
+                    'key' : 'line name',
+                    'values' : [
+                        [
+                            millisecond_since_epoch,
+                            value
+                        ]
+                    ]
+                }
+            ]
+        */
+        nv.addGraph(function() {
+          var chart = nv.models.lineChart()
+                        .x(function(d) { return d[0] })
+                        .y(function(d) { return d[1] }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                        .color(d3.scale.category10().range());
+
+          chart.xAxis
+              .tickFormat(function(d) {
+                return d3.time.format('%x')(new Date(d))
+              });
+
+          chart.yAxis
+              .tickFormat(d3.format('.1'));
+
+          var data = {{ data|safe }};
+
+          d3.select('#multitimeline_{{ name }} svg')
+              .datum(data)
+              .transition().duration(500)
+              .call(chart);
+
+          nv.utils.windowResize(chart.update);
+
+          return chart;
+        });
+    </script>
+{% endmacro %}

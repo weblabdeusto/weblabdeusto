@@ -41,7 +41,7 @@ class CoordinatorMapBuilderTestCase(unittest.TestCase):
         map['NAME_OF_MACHINE1']['NAME_OF_INSTANCE2']
 
         self.assertEquals(
-                ServerType.Login,
+                ServerType.Login2,
                 server1.server_type
             )
 

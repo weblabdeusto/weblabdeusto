@@ -18,7 +18,6 @@ import time
 
 import voodoo.log as log
 
-import weblab.db.session as DbSession
 from weblab.data.experiments import CommandSent, ExperimentUsage, FileSent
 import weblab.core.file_storer as file_storer
 import weblab.data.command as Command
@@ -74,15 +73,14 @@ class TemporalInformationRetriever(threading.Thread):
         initial_information = self.initial_store.get(timeout=self.timeout)
         if initial_information is not None:
 
-            initial_timestamp = time.mktime(initial_information.initial_time.timetuple()) + initial_information.initial_time.microsecond / 10e6
-            end_timestamp     = time.mktime(initial_information.end_time.timetuple()) + initial_information.end_time.microsecond / 10e6
+            initial_timestamp = time.mktime(initial_information.initial_time.timetuple()) + initial_information.initial_time.microsecond / 1e6
+            end_timestamp     = time.mktime(initial_information.end_time.timetuple()) + initial_information.end_time.microsecond / 1e6
 
             request_info  = initial_information.request_info
             from_ip       = request_info.pop('from_ip','<address not found>')
 
             try:
                 username      = request_info.pop('username')
-                role          = request_info.pop('role')
             except:
                 log.log( TemporalInformationRetriever, log.level.Critical, "Provided information did not contain some required fields (such as username or role). This usually means that the reservation has previously been expired. Provided request_info: %r; provided data: %r" % (request_info, initial_information), max_size = 10000)
                 log.log_exc( TemporalInformationRetriever, log.level.Critical )
@@ -127,8 +125,8 @@ class TemporalInformationRetriever(threading.Thread):
                 self.finished_store.put(reservation_id, obj, initial_time, end_time)
                 return
 
-            initial_timestamp = time.mktime(initial_time.timetuple()) + initial_time.microsecond / 10e6
-            end_timestamp     = time.mktime(end_time.timetuple()) + end_time.microsecond / 10e6
+            initial_timestamp = time.mktime(initial_time.timetuple()) + initial_time.microsecond / 1e6
+            end_timestamp     = time.mktime(end_time.timetuple()) + end_time.microsecond / 1e6
 
             command = CommandSent(
                     Command.Command("@@@finish@@@"), initial_timestamp,

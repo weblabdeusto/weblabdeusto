@@ -1,0 +1,27 @@
+{% macro render_field(field, required = False) %}
+
+    <div class="control-group {% if field.errors %}error{% endif %}">
+        {% if required %}
+            {% set the_label = '%s <strong style="color: red">&#42;</strong>' % field.label.text %}
+        {% else %}
+            {% set the_label = '%s' % field.label.text %}
+        {% endif %}
+        {{ field.label(the_label, class="control-label") }}
+
+        <div class="controls">
+            {{ field(id=field.name,**kwargs)|safe }}
+            <p class="help-block">{{ field.description }}</p>
+            {% for error in field.errors %}
+            <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_simple_field(field) %}
+    {{ field(id=field.name,**kwargs)|safe }}
+    {% for error in field.errors %}
+    <span class="help-inline">{{ error }}</span>
+    {% endfor %}
+{% endmacro %}
+

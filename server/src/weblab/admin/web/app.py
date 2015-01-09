@@ -1,61 +1,67 @@
 import os
+import sys
 import urlparse
 import traceback
 
-import logging
-from logging.handlers import RotatingFileHandler
-
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, url_for, escape
 from flask.ext.admin import Admin, BaseView, expose
 
-from voodoo.sessions.session_id import SessionId
+if __name__ == '__main__':
+    sys.path.insert(0, '.')
+
 from weblab.core.exc import SessionNotFoundError
 
+import weblab.core.server 
 import weblab.configuration_doc as configuration_doc
-import weblab.db.session as DbSession
-from weblab.db.gateway import AbstractDatabaseGateway
+from weblab.data import ValidDatabaseSessionId
+from weblab.db import db
 
+import weblab.admin.web as web
 import weblab.admin.web.admin_views as admin_views
 import weblab.admin.web.profile_views as profile_views
+import weblab.admin.web.instructor_views as instructor_views
+
+from weblab.core.wl import weblab_api
 
 class BackView(BaseView):
     @expose()
     def index(self):
         return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
 
-class AdministrationApplication(AbstractDatabaseGateway):
+class RedirectView(BaseView):
+    def __init__(self, url_token, *args, **kwargs):
+        self.url_token = url_token
+        super(RedirectView, self).__init__(*args, **kwargs)
 
-    INSTANCE = None
+    @expose()
+    def index(self):
+        return redirect(url_for(self.url_token))
 
-    def __init__(self, cfg_manager, ups, bypass_authz = False):
+GLOBAL_APP_INSTANCE = None
 
-        super(AdministrationApplication, self).__init__(cfg_manager)
+class AdministrationApplication(object):
+
+    def __init__(self, app, cfg_manager, ups, bypass_authz = False):
+        super(AdministrationApplication, self).__init__()
+        import weblab.admin.web.app as app_module
+        app_module.GLOBAL_APP_INSTANCE = self
+
+        self.cfg_manager = cfg_manager
+        db.initialize(cfg_manager)
 
         self.ups = ups
 
-        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
+        db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=db.engine))
 
         files_directory = cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
         self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
 
-        self.app = Flask(__name__)
-        self.app.config['SECRET_KEY'] = os.urandom(32)
-        self.app.config['APPLICATION_ROOT'] = self.script_name
-        self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
-        self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
+        self.app = app
 
-        if os.path.exists('logs'):
-            f = os.path.join('logs','admin_app.log')
-        else:
-            f = 'admin_app.log'
-
-              
-        file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
-        file_handler.setLevel(logging.WARNING)
-        self.app.logger.addHandler(file_handler)
+        static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
         ################################################
         # 
@@ -75,13 +81,17 @@ class AdministrationApplication(AbstractDatabaseGateway):
 
         self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
         self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
+        # TODO: Until finished, do not display
+        # self.admin.add_view(admin_views.SchedulerPanel(db_session,         category = 'Experiments', name = 'Schedulers', endpoint = 'experiments/schedulers'))
 
         self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = 'Permissions', name = 'Create', endpoint = 'permissions/create'))
         self.admin.add_view(admin_views.UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',   endpoint = 'permissions/user'))
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group',  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles',  endpoint = 'permissions/role'))
 
+        self.admin.add_view(RedirectView('instructor.index', url = 'instructor', name = 'Instructor panel',  endpoint = 'instructor/admin'))
         self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = 'My profile',  endpoint = 'myprofile/admin'))
+
 
         self.admin.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/admin'))
 
@@ -123,24 +133,39 @@ class AdministrationApplication(AbstractDatabaseGateway):
         # g) See the logs of their own students
         # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
 
+        instructor_url = '/weblab/administration/instructor'
+        instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
+        instructor_home.static_folder = static_folder
+        self.instructor = Admin(index_view = instructor_home, name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
+        
+        self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
+        self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
+        self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = 'General', name = 'Raw accesses', endpoint = 'logs'))
+
+        self.instructor.add_view(instructor_views.GroupStats(db_session, category = 'Stats', name = 'Group', endpoint = 'stats/groups'))
+
+        self.instructor.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/instructor'))
+
+        self.instructor.init_app(self.app)
+
         ################################################
         # 
         #  Other
         # 
         self.bypass_authz = bypass_authz
-        AdministrationApplication.INSTANCE = self
 
     def is_admin(self):
         if self.bypass_authz:
             return True
 
         try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
-            try:
-                permissions = self.ups.get_user_permissions(session_id)
-            except SessionNotFoundError:
-                # Gotcha
-                return False
+            session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
+            with weblab_api(self.ups, session_id = session_id):
+                try:
+                    permissions = weblab.core.server.get_user_permissions()
+                except SessionNotFoundError:
+                    # Gotcha
+                    return False
 
             admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
             if len(admin_permissions) == 0:
@@ -154,26 +179,95 @@ class AdministrationApplication(AbstractDatabaseGateway):
             traceback.print_exc()
             return False
 
-    def get_permissions(self):
+    def get_user_role(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
-            return self.ups.get_user_permissions(session_id.id)
+            return 'admin'
 
         try:
-            session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
-            return self.ups.get_user_permissions(session_id)
+            session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
+            try:
+                with weblab_api(self.ups, session_id = session_id):
+                    user_info = weblab.core.server.get_user_information()
+            except SessionNotFoundError:
+                # Gotcha
+                traceback.print_exc()
+                return None
+            else:
+                return user_info.role.name
+        except:
+            traceback.print_exc()
+            return None
+
+    def _reserve_fake_session(self):
+        fake_names = ('student1', 'porduna', 'user7', 'admin')
+        exc = None
+        for fake_name in fake_names:
+            try:
+                session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
+            except Exception as exc:
+                pass
+            else:
+                return session_id, route
+        raise exc
+
+    def get_permissions(self):
+        if self.bypass_authz:
+            session_id, _ = self._reserve_fake_session()
+            with weblab_api(self.ups, session_id = session_id.id):
+                return weblab.core.server.get_user_permissions()
+
+        session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
+        try:
+            with weblab_api(self.ups, session_id = session_id):
+                return weblab.core.server.get_user_permissions()
         except:
             traceback.print_exc()
             return None
 
     def get_user_information(self):
         if self.bypass_authz:
-            session_id, route = self.ups.do_reserve_session(DbSession.ValidDatabaseSessionId('student1', 'administrator'))
-            return self.ups.get_user_information(session_id.id)
+            session_id, _ = self._reserve_fake_session()
+            with weblab_api(self.ups, session_id = session_id.id):
+                return weblab.core.server.get_user_information()
 
-        session_id = SessionId((request.cookies.get('weblabsessionid') or '').split('.')[0])
+        session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         try:
-            return self.ups.get_user_information(session_id)
+            with weblab_api(self.ups, session_id = session_id):
+                return weblab.core.server.get_user_information()
         except SessionNotFoundError:
             return None
+
+#############################################
+# 
+# The code below is only used for testing
+# 
+
+if __name__ == '__main__':
+    from voodoo.configuration import ConfigurationManager
+    from weblab.core.server import UserProcessingServer
+    cfg_manager = ConfigurationManager()
+    cfg_manager.append_path('test/unit/configuration.py')
+
+    ups = UserProcessingServer(None, None, cfg_manager, dont_start = True)
+
+    app = Flask('weblab.core.server')
+    app.config['SECRET_KEY'] = os.urandom(32)
+    @app.route("/site-map")
+    def site_map():
+        lines = []
+        for rule in app.url_map.iter_rules():
+            line = str(escape(repr(rule)))
+            lines.append(line)
+
+        ret = "<br>".join(lines)
+        return ret
+
+    DEBUG = True
+    admin_app = AdministrationApplication(app, cfg_manager, ups, bypass_authz = True)
+
+    @admin_app.app.route('/')
+    def index():
+        return redirect('/weblab/administration/admin')
+
+    admin_app.app.run(debug=True, host = '0.0.0.0')
 

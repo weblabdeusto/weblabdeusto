@@ -27,21 +27,19 @@ except ImportError:
 else:
     LDAP_AVAILABLE = True
 
-import weblab.data.server_type as ServerType
+from voodoo.sessions.session_id import SessionId
 
 import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
-import voodoo.gen.exceptions.locator.LocatorErrors as LocatorErrors
-import voodoo.gen.locator.EasyLocator as EasyLocator
 import voodoo.configuration      as ConfigurationManager
 
-import weblab.methods as weblab_methods
-
-import weblab.login.server as LoginServer
-import weblab.login.simple.ldap_auth as ldap_auth
-import weblab.login.exc as LoginErrors
+import weblab.core.login.manager as login_manager
+from weblab.core.server import UserProcessingServer
+import weblab.core.server as core_api
+import weblab.core.login.simple.ldap_auth as ldap_auth
+import weblab.core.login.exc as LoginErrors
 
 import test.unit.configuration as configuration_module
+from test.util.wlcontext import wlcontext
 
 fake_wrong_user           = "fake_wrong_user"
 fake_wrong_passwd         = "fake_wrong_passwd"
@@ -53,43 +51,6 @@ fake_ldap_user            = "studentLDAP1"
 fake_ldap_passwd          = "password"
 fake_ldap_invalid_passwd  = "fake_ldap_invalid_passwd"
 
-fake_ups_session_id       = "lalala"
-
-class FakeUPServer(object):
-    def __init__(self):
-        super(FakeUPServer,self).__init__()
-
-    def reserve_session(self, db_session_id):
-        return fake_ups_session_id, "server_route"
-
-class FakeLocator(object):
-    def __init__(self):
-        super(FakeLocator,self).__init__()
-        self.fake_ups_server = FakeUPServer()
-        self.servers_not_working = []
-
-    def get_server(self, coord_address, server_type, restrictions):
-        if server_type == ServerType.UserProcessing:
-            return self.fake_ups_server
-
-    def retrieve_methods(self, server_type):
-        if server_type == ServerType.UserProcessing:
-            return weblab_methods.UserProcessing
-        elif server_type == ServerType.Database:
-            return weblab_methods.Database
-
-    def inform_server_not_working(self, server, server_type, restrictions):
-        self.servers_not_working.append(server)
-
-def get_no_server(self, coord_address, server_type, restrictions):
-    raise LocatorErrors.NoServerFoundError("lol")
-
-def broken_login_user(self, username, password):
-    raise ProtocolErrors.RemoteError("p0wn3d","p0wn3d")
-
-def broken_reserve_session(self, db_session_id):
-    raise ProtocolErrors.RemoteError("p0wn3d","p0wn3d")
-
 class LoginServerTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -99,44 +60,40 @@ class LoginServerTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.real_locator = FakeLocator()
-        self.locator      = EasyLocator.EasyLocator(
-                coord_address, self.real_locator)
-
-        self.login_server = LoginServer.LoginServer(
-                    coord_address, self.locator, self.cfg_manager)
+        self.core_server = UserProcessingServer(coord_address, None, self.cfg_manager)
 
     def tearDown(self):
-        self.login_server.stop()
+        self.core_server.stop()
 
     def test_invalid_user_and_invalid_password(self):
-        LoginServer.LOGIN_FAILED_DELAY = 0.2
-        self.assertRaises(
-            LoginErrors.InvalidCredentialsError,
-            self.login_server.login,
-            fake_wrong_user,
-            fake_wrong_passwd
-        )
+        login_manager.LOGIN_FAILED_DELAY = 0.2
+        with wlcontext(self.core_server):
+            self.assertRaises(
+                LoginErrors.InvalidCredentialsError,
+                core_api.login,
+                fake_wrong_user,
+                fake_wrong_passwd
+            )
 
     def test_valid_user_and_invalid_password(self):
-        LoginServer.LOGIN_FAILED_DELAY = 0.2
-        self.assertRaises(
-            LoginErrors.InvalidCredentialsError,
-            self.login_server.login,
-            fake_right_user,
-            fake_wrong_passwd
-        )
+        login_manager.LOGIN_FAILED_DELAY = 0.2
+        with wlcontext(self.core_server):
+            self.assertRaises(
+                LoginErrors.InvalidCredentialsError,
+                core_api.login,
+                fake_right_user,
+                fake_wrong_passwd
+            )
 
     if LDAP_AVAILABLE:
         def test_ldap_user_right(self):
             mockr = mocker.Mocker()
             ldap_auth._ldap_provider.ldap_module = mockr.mock()
-            session_id = self.login_server.login(fake_ldap_user, fake_ldap_passwd)
+            with wlcontext(self.core_server):
+                session_id = core_api.login(fake_ldap_user, fake_ldap_passwd)
 
-            self.assertEquals(
-                fake_ups_session_id,
-                session_id
-            )
+            self.assertTrue( isinstance(session_id, SessionId) )
+            self.assertTrue( len(session_id.id) > 5 )
 
         def test_ldap_user_invalid(self):
             mockr = mocker.Mocker()
@@ -148,77 +105,39 @@ class LoginServerTestCase(unittest.TestCase):
             mockr.result(ldap_object)
             ldap_auth._ldap_provider.ldap_module = ldap_module
 
-            with mockr:
-                self.assertRaises(
-                    LoginErrors.InvalidCredentialsError,
-                    self.login_server.login,
-                    fake_ldap_user,
-                    fake_ldap_invalid_passwd
-                )
+            with wlcontext(self.core_server):
+                with mockr:
+                    self.assertRaises(
+                        LoginErrors.InvalidCredentialsError,
+                        core_api.login,
+                        fake_ldap_user,
+                        fake_ldap_invalid_passwd
+                    )
 
     else:
         print >> sys.stderr, "Two tests skipped in LoginServer since ldap is not available"
 
     def test_login_delay(self):
-        LoginServer.LOGIN_FAILED_DELAY = 0.2
+        login_manager.LOGIN_FAILED_DELAY = 0.2
         #Sometimes it's 0.999323129654
         #0.001 should be ok, but just in case
         ERROR_MARGIN = 0.01
         start_time = time.time()
-        self.assertRaises(
-                LoginErrors.InvalidCredentialsError,
-                self.login_server.login,
-                fake_wrong_user,
-                fake_wrong_passwd
-            )
+        with wlcontext(self.core_server):
+            self.assertRaises(
+                    LoginErrors.InvalidCredentialsError,
+                    core_api.login,
+                    fake_wrong_user,
+                    fake_wrong_passwd
+                )
         finish_time = time.time()
-        self.assertTrue((finish_time + ERROR_MARGIN - start_time) >= LoginServer.LOGIN_FAILED_DELAY)
+        self.assertTrue((finish_time + ERROR_MARGIN - start_time) >= login_manager.LOGIN_FAILED_DELAY)
 
     def test_right_session(self):
-        session_id = self.login_server.login(
-                    fake_right_user,
-                    fake_right_passwd
-                )
-        self.assertEquals(
-                fake_ups_session_id,
-                session_id
-            )
-
-    def test_login_failed_exception_reserving(self):
-        old_reserve_session = FakeUPServer.reserve_session
-        FakeUPServer.reserve_session = broken_reserve_session
-        try:
-            self.assertRaises(
-                LocatorErrors.UnableToCompleteOperationError,
-                self.login_server.login,
-                fake_right_user,
-                fake_right_passwd
-            )
-        finally:
-            FakeUPServer.reserve_session = old_reserve_session
-
-        self.assertEquals(
-            1,
-            len(self.real_locator.servers_not_working)
-        )
-        self.assertEquals(
-            self.real_locator.fake_ups_server,
-            self.real_locator.servers_not_working[0]
-        )
-
-    def test_no_server_found_retrieving(self):
-        old_get_server = FakeLocator.get_server
-        FakeLocator.get_server = get_no_server
-
-        try:
-            self.assertRaises(
-                LocatorErrors.UnableToCompleteOperationError,
-                self.login_server.login,
-                fake_right_user,
-                fake_right_passwd
-            )
-        finally:
-            FakeLocator.get_server = old_get_server
+        with wlcontext(self.core_server):
+            session_id = core_api.login(fake_right_user, fake_right_passwd)
+            self.assertTrue( isinstance(session_id, SessionId) )
+            self.assertTrue( len(session_id.id) > 5 )
 
 def suite():
     return unittest.makeSuite(LoginServerTestCase)

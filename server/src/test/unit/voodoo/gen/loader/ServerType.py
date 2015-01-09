@@ -13,6 +13,6 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-Login       = 'Login'
+Login2      = 'Login2'
 Coordinator = 'Coordinator'
 

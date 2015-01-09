@@ -26,6 +26,8 @@ import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationKeyNotFoundException;
 import es.deusto.weblab.client.configuration.exceptions.InvalidConfigurationValueException;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 
 /**
  * ConfigurationRetriever class is able to read values of different types
@@ -44,7 +46,7 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	 * @param parent Parant retriever that this retriever belongs to. If items
 	 * are not found on this retriever's dictionary, the parents' will be checked.
 	 */
-	ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
+	public ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
 		this.configurationMap = configurationMap;
 		this.parent = parent;
 		
@@ -336,5 +338,93 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 			return def;
 		
 		return booleanValue.booleanValue();
+	}
+
+	/**
+	 * Retrieves a boolean property. Will throw a not found exception if the 
+	 * property is not located.
+	 * 
+	 * @param key String which uniquely identifies the boolean property
+	 */
+	public double getDoubleProperty(String key) throws ConfigurationKeyNotFoundException, InvalidConfigurationValueException
+	{
+		final JSONValue value = this.getJSONProperty(key);
+		if(value == null)
+			throw new ConfigurationKeyNotFoundException("Configuration key: " + key + " not found");
+		
+		final JSONNumber floatValue = value.isNumber();
+		if(floatValue == null)
+			throw new InvalidConfigurationValueException("Invalid float format for key " + key);
+		
+		return floatValue.doubleValue();
+	}
+
+	/**
+	 * Retrieves a boolean property. If the property is not found,
+	 * a default value will be returned.
+	 * 
+	 * @param key String that uniquely identifies the property.
+	 * @param def Value to be returned if a boolean with the specified key is not found.
+	 * @return The value for the key if found, the default value otherwise.
+	 */
+	public double getDoubleProperty(String key, double def)
+	{
+		final JSONValue value = this.configurationMap.get(key);
+		if(value == null)
+			return def;
+		
+		final JSONNumber doubleValue = value.isNumber();
+		if(doubleValue == null)
+			return def;
+		
+		return doubleValue.doubleValue();
+	}
+
+	@Override
+	public int getIntProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		return getIntProperty(parameter.getName());
+	}
+
+	@Override
+	public int getIntProperty(ExperimentParameterDefault parameter) {
+		return getIntProperty(parameter.getName(), parameter.getIntDefaultValue());
+	}
+
+	@Override
+	public boolean getBoolProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		return getBoolProperty(parameter.getName());
+	}
+
+	@Override
+	public boolean getBoolProperty(ExperimentParameterDefault parameter) {
+		return getBoolProperty(parameter.getName(), parameter.getBooleanDefaultValue());
+	}
+
+	@Override
+	public String getProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		return getProperty(parameter.getName());
+	}
+
+	@Override
+	public String getProperty(ExperimentParameterDefault parameter) {
+		return getProperty(parameter.getName(), parameter.getStringDefaultValue());
+	}
+
+	@Override
+	public double getDoubleProperty(ExperimentParameter parameter)
+			throws ConfigurationKeyNotFoundException,
+			InvalidConfigurationValueException {
+		return getDoubleProperty(parameter.getName());
+	}
+
+	@Override
+	public double getDoubleProperty(ExperimentParameterDefault parameter) {
+		return getDoubleProperty(parameter.getName(), parameter.getDoubleDefaultValue());
 	}
 }

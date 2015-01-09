@@ -22,7 +22,6 @@ import stat
 import urllib2
 import StringIO
 import zipfile
-import shutil
 
 def compile_client(war_location, client_location):
 
@@ -32,9 +31,9 @@ def compile_client(war_location, client_location):
     gwt_location = os.path.join(external_location,'gwt')
 
     if 'GWT_HOME' in os.environ and os.path.exists(os.environ['GWT_HOME']):
-        used_location = os.environ['GWT_HOME']
+        gwt_location = os.environ['GWT_HOME']
     else:
-        used_location = gwt_location
+        gwt_location = gwt_location
     
     about_txt = os.path.join(gwt_location, 'about.txt')
     if os.path.exists(about_txt):

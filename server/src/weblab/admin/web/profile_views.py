@@ -7,7 +7,9 @@ from flask.ext.admin import expose, AdminIndexView, BaseView
 import weblab.db.model as model
 import weblab.admin.web.admin_views as admin_views
 
-from flask.ext.wtf import TextField, Form, PasswordField, NumberRange
+from wtforms import TextField, PasswordField
+from wtforms.validators import NumberRange
+from flask.ext.wtf import Form
 from weblab.admin.web.fields import DisabledTextField
 
 import weblab.permissions as permissions
@@ -15,7 +17,7 @@ import weblab.permissions as permissions
 
 def get_app_instance():
     import weblab.admin.web.app as admin_app
-    return admin_app.AdministrationApplication.INSTANCE
+    return admin_app.GLOBAL_APP_INSTANCE
 
 class ProfileEditForm(Form):
     full_name   = DisabledTextField(u"Full name:")
@@ -38,7 +40,6 @@ class ProfileEditView(BaseView):
         
         facebook_id = ''
 
-        user_auths = {}
         change_password = True
         password_auth = None
         facebook_auth = None

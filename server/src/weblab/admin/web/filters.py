@@ -1,6 +1,6 @@
 
-from flask.ext.admin.contrib.sqlamodel import tools
-import flask.ext.admin.contrib.sqlamodel.filters as filters
+from flask.ext.admin.contrib.sqla import tools
+import flask.ext.admin.contrib.sqla.filters as filters
 
 class FilterAnyEqual(filters.FilterEqual):
     def __init__(self, column, name, column_any, **kwargs):

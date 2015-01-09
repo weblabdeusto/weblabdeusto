@@ -89,7 +89,7 @@ class ReservationsManager(object):
             self.now = now
         
         current_moment = now()
-        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
+        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 1e6
 
         MAX_TRIES = 10
         for _ in xrange(MAX_TRIES):
@@ -147,7 +147,7 @@ class ReservationsManager(object):
         client = self._redis_maker()
         
         current_moment = self.now()
-        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 10e6
+        now_timestamp = time.mktime(current_moment.timetuple()) + current_moment.microsecond / 1e6
 
         weblab_reservation_status = WEBLAB_RESERVATION_STATUS % reservation_id
         
@@ -171,7 +171,7 @@ class ReservationsManager(object):
         return client.hdel(weblab_reservation_status, CURRENT) != 0
 
     def list_expired_reservations(self, expiration_time):
-        expiration_timestamp = time.mktime(expiration_time.timetuple()) + expiration_time.microsecond / 10e6
+        expiration_timestamp = time.mktime(expiration_time.timetuple()) + expiration_time.microsecond / 1e6
         client = self._redis_maker()
         
         # This is not a problem in SQL, since we say "retrieve only those that have expired"

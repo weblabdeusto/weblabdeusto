@@ -107,3 +107,20 @@ cant_change_profile = PermissionType(CANT_CHANGE_PROFILE, CANT_CHANGE_PROFILE_DE
 
 _register(cant_change_profile)
 
+###############################################################
+# 
+#            Instrutor is a teacher of a group
+# 
+
+INSTRUCTOR_OF_GROUP      = 'instructor_of_group'
+INSTRUCTOR_OF_GROUP_DESC = 'Users with this permission will see these groups'
+
+TARGET_GROUP       = 'target_group'
+TARGET_GROUP_DTYPE = 'int'
+TARGET_GROUP_DESC  = 'Identifier of the group to be instructed.'
+
+instructor_of_group = PermissionType(INSTRUCTOR_OF_GROUP, INSTRUCTOR_OF_GROUP_DESC, 
+                                                    [ PermissionTypeParameter(TARGET_GROUP, TARGET_GROUP_DTYPE, TARGET_GROUP_DESC) ])
+
+_register(instructor_of_group)
+
