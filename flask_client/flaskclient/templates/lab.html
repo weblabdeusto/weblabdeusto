@@ -12,7 +12,7 @@
 
     {{ super() }}
 
-    <div class="container" id="reserve-container" ng-app="lab" ng-model="LabController">
+    <div class="container" id="reserve-container" ng-app="lab" ng-controller="LabController">
 
         <div class="text-center">
             <h2>{{ gettext("Reserve this experiment") }}</h2>
@@ -20,14 +20,16 @@
 
         <wl-exp-info></wl-exp-info>
 
+        <button ng-click="reserveInFrame()">Test</button>
+
         <div class="row">
             <div class="col-lg-2 col-lg-offset-4 text-center">
                 <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                   id="reserve-frame-btn">{{ gettext("Reserve (in Frame)") }}</a>
+                   id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
             </div>
             <div class="col-lg-2 text-center">
                 <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
-                   id="reserve-free-btn">{{ gettext("Reserve (in Window)") }}</a>
+                   id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
             </div>
         </div>
 
@@ -189,7 +191,7 @@
     $(document).ready(function () {
 
         // Wait for the FRAME reserve.
-        $("#reserve-frame-btn").click(function (ev) {
+        $("#reserve-frame-btn-DONOT").click(function (ev) {
             var sessionid = "{{ request.cookies.get("sessionid") }}";
             var name = "{{ experiment["experiment.name"] }}";
             var category = "{{ experiment["experiment.category"] }}";
