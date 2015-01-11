@@ -137,6 +137,14 @@ CONFIG_JS = {
 	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
 	                    	   },
 							   {
+								   "experiment.name"		: "romie",
+								   "experiment.category"	: "Dummy experiments",
+								   "cssWidth"				: "1024",
+								   "cssHeight"				: "1000",
+								   "provide.file.upload"	: False,
+								   "html.file"				: "romie/romie.html"
+							   },
+							   {
 								   "experiment.name"		: "visir-html5",
 								   "experiment.category"	: "Visir experiments",
 								   "experiment.picture"		: "/img/experiments/visir.jpg",
@@ -961,6 +969,7 @@ def populate_weblab_tests(engine, tests):
 
     romie = Model.DbExperiment("romie", cat_dummy, start_date, end_date, 'js')
     session.add(romie)
+    _add_params(session, romie)
 
     visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date, 'js')
     session.add(visir_html5)
