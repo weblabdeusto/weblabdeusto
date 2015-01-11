@@ -1,3 +1,4 @@
+import re
 import yaml
 
 from voodoo.gen2.exc import GeneratorException
@@ -7,6 +8,13 @@ class GlobalConfig(dict):
         super(GlobalConfig, self).__init__()
         self.cfg_files = cfg_files
         self.cfg_values = cfg_values
+    
+    def __getitem__(self, name):
+        if isinstance(name, CoordAddress):
+            coord_address = name
+            return self[coord_address.host][coord_address.process][coord_address.component]
+
+        return dict.__getitem__(self, name)
 
 class HostConfig(dict):
     def __init__(self, cfg_files, cfg_values, host):
@@ -37,6 +45,81 @@ class ProtocolsConfig(dict):
     def __init__(self, port):
         super(ProtocolsConfig, self).__init__()
         self.port = port
+
+class CoordAddress(object):
+
+    FORMAT = u'%(component)s:%(process)s@%(host)s'
+    REGEX_FORMAT = '^' + FORMAT % {
+        'component' : '(.*)',
+        'process' : '(.*)',
+        'host' : '(.*)'
+    } + '$'
+
+    def __init__(self, host, process = '', component = ''):
+        self._address = CoordAddress.FORMAT % {
+                'component': component,
+                'process': process,
+                'host': host }
+
+        self._host = host
+        self._process = process
+        self._component = component
+
+    def __eq__(self, other):
+        return self._address.__eq__(getattr(other, '_address', other))
+
+    def __ne__(self, other):
+        return self._address.__ne__(getattr(other, '_address', other))
+
+    def __cmp__(self, other):
+        return self._address.__cmp__(getattr(other, '_address', other))
+
+    def __unicode__(self):
+        return self._address
+
+    def __hash__(self):
+        return self._address.__hash__
+
+    def __repr__(self):
+        return 'CoordAddress(host = %r, process = %r, component = %r)' % (self._host, self._process, self._component)
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def process(self):
+        return self._process
+
+    @property
+    def component(self):
+        return self._component
+
+    @property
+    def address(self):
+        return self.address
+
+    @staticmethod
+    def translate_address(address):
+        """ translate_address(address) -> CoordAddress
+
+        Given a Coordinator Address in CoordAddress.FORMAT format,
+        translate_address will provide the corresponding CoordAddress
+        """
+        try:
+            m = re.match(CoordAddress.REGEX_FORMAT,address)
+        except TypeError:
+            raise GeneratorException(
+                "%(address)s is not a valid address. Format: %(format)s" % {
+                "address" : address, "format"  : CoordAddress.FORMAT })
+
+        if m is None:
+            raise GeneratorException(
+                    '%(address)s is not a valid address. Format: %(format)s' % {
+                    'address' : address, 'format'  : CoordAddress.FORMAT })
+        else:
+            component, process, host = m.groups()
+            return CoordAddress(host,process,component)
 
 def _process_cfg(tree):
     config_files = []
@@ -110,4 +193,7 @@ if __name__ == '__main__':
     result = load('/home/nctrun/weblab/server/src/salida2.yml')
     import pprint
     pprint.pprint(result)
+
+    lab = CoordAddress('core_machine', 'laboratory1', 'laboratory1')
+    pprint.pprint(result[lab])
 
