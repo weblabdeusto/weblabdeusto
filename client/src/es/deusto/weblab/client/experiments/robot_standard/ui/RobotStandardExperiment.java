@@ -93,7 +93,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 		public void onSuccess(ResponseCommand responseCommand) {
 			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
 			RobotStandardExperiment.this.messages.stop();
-			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
+			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok") || responseCommand.getCommandString().startsWith("File sen")){
 				setMessage(i18n.theProgramIsBeingExecutedInTheBot());
 			}else{
 				setMessage(i18n.thereWasAnError(responseCommand.getCommandString()));

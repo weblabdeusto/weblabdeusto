@@ -961,6 +961,7 @@ def populate_weblab_tests(engine, tests):
 
     visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date, 'js')
     session.add(visir_html5)
+    _add_params(session, visir_html5)
 
     logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date, 'logic')
     session.add(logic)
@@ -1043,11 +1044,12 @@ def populate_weblab_tests(engine, tests):
     _add_params(session, aquarium)
 
     aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date, 'js')
-    _add_params(session, aquarium)
     session.add(aquariumjs)
+    _add_params(session, aquariumjs)
 
     submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date, 'js')
     session.add(submarinejs)
+    _add_params(session, submarinejs)
 
     rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date, 'robotarm')
     session.add(rob_arm)
