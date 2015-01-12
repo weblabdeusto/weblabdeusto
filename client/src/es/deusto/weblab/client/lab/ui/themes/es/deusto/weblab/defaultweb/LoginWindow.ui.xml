@@ -147,15 +147,6 @@
 							</g:VerticalPanel>
 						</g:DecoratorPanel>
 						
-						<g:DecoratorPanel width="100%" ui:field="olarexPanel" visible="false">
-							<g:VerticalPanel width="100%" horizontalAlignment="CENTER" spacing="10">
-								<w:WlAHref href="/olarex/" target="_blank">
-					   				<g:Image url="//www.weblab.deusto.es/olarex/olarex_small.png" />
-					   			</w:WlAHref>
-					   			<g:HorizontalPanel spacing="5"><g:Label>OLAREX participants</g:Label><g:Anchor href="/olarex/" text="click here"></g:Anchor></g:HorizontalPanel>								
-							</g:VerticalPanel>
-						</g:DecoratorPanel>
-						
 						<g:DecoratorPanel width="100%" ui:field="createAccountPanel">
 							<g:VerticalPanel styleName="web-login-foot-message" horizontalAlignment="CENTER" spacing="20">
 								<g:Label text="{i18n.dontHaveAnAccountFacebook}"/>
