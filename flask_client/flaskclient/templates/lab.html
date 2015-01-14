@@ -33,15 +33,8 @@
             </div>
         </div>
 
-        <div class="row" id="reserve-status-row" style="display: none">
-            <div class="col-lg-4 col-lg-push-4 col-md-6 col-md-push-3 col-sm-8 col-sm-push-2 col-xs-12"
-                 style="margin-top: 10px">
-                <p class="alert alert-info" style="padding: 10px" id="reserve-status" style="">
-                    {{ gettext("Reserved") }}
-                    {# To be filled from JS #}
-                </p>
-            </div>
-        </div>
+        <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" type="reserveMessage.type"></wl-reserve-status>
+
     </div>
 
 
@@ -190,55 +183,6 @@
     {# Await for the page #}
     $(document).ready(function () {
 
-        // Wait for the FRAME reserve.
-        $("#reserve-frame-btn-DONOT").click(function (ev) {
-            var sessionid = "{{ request.cookies.get("sessionid") }}";
-            var name = "{{ experiment["experiment.name"] }}";
-            var category = "{{ experiment["experiment.category"] }}";
-
-            $(".reserve-btn").attr("disabled", "");
-            infoStatus("{{ gettext("Reserving...") }}");
-
-            WeblabWeb.reserve_experiment(sessionid, name, category)
-                    .progress(function (status, position, result) {
-                        if (position != undefined) {
-                            if (position == 0)
-                                infoStatus("{{ gettext("Waiting in the queue. You are next.") }}");
-                            else
-                                infoStatus("{{ gettext("Waiting in the queue. Your position is: ") }}" + position + ".")
-
-                            // TODO: Improve this animation.
-                            $reserveStatus.fadeOut(200).fadeIn(200);
-                        }
-                    })
-                    .fail(function (error) {
-                        onReserveFail(error);
-                    })
-                    .done(function (uid, time, initial_config, result) {
-
-                        console.log("RESERVATION DONE");
-                        console.log(result);
-
-                        infoStatus("{{ gettext("Reservation done") }}");
-
-                        var frame = $("#exp-frame")[0];
-                        var wexp = frame.contentWindow.Weblab.getWeblabExp();
-                        currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
-                        var url = result["url"];
-                        wexp.setTargetURL("{{ url_for("redir_json", _external=True) }}");
-                        wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
-
-                        // Listen also for a dispose, for other ui changes.
-                        wexp.onFinish().done(function (f) {
-                            onExperimentFinished();
-                        });
-
-                        // For some ui changes.
-                        onReserveDone();
-                    });
-        });
-
-
         //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
 
         // Load the iframeResizer when the frame loads.
@@ -251,81 +195,12 @@
             setTimeout(function () {
                 $("#exp-frame").iFrameResize({log: false, enablePublicMethods: true, checkOrigin: false}, "#exp-frame");
             }, 100);
-
         });
 
         // TODO: Unify the "reserving experiment" alert.
 
         $("#finish-experiment-btn").click(function (ev) {
             currentExperiment.finishExperiment();
-        });
-
-        // Wait for the free-mode reserve.
-        $("#reserve-free-btn").click(function (ev) {
-            console.log("FREE RESERVE PROC STARTED");
-            var sessionid = "{{ request.cookies.get("sessionid") }}";
-            var name = "{{ experiment["experiment.name"] }}";
-            var category = "{{ experiment["experiment.category"] }}";
-
-            $(".reserve-free-btn").attr("disabled", "");
-            infoStatus("{{ gettext("Reserving experiment...") }}");
-
-            WeblabWeb.reserve_experiment(sessionid, name, category)
-                    .fail(function (error) {
-                        onReserveFail(error);
-                    })
-                    .done(function (id, time, initConfig, result) {
-                        console.log("RESERVATION DONE");
-                        console.log(result);
-
-                        infoStatus("{{ gettext("Reservation done") }}");
-
-
-                        {# TODO: Tidy this up. #}
-                        {% if experiment_type == "js" %}
-
-                            var params = {
-                                "r": id,
-                                "c": initConfig,
-                                "t": time,
-                                "u": "{{ url_for("redir_json", _external=True) }}",
-                                "free": "true"
-                            };
-                            {# //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"; #}
-                            var redir = "{{ config["LAB_URL"] + experiment["html.file"] }}";
-                            redir += "?" + $.param(params);
-                            console.log(redir);
-
-                            window.location = redir;
-
-                        {# We assume it is a REDIRECT (HTTP) experiment #}
-                        {% else %}
-
-                            // If it is indeed a REDIRECT (HTTP) experiment, then initConfig of the reservation will
-                            // contain an "url" attribute, which is the URL to which to redirect.
-                            console.log("ON REDIR");
-
-                            var parsedConfig = JSON.parse(initConfig);
-                            var url = parsedConfig["url"];
-
-
-                            // Replace TIME_REMAINING if present. Seems to be somewhat standard.
-                            url = url.replace("TIME_REMAINING", Math.floor(time));
-
-                            if(url == undefined) {
-                                console.error("EXPERIMENT DOES NOT SEEM TO BE OF REDIRECT TYPE: NO URL PROVIDED.");
-                                WeblabWeb.finishExperiment(); // Abort the experiment.
-                                return;
-                            }
-
-                            // Redirect to the provided address.
-                            console.log("Redirecting to: " + url);
-                            window.location = url;
-
-                        {% endif %}
-
-
-                    });
         });
 
     }); //! document.ready
@@ -341,12 +216,14 @@
 
     {# Embedded templates #}
     {% include 'apps/lab/expinfo.template.html' %}
+    {% include 'apps/lab/reserve-status.directive.html' %}
 
     {# Fake includes so that we can use Jinja2 directives #}
     <script type="text/javascript">
         {% include 'apps/lab/app.js' %}
         {% include 'apps/lab/lab.controller.js' %}
         {% include 'apps/lab/expinfo.directive.js' %}
+        {% include 'apps/lab/reserve-status.directive.js' %}
     </script>
 
 {% endblock %}
