@@ -104,5 +104,5 @@ class RoMIEHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 romie = RoMIE()
 httpd = BaseHTTPServer.HTTPServer(('', 8000), RoMIEHandler)
 
-print "Romie server listening"
+print "RoMIE server listening"
 httpd.serve_forever()
