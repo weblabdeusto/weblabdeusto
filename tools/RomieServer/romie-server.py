@@ -19,7 +19,6 @@
 try:
 	import bluetooth
 
-	BT_name = 'linvor'
 	BT_address = '00:12:02:09:05:16'
 	BT_port = 1
 
@@ -105,5 +104,5 @@ class RoMIEHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 romie = RoMIE()
 httpd = BaseHTTPServer.HTTPServer(('', 8000), RoMIEHandler)
 
-print "Server listening"
+print "Romie server listening"
 httpd.serve_forever()
