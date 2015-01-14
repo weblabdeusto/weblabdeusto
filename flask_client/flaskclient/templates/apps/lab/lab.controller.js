@@ -81,7 +81,6 @@ function LabController($scope) {
     }
 
     function reserveInWindow() {
-        console.log("FREE RESERVE PROC STARTED");
         var sessionid = "{{ request.cookies.get('sessionid') }}";
         var name = "{{ experiment['experiment.name'] }}";
         var category = "{{ experiment['experiment.category'] }}";
@@ -90,6 +89,18 @@ function LabController($scope) {
         infoStatus("{{ gettext('Reserving experiment...') }}");
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
+            .progress(function (status, position, result) {
+                if (position != undefined) {
+                    if (position == 0) {
+                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
+                        $scope.reserveMessage.type = 'info';
+                    }
+                    else {
+                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
+                        $scope.reserveMessage.type = 'info';
+                    }
+                }
+            })
             .fail(function (error) {
                 onReserveFail(error);
             })
@@ -97,8 +108,8 @@ function LabController($scope) {
                 console.log("RESERVATION DONE");
                 console.log(result);
 
-                infoStatus("{{ gettext('Reservation done') }}");
-
+                $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
+                $scope.reserveMessage.type = 'info';
 
                 {# TODO: Tidy this up. #}
                 {% if experiment_type == "js" %}
