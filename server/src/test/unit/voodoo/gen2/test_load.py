@@ -36,6 +36,46 @@ class LoadTest(unittest.TestCase):
         self.assertEquals(lab_component1_obtained, lab_component1)
         self.assertNotEquals(lab_component2_obtained, lab_component1)
 
+class CoordAddressTest(unittest.TestCase):
+    def test_general(self):
+        addresses = {}
+        for host in 'host1', 'host2':
+            for process in 'process1', 'process2':
+                for component in 'component1', 'component2':
+                    addresses['%s:%s@%s' % (host, process, component)] = CoordAddress(host, process, component)
+        
+        self.assertEquals(len(addresses), 8)
+
+        operations = 0
+
+        for key1, value1 in addresses.iteritems():
+            for key2, value2 in addresses.iteritems():
+                operations += 1
+                new_key1 = value1.host + value1.process + value1.component
+                new_key2 = value2.host + value2.process + value2.component
+                if key1 == key2:
+                    # Assert they're equal
+                    self.assertTrue(value1 == value2)
+                    self.assertFalse(value1 != value2)
+                    self.assertEquals(cmp(value1, value2), 0)
+                    self.assertEquals(unicode(value1), unicode(value2))
+                    self.assertEquals(hash(value1), hash(value2))
+                    self.assertEquals(repr(value1), repr(value2))
+                    self.assertEquals(value1.address, value2.address)
+                    self.assertEquals(new_key1, new_key2)
+                else:
+                    # Assert they're not equal
+                    self.assertFalse(value1 == value2)
+                    self.assertTrue(value1 != value2)
+                    self.assertNotEquals(cmp(value1, value2), 0)
+                    self.assertNotEquals(unicode(value1), unicode(value2))
+                    self.assertNotEquals(hash(value1), hash(value2))
+                    self.assertNotEquals(repr(value1), repr(value2))
+                    self.assertNotEquals(value1.address, value2.address)
+                    self.assertNotEquals(new_key1, new_key2)
+
+        # paranoid mode: things are being tested ;-)
+        self.assertEquals(operations, 64)
 
 if __name__ == '__main__':
     unittest.main()

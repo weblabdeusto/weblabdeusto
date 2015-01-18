@@ -83,13 +83,13 @@ class CoordAddress(object):
         return self._address.__ne__(getattr(other, '_address', other))
 
     def __cmp__(self, other):
-        return self._address.__cmp__(getattr(other, '_address', other))
+        return cmp(self._address, (getattr(other, '_address', other)))
 
     def __unicode__(self):
         return self._address
 
     def __hash__(self):
-        return self._address.__hash__
+        return hash(self._address)
 
     def __repr__(self):
         return 'CoordAddress(host = %r, process = %r, component = %r)' % (self._host, self._process, self._component)
@@ -108,7 +108,7 @@ class CoordAddress(object):
 
     @property
     def address(self):
-        return self.address
+        return self._address
 
     @staticmethod
     def translate_address(address):
