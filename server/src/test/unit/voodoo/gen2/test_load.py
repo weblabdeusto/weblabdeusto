@@ -53,16 +53,16 @@ class LocatorTest(unittest.TestCase):
         self.assertTrue(t('laboratory1:laboratory1@core_machine') in laboratories)
         self.assertTrue(t('laboratory2:laboratory2@core_machine') in laboratories)
 
-        con1 = locator.find_connection(t('laboratory:laboratory@accessible_machine'))
+        con1 = locator.get_connection(t('laboratory:laboratory@accessible_machine'))
         self.assertDictEquals(con1, {'type' : 'http', 'host' : '192.168.0.2', 'port' : 12345 })
 
-        con2 = locator.find_connection(t('laboratory3:core_server1@core_machine'))
+        con2 = locator.get_connection(t('laboratory3:core_server1@core_machine'))
         self.assertDictEquals(con2, {'type' : 'direct'})
 
-        con3 = locator.find_connection(t('laboratory1:laboratory1@core_machine'))
+        con3 = locator.get_connection(t('laboratory1:laboratory1@core_machine'))
         self.assertDictEquals(con3, {'type' : 'http', 'host' : '127.0.0.1', 'port' : 10003 })
 
-        con4 = locator.find_connection(t('laboratory2:laboratory2@core_machine'))
+        con4 = locator.get_connection(t('laboratory2:laboratory2@core_machine'))
         self.assertDictEquals(con4, {'type' : 'xmlrpc', 'host' : '127.0.0.1', 'port' : 10004 })
 
 

@@ -55,7 +55,7 @@ class Locator(object):
         self.global_config = global_config
         self.my_coord_address = my_coord_address
 
-    def find_connection(self, coord_address):
+    def get_connection(self, coord_address):
         """Return the best connection, if any. If it's not possible to
         find a connection, simply returns None. Otherwise, it returns:
         {
@@ -114,7 +114,7 @@ class Locator(object):
                     if component_value.component_type == server_type:
                         # It's a candidate. Try networks
                         external_component = CoordAddress(host, process, component)
-                        connection = self.find_connection(external_component)
+                        connection = self.get_connection(external_component)
                         if connection:
                             addresses.append(external_component)
 
