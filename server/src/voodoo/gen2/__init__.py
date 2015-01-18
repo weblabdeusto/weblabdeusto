@@ -3,11 +3,14 @@ import yaml
 
 from voodoo.gen2.exc import GeneratorException
 
+LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
+CORE_CLASS = 'weblab.core.server.UserProcessingServer'
+
 class GlobalConfig(dict):
-    def __init__(self, cfg_files, cfg_values):
+    def __init__(self, config_files, config_values):
         super(GlobalConfig, self).__init__()
-        self.cfg_files = cfg_files
-        self.cfg_values = cfg_values
+        self.config_files = config_files
+        self.config_values = config_values
     
     def __getitem__(self, name):
         if isinstance(name, CoordAddress):
@@ -17,34 +20,42 @@ class GlobalConfig(dict):
         return dict.__getitem__(self, name)
 
 class HostConfig(dict):
-    def __init__(self, cfg_files, cfg_values, host):
+    def __init__(self, config_files, config_values, host):
         super(HostConfig, self).__init__()
-        self.cfg_files = cfg_files
-        self.cfg_values = cfg_values
+        self.config_files = config_files
+        self.config_values = config_values
         self.host = host
 
 class ProcessConfig(dict):
-    def __init__(self, cfg_files, cfg_values):
+    def __init__(self, config_files, config_values):
         super(ProcessConfig, self).__init__()
-        self.cfg_files = cfg_files
-        self.cfg_values = cfg_values
+        self.config_files = config_files
+        self.config_values = config_values
 
 class ComponentConfig(object):
-    def __init__(self, cfg_files, cfg_values, component_type, component_class, protocols):
+    def __init__(self, config_files, config_values, component_type, component_class, protocols):
         super(ComponentConfig, self).__init__()
-        self.cfg_files = cfg_files
-        self.cfg_values = cfg_values
+        self.config_files = config_files
+        self.config_values = config_values
         self.component_type = component_type
         self.component_class = component_class
         self.protocols = protocols
 
     def __repr__(self):
-        return 'ComponentConfig(%r, %r, %r, %r, %r)' % (self.cfg_files, self.cfg_values, self.component_type, self.component_class, self.protocols)
+        return 'ComponentConfig(%r, %r, %r, %r, %r)' % (self.config_files, self.config_values, self.component_type, self.component_class, self.protocols)
 
 class ProtocolsConfig(dict):
     def __init__(self, port):
         super(ProtocolsConfig, self).__init__()
         self.port = port
+
+class Locator(object):
+    def __init__(self, global_config, my_coord_address):
+        self.global_config = global_config
+        self.my_coord_address = my_coord_address
+
+    def find_by_type(self, server_type): 
+        pass
 
 class CoordAddress(object):
 
@@ -121,7 +132,7 @@ class CoordAddress(object):
             component, process, host = m.groups()
             return CoordAddress(host,process,component)
 
-def _process_cfg(tree):
+def _process_config(tree):
     config_files = []
     config_values = {}
 
@@ -145,23 +156,22 @@ def loads(yaml_file):
 def _load_contents(contents):
     global_value = contents
 
-    cfg_files, cfg_values = _process_cfg(global_value)
-    global_config = GlobalConfig(cfg_files, cfg_values)
+    config_files, config_values = _process_config(global_value)
+    global_config = GlobalConfig(config_files, config_values)
 
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
-        cfg_files, cfg_values = _process_cfg(host_value)
+        config_files, config_values = _process_config(host_value)
         host = host_value.get('host')
-        host_config = HostConfig(cfg_files, cfg_values, host)
+        host_config = HostConfig(config_files, config_values, host)
         global_config[host_name] = host_config
 
         for process_name, process_value in host_value.get('processes', {}).iteritems():
-            cfg_files, cfg_values = _process_cfg(process_value)
-            process_config = ProcessConfig(cfg_files, cfg_values)
+            config_files, config_values = _process_config(process_value)
+            process_config = ProcessConfig(config_files, config_values)
             host_config[process_name] = process_config
         
             for component_name, component_value in process_value.get('components', {}).iteritems():
-
-                cfg_files, cfg_values = _process_cfg(process_config)
+                config_files, config_values = _process_config(component_value)
 
                 # Type and class
                 component_type = component_value.get('type')
@@ -169,9 +179,9 @@ def _load_contents(contents):
                     raise GeneratorException("Missing component type on %s:%s@%s" % (component_name, process_name, host_name))
 
                 if component_type == 'laboratory':
-                    component_class = 'weblab.lab.server.LaboratoryServer'
+                    component_class = LAB_CLASS
                 elif component_type == 'core':
-                    component_class = 'weblab.lab.server.UserProcessingServer'
+                    component_class = CORE_CLASS
                 else:
                     component_class = component_value.get('class')
                     if not component_class:
@@ -183,17 +193,8 @@ def _load_contents(contents):
                 protocols_config = ProtocolsConfig(port)
                 protocols_config.update(protocols)
 
-                component_config = ComponentConfig(cfg_files, cfg_values, component_type, component_class, protocols_config)
+                component_config = ComponentConfig(config_files, config_values, component_type, component_class, protocols_config)
                 process_config[component_name] = component_config
 
     return global_config
-
-if __name__ == '__main__':
-    result = load('/home/nctrun/weblab/server/src/salida.yml')
-    result = load('/home/nctrun/weblab/server/src/salida2.yml')
-    import pprint
-    pprint.pprint(result)
-
-    lab = CoordAddress('core_machine', 'laboratory1', 'laboratory1')
-    pprint.pprint(result[lab])
 

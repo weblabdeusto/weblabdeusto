@@ -1,0 +1,38 @@
+hosts:
+  core_machine:
+    config_files:
+    - core_machine/machine_config.py
+    - core_machine/machine_config.py
+    host: 127.0.0.1
+    processes:
+      core_server1:
+        components:
+          core:
+            config:
+              core_coordinator_clean: true
+              core_facade_port: 10000
+              core_facade_server_route: route1
+            type: core
+      laboratory1:
+        components:
+          experiment1:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: true
+            type: experiment
+          laboratory1:
+            config_file: core_machine/laboratory1/laboratory1/server_config.py
+            protocols:
+              http: {}
+              port: 10003
+              xmlrpc: {}
+            type: laboratory
+      laboratory2:
+        components:
+          laboratory2:
+            type: laboratory
+            protocols:
+              http: {}
+              xmlrpc: {}
+              port: 10004
+
