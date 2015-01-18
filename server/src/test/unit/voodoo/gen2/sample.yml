@@ -1,9 +1,36 @@
 hosts:
+  unaccessible_machine1:
+    host: 192.168.0.2
+    processes:
+      laboratory:
+        components:
+          laboratory:
+            type: laboratory
+  unaccessible_machine2:
+    host: 127.0.0.1
+    processes:
+      laboratory:
+        components:
+          laboratory:
+            type: laboratory
+            protocols:
+              port: 12345
+              http: {}
+  accessible_machine:
+    host: 192.168.0.2
+    processes:
+      laboratory:
+        components:
+          laboratory:
+            type: laboratory
+            protocols:
+              port: 12345
+              http: {}
   core_machine:
     config_files:
     - core_machine/machine_config.py
     - core_machine/machine_config.py
-    host: 127.0.0.1
+    host: 192.168.0.1
     processes:
       core_server1:
         components:
@@ -13,6 +40,8 @@ hosts:
               core_facade_port: 10000
               core_facade_server_route: route1
             type: core
+          laboratory3:
+            type: laboratory
       laboratory1:
         components:
           experiment1:
@@ -32,7 +61,6 @@ hosts:
           laboratory2:
             type: laboratory
             protocols:
-              http: {}
               xmlrpc: {}
               port: 10004
 

@@ -1,15 +1,16 @@
+import json
 import unittest
 
 from voodoo.gen2 import CoordAddress, Locator, load, CORE_CLASS, LAB_CLASS
 
 
-class LoadTest(unittest.TestCase):
+class LoaderTest(unittest.TestCase):
     def test_load(self):
         result = load('test/unit/voodoo/gen2/sample.yml')
         machine = result['core_machine']
         config_files = ['core_machine/machine_config.py', 'core_machine/machine_config.py']
         self.assertEquals(machine.config_files, config_files)
-        self.assertEquals(machine.host, '127.0.0.1')
+        self.assertEquals(machine.host, '192.168.0.1')
 
         core_server1 = machine['core_server1']
         core_component = core_server1['core']
@@ -35,6 +36,39 @@ class LoadTest(unittest.TestCase):
 
         self.assertEquals(lab_component1_obtained, lab_component1)
         self.assertNotEquals(lab_component2_obtained, lab_component1)
+
+class LocatorTest(unittest.TestCase):
+    def test_find_labs(self):
+        global_config = load('test/unit/voodoo/gen2/sample.yml')
+        core_server = CoordAddress('core_machine', 'core_server1', 'core')
+        locator = Locator(global_config, core_server)
+        laboratories = locator.find_by_type('laboratory')
+
+        self.assertEquals(len(laboratories), 4)
+        
+        t = CoordAddress.translate_address
+
+        self.assertTrue(t('laboratory:laboratory@accessible_machine') in laboratories)
+        self.assertTrue(t('laboratory3:core_server1@core_machine') in laboratories)
+        self.assertTrue(t('laboratory1:laboratory1@core_machine') in laboratories)
+        self.assertTrue(t('laboratory2:laboratory2@core_machine') in laboratories)
+
+        con1 = locator.find_connection(t('laboratory:laboratory@accessible_machine'))
+        self.assertDictEquals(con1, {'type' : 'http', 'host' : '192.168.0.2', 'port' : 12345 })
+
+        con2 = locator.find_connection(t('laboratory3:core_server1@core_machine'))
+        self.assertDictEquals(con2, {'type' : 'direct'})
+
+        con3 = locator.find_connection(t('laboratory1:laboratory1@core_machine'))
+        self.assertDictEquals(con3, {'type' : 'http', 'host' : '127.0.0.1', 'port' : 10003 })
+
+        con4 = locator.find_connection(t('laboratory2:laboratory2@core_machine'))
+        self.assertDictEquals(con4, {'type' : 'xmlrpc', 'host' : '127.0.0.1', 'port' : 10004 })
+
+
+    def assertDictEquals(self, dict1, dict2):
+        self.assertEquals(json.dumps(dict1), json.dumps(dict2))
+
 
 class CoordAddressTest(unittest.TestCase):
     def test_general(self):

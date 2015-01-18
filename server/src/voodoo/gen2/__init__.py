@@ -5,6 +5,7 @@ from voodoo.gen2.exc import GeneratorException
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
 CORE_CLASS = 'weblab.core.server.UserProcessingServer'
+PROTOCOL_PRIORITIES = ('http', 'xmlrpc')
 
 class GlobalConfig(dict):
     def __init__(self, config_files, config_values):
@@ -54,8 +55,70 @@ class Locator(object):
         self.global_config = global_config
         self.my_coord_address = my_coord_address
 
-    def find_by_type(self, server_type): 
-        pass
+    def find_connection(self, coord_address):
+        """Return the best connection, if any. If it's not possible to
+        find a connection, simply returns None. Otherwise, it returns:
+        {
+            'type' : 'direct'
+        }
+        or:
+        {
+            'type' : 'http' # Or 'xmlrpc'
+            'host' : '127.0.0.1',
+            'port' : 12345,
+            'path' : '/foo/bar'
+        }
+        """
+        if coord_address.host == self.my_coord_address.host and coord_address.process == self.my_coord_address.process:
+            # Same machine & process: connect through direct
+            return {'type' : 'direct'}
+
+        component_config = self.global_config[coord_address]
+        protocols = component_config.protocols
+        if coord_address.host == self.my_coord_address.host:
+            host = '127.0.0.1'
+        else:
+            host = self.global_config[coord_address.host].host
+            if not host or host in ('127.0.0.1', 'localhost', 'localhost.localdomain'):
+                # If host is not configured or if the host is 
+                # localhost (and we're in a different machine),
+                # there is nothing to do
+                return None
+
+        if 'http' in protocols:
+            return_data = {
+                'type' : 'http',
+                'host' : host,
+                'port' : protocols.port
+            }
+            return_data.update(protocols['http'])
+            return return_data
+
+        if 'xmlrpc' in protocols:
+            return_data = {
+                'type' : 'xmlrpc',
+                'host' : host,
+                'port' : protocols.port
+            }
+            return_data.update(protocols['xmlrpc'])
+            return return_data
+        
+        return None
+        
+    def find_by_type(self, server_type):
+        addresses = []
+
+        for host, host_value in self.global_config.iteritems():
+            for process, process_value in host_value.iteritems():
+                for component, component_value in process_value.iteritems():
+                    if component_value.component_type == server_type:
+                        # It's a candidate. Try networks
+                        external_component = CoordAddress(host, process, component)
+                        connection = self.find_connection(external_component)
+                        if connection:
+                            addresses.append(external_component)
+
+        return addresses
 
 class CoordAddress(object):
 
