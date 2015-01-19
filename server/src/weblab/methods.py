@@ -15,16 +15,9 @@
 
 # This is the visible API of each server of the WebLab
 
-UserProcessing = []
+core = []
 
-Proxy = [
-        'enable_access',
-        'disable_access',
-        'are_expired',
-        'retrieve_results'
-    ]
-
-Laboratory = [
+laboratory = [
         'reserve_experiment',
         'free_experiment',
         'send_file',
@@ -39,6 +32,25 @@ Laboratory = [
         'list_experiments',
     ]
 
+experiment = [
+        'start_experiment',
+        'send_file_to_device',
+        'send_command_to_device',
+        'should_finish',
+        'dispose',
+        'is_up_and_running',
+        'get_api'
+    ]
+
+
+Proxy = [
+        'enable_access',
+        'disable_access',
+        'are_expired',
+        'retrieve_results'
+    ]
+
+
 Translator = [
         'on_start',
         'before_send_command',
@@ -48,13 +60,9 @@ Translator = [
         'on_finish'
     ]
 
-Experiment = [
-        'start_experiment',
-        'send_file_to_device',
-        'send_command_to_device',
-        'should_finish',
-        'dispose',
-        'is_up_and_running',
-        'get_api'
-    ]
+
+
+UserProcessing = core # Compatibility with older versions
+Experiment = experiment
+Laboratory = laboratory
 

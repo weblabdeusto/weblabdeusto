@@ -292,11 +292,17 @@ class CoordAddress(object):
 #   Clients
 # 
 
+METHODS_PATH = 'weblab.methods'
+
 class AbstractClient(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, server_type, server_config):
-        methods = [ 'foo', 'bar' ]
+    def __init__(self, server_type):
+        methods_module = __import__(METHODS_PATH)
+        methods = getattr(methods_module, server_type, None)
+        if methods is None:
+            raise Exception("Unregistered server type in weblab/methods.py: %s" % server_type)
+
         # Create methods in this instance for each of these methods
         for method in methods:
             def call_method(*args):
@@ -307,23 +313,49 @@ class AbstractClient(object):
     def _call(self, name, *args):
         """Call a method with the given name and arguments"""
 
-def create_client(server_type, args):
-    pass
+_SERVER_CLIENTS = {
+    # 'direct' : DirectClient
+}
+
+def create_client(server_config):
+    server_config = server_config.copy()
+    server_type = server_config.pop('type')
+    if server_type not in _SERVER_CLIENTS:
+        raise Exception("Unregistered server type in _SERVER_CLIENTS: %s" % server_type)
+
+    return _SERVER_CLIENTS[server_type](server_config)
 
 class DirectClient(AbstractClient):
+    
+    def __init__(self, server_type, server_config):
+        super(DirectClient, self).__init__(server_type)
+
     def _call(self, name, *args):
         print "Method: %s; args: %s" % (name,args)
         # use voodoo.gen.registry
         pass
 
+_SERVER_CLIENTS['direct'] = DirectClient
 
 class HttpClient(AbstractClient):
+
+    def __init__(self, server_type, server_config):
+        super(HttpClient, self).__init__(server_type)
+
     def _call(self, name, *args):
         # use requests and JSON or pickle (right now, pickle, in the future, json)
         pass
 
+_SERVER_CLIENTS['http'] = HttpClient
+
 class XmlRpcClient(AbstractClient):
+
+    def __init__(self, server_type, server_config):
+        super(XmlRpcClient, self).__init__(server_type)
+
     def _call(self, name, *args):
         # use xmlprpclib
         pass
+
+_SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 

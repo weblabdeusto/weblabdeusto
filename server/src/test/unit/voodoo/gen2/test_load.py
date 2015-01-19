@@ -111,5 +111,9 @@ class CoordAddressTest(unittest.TestCase):
         # paranoid mode: things are being tested ;-)
         self.assertEquals(operations, 64)
 
+class ClientTest(unittest.TestCase):
+    def test_client(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()
