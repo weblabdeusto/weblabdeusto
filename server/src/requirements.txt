@@ -51,3 +51,5 @@ alembic<0.6
 networkx==1.8.1
 
 PyYAML==3.11
+
+requests==2.5.1

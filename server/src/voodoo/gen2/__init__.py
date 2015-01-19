@@ -1,8 +1,11 @@
 import re
 from abc import ABCMeta, abstractmethod
+import pickle
+import xmlrpclib
 
 import yaml
 
+import requests
 from voodoo.gen2.exc import GeneratorException
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
@@ -299,15 +302,21 @@ class AbstractClient(object):
 
     def __init__(self, server_type):
         methods_module = __import__(METHODS_PATH)
-        methods = getattr(methods_module, server_type, None)
+        methods = getattr(methods_module.methods, server_type, None)
         if methods is None:
             raise Exception("Unregistered server type in weblab/methods.py: %s" % server_type)
 
+        print "Loading", methods
         # Create methods in this instance for each of these methods
         for method in methods:
-            def call_method(*args):
-                return self._call(method, *args)
+            call_method = self._create_method(method)
             setattr(self, method, call_method)
+
+    def _create_method(self, method_name):
+        def method(*args):
+            return self._call(method_name, *args)
+        method.__name__ = method_name
+        return method
 
     @abstractmethod
     def _call(self, name, *args):
@@ -317,13 +326,12 @@ _SERVER_CLIENTS = {
     # 'direct' : DirectClient
 }
 
-def create_client(server_config):
-    server_config = server_config.copy()
-    server_type = server_config.pop('type')
-    if server_type not in _SERVER_CLIENTS:
+def create_client(server_type, server_config):
+    protocol = server_config.get('type')
+    if protocol not in _SERVER_CLIENTS:
         raise Exception("Unregistered server type in _SERVER_CLIENTS: %s" % server_type)
 
-    return _SERVER_CLIENTS[server_type](server_config)
+    return _SERVER_CLIENTS[protocol](server_type, server_config)
 
 class DirectClient(AbstractClient):
     
@@ -341,10 +349,16 @@ class HttpClient(AbstractClient):
 
     def __init__(self, server_type, server_config):
         super(HttpClient, self).__init__(server_type)
+        path = server_config.get('path', '/')
+        host = server_config.get('host')
+        port = server_config.get('port')
+        self.url = "http://%s:%s%s" % (host, port, path)
 
     def _call(self, name, *args):
-        # use requests and JSON or pickle (right now, pickle, in the future, json)
-        pass
+        # In the future (once we don't pass any weird arg, such as SessionId and so on), use JSON
+        # TODO: exceptions
+        result = requests.post(self.url + '/' + name, data = pickle.dumps(args)).content
+        return pickle.loads(content)
 
 _SERVER_CLIENTS['http'] = HttpClient
 
@@ -352,10 +366,14 @@ class XmlRpcClient(AbstractClient):
 
     def __init__(self, server_type, server_config):
         super(XmlRpcClient, self).__init__(server_type)
+        path = server_config.get('path', '/')
+        host = server_config.get('host')
+        port = server_config.get('port')
+        self.server = xmlrpclib.Server("http://%s:%s%s" % (host, port, path))
 
     def _call(self, name, *args):
-        # use xmlprpclib
-        pass
+        # TODO: exceptions
+        return getattr(self.server, 'Util.%s' % name)(*args)
 
 _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 
