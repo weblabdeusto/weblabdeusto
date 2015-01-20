@@ -57,7 +57,7 @@ class LocatorTest(unittest.TestCase):
         self.assertDictEquals(con1, {'type' : 'http', 'host' : '192.168.0.2', 'port' : 12345 })
 
         con2 = locator.get_connection(t('laboratory3:core_server1@core_machine'))
-        self.assertDictEquals(con2, {'type' : 'direct'})
+        self.assertDictEquals(con2, {'type' : 'direct', 'address' : 'laboratory3:core_server1@core_machine'})
 
         con3 = locator.get_connection(t('laboratory1:laboratory1@core_machine'))
         self.assertDictEquals(con3, {'type' : 'http', 'host' : '127.0.0.1', 'port' : 10003 })

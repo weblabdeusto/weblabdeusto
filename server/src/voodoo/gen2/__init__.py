@@ -6,7 +6,8 @@ import xmlrpclib
 import yaml
 
 import requests
-from voodoo.gen2.exc import GeneratorException
+from voodoo.gen2.exc import GeneratorError
+from voodoo.gen2.registry import GLOBAL_REGISTRY
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
 CORE_CLASS = 'weblab.core.server.UserProcessingServer'
@@ -110,7 +111,7 @@ def _load_contents(contents):
                 # Type and class
                 component_type = component_value.get('type')
                 if not component_type:
-                    raise GeneratorException("Missing component type on %s:%s@%s" % (component_name, process_name, host_name))
+                    raise GeneratorError("Missing component type on %s:%s@%s" % (component_name, process_name, host_name))
 
                 if component_type == 'laboratory':
                     component_class = LAB_CLASS
@@ -119,7 +120,7 @@ def _load_contents(contents):
                 else:
                     component_class = component_value.get('class')
                     if not component_class:
-                        raise GeneratorException("Missing component class on %s:%s@%s" % (component_name, process_name, host_name))
+                        raise GeneratorError("Missing component class on %s:%s@%s" % (component_name, process_name, host_name))
 
                 # Protocols
                 protocols = component_value.get('protocols', {})
@@ -159,7 +160,7 @@ class Locator(object):
         """
         if coord_address.host == self.my_coord_address.host and coord_address.process == self.my_coord_address.process:
             # Same machine & process: connect through direct
-            return {'type' : 'direct'}
+            return {'type' : 'direct', 'address' :  coord_address.address}
 
         component_config = self.global_config[coord_address]
         protocols = component_config.protocols
@@ -193,13 +194,14 @@ class Locator(object):
         
         return None
         
-    def find_by_type(self, server_type):
+    def find_by_type(self, component_type):
+        """ returns a list of CoordAddress of those laboratories of a given component_type which can be reached from the current instance. """
         addresses = []
 
         for host, host_value in self.global_config.iteritems():
             for process, process_value in host_value.iteritems():
                 for component, component_value in process_value.iteritems():
-                    if component_value.component_type == server_type:
+                    if component_value.component_type == component_type:
                         # It's a candidate. Try networks
                         external_component = CoordAddress(host, process, component)
                         connection = self.get_connection(external_component)
@@ -207,6 +209,25 @@ class Locator(object):
                             addresses.append(external_component)
 
         return addresses
+
+    def get(self, coord_address):
+        """ Return the most efficient client to that component, or None """
+        if not isinstance(coord_address, CoordAddress):
+            raise ValueError("coord_address %r must be of type CoordAddress" % coord_address)
+
+        connection_config = self.get_connection(coord_address)
+        if connection_config:
+            component_type = slef.global_config[coord_address].component_type
+            return _create_client(component_type, connection_config)
+
+    def __getitem__(self, coord_address):
+        """ Returns the most efficient client to that component, or raises a KeyError """
+        client = self.get(coord_address)
+        if client:
+            return client
+        
+        # TODO: make a class that subclasses both KeyError and VoodooError
+        raise KeyError(unicode(coord_address))
 
 
 ############################################
@@ -277,12 +298,12 @@ class CoordAddress(object):
         try:
             m = re.match(CoordAddress.REGEX_FORMAT,address)
         except TypeError:
-            raise GeneratorException(
+            raise GeneratorError(
                 "%(address)s is not a valid address. Format: %(format)s" % {
                 "address" : address, "format"  : CoordAddress.FORMAT })
 
         if m is None:
-            raise GeneratorException(
+            raise GeneratorError(
                     '%(address)s is not a valid address. Format: %(format)s' % {
                     'address' : address, 'format'  : CoordAddress.FORMAT })
         else:
@@ -300,11 +321,11 @@ METHODS_PATH = 'weblab.methods'
 class AbstractClient(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, server_type):
+    def __init__(self, component_type):
         methods_module = __import__(METHODS_PATH)
-        methods = getattr(methods_module.methods, server_type, None)
+        methods = getattr(methods_module.methods, component_type, None)
         if methods is None:
-            raise Exception("Unregistered server type in weblab/methods.py: %s" % server_type)
+            raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
 
         print "Loading", methods
         # Create methods in this instance for each of these methods
@@ -326,29 +347,31 @@ _SERVER_CLIENTS = {
     # 'direct' : DirectClient
 }
 
-def create_client(server_type, server_config):
+def _create_client(component_type, server_config):
     protocol = server_config.get('type')
     if protocol not in _SERVER_CLIENTS:
-        raise Exception("Unregistered server type in _SERVER_CLIENTS: %s" % server_type)
+        raise Exception("Unregistered protocol in _SERVER_CLIENTS: %s" % protocol)
 
-    return _SERVER_CLIENTS[protocol](server_type, server_config)
+    return _SERVER_CLIENTS[protocol](component_type, server_config)
 
 class DirectClient(AbstractClient):
     
-    def __init__(self, server_type, server_config):
-        super(DirectClient, self).__init__(server_type)
+    def __init__(self, component_type, server_config):
+        super(DirectClient, self).__init__(component_type)
+        self.coord_address_str = server_config['address']
 
     def _call(self, name, *args):
-        print "Method: %s; args: %s" % (name,args)
-        # use voodoo.gen.registry
-        pass
+        instance = GLOBAL_REGISTRY[self.coord_address_str]
+        method = getattr(instance, 'do_%s' % name)
+        # TODO: exceptions
+        return method(*args)
 
 _SERVER_CLIENTS['direct'] = DirectClient
 
 class HttpClient(AbstractClient):
 
-    def __init__(self, server_type, server_config):
-        super(HttpClient, self).__init__(server_type)
+    def __init__(self, component_type, server_config):
+        super(HttpClient, self).__init__(component_type)
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
@@ -364,8 +387,8 @@ _SERVER_CLIENTS['http'] = HttpClient
 
 class XmlRpcClient(AbstractClient):
 
-    def __init__(self, server_type, server_config):
-        super(XmlRpcClient, self).__init__(server_type)
+    def __init__(self, component_type, server_config):
+        super(XmlRpcClient, self).__init__(component_type)
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
@@ -377,3 +400,8 @@ class XmlRpcClient(AbstractClient):
 
 _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 
+
+############################################
+# 
+#   Servers
+#
