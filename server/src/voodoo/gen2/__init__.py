@@ -318,14 +318,19 @@ class CoordAddress(object):
 
 METHODS_PATH = 'weblab.methods'
 
+def _get_methods_by_component_type(component_type):
+    methods_module = __import__(METHODS_PATH)
+    methods = getattr(methods_module.methods, component_type, None)
+    if methods is None:
+        raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
+    return methods
+
 class AbstractClient(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, component_type):
-        methods_module = __import__(METHODS_PATH)
-        methods = getattr(methods_module.methods, component_type, None)
-        if methods is None:
-            raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
+
+        methods = _get_methods_by_component_type(component_type)
 
         print "Loading", methods
         # Create methods in this instance for each of these methods
@@ -405,3 +410,28 @@ _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 # 
 #   Servers
 #
+
+def _create_server(server_instance, coord_address, component_config):
+    """ server_instance: an instance of a class which contains the defined methods """
+    component_type = component_config['type']
+    
+    methods = _get_methods_by_component_type(component_type)
+    missing_methods = []
+    for method in methods:
+        method_name = 'do_%s' % method
+        if not hasattr(instance, method_name):
+            missing_methods.append(method_name)
+
+    if missing_methods:
+        raise Exception("instance %s missing methods: %r" % (server_instance, missing_methods))
+
+    GLOBAL_REGISTRY[coord_address.address] = server_instance
+
+    protocols = component_config.get('protocols', {})
+    if protocols:
+        # Create a single Flask app first, then start registering per protocol (http, xmlrpc)
+        # TODO
+        pass
+
+
+

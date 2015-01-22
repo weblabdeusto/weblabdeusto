@@ -38,6 +38,10 @@ class ServerRegistry(object):
 
         self._servers.pop(address)
 
+    def __setitem__(self, address, server):
+        self.register(address, server)
+        return server
+
     def __getitem__(self, address):
         return self._servers[address]
 
