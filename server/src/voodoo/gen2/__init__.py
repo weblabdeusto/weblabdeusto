@@ -4,8 +4,9 @@ import pickle
 import xmlrpclib
 
 import yaml
-
 import requests
+from flask import Flask, Blueprint, request
+
 from voodoo.gen2.exc import GeneratorError
 from voodoo.gen2.registry import GLOBAL_REGISTRY
 
@@ -397,7 +398,7 @@ class XmlRpcClient(AbstractClient):
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
-        self.server = xmlrpclib.Server("http://%s:%s%s" % (host, port, path))
+        self.server = xmlrpclib.Server("http://%s:%s%s" % (host, port, path), allow_none = True)
 
     def _call(self, name, *args):
         # TODO: exceptions
@@ -410,6 +411,51 @@ _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 # 
 #   Servers
 #
+
+# TODO: The format shouldn't be:
+# 
+# protocols:
+#    port: 12345
+#    http: {}
+#    xmlrpc: {}
+# 
+# but:
+# 
+# protocols:
+#    port: 12345
+#    path: /foo/
+#    auth_key: adsfasdf
+#    support: xmlrpc, http
+# 
+# and, in the future, if requested, we add parameters per method. 
+
+_methods = Blueprint('methods', __name__)
+
+@_methods.route('/', methods = ['GET', 'POST'])
+def xmlrpc():
+    if request.method == 'GET':
+        # TODO: display an HTML interface listing the methods, way to consume it and so on
+        return ":-)"
+
+    raw_data = request.get_data()
+    params, method_name = xmlrpclib.loads(raw_data)
+    # TODO
+    
+    response = "hola"
+    return xmlrpclib.dumps( (response,) , allow_none = True)
+
+@_methods.route('/<method_name>/', methods = ['GET', 'POST'])
+def http_method(method_name):
+    if request.method == 'GET':
+        # TODO: display an HTML interface listing the methods and so on
+        return ":-)"
+
+    raw_data = request.get_data()
+    data = pickle.loads(raw_data)
+    # TODO
+    
+    return pickle.dumps(response)
+
 
 def _create_server(server_instance, coord_address, component_config):
     """ server_instance: an instance of a class which contains the defined methods """
@@ -431,7 +477,7 @@ def _create_server(server_instance, coord_address, component_config):
     if protocols:
         # Create a single Flask app first, then start registering per protocol (http, xmlrpc)
         # TODO
+        app = Flask(__name__)
         pass
-
 
 
