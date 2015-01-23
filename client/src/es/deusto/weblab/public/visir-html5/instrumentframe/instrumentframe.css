@@ -55,6 +55,7 @@
 .frame .buttonctnr {
 	display: inline-block;
 	position: relative;
+	vertical-align: top;
 }
 
 .frame .instrumentbuttons {
