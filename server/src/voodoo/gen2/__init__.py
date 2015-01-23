@@ -7,6 +7,7 @@ import yaml
 import requests
 from flask import Flask, Blueprint, request
 
+import voodoo.log as log
 from voodoo.gen2.exc import GeneratorError
 from voodoo.gen2.registry import GLOBAL_REGISTRY
 
@@ -58,9 +59,10 @@ class ComponentConfig(object):
         return 'ComponentConfig(%r, %r, %r, %r, %r)' % (self.config_files, self.config_values, self.component_type, self.component_class, self.protocols)
 
 class ProtocolsConfig(dict):
-    def __init__(self, port):
+    def __init__(self, port = None, path = None):
         super(ProtocolsConfig, self).__init__()
         self.port = port
+        self.path = path
 
 
 ############################################
@@ -124,10 +126,18 @@ def _load_contents(contents):
                         raise GeneratorError("Missing component class on %s:%s@%s" % (component_name, process_name, host_name))
 
                 # Protocols
-                protocols = component_value.get('protocols', {})
-                port = protocols.pop('port', None)
-                protocols_config = ProtocolsConfig(port)
-                protocols_config.update(protocols)
+                protocols = component_value.get('protocols', None)
+                if not protocols:
+                    protocols_config = ProtocolsConfig()
+                else:
+                    port = protocols.pop('port', None)
+                    if not port:
+                        raise GeneratorError("Protocols defined but missing port on %s:%s@%s" % (component_name, process_name, host_name))
+
+                    path = protocols.pop('path', None)
+                    protocols_config = ProtocolsConfig(port, path)
+                    for protocol in protocols.get('supports', PROTOCOL_PRIORITIES):
+                        protocols_config[protocol] = {}
 
                 component_config = ComponentConfig(config_files, config_values, component_type, component_class, protocols_config)
                 process_config[component_name] = component_config
@@ -169,17 +179,21 @@ class Locator(object):
             host = '127.0.0.1'
         else:
             host = self.global_config[coord_address.host].host
-            if not host or host in ('127.0.0.1', 'localhost', 'localhost.localdomain'):
+            if not host:
                 # If host is not configured or if the host is 
                 # localhost (and we're in a different machine),
                 # there is nothing to do
                 return None
 
+            if host in ('127.0.0.1', 'localhost', 'localhost.localdomain'):
+                log.log(__name__, log.level.Warning, "WARNING: coord_address %s using %s to communicate with %s" % (self.my_coord_address.address, host, coord_address.address))
+
         if 'http' in protocols:
             return_data = {
                 'type' : 'http',
                 'host' : host,
-                'port' : protocols.port
+                'port' : protocols.port,
+                'path' : protocols.path or '',
             }
             return_data.update(protocols['http'])
             return return_data
@@ -188,7 +202,8 @@ class Locator(object):
             return_data = {
                 'type' : 'xmlrpc',
                 'host' : host,
-                'port' : protocols.port
+                'port' : protocols.port,
+                'path' : protocols.path or '',
             }
             return_data.update(protocols['xmlrpc'])
             return return_data
@@ -425,7 +440,7 @@ _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 #    port: 12345
 #    path: /foo/
 #    auth_key: adsfasdf
-#    support: xmlrpc, http
+#    supports: xmlrpc, http
 # 
 # and, in the future, if requested, we add parameters per method. 
 
@@ -456,9 +471,22 @@ def http_method(method_name):
     
     return pickle.dumps(response)
 
+class Server(object):
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+class FlaskServer(Server):
+    def __init__(self, application, port):
+        self.application = application
+        self.port = port
+    
+
 
 def _create_server(server_instance, coord_address, component_config):
-    """ server_instance: an instance of a class which contains the defined methods """
+    """ Creates a server that manages the communications server_instance: an instance of a class which contains the defined methods """
     component_type = component_config['type']
     
     methods = _get_methods_by_component_type(component_type)
@@ -471,13 +499,21 @@ def _create_server(server_instance, coord_address, component_config):
     if missing_methods:
         raise Exception("instance %s missing methods: %r" % (server_instance, missing_methods))
 
+    for method in dir(instance):
+        if method.startswith('do_'):
+            remaining = method[len('do_'):]
+            if remaining not in methods:
+                print("Warning: method %s not in the method list for component_type %s" % (remaining, component_type))
+
     GLOBAL_REGISTRY[coord_address.address] = server_instance
 
     protocols = component_config.get('protocols', {})
     if protocols:
-        # Create a single Flask app first, then start registering per protocol (http, xmlrpc)
-        # TODO
         app = Flask(__name__)
-        pass
-
+        path = protocols.get('path', '')
+        app.register_blueprint(_methods, url_prefix = path)
+        return FlaskServer(app, protocols.port)
+    else:
+        # This server does nothing
+        return Server()
 

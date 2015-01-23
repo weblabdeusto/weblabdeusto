@@ -1,6 +1,8 @@
 import json
 import unittest
 
+from mock import patch
+
 from voodoo.gen2 import CoordAddress, Locator, load, CORE_CLASS, LAB_CLASS
 
 
@@ -38,13 +40,18 @@ class LoaderTest(unittest.TestCase):
         self.assertNotEquals(lab_component2_obtained, lab_component1)
 
 class LocatorTest(unittest.TestCase):
-    def test_find_labs(self):
+
+    @patch('voodoo.log.log')
+    def test_find_labs(self, voodoo_log):
         global_config = load('test/unit/voodoo/gen2/sample.yml')
         core_server = CoordAddress('core_machine', 'core_server1', 'core')
         locator = Locator(global_config, core_server)
-        laboratories = locator.find_by_type('laboratory')
 
-        self.assertEquals(len(laboratories), 4)
+        self.assertFalse(voodoo_log.called)
+        laboratories = locator.find_by_type('laboratory')
+        self.assertTrue(voodoo_log.called)
+
+        self.assertEquals(len(laboratories), 5)
         
         t = CoordAddress.translate_address
 
@@ -54,16 +61,16 @@ class LocatorTest(unittest.TestCase):
         self.assertTrue(t('laboratory2:laboratory2@core_machine') in laboratories)
 
         con1 = locator.get_connection(t('laboratory:laboratory@accessible_machine'))
-        self.assertDictEquals(con1, {'type' : 'http', 'host' : '192.168.0.2', 'port' : 12345 })
+        self.assertDictEquals(con1, {'type' : 'http', 'host' : '192.168.0.2', 'port' : 12345, 'path' : '' })
 
         con2 = locator.get_connection(t('laboratory3:core_server1@core_machine'))
         self.assertDictEquals(con2, {'type' : 'direct', 'address' : 'laboratory3:core_server1@core_machine'})
 
         con3 = locator.get_connection(t('laboratory1:laboratory1@core_machine'))
-        self.assertDictEquals(con3, {'type' : 'http', 'host' : '127.0.0.1', 'port' : 10003 })
+        self.assertDictEquals(con3, {'type' : 'http', 'host' : '127.0.0.1', 'port' : 10003, 'path' : '' })
 
         con4 = locator.get_connection(t('laboratory2:laboratory2@core_machine'))
-        self.assertDictEquals(con4, {'type' : 'xmlrpc', 'host' : '127.0.0.1', 'port' : 10004 })
+        self.assertDictEquals(con4, {'type' : 'xmlrpc', 'host' : '127.0.0.1', 'port' : 10004, 'path' : '' })
 
 
     def assertDictEquals(self, dict1, dict2):

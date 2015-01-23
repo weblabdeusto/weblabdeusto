@@ -15,7 +15,6 @@ hosts:
             type: laboratory
             protocols:
               port: 12345
-              http: {}
   accessible_machine:
     host: 192.168.0.2
     processes:
@@ -25,7 +24,6 @@ hosts:
             type: laboratory
             protocols:
               port: 12345
-              http: {}
   core_machine:
     config_files:
     - core_machine/machine_config.py
@@ -52,15 +50,13 @@ hosts:
           laboratory1:
             config_file: core_machine/laboratory1/laboratory1/server_config.py
             protocols:
-              http: {}
               port: 10003
-              xmlrpc: {}
             type: laboratory
       laboratory2:
         components:
           laboratory2:
             type: laboratory
             protocols:
-              xmlrpc: {}
               port: 10004
+              supports: [xmlrpc]
 
