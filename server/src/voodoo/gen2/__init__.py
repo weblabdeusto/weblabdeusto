@@ -8,7 +8,7 @@ import requests
 from flask import Flask, Blueprint, request
 
 import voodoo.log as log
-from voodoo.gen2.exc import GeneratorError
+from voodoo.gen2.exc import GeneratorError, LocatorKeyError
 from voodoo.gen2.registry import GLOBAL_REGISTRY
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
@@ -242,8 +242,7 @@ class Locator(object):
         if client:
             return client
         
-        # TODO: make a class that subclasses both KeyError and VoodooError
-        raise KeyError(unicode(coord_address))
+        raise LocatorKeyError(unicode(coord_address))
 
 
 ############################################
@@ -348,7 +347,6 @@ class AbstractClient(object):
 
         methods = _get_methods_by_component_type(component_type)
 
-        print "Loading", methods
         # Create methods in this instance for each of these methods
         for method in methods:
             call_method = self._create_method(method)
@@ -427,23 +425,6 @@ _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 #   Servers
 #
 
-# TODO: The format shouldn't be:
-# 
-# protocols:
-#    port: 12345
-#    http: {}
-#    xmlrpc: {}
-# 
-# but:
-# 
-# protocols:
-#    port: 12345
-#    path: /foo/
-#    auth_key: adsfasdf
-#    supports: xmlrpc, http
-# 
-# and, in the future, if requested, we add parameters per method. 
-
 _methods = Blueprint('methods', __name__)
 
 @_methods.route('/', methods = ['GET', 'POST'])
@@ -483,7 +464,9 @@ class FlaskServer(Server):
         self.application = application
         self.port = port
     
-
+def _critical_debug(message):
+    """Useful to make sure it's printed in the screen but not in tests"""
+    print(message)
 
 def _create_server(server_instance, coord_address, component_config):
     """ Creates a server that manages the communications server_instance: an instance of a class which contains the defined methods """
@@ -503,7 +486,9 @@ def _create_server(server_instance, coord_address, component_config):
         if method.startswith('do_'):
             remaining = method[len('do_'):]
             if remaining not in methods:
-                print("Warning: method %s not in the method list for component_type %s" % (remaining, component_type))
+                msg = "Warning: method %s not in the method list for component_type %s" % (remaining, component_type)
+                _critical_debug(msg)
+                log.log(__name__, log.Warning, msg)
 
     GLOBAL_REGISTRY[coord_address.address] = server_instance
 

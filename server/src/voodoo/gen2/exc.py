@@ -15,5 +15,11 @@ class InternalClientCommunicationError(InternalCommunicationError):
 class InternalServerCommunicationError(InternalCommunicationError):
     pass
 
+class LocatorError(GeneratorError):
+    pass
+
+class LocatorKeyError(LocatorError, KeyError):
+    pass
+
 class AddressAlreadyRegisteredError(VoodooGenError):
     pass
