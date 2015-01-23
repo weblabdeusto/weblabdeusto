@@ -7,9 +7,12 @@ import xmlrpclib
 
 import yaml
 import requests
-from flask import Flask, Blueprint, request
+from flask import Flask, Blueprint, request, current_app
 
 import voodoo.log as log
+
+from voodoo.counter import next_counter
+from voodoo.resources_manager import is_testing
 from voodoo.gen2.exc import GeneratorError, LocatorKeyError, InternalCapturedServerCommunicationError, InternalServerCommunicationError
 from voodoo.gen2.registry import GLOBAL_REGISTRY
 
@@ -453,7 +456,7 @@ class XmlRpcClient(AbstractClient):
         host = server_config.get('host')
         port = server_config.get('port')
         self.url = "http://%s:%s%s" % (host, port, path)
-        self.server = xmlrpclib.Server(self.url, allow_none = True)
+        self.server = xmlrpclib.Server(self.url)
 
     def _call(self, name, *args):
         try:
@@ -482,22 +485,38 @@ def xmlrpc():
 
     raw_data = request.get_data()
     params, method_name = xmlrpclib.loads(raw_data)
-    # TODO
-    
-    response = "hola"
-    return xmlrpclib.dumps( (response,) , allow_none = True)
+
+    if method_name not in current_app.wl_server_methods:
+        # TODO: raise an invalid request method or so
+        return ":-("
+
+
+    method = getattr(server_instance, 'do_%s' % method_name)
+    # TODO: exceptions
+    result = method(*params)
+
+    return xmlrpclib.dumps( (result,))
 
 @_methods.route('/<method_name>/', methods = ['GET', 'POST'])
 def http_method(method_name):
+    if method_name not in current_app.wl_server_methods:
+        # TODO: raise an invalid request method or so
+        return ":-("
+
     if request.method == 'GET':
         # TODO: display an HTML interface listing the methods and so on
         return ":-)"
 
+    server_instance = current_app.wl_server_instance
+
     raw_data = request.get_data()
-    data = pickle.loads(raw_data)
-    # TODO
+    args = pickle.loads(raw_data)
+
+    method = getattr(server_instance, 'do_%s' % method_name)
+    # TODO: exceptions
+    result = method(*args)
     
-    return pickle.dumps(response)
+    return pickle.dumps({ 'result' : result })
 
 class Server(object):
     def start(self):
@@ -506,10 +525,32 @@ class Server(object):
     def stop(self):
         pass
 
-class FlaskServer(Server):
+class InternalFlaskServer(Server):
     def __init__(self, application, port):
         self.application = application
         self.port = port
+
+        if is_testing():
+            @application.route('/_shutdown')
+            def shutdown_func():
+                func = request.environ.get('werkzeug.server.shutdown')
+                if func:
+                    func()
+                    return "Shutting down"
+                else:
+                    return "Shutdown not available"
+
+        self._thread = threading.Thread(target = self.application.run)
+        self._thread.setDaemon(True)
+        self._thread.setName(next_counter('InternalFlaskServer'))
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        if is_testing():
+            requests.get('http://127.0.0.1:%s/_shutdown')
+            self._thread.join(5)
     
 def _critical_debug(message):
     """Useful to make sure it's printed in the screen but not in tests"""
@@ -542,6 +583,8 @@ def _create_server(server_instance, coord_address, component_config):
     protocols = component_config.get('protocols', {})
     if protocols:
         app = Flask(__name__)
+        app.wl_server_instance = server_instance
+        app.wl_server_methods = methods
         path = protocols.get('path', '')
         app.register_blueprint(_methods, url_prefix = path)
         return FlaskServer(app, protocols.port)
