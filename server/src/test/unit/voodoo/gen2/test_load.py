@@ -3,12 +3,12 @@ import unittest
 
 from mock import patch
 
-from voodoo.gen2 import CoordAddress, Locator, load, CORE_CLASS, LAB_CLASS
+import voodoo.gen2 as gen
 
 
 class LoaderTest(unittest.TestCase):
     def test_load(self):
-        result = load('test/unit/voodoo/gen2/sample.yml')
+        result = gen.load('test/unit/voodoo/gen2/sample.yml')
         machine = result['core_machine']
         config_files = ['core_machine/machine_config.py', 'core_machine/machine_config.py']
         self.assertEquals(machine.config_files, config_files)
@@ -18,7 +18,7 @@ class LoaderTest(unittest.TestCase):
         core_component = core_server1['core']
         self.assertEquals(core_component.config_values['core_facade_port'], 10000)
         self.assertEquals(core_component.component_type, 'core')
-        self.assertEquals(core_component.component_class, CORE_CLASS)
+        self.assertEquals(core_component.component_class, gen.CORE_CLASS)
         self.assertEquals(len(core_component.protocols), 0)
 
         laboratory1 = machine['laboratory1']
@@ -26,13 +26,13 @@ class LoaderTest(unittest.TestCase):
 
         self.assertEquals(lab_component1.config_files, ['core_machine/laboratory1/laboratory1/server_config.py'])
         self.assertEquals(lab_component1.component_type, 'laboratory')
-        self.assertEquals(lab_component1.component_class, LAB_CLASS)
+        self.assertEquals(lab_component1.component_class, gen.LAB_CLASS)
         self.assertEquals(lab_component1.protocols.port, 10003)
         self.assertEquals(lab_component1.protocols['http'], {})
         self.assertEquals(lab_component1.protocols['xmlrpc'], {})
 
-        lab_address1 = CoordAddress('core_machine', 'laboratory1', 'laboratory1')
-        lab_address2 = CoordAddress('core_machine', 'laboratory2', 'laboratory2')
+        lab_address1 = gen.CoordAddress('core_machine', 'laboratory1', 'laboratory1')
+        lab_address2 = gen.CoordAddress('core_machine', 'laboratory2', 'laboratory2')
         lab_component1_obtained = result[lab_address1]
         lab_component2_obtained = result[lab_address2]
 
@@ -43,9 +43,9 @@ class LocatorTest(unittest.TestCase):
 
     @patch('voodoo.log.log')
     def test_find_labs(self, voodoo_log):
-        global_config = load('test/unit/voodoo/gen2/sample.yml')
-        core_server = CoordAddress('core_machine', 'core_server1', 'core')
-        locator = Locator(global_config, core_server)
+        global_config = gen.load('test/unit/voodoo/gen2/sample.yml')
+        core_server = gen.CoordAddress('core_machine', 'core_server1', 'core')
+        locator = gen.Locator(global_config, core_server)
 
         self.assertFalse(voodoo_log.called)
         laboratories = locator.find_by_type('laboratory')
@@ -53,7 +53,7 @@ class LocatorTest(unittest.TestCase):
 
         self.assertEquals(len(laboratories), 5)
         
-        t = CoordAddress.translate_address
+        t = gen.CoordAddress.translate_address
 
         self.assertTrue(t('laboratory:laboratory@accessible_machine') in laboratories)
         self.assertTrue(t('laboratory3:core_server1@core_machine') in laboratories)
@@ -83,7 +83,7 @@ class CoordAddressTest(unittest.TestCase):
         for host in 'host1', 'host2':
             for process in 'process1', 'process2':
                 for component in 'component1', 'component2':
-                    addresses['%s:%s@%s' % (host, process, component)] = CoordAddress(host, process, component)
+                    addresses['%s:%s@%s' % (host, process, component)] = gen.CoordAddress(host, process, component)
         
         self.assertEquals(len(addresses), 8)
 
@@ -119,6 +119,11 @@ class CoordAddressTest(unittest.TestCase):
         self.assertEquals(operations, 64)
 
 class ClientTest(unittest.TestCase):
+
+    def test_type_serialization(self):
+        key_error_str = gen._get_type_name(KeyError)
+        self.assertEquals(gen._load_type(key_error_str), KeyError)
+
     def test_client(self):
         pass
 

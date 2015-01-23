@@ -1,4 +1,6 @@
 import re
+import sys
+
 from abc import ABCMeta, abstractmethod
 import pickle
 import xmlrpclib
@@ -8,7 +10,7 @@ import requests
 from flask import Flask, Blueprint, request
 
 import voodoo.log as log
-from voodoo.gen2.exc import GeneratorError, LocatorKeyError
+from voodoo.gen2.exc import GeneratorError, LocatorKeyError, InternalCapturedServerCommunicationError, InternalServerCommunicationError
 from voodoo.gen2.registry import GLOBAL_REGISTRY
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
@@ -333,13 +335,6 @@ class CoordAddress(object):
 
 METHODS_PATH = 'weblab.methods'
 
-def _get_methods_by_component_type(component_type):
-    methods_module = __import__(METHODS_PATH)
-    methods = getattr(methods_module.methods, component_type, None)
-    if methods is None:
-        raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
-    return methods
-
 class AbstractClient(object):
     __metaclass__ = ABCMeta
 
@@ -373,6 +368,8 @@ def _create_client(component_type, server_config):
 
     return _SERVER_CLIENTS[protocol](component_type, server_config)
 
+ACCEPTABLE_EXC_TYPES = ('voodoo.', 'weblab.')
+
 class DirectClient(AbstractClient):
     
     def __init__(self, component_type, server_config):
@@ -382,8 +379,19 @@ class DirectClient(AbstractClient):
     def _call(self, name, *args):
         instance = GLOBAL_REGISTRY[self.coord_address_str]
         method = getattr(instance, 'do_%s' % name)
-        # TODO: exceptions
-        return method(*args)
+        try:
+            return method(*args)
+        except:
+            exc_type, exc_instance, _ = sys.exc_info()
+            remote_exc_type = _get_type_name(exc_type)
+            if remote_exc_type.startswith(ACCEPTABLE_EXC_TYPES):
+                raise
+
+            remote_exc_args = exc_instance.args
+            if not isinstance(remote_exc_args, list) and not isinstance(remote_exc_args, tuple):
+                remote_exc_args = [remote_exc_args]
+
+            raise InternalCapturedServerCommunicationError(remote_exc_type, *remote_exc_args)
 
 _SERVER_CLIENTS['direct'] = DirectClient
 
@@ -398,9 +406,42 @@ class HttpClient(AbstractClient):
 
     def _call(self, name, *args):
         # In the future (once we don't pass any weird arg, such as SessionId and so on), use JSON
-        # TODO: exceptions
-        result = requests.post(self.url + '/' + name, data = pickle.dumps(args)).content
-        return pickle.loads(content)
+
+        # First, serialize the data provided in the client side
+        try:
+            request_data = pickle.dumps(args)
+        except:
+            _, exc_instance, _ = sys.exc_info()
+            raise InternalClientCommunicationError("Unknown client error contacting %s: %r" % (self.url, exc_instance))
+        
+        # Then, perform the request and deserialize the results
+        try:
+
+            content = requests.post(self.url + '/' + name, data = request_data).content
+            result = pickle.loads(content)
+        except:
+            _, exc_instance, _ = sys.exc_info()
+            raise InternalServerCommunicationError("Unknown server error contacting %s with HTTP: %r" % (self.url, exc_instance))
+
+        # result must be a dictionary which contains either 'result' 
+        # with the resulting object or 'is_error' and some data about 
+        # the exception
+
+        if result.get('is_error'):
+            error_type = result['error_type']
+            error_args = result['error_args']
+            if not isinstance(error_args, list) and not isinstance(error_args, tuple):
+                error_args = [error_args]
+
+            # If it's acceptable, raise the exception (e.g., don't raise a KeyboardInterrupt, a MemoryError, or a library error)
+            if error_type.startswith(ACCEPTABLE_EXC_TYPES):
+                exc_type = _load_type(error_type)
+                raise exc_type(*error_args)
+            else:
+                # Otherwise wrap it
+                raise InternalCapturedServerCommunicationError(error_type, *error_args)
+        # No error? return the result
+        return result['result']
 
 _SERVER_CLIENTS['http'] = HttpClient
 
@@ -411,11 +452,17 @@ class XmlRpcClient(AbstractClient):
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
-        self.server = xmlrpclib.Server("http://%s:%s%s" % (host, port, path), allow_none = True)
+        self.url = "http://%s:%s%s" % (host, port, path)
+        self.server = xmlrpclib.Server(self.url, allow_none = True)
 
     def _call(self, name, *args):
-        # TODO: exceptions
-        return getattr(self.server, 'Util.%s' % name)(*args)
+        try:
+            return getattr(self.server, 'Util.%s' % name)(*args)
+        except xmlrpclib.Fault as ft:
+            raise InternalCapturedServerCommunicationError(ft.faultCode, [ ft.faultString ])
+        except:
+            _, exc_instance, _ = sys.exc_info()
+            raise InternalServerCommunicationError("Unknown server error contacting %s with XML-RPC: %r" % (self.url, exc_instance))
 
 _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 
@@ -501,4 +548,26 @@ def _create_server(server_instance, coord_address, component_config):
     else:
         # This server does nothing
         return Server()
+
+#####################################################
+# 
+#  Auxiliar methods used above
+# 
+
+def _get_methods_by_component_type(component_type):
+    methods_module = __import__(METHODS_PATH)
+    methods = getattr(methods_module.methods, component_type, None)
+    if methods is None:
+        raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
+    return methods
+
+def _get_type_name(klass):
+    """ _get_type_name(KeyError) -> 'exceptions.KeyError' """
+    return klass.__module__ + '.' + klass.__name__
+
+def _load_type(type_name):
+    """ _load_type('exceptions.KeyError') -> KeyError """
+    module_name, name = type_name.rsplit('.', 1)
+    mod = __import__(module_name, fromlist = [name])
+    return getattr(mod, name)
 
