@@ -52,7 +52,21 @@ class GlobalConfig(dict):
             return self[coord_address.host][coord_address.process][coord_address.component]
 
         return dict.__getitem__(self, name)
-    
+
+    def create(self, coord_address):
+        """ create(coord_address) -> instance, server 
+        
+        Create an instance, attach the required communication servers, and return 
+        both.
+        """
+        config = self._create_config(coord_address)
+        component_config = self[coord_address]
+        ComponentClass = _load_type(component_config.component_class)
+        locator = Locator(self, coord_address)
+        instance = ComponentClass(coord_address, locator, config)
+        server = _create_server(instance, coord_address, component_config)
+        return instance, server
+
     def _create_config(self, coord_address):
         host_config = self[coord_address.host]
         process_config = host_config[coord_address.process]
@@ -64,19 +78,6 @@ class GlobalConfig(dict):
         _update_config(config, process_config)
         _update_config(config, component_config)
         return config
-
-    def create(self, coord_address):
-        config = self._create_config(coord_address)
-        component_config = self[coord_address]
-        ComponentClass = _load_type(component_config.component_class)
-        locator = Locator(self, coord_address)
-        instance = ComponentClass(coord_address, locator, config)
-        server = self._create_server(coord_address, instance)
-        return instance, server
-
-    def _create_server(self, coord_address, server_instance):
-        component_config = self[coord_address]
-        return _create_server(server_instance, coord_address, component_config)
 
 class HostConfig(dict):
     def __init__(self, config_files, config_values, host):
