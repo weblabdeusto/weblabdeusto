@@ -10,6 +10,11 @@ visir.HPFunctionGenerator = function(id, elem)
 	this._$elem = elem;
 	this._currentValue = "freq";
 
+	this.ENTERNUM = 1;
+	this.NORMAL = 0;
+	this._enterMode = this.NORMAL;
+	this._enterNumStr = "";
+
 	/* the multipliers are used to avoid storing the values in floating point
 	which will cause problems when trying to display the values */
 	this._values = {
@@ -23,7 +28,7 @@ visir.HPFunctionGenerator = function(id, elem)
 
 	var tpl =
 	'<div class="hp_funcgen">\
-	<img src="%img%/fgen.png" width="800" height="356" />\
+	<img src="%img%/fgen.png" width="800" height="356" draggable="false" />\
 	<div class="bigtext num_display">1.00<span class="green">0</span>0000</div>\
 	<div class="bigtext num_unit">KHz</div>\
 	<div class="funcselect">\
@@ -83,6 +88,12 @@ visir.HPFunctionGenerator = function(id, elem)
 		return deg;
 	}
 
+	function buttonPressGen(name) {
+		return function() {
+			me._ButtonPressed(name);
+		}
+	}
+
 	if(!visir.Config.Get("readOnly"))
 	{
 		elem.find(".knob").turnable({offset: 90, turn: handleTurn });
@@ -90,27 +101,14 @@ visir.HPFunctionGenerator = function(id, elem)
 		// make all buttons updownButtons
 		elem.find(".button").updownButton();
 
-		elem.find("div.button_sine").click( function() { me.SetWaveform("sine"); me._UpdateDisplay(); });
-		elem.find("div.button_square").click( function() { me.SetWaveform("square"); me._UpdateDisplay(); });
-		elem.find("div.button_triangle").click( function() { me.SetWaveform("triangle"); me._UpdateDisplay(); });
-		elem.find("div.button_rampup").click( function() { me.SetWaveform("rampup"); me._UpdateDisplay(); });
-		elem.find("div.button_freq").click( function() { me.SetActiveValue("freq"); });
-		elem.find("div.button_ampl").click( function() { me.SetActiveValue("ampl"); });
-		elem.find("div.button_offset").click( function() { me.SetActiveValue("offset"); });
-		elem.find("div.button_right").click(function() {
-			var val = me._values[me._currentValue];
-			me._SetActiveValue(val.value, val.digit - 1);
-		});
-		elem.find("div.button_left").click(function() {
-			var val = me._values[me._currentValue];
-			me._SetActiveValue(val.value, val.digit + 1);
-		});
-		elem.find("div.button_up").click(function() {
-			me._IncDigit();
-		});
-		elem.find("div.button_down").click(function() {
-			me._DecDigit()
-		});
+		var buttons = [ "sine", "square", "triangle", "rampup", "noise",
+			"arb", "enter", "freq", "ampl", "offset",
+			"single", "recall", "enternumber", "shift", "up",
+			"down", "right", "left"] ;
+
+		for (var i in buttons) {
+			elem.find("div.button_" + buttons[i]).click( buttonPressGen(buttons[i]) );
+		}
 	}
 
 	var blink = elem.find(".hp_funcgen .num_display");
@@ -152,6 +150,108 @@ function GetLightNumOffset(value, digits)
 	return num - digits;
 }*/
 
+visir.HPFunctionGenerator.prototype._SetButtonMode = function(mode)
+{
+	this._enterMode = mode;
+	this._enterNumStr = "";
+}
+
+visir.HPFunctionGenerator.prototype._AddNum = function(char)
+{
+	if (this._enterNumStr.length > this._values[this._currentValue].numDigits) return false;
+	if ((char == '.') && (this._enterNumStr.indexOf(".") >= 0)) return false;
+	this._enterNumStr += char;
+}
+
+visir.HPFunctionGenerator.prototype._RemoveNum = function()
+{
+	if (this._enterNumStr.length == 0) return false;
+	this._enterNumStr = this._enterNumStr.slice(0, -1);
+}
+
+visir.HPFunctionGenerator.prototype._NumSign = function()
+{
+	// not implemented
+}
+
+visir.HPFunctionGenerator.prototype._SetEnteredNumber = function(scale)
+{
+	var num = parseInt(this._enterNumStr, 10);
+	var val = this._values[this._currentValue];
+
+	this._SetActiveValue(num * val.multiplier * scale, val.digit);
+	this._SetButtonMode(this.NORMAL);
+}
+
+visir.HPFunctionGenerator.prototype._ButtonPressed = function(buttonName)
+{
+	if (this._enterMode == this.NORMAL) this._NormalButtonPressed(buttonName);
+	else this._EnterNumButtonPressed(buttonName);
+
+	this._UpdateDisplay();
+}
+
+visir.HPFunctionGenerator.prototype._NormalButtonPressed = function(buttonName)
+{
+	switch(buttonName) {
+		case "sine": this.SetWaveform("sine"); this._UpdateDisplay(); break;
+		case "square": this.SetWaveform("square"); this._UpdateDisplay(); break;
+		case "triangle": this.SetWaveform("triangle"); this._UpdateDisplay(); break;
+		case "rampup": this.SetWaveform("rampup"); this._UpdateDisplay(); break;
+		
+		case "freq": this.SetActiveValue("freq"); break;
+		case "ampl": this.SetActiveValue("ampl"); break;
+		case "offset": this.SetActiveValue("offset"); break;
+		
+		case "right":
+			var val = this._values[this._currentValue];
+			this._SetActiveValue(val.value, val.digit - 1);
+			break;
+		case "left":
+			var val = this._values[this._currentValue];
+			this._SetActiveValue(val.value, val.digit + 1);
+			break;
+		
+		case "up": this._IncDigit(); break;
+		case "down": this._DecDigit(); break;
+
+		case "enternumber": this._SetButtonMode(this.ENTERNUM); break;
+
+		default:
+			trace("unknown button in normal mode: " + buttonName);
+			break;
+	}
+}
+
+visir.HPFunctionGenerator.prototype._EnterNumButtonPressed = function(buttonName)
+{
+	switch(buttonName) {
+		case "sine":	this._AddNum("1"); break;
+		case "square":	this._AddNum("2"); break;
+		case "triangle":	this._AddNum("3"); break;
+		case "rampup":	this._AddNum("4"); break;
+		case "noise":	this._AddNum("5"); break;
+		case "freq":	this._AddNum("6"); break;
+		case "ampl":	this._AddNum("7"); break;
+		case "offset":	this._AddNum("8"); break;
+		case "single":	this._AddNum("9"); break;
+		case "recall":	this._AddNum("0"); break;
+
+		case "enternumber": this._AddNum(".");	break;
+
+		case "left":	this._RemoveNum();	break;		
+		case "arb": 	this._NumSign();		break;
+
+		case "enter":	this._SetEnteredNumber(1);	break;
+		case "up":		this._SetEnteredNumber(1000000);	break;
+		case "down":	this._SetEnteredNumber(1000); break;
+		case "right":	this._SetEnteredNumber(1); break;
+		default:
+			trace("unknown button in enter number mode: " + buttonName);
+			break;		
+	}
+}
+
 visir.HPFunctionGenerator.prototype._GetDisplayDigitInfo = function(realval, digits, activedigit, valunit)
 {
 	var unit = this._GetUnit(realval);
@@ -190,9 +290,14 @@ visir.HPFunctionGenerator.prototype._UpdateDisplay = function(ch)
 	var out = realval.toFixed(len - num);
 	*/
 
-	var info = this._GetDisplayDigitInfo(val.value / val.multiplier, val.numDigits, val.digit, val.unit);
-	this._$elem.find(".num_display").html(visir.LightNum(info.display, info.digit));
-	this._$elem.find(".num_unit").html(info.unit);
+	if (this._enterMode == this.NORMAL) {
+		var info = this._GetDisplayDigitInfo(val.value / val.multiplier, val.numDigits, val.digit, val.unit);
+		this._$elem.find(".num_display").html(visir.LightNum(info.display, info.digit));
+		this._$elem.find(".num_unit").html(info.unit);
+	} else {
+		this._$elem.find(".num_display").html(this._enterNumStr);
+		this._$elem.find(".num_unit").html("");
+	}
 
 	/*this._$elem.find(".num_display").html(visir.LightNum(out, val.digit - digitoffset - num));
 

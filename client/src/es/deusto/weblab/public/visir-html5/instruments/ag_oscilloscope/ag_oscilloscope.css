@@ -18,6 +18,8 @@
 .ag_osc .stepwheel img { display: none; }
 .ag_osc .stepwheel img.active {	display: inline; }
 
+.ag_osc .disabled { color: gray; }
+
 
 .ag_osc .horz { top: 28px; left: 435px; }
 .ag_osc .vert_ch1 { top: 182px; left: 444px; }
@@ -32,8 +34,11 @@
 .ag_osc .button.channel_1 {	top: 237px; left: 454px; }
 .ag_osc .button.channel_2 {	top: 237px; left: 533px; }
 
+.ag_osc .button.math {	top: 245px; left: 489px; }
+
 .ag_osc .button.edge {top: 99px; left: 654px; }
 .ag_osc .button.modecoupling {top: 99px; left: 699px; }
+.ag_osc .button.saverecall {top: 141px; left: 508px; }
 
 .ag_osc .button.runstop {top: 34px; left: 659px; }
 .ag_osc .button.single {top: 34px; left: 725px; }
@@ -121,7 +126,7 @@
 .ag_osc .display .topbar > div
 {
 	bottom: 0;
-	height: 18px;
+	/*height: 18px;*/
 }
 
 .ag_osc .display .lighttext.light {
@@ -361,6 +366,40 @@
 	display: none;
 }
 
+.ag_osc .display .menubar .checkbox
+{
+	background: #00ff00;
+	border-top: 1px solid #86FE85;
+	border-left: 1px solid #86FE85;
+	border-right: 1px solid #006633;
+	border-bottom: 1px solid #006633;
+	/*border-radius: 5px 5px 2px 2px;*/
+	padding: 2px;
+	
+	height: 4px;
+	width: 4px;
+	display: inline-block;
+}
+
+.ag_osc .display .menubar .checkbox.selected
+{
+	background: #000000;
+	border-top: 1px solid #86FE85;
+	border-left: 1px solid #86FE85;
+	border-right: 1px solid #006633;
+	border-bottom: 1px solid #006633;
+	box-shadow: 0 0 0 1px #00ff00 inset; /* inner border */
+	padding: 2px;
+	
+	height: 4px;
+	width: 4px;
+	display: inline-block;
+}
+
+
+
+
+
 .ag_osc .display .menubar .menu_selection.pos2 { left: 53px; }
 
 .ag_osc .display .menubar .menu_selection.visible
@@ -485,6 +524,7 @@
 	width: 104px;
 	/*padding: 0px 5px 0px 5px;*/
 	padding-left: 3px;
+	height: 11px; /* fix height to avoid overlap on some platforms */
 }
 
 .ag_osc .infobar .box1 { left: 0px; }

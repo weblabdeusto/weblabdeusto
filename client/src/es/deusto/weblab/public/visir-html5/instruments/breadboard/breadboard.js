@@ -1453,9 +1453,9 @@ visir.Breadboard.prototype._AddMultimeters = function(x, y, num)
 		$dmm.append(
 		'<div class="connectionimages">\
 			<div class="number">' + numstr + '</div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" />\
+			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
 			<div style="height: 11px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" />\
+			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
 		</div>'
 		);
 	}
@@ -1494,9 +1494,9 @@ visir.Breadboard.prototype._AddOSC = function(x, y, num)
 	'<div class="instrument osc">\
 		<div class="connectionimages">\
 			<div style="height: 13px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_1.png" />\
+			<img src="' + 	this.IMAGE_URL + 'connections_1.png" draggable="false" />\
 			<div style="height: 9px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_1.png" />\
+			<img src="' + 	this.IMAGE_URL + 'connections_1.png" draggable="false" />\
 		</div>\
 		<div class="texts">\
 			<div class="connectiontext"></div>\
@@ -1551,9 +1551,9 @@ visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 			</div>\
 			<div class="connectionimages">\
 				<div style="height: 13px"></div>\
-				<img src="' + 	this.IMAGE_URL + 'connections_3.png" />\
+				<img src="' + 	this.IMAGE_URL + 'connections_3.png" draggable="false" />\
 				<div style="height: 10px"></div>\
-				<img src="' + 	this.IMAGE_URL + 'connections_2.png" />\
+				<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
 			</div>\
 	</div>'
 	);
@@ -1584,7 +1584,7 @@ visir.Breadboard.prototype._AddFGEN = function(x, y, num)
 		</div>\
 		<div class="connectionimages">\
 			<div style="height: 13px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" />\
+			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
 		</div>\
 	</div>'
 	);
