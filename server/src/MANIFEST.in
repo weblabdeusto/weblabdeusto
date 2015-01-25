@@ -2,6 +2,7 @@ recursive-include weblab/admin/web/templates *
 recursive-include weblab/core/templates *
 recursive-include weblab/admin/web/static *
 recursive-include voodoo/gen/loader/xsd *
+recursive-include voodoo/gen2/templates *
 recursive-include weblab/login/comm *
 recursive-include weblab/admin *
 recursive-include weblab/admin/web/templates *

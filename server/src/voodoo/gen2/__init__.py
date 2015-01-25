@@ -12,7 +12,7 @@ from abc import ABCMeta, abstractmethod
 
 import yaml
 import requests
-from flask import Flask, Blueprint, request, current_app
+from flask import Flask, Blueprint, request, current_app, render_template
 
 import voodoo.log as log
 
@@ -512,8 +512,7 @@ _methods = Blueprint('methods', __name__)
 @show_exceptions
 def xmlrpc():
     if request.method == 'GET':
-        # TODO: display an HTML interface listing the methods, way to consume it and so on
-        return ":-)"
+        return render_template('xmlrpc-methods.html', methods = current_app.wl_server_methods)
 
     raw_data = request.get_data()
     params, method_name = xmlrpclib.loads(raw_data)
@@ -521,9 +520,7 @@ def xmlrpc():
         method_name = method_name[len('Util.'):]
 
     if method_name not in current_app.wl_server_methods:
-        # TODO: raise an invalid request method or so
-        return ":-("
-
+        return xmlrpclib.dumps(xmlrpclib.Fault("Method not found", "Method not found"))
 
     method = getattr(current_app.wl_server_instance, 'do_%s' % method_name)
     try:
@@ -541,13 +538,11 @@ def xmlrpc():
 @_methods.route('/<method_name>', methods = ['GET', 'POST'])
 @show_exceptions
 def http_method(method_name):
-    if method_name not in current_app.wl_server_methods:
-        # TODO: raise an invalid request method or so
-        return ":-("
-
     if request.method == 'GET':
-        # TODO: display an HTML interface listing the methods and so on
-        return ":-)"
+        return render_template('xmlrpc-methods.html', methods = current_app.wl_server_methods)
+
+    if method_name not in current_app.wl_server_methods:
+        return "Method name not supported", 404
 
     server_instance = current_app.wl_server_instance
 
