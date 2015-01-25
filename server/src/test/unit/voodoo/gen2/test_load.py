@@ -196,10 +196,10 @@ class CommunicationsTest(unittest.TestCase):
         config_str = sample_configuration % { 'PORT1' : lab_port1, 'PORT2' : lab_port2 }
         self.global_config = gen.loads(config_str)
 
-        core, server1 = self.global_config.create(self.core_addr)
-        lab1, server2 = self.global_config.create(self.lab_addr1)
-        lab2, server3 = self.global_config.create(self.lab_addr2)
-        lab3, server4 = self.global_config.create(self.lab_addr3)
+        server1 = self.global_config.create(self.core_addr)
+        server2 = self.global_config.create(self.lab_addr1)
+        server3 = self.global_config.create(self.lab_addr2)
+        server4 = self.global_config.create(self.lab_addr3)
 
         self.servers = [ server1, server2, server3, server4 ]
         for server in self.servers:

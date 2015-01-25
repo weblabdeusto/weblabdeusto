@@ -28,6 +28,17 @@ METHODS_PATH = 'weblab.methods'
 
 PROTOCOL_PRIORITIES = ('http', 'xmlrpc')
 
+class InstanceHandler(object): 
+    def __init__(self, server, instance): 
+        self.instance = instance
+        self.server = server
+
+    def start(self):
+        self.server.start()
+ 
+    def stop(self): 
+        self.server.stop()
+
 ############################################
 # 
 #   Configuration structures
@@ -47,7 +58,7 @@ class GlobalConfig(dict):
         return dict.__getitem__(self, name)
 
     def create(self, coord_address):
-        """ create(coord_address) -> instance, server 
+        """ create(coord_address) -> InstanceHandler
         
         Create an instance, attach the required communication servers, and return 
         both.
@@ -58,7 +69,7 @@ class GlobalConfig(dict):
         locator = Locator(self, coord_address)
         instance = ComponentClass(coord_address, locator, config)
         server = _create_server(instance, coord_address, component_config)
-        return instance, server
+        return InstanceHandler(server, instance)
 
     def _create_config(self, coord_address):
         host_config = self[coord_address.host]
