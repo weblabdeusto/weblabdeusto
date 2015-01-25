@@ -65,6 +65,15 @@ class GlobalConfig(dict):
         _update_config(config, component_config)
         return config
 
+    def create(self, coord_address):
+        config = self._create_config(coord_address)
+        component_config = self[coord_address]
+        ComponentClass = _load_type(component_config.component_class)
+        locator = Locator(self, coord_address)
+        instance = ComponentClass(coord_address, locator, config)
+        server = self._create_server(coord_address, instance)
+        return instance, server
+
     def _create_server(self, coord_address, server_instance):
         component_config = self[coord_address]
         return _create_server(server_instance, coord_address, component_config)

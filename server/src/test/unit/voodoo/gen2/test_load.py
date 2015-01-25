@@ -193,21 +193,17 @@ class CommunicationsTest(unittest.TestCase):
         self.lab_addr2 = gen.CoordAddress.translate('lab1:lab@main_host')
         self.lab_addr3 = gen.CoordAddress.translate('lab2:lab@main_host')
 
-        core = FakeCoreServer()
-        lab1 = FakeLaboratoryServer()
-        lab2 = FakeLaboratoryServer()
-        lab3 = FakeLaboratoryServer()
-
         config_str = sample_configuration % { 'PORT1' : lab_port1, 'PORT2' : lab_port2 }
         self.global_config = gen.loads(config_str)
-        server1 = self.global_config._create_server(self.core_addr, core)
-        server2 = self.global_config._create_server(self.lab_addr1, lab1)
-        server3 = self.global_config._create_server(self.lab_addr2, lab2)
-        server4 = self.global_config._create_server(self.lab_addr3, lab3)
+
+        core, server1 = self.global_config.create(self.core_addr)
+        lab1, server2 = self.global_config.create(self.lab_addr1)
+        lab2, server3 = self.global_config.create(self.lab_addr2)
+        lab3, server4 = self.global_config.create(self.lab_addr3)
+
         self.servers = [ server1, server2, server3, server4 ]
         for server in self.servers:
             server.start()
-
 
     def tearDown(self):
         for server in self.servers:
