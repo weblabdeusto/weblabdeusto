@@ -1,9 +1,12 @@
 import re
 import sys
-
-from abc import ABCMeta, abstractmethod
 import pickle
+import StringIO
+import traceback
+import threading
 import xmlrpclib
+from functools import wraps
+from abc import ABCMeta, abstractmethod
 
 import yaml
 import requests
@@ -18,6 +21,8 @@ from voodoo.gen2.registry import GLOBAL_REGISTRY
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
 CORE_CLASS = 'weblab.core.server.UserProcessingServer'
+METHODS_PATH = 'weblab.methods'
+
 PROTOCOL_PRIORITIES = ('http', 'xmlrpc')
 
 ############################################
@@ -37,6 +42,10 @@ class GlobalConfig(dict):
             return self[coord_address.host][coord_address.process][coord_address.component]
 
         return dict.__getitem__(self, name)
+
+    def create_server(self, coord_address, server_instance):
+        component_config = self[coord_address]
+        return _create_server(server_instance, coord_address, component_config)
 
 class HostConfig(dict):
     def __init__(self, config_files, config_values, host):
@@ -93,8 +102,8 @@ def _process_config(tree):
 def load(yaml_file):
     return _load_contents(yaml.load(open(yaml_file)))
 
-def loads(yaml_file):
-    return _load_contents(yaml.loads(yaml_contents))
+def loads(yaml_contents):
+    return _load_contents(yaml.load(StringIO.StringIO(yaml_contents)))
 
 def _load_contents(contents):
     global_value = contents
@@ -141,7 +150,13 @@ def _load_contents(contents):
 
                     path = protocols.pop('path', None)
                     protocols_config = ProtocolsConfig(port, path)
-                    for protocol in protocols.get('supports', PROTOCOL_PRIORITIES):
+                    supports = protocols.get('supports', PROTOCOL_PRIORITIES)
+                    if isinstance(supports, basestring):
+                        if ',' in supports:
+                            supports = [ s.strip() for s in supports.split(',') ]
+                        else:
+                            supports = [ supports ]
+                    for protocol in supports:
                         protocols_config[protocol] = {}
 
                 component_config = ComponentConfig(config_files, config_values, component_type, component_class, protocols_config)
@@ -202,7 +217,7 @@ class Locator(object):
             }
             return_data.update(protocols['http'])
             return return_data
-
+       
         if 'xmlrpc' in protocols:
             return_data = {
                 'type' : 'xmlrpc',
@@ -235,10 +250,10 @@ class Locator(object):
         """ Return the most efficient client to that component, or None """
         if not isinstance(coord_address, CoordAddress):
             raise ValueError("coord_address %r must be of type CoordAddress" % coord_address)
-
+        
         connection_config = self.get_connection(coord_address)
         if connection_config:
-            component_type = slef.global_config[coord_address].component_type
+            component_type = self.global_config[coord_address].component_type
             return _create_client(component_type, connection_config)
 
     def __getitem__(self, coord_address):
@@ -247,7 +262,7 @@ class Locator(object):
         if client:
             return client
         
-        raise LocatorKeyError(unicode(coord_address))
+        raise LocatorKeyError(coord_address.address)
 
 
 ############################################
@@ -330,13 +345,13 @@ class CoordAddress(object):
             component, process, host = m.groups()
             return CoordAddress(host,process,component)
 
+    translate = translate_address
+
 
 ############################################
 # 
 #   Clients
 # 
-
-METHODS_PATH = 'weblab.methods'
 
 class AbstractClient(object):
     __metaclass__ = ABCMeta
@@ -393,7 +408,7 @@ class DirectClient(AbstractClient):
             remote_exc_args = exc_instance.args
             if not isinstance(remote_exc_args, list) and not isinstance(remote_exc_args, tuple):
                 remote_exc_args = [remote_exc_args]
-
+            
             raise InternalCapturedServerCommunicationError(remote_exc_type, *remote_exc_args)
 
 _SERVER_CLIENTS['direct'] = DirectClient
@@ -475,9 +490,21 @@ _SERVER_CLIENTS['xmlrpc'] = XmlRpcClient
 #   Servers
 #
 
+def show_exceptions(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except:
+            traceback.print_exc()
+            raise
+    return wrapper
+
 _methods = Blueprint('methods', __name__)
 
 @_methods.route('/', methods = ['GET', 'POST'])
+@_methods.route('/RPC2', methods = ['GET', 'POST'])
+@show_exceptions
 def xmlrpc():
     if request.method == 'GET':
         # TODO: display an HTML interface listing the methods, way to consume it and so on
@@ -485,19 +512,27 @@ def xmlrpc():
 
     raw_data = request.get_data()
     params, method_name = xmlrpclib.loads(raw_data)
+    if method_name.startswith('Util.'):
+        method_name = method_name[len('Util.'):]
 
     if method_name not in current_app.wl_server_methods:
         # TODO: raise an invalid request method or so
         return ":-("
 
 
-    method = getattr(server_instance, 'do_%s' % method_name)
-    # TODO: exceptions
-    result = method(*params)
+    method = getattr(current_app.wl_server_instance, 'do_%s' % method_name)
+    try:
+        result = method(*params)
+    except:
+        exc_type, exc_instance, _ = sys.exc_info()
+        remote_exc_type = _get_type_name(exc_type)
+        fault = xmlrpclib.Fault(remote_exc_type, repr(exc_instance.args))
+        return xmlrpclib.dumps(fault)
 
     return xmlrpclib.dumps( (result,))
 
-@_methods.route('/<method_name>/', methods = ['GET', 'POST'])
+@_methods.route('/<method_name>', methods = ['GET', 'POST'])
+@show_exceptions
 def http_method(method_name):
     if method_name not in current_app.wl_server_methods:
         # TODO: raise an invalid request method or so
@@ -513,10 +548,18 @@ def http_method(method_name):
     args = pickle.loads(raw_data)
 
     method = getattr(server_instance, 'do_%s' % method_name)
-    # TODO: exceptions
-    result = method(*args)
-    
-    return pickle.dumps({ 'result' : result })
+    try:
+        result = method(*args)
+    except:
+        exc_type, exc_instance, _ = sys.exc_info()
+        remote_exc_type = _get_type_name(exc_type)
+        return pickle.dumps({
+            'is_error' : True,
+            'error_type' : remote_exc_type,
+            'error_args' : exc_instance.args,
+        })
+    else:
+        return pickle.dumps({ 'result' : result })
 
 class Server(object):
     def start(self):
@@ -524,6 +567,9 @@ class Server(object):
 
     def stop(self):
         pass
+
+class DirectServer(Server):
+    pass
 
 class InternalFlaskServer(Server):
     def __init__(self, application, port):
@@ -540,7 +586,7 @@ class InternalFlaskServer(Server):
                 else:
                     return "Shutdown not available"
 
-        self._thread = threading.Thread(target = self.application.run)
+        self._thread = threading.Thread(target = self.application.run, kwargs = {'port' : self.port, 'debug' : False})
         self._thread.setDaemon(True)
         self._thread.setName(next_counter('InternalFlaskServer'))
 
@@ -549,16 +595,16 @@ class InternalFlaskServer(Server):
 
     def stop(self):
         if is_testing():
-            requests.get('http://127.0.0.1:%s/_shutdown')
+            requests.get('http://127.0.0.1:%s/_shutdown' % self.port)
             self._thread.join(5)
     
 def _critical_debug(message):
     """Useful to make sure it's printed in the screen but not in tests"""
     print(message)
 
-def _create_server(server_instance, coord_address, component_config):
+def _create_server(instance, coord_address, component_config):
     """ Creates a server that manages the communications server_instance: an instance of a class which contains the defined methods """
-    component_type = component_config['type']
+    component_type = component_config.component_type
     
     methods = _get_methods_by_component_type(component_type)
     missing_methods = []
@@ -568,29 +614,30 @@ def _create_server(server_instance, coord_address, component_config):
             missing_methods.append(method_name)
 
     if missing_methods:
-        raise Exception("instance %s missing methods: %r" % (server_instance, missing_methods))
-
+        raise Exception("instance %s missing methods: %r" % (instance, missing_methods))
+    
+    # Warn if there are do_method and method is not registered
     for method in dir(instance):
         if method.startswith('do_'):
-            remaining = method[len('do_'):]
-            if remaining not in methods:
-                msg = "Warning: method %s not in the method list for component_type %s" % (remaining, component_type)
+            remainder = method[len('do_'):]
+            if remainder not in methods:
+                msg = "Warning: method %s not in the method list for component_type %s" % (remainder, component_type)
                 _critical_debug(msg)
                 log.log(__name__, log.Warning, msg)
 
-    GLOBAL_REGISTRY[coord_address.address] = server_instance
+    GLOBAL_REGISTRY[coord_address.address] = instance
 
-    protocols = component_config.get('protocols', {})
+    protocols = component_config.protocols
     if protocols:
         app = Flask(__name__)
-        app.wl_server_instance = server_instance
+        app.wl_server_instance = instance
         app.wl_server_methods = methods
-        path = protocols.get('path', '')
+        path = protocols.path or ''
         app.register_blueprint(_methods, url_prefix = path)
-        return FlaskServer(app, protocols.port)
+        return InternalFlaskServer(app, protocols.port)
     else:
         # This server does nothing
-        return Server()
+        return DirectServer()
 
 #####################################################
 # 
@@ -598,7 +645,7 @@ def _create_server(server_instance, coord_address, component_config):
 # 
 
 def _get_methods_by_component_type(component_type):
-    methods_module = __import__(METHODS_PATH)
+    methods_module = __import__(METHODS_PATH, fromlist = ['methods'])
     methods = getattr(methods_module.methods, component_type, None)
     if methods is None:
         raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)

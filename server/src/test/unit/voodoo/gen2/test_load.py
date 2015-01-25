@@ -4,6 +4,9 @@ import unittest
 from mock import patch
 
 import voodoo.gen2 as gen
+import voodoo.gen2.registry as registry
+from voodoo.gen2.exc import InternalCapturedServerCommunicationError
+import test.util.ports as ports
 
 
 class LoaderTest(unittest.TestCase):
@@ -53,7 +56,7 @@ class LocatorTest(unittest.TestCase):
 
         self.assertEquals(len(laboratories), 5)
         
-        t = gen.CoordAddress.translate_address
+        t = gen.CoordAddress.translate
 
         self.assertTrue(t('laboratory:laboratory@accessible_machine') in laboratories)
         self.assertTrue(t('laboratory3:core_server1@core_machine') in laboratories)
@@ -118,14 +121,124 @@ class CoordAddressTest(unittest.TestCase):
         # paranoid mode: things are being tested ;-)
         self.assertEquals(operations, 64)
 
-class ClientTest(unittest.TestCase):
+class UtilsTest(unittest.TestCase):
 
     def test_type_serialization(self):
         key_error_str = gen._get_type_name(KeyError)
         self.assertEquals(gen._load_type(key_error_str), KeyError)
 
-    def test_client(self):
+
+sample_configuration = """
+hosts:
+    main_host:
+        host: 127.0.0.1
+        processes:
+            core:
+                components:
+                    core:
+                        type: core
+                    lab:
+                        type: laboratory
+            lab:
+                components: 
+                    lab1:
+                        type: laboratory
+                        protocols:
+                            port: %(PORT1)s
+                    lab2:
+                        type: laboratory
+                        protocols:
+                            port: %(PORT2)s
+                            supports: xmlrpc
+"""
+
+class methods(object):
+    core = []
+    laboratory = ['testing_lab']
+
+class FakeLaboratoryServer(object):
+    def __init__(self, *args, **kwargs):
         pass
+
+    def do_testing_lab(self, a, b):
+        if a == 0 and b == 0:
+            raise FakeError("testing")
+        return a / b
+
+class FakeCoreServer(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+class FakeError(Exception):
+    pass
+
+class CommunicationsTest(unittest.TestCase):
+
+    def setUp(self):
+        registry.GLOBAL_REGISTRY.clear()
+        self.original_methods_path = gen.METHODS_PATH
+        self.original_lab_class = gen.LAB_CLASS
+        self.original_core_class = gen.CORE_CLASS
+       
+        gen.ACCEPTABLE_EXC_TYPES = gen.ACCEPTABLE_EXC_TYPES + ('test.','__main__.')
+        gen.LAB_CLASS = FakeLaboratoryServer.__module__ + '.' + FakeLaboratoryServer.__name__
+        gen.CORE_CLASS = FakeCoreServer.__module__ + '.' + FakeCoreServer.__name__
+        gen.METHODS_PATH = CommunicationsTest.__module__
+
+        lab_port1 = ports.new()
+        lab_port2 = ports.new()
+        
+        self.core_addr = gen.CoordAddress.translate('core:core@main_host')
+        self.lab_addr1 = gen.CoordAddress.translate('lab:core@main_host')
+        self.lab_addr2 = gen.CoordAddress.translate('lab1:lab@main_host')
+        self.lab_addr3 = gen.CoordAddress.translate('lab2:lab@main_host')
+
+        core = FakeCoreServer()
+        lab1 = FakeLaboratoryServer()
+        lab2 = FakeLaboratoryServer()
+        lab3 = FakeLaboratoryServer()
+
+        config_str = sample_configuration % { 'PORT1' : lab_port1, 'PORT2' : lab_port2 }
+        self.global_config = gen.loads(config_str)
+        server1 = self.global_config.create_server(self.core_addr, core)
+        server2 = self.global_config.create_server(self.lab_addr1, lab1)
+        server3 = self.global_config.create_server(self.lab_addr2, lab2)
+        server4 = self.global_config.create_server(self.lab_addr3, lab3)
+        self.servers = [ server1, server2, server3, server4 ]
+        for server in self.servers:
+            server.start()
+
+
+    def tearDown(self):
+        for server in self.servers:
+            server.stop()
+
+        gen.METHODS_PATH = self.original_methods_path
+        gen.LAB_CLASS = self.original_lab_class
+        gen.CORE_CLASS = self.original_core_class
+        registry.GLOBAL_REGISTRY.clear()
+
+    def test_correct_methods(self):
+        locator = gen.Locator(self.global_config, self.core_addr)
+
+        self.assertEquals(locator[self.lab_addr1].testing_lab(10, 5), 2)
+        self.assertEquals(locator[self.lab_addr2].testing_lab(10, 5), 2)
+        self.assertEquals(locator[self.lab_addr3].testing_lab(10, 5), 2)
+
+    def test_external_error_methods(self):
+        locator = gen.Locator(self.global_config, self.core_addr)
+
+        self.assertRaises(InternalCapturedServerCommunicationError, locator[self.lab_addr1].testing_lab, 10, 0)
+        self.assertRaises(InternalCapturedServerCommunicationError, locator[self.lab_addr2].testing_lab, 10, 0)
+        self.assertRaises(InternalCapturedServerCommunicationError, locator[self.lab_addr3].testing_lab, 10, 0)
+
+    def test_acceptable_error_methods(self):
+        locator = gen.Locator(self.global_config, self.core_addr)
+
+        self.assertRaises(FakeError, locator[self.lab_addr1].testing_lab, 0, 0)
+        self.assertRaises(FakeError, locator[self.lab_addr2].testing_lab, 0, 0)
+        # In XML-RPC, it's not propagated
+        self.assertRaises(InternalCapturedServerCommunicationError, locator[self.lab_addr3].testing_lab, 0, 0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -17,9 +17,15 @@ class InternalServerCommunicationError(InternalCommunicationError):
 
 class InternalCapturedServerCommunicationError(InternalServerCommunicationError):
     def __init__(self, remote_exc_type, remote_exc_args, *args):
-        super(InternalKnownServerCommunicationError, self).__init__(*args)
+        super(InternalCapturedServerCommunicationError, self).__init__(*args)
         self.remote_exc_type = remote_exc_type
         self.remote_exc_args = remote_exc_args
+
+    def __repr__(self):
+        return 'InternalCapturedServerCommunicationError(%r, %r, %r)' % (self.remote_exc_type, self.remote_exc_args, self.args)
+
+    def __str__(self):
+        return repr(self)
 
 class LocatorError(GeneratorError):
     pass
