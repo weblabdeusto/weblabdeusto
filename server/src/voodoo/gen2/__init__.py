@@ -16,6 +16,7 @@ from flask import Flask, Blueprint, request, current_app, render_template
 
 import voodoo.log as log
 
+from voodoo.configuration import ConfigurationManager
 from voodoo.counter import next_counter
 from voodoo.resources_manager import is_testing
 from voodoo.gen2.exc import GeneratorError, LocatorKeyError, InternalCapturedServerCommunicationError, InternalServerCommunicationError
@@ -32,6 +33,13 @@ PROTOCOL_PRIORITIES = ('http', 'xmlrpc')
 #   Configuration structures
 # 
 
+def _update_config(config, config_holder):
+    for config_file in (config_holder.config_files or []):
+        config.append_path(config_file)
+
+    for config_key, config_value in (config_holder.config_values or {}).iteritems():
+        config.append_value(config_key, config_value)
+
 class GlobalConfig(dict):
     def __init__(self, config_files, config_values):
         super(GlobalConfig, self).__init__()
@@ -44,8 +52,20 @@ class GlobalConfig(dict):
             return self[coord_address.host][coord_address.process][coord_address.component]
 
         return dict.__getitem__(self, name)
+    
+    def _create_config(self, coord_address):
+        host_config = self[coord_address.host]
+        process_config = host_config[coord_address.process]
+        component_config = process_config[coord_address.component]
 
-    def create_server(self, coord_address, server_instance):
+        config = ConfigurationManager()
+        _update_config(config, self)
+        _update_config(config, host_config)
+        _update_config(config, process_config)
+        _update_config(config, component_config)
+        return config
+
+    def _create_server(self, coord_address, server_instance):
         component_config = self[coord_address]
         return _create_server(server_instance, coord_address, component_config)
 
