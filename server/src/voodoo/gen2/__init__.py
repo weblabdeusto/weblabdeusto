@@ -1,6 +1,8 @@
 import re
 import sys
+import time
 import pickle
+import logging
 import StringIO
 import traceback
 import threading
@@ -592,6 +594,7 @@ class InternalFlaskServer(Server):
 
     def start(self):
         self._thread.start()
+        time.sleep(0.01)
 
     def stop(self):
         if is_testing():
@@ -632,6 +635,9 @@ def _create_server(instance, coord_address, component_config):
         app = Flask(__name__)
         app.wl_server_instance = instance
         app.wl_server_methods = methods
+        logger = logging.getLogger('werkzeug')
+        logger.setLevel(logging.CRITICAL)
+
         path = protocols.path or ''
         app.register_blueprint(_methods, url_prefix = path)
         return InternalFlaskServer(app, protocols.port)
