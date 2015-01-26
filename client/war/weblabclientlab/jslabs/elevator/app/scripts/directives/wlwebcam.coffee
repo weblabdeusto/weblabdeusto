@@ -4,7 +4,7 @@
  # @ngdoc directive
  # @name elevatorApp.directive:wlWebcam
  # @description
- # # wlWebcam
+ # Shows a webcam image and refreshes itself.
 ###
 angular.module('elevatorApp')
   .directive('wlWebcam', ($timeout) ->
@@ -14,16 +14,22 @@ angular.module('elevatorApp')
       src: '@src'
     link: (scope, element, attrs) ->
 
-      scope.startRefreshing = ->
-        $timeout( ( ->
-          console.log "Refreshing"
+      # Listen for image-loaded event, and start
+      # a future refresh once caught.
+      element.find("img").bind 'load', ->
+        scope.refreshSoon()
 
-          # Append a random number so that it is unique.
-          scope.startRefreshing()
+      # Refresh in some time.
+      scope.refreshSoon = ->
+        $timeout( ( ->
+          scope.doRefresh()
           return
         ), 1000 );
 
-
-      # Really do start refreshing.
-      scope.startRefreshing();
+      # Do the actual image refreshing.
+      scope.doRefresh = ->
+        # Randomly change a number in the rnd parameter so that it always gets downloaded.
+        uri = URI(scope.src)
+        uri.query(rnd: Math.random() * 100000)
+        scope.src = uri.toString()
   )
