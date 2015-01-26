@@ -16,7 +16,7 @@ visir.FlukeMultimeter = function(id, elem)
 	if (visir.BaseLocation) imgbase = visir.BaseLocation + imgbase;
 
 	var tpl = '<div class="flukedmm">\
-	<img src="' + imgbase + 'fluke23.png" width="300" height="460" />\
+	<img src="' + imgbase + 'fluke23.png" width="300" height="460" draggable="false" />\
 	<div class="display">\
 		<div class="dmm_value" id="value">12.3</div>\
 		<div class="mode AC">VAC</div>\

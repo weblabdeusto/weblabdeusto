@@ -20,6 +20,7 @@
 	left:0px;
 	width: 714px;
 	height: 450px;
+	z-index: 12;
 }
 
 .breadboard .clickarea
@@ -29,6 +30,7 @@
 	left:0px;
 	width: 714px;
 	height: 450px;
+	z-index: 10;
 }
 
 .breadboard .background
@@ -68,6 +70,7 @@
 	cursor: hand;
 	cursor: pointer;
 	pointer-events:auto;
+	z-index: 11;
 }
 
 .breadboard .bin .teacher:hover
@@ -91,6 +94,7 @@
 	cursor: hand;
 	cursor: pointer;
 	pointer-events:auto;
+	z-index: 11;
 }
 
 .breadboard .componentbox
@@ -106,6 +110,7 @@
 	border-radius: 6px;
 	box-shadow: 2px 2px 4px #888;
 	background: rgb(250,250,250);
+	z-index: 15;
 }
 
 .breadboard .componentbox .componentlist
@@ -132,7 +137,6 @@
 
 .breadboard .components
 {
-
 }
 
 .breadboard .component
@@ -140,6 +144,7 @@
 	position: absolute;
 	top: 0;
 	left: 0;
+	z-index: 11;
 }
 
 .breadboard .component img
@@ -159,14 +164,13 @@
 	display: inline;
 }
 
-
-
 .breadboard .colorpicker
 {
 	position:absolute;
 	top: 115px;
 	right: 10px;
 	width: 110px;
+	z-index: 11;
 }
 
 .breadboard .colorpicker .border
@@ -230,6 +234,7 @@
 	border-radius: 50%;
 	/* -webkit-background-clip: padding-box; */
 	border: 1px solid black;
+	z-index: 11;
 }
 
 .breadboard .wirepoint.enabled {
@@ -242,6 +247,7 @@
 	position: absolute;
 	bottom: 2px; right: 0;
 	opacity: 0.4;
+	z-index: 11;
 }
 
 .breadboard .help {
@@ -254,11 +260,16 @@
 	position: absolute;
 	bottom: 0; left: 5px;
 	cursor: pointer;
+	z-index: 11;
 }
 
 
 .breadboard .delete.enabled {
 	opacity: 1.0;
+}
+
+.breadboard .componentcircle {
+	z-index: 11;
 }
 
 .breadboard .componentcircle .circle {

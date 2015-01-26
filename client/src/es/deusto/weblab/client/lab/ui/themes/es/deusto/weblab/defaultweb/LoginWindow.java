@@ -81,7 +81,6 @@ class LoginWindow extends BaseWindow {
 	@UiField VerticalPanel guestPanel;
 	@UiField VerticalPanel messagesPanel;
 	@UiField WlAHref institutionLink;
-	@UiField DecoratorPanel olarexPanel;
 	
 	// Callbacks
 	private final ILoginWindowCallback callback;
@@ -128,9 +127,6 @@ class LoginWindow extends BaseWindow {
 		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
 		this.institutionLink.setHref(hostEntityLink);
 		
-		final boolean olarexVisible = this.configurationManager.getBoolProperty("olarex", false);
-		this.olarexPanel.setVisible(olarexVisible);
-	    
 		// If ENTER is pressed, login as if the button had been clicked.
 		final KeyDownHandler keyboardHandler = new KeyDownHandler(){
 			@Override

@@ -21,6 +21,7 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		, "jquery-draggable.js"
 		, "jquery-updownbutton.js"
 		, "config.js"
+		, "FileSaver.min.js"
 	];
 
 	var stage2_scripts = [
