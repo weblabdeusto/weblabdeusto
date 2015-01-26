@@ -25,7 +25,7 @@
 
 				$("#bigcam").append('<img src="'+big+'">');
 
-				game.updateNumbers();
+				game.updateNumbers(false);
 
 				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(game.updateNumbers);});
 				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(game.updateNumbers);});
@@ -55,14 +55,14 @@
 				{
 					d = new Date();
 					$('.camera1 img').attr("src", big+"?"+d.getTime());
-				}, 100);
+				}, 400);
 
 				$('.camera2 img').click(function()
 				{
 					if (romie.topCamTime() > 0 && ! romie.isTopCamActive())
 					{
 						big = topCam;
-						camera2 = setInterval(updateCam2, 500);
+						camera2 = setInterval(updateCam2, 400);
 						romie.activateTopCam();
 					}
 					else if (romie.topCamTime() > 0)

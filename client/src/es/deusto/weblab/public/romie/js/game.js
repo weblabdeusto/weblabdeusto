@@ -3,8 +3,9 @@ Game = function(romie, updater)
 	this.romie = romie;
 }
 
-Game.prototype.updateNumbers = function()
+Game.prototype.updateNumbers = function(show_question)
 {
+	show_question = typeof show_question === 'boolean' ? show_question : true;
 	movements = romie.getMovements();
 	points = romie.getPoints();
 
@@ -13,7 +14,7 @@ Game.prototype.updateNumbers = function()
 	$('.movements span').html(movements);
 	$('.points span').html(points);
 
-	if (romie.hasTag())
+	if (show_question && romie.hasTag())
 	{
 		game.showQuestion(game.getQuestion(romie.getTag()));
 	}
@@ -62,7 +63,7 @@ Game.prototype.answerQuestion = function()
 						this.romie.setPoints(this.question["points"]*this.romie.getPoints());
 						this.romie.setMovements(this.question["movements"]*this.romie.getMovements());
 					}
-					this.updateNumbers();
+					this.updateNumbers(false);
 					$('#response_ok').modal('show');
 				}
 				else
