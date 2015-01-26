@@ -1,5 +1,5 @@
 <div class="ag_osc">
-	<img src="%img%/osc.jpg" width="800" height="449" />
+	<img src="%img%/osc.jpg" width="800" height="449" draggable="false" />
 	<div class="stepwheel small horz_offset"><img class="active top" src="%img%/osc_wheel_small_1.png" alt="stepwheel" /><img class="top" src="%img%/osc_wheel_small_2.png" alt="stepwheel" /></div>
 	<div class="stepwheel small offset_ch1"><img class="active top" src="%img%/osc_wheel_small_1.png" alt="stepwheel" /><img class="top" src="%img%/osc_wheel_small_2.png" alt="stepwheel" /></div>
 	<div class="stepwheel small offset_ch2"><img class="active top" src="%img%/osc_wheel_small_1.png" alt="stepwheel" /><img class="top" src="%img%/osc_wheel_small_2.png" alt="stepwheel" /></div>
@@ -19,6 +19,9 @@
 	<div class="button modecoupling">
 		<img class="up active" src="%img%/osc_button_mode_coupling_up.png" alt="mode coupling" /><img class="down" src="%img%/osc_button_mode_coupling_down.png" alt="mode coupling" />
 	</div>
+	<div class="button saverecall">
+		<img class="up active" src="%img%/osc_save_recall_up.png" alt="save / recall" /><img class="down" src="%img%/osc_save_recall_down.png" alt="save / recall" />
+	</div>
 	<div class="button multibutton channel_1">
 		<div class="state dark visible">
 			<img class="up active" src="%img%/osc_vert_off_up_enable_1.png" alt="display button" /><img class="down" src="%img%/osc_vert_off_down_enable_1.png" alt="display button" />
@@ -32,6 +35,13 @@
 			<img class="up active" src="%img%/osc_vert_off_up_enable_2.png" alt="display button" /><img class="down" src="%img%/osc_vert_off_down_enable_2.png" alt="display button" />
 		</div><div class="state light">
 			<img class="up active" src="%img%/osc_vert_on_up_enable_2.png" alt="display button" /><img class="down" src="%img%/osc_vert_on_down_enable_2.png" alt="display button" />
+		</div>
+	</div>
+	<div class="button multibutton math">
+		<div class="state dark visible">
+			<img class="up active" src="%img%/osc_math_off_up.png" alt="math button" /><img class="down" src="%img%/osc_math_off_down.png" alt="math button" />
+		</div><div class="state light">
+			<img class="up active" src="%img%/osc_math_on_up.png" alt="math button" /><img class="down" src="%img%/osc_math_on_down.png" alt="math button" />
 		</div>
 	</div>
 	<div class="button multibutton edge">
@@ -148,6 +158,10 @@
 						<div class="selection sel_dc selected"><div class="checkmark_holder"><div class="checkmark" /></div><span>DC</span></div>
 						<div class="selection sel_ac"><div class="checkmark_holder"><div class="checkmark" /></div><span>AC</span></div>
 					</div>
+					<div class="menubox">
+						<span class="title">Invert</span>
+						<div class="invert checkbox" />
+					</div>
 				</div>
 
 				<!-- menu_channel_2 -->
@@ -162,6 +176,10 @@
 						<hr />
 						<div class="selection sel_dc selected"><div class="checkmark_holder"><div class="checkmark" /></div><span>DC</span></div>
 						<div class="selection sel_ac"><div class="checkmark_holder"><div class="checkmark" /></div><span>AC</span></div>
+					</div>
+					<div class="menubox">
+						<span class="title">Invert</span>
+						<div class="invert checkbox" />
 					</div>
 				</div>
 
@@ -237,6 +255,41 @@
 					<div class="menu_selection pos2 sel_meas_selection" style="width: 100px">
 						<div class="title">Select Measurement</div>
 						<hr />
+					</div>
+				</div>
+
+				<!-- menu_math -->
+				<div class="menu menu_math">
+					<div class="menubox">
+						<div class="title">Settings</div>
+					</div>
+					<div class="menubox">
+						<div class="title disabled">FFT</div>
+					</div>
+					<div class="menubox">
+						<div class="title">1 * 2</div>
+						<div class="value mul">
+							<div class="checkmark_holder"><div class="checkmark mul" /></div>
+						</div>
+					</div>
+					<div class="menubox">
+						<div class="title">1 - 2</div>
+						<div class="value sub">
+							<div class="checkmark_holder"><div class="checkmark sub" /></div>
+						</div>
+					</div>
+					<div class="menubox">
+						<div class="title disabled">dV/dt</div>
+						<div class="value derive">
+							<div class="checkmark_holder"><div class="checkmark derive" /></div>
+						</div>
+
+					</div>
+					<div class="menubox">
+						<div class="title disabled">&#x222b;Vdt</div>
+						<div class="value integrate">
+							<div class="checkmark_holder"><div class="checkmark integrate" /></div>
+						</div>
 					</div>
 				</div>
 

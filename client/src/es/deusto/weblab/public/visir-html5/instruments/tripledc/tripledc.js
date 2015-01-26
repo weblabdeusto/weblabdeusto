@@ -22,7 +22,7 @@ visir.TripleDC = function(id, elem)
 	if (visir.BaseLocation) imgbase = visir.BaseLocation + imgbase;
 
 	var tpl = '<div class="tripledc">\
-	<img src="%img%/3dc.png" width="720" height="449" />\
+	<img src="%img%/3dc.png" width="720" height="449" draggable="false" />\
 	<div class="bigtext voltage"><span class="green">0</span>.000V</div>\
 	<div class="bigtext current">0.500A</div>\
 	<div class="channelselect">\
