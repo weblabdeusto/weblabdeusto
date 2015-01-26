@@ -140,7 +140,7 @@ CONFIG_JS = {
 								   "experiment.name"		: "romie",
 								   "experiment.category"	: "Dummy experiments",
 								   "cssWidth"				: "1024",
-								   "cssHeight"				: "1000",
+								   "cssHeight"				: "680",
 								   "provide.file.upload"	: False,
 								   "html.file"				: "romie/romie.html"
 							   },
@@ -1056,12 +1056,13 @@ def populate_weblab_tests(engine, tests):
     _add_params(session, aquarium)
 
     aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date, 'js')
-    _add_params(session, aquariumjs)
     session.add(aquariumjs)
+    _add_params(session, aquariumjs)
 
     submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date, 'js')
     _add_params(session, submarinejs)
     session.add(submarinejs)
+    _add_params(session, submarinejs)
 
     rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date, 'robotarm')
     session.add(rob_arm)

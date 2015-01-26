@@ -1,3 +1,4 @@
+import sys
 import json
 import types
 import urlparse
@@ -120,20 +121,17 @@ def check_exceptions(func):
     return wrapper
 
 def get_json():
-    if request.json is not None:
-        return request.json
-    else:
-        try:
-            if request.data:
-                data = request.data
-            else:
-                keys = request.form.keys() or ['']
-                data = keys[0]
-            return json.loads(data)
-        except:
-            log(__name__, level.Warning, "Error retrieving JSON contents")
-            log_exc(__name__, level.Info)
-            return None
+    rv = request.get_json(force=True, silent=True)
+    if rv:
+        return rv
+    
+    data = request.data
+    print >> sys.stderr, "Error: could not deserialize:", data
+    sys.stderr.flush()
+    log(__name__, level.Warning, "Error retrieving JSON contents")
+    log(__name__, level.Warning, data)
+    log_exc(__name__, level.Info)
+    return None
 
 _global_context = threading.local()
 DEFAULT = object()
@@ -319,6 +317,9 @@ class WebLabAPI(object):
         return self.jsonify(response)
 
     def _json(self, web_context, flask_app, instance_args):
+        _global_context.current_weblab = self
+        self.context.config = instance_args['config']
+
         if request.method == 'POST':
             contents = get_json()
             if contents:
