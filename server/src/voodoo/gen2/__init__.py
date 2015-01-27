@@ -1,5 +1,4 @@
 import StringIO
-from abc import ABCMeta, abstractmethod
 
 import yaml
 
@@ -7,7 +6,7 @@ import voodoo.log as log
 
 from voodoo.configuration import ConfigurationManager
 from voodoo.gen2.exc import GeneratorError, LocatorKeyError
-from .util import _get_methods_by_component_type, _load_type
+from .util import _load_type
 from .address import CoordAddress
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
@@ -294,47 +293,5 @@ class Locator(object):
         
         raise LocatorKeyError(coord_address.address)
 
-
-############################################
-# 
-#   Clients
-# 
-
-class AbstractClient(object):
-    __metaclass__ = ABCMeta
-
-    def __init__(self, component_type):
-
-        methods = _get_methods_by_component_type(component_type)
-
-        # Create methods in this instance for each of these methods
-        for method in methods:
-            call_method = self._create_method(method)
-            setattr(self, method, call_method)
-
-    def _create_method(self, method_name):
-        def method(*args):
-            return self._call(method_name, *args)
-        method.__name__ = method_name
-        return method
-
-    @abstractmethod
-    def _call(self, name, *args):
-        """Call a method with the given name and arguments"""
-
-def _create_client(component_type, server_config):
-    protocol = server_config.get('type')
-    if protocol not in _SERVER_CLIENTS:
-        raise Exception("Unregistered protocol in _SERVER_CLIENTS: %s" % protocol)
-
-    return _SERVER_CLIENTS[protocol](component_type, server_config)
-
-from .clients import DirectClient, HttpClient, XmlRpcClient
-
-_SERVER_CLIENTS = {
-    'direct' : DirectClient,
-    'http' : HttpClient,
-    'xmlrpc' : XmlRpcClient,
-}
-
+from .clients import _create_client
 from .servers import _create_server
