@@ -7,6 +7,7 @@ import voodoo.gen2 as gen
 import voodoo.gen2.clients as clients
 import voodoo.gen2.registry as registry
 import voodoo.gen2.util as util
+import voodoo.gen2.parser as parser
 
 from voodoo.gen2.exc import InternalCapturedServerCommunicationError
 import test.util.ports as ports
@@ -24,7 +25,7 @@ class LoaderTest(unittest.TestCase):
         core_component = core_server1['core']
         self.assertEquals(core_component.config_values['core_facade_port'], 10000)
         self.assertEquals(core_component.component_type, 'core')
-        self.assertEquals(core_component.component_class, gen.CORE_CLASS)
+        self.assertEquals(core_component.component_class, parser.CORE_CLASS)
         self.assertEquals(len(core_component.protocols), 0)
 
         laboratory1 = machine['laboratory1']
@@ -32,7 +33,7 @@ class LoaderTest(unittest.TestCase):
 
         self.assertEquals(lab_component1.config_files, ['core_machine/laboratory1/laboratory1/server_config.py'])
         self.assertEquals(lab_component1.component_type, 'laboratory')
-        self.assertEquals(lab_component1.component_class, gen.LAB_CLASS)
+        self.assertEquals(lab_component1.component_class, parser.LAB_CLASS)
         self.assertEquals(lab_component1.protocols.port, 10003)
         self.assertEquals(lab_component1.protocols['http'], {})
         self.assertEquals(lab_component1.protocols['xmlrpc'], {})
@@ -180,12 +181,12 @@ class CommunicationsTest(unittest.TestCase):
     def setUp(self):
         registry.GLOBAL_REGISTRY.clear()
         self.original_methods_path = util.METHODS_PATH
-        self.original_lab_class = gen.LAB_CLASS
-        self.original_core_class = gen.CORE_CLASS
+        self.original_lab_class = parser.LAB_CLASS
+        self.original_core_class = parser.CORE_CLASS
        
         clients.ACCEPTABLE_EXC_TYPES = clients.ACCEPTABLE_EXC_TYPES + ('test.','__main__.')
-        gen.LAB_CLASS = FakeLaboratoryServer.__module__ + '.' + FakeLaboratoryServer.__name__
-        gen.CORE_CLASS = FakeCoreServer.__module__ + '.' + FakeCoreServer.__name__
+        parser.LAB_CLASS = FakeLaboratoryServer.__module__ + '.' + FakeLaboratoryServer.__name__
+        parser.CORE_CLASS = FakeCoreServer.__module__ + '.' + FakeCoreServer.__name__
         util.METHODS_PATH = CommunicationsTest.__module__
 
         lab_port1 = ports.new()
@@ -212,9 +213,9 @@ class CommunicationsTest(unittest.TestCase):
         for server in self.servers:
             server.stop()
 
-        gen.METHODS_PATH = self.original_methods_path
-        gen.LAB_CLASS = self.original_lab_class
-        gen.CORE_CLASS = self.original_core_class
+        util.METHODS_PATH = self.original_methods_path
+        parser.LAB_CLASS = self.original_lab_class
+        parser.CORE_CLASS = self.original_core_class
         registry.GLOBAL_REGISTRY.clear()
 
     def test_correct_methods(self):
