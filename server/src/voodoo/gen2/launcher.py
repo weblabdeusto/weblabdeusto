@@ -32,7 +32,7 @@ import voodoo.counter as counter
 import voodoo.process_starter as process_starter
 import voodoo.rt_debugger as rt_debugger
 
-from . import load
+from . import load_dir
 
 ##########################################################
 #                                                        #
@@ -163,14 +163,14 @@ class EventWaitHolder(threading.Thread):
 
 class AbstractLauncher(object):
     def __init__(self,
-                    config_dir, machine_name,
+                    config_dir, host_name,
                     event_waiters, logging_file_config,
                     before_finish_callback = None, event_notifiers = None):
 
         super(AbstractLauncher, self).__init__()
 
         self.config_dir             = config_dir
-        self.machine_name           = machine_name
+        self.host_name           = host_name
         self.event_waiters          = event_waiters
         self.logging_file_config    = logging_file_config
         self.before_finish_callback = before_finish_callback
@@ -215,40 +215,36 @@ class AbstractLauncher(object):
 
 class Launcher(AbstractLauncher):
     def __init__(self,
-                    config_dir, machine_name, instance_name,
+                    config_dir, host_name, process_name,
                     event_waiters, logging_file_config,
                     before_finish_callback = None, event_notifiers = None):
         super(Launcher, self).__init__(
-                    config_dir, machine_name,
+                    config_dir, host_name,
                     event_waiters, logging_file_config,
                     before_finish_callback, event_notifiers
                 )
-        self.instance_name          = instance_name
+        self.process_name          = process_name
 
     def launch(self):
         logging.config.fileConfig(
                 self.logging_file_config
             )
 
-        server_loader = ServerLoader.ServerLoader()
-        instance_handler = server_loader.load_instance(
-                self.config_dir,
-                self.machine_name,
-                self.instance_name
-            )
+        global_config = load_dir(self.config_dir)
+        process_handler = global_config.load_process(self.host_name, self.process_name)
         try:
             self.notify_and_wait()
         finally:
-            instance_handler.stop()
+            process_handler.stop()
 
 class MachineLauncher(AbstractLauncher):
     def __init__(self,
-            config_dir, machine_name,
+            config_dir, host_name,
             event_waiters, logging_file_config,
             before_finish_callback = None, event_notifiers = None,
             pid_file = None, waiting_port = 54321, debugger_ports = None):
         super(MachineLauncher, self).__init__(
-                    config_dir, machine_name,
+                    config_dir, host_name,
                     event_waiters, logging_file_config,
                     before_finish_callback, event_notifiers
                 )
@@ -268,31 +264,30 @@ class MachineLauncher(AbstractLauncher):
         self.socket.accept()
 
     def launch(self):
-        global_parser = ConfigurationParser.GlobalParser()
-        global_configuration = global_parser.parse(self.config_dir)
-        machine_configuration = global_configuration.machines.get(self.machine_name)
-        if machine_configuration is None:
-            raise Exception("Machine %s not found" % self.machine_name)
+        global_configuration = load_dir(self.config_dir)
+        host_configuration = global_configuration.get(self.host_name)
+        if host_configuration is None:
+            raise Exception("Machine %s not found" % self.host_name)
 
         self._create_socket()
 
-        processes = []
-        for instance_name in machine_configuration.instances:
-            instance_config = machine_configuration.instances[instance_name]
+        os_processes = []
+        for process_name in host_configuration:
             if isinstance(self.logging_file_config, dict):
-                logging_file_config = self.logging_file_config[instance_name]
+                logging_file_config = self.logging_file_config[process_name]
             else:
                 logging_file_config = self.logging_file_config
             if self.debugger_ports is None:
                 debugger_port = "None"
             else:
-                debugger_port = self.debugger_ports.get(instance_name, "None")
+                debugger_port = self.debugger_ports.get(process_name, "None")
             args = (
                         "python",
                         "-OO",
                         __file__,
                         self.config_dir,
-                        self.machine_name, instance_name,
+                        self.host_name, 
+                        process_name,
                         logging_file_config,
                         str(self.waiting_port),
                         str(debugger_port)
@@ -301,30 +296,32 @@ class MachineLauncher(AbstractLauncher):
                     args = args,
                     stdin = subprocess.PIPE
                 )
-            process = process_starter.start_process(instance_config.user, (), subprocess_kargs)
-            processes.append(process)
+
+            # TODO: Remove "user.not.used" (changing process_starter API)
+            os_process = process_starter.start_process('user.not.used', (), subprocess_kargs)
+            os_processes.append(os_process)
 
         self.notify_and_wait()
 
-        for process in processes:
+        for os_process in os_processes:
             try:
-                process.stdin.write("\n")
+                os_process.stdin.write("\n")
             except:
                 pass
 
-        self.wait_for_subprocesses(processes)
+        self.wait_for_subprocesses(os_processes)
 
-        if len(processes) > 0:
-            for process in processes:
-                process.terminate()
+        if len(os_processes) > 0:
+            for os_process in os_processes:
+                os_process.terminate()
 
-        self.wait_for_subprocesses(processes)
+        self.wait_for_subprocesses(os_processes)
 
-        if len(processes) > 0:
-            for process in processes:
-                process.kill()
+        if len(os_processes) > 0:
+            for os_process in os_processes:
+                os_process.kill()
 
-        self.wait_for_subprocesses(processes)
+        self.wait_for_subprocesses(os_processes)
 
     def wait_for_subprocesses(self, processes):
         for _ in xrange(20):
@@ -353,11 +350,11 @@ if __name__ == '__main__':
         print >> sys.stderr, "Error: invalid number of arguments"
         sys.exit(-1)
 
-    _, config_dir, machine_name, instance_name, logging_file, waiting_port, debugger_port = sys.argv
+    _, config_dir, host_name, process_name, logging_file, waiting_port, debugger_port = sys.argv
     waiters = (RawInputWait(""),)
     notifiers = (SocketNotifier("localhost", int(waiting_port)),)
     if debugger_port != "None":
         rt_debugger.launch_debugger(int(debugger_port))
-    launcher = Launcher(config_dir, machine_name, instance_name, waiters, logging_file, event_notifiers = notifiers)
+    launcher = Launcher(config_dir, host_name, process_name, waiters, logging_file, event_notifiers = notifiers)
     launcher.launch()
 

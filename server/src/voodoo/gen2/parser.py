@@ -1,3 +1,4 @@
+import os
 import StringIO
 import yaml
 
@@ -153,6 +154,16 @@ def _process_config(tree):
         config_values.update(tree['config'])
 
     return config_files, config_values
+
+def load_dir(directory):
+    if not os.path.exists(directory):
+        raise GeneratorError("Directory %s does not exist" % directory)
+
+    config_filename = os.path.join(directory, 'configuration.yml')
+    if not os.path.exists(config_filename):
+        raise GeneratorError("Expected file %s not found" % config_filename)
+
+    return load(config_filename)
 
 def load(yaml_file):
     return _load_contents(yaml.load(open(yaml_file)))
