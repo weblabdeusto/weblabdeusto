@@ -14,39 +14,28 @@
 #
 from .exc import AddressAlreadyRegisteredError, ServerNotFoundInRegistryError
 
-class ServerRegistry(object):
+class ComponentRegistry(dict):
     """
-        Inside each application, there is a ServerRegistry, which indexes
-        all the servers with Direct Connection available in the server.
-        This way, if a Coordination Server says that "there is a DatabaseServer
-        at this address", and the Server is in the same application, the server
-        will be able to be found in this registry.
+        Inside each process, there is a ServerRegistry, which indexes
+        all the components with Direct Connection available in the server.
     """
-    def __init__(self):
-        self._servers = {}
 
-    def register(self, address, server, force = False):
-        if not force and address in self._servers:
+    def register(self, address, component, force = False):
+        if not force and address in self:
             raise AddressAlreadyRegisteredError('Key %s already found in ServerRegistry' % address)
-        self._servers[address] = server
+        dict.__setitem__(self, address, component)
 
     def deregister(self, address):
-        if not self._servers.has_key(address):
+        if not address in self:
             raise ServerNotFoundInRegistryError(
                 'Address %s not found in registry' % address
             )
 
-        self._servers.pop(address)
+        self.pop(address)
 
-    def __setitem__(self, address, server):
-        self.register(address, server)
-        return server
+    def __setitem__(self, address, component):
+        self.register(address, component)
+        return component
 
-    def __getitem__(self, address):
-        return self._servers[address]
-
-    def clear(self):
-        self._servers.clear()
-
-GLOBAL_REGISTRY = ServerRegistry()
+GLOBAL_REGISTRY = ComponentRegistry()
 
