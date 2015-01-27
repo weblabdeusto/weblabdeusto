@@ -594,13 +594,8 @@ class FakeLocator(object):
     def __init__(self, lab):
         self.lab = lab
 
-    def get_server(self, server_type):
-        if server_type == ServerType.Laboratory:
-            return self.lab
-        raise Exception("Server not found")
-
-    def get_server_from_coordaddr(self, coord_addr, server_type):
-        if server_type == ServerType.Laboratory and laboratory_coordaddr == coord_addr:
+    def __getitem__(self, coord_addr):
+        if laboratory_coordaddr == coord_addr:
             return self.lab
         raise Exception("Server not found")
 
