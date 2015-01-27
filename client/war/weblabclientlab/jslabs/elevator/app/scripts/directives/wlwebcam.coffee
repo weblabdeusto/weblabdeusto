@@ -16,7 +16,8 @@ angular.module('elevatorApp')
 
       # Listen for image-loaded event, and start
       # a future refresh once caught.
-      element.find("img").bind 'load', ->
+      # We bind to both load and error events.
+      element.find("img").bind 'load error', ->
         scope.refreshSoon()
 
       # Refresh in some time.

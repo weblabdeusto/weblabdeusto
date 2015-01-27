@@ -9,6 +9,10 @@
 ###
 angular.module('elevatorApp')
   .controller 'MainCtrl', ($scope) ->
+
+    $scope.clickButton = (buttonNumber) ->
+      console.debug "Clicked button: " + buttonNumber
+
     $scope.awesomeThings = [
       'HTML5 Boilerplate'
       'AngularJS'
