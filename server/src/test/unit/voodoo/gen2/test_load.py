@@ -4,7 +4,10 @@ import unittest
 from mock import patch
 
 import voodoo.gen2 as gen
+import voodoo.gen2.clients as clients
 import voodoo.gen2.registry as registry
+import voodoo.gen2.util as util
+
 from voodoo.gen2.exc import InternalCapturedServerCommunicationError
 import test.util.ports as ports
 
@@ -124,8 +127,8 @@ class CoordAddressTest(unittest.TestCase):
 class UtilsTest(unittest.TestCase):
 
     def test_type_serialization(self):
-        key_error_str = gen._get_type_name(KeyError)
-        self.assertEquals(gen._load_type(key_error_str), KeyError)
+        key_error_str = util._get_type_name(KeyError)
+        self.assertEquals(util._load_type(key_error_str), KeyError)
 
 
 sample_configuration = """
@@ -176,14 +179,14 @@ class CommunicationsTest(unittest.TestCase):
 
     def setUp(self):
         registry.GLOBAL_REGISTRY.clear()
-        self.original_methods_path = gen.METHODS_PATH
+        self.original_methods_path = util.METHODS_PATH
         self.original_lab_class = gen.LAB_CLASS
         self.original_core_class = gen.CORE_CLASS
        
-        gen.ACCEPTABLE_EXC_TYPES = gen.ACCEPTABLE_EXC_TYPES + ('test.','__main__.')
+        clients.ACCEPTABLE_EXC_TYPES = clients.ACCEPTABLE_EXC_TYPES + ('test.','__main__.')
         gen.LAB_CLASS = FakeLaboratoryServer.__module__ + '.' + FakeLaboratoryServer.__name__
         gen.CORE_CLASS = FakeCoreServer.__module__ + '.' + FakeCoreServer.__name__
-        gen.METHODS_PATH = CommunicationsTest.__module__
+        util.METHODS_PATH = CommunicationsTest.__module__
 
         lab_port1 = ports.new()
         lab_port2 = ports.new()

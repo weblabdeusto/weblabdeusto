@@ -35,3 +35,6 @@ class LocatorKeyError(LocatorError, KeyError):
 
 class AddressAlreadyRegisteredError(VoodooGenError):
     pass
+
+class ServerNotFoundInRegistryError(VoodooGenError, KeyError):
+    pass

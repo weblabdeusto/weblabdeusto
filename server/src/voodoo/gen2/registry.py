@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-from voodoo.gen2.exc import AddressAlreadyRegisteredError
+from voodoo.gen2.exc import AddressAlreadyRegisteredError, ServerNotFoundInRegistryError
 
 class ServerRegistry(object):
     """
@@ -32,7 +32,7 @@ class ServerRegistry(object):
 
     def deregister(self, address):
         if not self._servers.has_key(address):
-            raise RegistryErrors.ServerNotFoundInRegistryError(
+            raise ServerNotFoundInRegistryError(
                 'Address %s not found in registry' % address
             )
 
