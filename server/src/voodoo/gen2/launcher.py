@@ -30,9 +30,9 @@ import logging.config
 
 import voodoo.counter as counter
 import voodoo.process_starter as process_starter
-import voodoo.gen.loader.ServerLoader as ServerLoader
-import voodoo.gen.loader.ConfigurationParser as ConfigurationParser
 import voodoo.rt_debugger as rt_debugger
+
+from . import load
 
 ##########################################################
 #                                                        #

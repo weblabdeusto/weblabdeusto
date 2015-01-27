@@ -200,18 +200,14 @@ class CommunicationsTest(unittest.TestCase):
         config_str = sample_configuration % { 'PORT1' : lab_port1, 'PORT2' : lab_port2 }
         self.global_config = gen.loads(config_str)
 
-        server1 = self.global_config.create(self.core_addr)
-        server2 = self.global_config.create(self.lab_addr1)
-        server3 = self.global_config.create(self.lab_addr2)
-        server4 = self.global_config.create(self.lab_addr3)
+        process1 = self.global_config.load_process('main_host', 'core')
+        process2 = self.global_config.load_process('main_host', 'lab')
 
-        self.servers = [ server1, server2, server3, server4 ]
-        for server in self.servers:
-            server.start()
+        self.processes = [ process1, process2 ]
 
     def tearDown(self):
-        for server in self.servers:
-            server.stop()
+        for process in self.processes:
+            process.stop()
 
         util.METHODS_PATH = self.original_methods_path
         parser.LAB_CLASS = self.original_lab_class

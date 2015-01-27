@@ -18,7 +18,7 @@ PROTOCOL_PRIORITIES = ('http', 'xmlrpc')
 # 
 #   Configuration structures
 
-class InstanceHandler(object): 
+class ComponentHandler(object): 
     def __init__(self, server, instance): 
         self.instance = instance
         self.server = server
@@ -28,7 +28,18 @@ class InstanceHandler(object):
  
     def stop(self): 
         self.server.stop()
+
+class ProcessHandler(object): 
+    def __init__(self, components): 
+        self.components = components
+
+    def start(self):
+        for component in self.components:
+            component.start()
  
+    def stop(self): 
+        for component in self.components:
+            component.stop()
 
 class GlobalConfig(dict):
     def __init__(self, config_files, config_values):
@@ -43,7 +54,7 @@ class GlobalConfig(dict):
 
         return dict.__getitem__(self, name)
 
-    def create(self, coord_address):
+    def create_component(self, coord_address):
         """ create(coord_address) -> InstanceHandler
         
         Create an instance, attach the required communication servers, and return 
@@ -55,7 +66,22 @@ class GlobalConfig(dict):
         locator = Locator(self, coord_address)
         instance = ComponentClass(coord_address, locator, config)
         server = _create_server(instance, coord_address, component_config)
-        return InstanceHandler(server, instance)
+        return ComponentHandler(server, instance)
+
+    def create_process(self, host, process):
+        component_handlers = []
+
+        process_config = self[host][process]
+        for component in process_config:
+            addr = CoordAddress(host, process, component)
+            component_handlers.append(self.create_component(addr))
+
+        return ProcessHandler(component_handlers)
+
+    def load_process(self, host, process):
+        process_handler = self.create_process(host, process)
+        process_handler.start()
+        return process_handler
 
     def _create_config(self, coord_address):
         host_config = self[coord_address.host]
