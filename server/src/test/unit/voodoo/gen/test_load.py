@@ -3,19 +3,19 @@ import unittest
 
 from mock import patch
 
-import voodoo.gen2 as gen
-import voodoo.gen2.clients as clients
-import voodoo.gen2.registry as registry
-import voodoo.gen2.util as util
-import voodoo.gen2.parser as parser
+import voodoo.gen as gen
+import voodoo.gen.clients as clients
+import voodoo.gen.registry as registry
+import voodoo.gen.util as util
+import voodoo.gen.parser as parser
 
-from voodoo.gen2.exc import InternalCapturedServerCommunicationError
+from voodoo.gen.exc import InternalCapturedServerCommunicationError
 import test.util.ports as ports
 
 
 class LoaderTest(unittest.TestCase):
     def test_load(self):
-        result = gen.load('test/unit/voodoo/gen2/sample.yml')
+        result = gen.load('test/unit/voodoo/gen/sample.yml')
         machine = result['core_machine']
         config_files = ['core_machine/machine_config.py', 'core_machine/machine_config.py']
         self.assertEquals(machine.config_files, config_files)
@@ -50,7 +50,7 @@ class LocatorTest(unittest.TestCase):
 
     @patch('voodoo.log.log')
     def test_find_labs(self, voodoo_log):
-        global_config = gen.load('test/unit/voodoo/gen2/sample.yml')
+        global_config = gen.load('test/unit/voodoo/gen/sample.yml')
         core_server = gen.CoordAddress('core_machine', 'core_server1', 'core')
         locator = gen.Locator(global_config, core_server)
 

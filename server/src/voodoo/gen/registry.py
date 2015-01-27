@@ -12,7 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-from voodoo.gen2.exc import AddressAlreadyRegisteredError, ServerNotFoundInRegistryError
+from .exc import AddressAlreadyRegisteredError, ServerNotFoundInRegistryError
 
 class ServerRegistry(object):
     """

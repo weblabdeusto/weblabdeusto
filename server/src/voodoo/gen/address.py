@@ -1,6 +1,6 @@
 import re
 
-from voodoo.gen2.exc import GeneratorError
+from .exc import GeneratorError
 
 class CoordAddress(object):
 
