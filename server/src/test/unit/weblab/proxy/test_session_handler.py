@@ -14,7 +14,7 @@
 #
 
 from test.unit.weblab.proxy import fake_time
-from voodoo.gen.coordinator import CoordAddress
+from voodoo.gen import CoordAddress
 import weblab.proxy.session_handler as ProxySessionHandler
 import mocker
 import os
@@ -33,7 +33,7 @@ class ProxySessionHandlerTestCase(mocker.MockerTestCase):
         self._cfg_manager = ConfigurationManager.ConfigurationManager()
         self._cfg_manager.append_module(configuration_module)
 
-        self.ANY_COORD_ADDR = CoordAddress.CoordAddress.translate_address('myserver:myprocess@mymachine')
+        self.ANY_COORD_ADDR = CoordAddress.translate('myserver:myprocess@mymachine')
 
         self._clean_up_files_stored_dir()
 

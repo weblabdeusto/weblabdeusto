@@ -24,7 +24,7 @@ from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, D
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 from weblab.core.login.simple import create_user_auth
 
@@ -594,7 +594,7 @@ class DbUserUsedExperiment(Base):
         usage.from_ip           = self.origin
         usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
-        usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
+        usage.coord_address     = CoordAddress.translate(self.coord_address)
         
         request_info = {}
         for prop in self.properties:

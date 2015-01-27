@@ -26,7 +26,7 @@ from sqlalchemy.orm import join
 from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
@@ -181,7 +181,7 @@ class PriorityQueueScheduler(Scheduler):
                     raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
 
                 str_lab_coord_address        = requested_experiment_instance.laboratory_coord_address
-                lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+                lab_coord_address            = CoordAddress.translate(str_lab_coord_address)
                 obtained_time                = concrete_current_reservation.time
                 lab_session_id               = concrete_current_reservation.lab_session_id
                 if concrete_current_reservation.exp_info:

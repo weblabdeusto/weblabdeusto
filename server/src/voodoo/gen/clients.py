@@ -44,6 +44,8 @@ class DirectClient(AbstractClient):
         self.coord_address_str = server_config['address']
 
     def _call(self, name, *args):
+        if name == 'test_me':
+            return args[0]
         instance = GLOBAL_REGISTRY[self.coord_address_str]
         method = getattr(instance, 'do_%s' % name)
         try:

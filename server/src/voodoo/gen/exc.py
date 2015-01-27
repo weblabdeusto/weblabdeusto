@@ -9,6 +9,9 @@ class GeneratorError(VoodooGenError):
 class InternalCommunicationError(VoodooGenError):
     pass
 
+class FailingConnectionError(InternalCommunicationError):
+    pass
+
 class InternalClientCommunicationError(InternalCommunicationError):
     pass
 

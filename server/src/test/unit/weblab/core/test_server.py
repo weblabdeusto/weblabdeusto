@@ -46,9 +46,9 @@ import weblab.data.dto.experiments as Experiment
 import weblab.data.dto.experiments as ExperimentAllowed
 
 import voodoo.sessions.session_id as SessionId
-import voodoo.gen.coordinator.CoordAddress  as CoordAddress
+from voodoo.gen import CoordAddress
 
-laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
+laboratory_coordaddr = CoordAddress.translate(
         "server:laboratoryserver@labmachine"
     )
 
@@ -59,7 +59,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     """Note: We will test the underlying layers from this level to make the testing task less repetitive."""
 
     def setUp(self):
-        self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
+        self.coord_address = CoordAddress.translate( "server0:instance0@machine0" )
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
@@ -165,7 +165,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         self.mocker.result(lab_sess_id)
         self.mocker.count(0, 1)
         self.lab_mock.resolve_experiment_address(lab_sess_id)
-        self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+        self.mocker.result(CoordAddress.translate('foo:bar@machine'))
         self.mocker.count(0, 1)
         self.mocker.replay()
 
@@ -199,7 +199,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
             self.mocker.result(lab_sess_id)
             self.mocker.count(0, 1)
             self.lab_mock.resolve_experiment_address(lab_sess_id)
-            self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+            self.mocker.result(CoordAddress.translate('foo:bar@machine'))
             self.mocker.count(0, 1)
             self.mocker.replay()
 
@@ -279,7 +279,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
             self.mocker.result(lab_sess_id)
             self.mocker.count(0, 1)
             self.lab_mock.resolve_experiment_address(lab_sess_id)
-            self.mocker.result(CoordAddress.CoordAddress.translate_address('foo:bar@machine'))
+            self.mocker.result(CoordAddress.translate('foo:bar@machine'))
             self.mocker.count(0, 1)
             self.mocker.replay()
 
@@ -307,7 +307,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage1.end_date      = time.time()
         initial_usage1.from_ip       = u"130.206.138.16"
         initial_usage1.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
-        initial_usage1.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage1.coord_address = CoordAddress(u"machine1",u"instance1",u"server1")
         initial_usage1.reservation_id = reservation_id1.id
         initial_usage1.request_info = { 'permission_scope' : 'user', 'permission_id' : student1.id }
 
@@ -334,7 +334,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         initial_usage2.end_date      = time.time()
         initial_usage2.from_ip       = u"130.206.138.16"
         initial_usage2.experiment_id = ExperimentId(u"ud-dummy",u"Dummy experiments")
-        initial_usage2.coord_address = CoordAddress.CoordAddress(u"machine1",u"instance1",u"server1") #.translate_address("server1:instance1@machine1")
+        initial_usage2.coord_address = CoordAddress(u"machine1",u"instance1",u"server1")
         initial_usage2.reservation_id = reservation_id2.id
         initial_usage2.request_info = { 'permission_scope' : 'user', 'permission_id' : student2.id }
 

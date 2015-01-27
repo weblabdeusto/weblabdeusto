@@ -21,7 +21,7 @@ import voodoo.log as log
 from voodoo.log import logged
 
 import voodoo.resources_manager as ResourceManager
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 
 import weblab.data.server_type as ServerType
@@ -50,7 +50,7 @@ class ReservationConfirmer(object):
         # We can stablish a politic such as using
         # thread pools or a queue of threads or something
         # like that... here
-        lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
+        lab_coordaddress = CoordAddress.translate(lab_coordaddress_str)
         self._confirm_handler = self._confirm_experiment(lab_coordaddress, reservation_id, experiment_instance_id, client_initial_data, server_initial_data, resource_type_name)
         self._confirm_handler.join(self._enqueuing_timeout)
 
@@ -60,7 +60,7 @@ class ReservationConfirmer(object):
         try:
             initial_time = datetime.datetime.now()
             try:
-                labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
+                labserver = self.locator[lab_coordaddress]
                 reservation_result  = labserver.reserve_experiment(experiment_instance_id, client_initial_data, server_initial_data)
                 lab_session_id, server_initialization_response, exp_info = reservation_result
             except Exception as e:
@@ -72,7 +72,7 @@ class ReservationConfirmer(object):
                 self.coordinator.mark_experiment_as_broken(experiment_instance_id, [str(e)])
             else:
                 end_time = datetime.datetime.now()
-                experiment_coordaddress = CoordAddress.CoordAddress.translate_address(exp_info['address'])
+                experiment_coordaddress = CoordAddress.translate(exp_info['address'])
                 self.coordinator.confirm_experiment(experiment_coordaddress, experiment_instance_id.to_experiment_id(), reservation_id, lab_coordaddress.address, lab_session_id, server_initialization_response, initial_time, end_time, resource_type_name, exp_info)
         except:
             if DEBUG:
@@ -90,7 +90,7 @@ class ReservationConfirmer(object):
             initial_time = end_time = datetime.datetime.now()
             self.coordinator.confirm_resource_disposal(lab_coordaddress_str, reservation_id, lab_session_id, experiment_instance_id, experiment_response, initial_time, end_time)
         else: # Otherwise...
-            lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
+            lab_coordaddress = CoordAddress.translate(lab_coordaddress_str)
             self._free_handler = self._free_experiment(lab_coordaddress, reservation_id, lab_session_id, experiment_instance_id)
             self._free_handler.join(self._enqueuing_timeout)
 
@@ -101,7 +101,7 @@ class ReservationConfirmer(object):
         try:
             initial_time = datetime.datetime.now()
             try:
-                labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
+                labserver = self.locator[lab_coordaddress]
                 experiment_response = labserver.free_experiment(SessionId.SessionId(lab_session_id))
             except Exception as e:
                 if DEBUG:
@@ -121,7 +121,7 @@ class ReservationConfirmer(object):
 
 
     def enqueue_should_finish(self, lab_coordaddress_str, lab_session_id, reservation_id):
-        lab_coordaddress = CoordAddress.CoordAddress.translate_address(lab_coordaddress_str)
+        lab_coordaddress = CoordAddress.translate(lab_coordaddress_str)
         self._should_finish(lab_coordaddress, lab_session_id, reservation_id)
 
     @threaded(_resource_manager)
@@ -129,7 +129,7 @@ class ReservationConfirmer(object):
     def _should_finish(self, lab_coordaddress, lab_session_id, reservation_id):
         try:
             try:
-                labserver = self.locator.get_server_from_coordaddr(lab_coordaddress, ServerType.Laboratory)
+                labserver = self.locator[lab_coordaddress]
                 received_experiment_response = labserver.should_experiment_finish(lab_session_id)
                 experiment_response = float(received_experiment_response)
             except Exception as e:

@@ -17,9 +17,9 @@ class CoordAddress(object):
                 'process': process,
                 'host': host }
 
-        self._host = host
-        self._process = process
-        self._component = component
+        self.host = host
+        self.process = process
+        self.component = component
 
     def __eq__(self, other):
         return self._address.__eq__(getattr(other, '_address', other))
@@ -37,19 +37,7 @@ class CoordAddress(object):
         return hash(self._address)
 
     def __repr__(self):
-        return 'CoordAddress(host = %r, process = %r, component = %r)' % (self._host, self._process, self._component)
-
-    @property
-    def host(self):
-        return self._host
-
-    @property
-    def process(self):
-        return self._process
-
-    @property
-    def component(self):
-        return self._component
+        return 'CoordAddress(host = %r, process = %r, component = %r)' % (self.host, self.process, self.component)
 
     @property
     def address(self):

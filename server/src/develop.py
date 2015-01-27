@@ -162,8 +162,6 @@ def debugThreads():
     for i in threading.enumerate():
         print i,i.__module__
     print
-    import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
-    print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
     from test.util.ports import CURRENT_PORT
     print "Max port achieved:", CURRENT_PORT
 
@@ -222,8 +220,6 @@ def check_unused_exceptions(exceptions_folder, source_folders):
 def check_all_unused_exceptions():
     check_unused_exceptions( 'weblab/exceptions', ('weblab', ) )
     check_unused_exceptions( 'voodoo/exceptions', ('voodoo', 'weblab') )
-    check_unused_exceptions( 'voodoo/gen/exceptions', ('voodoo', 'weblab') )
-
 
 def check_flakes():
     try:

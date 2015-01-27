@@ -42,7 +42,7 @@ from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.core.coordinator.resource import Resource
 
-import voodoo.gen.coordinator.CoordAddress  as CoordAddress
+from voodoo.gen import CoordAddress
 
 class ConfirmerMock(object):
     def __init__(self, *args, **kwargs):
@@ -80,7 +80,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
-        self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
+        self.coord_address = CoordAddress.translate( "server0:instance0@machine0" )
 
         self.ups = UserProcessingServer.UserProcessingServer(
                 self.coord_address,

@@ -1,6 +1,7 @@
+import random
 import voodoo.log as log
 
-from .exc import LocatorKeyError
+from .exc import LocatorKeyError, FailingConnectionError
 from .address import CoordAddress
 from .clients import _create_client
 
@@ -79,6 +80,21 @@ class Locator(object):
                             addresses.append(external_component)
 
         return addresses
+
+    def check_component(self, coord_address):
+        """ Verify that we can connect to that server. Each server implements a 'test_me' method which returns whatever we receive. we call it with a random number. """
+        result = self.get(coord_address)
+        if result:
+            random_number = random.random()
+            try:
+                result = result.test_me(random_number)
+            except:
+                exc_type, _, _ = sys.exc_info()
+                raise FailingConnectionError("The server at %s is raising an exception when trying to be connected" % (coord_address, exc_type))
+            if result != random_number:
+                raise FailingConnectionError("The server at %s is not returning what it should on test_me" % coord_address)
+        else:
+            raise FailingConnectionError("Couldn't find a connection to %s" % coord_address)
 
     def get(self, coord_address):
         """ Return the most efficient client to that component, or None """

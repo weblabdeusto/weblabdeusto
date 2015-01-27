@@ -16,7 +16,7 @@ import unittest
 
 import datetime
 
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
+from voodoo.gen import CoordAddress
 from weblab.core.new_server import simplify_response
 
 class SimplifyResponseTestCase(unittest.TestCase):
@@ -84,7 +84,7 @@ class SimplifyResponseTestCase(unittest.TestCase):
 
     def test_simplify_response_coordaddr(self):
         addr = CoordAddress('mach','inst','serv')
-        self._check(addr, {'instance_id': 'inst', 'server_id': 'serv', 'machine_id': 'mach'})
+        self._check(addr, {'process': 'inst', 'component': 'serv', 'host': 'mach'})
 
     def test_simplify_response_maxdepth(self):
         class A(object):

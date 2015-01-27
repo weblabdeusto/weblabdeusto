@@ -44,9 +44,12 @@ def xmlrpc():
     if method_name not in current_app.wl_server_methods:
         return xmlrpclib.dumps(xmlrpclib.Fault("Method not found", "Method not found"))
 
-    method = getattr(current_app.wl_server_instance, 'do_%s' % method_name)
     try:
-        result = method(*params)
+        if method_name == 'test_me':
+            result = params[0]
+        else:
+            method = getattr(current_app.wl_server_instance, 'do_%s' % method_name)
+            result = method(*params)
     except:
         exc_type, exc_instance, _ = sys.exc_info()
         remote_exc_type = _get_type_name(exc_type)
@@ -70,10 +73,14 @@ def http_method(method_name):
 
     raw_data = request.get_data()
     args = pickle.loads(raw_data)
+    
 
-    method = getattr(server_instance, 'do_%s' % method_name)
     try:
-        result = method(*args)
+        if method_name == 'test_me':
+            result = args[0]
+        else:
+            method = getattr(server_instance, 'do_%s' % method_name)
+            result = method(*args)
     except:
         exc_type, exc_instance, _ = sys.exc_info()
         remote_exc_type = _get_type_name(exc_type)
@@ -158,7 +165,7 @@ def _create_server(instance, coord_address, component_config):
     if protocols:
         app = Flask(__name__)
         app.wl_server_instance = instance
-        app.wl_server_methods = methods
+        app.wl_server_methods = tuple(methods) + ('test_me',)
         logger = logging.getLogger('werkzeug')
         logger.setLevel(logging.CRITICAL)
 

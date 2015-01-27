@@ -18,7 +18,7 @@ import urllib2
 import datetime
 import cookielib
 
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
+from voodoo.gen import CoordAddress
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
 from weblab.data.command import Command, NullCommand

@@ -18,7 +18,7 @@ import weblab.configuration_doc as configuration_doc
 import weblab.core.login.exc as LoginErrors
 import weblab.core.exc as coreExc
 import weblab.exc as WebLabErrors
-import voodoo.gen.exceptions.exceptions as VoodooErrors
+import voodoo.exc as VoodooErrors
 
 def simplify_response(response, limit = 15, counter = 0):
     """
@@ -60,7 +60,7 @@ EXCEPTIONS = (
         (coreExc.UnknownExperimentIdError,    ErrorCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
         (coreExc.WebLabCoreError,             ErrorCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
         (WebLabErrors.WebLabError,            ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
-        (VoodooErrors.GeneratorError,         ErrorCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
+        (VoodooErrors.VoodooError,         ErrorCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                           ErrorCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
 
     )

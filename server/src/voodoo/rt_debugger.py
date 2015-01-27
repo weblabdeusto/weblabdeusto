@@ -64,26 +64,26 @@ class RtDebugger(object):
     def flush(self):
         pass
 
-regex = re.compile("__server__([^:]*):([^@]*)@(.*)")
+regex = re.compile("([^:]*):([^@]*)@(.*)")
 
 def servers(all = False):
-    import voodoo.gen.registry.server_registry as reg
-    all_servers = []
-    machines = set()
-    instances = set()
-    for key in reg._registry._servers.keys():
+    from voodoo.gen.registry import GLOBAL_REGISTRY
+    all_components = []
+    hosts = set()
+    processes = set()
+    for key in GLOBAL_REGISTRY.keys():
         matches = regex.match(key)
         if matches:
-            server, instance, machine = matches.groups()
-            if not (server.startswith('__') and server.endswith('coordinator__')):
-                all_servers.append(server)
-                instances.add(instance)
-                machines.add(machine)
+            component, process, host = matches.groups()
+
+            all_components.append(component)
+            processes.add(process)
+            hosts.add(host)
 
     if all:
-        return all_servers, instances, machines
+        return all_components, processes, hosts
     
-    return all_servers
+    return all_components
 
 
 def get_server(server = None):
@@ -95,8 +95,8 @@ def get_server(server = None):
         print "Error: %s not in %s" % (server, local_servers)
         return local_servers
 
-    import voodoo.gen.registry.server_registry as reg
-    server = reg._registry._servers.get('__server__%s:%s@%s' % (server, list(instances)[0], list(machines)[0]))
+    from voodoo.gen.registry import GLOBAL_REGISTRY
+    server = GLOBAL_REGISTRY.get('%s:%s@%s' % (server, list(instances)[0], list(machines)[0]))
     return server
 
 class Debugger(threading.Thread):
