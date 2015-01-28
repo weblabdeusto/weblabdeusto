@@ -17,8 +17,8 @@ import sys
 import time
 import unittest
 
-import voodoo.gen.loader.ServerLoader as ServerLoader
-from voodoo.gen.registry.server_registry import _registry
+from voodoo.gen import load_dir
+from voodoo.gen.registry import GLOBAL_REGISTRY
 
 from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId, RunningReservationResult
@@ -38,17 +38,15 @@ class AbstractFederatedWebLabDeustoTestCase(object):
     def setUp(self):
 
         # Clean the global registry of servers
-        _registry.clear()
+        GLOBAL_REGISTRY.clear()
 
         CONSUMER_CONFIG_PATH  = self.FEDERATED_DEPLOYMENTS + '/consumer/'
         PROVIDER1_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider1/'
         PROVIDER2_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider2/'
 
-        self.server_loader     = ServerLoader.ServerLoader()
-
-        self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'consumer_machine', 'main_instance' )
-        self.provider1_handler = self.server_loader.load_instance( PROVIDER1_CONFIG_PATH,  'provider1_machine', 'main_instance' )
-        self.provider2_handler = self.server_loader.load_instance( PROVIDER2_CONFIG_PATH,  'provider2_machine', 'main_instance' )
+        self.consumer_handler  = load_dir(CONSUMER_CONFIG_PATH).load_process('consumer_machine', 'main_instance' )
+        self.provider1_handler = load_dir(PROVIDER1_CONFIG_PATH).load_process('provider1_machine', 'main_instance' )
+        self.provider2_handler = load_dir(PROVIDER2_CONFIG_PATH).load_process('provider2_machine', 'main_instance' )
 
         self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
         self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
