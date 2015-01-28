@@ -407,16 +407,17 @@ class DbExperiment(Base):
         configuration = {}
         for param in self.client_parameters:
             try:
-                if param.parameter_type == 'string':
-                    configuration[param.parameter_name] = param.value
-                elif param.parameter_type == 'integer':
-                    configuration[param.parameter_name] = int(param.value)
-                elif param.parameter_type == 'floating':
-                    configuration[param.parameter_name] = float(param.value)
-                elif param.parameter_type == 'bool':
-                    configuration[param.parameter_name] = param.value.lower() == 'true'
-                else:
-                    print "Unknown Experiment Client Parameter type %s" % param.parameter_type
+                if param.value is not None and len(param.value):
+                    if param.parameter_type == 'string':
+                        configuration[param.parameter_name] = param.value
+                    elif param.parameter_type == 'integer':
+                        configuration[param.parameter_name] = int(param.value)
+                    elif param.parameter_type == 'floating':
+                        configuration[param.parameter_name] = float(param.value)
+                    elif param.parameter_type == 'bool':
+                        configuration[param.parameter_name] = param.value.lower() == 'true'
+                    else:
+                        print "Unknown Experiment Client Parameter type %s" % param.parameter_type
             except (ValueError, TypeError) as e:
                 assert e is not None # avoid pyflakes
                 traceback.print_exc()
