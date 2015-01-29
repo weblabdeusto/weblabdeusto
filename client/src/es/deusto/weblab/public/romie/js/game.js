@@ -14,7 +14,11 @@ Game.prototype.updateNumbers = function(show_question)
 	$('.movements span').html(movements);
 	$('.points span').html(points);
 
-	if (show_question && romie.hasTag())
+	if (movements == 0)
+	{
+		// TODO end game
+	}
+	else if (show_question && romie.hasTag())
 	{
 		game.showQuestion(game.getQuestion(romie.getTag()));
 	}
