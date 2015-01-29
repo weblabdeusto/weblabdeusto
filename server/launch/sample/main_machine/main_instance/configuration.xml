@@ -44,4 +44,5 @@
 	<server>experiment_robot_maze</server>
 	<server>experiment_http</server>
     <server>experiment_archimedes</server>
+    <server>experiment_elevator</server>
 </servers>

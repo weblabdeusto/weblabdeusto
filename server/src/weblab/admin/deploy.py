@@ -117,6 +117,16 @@ CONFIG_JS = {
                                            "cssHeight"                  : "1000",
                                            "html.file"                  : "jslabs/archimedes/archimedes.html"
 				   },
+								{
+									"experiment.name"		: "elevator",
+									"experiment.category"	: "FPGA experiments",
+									"experiment.picture"	: "/img/experiments/elevator.png",
+									"cssWidth"				: "1024",
+									"cssHeight"				: "1000",
+									"html.file"				: "jslabs/elevator/dist/index.html",
+									"experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#elevator",
+									"experiment.info.description" : "Experiment with an elevator"
+								},
         	                   {
 	                    		   "experiment.name"		: "submarinejs",
 	                    		   "experiment.category"	: "Aquatic experiments",
@@ -919,8 +929,13 @@ def populate_weblab_tests(engine, tests):
     session.add(dummy_batch)
     _add_params(session, dummy_batch)
 
-    archimedes = Model.DbExperiment("archimedes", cat_aquatic, start_date, end_date)
+    archimedes = Model.DbExperiment("archimedes", cat_aquatic, start_date, end_date, 'js')
     session.add(archimedes)
+    _add_params(session, archimedes)
+
+    elevator = Model.DbExperiment("elevator", cat_fpga, start_date, end_date, 'js')
+    session.add(elevator)
+    _add_params(session, elevator)
 
     dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date, 'dummy')
     session.add(dummy1)
@@ -1281,7 +1296,24 @@ def populate_weblab_tests(engine, tests):
     session.add(up_student6_pld_allowed_p2)
     up_student6_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p3, "140")
     session.add(up_student6_pld_allowed_p3)
-    
+
+
+    up_any_elevator_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::elevator",
+        datetime.datetime.utcnow(),
+        "Permission for any to use elevator"
+    )
+    session.add(up_any_elevator_allowed)
+    up_any_elevator_allowed_p1 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p1, "elevator")
+    session.add(up_any_elevator_allowed_p1)
+    up_any_elevator_allowed_p2 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p2, "FPGA experiments")
+    session.add(up_any_elevator_allowed_p2)
+    up_any_elevator_allowed_p3 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p3, "1400")
+    session.add(up_any_elevator_allowed_p3)
+
+
     
     up_arch_archimedes_allowed = Model.DbUserPermission(
         archimedes_user,
