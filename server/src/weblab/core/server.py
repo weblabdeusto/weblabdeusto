@@ -451,6 +451,13 @@ class WebLabFlaskServer(WebLabWsgiServer):
         core_web = Blueprint('core_web', __name__)
         weblab_api.apply_routes_web(core_web, server)
         self.app.register_blueprint(core_web, url_prefix = '/weblab/web')
+
+        # Register the blueprint for the new (year 2015) flask-based web client.
+        # The .apply_routes_webclient method is dynamically generated, the name matches
+        # that in the wl.py module.
+        core_webclient = Blueprint('core_webclient', __name__)
+        weblab_api.apply_routes_webclient(core_webclient, server)
+        self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
        
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
