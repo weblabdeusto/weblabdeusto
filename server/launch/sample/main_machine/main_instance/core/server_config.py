@@ -120,6 +120,7 @@ core_scheduling_systems = {
         "robotarm"    : ("PRIORITY_QUEUE", {}),
         "submarine"   : ("PRIORITY_QUEUE", {}),
         "archimedes"  : ("PRIORITY_QUEUE", {}),
+        "elevator"    : ("PRIORITY_QUEUE", {}),
         "labview"     : ("PRIORITY_QUEUE", {}),
         "pic18"       : ("PRIORITY_QUEUE", {}),
         "binary"      : ("PRIORITY_QUEUE", {}),
