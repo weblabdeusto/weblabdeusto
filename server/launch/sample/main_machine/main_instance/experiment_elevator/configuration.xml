@@ -12,7 +12,7 @@
 
 	<implementation>experiments.ud_xilinx.server.UdXilinxExperiment</implementation>
 
-	<restriction>ud-pld@PLD experiments</restriction>
+	<restriction>elevator@FPGA experiments</restriction>
 
 	<protocols>
 		<!-- This server supports both Direct calls, as SOAP calls -->

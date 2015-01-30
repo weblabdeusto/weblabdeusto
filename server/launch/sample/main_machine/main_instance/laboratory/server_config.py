@@ -158,6 +158,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_archimedes:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:elevator@FPGA experiments':
+            {
+                'coord_address': 'experiment_elevator:main_instance@main_machine',
+                'checkers': ()
+            },
         'exp1:aquarium@Aquatic experiments':
             {
                  'coord_address': 'experiment_aquarium:main_instance@main_machine',
