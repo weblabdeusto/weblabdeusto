@@ -32,6 +32,7 @@ import weblab.configuration_doc as configuration_doc
 import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
+from weblab.core.babel import Babel
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
@@ -407,6 +408,24 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
+
+        # Initialize internationalization code.
+        if Babel is None:
+            print "Not using Babel. Everything will be in English"
+        else:
+            babel = Babel(self.app)
+
+            supported_languages = ['en']
+            supported_languages.extend([translation.language for translation in babel.list_translations()])
+
+            @babel.localeselector
+            def get_locale():
+                locale = request.args.get('locale', None)
+                if locale is None:
+                    locale = request.accept_languages.best_match(supported_languages)
+                if locale is None:
+                    locale = 'en'
+                return locale
 
         # Mostly for debugging purposes, this snippet will print the site-map so that we can check
         # which methods we are routing.
