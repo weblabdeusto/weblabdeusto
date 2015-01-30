@@ -2,8 +2,8 @@ import urllib
 
 from flask import render_template, url_for, request, flash, redirect
 
-from flaskclient.flask_app import flask_app
-from flaskclient.helpers import get_experiments_data
+from weblab.webclient.web.flask_app import flask_app
+from weblab.webclient.web.helpers import get_experiments_data
 
 
 @flask_app.route("/labs.html")

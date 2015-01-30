@@ -1,9 +1,10 @@
-from flask import render_template, request, flash, redirect, url_for, session, make_response, Response
-from flaskclient.flask_app import flask_app
-from flaskclient.weblabweb import WeblabWeb
+from flask import render_template, request, flash, redirect, url_for, make_response
+from weblab.core.webclient.web.weblabweb import WeblabWeb
+
+from weblab.core.wl import weblab_api
 
 
-@flask_app.route("/", methods=["GET", "POST"])
+@weblab_api.route_webclient("/", methods=["GET", "POST"])
 def index():
     """
     This is actually the login method.
@@ -23,7 +24,7 @@ def index():
 
         try:
             weblabweb = WeblabWeb()
-            weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
+            # weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
             sessionid, route = weblabweb._login(username, password)
 
 
@@ -41,10 +42,10 @@ def index():
             flash("Invalid username or password", category="error")
             return redirect(url_for("index"))
 
-    return render_template("index.html")
+    return render_template("webclient_web/index.html")
 
 
-@flask_app.route("/logout",  methods=["GET", "POST"])
+@weblab_api.route_webclient("/logout",  methods=["GET", "POST"])
 def logout():
     """
     Logout will logout the current session and redirect to the main page.
@@ -54,7 +55,7 @@ def logout():
     if sessionid is not None:
         try:
             weblabweb = WeblabWeb()
-            weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
+            # weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
             weblabweb._feed_cookies({"weblabsessionid": "%s.%s" % (sessionid, route)})
             weblabweb._logout(sessionid)
         except:

@@ -1,22 +1,24 @@
 import json
 import logging
+
 from flask import render_template, Response, request
 import requests
-from flaskclient.flask_app import flask_app
-from flaskclient.helpers import _retrieve_configuration_js
+
+from weblab.webclient.web.helpers import _retrieve_configuration_js
+from weblab.core.wl import weblab_api
 
 
-@flask_app.route("/contact.html")
+@weblab_api.route_webclient("/contact.html")
 def contact():
     return render_template("contact.html")
 
 
-@flask_app.route("/test.html")
+@weblab_api.route_webclient("/test.html")
 def test():
     return render_template("test.html")
 
 
-@flask_app.route("/configuration")
+@weblab_api.route_webclient("/configuration")
 def configuration():
     """
     Returns the Weblab configuration JSON file. This is mostly for testing. It will eventually
@@ -28,7 +30,7 @@ def configuration():
     return Response(js, mimetype="application/json")
 
 
-@flask_app.route("/redir/login/json", methods=["POST"])
+@weblab_api.route_webclient("/redir/login/json", methods=["POST"])
 def redir_login_json():
     """
     Redirects a JSON post request to the Weblab login server.
@@ -60,7 +62,7 @@ def redir_login_json():
     return response
 
 
-@flask_app.route("/redir/json", methods=["POST"])
+@weblab_api.route_webclient("/redir/json", methods=["POST"])
 def redir_json():
     """
     Redirects a JSON post request to the Weblab JSON server.
