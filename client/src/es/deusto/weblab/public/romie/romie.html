@@ -19,8 +19,8 @@
 			{
 				romie = new Romie(20);
 				game = new Game(romie);
-				onboard = "http://192.168.0.89/image.jpg";
-				topCam = "http://192.168.0.88/image.jpg";
+				onboard = "http://192.168.0.88/image.jpg";
+				topCam = "http://192.168.0.89/image.jpg";
 				big = onboard;
 
 				$("#bigcam").append('<img src="'+big+'">');
@@ -38,34 +38,38 @@
 
 				$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
 
+				updateCam1 = function()
+				{
+					d = new Date();
+					$('.camera1 img').attr("src", big+"?"+d.getTime());
+				}
+
+				$('.camera1 img').bind("load",function(){setTimeout(updateCam1, 400)});
+				updateCam1();
+
 				updateCam2 = function()
 				{
-					if (romie.topCamTime() > 0)
+					if (romie.isTopCamActive() && romie.topCamTime() > 0)
 					{
 						d = new Date();
 						$('.camera2 img').attr("src", onboard+"?"+d.getTime());
 					}
-					else
+					else if (romie.isTopCamActive())
 					{
 						romie.deactivateTopCam();
 						big = onboard;
-						clearInterval(camera2);
 						$('.camera2 img').attr("src", "img/black.png");
 					}
 				}
 
-				camera1 = setInterval(function()
-				{
-					d = new Date();
-					$('.camera1 img').attr("src", big+"?"+d.getTime());
-				}, 400);
+				$('.camera2 img').bind("load",function(){setTimeout(updateCam2, 400)});
+				updateCam2();
 
 				$('.camera2 img').click(function()
 				{
 					if (romie.topCamTime() > 0 && ! romie.isTopCamActive())
 					{
 						big = topCam;
-						camera2 = setInterval(updateCam2, 400);
 						romie.activateTopCam();
 					}
 					else if (romie.topCamTime() > 0)

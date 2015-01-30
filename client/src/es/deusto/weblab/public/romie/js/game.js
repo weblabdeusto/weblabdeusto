@@ -69,6 +69,7 @@ Game.prototype.answerQuestion = function()
 						this.romie.setMovements(this.question["movements"]*this.romie.getMovements());
 					}
 					this.updateNumbers(false);
+					this.romie.setTopCamTime(10);
 					$('#response_ok').modal('show');
 				}
 				else

@@ -5,7 +5,7 @@ Romie = function(movements)
 	this.points = 0;
 	this.moving = false;
 	this.lastResponse = null;
-	this.topTime = 10;
+	this.topTime = 0;
 	this.updater = null;
 }
 
@@ -123,6 +123,11 @@ Romie.prototype.activateTopCam = function()
 Romie.prototype.topCamTime = function()
 {
 	return this.topTime;
+}
+
+Romie.prototype.setTopCamTime = function(seconds)
+{
+	this.topTime = seconds;
 }
 
 Romie.prototype.getMovements = function()
