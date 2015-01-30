@@ -37,7 +37,6 @@ def index():
 
             print "LOGGED IN WITH: (%s, %s)" % (sessionid, route)
 
-            return response
         except:
             flash("Invalid username or password", category="error")
             return redirect(url_for("index"))
