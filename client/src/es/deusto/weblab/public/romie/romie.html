@@ -34,6 +34,9 @@
 				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
 				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
 				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
+				$('#game_end .modal-footer button').click(function(){$('#game_end').modal("hide")});
+
+				$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
 
 				updateCam2 = function()
 				{
@@ -178,7 +181,7 @@
 						<h4 class="modal-title">Fin del juego</h4>
 					</div>
 					<div class="modal-body">
-						<p>¡Se ha acabado el tiempo! Tu puntuación final ha sido <span>10</span></p>
+						<p>¡Se ha acabado el tiempo! Tu puntuación final ha sido <span id="game_end_points"></span></p>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary">Aceptar</button>

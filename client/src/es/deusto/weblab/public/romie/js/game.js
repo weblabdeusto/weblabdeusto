@@ -16,7 +16,8 @@ Game.prototype.updateNumbers = function(show_question)
 
 	if (movements == 0)
 	{
-		// TODO end game
+		$('#game_end_points').text(romie.getPoints());
+		$('#game_end').modal('show');
 	}
 	else if (show_question && romie.hasTag())
 	{
