@@ -39,8 +39,23 @@ Flask==0.10
 # 
 alembic<0.6
 
+# 
+# networkx is used for generating communities and plagiarism detection
+# 
 networkx==1.8.1
 
+# 
+# PyYAML is used for parsing the main configuration file
+# 
 PyYAML==3.11
 
+# 
+# requests is used in all the HTTP communications as a client
+# (both internal communications and external to federated environments)
+# 
 requests==2.5.1
+
+#
+# six is used for starting to support compatibility with Python 3
+# 
+six==1.9.0
