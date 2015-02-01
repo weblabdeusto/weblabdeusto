@@ -48,19 +48,6 @@ mysql-python<1.3
 python-ldap<2.5 
 
 # 
-# The WebLab-Deusto deployment files are based on XML. If you
-# make an error, it may be difficult to find it. If you want
-# to check the syntax with XSLT, the lxml library is 
-# recommended.
-# 
-# It will require you to install libxml2 and libxslt1 
-# development libraries:
-#     sudo apt-get install libxml2-dev libxslt1-dev
-# 
-
-lxml<2.4
-
-# 
 # The WebLab-Deusto Bot uses matplotlib to plot the graphics
 # of the time measurements. Not activated since sometimes it 
 # fails and the rest of packages are not installed.
