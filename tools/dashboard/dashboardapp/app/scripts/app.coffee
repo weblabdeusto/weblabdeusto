@@ -2,20 +2,21 @@
 
 ###*
  # @ngdoc overview
- # @name elevatorApp
+ # @name dashboardappApp
  # @description
- # # elevatorApp
+ # # dashboardappApp
  #
  # Main module of the application.
 ###
 angular
-  .module('elevatorApp', [
+  .module('dashboardappApp', [
     'ngAnimate',
+    'ngCookies',
+    'ngMessages',
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch',
-    'angularFileUpload'
+    'ngTouch'
   ])
   .config ($routeProvider) ->
     $routeProvider
