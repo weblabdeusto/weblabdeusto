@@ -289,7 +289,6 @@ class AbstractCoordinator(object):
     @typecheck(ExperimentInstanceId, ITERATION(basestring))
     @logged()
     def mark_experiment_as_broken(self, experiment_instance_id, messages):
-        print "MARKING AS BROKEN"
         resource_instance = self.resources_manager.get_resource_instance_by_experiment_instance_id(experiment_instance_id)
         return self.mark_resource_as_broken(resource_instance, messages)
 
