@@ -45,7 +45,7 @@ hosts:
             type: experiment
             class: experiments.dummy.DummyExperiment
             protocols:
-              port: 11039
+              port: 11040
               supports: xmlrpc
           experiment_pic2:
             type: experiment

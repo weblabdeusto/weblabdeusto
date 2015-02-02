@@ -4,7 +4,7 @@ hosts:
     config:
       db_database: WebLabTests
     runner: launch_sample.py
-    host: 192.168.0.1
+    host: localhost
     processes:
       main_instance:
         config_file: main_machine/main_instance/instance_config.py
@@ -19,8 +19,6 @@ hosts:
             config_file: main_machine/main_instance/experiment_pld/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
-            protocols:
-              port: 10031
           experiment_binary:
             config_file: main_machine/main_instance/experiment_binary/server_config.py
             type: experiment
@@ -29,38 +27,26 @@ hosts:
             config_file: main_machine/main_instance/experiment_demo_pld/server_config.py
             type: experiment
             class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
-            protocols:
-              port: 10031
           experiment_fpga:
             config_file: main_machine/main_instance/experiment_fpga/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
-            protocols:
-              port: 11032
           experiment_demo_fpga:
             config_file: main_machine/main_instance/experiment_demo_fpga/server_config.py
             type: experiment
             class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
-            protocols:
-              port: 11032
           experiment_demo_xilinx1:
             config_file: main_machine/main_instance/experiment_demo_xilinx1/server_config.py
             type: experiment
             class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
-            protocols:
-              port: 10031
           experiment_demo_xilinx2:
             config_file: main_machine/main_instance/experiment_demo_xilinx2/server_config.py
             type: experiment
             class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
-            protocols:
-              port: 11032
           experiment_gpib:
             config_file: main_machine/main_instance/experiment_gpib/server_config.py
             type: experiment
             class: experiments.ud_gpib.server.UdGpibExperiment
-            protocols:
-              port: 10034
           experiment_dummy:
             config_file: main_machine/main_instance/experiment_dummy/server_config.py
             type: experiment
@@ -89,8 +75,6 @@ hosts:
             config_file: main_machine/main_instance/experiment_jsfpga/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
-            protocols:
-              port: 11032
           experiment_visir_html5:
             config_file: main_machine/main_instance/experiment_visir_html5/server_config.py
             type: experiment
@@ -131,8 +115,6 @@ hosts:
             config_file: main_machine/main_instance/experiment_pic18/server_config.py
             type: experiment
             class: experiments.ud_pic18.server.UdPic18Experiment
-            protocols:
-              port: 11036
           experiment_submarine:
             config_file: main_machine/main_instance/experiment_submarine/server_config.py
             type: experiment
@@ -172,5 +154,3 @@ hosts:
             config_file: main_machine/main_instance/experiment_elevator/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
-            protocols:
-              port: 11032
