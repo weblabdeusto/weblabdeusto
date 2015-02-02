@@ -95,23 +95,22 @@ def http_method(method_name):
         return pickle.dumps({ 'result' : result })
 
 class Server(object):
+    def __init__(self, instance):
+        self.instance = instance
+
     def start(self):
         pass
 
     def stop(self):
-        pass
-
-class DirectServer(Server):
-    def __init__(self, instance):
-        self.instance = instance
-
-    def stop(self):
-        super(DirectServer, self).stop()
         if hasattr(self.instance, 'stop'):
             self.instance.stop()
 
+class DirectServer(Server):
+    pass
+
 class InternalFlaskServer(Server):
     def __init__(self, application, port, instance):
+        super(InternalFlaskServer, self).__init__(instance)
         self.application = application
         self.port = port
         self.instance = instance
@@ -135,14 +134,11 @@ class InternalFlaskServer(Server):
         time.sleep(0.01)
 
     def stop(self):
-        super(DirectServer, self).stop()
+        super(InternalFlaskServer, self).stop()
 
         if is_testing():
             requests.get('http://127.0.0.1:%s/_shutdown' % self.port)
             self._thread.join(5)
-
-        if hasattr(self.instance, 'stop'):
-            self.instance.stop()
 
 def _critical_debug(message):
     """Useful to make sure it's printed in the screen but not in tests"""
