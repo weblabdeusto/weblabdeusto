@@ -461,6 +461,13 @@ class WebLabAPI(object):
         return response
 
     def fill_session_cookie(self, response, value):
+        """
+        Inserts the weblabsessionid and loginweblabsessionid cookies into the specified Flask response.
+        :type response: flask.wrappers.Response
+        :type value: str
+        :return: The flask response with the added cookies.
+        :rtype: flask.wrappers.Response
+        """
         now = datetime.datetime.now()
         response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
         response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)

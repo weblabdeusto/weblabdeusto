@@ -40,15 +40,15 @@ def handle_login_POST():
         flash("There was an unexpected error while logging in.", 500)
         return make_response("There was an unexpected error while logging in.", 500)
     else:
-        response = make_response("%s;%s" % (session_id.id, weblab_api.ctx.route))
+        response = make_response(redirect(url_for(".labs")))
+        """ @type: flask.Response """
+
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
 
         # Inserts the weblabsessionid and loginsessionid cookies into the response.
         # (What is the purpose of having both? Why the different expire dates?)
         weblab_api.fill_session_cookie(response, session_id_cookie)
 
-        response = make_response(redirect(url_for(".labs")))
-        """ @type: flask.Response """
 
         print "LOGGED IN WITH: (%s)" % (session_id_cookie)
 

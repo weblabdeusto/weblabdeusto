@@ -1,4 +1,4 @@
-{% extends "_base.html" %}
+{% extends "webclient_web/_base.html" %}
 {% block body %}
 
     {% raw %}
@@ -56,10 +56,10 @@
                 "logo_url": IMAGES_FOLDER + configuration["host.entity.image"],
                 "host_link": configuration["host.entity.link"],
                 "full_name": info["full_name"],
-                "admin_img": "{{ url_for("static", filename="img/ui/administration.png") }}",
-                "profile_img": "{{ url_for("static", filename="img/ui/profile.png") }}",
+                "admin_img": "{{ url_for(".static", filename="img/ui/administration.png") }}",
+                "profile_img": "{{ url_for(".static", filename="img/ui/profile.png") }}",
                 "gravatar": "//gravatar.com/avatar/" + CryptoJS.MD5(info["email"].toLowerCase()),
-                "logout_url": "{{ url_for("logout") }}",
+                "logout_url": "{{ url_for(".logout") }}",
                 "admin_url": "http://www.weblab.deusto.es/weblab/administration/admin/",
                 "profile_url" : "http://www.weblab.deusto.es/weblab/administration/profile/",
                 "logout_msg" : "{{ gettext("Log out") }}"
