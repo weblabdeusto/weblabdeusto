@@ -17,19 +17,17 @@
 
 			function init()
 			{
-				romie = new Romie(20);
-				game = new Game(romie);
+				romie = new Romie();
+				game = new Game(194.16); //3*60+14+0.16 [3min 14,16 seconds];
 				onboard = "http://192.168.0.88/image.jpg";
 				topCam = "http://192.168.0.89/image.jpg";
 				big = onboard;
 
 				$("#bigcam").append('<img src="'+big+'">');
 
-				game.updateNumbers(false);
-
-				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(game.updateNumbers);});
-				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left(game.updateNumbers);});
-				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right(game.updateNumbers);});
+				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(game.getQuestion);});
+				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left();});
+				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
 
 				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
 				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
@@ -49,14 +47,14 @@
 
 				updateCam2 = function()
 				{
-					if (romie.isTopCamActive() && romie.topCamTime() > 0)
+					if (game.isTopCamActive() && game.topCamTime() > 0)
 					{
 						d = new Date();
 						$('.camera2 img').attr("src", onboard+"?"+d.getTime());
 					}
-					else if (romie.isTopCamActive())
+					else if (game.isTopCamActive())
 					{
-						romie.deactivateTopCam();
+						game.deactivateTopCam();
 						big = onboard;
 						$('.camera2 img').attr("src", "img/black.png");
 					}
@@ -65,16 +63,16 @@
 				$('.camera2 img').bind("load",function(){setTimeout(updateCam2, 400)});
 				updateCam2();
 
-				$('.camera2 img').click(function()
+				$('.camera2 img').click(function() //TODO Seems that it does not work properly
 				{
-					if (romie.topCamTime() > 0 && ! romie.isTopCamActive())
+					if (game.topCamTime() > 0 && ! game.isTopCamActive())
 					{
 						big = topCam;
-						romie.activateTopCam();
+						game.activateTopCam();
 					}
-					else if (romie.topCamTime() > 0)
+					else if (game.topCamTime() > 0)
 					{
-						romie.deactivateTopCam();
+						game.deactivateTopCam();
 						big = onboard;
 						clearInterval(camera2);
 						$('.camera2 img').attr("src", "img/black.png");
@@ -91,7 +89,7 @@
 		<header>
 			<section class="container">
 				<div class="row">
-					<section class="col-md-3 col-md-offset-3 left movements"><span>0</span></section>
+					<section class="col-md-3 col-md-offset-3 left time"><span>0</span></section>
 					<section class="col-md-3 left points"><span>0</span></section>
 				</div>
 			</container>

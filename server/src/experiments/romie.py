@@ -92,9 +92,8 @@ class RoMIExperiment(Experiment.Experiment):
 				'category': category,
 				'question': question['question'],
 				'answers': question['answers'],
-				'type': question['type'],
 				'points': question['points'],
-				'movements': question['movements']
+				'time': question['time']
 			}
 
 			return json.dumps(response_question)

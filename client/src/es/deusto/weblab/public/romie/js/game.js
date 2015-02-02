@@ -1,28 +1,39 @@
-Game = function(romie, updater)
+Game = function(time)
 {
-	this.romie = romie;
+	this.points = 0;
+	this.time = time;
+	this.topCamTimmer = null;
+	this.timer = null;
+	this.topCamTime = 0;
+
+	this.startGame();
 }
 
-Game.prototype.updateNumbers = function(show_question)
+Game.prototype.startGame = function()
 {
-	show_question = typeof show_question === 'boolean' ? show_question : true;
-	movements = romie.getMovements();
-	points = romie.getPoints();
+	this.timer = setInterval(function() {
 
-	// TODO format
+		this.time -= 0.01;
+		$('.time span').html(Math.floor(this.time/60) + ":" + (Math.floor((this.time%60) * 100) / 100));
+		if (this.time <= 0)
+		{
+			this.time = 0;
+			$('.time span').html("0:00.00");
 
-	$('.movements span').html(movements);
-	$('.points span').html(points);
+			this.endGame();
+		}
 
-	if (movements == 0)
-	{
-		$('#game_end_points').text(romie.getPoints());
-		$('#game_end').modal('show');
-	}
-	else if (show_question && romie.hasTag())
-	{
-		game.showQuestion(game.getQuestion(romie.getTag()));
-	}
+		}.bind(this), 10);
+}
+
+Game.prototype.endGame = function()
+{
+	clearInterval(this.timer);
+	$('#game_end_points').text(this.points);
+
+	// TODO show records
+
+	$('#game_end').modal('show');
 }
 
 Game.prototype.showQuestion = function(question)
@@ -58,18 +69,11 @@ Game.prototype.answerQuestion = function()
 			{
 				if (response == 'True')
 				{
-					if (this.question["type"] == 0)
-					{
-						this.romie.addPoints(this.question["points"]);
-						this.romie.addMovements(this.question["movements"]);
-					}
-					else
-					{
-						this.romie.setPoints(this.question["points"]*this.romie.getPoints());
-						this.romie.setMovements(this.question["movements"]*this.romie.getMovements());
-					}
-					this.updateNumbers(false);
-					this.romie.setTopCamTime(10);
+					this.points += this.question["points"];
+					this.time += this.question["time"];
+
+					$('.points span').html(this.points);
+					this.topCamTime += 10;
 					$('#response_ok').modal('show');
 				}
 				else
@@ -86,9 +90,42 @@ Game.prototype.answerQuestion = function()
 
 Game.prototype.getQuestion = function(tag)
 {
-	//TODO
-	difficulty = Math.floor(this.romie.getPoints()/500);
+	// TODO better difficulty check and more categories
+	difficulty = Math.floor(this.points/500);
 	category = "general";
 
 	Weblab.sendCommand("QUESTION "+difficulty+" "+category, function(response){this.showQuestion(response);}.bind(this));
+}
+
+Game.prototype.getTopCamTime = function()
+{
+	return this.topCamTime;
+}
+
+Game.prototype.isTopCamActive = function()
+{
+	return this.topCamActive;
+}
+
+Game.prototype.deactivateTopCam = function()
+{
+	this.topCamActive = false;
+}
+
+Game.prototype.activateTopCam = function()
+{
+	this.topCamActive = true;
+
+	this.topCamTimer = setInterval(function()
+	{
+		if (this.topCamActive)
+			this.topCamTime--;
+		else
+			this.deactivateTopCam();
+	}.bind(this), 1000);
+}
+
+Game.prototype.getPoints = function()
+{
+	return this.points;
 }

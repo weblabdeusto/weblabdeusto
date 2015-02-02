@@ -10,8 +10,7 @@
 			],
 			"correct": 2,
 			"points": 150,
-			"type": 0,
-			"movements": 8
+			"time": 25
 		},{
 			"question": "¿Qué espectro de ondas electromagnéticas usan las radiografías?",
 			"answers": [
@@ -21,8 +20,7 @@
 			],
 			"correct": 1,
 			"points": 125,
-			"type": 0,
-			"movements": 6
+			"time": 20
 		}
 	],
 	[
@@ -35,9 +33,8 @@
 				206
 			],
 			"correct": 3,
-			"points": 1.3,
-			"type": 1,
-			"movements": 10
+			"points": 175,
+			"time": 30
 		}
 	]
 ]
