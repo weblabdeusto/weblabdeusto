@@ -47,15 +47,17 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         self.consumer_handler  = load_dir(CONSUMER_CONFIG_PATH).load_process('consumer_machine', 'main_instance' )
         self.provider1_handler = load_dir(PROVIDER1_CONFIG_PATH).load_process('provider1_machine', 'main_instance' )
         self.provider2_handler = load_dir(PROVIDER2_CONFIG_PATH).load_process('provider2_machine', 'main_instance' )
+        
+        port_minus = 0
 
-        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
-        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
+        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (18345 - port_minus))
+        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (18345 - port_minus ))
 
-        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
-        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
+        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (28345 - port_minus ))
+        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (28345 - port_minus ))
 
-        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
-        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
+        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (38345 - port_minus ))
+        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (38345 - port_minus ))
 
         # dummy1: deployed in consumer, provider1, provider2
         self.dummy1 = ExperimentId("dummy1", "Dummy experiments")
@@ -298,6 +300,7 @@ class AbstractFederatedWebLabDeustoTestCase(object):
 
 class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
     FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
+    IS_SQL = True
 
 try:
     import redis
@@ -310,6 +313,7 @@ else:
 if REDIS_AVAILABLE:
     class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
         FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
+        IS_SQL = False
 
 def suite():
     suites = [unittest.makeSuite(SqlFederatedWebLabDeustoTestCase)]

@@ -173,7 +173,10 @@ class WebLabDeustoClient(object):
         experiment_id = ExperimentId(experiment_use['experiment_id']['exp_name'], experiment_use['experiment_id']['cat_name'])
 
         addr = experiment_use['coord_address']
-        coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
+        if 'machine_id' in addr:
+            coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
+        else:
+            coord_address = CoordAddress(addr['host'],addr['process'],addr['component'])
 
         use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address, experiment_use['request_info'])
         for sent_file in experiment_use['sent_files']:

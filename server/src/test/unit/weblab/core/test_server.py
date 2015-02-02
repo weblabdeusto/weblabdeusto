@@ -95,7 +95,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_reserve_session(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         session_manager = self.ups._session_manager
 
@@ -107,7 +107,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
     def test_list_experiments(self):
         # student1
         db_sess_id1 = ValidDatabaseSessionId('student1', "student")
-        sess_id1, _ = self.ups.do_reserve_session(db_sess_id1)
+        sess_id1, _ = self.ups._reserve_session(db_sess_id1)
 
         with wlcontext(self.ups, session_id = sess_id1):
             experiments = core_api.list_experiments()
@@ -125,7 +125,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         # student2
         db_sess_id2 = ValidDatabaseSessionId('student2', "student")
-        sess_id2, _ = self.ups.do_reserve_session(db_sess_id2)
+        sess_id2, _ = self.ups._reserve_session(db_sess_id2)
 
         with wlcontext(self.ups, session_id = sess_id2):
             experiments = core_api.list_experiments()
@@ -144,7 +144,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_get_user_information(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         with wlcontext(self.ups, session_id = sess_id):
             user = core_api.get_user_information()
@@ -157,7 +157,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_get_reservation_info(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         exp_id = ExperimentId('ud-dummy','Dummy experiments')
         lab_sess_id = SessionId.SessionId("lab_session_id")
 
@@ -182,7 +182,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def test_reserve_experiment(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         exp_id = ExperimentId('this does not experiment','this neither')
         
@@ -215,7 +215,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             finished_result = core_api.get_experiment_use_by_id(reservations[0])
 
@@ -231,7 +231,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             experiment_results = core_api.get_experiment_uses_by_id(reservations)
             
@@ -253,7 +253,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
         db_sess_id = ValidDatabaseSessionId('student1', "student")
 
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             experiment_results = core_api.get_experiment_uses_by_id((reservations[0], reservation1, reservation2))
 
@@ -270,7 +270,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
 
     def _reserve_experiment(self):
         db_sess_id = ValidDatabaseSessionId('student1', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             exp_id = ExperimentId('ud-dummy','Dummy experiments')
 

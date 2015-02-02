@@ -82,7 +82,7 @@ class ResourcesChecker(object):
 
         try:
             address = CoordAddress.translate(address_str)
-            server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
+            server = self.locator[address]
             failing_experiments = server.check_experiments_resources()
             #
             # failing_experiments is a dictionary such as:

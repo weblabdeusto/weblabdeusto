@@ -102,12 +102,19 @@ class Server(object):
         pass
 
 class DirectServer(Server):
-    pass
+    def __init__(self, instance):
+        self.instance = instance
+
+    def stop(self):
+        super(DirectServer, self).stop()
+        if hasattr(self.instance, 'stop'):
+            self.instance.stop()
 
 class InternalFlaskServer(Server):
-    def __init__(self, application, port):
+    def __init__(self, application, port, instance):
         self.application = application
         self.port = port
+        self.instance = instance
 
         if is_testing():
             @application.route('/_shutdown')
@@ -128,10 +135,15 @@ class InternalFlaskServer(Server):
         time.sleep(0.01)
 
     def stop(self):
+        super(DirectServer, self).stop()
+
         if is_testing():
             requests.get('http://127.0.0.1:%s/_shutdown' % self.port)
             self._thread.join(5)
-    
+
+        if hasattr(self.instance, 'stop'):
+            self.instance.stop()
+
 def _critical_debug(message):
     """Useful to make sure it's printed in the screen but not in tests"""
     print(message)
@@ -157,7 +169,7 @@ def _create_server(instance, coord_address, component_config):
             if remainder not in methods:
                 msg = "Warning: method %s not in the method list for component_type %s" % (remainder, component_type)
                 _critical_debug(msg)
-                log.log(__name__, log.Warning, msg)
+                log.warning(__name__, msg)
 
     GLOBAL_REGISTRY[coord_address.address] = instance
 
@@ -171,8 +183,8 @@ def _create_server(instance, coord_address, component_config):
 
         path = protocols.path or ''
         app.register_blueprint(_methods, url_prefix = path)
-        return InternalFlaskServer(app, protocols.port)
+        return InternalFlaskServer(app, protocols.port, instance)
     else:
         # This server does nothing
-        return DirectServer()
+        return DirectServer(instance)
 

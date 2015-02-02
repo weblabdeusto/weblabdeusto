@@ -17,7 +17,7 @@ class LoaderTest(unittest.TestCase):
     def test_load(self):
         result = gen.load('test/unit/voodoo/gen/sample.yml')
         machine = result['core_machine']
-        config_files = ['core_machine/machine_config.py', 'core_machine/machine_config.py']
+        config_files = ['test/unit/voodoo/gen/core_machine/machine_config.py', 'test/unit/voodoo/gen/core_machine/machine_config.py']
         self.assertEquals(machine.config_files, config_files)
         self.assertEquals(machine.host, '192.168.0.1')
         self.assertEquals(machine.runner, 'run.py')
@@ -32,7 +32,7 @@ class LoaderTest(unittest.TestCase):
         laboratory1 = machine['laboratory1']
         lab_component1 = laboratory1['laboratory1']
 
-        self.assertEquals(lab_component1.config_files, ['core_machine/laboratory1/laboratory1/server_config.py'])
+        self.assertEquals(lab_component1.config_files, ['test/unit/voodoo/gen/core_machine/laboratory1/laboratory1/server_config.py'])
         self.assertEquals(lab_component1.component_type, 'laboratory')
         self.assertEquals(lab_component1.component_class, parser.LAB_CLASS)
         self.assertEquals(lab_component1.protocols.port, 10003)

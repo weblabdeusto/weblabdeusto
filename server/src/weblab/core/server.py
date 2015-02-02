@@ -626,7 +626,7 @@ class UserProcessingServer(object):
     # Session operations  #
     # # # # # # # # # # # #
 
-    def do_reserve_session(self, db_session_id):
+    def _reserve_session(self, db_session_id):
         session_id = self._session_manager.create_session()
         initial_session = {
             'db_session_id'       : db_session_id,

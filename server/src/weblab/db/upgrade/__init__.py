@@ -88,7 +88,12 @@ class DbParticularUpgrader(object):
 
         context = MigrationContext.configure(engine)
         current_rev = context.get_current_revision()
-
+        
+        print "Migrating %s" % self.url
+        print "Head: %s" % self.head
+        print "Current rev: %s" % current_rev
+        print "Correct?", current_rev == self.head
+        print
         return self.head == current_rev
 
     def upgrade(self):

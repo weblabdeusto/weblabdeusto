@@ -168,15 +168,16 @@ class ProtocolsConfig(dict):
 #   Configuration loading
 # 
 
-def _process_config(tree):
+def _process_config(tree, directory):
     config_files = []
     config_values = {}
 
     if 'config_files' in tree:
-        config_files.extend(tree['config_files'])
+        for config_file in tree['config_files']:
+            config_files.append(os.path.join(directory, config_file))
 
     if 'config_file' in tree:
-        config_files.append(tree['config_file'])
+        config_files.append(os.path.join(directory, tree['config_file']))
 
     if 'config' in tree:
         config_values.update(tree['config'])
@@ -194,31 +195,31 @@ def load_dir(directory):
     return load(config_filename)
 
 def load(yaml_file):
-    return _load_contents(yaml.load(open(yaml_file)))
+    return _load_contents(yaml.load(open(yaml_file)), os.path.dirname(yaml_file))
 
 def loads(yaml_contents):
-    return _load_contents(yaml.load(StringIO.StringIO(yaml_contents)))
+    return _load_contents(yaml.load(StringIO.StringIO(yaml_contents)), '.')
 
-def _load_contents(contents):
+def _load_contents(contents, directory):
     global_value = contents
 
-    config_files, config_values = _process_config(global_value)
+    config_files, config_values = _process_config(global_value, directory)
     global_config = GlobalConfig(config_files, config_values)
 
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
-        config_files, config_values = _process_config(host_value)
+        config_files, config_values = _process_config(host_value, directory)
         host = host_value.get('host')
         runner = host_value.get('runner')
         host_config = HostConfig(config_files, config_values, host, runner)
         global_config[host_name] = host_config
 
         for process_name, process_value in host_value.get('processes', {}).iteritems():
-            config_files, config_values = _process_config(process_value)
+            config_files, config_values = _process_config(process_value, directory)
             process_config = ProcessConfig(config_files, config_values)
             host_config[process_name] = process_config
         
             for component_name, component_value in process_value.get('components', {}).iteritems():
-                config_files, config_values = _process_config(component_value)
+                config_files, config_values = _process_config(component_value, directory)
 
                 # Type and class
                 component_type = component_value.get('type')

@@ -7,7 +7,11 @@ METHODS_PATH = 'weblab.methods'
 
 def _get_methods_by_component_type(component_type):
     methods_module = __import__(METHODS_PATH, fromlist = ['methods'])
-    methods = getattr(methods_module.methods, component_type, None)
+    methods = getattr(methods_module, 'methods', None)
+    if methods:
+        methods = getattr(methods, component_type, None)
+    else:
+        methods = getattr(methods_module, component_type, None)
     if methods is None:
         raise Exception("Unregistered component type in weblab/methods.py: %s" % component_type)
     return methods

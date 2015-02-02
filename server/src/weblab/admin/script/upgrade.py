@@ -145,11 +145,12 @@ class DatabaseUpgrader(Upgrader):
     def check_updated(self):
         updated = self.upgrader.check_updated()
         if not updated:
-            print(" - The database requires some changes and is going to be upgraded.")
+            print(" - The database requires some changes and it is going to be upgraded.")
         return updated
 
     def upgrade(self):
-        print("Upgrading database.", flush=False)
+        print("Upgrading database.")
+        sys.stdout.flush()
         self.upgrader.upgrade()
         print("Upgrade completed.")
 

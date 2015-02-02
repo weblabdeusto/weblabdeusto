@@ -252,7 +252,7 @@ def check_flakes():
     return 0
 
 def deploy_testdb(options):
-    from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database
+    from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database, insert_required_initial_coord_data
     import weblab.db.model as Model
     import weblab.core.coordinator.sql.model as CoordinatorModel
 
@@ -351,7 +351,9 @@ def deploy_testdb(options):
 
         metadata = CoordinatorModel.Base.metadata
         metadata.drop_all(engine)
-        metadata.create_all(engine)    
+        metadata.create_all(engine)
+        
+        insert_required_initial_coord_data(engine)
 
         print("[done] [%1.2fs]" % (time.time() - t))
 
