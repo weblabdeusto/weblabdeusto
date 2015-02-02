@@ -14,13 +14,20 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+from __future__ import print_function
+
 import os
 import re
 import sys
 import abc
 import json
-
 import yaml
+
+try:
+    import argparse
+except ImportError:
+    print("argparse not found. You must upgrade Python to Python 2.7 or higher", file=sys.stderr)
+    sys.exit(-1)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -45,41 +52,57 @@ from weblab.db.upgrade import DbUpgrader
 
 def weblab_upgrade(directory):
     def on_dir(directory, configuration_files, configuration_values):
-        if not check_updated(directory, configuration_files, configuration_values):
-            upgrade(directory, configuration_files, configuration_values)
+        original_argv = sys.argv
+        sys.argv = [ sys.argv[0] ] + sys.argv[3:]
+        parser = argparse.ArgumentParser(description="WebLab upgrade tool.")
+        parser.add_argument('-y', '--yes',dest='yes', action='store_true', help='Say yes to everything')
+        sys_args = parser.parse_args()
+        sys.argv = original_argv
+
+        if not check_updated(directory, configuration_files, configuration_values, sys_args):
+            upgrade(directory, configuration_files, configuration_values, sys_args)
         else:
-            print "Already upgraded to the latest version."
+            print("Already upgraded to the latest version.")
 
     run_with_config(directory, on_dir)
 
-def check_updated(directory, configuration_files, configuration_values):
+def check_updated(directory, configuration_files, configuration_values, sys_args):
     updated = True
     for upgrader_kls in Upgrader.upgraders():
-        upgrader = upgrader_kls(directory, configuration_files, configuration_values)
+        upgrader = upgrader_kls(directory, configuration_files, configuration_values, sys_args)
         if not upgrader.check_updated():
             updated = False
             # Don't break / return here. We want to display all the settings
 
     return updated
 
-def upgrade(directory, configuration_files, configuration_values):
-    print "The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database)."
-    if raw_input("Do you want to continue with the upgrade? (y/N) ") == 'y':
+def ask_yes(message, sys_args):
+    if sys_args.yes:
+        print(message)
+        print("  > Answered yes since --yes is provided")
+        return True
+
+    return raw_input("%s (y/N) " % message) == 'y'
+
+def upgrade(directory, configuration_files, configuration_values, sys_args):
+    print("The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database).")
+    if ask_yes("Do you want to continue with the upgrade?", sys_args):
         for upgrader_kls in Upgrader.upgraders():
-            upgrader = upgrader_kls(directory, configuration_files, configuration_values)
+            upgrader = upgrader_kls(directory, configuration_files, configuration_values, sys_args)
             if not upgrader.check_updated():
                 upgrader.upgrade()
     else:
-        print "Upgrade aborted."
+        print("Upgrade aborted.")
 
 class Upgrader(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, directory, configuration_files, configuration_values):
+    def __init__(self, directory, configuration_files, configuration_values, sys_args):
         self.directory = directory
         self.configuration_files = configuration_files
         self.configuration_values = configuration_values
+        self.sys_args = sys_args
     
     @classmethod
     def get_priority(self):
@@ -112,7 +135,8 @@ class Upgrader(object):
 
 class DatabaseUpgrader(Upgrader):
 
-    def __init__(self, directory, configuration_files, configuration_values):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(DatabaseUpgrader, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
         db_conf = DbConfiguration(configuration_files, configuration_values)
         regular_url = db_conf.build_url()
         coord_url   = db_conf.build_coord_url()
@@ -121,17 +145,17 @@ class DatabaseUpgrader(Upgrader):
     def check_updated(self):
         updated = self.upgrader.check_updated()
         if not updated:
-            print " - The database requires some changes and is going to be upgraded."
+            print(" - The database requires some changes and is going to be upgraded.")
         return updated
 
     def upgrade(self):
-        print "Upgrading database."
-        sys.stdout.flush()
+        print("Upgrading database.", flush=False)
         self.upgrader.upgrade()
-        print "Upgrade completed."
+        print("Upgrade completed.")
 
 class ConfigurationExperiments2db(Upgrader):
-    def __init__(self, directory, configuration_files, configuration_values):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(ConfigurationExperiments2db, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
         self.db_conf = DbConfiguration(configuration_files, configuration_values)
         self.config_js = os.path.join(directory, 'client', 'configuration.js')
         if os.path.exists(self.config_js):
@@ -152,7 +176,7 @@ class ConfigurationExperiments2db(Upgrader):
         # But if it exists and it has an 'experiments' section, it has 
         # not been upgraded.
         if 'experiments' in self.config:
-            print " - configuration.js contains experiments. The experiments in the configuration.js are going to be migrated to the database."
+            print(" - configuration.js contains experiments. The experiments in the configuration.js are going to be migrated to the database.")
             return False
 
         return True
@@ -200,7 +224,7 @@ class ConfigurationExperiments2db(Upgrader):
                         elif isinstance(value, int):
                             param_type = 'integer'
                         else:
-                            print "Error: invalid parameter type %s for key %s of experiment %s" % (type(value), key, experiment_name)
+                            print("Error: invalid parameter type %s for key %s of experiment %s" % (type(value), key, experiment_name))
                             continue
 
                         param = model.DbExperimentClientParameter(db_experiment, key, param_type, unicode(experiment[key]))
@@ -213,10 +237,8 @@ class ConfigurationExperiments2db(Upgrader):
         json.dump(self.config, open(self.config_js, 'w'), indent = 4)
 
 class RemoveOldWebAndLoginPorts(Upgrader):
-    def __init__(self, directory, configuration_files, configuration_values):
-        self.directory = directory
-        self.configuration_files = configuration_files
-        self.configuration_values = configuration_values
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(RemoveOldWebAndLoginPorts, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
 
     @classmethod
     def get_priority(self):
@@ -230,7 +252,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
             with open(fname) as f:
                 for line in f:
                     if line.startswith(('login_facade_json_port', 'login_facade_web_port')):
-                        print " - login server is going to be removed, as well as certain port configurations. Everything you have in login will be now part of core."
+                        print(" - login server is going to be removed, as well as certain port configurations. Everything you have in login will be now part of core.")
                         return False
         return True
 
@@ -253,12 +275,12 @@ class RemoveOldWebAndLoginPorts(Upgrader):
                     login_directories.append(login_dir)
                     found = True
             if not found:
-                print >> sys.stderr, "Error finding the core server directory for login server: %s" % fname
+                print("Error finding the core server directory for login server: %s" % fname, file=sys.stderr)
                 return
 
         # Here we know what are the directories to be removed and what are the configuration_files to be removed
         if not os.path.exists('debugging.py'):
-            print >> sys.stderr, "debugging.py file not found in the root directory of the deployment"
+            print("debugging.py file not found in the root directory of the deployment", file=sys.stderr)
             return
         
         debugging_ports = {}
@@ -278,7 +300,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
         
         for url_key in KEYS:
             if url_key not in ports_per_path:
-                print >> sys.stderr, "Error: Key %s expected and not found in %s" % (url_key, os.path.abspath(simple_server_config_filename))
+                print("Error: Key %s expected and not found in %s" % (url_key, os.path.abspath(simple_server_config_filename)), file=sys.stderr)
                 return
 
         # final_ports = [ '10000', '10010', '10020' ]
@@ -306,19 +328,19 @@ class RemoveOldWebAndLoginPorts(Upgrader):
         # Profit!
         # 
 
-        print "Start migrating old login and web ports"
+        print("Start migrating old login and web ports")
 
 
         # Step 1: debugging.py
 
-        print " - Upgrading debugging.py"
+        print(" - Upgrading debugging.py")
 
         new_contents = ''.join([ line for line in open('debugging.py') if 'json_login' not in line ])
         open('debugging.py', 'w').write(new_contents)
 
         # Steps 2 & 3: apache_weblab_generic.conf & simple_server_config.py
 
-        print " - Upgrading httpd files"
+        print(" - Upgrading httpd files")
 
         apache_weblab_generic_conf_filename = os.path.join('httpd', 'apache_weblab_generic.conf')
         apache_weblab_generic_conf = open(apache_weblab_generic_conf_filename).read()
@@ -341,7 +363,7 @@ class RemoveOldWebAndLoginPorts(Upgrader):
         
         # Step 4: login files
         for login_replacement, core_replacement in login_replacements.iteritems():
-            print " - Upgrading %s" % os.path.abspath(core_replacement)
+            print(" - Upgrading %s" % os.path.abspath(core_replacement))
             # Steps 4.1 & 4.2: Copy configuration to core/server_config.py & clean
             lines = []
             TO_REMOVE = (
@@ -405,14 +427,12 @@ class RemoveOldWebAndLoginPorts(Upgrader):
                 contents = contents.replace('<server>login</server>', '')
                 open(parent_config_xml, 'w').write(contents)
 
-        print "Old login and web ports migration completed."
+        print("Old login and web ports migration completed.")
 
 
 class RemoveXmlsAndAddYaml(Upgrader):
-    def __init__(self, directory, configuration_files, configuration_values):
-        self.directory = directory
-        self.configuration_files = configuration_files
-        self.configuration_values = configuration_values
+    def __init__(self, directory, *args, **kwargs):
+        super(RemoveXmlsAndAddYaml, self).__init__(directory, *args, **kwargs)
         self.yml_file = os.path.join(self.directory, 'configuration.yml')
 
     @classmethod
@@ -423,8 +443,9 @@ class RemoveXmlsAndAddYaml(Upgrader):
     def check_updated(self):
         """ True => it's upgraded. False => needs to be upgraded """
         if os.path.exists(self.yml_file):
-            print " - The existing infrastructure of configuration.xml and directories is going to be simplified into a single configuration.yml file."
-            return False # TODO True
+            return True
+
+        print(" - The existing infrastructure of configuration.xml and directories is going to be simplified into a single configuration.yml file.")
         return False
 
     def _update_with_config(self, config, base_dir, node):
@@ -433,6 +454,8 @@ class RemoveXmlsAndAddYaml(Upgrader):
             file_name = config_node.getAttribute('file')
             full_path = os.path.join(base_dir, file_name)
             files.append(full_path)
+
+        files_to_delete = []
 
         if len(files) == 1:
             fglobals = {}
@@ -457,12 +480,17 @@ class RemoveXmlsAndAddYaml(Upgrader):
             if replace:
                 if flocals:
                     config['config'] = flocals
+                files_to_delete.append(files[0])
             else:
                 config['config_file'] = files[0]
         elif len(files) > 1:
             config['config_files'] = files
 
+        return files_to_delete
+
     def upgrade(self):
+        files_to_delete = []
+        directories_to_delete = []
         global_config = {
             # if single file:
             #   'config_file' : 'filename.py',
@@ -501,33 +529,40 @@ class RemoveXmlsAndAddYaml(Upgrader):
         protocol_regex = re.compile("(.*):([0-9]*)(.*)@.*")
 
         global_config_xml = os.path.join(self.directory, 'configuration.xml')
+        files_to_delete.append(global_config_xml)
         global_config_xml_node = minidom.parse(global_config_xml)
-        self._update_with_config(global_config, '.', global_config_xml_node)
+        files_to_delete.extend(self._update_with_config(global_config, '.', global_config_xml_node))
 
         for machine in global_config_xml_node.getElementsByTagName('machine'):
             host_name = machine.firstChild.nodeValue
+            directories_to_delete.append(os.path.join(self.directory, host_name))
             host_config = global_config.setdefault('hosts', {})[host_name] = {}
 
             machine_config_xml = os.path.join(self.directory, host_name, 'configuration.xml')
+            files_to_delete.append(machine_config_xml)
             machine_config_xml_node = minidom.parse(machine_config_xml)
-            self._update_with_config(host_config, host_name, machine_config_xml_node)
+            files_to_delete.extend(self._update_with_config(host_config, host_name, machine_config_xml_node))
 
             for instance in machine_config_xml_node.getElementsByTagName('instance'):
                 process_name = instance.firstChild.nodeValue 
+                directories_to_delete.append(os.path.join(self.directory, host_name, process_name))
                 process_config = host_config.setdefault('processes', {})[process_name] = {}
 
                 instance_config_xml = os.path.join(self.directory, host_name, process_name, 'configuration.xml')
+                files_to_delete.append(instance_config_xml)
                 instance_config_xml_node = minidom.parse(instance_config_xml)
-                self._update_with_config(process_config, os.path.join(host_name, process_name), instance_config_xml_node)
+                files_to_delete.extend(self._update_with_config(process_config, os.path.join(host_name, process_name), instance_config_xml_node))
                 
                 for server in instance_config_xml_node.getElementsByTagName('server'):
 
                     component_name = server.firstChild.nodeValue
+                    directories_to_delete.append(os.path.join(self.directory, host_name, process_name, component_name))
                     component_config = process_config.setdefault('components', {})[component_name] = {}
 
                     server_config_xml = os.path.join(self.directory, host_name, process_name, component_name, 'configuration.xml')
+                    files_to_delete.append(server_config_xml)
                     server_config_xml_node = minidom.parse(server_config_xml)
-                    self._update_with_config(component_config, os.path.join(host_name, process_name, component_name), server_config_xml_node)
+                    files_to_delete.extend(self._update_with_config(component_config, os.path.join(host_name, process_name, component_name), server_config_xml_node))
                     
                     method_name = server_config_xml_node.getElementsByTagName('methods')[0].firstChild.nodeValue
                     server_types = {
@@ -585,3 +620,10 @@ class RemoveXmlsAndAddYaml(Upgrader):
         new_config_yaml = yaml.dump(global_config, width = 5, default_flow_style=False)
         open(self.yml_file, 'w').write(new_config_yaml)
 
+        if ask_yes("There are many configuration.xml files that are not required anymore. There might be some configuration files which are also not required anymore. Do you want to delete them all?", self.sys_args):
+            for file_to_delete in files_to_delete:
+                os.remove(file_to_delete)
+            
+            for dir_to_delete in directories_to_delete:
+                if len(os.listdir(dir_to_delete)) == 0:
+                    os.rmdir(dir_to_delete)

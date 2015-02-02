@@ -1,5 +1,7 @@
 import os
 import StringIO
+
+import six
 import yaml
 
 from voodoo.configuration import ConfigurationManager
@@ -85,10 +87,10 @@ class GlobalConfig(dict):
         return process_handler
 
     def _retrieve_config(self, element, all_config_files, all_config_values):
-        for config_file in self.config_files:
+        for config_file in element.config_files:
             all_config_files.append(config_file)
 
-        for key, value in six.iteritems(self.config_values):
+        for key, value in six.iteritems(element.config_values):
             all_config_values.append((key, value))
 
 
@@ -96,16 +98,16 @@ class GlobalConfig(dict):
         all_config_files = []
         all_config_values = []
 
-        self._retrieve_config(self)
+        self._retrieve_config(self, all_config_files, all_config_values)
 
         for host_name, host in six.iteritems(self):
-            self._retrieve_config(host)
+            self._retrieve_config(host, all_config_files, all_config_values)
 
             for process_name, process in six.iteritems(host):
-                self._retrieve_config(process)
+                self._retrieve_config(process, all_config_files, all_config_values)
 
                 for component_name, component in six.iteritems(process):
-                    self._retrieve_config(component)
+                    self._retrieve_config(component, all_config_files, all_config_values)
         
         return all_config_files, all_config_values
 

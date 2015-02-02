@@ -45,11 +45,16 @@ def run_with_config(directory, func):
         if os.path.exists(os.path.join('.', 'configuration.yml')):
             global_config = load_dir('.')
             configuration_files, configuration_values = global_config.get_all_config()
-        else:
+            print(configuration_files, configuration_values)
+        elif os.path.exists(os.path.join('.', 'configuration.xml')):
+            print("Loading old-style configuration...", file=sys.stderr)
             parser = LegacyParser()
             configuration_files = parser.get_config_files('.')
             configuration_values = []
-        return func(directory, configuration_files, configuration_values)
+        else:
+            print("ERROR: not a valid configuration directory. Missing configuration.yml (or configuration.xml)", file=sys.stderr)
+            sys.exit(-1)
+        return func('.', configuration_files, configuration_values)
     finally:
         os.chdir(old_cwd)
 
