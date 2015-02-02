@@ -25,6 +25,8 @@ from sqlalchemy import create_engine
 REGULAR_ALEMBIC_PATH    = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'regular')
 SCHEDULING_ALEMBIC_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'scheduling')
 
+DEBUG = False
+
 class DbUpgrader(object):
     def __init__(self, regular_url, scheduling_url):
         self.regular_upgrader    = DbRegularUpgrader(regular_url)
@@ -89,11 +91,12 @@ class DbParticularUpgrader(object):
         context = MigrationContext.configure(engine)
         current_rev = context.get_current_revision()
         
-        print "Migrating %s" % self.url
-        print "Head: %s" % self.head
-        print "Current rev: %s" % current_rev
-        print "Correct?", current_rev == self.head
-        print
+        if DEBUG:
+            print "Migrating %s" % self.url
+            print "Head: %s" % self.head
+            print "Current rev: %s" % current_rev
+            print "Correct?", current_rev == self.head
+            print
         return self.head == current_rev
 
     def upgrade(self):

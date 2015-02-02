@@ -571,7 +571,10 @@ class RemoveXmlsAndAddYaml(Upgrader):
                         'weblab.methods::Laboratory' : 'laboratory',
                         'weblab.methods::Experiment' : 'experiment'
                     }
-                    server_type = server_types[method_name]
+                    try:
+                        server_type = server_types[method_name]
+                    except KeyError:
+                        raise Exception("Invalid server type %s" % method_name)
                     component_config['type'] = server_type
                     if server_type not in ('laboratory', 'core'):
                         implementation = server_config_xml_node.getElementsByTagName('implementation')[0].firstChild.nodeValue
