@@ -104,7 +104,7 @@ class Archimedes(Experiment):
 
         # Immediately pull all the balls up (so that all balls start up)
         # Carry out the operation in parallel.
-        responses = self._workpool.map(lambda board: self._send(board, "up"), self.archimedes_instances.values())
+        responses = self._workpool.map(lambda board: self._send(board, "/up"), self.archimedes_instances.values())
         # Ignore the response. Assume it worked.
 
         # The client initial data is meant to contain a structure that defines what the client should show.

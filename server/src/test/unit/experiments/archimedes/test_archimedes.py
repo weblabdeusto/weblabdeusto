@@ -44,8 +44,8 @@ class TestArchimedes(unittest.TestCase):
         self.experiment._send = m
         start = self.experiment.do_start_experiment("{}", "{}")
         time.sleep(2)
-        assert m.mock_calls[0][1][1] == "up"
-        assert m.mock_calls[1][1][1] == "up"
+        assert m.mock_calls[0][1][1] == "/up"
+        assert m.mock_calls[1][1][1] == "/up"
 
     def test_unknown_instance(self):
         """
