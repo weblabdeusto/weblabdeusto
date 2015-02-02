@@ -147,7 +147,32 @@ class APIProxy(object):
         raise AttributeError("%s not found" % name)
 
 class WebLabAPI(object):
+    """
+    The WebLabAPI object encapsulates the APIs for login, experiments, web client, etc.
+    Due to the need to support two styles for calling the API, most methods to the
+    actual API are dynamically added to the object and can be accessed through
+    WebLabAPI.api.
+
+    Some of the methods that are currently being added dynamically to the WebLab API object
+    (which are actually added through other modules, indirectly specified in the web_contexts):
+        WebLabAPI.api.login
+        WebLabAPI.api.logout
+        WebLabAPI.api.reserve_experiment
+        WebLabAPI.api.poll
+        ...
+    """
+
     def __init__(self, web_contexts = None, api_contexts = None):
+        """
+        Constructs the WebLabAPI object.
+
+        :param web_contexts: Name of the web components to register. The name will be used to generate some methods
+            such as apply_routes_contextname().
+        :type web_contexts: [str]
+
+        :param api_contexts: ?
+        :type api_contexts:
+        """
         self.apis = set(api_contexts or ()).union(['api'])
         self.web_contexts = set(web_contexts or ()).union(self.apis)
 

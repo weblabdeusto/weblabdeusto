@@ -51,9 +51,10 @@
                                 <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["experiment_type"] }}
                             </p>
 
-                            <a href="{{ url_for("lab", category = experiment["experiment.category"], name = urllib.quote_plus(experiment["experiment.name"]), type = experiment["experiment_type"]) }}">
-                                <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>
-                            </a>
+                            {# TO-DO: Enable this #}
+{#                            <a href="{{ url_for("lab", category = experiment["experiment.category"], name = urllib.quote_plus(experiment["experiment.name"]), type = experiment["experiment_type"]) }}">#}
+{#                                <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>#}
+{#                            </a>#}
 
                         </div>
                     </div>

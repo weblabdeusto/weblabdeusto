@@ -2,11 +2,11 @@ import urllib
 
 from flask import render_template, url_for, request, flash, redirect
 
-from weblab.webclient.web.flask_app import flask_app
-from weblab.webclient.web.helpers import get_experiments_data
+# from weblab.webclient.web.helpers import get_experiments_data
+from weblab.core.wl import weblab_api
 
 
-@flask_app.route("/labs.html")
+@weblab_api.route_webclient("/labs.html")
 def labs():
     """
     Renders the Laboratories List.
@@ -16,9 +16,10 @@ def labs():
     route = request.cookies.get("route", "")
     if sessionid is None:
         flash("You are not logged in", category="error")
-        return redirect(url_for("index"))
+        return redirect(url_for(".index"))
 
-    experiments, experiments_by_category = get_experiments_data(sessionid, route)
+    # experiments, experiments_by_category = get_experiments_data(sessionid, route)
+    experiments, experiments_by_category = {}, {}
 
     return render_template("labs.html", experiments=experiments, experiments_by_category=experiments_by_category,
                            urllib=urllib)

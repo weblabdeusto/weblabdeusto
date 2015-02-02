@@ -1,4 +1,6 @@
+import traceback
 from flask import render_template, request, flash, redirect, url_for, make_response
+from weblab.core.login.exc import InvalidCredentialsError
 from weblab.core.webclient.web.weblabweb import WeblabWeb
 
 from weblab.core.wl import weblab_api
@@ -7,41 +9,57 @@ from weblab.core.wl import weblab_api
 @weblab_api.route_webclient("/", methods=["GET", "POST"])
 def index():
     """
-    This is actually the login method.
+    Handles the index screen displaying (GET) and login (POST).
     """
 
     # THIS POST WILL ONLY BE INVOKED IF JAVASCRIPT IS DISABLED.
     # Otherwise logging is handled from JS.
     if request.method == "POST":
-        # If this is a POST it is a login request.
-        #
-        username = request.values.get("username")
-        password = request.values.get("password")
+        return handle_login_POST()
 
-        if not username or not password:
-            flash("Username and password must be filled", category="error")
-            return redirect(url_for("index"))
+    return handle_login_GET()
 
-        try:
-            weblabweb = WeblabWeb()
-            # weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
-            sessionid, route = weblabweb._login(username, password)
+def handle_login_POST():
+    """
+    Carries out an actual log in.
+    :return:
+    """
 
+    # If this is a POST it is a login request.
+    #
+    username = request.values.get("username")
+    password = request.values.get("password")
 
-            response = make_response(redirect(url_for("labs")))
-            """ @type: flask.Response """
+    try:
+        session_id = weblab_api.api.login(username, password)
+    except InvalidCredentialsError:
+        flash("Invalid username or password", category="error")
+        return redirect(url_for(".index"))
+    except:
+        traceback.print_exc()
+        flash("There was an unexpected error while logging in.", 500)
+        return make_response("There was an unexpected error while logging in.", 500)
+    else:
+        response = make_response("%s;%s" % (session_id.id, weblab_api.ctx.route))
+        session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
 
-            # We set it in a cookie rather than session so that is is immediately interoperable with JS
-            response.set_cookie("sessionid", sessionid)
-            response.set_cookie("route", route) # Save the route too, we need to use it from the Python-API
+        # Inserts the weblabsessionid and loginsessionid cookies into the response.
+        # (What is the purpose of having both? Why the different expire dates?)
+        weblab_api.fill_session_cookie(response, session_id_cookie)
 
-            print "LOGGED IN WITH: (%s, %s)" % (sessionid, route)
+        response = make_response(redirect(url_for(".labs")))
+        """ @type: flask.Response """
 
-        except:
-            flash("Invalid username or password", category="error")
-            return redirect(url_for("index"))
+        print "LOGGED IN WITH: (%s)" % (session_id_cookie)
 
+        return response
+
+def handle_login_GET():
+    """
+    Displays the index (the login page).
+    """
     return render_template("webclient_web/index.html")
+
 
 
 @weblab_api.route_webclient("/logout",  methods=["GET", "POST"])
