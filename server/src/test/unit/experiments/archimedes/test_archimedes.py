@@ -17,6 +17,7 @@ import json
 import unittest
 import threading
 import time
+from mock import patch, PropertyMock, MagicMock
 from experiments.archimedes import Archimedes
 
 from voodoo.configuration import ConfigurationManager
@@ -39,7 +40,12 @@ class TestArchimedes(unittest.TestCase):
         self.experiment.do_dispose()
 
     def test_start(self):
+        #m = MagicMock(return_value="")
+        self.experiment._send = m
         start = self.experiment.do_start_experiment("{}", "{}")
+
+        #assert m.mock_calls[0][1][1] == "up"
+        #assert m.mock_calls[1][1][1] == "up"
 
     def test_unknown_instance(self):
         """

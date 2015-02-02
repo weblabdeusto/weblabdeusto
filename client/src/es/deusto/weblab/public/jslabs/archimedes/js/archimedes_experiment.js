@@ -171,8 +171,10 @@ ArchimedesExperiment = function (registry, view) {
                 that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
             },
             function() {
-                console.error("[Error]: Refreshing data");
-        });
+                // BUGFIX: In case of error, we will retry to refresh in twice the standard refresh data interval.
+                console.error("[Error]: Refreshing data. Retrying soon.");
+                that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL * 2);
+            });
     }.bind(this);
 
     // Stops querying the server for data.
