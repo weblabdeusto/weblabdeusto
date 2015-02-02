@@ -63,7 +63,7 @@ class GlobalConfig(dict):
         Create an instance, attach the required communication servers, and return 
         both.
         """
-        config = self._create_config(coord_address)
+        config = self.create_config(coord_address)
         component_config = self[coord_address]
         ComponentClass = _load_type(component_config.component_class)
         locator = Locator(self, coord_address)
@@ -111,7 +111,7 @@ class GlobalConfig(dict):
         
         return all_config_files, all_config_values
 
-    def _create_config(self, coord_address):
+    def create_config(self, coord_address):
         host_config = self[coord_address.host]
         process_config = host_config[coord_address.process]
         component_config = process_config[coord_address.component]
