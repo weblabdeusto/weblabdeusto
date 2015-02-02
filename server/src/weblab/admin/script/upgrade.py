@@ -20,6 +20,8 @@ import sys
 import abc
 import json
 
+import yaml
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -576,13 +578,7 @@ class RemoveXmlsAndAddYaml(Upgrader):
                                 if paths:
                                     component_config['protocols'][protocol_name]['path'] = paths[0]
                     
-        import pprint
-        pprint.pprint(global_config)
-
-        print 
-        print "-" * 80
-        print
-
-        import yaml
         global_config = eval(repr(global_config).replace("u'", "'").replace('u"','"'))
-        print yaml.dump(global_config, width = 5, default_flow_style=False)
+        new_config_yaml = yaml.dump(global_config, width = 5, default_flow_style=False)
+        open(self.yml_file, 'w').write(new_config_yaml)
+
