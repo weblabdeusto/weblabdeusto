@@ -21,6 +21,8 @@ import re
 import sys
 import abc
 import json
+from collections import OrderedDict
+
 import yaml
 
 try:
@@ -66,7 +68,7 @@ def weblab_upgrade(directory):
 
     run_with_config(directory, on_dir)
 
-def check_updated(directory, configuration_files, configuration_values, sys_args):
+def check_updated(directory, configuration_files, configuration_values, sys_args = None):
     updated = True
     for upgrader_kls in Upgrader.upgraders():
         upgrader = upgrader_kls(directory, configuration_files, configuration_values, sys_args)
@@ -77,14 +79,14 @@ def check_updated(directory, configuration_files, configuration_values, sys_args
     return updated
 
 def ask_yes(message, sys_args):
-    if sys_args.yes:
+    if sys_args and sys_args.yes:
         print(message)
         print("  > Answered yes since --yes is provided")
         return True
 
     return raw_input("%s (y/N) " % message) == 'y'
 
-def upgrade(directory, configuration_files, configuration_values, sys_args):
+def upgrade(directory, configuration_files, configuration_values, sys_args = None):
     print("The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database).")
     if ask_yes("Do you want to continue with the upgrade?", sys_args):
         for upgrader_kls in Upgrader.upgraders():
@@ -430,6 +432,15 @@ class RemoveOldWebAndLoginPorts(Upgrader):
 
         print("Old login and web ports migration completed.")
 
+def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
+    class OrderedDumper(yaml.Dumper):
+        pass
+    def _dict_representer(dumper, data):
+        return dumper.represent_mapping(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            data.items())
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
 
 class RemoveXmlsAndAddYaml(Upgrader):
     def __init__(self, directory, *args, **kwargs):
@@ -534,20 +545,29 @@ class RemoveXmlsAndAddYaml(Upgrader):
         global_config_xml_node = minidom.parse(global_config_xml)
         files_to_delete.extend(self._update_with_config(global_config, '.', global_config_xml_node))
 
+        all_runners = set(['run.py'])
+
         for machine in global_config_xml_node.getElementsByTagName('machine'):
             host_name = machine.firstChild.nodeValue
             directories_to_delete.append(os.path.join(self.directory, host_name))
-            host_config = global_config.setdefault('hosts', {})[host_name] = {}
+            host_config = global_config.setdefault('hosts', OrderedDict())[host_name] = OrderedDict()
 
             machine_config_xml = os.path.join(self.directory, host_name, 'configuration.xml')
             files_to_delete.append(machine_config_xml)
             machine_config_xml_node = minidom.parse(machine_config_xml)
             files_to_delete.extend(self._update_with_config(host_config, host_name, machine_config_xml_node))
 
+            runners = machine_config_xml_node.getElementsByTagName('runner')
+            if len(runners):
+                runner = runners[0]
+                runner_filename = runner.getAttribute('file')
+                host_config['runner'] = runner_filename
+                all_runners.add(runner_filename)
+
             for instance in machine_config_xml_node.getElementsByTagName('instance'):
                 process_name = instance.firstChild.nodeValue 
                 directories_to_delete.append(os.path.join(self.directory, host_name, process_name))
-                process_config = host_config.setdefault('processes', {})[process_name] = {}
+                process_config = OrderedDict()
 
                 instance_config_xml = os.path.join(self.directory, host_name, process_name, 'configuration.xml')
                 files_to_delete.append(instance_config_xml)
@@ -558,7 +578,7 @@ class RemoveXmlsAndAddYaml(Upgrader):
 
                     component_name = server.firstChild.nodeValue
                     directories_to_delete.append(os.path.join(self.directory, host_name, process_name, component_name))
-                    component_config = process_config.setdefault('components', {})[component_name] = {}
+                    component_config = process_config.setdefault('components', OrderedDict())[component_name] = OrderedDict()
 
                     server_config_xml = os.path.join(self.directory, host_name, process_name, component_name, 'configuration.xml')
                     files_to_delete.append(server_config_xml)
@@ -618,11 +638,27 @@ class RemoveXmlsAndAddYaml(Upgrader):
                                 component_config['protocols'][protocol_name] = {}
                                 paths = [ path for path in paths if path ]
                                 if paths:
-                                    component_config['protocols'][protocol_name]['path'] = paths[0]
+                                    component_config['protocols']['path'] = paths[0]
+
+                            if 'protocols' in component_config:
+                                protocols_config = component_config['protocols']
+                                if 'http' in protocols_config:
+                                    protocols_config.pop('http', None)
+                                    protocols_config.pop('xmlrpc', None)
+                                else:
+                                    protocols_config.pop('xmlrpc', None)
+                                    protocols_config['supports'] = 'xmlrpc'
+
+                host_config.setdefault('processes', OrderedDict())[process_name] = process_config
                     
         global_config = eval(repr(global_config).replace("u'", "'").replace('u"','"'))
-        new_config_yaml = yaml.dump(global_config, width = 5, default_flow_style=False)
+        new_config_yaml = ordered_dump(global_config, width = 5, default_flow_style=False)
         open(self.yml_file, 'w').write(new_config_yaml)
+
+        for runner in all_runners:
+            if os.path.exists(runner):
+                new_contents = open(runner).read().replace('import voodoo.gen.loader.Launcher as Launcher', 'import voodoo.gen.launcher as Launcher')
+                open(runner, 'w').write(new_contents)
 
         if ask_yes("There are many configuration.xml files that are not required anymore. There might be some configuration files which are also not required anymore. Do you want to delete them all?", self.sys_args):
             for file_to_delete in files_to_delete:

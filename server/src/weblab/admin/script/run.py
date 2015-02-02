@@ -49,7 +49,7 @@ def check_pid(pid):
 def weblab_start(directory):
     parser = OptionParser(usage="%prog start DIR [options]")
 
-    parser.add_option('-m', '-h', '--host', '--machine',
+    parser.add_option('-m', '--host', '--machine',
                                                    dest='host', default=None, metavar='HOST',
                                                    help = 'If there is more than one host in the configuration, which one should be started.')
 
@@ -104,7 +104,7 @@ def weblab_start(directory):
                 if len(global_configuration) == 1:
                     host_name = global_configuration.keys()[0]
                 else:
-                    print >> sys.stderr, "System has more than one host (see -l). Please detail which host you want to start with the -h option."
+                    print >> sys.stderr, "System has more than one host (see -l). Please detail which host you want to start with the --host option."
                     sys.exit(-1)
 
             if not host_name in global_configuration:
