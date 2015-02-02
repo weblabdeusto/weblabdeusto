@@ -1,0 +1,34 @@
+hosts:
+  myhost:
+    config_file: host_config.py
+    processes:
+      myprocess1:
+        components:
+          mycore:
+            config_file: core_config.py
+            type: core
+      myprocess2:
+        components:
+          mylab:
+            config_file: lab_config.py
+            type: laboratory
+            protocols:
+              port: 18342
+      myprocess3:
+        components:
+          experiment_dummy1:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: false
+            type: experiment
+            protocols:
+              port: 18343
+          experiment_dummy2:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: false
+            type: experiment
+            protocols:
+              supports: xmlrpc
+              port: 18344
+
