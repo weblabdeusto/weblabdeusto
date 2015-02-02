@@ -14,23 +14,26 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+from __future__ import print_function
+
 import os
 import sys
 
-from voodoo.gen.loader.ConfigurationParser import GlobalParser
+from voodoo.gen.legacy import LegacyParser
+from voodoo.gen import load_dir
 
 def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
         if parser is not None:
             parser.error("ERROR: Directory %s does not exist" % directory)
         else:
-            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
+            print("ERROR: Directory %s does not exist" % directory, file=sys.stderr)
         sys.exit(-1)
     if not os.path.isdir(directory):
         if parser is not None:
             parser.error("ERROR: File %s exists, but it is not a directory" % directory)
         else:
-            print >> sys.stderr, "ERROR: Directory %s does not exist" % directory
+            print("ERROR: Directory %s does not exist" % directory, file=sys.stderr)
         sys.exit(-1)
 
 
@@ -39,22 +42,19 @@ def run_with_config(directory, func):
     old_cwd = os.getcwd()
     os.chdir(directory)
     try:
-        parser = GlobalParser()
-        global_configuration = parser.parse('.')
-        configuration_files = []
-        configuration_files.extend(global_configuration.configurations)
-        for machine in global_configuration.machines:
-            machine_config = global_configuration.machines[machine]
-            configuration_files.extend(machine_config.configurations)
-
-            for instance in machine_config.instances:
-                instance_config = machine_config.instances[instance]
-                configuration_files.extend(instance_config.configurations)
-
-                for server in instance_config.servers:
-                    server_config = instance_config.servers[server]
-                    configuration_files.extend(server_config.configurations)
-        return func(directory, configuration_files)
+        if os.path.exists(os.path.join('.', 'configuration.yml')):
+            global_config = load_dir('.')
+            configuration_files, configuration_values = global_config.get_all_config()
+            print(configuration_files, configuration_values)
+        elif os.path.exists(os.path.join('.', 'configuration.xml')):
+            print("Loading old-style configuration...", file=sys.stderr)
+            parser = LegacyParser()
+            configuration_files = parser.get_config_files('.')
+            configuration_values = []
+        else:
+            print("ERROR: not a valid configuration directory. Missing configuration.yml (or configuration.xml)", file=sys.stderr)
+            sys.exit(-1)
+        return func('.', configuration_files, configuration_values)
     finally:
         os.chdir(old_cwd)
 

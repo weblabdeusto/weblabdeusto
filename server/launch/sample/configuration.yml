@@ -1,0 +1,156 @@
+config_file: ./global_config.py
+hosts:
+  main_machine:
+    config:
+      db_database: WebLabTests
+    runner: launch_sample.py
+    host: localhost
+    processes:
+      main_instance:
+        config_file: main_machine/main_instance/instance_config.py
+        components:
+          core:
+            config_file: main_machine/main_instance/core/server_config.py
+            type: core
+          laboratory:
+            config_file: main_machine/main_instance/laboratory/server_config.py
+            type: laboratory
+          experiment_pld:
+            config_file: main_machine/main_instance/experiment_pld/server_config.py
+            type: experiment
+            class: experiments.ud_xilinx.server.UdXilinxExperiment
+          experiment_binary:
+            config_file: main_machine/main_instance/experiment_binary/server_config.py
+            type: experiment
+            class: experiments.binary.server.BinaryExperiment
+          experiment_demo_pld:
+            config_file: main_machine/main_instance/experiment_demo_pld/server_config.py
+            type: experiment
+            class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
+          experiment_fpga:
+            config_file: main_machine/main_instance/experiment_fpga/server_config.py
+            type: experiment
+            class: experiments.ud_xilinx.server.UdXilinxExperiment
+          experiment_demo_fpga:
+            config_file: main_machine/main_instance/experiment_demo_fpga/server_config.py
+            type: experiment
+            class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
+          experiment_demo_xilinx1:
+            config_file: main_machine/main_instance/experiment_demo_xilinx1/server_config.py
+            type: experiment
+            class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
+          experiment_demo_xilinx2:
+            config_file: main_machine/main_instance/experiment_demo_xilinx2/server_config.py
+            type: experiment
+            class: experiments.ud_demo_xilinx.server.UdDemoXilinxExperiment
+          experiment_gpib:
+            config_file: main_machine/main_instance/experiment_gpib/server_config.py
+            type: experiment
+            class: experiments.ud_gpib.server.UdGpibExperiment
+          experiment_dummy:
+            config_file: main_machine/main_instance/experiment_dummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment_dummy_batch:
+            type: experiment
+            class: experiments.dummy_batch.DummyBatchExperiment
+          experiment_logic:
+            config:
+              logic_webcam_url: https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=2
+            type: experiment
+            class: experiments.logic.server.LogicExperiment
+          experiment_flashdummy:
+            config_file: main_machine/main_instance/experiment_flashdummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment_javadummy:
+            config_file: main_machine/main_instance/experiment_javadummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment_jsdummy:
+            config_file: main_machine/main_instance/experiment_jsdummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment_jsfpga:
+            config_file: main_machine/main_instance/experiment_jsfpga/server_config.py
+            type: experiment
+            class: experiments.ud_xilinx.server.UdXilinxExperiment
+          experiment_visir_html5:
+            config_file: main_machine/main_instance/experiment_visir_html5/server_config.py
+            type: experiment
+            class: experiments.visir_html5.VisirTestExperiment
+          experiment_testvisir:
+            config_file: main_machine/main_instance/experiment_testvisir/server_config.py
+            type: experiment
+            class: experiments.visir.VisirTestExperiment
+          experiment_vm:
+            config_file: main_machine/main_instance/experiment_vm/server_config.py
+            type: experiment
+            class: experiments.vm.server.VMExperiment
+          experiment_vm_win:
+            config_file: main_machine/main_instance/experiment_vm_win/server_config.py
+            type: experiment
+            class: experiments.vm.server.VMExperiment
+          experiment_robot_standard:
+            type: experiment
+            class: experiments.robot_standard.RobotStandard
+          experiment_robot_movement:
+            type: experiment
+            class: experiments.robot_movement.RobotMovement
+          experiment_robot_proglist:
+            type: experiment
+            class: experiments.robot_proglist.RobotProglist
+          experiment_robotarm:
+            type: experiment
+            class: experiments.robot_arm.RobotArm
+          experiment_blinkled:
+            config:
+              labview_copyfile: false
+              labview_filename: PLEASE
+                SET
+                THIS
+            type: experiment
+            class: experiments.labview.server.LabViewExperiment
+          experiment_pic18:
+            config_file: main_machine/main_instance/experiment_pic18/server_config.py
+            type: experiment
+            class: experiments.ud_pic18.server.UdPic18Experiment
+          experiment_submarine:
+            config_file: main_machine/main_instance/experiment_submarine/server_config.py
+            type: experiment
+            class: experiments.submarine.Submarine
+          experiment_aquarium:
+            config_file: main_machine/main_instance/experiment_aquarium/server_config.py
+            type: experiment
+            class: experiments.aquarium.Aquarium
+          experiment_aquariumjs:
+            config_file: main_machine/main_instance/experiment_aquariumjs/server_config.py
+            type: experiment
+            class: experiments.aquariumjs.Aquarium
+          experiment_unr:
+            config_file: main_machine/main_instance/experiment_unr/server_config.py
+            type: experiment
+            class: experiments.unr_physics.UnrExperiment
+          experiment_controlapp:
+            config_file: main_machine/main_instance/experiment_controlapp/server_config.py
+            type: experiment
+            class: experiments.control_app.ControlAppExperiment
+          experiment_incubator:
+            config_file: main_machine/main_instance/experiment_incubator/server_config.py
+            type: experiment
+            class: experiments.incubator.IncubatorExperiment
+          experiment_robot_maze:
+            type: experiment
+            class: experiments.robot_maze.RobotMaze
+          experiment_http:
+            config_file: main_machine/main_instance/experiment_http/server_config.py
+            type: experiment
+            class: experiments.http_experiment.HttpExperiment
+          experiment_archimedes:
+            config_file: main_machine/main_instance/experiment_archimedes/server_config.py
+            type: experiment
+            class: experiments.archimedes.Archimedes
+          experiment_elevator:
+            config_file: main_machine/main_instance/experiment_elevator/server_config.py
+            type: experiment
+            class: experiments.ud_xilinx.server.UdXilinxExperiment

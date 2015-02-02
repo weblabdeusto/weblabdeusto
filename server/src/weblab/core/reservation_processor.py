@@ -268,11 +268,10 @@ class ReservationProcessor(object):
         # Retrieve the laboratory server
         #
 
-        laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
-
         usage_file_sent = self._store_file(file_content, file_info)
         command_id_pack = self._append_file(usage_file_sent)
         try:
+            laboratory_server = self._locator[lab_coordaddr]
             response = laboratory_server.send_file( lab_session_id, file_content, file_info )
             self._update_command_or_file(command_id_pack, response)
             return response
@@ -306,10 +305,9 @@ class ReservationProcessor(object):
         if lab_session_id is None or lab_coordaddr is None:
             raise core_exc.NoCurrentReservationError("send_command called but the reservation is not enabled")
 
-        laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
         command_id_pack = self._append_command(command)
         try:
-
+            laboratory_server = self._locator[lab_coordaddr]
             # We call the laboratory server's send_command, which will finally
             # get the command to be handled by the experiment.
             response = laboratory_server.send_command( lab_session_id, command )
@@ -359,11 +357,12 @@ class ReservationProcessor(object):
         if lab_session_id is None or lab_coordaddr is None:
             raise core_exc.NoCurrentReservationError("send_async_file called but no current reservation")
 
-        laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory)
+
 
         usage_file_sent = self._store_file(file_content, file_info)
         command_id_pack = self._append_file(usage_file_sent)
         try:
+            laboratory_server = self._locator[lab_coordaddr]
             response = laboratory_server.send_async_file( lab_session_id, file_content, file_info )
 
             # TODO: how do we store async files? whenever somebody ask for the status? what if they don't ask for it?
@@ -409,9 +408,10 @@ class ReservationProcessor(object):
         if lab_session_id is None or lab_coordaddr is None:
             raise core_exc.NoCurrentReservationError("check_async_command called but no current reservation")
 
-        laboratory_server = self._locator.get_server_from_coordaddr( lab_coordaddr, ServerType.Laboratory )
+
 
         try:
+            laboratory_server = self._locator[lab_coordaddr]
             response = laboratory_server.check_async_command_status( lab_session_id, request_identifiers)
 
             # Within the response map, we might now have the real response to one
@@ -467,10 +467,11 @@ class ReservationProcessor(object):
         if lab_session_id is None or lab_coordaddr is None:
             raise core_exc.NoCurrentReservationError("send_async_command called but no current reservation")
 
-        laboratory_server = self._locator.get_server_from_coordaddr(lab_coordaddr, ServerType.Laboratory)
+
         command_id_pack = self._append_command(command)
 
         try:
+            laboratory_server = self._locator[lab_coordaddr]
 
             # We forward the request to the laboratory server, which
             # will forward it to the actual experiment. Because this is

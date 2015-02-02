@@ -30,7 +30,7 @@ from weblab.data.experiments import ExperimentId
 import voodoo.sessions.exc as SessionErrors
 
 from voodoo.sessions.session_id import SessionId
-import voodoo.gen.registry.server_registry as ServerRegistry
+from voodoo.gen.registry import GLOBAL_REGISTRY
 import sys
 
 #
@@ -42,11 +42,10 @@ stderr = sys.stderr
 stdin  = sys.stdin
 
 def _find_server(server_type, name):
-    registry = ServerRegistry.get_instance()
     servers = []
-    for server in registry._servers:
-        if isinstance(registry._servers[server], server_type):
-            servers.append(registry._servers[server])
+    for server in GLOBAL_REGISTRY:
+        if isinstance(GLOBAL_REGISTRY[server], server_type):
+            servers.append(GLOBAL_REGISTRY[server])
     if len(servers) > 1:
         print >> stderr, "Warning: more than one server of %s found" % name
     elif len(servers) == 0:

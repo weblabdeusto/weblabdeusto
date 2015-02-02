@@ -17,8 +17,8 @@ import sys
 import time
 import unittest
 
-import voodoo.gen.loader.ServerLoader as ServerLoader
-from voodoo.gen.registry.server_registry import _registry
+from voodoo.gen import load_dir
+from voodoo.gen.registry import GLOBAL_REGISTRY
 
 from weblab.data.command import Command
 from weblab.data.experiments import ExperimentId, RunningReservationResult
@@ -36,28 +36,26 @@ def debug(msg):
 
 class AbstractFederatedWebLabDeustoTestCase(object):
     def setUp(self):
-
         # Clean the global registry of servers
-        _registry.clear()
+        GLOBAL_REGISTRY.clear()
 
         CONSUMER_CONFIG_PATH  = self.FEDERATED_DEPLOYMENTS + '/consumer/'
         PROVIDER1_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider1/'
         PROVIDER2_CONFIG_PATH = self.FEDERATED_DEPLOYMENTS + '/provider2/'
 
-        self.server_loader     = ServerLoader.ServerLoader()
+        self.consumer_handler  = load_dir(CONSUMER_CONFIG_PATH).load_process('consumer_machine', 'main_instance' )
+        self.provider1_handler = load_dir(PROVIDER1_CONFIG_PATH).load_process('provider1_machine', 'main_instance' )
+        self.provider2_handler = load_dir(PROVIDER2_CONFIG_PATH).load_process('provider2_machine', 'main_instance' )
+        
+        # TODO: Remove login_client / core_client
+        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345)
+        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345)
 
-        self.consumer_handler  = self.server_loader.load_instance( CONSUMER_CONFIG_PATH,   'consumer_machine', 'main_instance' )
-        self.provider1_handler = self.server_loader.load_instance( PROVIDER1_CONFIG_PATH,  'provider1_machine', 'main_instance' )
-        self.provider2_handler = self.server_loader.load_instance( PROVIDER2_CONFIG_PATH,  'provider2_machine', 'main_instance' )
+        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345)
+        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345)
 
-        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
-        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345 )
-
-        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
-        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345 )
-
-        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
-        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345 )
+        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345)
+        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345)
 
         # dummy1: deployed in consumer, provider1, provider2
         self.dummy1 = ExperimentId("dummy1", "Dummy experiments")
@@ -72,6 +70,7 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         self.consumer_handler.stop()
         self.provider1_handler.stop()
         self.provider2_handler.stop()
+        time.sleep(1)
 
     #
     # This test may take even 20-30 seconds; therefore it is not splitted
@@ -300,6 +299,7 @@ class AbstractFederatedWebLabDeustoTestCase(object):
 
 class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
     FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_sql'
+    IS_SQL = True
 
 try:
     import redis
@@ -312,6 +312,7 @@ else:
 if REDIS_AVAILABLE:
     class RedisFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):
         FEDERATED_DEPLOYMENTS = 'test/deployments/federated_basic_redis'
+        IS_SQL = False
 
 def suite():
     suites = [unittest.makeSuite(SqlFederatedWebLabDeustoTestCase)]

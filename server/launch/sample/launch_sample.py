@@ -21,9 +21,7 @@ def inner(signals = False, condition = None, event_notifier = None):
         print "Stopping servers..."
 
     import signal
-    import weblab
-    import threading
-    import voodoo.gen.loader.Launcher as Launcher
+    import voodoo.gen.launcher as Launcher
     import voodoo.rt_debugger as rt_debugger
 
     rt_debugger.launch_debugger()

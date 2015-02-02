@@ -1,0 +1,55 @@
+config:
+  debug_mode: true
+hosts:
+  main_machine:
+    config:
+      db_database: WebLabTests
+    host: 127.0.0.1
+    processes:
+      main_instance:
+        config_file: main_machine/main_instance/instance_config.py
+        components:
+          core:
+            config_file: main_machine/main_instance/core/server_config.py
+            type: core
+          laboratory:
+            config_file: main_machine/main_instance/laboratory/server_config.py
+            type: laboratory
+            protocols:
+              port: 10129
+              supports: xmlrpc
+          experiment_javadummy:
+            config_file: main_machine/main_instance/experiment_javadummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment_vm:
+            type: experiment
+            class: experiments.vm.server.VMExperiment
+            protocols:
+              port: 10040
+              supports: xmlrpc
+      dummy_instance:
+        config_file: main_machine/dummy_instance/instance_config.py
+        components:
+          experiment_dummy:
+            config_file: main_machine/dummy_instance/experiment_dummy/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+            protocols:
+              port: 10039
+              supports: xmlrpc
+      pic_instance:
+        config_file: main_machine/pic_instance/instance_config.py
+        components:
+          experiment_pic:
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+            protocols:
+              port: 11040
+              supports: xmlrpc
+          experiment_pic2:
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+            protocols:
+              port: 11039
+              supports: xmlrpc

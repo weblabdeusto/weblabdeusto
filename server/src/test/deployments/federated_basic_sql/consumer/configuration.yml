@@ -1,0 +1,22 @@
+hosts:
+  consumer_machine:
+    processes:
+      main_instance:
+        components:
+          core:
+            config_file: core_config.py
+            type: core
+          experiment_dummy1:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: false
+            type: experiment
+          experiment_dummy2:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: false
+            type: experiment
+          laboratory:
+            config_file: lab_config.py
+            type: laboratory
+        config_file: process_config.py

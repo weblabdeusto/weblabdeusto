@@ -23,7 +23,7 @@ import weblab.configuration_doc as configuration_doc
 from voodoo.typechecker import typecheck, ITERATION
 from voodoo.log import logged
 import voodoo.log as log
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
+from voodoo.gen import CoordAddress
 from voodoo.sessions.session_id import SessionId
 
 import voodoo.admin_notifier as AdminNotifier

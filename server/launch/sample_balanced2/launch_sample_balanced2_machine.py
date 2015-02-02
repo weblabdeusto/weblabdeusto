@@ -18,7 +18,7 @@ import signal
 import sys
 sys.path.append('../../src')
 import weblab
-import voodoo.gen.loader.Launcher as Launcher
+import voodoo.gen.launcher as Launcher
 
 def before_shutdown():
     print "Stopping servers..."

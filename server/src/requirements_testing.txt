@@ -21,12 +21,6 @@ pyflakes<0.6
 mocker<1.2
 mock<1.1
 
-# 
-# ciutils is required for continuous integration with CruiseControl
-# 
-
-ciutils==0.0.5
-
 #
 # coverage is used to detail how much code is covered by unit tests
 # 

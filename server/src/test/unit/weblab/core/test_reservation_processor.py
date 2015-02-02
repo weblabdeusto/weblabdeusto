@@ -20,7 +20,7 @@ import datetime
 
 import mocker
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 from   test.util.module_disposer import case_uses_module
 
@@ -54,7 +54,7 @@ import weblab.lab.exc as LaboratoryErrors
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
+laboratory_coordaddr = CoordAddress.translate(
         "server:laboratoryserver@labmachine"
     )
 
@@ -551,7 +551,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
         self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
-        self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
+        self.mocker.result(CoordAddress("exp","inst","mach"))
         self.lab_mock.should_experiment_finish(SessionId.SessionId('my_lab_session_id'))
         self.mocker.result(0)
         self.mocker.replay()
@@ -560,7 +560,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
         self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
-        self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
+        self.mocker.result(CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)
 
 class FakeDatabase(object):
@@ -594,13 +594,8 @@ class FakeLocator(object):
     def __init__(self, lab):
         self.lab = lab
 
-    def get_server(self, server_type):
-        if server_type == ServerType.Laboratory:
-            return self.lab
-        raise Exception("Server not found")
-
-    def get_server_from_coordaddr(self, coord_addr, server_type):
-        if server_type == ServerType.Laboratory and laboratory_coordaddr == coord_addr:
+    def __getitem__(self, coord_addr):
+        if laboratory_coordaddr == coord_addr:
             return self.lab
         raise Exception("Server not found")
 

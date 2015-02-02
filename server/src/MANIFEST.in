@@ -2,7 +2,7 @@ recursive-include weblab/admin/web/templates *
 recursive-include weblab/core/templates *
 recursive-include weblab/core/translations *
 recursive-include weblab/admin/web/static *
-recursive-include voodoo/gen/loader/xsd *
+recursive-include voodoo/gen/templates *
 recursive-include weblab/login/comm *
 recursive-include weblab/admin *
 recursive-include weblab/admin/web/templates *
@@ -20,4 +20,3 @@ recursive-include experiments/labview/fpga_programmer *
 recursive-include experiments/logic *
 recursive-include experiments/ud_pic18 *
 recursive-include webserver *
-recursive-include voodoo/gen/loader/xsd *

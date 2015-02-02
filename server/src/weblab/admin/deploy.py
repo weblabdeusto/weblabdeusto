@@ -22,7 +22,7 @@ import hashlib
 
 from sqlalchemy.orm import sessionmaker
 
-from weblab.db.upgrade import DbRegularUpgrader
+from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
 import weblab.db.model as Model
 import weblab.permissions as permissions
 
@@ -671,6 +671,15 @@ def insert_required_initial_data(engine):
     )
     session.commit()
 
+def insert_required_initial_coord_data(engine):
+    session = sessionmaker(bind=engine)
+    session = session()
+
+    upgrader = DbSchedulingUpgrader(str(engine.url))
+    session.execute(
+        Model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+    )
+    session.commit()
 
 #####################################################################
 #

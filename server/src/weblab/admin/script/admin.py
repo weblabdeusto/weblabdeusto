@@ -27,7 +27,7 @@ from weblab.admin.script.utils import run_with_config
 # 
 
 def weblab_admin(directory):
-    def on_dir(directory, configuration_files):
-        Controller(configuration_files)
+    def on_dir(directory, configuration_files, configuration_values):
+        Controller(configuration_files, configuration_values)
     
     run_with_config(directory, on_dir)

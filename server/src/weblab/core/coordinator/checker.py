@@ -16,7 +16,7 @@
 import traceback
 
 import voodoo.log as log
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 import weblab.data.server_type as ServerType
 
@@ -81,8 +81,8 @@ class ResourcesChecker(object):
         }
 
         try:
-            address = CoordAddress.CoordAddress.translate_address(address_str)
-            server = self.locator.get_server_from_coordaddr(address, ServerType.Laboratory)
+            address = CoordAddress.translate(address_str)
+            server = self.locator[address]
             failing_experiments = server.check_experiments_resources()
             #
             # failing_experiments is a dictionary such as:

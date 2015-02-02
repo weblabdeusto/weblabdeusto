@@ -84,7 +84,7 @@ class LoginManager(object):
         return self._process_invalid()
 
     def _reserve_session(self, db_session_id):
-        session_id, server_route = self._core_server.do_reserve_session(db_session_id)
+        session_id, server_route = self._core_server._reserve_session(db_session_id)
         if hasattr(session_id, 'id'):
             weblab_api.ctx.session_id = session_id.id
         else:

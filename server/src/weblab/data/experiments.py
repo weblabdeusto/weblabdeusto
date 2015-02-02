@@ -20,7 +20,7 @@ import StringIO
 import weblab.data.command as Command
 
 from voodoo.override import Override
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
+from voodoo.gen import CoordAddress
 from voodoo.representable import AbstractRepresentable, Representable
 from voodoo.typechecker import typecheck
 
@@ -182,7 +182,7 @@ class ExperimentUsage(object):
         self.from_ip                = from_ip
         self.experiment_id          = experiment_id     # weblab.data.experiments.ExperimentId
         self.reservation_id         = reservation_id    # string, the reservation identifier
-        self.coord_address          = coord_address     # voodoo.gen.coordinator.CoordAddress.CoordAddress
+        self.coord_address          = coord_address     # voodoo.gen.CoordAddress
         if request_info is None:
             self.request_info       = {}
         else:

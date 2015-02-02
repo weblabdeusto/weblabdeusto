@@ -31,6 +31,21 @@ class level(object):
     Info     = 'Info'
     Debug    = 'Debug'
 
+def critical(instance_or_module_or_class, message, max_size = 250):
+    return log(instance_or_module_or_class, level.Critical, message, max_size)
+
+def error(instance_or_module_or_class, message, max_size = 250):
+    return log(instance_or_module_or_class, level.Error, message, max_size)
+
+def warning(instance_or_module_or_class, message, max_size = 250):
+    return log(instance_or_module_or_class, level.Warning, message, max_size)
+
+def info(instance_or_module_or_class, message, max_size = 250):
+    return log(instance_or_module_or_class, level.Info, message, max_size)
+
+def debug(instance_or_module_or_class, message, max_size = 250):
+    return log(instance_or_module_or_class, level.Debug, message, max_size)
+
 def log(instance_or_module_or_class, level, message, max_size = 250):
     logging_log_level = getattr(logging,level.upper())
     if isinstance(instance_or_module_or_class,str):
@@ -48,6 +63,21 @@ def log(instance_or_module_or_class, level, message, max_size = 250):
         message_repr = message_repr[:max_size-3] + '...'
 
     logger.log(logging_log_level,message_repr)
+
+def critical_exc(instance_or_module_or_class):
+    return log_exc(instance_or_module_or_class, level.Critical)
+
+def error_exc(instance_or_module_or_class):
+    return log_exc(instance_or_module_or_class, level.Error)
+
+def warning_exc(instance_or_module_or_class):
+    return log_exc(instance_or_module_or_class, level.Warning)
+
+def info_exc(instance_or_module_or_class):
+    return log_exc(instance_or_module_or_class, level.Info)
+
+def debug_exc(instance_or_module_or_class):
+    return log_exc(instance_or_module_or_class, level.Debug)
 
 def log_exc(instance_or_module_or_class, level):
     f = StringIO.StringIO()

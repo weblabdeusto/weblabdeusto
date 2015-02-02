@@ -21,7 +21,7 @@ import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 import weblab.core.db as DatabaseGateway
 
@@ -41,7 +41,7 @@ def create_usage(gateway, reservation_id = 'my_reservation_id'):
             initial_usage.end_date      = time.time()
             initial_usage.from_ip       = "130.206.138.16"
             initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-            initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+            initial_usage.coord_address = CoordAddress("machine1","instance1","server1")
             initial_usage.reservation_id = reservation_id
 
             file1 = FileSent(
@@ -171,7 +171,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -189,7 +189,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -253,7 +253,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
         usage1.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
@@ -291,7 +291,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.start_date    = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -308,7 +308,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage2.start_date    = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -371,7 +371,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -389,7 +389,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -448,7 +448,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
         usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
@@ -457,7 +457,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
         usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
