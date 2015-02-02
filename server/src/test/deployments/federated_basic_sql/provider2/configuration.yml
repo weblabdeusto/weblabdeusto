@@ -4,7 +4,7 @@ hosts:
       main_instance:
         components:
           core:
-            config_file: provider2_machine/main_instance/core/server_config.py
+            config_file: core_config.py
             type: core
           experiment_dummy1:
             class: experiments.dummy.DummyExperiment
@@ -17,6 +17,6 @@ hosts:
               dummy_verbose: false
             type: experiment
           laboratory:
-            config_file: provider2_machine/main_instance/laboratory/server_config.py
+            config_file: lab_config.py
             type: laboratory
-        config_file: provider2_machine/main_instance/instance_config.py
+        config_file: process_config.py
