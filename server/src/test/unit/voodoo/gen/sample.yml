@@ -29,6 +29,7 @@ hosts:
     - core_machine/machine_config.py
     - core_machine/machine_config.py
     host: 192.168.0.1
+    runner: run.py
     processes:
       core_server1:
         components:

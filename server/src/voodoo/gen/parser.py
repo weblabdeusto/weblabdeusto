@@ -84,6 +84,31 @@ class GlobalConfig(dict):
         process_handler.start()
         return process_handler
 
+    def _retrieve_config(self, element, all_config_files, all_config_values):
+        for config_file in self.config_files:
+            all_config_files.append(config_file)
+
+        for key, value in six.iteritems(self.config_values):
+            all_config_values.append((key, value))
+
+
+    def get_all_config(self):
+        all_config_files = []
+        all_config_values = []
+
+        self._retrieve_config(self)
+
+        for host_name, host in six.iteritems(self):
+            self._retrieve_config(host)
+
+            for process_name, process in six.iteritems(host):
+                self._retrieve_config(process)
+
+                for component_name, component in six.iteritems(process):
+                    self._retrieve_config(component)
+        
+        return all_config_files, all_config_values
+
     def _create_config(self, coord_address):
         host_config = self[coord_address.host]
         process_config = host_config[coord_address.process]
@@ -104,11 +129,12 @@ class GlobalConfig(dict):
             config.append_value(config_key, config_value)
 
 class HostConfig(dict):
-    def __init__(self, config_files, config_values, host):
+    def __init__(self, config_files, config_values, host, runner):
         super(HostConfig, self).__init__()
         self.config_files = config_files
         self.config_values = config_values
         self.host = host
+        self.runner = runner
 
 class ProcessConfig(dict):
     def __init__(self, config_files, config_values):
@@ -180,7 +206,8 @@ def _load_contents(contents):
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
         config_files, config_values = _process_config(host_value)
         host = host_value.get('host')
-        host_config = HostConfig(config_files, config_values, host)
+        runner = host_value.get('runner')
+        host_config = HostConfig(config_files, config_values, host, runner)
         global_config[host_name] = host_config
 
         for process_name, process_value in host_value.get('processes', {}).iteritems():

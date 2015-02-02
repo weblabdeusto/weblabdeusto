@@ -20,6 +20,7 @@ class LoaderTest(unittest.TestCase):
         config_files = ['core_machine/machine_config.py', 'core_machine/machine_config.py']
         self.assertEquals(machine.config_files, config_files)
         self.assertEquals(machine.host, '192.168.0.1')
+        self.assertEquals(machine.runner, 'run.py')
 
         core_server1 = machine['core_server1']
         core_component = core_server1['core']
