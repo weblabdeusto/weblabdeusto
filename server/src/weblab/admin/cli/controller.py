@@ -42,7 +42,7 @@ def get_variable(dictionary, name):
         return dictionary.get(name, default)
 
 class DbConfiguration(object):
-    def __init__(self, configuration_files):
+    def __init__(self, configuration_files, configuration_values):
 
         for configuration_file in configuration_files:
             if not os.path.exists(configuration_file):
@@ -50,9 +50,12 @@ class DbConfiguration(object):
                 sys.exit(1)
 
             globals()['CURRENT_PATH'] = configuration_file
-            execfile(configuration_file, globals(), globals())
+            execfile(configuration_file, globals(), globals())    
 
         global_vars = globals()
+
+        for key, value in (configuration_values or []):
+            global_vars[key] = value
 
         self.db_host           = get_variable(global_vars, configuration_doc.DB_HOST)
         self.db_port           = get_variable(global_vars, configuration_doc.DB_PORT)
@@ -94,10 +97,10 @@ class DbConfiguration(object):
 
 class Controller(object):
 
-    def __init__(self, configuration_files = None):
+    def __init__(self, configuration_files = None, configuration_values = None):
         super(Controller, self).__init__()
 
-        db_conf = DbConfiguration(configuration_files)
+        db_conf = DbConfiguration(configuration_files, configuration_values)
         self.db_host   = db_conf.db_host
         self.db_port   = db_conf.db_port
         self.db_engine = db_conf.db_engine

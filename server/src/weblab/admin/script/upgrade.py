@@ -44,29 +44,29 @@ from weblab.db.upgrade import DbUpgrader
 
 
 def weblab_upgrade(directory):
-    def on_dir(directory, configuration_files):
-        if not check_updated(directory, configuration_files):
-            upgrade(directory, configuration_files)
+    def on_dir(directory, configuration_files, configuration_values):
+        if not check_updated(directory, configuration_files, configuration_values):
+            upgrade(directory, configuration_files, configuration_values)
         else:
             print "Already upgraded to the latest version."
 
     run_with_config(directory, on_dir)
 
-def check_updated(directory, configuration_files):
+def check_updated(directory, configuration_files, configuration_values):
     updated = True
     for upgrader_kls in Upgrader.upgraders():
-        upgrader = upgrader_kls(directory, configuration_files)
+        upgrader = upgrader_kls(directory, configuration_files, configuration_values)
         if not upgrader.check_updated():
             updated = False
             # Don't break / return here. We want to display all the settings
 
     return updated
 
-def upgrade(directory, configuration_files):
+def upgrade(directory, configuration_files, configuration_values):
     print "The system is outdated. Please, make a backup of the current deployment (copy the directory and make a backup of the database)."
     if raw_input("Do you want to continue with the upgrade? (y/N) ") == 'y':
         for upgrader_kls in Upgrader.upgraders():
-            upgrader = upgrader_kls(directory, configuration_files)
+            upgrader = upgrader_kls(directory, configuration_files, configuration_values)
             if not upgrader.check_updated():
                 upgrader.upgrade()
     else:
@@ -76,9 +76,10 @@ class Upgrader(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, directory, configuration_files):
+    def __init__(self, directory, configuration_files, configuration_values):
         self.directory = directory
         self.configuration_files = configuration_files
+        self.configuration_values = configuration_values
     
     @classmethod
     def get_priority(self):
@@ -111,8 +112,8 @@ class Upgrader(object):
 
 class DatabaseUpgrader(Upgrader):
 
-    def __init__(self, directory, configuration_files):
-        db_conf = DbConfiguration(configuration_files)
+    def __init__(self, directory, configuration_files, configuration_values):
+        db_conf = DbConfiguration(configuration_files, configuration_values)
         regular_url = db_conf.build_url()
         coord_url   = db_conf.build_coord_url()
         self.upgrader = DbUpgrader(regular_url, coord_url)
@@ -130,8 +131,8 @@ class DatabaseUpgrader(Upgrader):
         print "Upgrade completed."
 
 class ConfigurationExperiments2db(Upgrader):
-    def __init__(self, directory, configuration_files):
-        self.db_conf = DbConfiguration(configuration_files)
+    def __init__(self, directory, configuration_files, configuration_values):
+        self.db_conf = DbConfiguration(configuration_files, configuration_values)
         self.config_js = os.path.join(directory, 'client', 'configuration.js')
         if os.path.exists(self.config_js):
             self.config = json.load(open(self.config_js))
@@ -212,9 +213,10 @@ class ConfigurationExperiments2db(Upgrader):
         json.dump(self.config, open(self.config_js, 'w'), indent = 4)
 
 class RemoveOldWebAndLoginPorts(Upgrader):
-    def __init__(self, directory, configuration_files):
+    def __init__(self, directory, configuration_files, configuration_values):
         self.directory = directory
         self.configuration_files = configuration_files
+        self.configuration_values = configuration_values
 
     @classmethod
     def get_priority(self):
@@ -407,9 +409,10 @@ class RemoveOldWebAndLoginPorts(Upgrader):
 
 
 class RemoveXmlsAndAddYaml(Upgrader):
-    def __init__(self, directory, configuration_files):
+    def __init__(self, directory, configuration_files, configuration_values):
         self.directory = directory
         self.configuration_files = configuration_files
+        self.configuration_values = configuration_values
         self.yml_file = os.path.join(self.directory, 'configuration.yml')
 
     @classmethod
