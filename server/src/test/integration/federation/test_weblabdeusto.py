@@ -36,7 +36,6 @@ def debug(msg):
 
 class AbstractFederatedWebLabDeustoTestCase(object):
     def setUp(self):
-
         # Clean the global registry of servers
         GLOBAL_REGISTRY.clear()
 
@@ -48,16 +47,15 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         self.provider1_handler = load_dir(PROVIDER1_CONFIG_PATH).load_process('provider1_machine', 'main_instance' )
         self.provider2_handler = load_dir(PROVIDER2_CONFIG_PATH).load_process('provider2_machine', 'main_instance' )
         
-        port_minus = 0
+        # TODO: Remove login_client / core_client
+        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345)
+        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 18345)
 
-        self.consumer_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (18345 - port_minus))
-        self.consumer_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (18345 - port_minus ))
+        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345)
+        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 28345)
 
-        self.provider1_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (28345 - port_minus ))
-        self.provider1_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (28345 - port_minus ))
-
-        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (38345 - port_minus ))
-        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % (38345 - port_minus ))
+        self.provider2_login_client = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345)
+        self.provider2_core_client  = WebLabDeustoClient("http://127.0.0.1:%s/weblab/" % 38345)
 
         # dummy1: deployed in consumer, provider1, provider2
         self.dummy1 = ExperimentId("dummy1", "Dummy experiments")
@@ -72,6 +70,7 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         self.consumer_handler.stop()
         self.provider1_handler.stop()
         self.provider2_handler.stop()
+        time.sleep(1)
 
     #
     # This test may take even 20-30 seconds; therefore it is not splitted

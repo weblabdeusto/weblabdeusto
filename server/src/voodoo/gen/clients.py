@@ -18,7 +18,7 @@ class AbstractClient(object):
 
     def __init__(self, component_type):
 
-        methods = _get_methods_by_component_type(component_type)
+        methods = list(_get_methods_by_component_type(component_type)) + ['test_me']
 
         # Create methods in this instance for each of these methods
         for method in methods:

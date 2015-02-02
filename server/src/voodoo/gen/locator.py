@@ -1,9 +1,13 @@
+import sys
 import random
+import traceback
 import voodoo.log as log
 
 from .exc import LocatorKeyError, FailingConnectionError
 from .address import CoordAddress
 from .clients import _create_client
+
+DEBUG = False
 
 class Locator(object):
     def __init__(self, global_config, my_coord_address):
@@ -89,8 +93,10 @@ class Locator(object):
             try:
                 result = result.test_me(random_number)
             except:
+                if DEBUG:
+                    traceback.print_exc()
                 exc_type, _, _ = sys.exc_info()
-                raise FailingConnectionError("The server at %s is raising an exception when trying to be connected" % (coord_address, exc_type))
+                raise FailingConnectionError("The server at %s is raising an exception when trying to be connected: %s" % (coord_address, exc_type))
             if result != random_number:
                 raise FailingConnectionError("The server at %s is not returning what it should on test_me" % coord_address)
         else:

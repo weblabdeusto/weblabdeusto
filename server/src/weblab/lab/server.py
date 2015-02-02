@@ -443,7 +443,6 @@ class LaboratoryServer(object):
                     failing_experiment_instance_ids[experiment_instance_id] = current_error_message
                     self.log_error(experiment_instance_id, current_error_message)
 
-
         return failing_experiment_instance_ids
 
     def log_error(self, experiment_instance_id, error_message):
