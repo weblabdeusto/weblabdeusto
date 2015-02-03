@@ -102,6 +102,11 @@ class Archimedes(Experiment):
 
         current_config = self.initial_configuration.copy()
 
+        # Immediately pull all the balls up (so that all balls start up)
+        # Carry out the operation in parallel.
+        responses = self._workpool.map(lambda board: self._send(board, "up"), self.archimedes_instances.values())
+        # Ignore the response. Assume it worked.
+
         # The client initial data is meant to contain a structure that defines what the client should show.
         return json.dumps(
             {"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
