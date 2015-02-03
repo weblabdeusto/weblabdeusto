@@ -25,7 +25,7 @@
 
 				$("#bigcam").append('<img src="'+big+'">');
 
-				$('button.forward').click(function(){if ( ! romie.isMoving()) romie.forward(game.getQuestion);});
+				$('button.forward').click(function(){if( ! romie.isMoving())romie.forward(function(tag){game.getQuestion(tag);})});
 				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left();});
 				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
 
