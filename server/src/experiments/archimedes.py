@@ -267,6 +267,8 @@ class Archimedes(Experiment):
             return "ball_slow"
         elif command == 'level':
             return "LOAD=1200"
+        elif command == 'status':
+            return 'BALL_UP'
         elif command == 'load':
             return "LOAD=1300"
         elif command == "image":
