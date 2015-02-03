@@ -1919,7 +1919,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """try:\n"""
         """    import signal\n"""
         """    \n"""
-        """    import voodoo.gen.loader.Launcher as Launcher\n"""
+        """    import voodoo.gen.launcher as Launcher\n"""
         """    \n"""
         """    def before_shutdown():\n"""
         """        print "Stopping servers..."\n"""
