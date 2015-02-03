@@ -30,6 +30,7 @@ import traceback
 import sqlite3
 import urlparse
 import json
+import StringIO
 from optparse import OptionParser, OptionGroup
 
 from sqlalchemy.orm import sessionmaker
@@ -87,6 +88,7 @@ class Creation(object):
     """ This class wraps the options for creating a new WebLab-Deusto directory """
 
     FORCE             = 'force'
+    QUIET             = 'quiet'
     VERBOSE           = 'verbose'
 
     # General information
@@ -426,6 +428,9 @@ def _build_parser():
     parser.add_option("-f", "--force",            dest = Creation.FORCE, action="store_true", default=False,
                                                    help = "Overwrite the contents even if the directory already existed.")
 
+    parser.add_option("-q", "--quiet",            dest = Creation.QUIET, action="store_true", default=False,
+                                                   help = "Do not display any output.")
+
     parser.add_option("-v", "--verbose",          dest = Creation.VERBOSE, action="store_true", default=False,
                                                    help = "Show more information about the process.")
 
@@ -729,6 +734,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         options = parser.defaults.copy()
         options[Creation.NOT_INTERACTIVE] = True
         options.update(options_dict)
+
+    quiet = options[Creation.QUIET]
+    if quiet:
+        stdout = stderr = StringIO.StringIO()
 
     verbose = options[Creation.VERBOSE]
 
