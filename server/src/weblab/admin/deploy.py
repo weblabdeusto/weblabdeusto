@@ -20,6 +20,7 @@ import traceback
 import random
 import hashlib
 
+import six
 from sqlalchemy.orm import sessionmaker
 
 from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
@@ -686,6 +687,114 @@ def insert_required_initial_coord_data(engine):
 # Populating tests database
 #
 
+def _create_user(session, login, role, full_name, email, password = 'password', invalid_password = None, other_auths = None):
+    user = Model.DbUser(login, full_name, email, None, role)
+    session.add(user)
+    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
+    if not invalid_password:
+        session.add(Model.DbUserAuth(user, weblab_db, _password2sha(password, 'aaaa')))
+    else:
+        session.add(Model.DbUserAuth(user, weblab_db, invalid_password))
+    for (auth_type, value) in (other_auths or ()):
+        session.add(Model.DbUserAuth(user, auth_type, value))
+    return user
+
+def _create_users(session, users_data):
+    all_users = {}
+    for login, data in six.iteritems(users_data):
+        all_users[login] = _create_user(session, login, *data)
+    return all_users
+
+def _create_group(session, users_data, group_name, logins, parent):
+    group = Model.DbGroup(group_name, parent)
+    for login in logins:
+        group.users.append(users_data[login])
+    session.add(group)
+    return group
+
+def _create_groups(session, users_data, groups_data):
+    all_groups = {}
+    for (group_name, parent_name), logins in six.iteritems(groups_data):
+        if parent_name is None:
+            all_groups[group_name] = _create_group(session, users_data, group_name, logins, None)
+
+    for (group_name, parent_name), logins in six.iteritems(groups_data):
+        if parent_name is not None:
+            parent = all_groups[parent_name]
+            all_groups[group_name] = _create_group(session, users_data, group_name, logins, parent)
+
+    return all_groups
+
+def _create_experiment(session, exp_name, cat_name, client):
+    start_date = datetime.datetime.utcnow()
+    end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
+
+    category = session.query(Model.DbExperimentCategory).filter_by(name = cat_name).first()
+    if category is None:
+        category = Model.DbExperimentCategory(cat_name)
+        session.add(category)
+
+    experiment = Model.DbExperiment(exp_name, category, start_date, end_date, client)
+    session.add(experiment)
+    _add_params(session, experiment)
+    return experiment
+
+def _create_experiments(session, experiment_data):
+    all_experiments = {}
+    for (exp_name, cat_name), client in six.iteritems(experiment_data):
+        all_experiments[exp_name, cat_name] = _create_experiment(session, exp_name, cat_name, client)
+    return all_experiments
+
+def _grant_permission_to_group(session, groups_data, experiments_data, group_name, exp_name, cat_name, time):
+    if (exp_name, cat_name) not in experiments_data:
+        raise Exception("Error: %s@%s not previously registered" % (exp_name, cat_name))
+
+    db_group = groups_data[group_name]
+
+    gp_allowed = Model.DbGroupPermission(
+        db_group,
+        permissions.EXPERIMENT_ALLOWED,
+        "%s::%s" % (group_name, exp_name),
+        datetime.datetime.utcnow(),
+        "Permission for group %s to use %s" % (group_name, exp_name)
+    )
+    session.add(gp_allowed)
+    gp_allowed_p1 = Model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
+    session.add(gp_allowed_p1)
+    gp_allowed_p2 = Model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
+    session.add(gp_allowed_p2)
+    gp_allowed_p3 = Model.DbGroupPermissionParameter(gp_allowed, permissions.TIME_ALLOWED, six.text_type(time))
+    session.add(gp_allowed_p3)
+
+def _grant_permissions_to_groups(session, groups_data, experiments_data, permissions_data):
+    for args in permissions_data:
+        _grant_permission_to_group(session, groups_data, experiments_data, *args)
+
+def _grant_permission_to_user(session, users_data, experiments_data, login, exp_name, cat_name, time):
+    if (exp_name, cat_name) not in experiments_data:
+        raise Exception("Error: %s@%s not previously registered" % (exp_name, cat_name))
+
+    db_user = users_data[login]
+
+    up_allowed = Model.DbUserPermission(
+        db_user,
+        permissions.EXPERIMENT_ALLOWED,
+        "%s::%s" % (login, exp_name),
+        datetime.datetime.utcnow(),
+        "Permission for user %s to use %s" % (login, exp_name)
+    )
+    session.add(up_allowed)
+    up_allowed_p1 = Model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
+    session.add(up_allowed_p1)
+    up_allowed_p2 = Model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
+    session.add(up_allowed_p2)
+    up_allowed_p3 = Model.DbUserPermissionParameter(up_allowed, permissions.TIME_ALLOWED, six.text_type(time))
+    session.add(up_allowed_p3)        
+
+def _grant_permissions_to_users(session, users_data, experiments_data, permissions_data):
+    for args in permissions_data:
+        _grant_permission_to_user(session, users_data, experiments_data, *args)
+
 def populate_weblab_tests(engine, tests):
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -693,16 +802,6 @@ def populate_weblab_tests(engine, tests):
     ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
     iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
     facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
-
-    experiment_allowed = permissions.EXPERIMENT_ALLOWED
-    experiment_allowed_p1 = permissions.EXPERIMENT_PERMANENT_ID
-    experiment_allowed_p2 = permissions.EXPERIMENT_CATEGORY_ID
-    experiment_allowed_p3 = permissions.TIME_ALLOWED
-
-    admin_panel_access = permissions.ADMIN_PANEL_ACCESS
-    admin_panel_access_p1 = permissions.FULL_PRIVILEGES
-
-    access_forward = permissions.ACCESS_FORWARD
 
     # Auths
     weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
@@ -725,1180 +824,172 @@ def populate_weblab_tests(engine, tests):
     federated     = session.query(Model.DbRole).filter_by(name='federated').one()
 
     # Users
-    admin1 = Model.DbUser("admin1", "Name of administrator 1", "weblab@deusto.es", None, administrator)
-    session.add(admin1)
+    all_users = _create_users(session, {
+        'admin1'       : (administrator, "Name of administrator 1",       "weblab@deusto.es"),
+        'admin2'       : (administrator, "Name of administrator 2",       "weblab@deusto.es"),
+        'admin3'       : (administrator, "Name of administrator 3",       "weblab@deusto.es"),
+        'archimedes'   : (student,       "Usuario de prueba para Splash", "weblab@deusto.es",  "archimedes"),
+        'any'          : (student,       "Name of any",                   "weblab@deusto.es",  "password", None, [(auth_facebook, "1168497114")]),
+        'prof1'        : (instructor,    "Name of instructor 1",          "weblab@deusto.es"),
+        'prof2'        : (instructor,    "Name of instructor 2",          "weblab@deusto.es"),
+        'prof3'        : (instructor,    "Name of instructor 3",          "weblab@deusto.es"),
+        'student1'     : (student,       "Name of student 1",             "weblab@deusto.es"),
+        'student2'     : (student,       "Name of student 2",             "weblab@deusto.es"),
+        'student3'     : (student,       "Name of student 3",             "weblab@deusto.es"),
+        'student4'     : (student,       "Name of student 4",             "weblab@deusto.es"),
+        'student5'     : (student,       "Name of student 5",             "weblab@deusto.es"),
+        'student6'     : (student,       "Name of student 6",             "weblab@deusto.es"),
+        'student7'     : (student,       "Name of student 7",             "weblab@deusto.es", None, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"),
+        'student8'     : (student,       "Name of student 8",             "weblab@deusto.es", None, "this.format.is.not.valid.for.the.password"),
+        'studentILAB'  : (student,       "Name of student ILAB",          "weblab@deusto.es"),
+        'studentLDAP1' : (student,       "Name of student LDAP1",         "weblab@deusto.es", "password", None, [(cdk_ldap, None)]),
+        'studentLDAP2' : (student,       "Name of student LDAP2",         "weblab@deusto.es", "password", None, [(cdk_ldap, None)]),
+        'studentLDAP3' : (student,       "Name of student LDAP3",         "weblab@deusto.es", "password", None, [(deusto_ldap, None)]),
+        'fedstudent1'  : (federated,     "Name of federated user 1",      "weblab@deusto.es"),
+        'fedstudent2'  : (federated,     "Name of federated user 2",      "weblab@deusto.es"),
+        'fedstudent3'  : (federated,     "Name of federated user 3",      "weblab@deusto.es"),
+        'fedstudent4'  : (federated,     "Name of federated user 4",      "weblab@deusto.es"),
+        'consumer1'    : (federated,     "Consumer University 1",         "weblab@deusto.es"),
+        'provider1'    : (federated,     "Provider University 1",         "weblab@deusto.es"),
+        'provider2'    : (federated,     "Provider University 2",         "weblab@deusto.es"),
+    })
 
-    archimedes_user = Model.DbUser("archimedes", "Usuario de prueba para Splash", "weblab@deusto.es", None, student)
-    session.add(archimedes_user)
-
-    admin2 = Model.DbUser("admin2", "Name of administrator 2", "weblab@deusto.es", None, administrator)
-    session.add(admin2)
-
-    admin3 = Model.DbUser("admin3", "Name of administrator 3", "weblab@deusto.es", None, administrator)
-    session.add(admin3)
-
-    any = Model.DbUser("any", "Name of any", "weblab@deusto.es", None, student)
-    session.add(any)
-
-    prof1 = Model.DbUser("prof1", "Name of instructor 1", "weblab@deusto.es", None, instructor)
-    session.add(prof1)    
-
-    prof2 = Model.DbUser("prof2", "Name of instructor 2", "weblab@deusto.es", None, instructor)
-    session.add(prof2)    
-
-    prof3 = Model.DbUser("prof3", "Name of instructor 3", "weblab@deusto.es", None, instructor)
-    session.add(prof3)    
-
-    student1 = Model.DbUser("student1", "Name of student 1", "weblab@deusto.es", None, student)
-    session.add(student1)
-
-    student2 = Model.DbUser("student2", "Name of student 2", "weblab@deusto.es", None, student)
-    session.add(student2)
-
-    student3 = Model.DbUser("student3", "Name of student 3", "weblab@deusto.es", None, student)
-    session.add(student3)
-
-    student4 = Model.DbUser("student4", "Name of student 4", "weblab@deusto.es", None, student)
-    session.add(student4)
-
-    student5 = Model.DbUser("student5", "Name of student 5", "weblab@deusto.es", None, student)
-    session.add(student5)
-
-    student6 = Model.DbUser("student6", "Name of student 6", "weblab@deusto.es", None, student)
-    session.add(student6)
-
-    student7 = Model.DbUser("student7", "Name of student 7", "weblab@deusto.es", None, student)
-    session.add(student7)
-
-    student8 = Model.DbUser("student8", "Name of student 8", "weblab@deusto.es", None, student)
-    session.add(student8)
-
-    studentILAB = Model.DbUser("studentILAB", "Name of student ILAB", "weblab@deusto.es", None, student)
-    session.add(studentILAB)
-
-    studentLDAP1 = Model.DbUser("studentLDAP1", "Name of student LDAP1", "weblab@deusto.es", None, student)
-    session.add(studentLDAP1)
-
-    studentLDAP2 = Model.DbUser("studentLDAP2", "Name of student LDAP2", "weblab@deusto.es", None, student)
-    session.add(studentLDAP2)
-
-    studentLDAP3 = Model.DbUser("studentLDAP3", "Name of student LDAP3", "weblab@deusto.es", None, student)
-    session.add(studentLDAP3)
-
-    studentLDAPwithoutUserAuth = Model.DbUser("studentLDAPwithoutUserAuth", "Name of student LDAPwithoutUserAuth", "weblab@deusto.es", None, student)
-    session.add(studentLDAPwithoutUserAuth)
-
-    fed_student1 = Model.DbUser("fedstudent1", "Name of federated student 1", "weblab@deusto.es", None, federated)
-    session.add(fed_student1)
-
-    fed_student2 = Model.DbUser("fedstudent2", "Name of federated student 2", "weblab@deusto.es", None, federated)
-    session.add(fed_student2)
-
-    fed_student3 = Model.DbUser("fedstudent3", "Name of federated student 3", "weblab@deusto.es", None, federated)
-    session.add(fed_student3)
-
-    fed_student4 = Model.DbUser("fedstudent4", "Name of federated student 4", "weblab@deusto.es", None, federated)
-    session.add(fed_student4)
-
-    consumer_university1 = Model.DbUser("consumer1", "Consumer University 1", "weblab@deusto.es", None, federated)
-    session.add(consumer_university1)
-
-    provider_university1 = Model.DbUser("provider1", "Provider University 1", "weblab@deusto.es", None, federated)
-    session.add(provider_university1)
-
-    provider_university2 = Model.DbUser("provider2", "Provider University 2", "weblab@deusto.es", None, federated)
-    session.add(provider_university2)
-
-    # Authentication
-    session.add(Model.DbUserAuth(archimedes_user,   weblab_db, _password2sha("archimedes", 'aaaa')))
-    session.add(Model.DbUserAuth(admin1,   weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(admin2,   weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(admin3,   weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(any,      weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(prof1,    weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(prof2,    weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(prof3,    weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student1, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student2, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student3, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student4, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student5, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student6, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(student7, weblab_db, "aaaa{thishashdoesnotexist}a776159c8c7ff8b73e43aa54d081979e72511474"))
-    session.add(Model.DbUserAuth(student8, weblab_db, "this.format.is.not.valid.for.the.password"))
-    session.add(Model.DbUserAuth(studentILAB, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(fed_student1, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(fed_student2, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(fed_student3, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(fed_student4, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(consumer_university1, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(provider_university1, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(provider_university2, weblab_db, _password2sha("password", 'aaaa')))
-    session.add(Model.DbUserAuth(any,      auth_facebook, "1168497114"))
-    session.add(Model.DbUserAuth(studentLDAP1, cdk_ldap))
-    session.add(Model.DbUserAuth(studentLDAP2, cdk_ldap))
-    session.add(Model.DbUserAuth(studentLDAP3, deusto_ldap))
-
-    # Groups
-    group_federated = Model.DbGroup("Federated users")
-    group_federated.users.append(fed_student1)
-    group_federated.users.append(fed_student2)
-    group_federated.users.append(fed_student3)
-    group_federated.users.append(fed_student4)
-    group_federated.users.append(consumer_university1)
-    group_federated.users.append(provider_university1)
-    group_federated.users.append(provider_university2)
-    session.add(group_federated)
-
-    groupCourse0809 = Model.DbGroup("Course 2008/09")
-    groupCourse0809.users.append(student1)
-    groupCourse0809.users.append(student2)
-    session.add(groupCourse0809)
-
-    groupMechatronics = Model.DbGroup("Mechatronics", groupCourse0809)
-    groupMechatronics.users.append(student3)
-    groupMechatronics.users.append(student4)
-    session.add(groupMechatronics)
-
-    groupTelecomunications = Model.DbGroup("Telecomunications", groupCourse0809)
-    groupTelecomunications.users.append(student5)
-    groupTelecomunications.users.append(student6)
-    session.add(groupTelecomunications)
-
-    groupCourse0910 = Model.DbGroup("Course 2009/10")
-    groupCourse0910.users.append(student1)
-    groupCourse0910.users.append(student2)
-    groupCourse0910.users.append(student3)
-    groupCourse0910.users.append(student4)
-    groupCourse0910.users.append(student5)
-    groupCourse0910.users.append(student6)
-    session.add(groupCourse0910)
-
-    # Experiment Categories
-    cat_dummy = Model.DbExperimentCategory("Dummy experiments")
-    session.add(cat_dummy)
-
-    cat_games = Model.DbExperimentCategory("Games")
-    session.add(cat_games)
-
-    cat_physics = Model.DbExperimentCategory("Physics experiments")
-    session.add(cat_physics)
-
-    cat_pld = Model.DbExperimentCategory("PLD experiments")
-    session.add(cat_pld)
-
-    cat_fpga = Model.DbExperimentCategory("FPGA experiments")
-    session.add(cat_fpga)
-
-    cat_xilinx = Model.DbExperimentCategory("Xilinx experiments")
-    session.add(cat_pld)
-
-    cat_gpib = Model.DbExperimentCategory("GPIB experiments")
-    session.add(cat_gpib)
-
-    cat_pic = Model.DbExperimentCategory("PIC experiments")
-    session.add(cat_pic)
-
-    cat_robot = Model.DbExperimentCategory("Robot experiments")
-    session.add(cat_robot)
-
-    cat_submarine = Model.DbExperimentCategory("Submarine experiments")
-    session.add(cat_submarine)
-
-    cat_http = Model.DbExperimentCategory("HTTP experiments")
-    session.add(cat_http)
-
-    cat_aquatic = Model.DbExperimentCategory("Aquatic experiments")
-    session.add(cat_aquatic)
-
-    cat_labview = Model.DbExperimentCategory("LabVIEW experiments")
-    session.add(cat_labview)
-
-    cat_ilab = Model.DbExperimentCategory("iLab experiments")
-    session.add(cat_ilab)
-
-    cat_visir = Model.DbExperimentCategory("Visir experiments")
-    session.add(cat_visir)
-
-    cat_control = Model.DbExperimentCategory("Control experiments")
-    session.add(cat_control)
-
-    cat_farm = Model.DbExperimentCategory("Farm experiments")
-    session.add(cat_farm)
+    all_groups = _create_groups(session, all_users, {
+        ("Federated users",   None)              : ('fedstudent1', 'fedstudent2', 'fedstudent3', 'fedstudent4'),
+        ("Course 2008/09",    None)              : ('student1', 'student2'),
+        ("Mechatronics",      "Course 2008/09")  : ('student3', 'student4'),
+        ("Telecomunications", "Course 2008/09")  : ('student5', 'student6'),
+        ("Course 2009/10",    None)              : ('student1', 'student2', 'student3', 'student4', 'student5', 'student6'),
+    })
 
     # Experiments
-    start_date = datetime.datetime.utcnow()
-    end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
-
-    dummy = Model.DbExperiment("ud-dummy", cat_dummy, start_date, end_date, 'dummy')
-    session.add(dummy)
-    _add_params(session, dummy)
-
-    dummy_batch = Model.DbExperiment("ud-dummy-batch", cat_dummy, start_date, end_date, 'dummybatch')
-    session.add(dummy_batch)
-    _add_params(session, dummy_batch)
-
-    archimedes = Model.DbExperiment("archimedes", cat_aquatic, start_date, end_date, 'js')
-    session.add(archimedes)
-    _add_params(session, archimedes)
-
-    elevator = Model.DbExperiment("elevator", cat_fpga, start_date, end_date, 'js')
-    session.add(elevator)
-    _add_params(session, elevator)
-
-    dummy1 = Model.DbExperiment("dummy1", cat_dummy, start_date, end_date, 'dummy')
-    session.add(dummy1)
-    _add_params(session, dummy1)
-
-    dummy2 = Model.DbExperiment("dummy2", cat_dummy, start_date, end_date, 'dummy')
-    session.add(dummy2)
-    _add_params(session, dummy2)
-
-    if tests != '2':
-        dummy3 = Model.DbExperiment("dummy3", cat_dummy, start_date, end_date, 'dummy')
-        session.add(dummy3)
-        _add_params(session, dummy3)
-    else:
-        dummy3_with_other_name = Model.DbExperiment("dummy3_with_other_name", cat_dummy, start_date, end_date, 'dummy')
-        session.add(dummy3_with_other_name)
-        _add_params(session, dummy3_with_other_name)
-
-    dummy4 = Model.DbExperiment("dummy4", cat_dummy, start_date, end_date, 'dummy')
-    session.add(dummy4)
-    _add_params(session, dummy4)
-
-    flashdummy = Model.DbExperiment("flashdummy", cat_dummy, start_date, end_date, 'flash')
-    session.add(flashdummy)
-    _add_params(session, flashdummy)
-
-    javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date, 'java')
-    session.add(javadummy)
-    _add_params(session, javadummy)
-    
-    jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date, 'js')
-    session.add(jsdummy)
-    _add_params(session, jsdummy)
-    
-    jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date, 'js')
-    session.add(jsfpga)
-    _add_params(session, jsfpga)
-
-    visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date, 'js')
-    session.add(visir_html5)
-    _add_params(session, visir_html5)
-
-    logic = Model.DbExperiment("ud-logic", cat_pic, start_date, end_date, 'logic')
-    session.add(logic)
-    _add_params(session, logic)
-
-    binary = Model.DbExperiment("binary", cat_games, start_date, end_date, 'binary')
-    session.add(binary)
-    _add_params(session, binary)
-
-    unr_physics = Model.DbExperiment("unr-physics", cat_physics, start_date, end_date, 'unr-physics')
-    session.add(unr_physics)
-    _add_params(session, unr_physics)
-
-    controlapp = Model.DbExperiment("control-app", cat_control, start_date, end_date, 'control-app')
-    session.add(controlapp)
-    _add_params(session, controlapp)
-
-    incubator = Model.DbExperiment("incubator", cat_farm, start_date, end_date, 'incubator')
-    session.add(incubator)
-    _add_params(session, incubator)
-
-    pld = Model.DbExperiment("ud-pld", cat_pld, start_date, end_date, 'xilinx')
-    session.add(pld)
-    _add_params(session, pld)
-
-    demo_pld = Model.DbExperiment("ud-demo-pld", cat_pld, start_date, end_date, 'xilinx')
-    session.add(demo_pld)
-    _add_params(session, demo_pld)
-
-    pld2 = Model.DbExperiment("ud-pld2", cat_pld, start_date, end_date, 'xilinx')
-    session.add(pld2)
-    _add_params(session, pld2)
-
-    fpga = Model.DbExperiment("ud-fpga", cat_fpga, start_date, end_date, 'xilinx')
-    session.add(fpga)
-    _add_params(session, fpga)
-
-    demo_fpga = Model.DbExperiment("ud-demo-fpga", cat_fpga, start_date, end_date, 'xilinx')
-    session.add(demo_fpga)
-    _add_params(session, demo_fpga)
-
-    demo_xilinx = Model.DbExperiment("ud-demo-xilinx", cat_xilinx, start_date, end_date, 'xilinx')
-    session.add(demo_xilinx)
-    _add_params(session, demo_xilinx)
-
-    gpib = Model.DbExperiment("ud-gpib", cat_gpib, start_date, end_date, 'gpib')
-    session.add(gpib)
-    _add_params(session, gpib)
-
-    visirtest = Model.DbExperiment("visirtest", cat_dummy, start_date, end_date, 'visir')
-    session.add(visirtest)
-    _add_params(session, visirtest)
-
-    visir = Model.DbExperiment("visir", cat_visir, start_date, end_date, 'visir')
-    session.add(visir)
-    _add_params(session, visir)
-
-    vm = Model.DbExperiment("vm", cat_dummy, start_date, end_date, 'vm')
-    session.add(vm)
-    _add_params(session, vm)
-
-    vm_win = Model.DbExperiment("vm-win", cat_dummy, start_date, end_date, 'vm')
-    session.add(vm_win)
-    _add_params(session, vm_win)
-
-    blink_led = Model.DbExperiment("blink-led", cat_labview, start_date, end_date, 'labview')
-    session.add(blink_led)
-    _add_params(session, blink_led)
-
-    submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date, 'submarine')
-    session.add(submarine)
-    _add_params(session, submarine)
-    
-    http = Model.DbExperiment("http", cat_http, start_date, end_date, 'redirect')
-    session.add(http)
-    _add_params(session, http)
-
-    aquarium = Model.DbExperiment("aquarium", cat_aquatic, start_date, end_date, 'aquarium')
-    session.add(aquarium)
-    _add_params(session, aquarium)
-
-    aquariumjs = Model.DbExperiment("aquariumjs", cat_aquatic, start_date, end_date, 'js')
-    session.add(aquariumjs)
-    _add_params(session, aquariumjs)
-
-    submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date, 'js')
-    session.add(submarinejs)
-    _add_params(session, submarinejs)
-
-    rob_arm = Model.DbExperiment("robotarm", cat_robot, start_date, end_date, 'robotarm')
-    session.add(rob_arm)
-    _add_params(session, rob_arm)
-
-    rob_maz = Model.DbExperiment("robot-maze", cat_robot, start_date, end_date, 'robot-maze')
-    session.add(rob_maz)
-    _add_params(session, rob_maz)
-
-    rob_std = Model.DbExperiment("robot-standard", cat_robot, start_date, end_date, 'robot-standard')
-    session.add(rob_std)
-    _add_params(session, rob_std)
-
-    rob_mov = Model.DbExperiment("robot-movement", cat_robot, start_date, end_date, 'robot-movement')
-    session.add(rob_mov)
-    _add_params(session, rob_mov)
-
-    ext_rob_mov = Model.DbExperiment("external-robot-movement", cat_robot, start_date, end_date, 'blank')
-    session.add(ext_rob_mov)
-    _add_params(session, ext_rob_mov)
-
-    rob_proglist = Model.DbExperiment("robot-proglist", cat_robot, start_date, end_date, 'robot-proglist')
-    session.add(rob_proglist)
-    _add_params(session, rob_proglist)
-
-    microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date, 'ilab-batch')
-    session.add(microelectronics)
-    _add_params(session, microelectronics)
-    
-    pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date, 'pic18')
-    session.add(pic18)
-    _add_params(session, pic18)
-
-    # Permissions
-    
-    gp_course0809_fpga_allowed = Model.DbGroupPermission(
-        groupCourse0809,
-        experiment_allowed,
-        "Course 2008/09::weblab-fpga",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2008/09 to use WebLab-FPGA"
-    )
-    session.add(gp_course0809_fpga_allowed)
-    gp_course0809_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p1, fpga.name)
-    session.add(gp_course0809_fpga_allowed_p1)
-    gp_course0809_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
-    session.add(gp_course0809_fpga_allowed_p2)
-    gp_course0809_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_fpga_allowed, experiment_allowed_p3, "300")
-    session.add(gp_course0809_fpga_allowed_p3)
-
-    gp_federated_dummy1_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed,
-        "Federated users::dummy1",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy1"
-    )
-    session.add(gp_federated_dummy1_allowed)
-    gp_federated_dummy1_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p1, "dummy1")
-    session.add(gp_federated_dummy1_allowed_p1)
-    gp_federated_dummy1_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy1_allowed_p2)
-    gp_federated_dummy1_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy1_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy1_allowed_p3)
-
-    gp_federated_dummy2_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed,
-        "Federated users::dummy2",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy2"
-    )
-    session.add(gp_federated_dummy2_allowed)
-    gp_federated_dummy2_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p1, "dummy2")
-    session.add(gp_federated_dummy2_allowed_p1)
-    gp_federated_dummy2_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy2_allowed_p2)
-    gp_federated_dummy2_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy2_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy2_allowed_p3)
+    all_experiments = _create_experiments(session, {
+        ('ud-dummy',                'Dummy experiments')     : 'dummy',
+        ('ud-dummy-batch',          'Dummy experiments')     : 'dummybatch',
+        ('archimedes',              'Aquatic experiments')   : 'js',
+        ('elevator',                'FPGA experiments')      : 'js',
+        ('dummy1',                  'Dummy experiments')     : 'dummy',
+        ('dummy2',                  'Dummy experiments')     : 'dummy',
+        ('dummy4',                  'Dummy experiments')     : 'dummy',
+        ('flashdummy',              'Dummy experiments')     : 'flash',
+        ('javadummy',               'Dummy experiments')     : 'java',
+        ('jsdummy',                 'Dummy experiments')     : 'js',
+        ('jsfpga',                  'FPGA experiments')      : 'js',
+        ('visir-html5',             'Visir experiments')     : 'js',
+        ('ud-logic',                'PIC experiments')       : 'logic',
+        ('binary',                  'Games')                 : 'binary',
+        ('unr-physics',             'Physics experiments')   : 'unr-physics',
+        ('control-app',             'Control experiments')   : 'control-app',
+        ('incubator',               'Farm experiments')      : 'incubator',
+        ('ud-pld',                  'PLD experiments')       : 'xilinx',
+        ('ud-pld2',                 'PLD experiments')       : 'xilinx',
+        ('ud-demo-pld',             'PLD experiments')       : 'xilinx',
+        ('ud-fpga',                 'FPGA experiments')      : 'xilinx',
+        ('ud-demo-fpga',            'FPGA experiments')      : 'xilinx',
+        ('ud-demo-xilinx',          'Xilinx experiments')    : 'xilinx',
+        ('ud-gpib',                 'GPIB experiments')      : 'gpib',
+        ('visirtest',               'Dummy experiments')     : 'visir',
+        ('visir',                   'Visir experiments')     : 'visir',
+        ('vm',                      'Dummy experiments')     : 'vm',
+        ('vm-win',                  'Dummy experiments')     : 'vm',
+        ('blink-led',               'LabVIEW experiments')   : 'labview',
+        ('submarine',               'Submarine experiments') : 'submarine',
+        ('http',                    'HTTP experiments')      : 'redirect',
+        ('aquarium',                'Aquatic experiments')   : 'aquarium',
+        ('aquariumjs',              'Aquatic experiments')   : 'js',
+        ('submarinejs',             'Aquatic experiments')   : 'js',
+        ('robotarm',                'Robot experiments')     : 'robotarm',
+        ('robot-maze',              'Robot experiments')     : 'robot-maze',
+        ('robot-standard',          'Robot experiments')     : 'robot-standard',
+        ('robot-movement',          'Robot experiments')     : 'robot-movement',
+        ('robot-proglist',          'Robot experiments')     : 'robot-proglist',
+        ('external-robot-movement', 'Robot experiments')     : 'blank',
+        ('microelectronics',        'iLab experiments')      : 'ilab-batch',
+        ('ud-pic18',                'PIC experiments')       : 'pic18',
+    })
 
     if tests != '2':
-        gp_federated_dummy3_allowed = Model.DbGroupPermission(
-            group_federated,
-            experiment_allowed,
-            "Federated users::dummy3",
-            datetime.datetime.utcnow(),
-            "Permission for group Federated users to use dummy3"
-        )
-        session.add(gp_federated_dummy3_allowed)
-        gp_federated_dummy3_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p1, "dummy3")
-        session.add(gp_federated_dummy3_allowed_p1)
-        gp_federated_dummy3_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p2, "Dummy experiments")
-        session.add(gp_federated_dummy3_allowed_p2)
-        gp_federated_dummy3_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_allowed, experiment_allowed_p3, "300")
-        session.add(gp_federated_dummy3_allowed_p3)
+        all_experiments['dummy3', 'Dummy experiments'] = _create_experiment(session, 'dummy3', 'Dummy experiments', 'dummy')
     else:
-        gp_federated_dummy3_with_other_name_allowed = Model.DbGroupPermission(
-            group_federated,
-            experiment_allowed,
-            "Federated users::dummy3_with_other_name",
-            datetime.datetime.utcnow(),
-            "Permission for group Federated users to use dummy3_with_other_name"
-        )
-        session.add(gp_federated_dummy3_with_other_name_allowed)
-        gp_federated_dummy3_with_other_name_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p1, "dummy3_with_other_name")
-        session.add(gp_federated_dummy3_with_other_name_allowed_p1)
-        gp_federated_dummy3_with_other_name_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p2, "Dummy experiments")
-        session.add(gp_federated_dummy3_with_other_name_allowed_p2)
-        gp_federated_dummy3_with_other_name_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy3_with_other_name_allowed, experiment_allowed_p3, "300")
-        session.add(gp_federated_dummy3_with_other_name_allowed_p3)
-
-    gp_federated_dummy4_allowed = Model.DbGroupPermission(
-        group_federated,
-        experiment_allowed,
-        "Federated users::dummy4",
-        datetime.datetime.utcnow(),
-        "Permission for group Federated users to use dummy4"
-    )
-    session.add(gp_federated_dummy4_allowed)
-    gp_federated_dummy4_allowed_p1 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p1, "dummy4")
-    session.add(gp_federated_dummy4_allowed_p1)
-    gp_federated_dummy4_allowed_p2 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_federated_dummy4_allowed_p2)
-    gp_federated_dummy4_allowed_p3 = Model.DbGroupPermissionParameter(gp_federated_dummy4_allowed, experiment_allowed_p3, "300")
-    session.add(gp_federated_dummy4_allowed_p3)
-
-
-    gp_course0809_flashdummy_allowed = Model.DbGroupPermission(
-        groupCourse0809,
-        experiment_allowed,
-        "Course 2008/09::weblab-flashdummy",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2008/09 to use WebLab-FlashDummy"
-    )
-    session.add(gp_course0809_flashdummy_allowed)
-    gp_course0809_flashdummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p1, "flashdummy")
-    session.add(gp_course0809_flashdummy_allowed_p1)
-    gp_course0809_flashdummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_course0809_flashdummy_allowed_p2)
-    gp_course0809_flashdummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_flashdummy_allowed, experiment_allowed_p3, "30")
-    session.add(gp_course0809_flashdummy_allowed_p3)
-
-    gp_course0809_javadummy_allowed = Model.DbGroupPermission(
-        groupCourse0809,
-        experiment_allowed,
-        "Course 2008/09::weblab-javadummy",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2008/09 to use WebLab-JavaDummy"
-    )
-    session.add(gp_course0809_javadummy_allowed)
-    gp_course0809_javadummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p1, "javadummy")
-    session.add(gp_course0809_javadummy_allowed_p1)
-    gp_course0809_javadummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_course0809_javadummy_allowed_p2)
-    gp_course0809_javadummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_javadummy_allowed, experiment_allowed_p3, "30")
-    session.add(gp_course0809_javadummy_allowed_p3)
-
-    gp_course0809_logic_allowed = Model.DbGroupPermission(
-        groupCourse0809,
-        experiment_allowed,
-        "Course 2008/09::weblab-logic",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2008/09 to use WebLab-Logic"
-    )
-    session.add(gp_course0809_logic_allowed)
-    gp_course0809_logic_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p1, "ud-logic")
-    session.add(gp_course0809_logic_allowed_p1)
-    gp_course0809_logic_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p2, "PIC experiments")
-    session.add(gp_course0809_logic_allowed_p2)
-    gp_course0809_logic_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_logic_allowed, experiment_allowed_p3, "150")
-    session.add(gp_course0809_logic_allowed_p3)
-
-    gp_course0809_dummy_allowed = Model.DbGroupPermission(
-        groupCourse0809,
-        experiment_allowed,
-        "Course 2008/09::weblab-dummy",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2008/09 to use WebLab-Dummy"
-    )
-    session.add(gp_course0809_dummy_allowed)
-    gp_course0809_dummy_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p1, "ud-dummy")
-    session.add(gp_course0809_dummy_allowed_p1)
-    gp_course0809_dummy_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(gp_course0809_dummy_allowed_p2)
-    gp_course0809_dummy_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0809_dummy_allowed, experiment_allowed_p3, "150")
-    session.add(gp_course0809_dummy_allowed_p3)
-
-    gp_course0910_fpga_allowed = Model.DbGroupPermission(
-        groupCourse0910,
-        experiment_allowed,
-        "Course 2009/10::weblab-fpga",
-        datetime.datetime.utcnow(),
-        "Permission for group Course 2009/10 to use WebLab-FPGA"
-    )
-    session.add(gp_course0910_fpga_allowed)
-    gp_course0910_fpga_allowed_p1 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p1, fpga.name)
-    session.add(gp_course0910_fpga_allowed_p1)
-    gp_course0910_fpga_allowed_p2 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
-    session.add(gp_course0910_fpga_allowed_p2)
-    gp_course0910_fpga_allowed_p3 = Model.DbGroupPermissionParameter(gp_course0910_fpga_allowed, experiment_allowed_p3, "300")
-    session.add(gp_course0910_fpga_allowed_p3)
-
-    up_student2_pld_allowed = Model.DbUserPermission(
-        student2,
-        experiment_allowed,
-        "student2::weblab-pld",
-        datetime.datetime.utcnow(),
-        "Permission for student2 to use WebLab-PLD"
-    )
-    session.add(up_student2_pld_allowed)
-    up_student2_pld_allowed_p1 = Model.DbUserPermissionParameter(up_student2_pld_allowed, experiment_allowed_p1, "ud-pld")
-    session.add(up_student2_pld_allowed_p1)
-    up_student2_pld_allowed_p2 = Model.DbUserPermissionParameter(up_student2_pld_allowed, experiment_allowed_p2, "PLD experiments")
-    session.add(up_student2_pld_allowed_p2)
-    up_student2_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student2_pld_allowed, experiment_allowed_p3, "100")
-    session.add(up_student2_pld_allowed_p3)
-
-    up_student6_pld_allowed = Model.DbUserPermission(
-        student6,
-        experiment_allowed,
-        "student6::weblab-pld",
-        datetime.datetime.utcnow(),
-        "Permission for student6 to use WebLab-PLD"
-    )
-    session.add(up_student6_pld_allowed)
-    up_student6_pld_allowed_p1 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p1, "ud-pld")
-    session.add(up_student6_pld_allowed_p1)
-    up_student6_pld_allowed_p2 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p2, "PLD experiments")
-    session.add(up_student6_pld_allowed_p2)
-    up_student6_pld_allowed_p3 = Model.DbUserPermissionParameter(up_student6_pld_allowed, experiment_allowed_p3, "140")
-    session.add(up_student6_pld_allowed_p3)
-
-
-    up_any_elevator_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::elevator",
-        datetime.datetime.utcnow(),
-        "Permission for any to use elevator"
-    )
-    session.add(up_any_elevator_allowed)
-    up_any_elevator_allowed_p1 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p1, "elevator")
-    session.add(up_any_elevator_allowed_p1)
-    up_any_elevator_allowed_p2 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p2, "FPGA experiments")
-    session.add(up_any_elevator_allowed_p2)
-    up_any_elevator_allowed_p3 = Model.DbUserPermissionParameter(up_any_elevator_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_elevator_allowed_p3)
-
-
-    
-    up_arch_archimedes_allowed = Model.DbUserPermission(
-        archimedes_user,
-        experiment_allowed,
-        "arch::archimedes",
-        datetime.datetime.utcnow(),
-        "Permission for any to use archimedes"
-    )
-    session.add(up_arch_archimedes_allowed)
-    up_arch_archimedes_allowed_p1 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p1, "archimedes")
-    session.add(up_arch_archimedes_allowed_p1)
-    up_arch_archimedes_allowed_p2 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_arch_archimedes_allowed_p2)
-    up_arch_archimedes_allowed_p3 = Model.DbUserPermissionParameter(up_arch_archimedes_allowed, experiment_allowed_p3, "1400")
-    session.add(up_arch_archimedes_allowed_p3)
-
-
-    up_any_jsdummy_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::jsdummy",
-        datetime.datetime.utcnow(),
-        "Permission for any to use jsdummy"
-    )
-    session.add(up_any_jsdummy_allowed)
-    up_any_jsdummy_allowed_p1 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p1, "jsdummy")
-    session.add(up_any_jsdummy_allowed_p1)
-    up_any_jsdummy_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_jsdummy_allowed_p2)
-    up_any_jsdummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsdummy_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_jsdummy_allowed_p3)
-
-    up_any_jsfpga_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::jsfpga",
-        datetime.datetime.utcnow(),
-        "Permission for any to use jsfpga"
-    )
-    session.add(up_any_jsfpga_allowed)
-    up_any_jsfpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p1, "jsfpga")
-    session.add(up_any_jsfpga_allowed_p1)
-    up_any_jsfpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p2, "FPGA experiments")
-    session.add(up_any_jsfpga_allowed_p2)
-    up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_jsfpga_allowed_p3)
-
-    up_any_visir_html5_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::visir-html5",
-        datetime.datetime.utcnow(),
-        "Permission for any to use visir-html5"
-    )
-    session.add(up_any_visir_html5_allowed)
-    up_any_visir_html5_allowed_p1 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p1, "visir-html5")
-    session.add(up_any_visir_html5_allowed_p1)
-    up_any_visir_html5_allowed_p2 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p2, "Visir experiments")
-    session.add(up_any_visir_html5_allowed_p2)
-    up_any_visir_html5_allowed_p3 = Model.DbUserPermissionParameter(up_any_visir_html5_allowed, experiment_allowed_p3, "3600")
-    session.add(up_any_visir_html5_allowed_p3)
-
-
-    up_any_fpga_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-fpga",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-FPGA"
-    )
-    session.add(up_any_fpga_allowed)
-    up_any_fpga_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p1, fpga.name)
-    session.add(up_any_fpga_allowed_p1)
-    up_any_fpga_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p2, cat_fpga.name)
-    session.add(up_any_fpga_allowed_p2)
-    up_any_fpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_allowed, experiment_allowed_p3, "1400")
-    session.add(up_any_fpga_allowed_p3)
-
-
-    up_any_visirtest_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-visirtest",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-VisirTest"
-    )
-
-    session.add(up_any_visirtest_allowed)
-    up_any_visirtest_allowed_p1 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p1, "visirtest")
-    session.add(up_any_visirtest_allowed_p1)
-    up_any_visirtest_allowed_p2 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_visirtest_allowed_p2)
-    up_any_visirtest_allowed_p3 = Model.DbUserPermissionParameter(up_any_visirtest_allowed, experiment_allowed_p3, "3600")
-    session.add(up_any_visirtest_allowed_p3)
-
-    up_any_visir_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-visir",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-VisirTest"
-    )
-
-    session.add(up_any_visir_allowed)
-    up_any_visir_allowed_p1 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p1, "visir")
-    session.add(up_any_visir_allowed_p1)
-    up_any_visir_allowed_p2 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p2, "Visir experiments")
-    session.add(up_any_visir_allowed_p2)
-    up_any_visir_allowed_p3 = Model.DbUserPermissionParameter(up_any_visir_allowed, experiment_allowed_p3, "3600")
-    session.add(up_any_visir_allowed_p3)
-
-    up_any_logic_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-logic",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Logic"
-    )
-
-    session.add(up_any_logic_allowed)
-    up_any_logic_allowed_p1 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p1, "ud-logic")
-    session.add(up_any_logic_allowed_p1)
-    up_any_logic_allowed_p2 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p2, "PIC experiments")
-    session.add(up_any_logic_allowed_p2)
-    up_any_logic_allowed_p3 = Model.DbUserPermissionParameter(up_any_logic_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_logic_allowed_p3)
-
-    up_any_binary_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-binary",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Logic"
-    )
-
-    session.add(up_any_binary_allowed)
-    up_any_binary_allowed_p1 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p1, "binary")
-    session.add(up_any_binary_allowed_p1)
-    up_any_binary_allowed_p2 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p2, "Games")
-    session.add(up_any_binary_allowed_p2)
-    up_any_binary_allowed_p3 = Model.DbUserPermissionParameter(up_any_binary_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_binary_allowed_p3)
-
-    up_any_unr_physics_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-unr_physics",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Logic"
-    )
-
-    session.add(up_any_unr_physics_allowed)
-    up_any_unr_physics_allowed_p1 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p1, "unr-physics")
-    session.add(up_any_unr_physics_allowed_p1)
-    up_any_unr_physics_allowed_p2 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p2, "Physics experiments")
-    session.add(up_any_unr_physics_allowed_p2)
-    up_any_unr_physics_allowed_p3 = Model.DbUserPermissionParameter(up_any_unr_physics_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_unr_physics_allowed_p3)
-
-
-    up_any_controlapp_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-controlapp",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Logic"
-    )
-
-    session.add(up_any_controlapp_allowed)
-    up_any_controlapp_allowed_p1 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p1, "control-app")
-    session.add(up_any_controlapp_allowed_p1)
-    up_any_controlapp_allowed_p2 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p2, "Control experiments")
-    session.add(up_any_controlapp_allowed_p2)
-    up_any_controlapp_allowed_p3 = Model.DbUserPermissionParameter(up_any_controlapp_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_controlapp_allowed_p3)
-
-    up_any_incubator_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-incubator",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Logic"
-    )
-
-    session.add(up_any_incubator_allowed)
-    up_any_incubator_allowed_p1 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p1, "incubator")
-    session.add(up_any_incubator_allowed_p1)
-    up_any_incubator_allowed_p2 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p2, "Farm experiments")
-    session.add(up_any_incubator_allowed_p2)
-    up_any_incubator_allowed_p3 = Model.DbUserPermissionParameter(up_any_incubator_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_incubator_allowed_p3)
-
-    up_any_dummy_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::dummy",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-Dummy"
-    )
-
-    session.add(up_any_dummy_allowed)
-    up_any_dummy_allowed_p1 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p1, "ud-dummy")
-    session.add(up_any_dummy_allowed_p1)
-    up_any_dummy_allowed_p2 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_dummy_allowed_p2)
-    up_any_dummy_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_dummy_allowed_p3)
-
-
-
-    up_any_pic18_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::pic18",
-        datetime.datetime.utcnow(),
-        "Permission for any to use ud-pic18"
-    )
-
-    session.add(up_any_pic18_allowed)
-    up_any_pic18_allowed_p1 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p1, "ud-pic18")
-    session.add(up_any_pic18_allowed_p1)
-    up_any_pic18_allowed_p2 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p2, "pic experiments")
-    session.add(up_any_pic18_allowed_p2)
-    up_any_pic18_allowed_p3 = Model.DbUserPermissionParameter(up_any_pic18_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_pic18_allowed_p3)
-
-
-    up_any_vm_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-vm",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-vm"
-    )
-
-    session.add(up_any_vm_allowed)
-    up_any_vm_allowed_p1 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p1, "vm")
-    session.add(up_any_vm_allowed_p1)
-    up_any_vm_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_vm_allowed_p2)
-    up_any_vm_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_vm_allowed_p3)
-
-
-
-    up_any_vm_win_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-vm-win",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-vm-win"
-    )
-
-
-    session.add(up_any_vm_win_allowed)
-    up_any_vm_win_allowed_p1 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p1, "vm-win")
-    session.add(up_any_vm_win_allowed_p1)
-    up_any_vm_win_allowed_p2 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_vm_win_allowed_p2)
-    up_any_vm_win_allowed_p3 = Model.DbUserPermissionParameter(up_any_vm_win_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_vm_win_allowed_p3)
-
-    up_any_submarine_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-submarine",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robot-standard"
-    )
-
-    session.add(up_any_submarine_allowed)
-    up_any_submarine_allowed_p1 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p1, "submarine")
-    session.add(up_any_submarine_allowed_p1)
-    up_any_submarine_allowed_p2 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p2, "Submarine experiments")
-    session.add(up_any_submarine_allowed_p2)
-    up_any_submarine_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarine_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_submarine_allowed_p3)
-
-    up_any_http_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-http",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-http"
-    )
-
-    session.add(up_any_http_allowed)
-    up_any_http_allowed_p1 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p1, "http")
-    session.add(up_any_http_allowed_p1)
-    up_any_http_allowed_p2 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p2, "HTTP experiments")
-    session.add(up_any_http_allowed_p2)
-    up_any_http_allowed_p3 = Model.DbUserPermissionParameter(up_any_http_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_http_allowed_p3)
-
-    up_any_aquarium_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-aquarium",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-aquarium"
-    )
-
-    session.add(up_any_aquarium_allowed)
-    up_any_aquarium_allowed_p1 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p1, "aquarium")
-    session.add(up_any_aquarium_allowed_p1)
-    up_any_aquarium_allowed_p2 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p2, "Aquatic experiments")
-    session.add(up_any_aquarium_allowed_p2)
-    up_any_aquarium_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquarium_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_aquarium_allowed_p3)
-
-    up_any_aquariumjs_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-aquariumjs",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-aquariumjs"
-    )
-
-    session.add(up_any_aquariumjs_allowed)
-    up_any_aquariumjs_allowed_p1 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p1, "aquariumjs")
-    session.add(up_any_aquariumjs_allowed_p1)
-    up_any_aquariumjs_allowed_p2 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p2, "Aquatic experiments")
-    session.add(up_any_aquariumjs_allowed_p2)
-    up_any_aquariumjs_allowed_p3 = Model.DbUserPermissionParameter(up_any_aquariumjs_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_aquariumjs_allowed_p3)
-
-
-
-    up_any_submarinejs_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-submarinejs",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-submarinejs"
-    )
-
-    session.add(up_any_submarinejs_allowed)
-    up_any_submarinejs_allowed_p1 = Model.DbUserPermissionParameter(up_any_submarinejs_allowed, experiment_allowed_p1, "submarinejs")
-    session.add(up_any_submarinejs_allowed_p1)
-    up_any_submarinejs_allowed_p2 = Model.DbUserPermissionParameter(up_any_submarinejs_allowed, experiment_allowed_p2, "Aquatic experiments")
-    session.add(up_any_submarinejs_allowed_p2)
-    up_any_submarinejs_allowed_p3 = Model.DbUserPermissionParameter(up_any_submarinejs_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_submarinejs_allowed_p3)
-
-
-    up_any_rob_maz_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-maz",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-maz"
-    )
-
-    session.add(up_any_rob_maz_allowed)
-    up_any_rob_maz_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p1, "robot-maze")
-    session.add(up_any_rob_maz_allowed_p1)
-    up_any_rob_maz_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_rob_maz_allowed_p2)
-    up_any_rob_maz_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_maz_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_rob_maz_allowed_p3)
-
-
-    up_any_rob_robotarm_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-robotarm",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robotarm"
-    )
-
-    session.add(up_any_rob_robotarm_allowed)
-    up_any_rob_robotarm_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p1, "robotarm")
-    session.add(up_any_rob_robotarm_allowed_p1)
-    up_any_rob_robotarm_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_rob_robotarm_allowed_p2)
-    up_any_rob_robotarm_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_robotarm_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_rob_robotarm_allowed_p3)
-
-
-    up_any_rob_std_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-robot-standard",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robot-standard"
-    )
-
-    session.add(up_any_rob_std_allowed)
-    up_any_rob_std_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p1, "robot-standard")
-    session.add(up_any_rob_std_allowed_p1)
-    up_any_rob_std_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_rob_std_allowed_p2)
-    up_any_rob_std_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_std_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_rob_std_allowed_p3)
-
-
-    up_any_rob_mov_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-robot-movement",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robot-movement"
-    )
-
-    session.add(up_any_rob_mov_allowed)
-    up_any_rob_mov_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p1, "robot-movement")
-    session.add(up_any_rob_mov_allowed_p1)
-    up_any_rob_mov_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_rob_mov_allowed_p2)
-    up_any_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_mov_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_rob_mov_allowed_p3)
-
-    up_any_ext_rob_mov_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-external-robot-movement",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-external-robot-movement"
-    )
-
-    session.add(up_any_ext_rob_mov_allowed)
-    up_any_ext_rob_mov_allowed_p1 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p1, "external-robot-movement")
-    session.add(up_any_ext_rob_mov_allowed_p1)
-    up_any_ext_rob_mov_allowed_p2 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_ext_rob_mov_allowed_p2)
-    up_any_ext_rob_mov_allowed_p3 = Model.DbUserPermissionParameter(up_any_ext_rob_mov_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_ext_rob_mov_allowed_p3)
-
-    up_studentILAB_microelectronics_allowed = Model.DbUserPermission(
-        studentILAB,
-        experiment_allowed,
-        "studentILAB::weblab-microelectronics",
-        datetime.datetime.utcnow(),
-        "Permission for studentILAB to use WebLab-microelectronics"
-    )
-
-    session.add(up_studentILAB_microelectronics_allowed)
-    up_studentILAB_microelectronics_allowed_p1 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p1, "microelectronics")
-    session.add(up_studentILAB_microelectronics_allowed_p1)
-    up_studentILAB_microelectronics_allowed_p2 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p2, "iLab experiments")
-    session.add(up_studentILAB_microelectronics_allowed_p2)
-    up_studentILAB_microelectronics_allowed_p3 = Model.DbUserPermissionParameter(up_studentILAB_microelectronics_allowed, experiment_allowed_p3, "200")
-    session.add(up_studentILAB_microelectronics_allowed_p3)
-
-
-    up_any_blink_led_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-blink-led",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-blink-led"
-    )
-
-    session.add(up_any_blink_led_allowed)
-    up_any_blink_led_allowed_p1 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p1, "blink-led")
-    session.add(up_any_blink_led_allowed_p1)
-    up_any_blink_led_allowed_p2 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p2, "LabVIEW experiments")
-    session.add(up_any_blink_led_allowed_p2)
-    up_any_blink_led_allowed_p3 = Model.DbUserPermissionParameter(up_any_blink_led_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_blink_led_allowed_p3)
-
-    up_any_rob_proglist_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-robot-proglist",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-robot-proglist"
-    )
-
-    session.add(up_any_rob_proglist_allowed)
-    up_any_rob_proglist_allowed_p1 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p1, "robot-proglist")
-    session.add(up_any_rob_proglist_allowed_p1)
-    up_any_rob_proglist_allowed_p2 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p2, "Robot experiments")
-    session.add(up_any_rob_proglist_allowed_p2)
-    up_any_rob_proglist_allowed_p3 = Model.DbUserPermissionParameter(up_any_rob_proglist_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_rob_proglist_allowed_p3)
-
-
-
-
-    up_any_dummy_batch_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-dummy-batch",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-dummy-batch"
-    )
-
-
-    session.add(up_any_dummy_batch_allowed)
-    up_any_dummy_batch_allowed_p1 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p1, "ud-dummy-batch")
-    session.add(up_any_dummy_batch_allowed_p1)
-    up_any_dummy_batch_allowed_p2 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p2, "Dummy experiments")
-    session.add(up_any_dummy_batch_allowed_p2)
-    up_any_dummy_batch_allowed_p3 = Model.DbUserPermissionParameter(up_any_dummy_batch_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_dummy_batch_allowed_p3)
-
-
-    up_any_pld_demo_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-pld-demo",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-pld-demo"
-    )
-
-
-    session.add(up_any_pld_demo_allowed)
-    up_any_pld_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p1, "ud-demo-pld")
-    session.add(up_any_pld_demo_allowed_p1)
-    up_any_pld_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p2, "PLD experiments")
-    session.add(up_any_pld_demo_allowed_p2)
-    up_any_pld_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_pld_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_pld_demo_allowed_p3)
-
-    up_any_fpga_demo_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-fpga-demo",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-fpga-demo"
-    )
-
-    session.add(up_any_fpga_demo_allowed)
-    up_any_fpga_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p1, "ud-demo-fpga")
-    session.add(up_any_fpga_demo_allowed_p1)
-    up_any_fpga_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p2, cat_fpga.name)
-    session.add(up_any_fpga_demo_allowed_p2)
-    up_any_fpga_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_fpga_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_fpga_demo_allowed_p3)
-
-    up_any_xilinx_demo_allowed = Model.DbUserPermission(
-        any,
-        experiment_allowed,
-        "any::weblab-xilinx-demo",
-        datetime.datetime.utcnow(),
-        "Permission for any to use WebLab-xilinx-demo"
-    )
-
-    session.add(up_any_xilinx_demo_allowed)
-    up_any_xilinx_demo_allowed_p1 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p1, "ud-demo-xilinx")
-    session.add(up_any_xilinx_demo_allowed_p1)
-    up_any_xilinx_demo_allowed_p2 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p2, "Xilinx experiments")
-    session.add(up_any_xilinx_demo_allowed_p2)
-    up_any_xilinx_demo_allowed_p3 = Model.DbUserPermissionParameter(up_any_xilinx_demo_allowed, experiment_allowed_p3, "200")
-    session.add(up_any_xilinx_demo_allowed_p3)
-
-    up_student2_gpib_allowed = Model.DbUserPermission(
-        student2,
-        experiment_allowed,
-        "student2::weblab-gpib",
-        datetime.datetime.utcnow(),
-        "Permission for student2 to use WebLab-GPIB"
-    )
-    session.add(up_student2_gpib_allowed)
-    up_student2_gpib_allowed_p1 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p1, "ud-gpib")
-    session.add(up_student2_gpib_allowed_p1)
-    up_student2_gpib_allowed_p2 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p2, "GPIB experiments")
-    session.add(up_student2_gpib_allowed_p2)
-    up_student2_gpib_allowed_p3 = Model.DbUserPermissionParameter(up_student2_gpib_allowed, experiment_allowed_p3, "150")
-    session.add(up_student2_gpib_allowed_p3)
+        all_experiments['dummy3_with_other_name', 'Dummy experiments'] = _create_experiment(session, 'dummy3_with_other_name', 'Dummy experiments', 'dummy')
+
+
+    _grant_permissions_to_groups(session, all_groups, all_experiments, [
+        ("Course 2008/09",  "ud-fpga",     "FPGA experiments",  300),
+        ("Federated users", "dummy1",      "Dummy experiments", 300),
+        ("Federated users", "dummy2",      "Dummy experiments", 300),
+        ("Federated users", "dummy4",      "Dummy experiments", 300),
+        ("Course 2008/09",  "flashdummy",  "Dummy experiments",  30),
+        ("Course 2008/09",  "javadummy",   "Dummy experiments",  30),
+        ("Course 2008/09",  "ud-logic",    "PIC experiments",   150),
+        ("Course 2008/09",  "ud-dummy",    "Dummy experiments", 150),
+        ("Course 2009/10",  "ud-fpga",     "FPGA experiments",  300),
+    ])
+
+    if tests != '2':
+        _grant_permissions_to_groups(session, all_groups, all_experiments, [
+            ("Federated users", "dummy3",  "Dummy experiments", 300),
+        ])
+    else:
+        _grant_permissions_to_groups(session, all_groups, all_experiments, [
+            ("Federated users", "dummy3_with_other_name",  "Dummy experiments", 300),
+        ])
+
+
+    _grant_permissions_to_users(session, all_users, all_experiments, [
+        ("student2",   "ud-pld",                  "PLD experiments",        100),
+        ("student6",   "ud-pld",                  "PLD experiments",        140),
+        ("archimedes", "archimedes",              "Aquatic experiments",   1400),
+        ("any",        "elevator",                "FPGA experiments",      1400),
+        ("any",        "jsdummy",                 "Dummy experiments",     1400),
+        ("any",        "jsfpga",                  "FPGA experiments",      1400),
+        ("any",        "visir-html5",             "Visir experiments",     3600),
+        ("any",        "ud-fpga",                 "FPGA experiments",      1400),
+        ("any",        "visirtest",               "Dummy experiments",     3600),
+        ("any",        "visir",                   "Visir experiments",     3600),
+        ("any",        "ud-logic",                "PIC experiments",        200),
+        ("any",        "binary",                  "Games",                  200),
+        ("any",        "unr-physics",             "Physics experiments",    200),
+        ("any",        "control-app",             "Control experiments",    200),
+        ("any",        "incubator",               "Farm experiments",       200),
+        ("any",        "ud-dummy",                "Dummy experiments",      200),
+        ("any",        "ud-pic18",                "PIC experiments",        200),
+        ("any",        "vm",                      "Dummy experiments",      200),
+        ("any",        "vm-win",                  "Dummy experiments",      200),
+        ("any",        "submarine",               "Submarine experiments",  200),
+        ("any",        "http",                    "HTTP experiments",       200),
+        ("any",        "aquarium",                "Aquatic experiments",    200),
+        ("any",        "aquariumjs",              "Aquatic experiments",    200),
+        ("any",        "submarinejs",             "Aquatic experiments",    200),
+        ("any",        "robot-maze",              "Robot experiments",      200),
+        ("any",        "robotarm",                "Robot experiments",      200),
+        ("any",        "robot-standard",          "Robot experiments",      200),
+        ("any",        "robot-movement",          "Robot experiments",      200),
+        ("any",        "external-robot-movement", "Robot experiments",      200),
+        ("any",        "microelectronics",        "iLab experiments",       200),
+        ("any",        "blink-led",               "LabVIEW experiments",    200),
+        ("any",        "robot-proglist",          "Robot experiments",      200),
+        ("any",        "ud-dummy-batch",          "Dummy experiments",      200),
+        ("any",        "ud-demo-pld",             "PLD experiments",        200),
+        ("any",        "ud-demo-fpga",            "FPGA experiments",       200),
+        ("any",        "ud-demo-xilinx",          "Xilinx experiments",     200),
+        ("any",        "ud-gpib",                 "GPIB experiments",       150),
+    ])
 
     up_student1_admin_panel_access = Model.DbUserPermission(
-        student1,
-        admin_panel_access,
+        all_users['student1'],
+        permissions.ADMIN_PANEL_ACCESS,
         "student1::admin_panel_access",
         datetime.datetime.utcnow(),
         "Access to the admin panel for student1 with full_privileges"
     )
     session.add(up_student1_admin_panel_access)
-    up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, admin_panel_access_p1, True)
+    up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(up_student1_admin_panel_access_p1)
 
     up_any_access_forward = Model.DbUserPermission(
-        any,
-        access_forward,
+        all_users['any'],
+        permissions.ACCESS_FORWARD,
         "any::access_forward",
         datetime.datetime.utcnow(),
         "Access to forward external accesses"
