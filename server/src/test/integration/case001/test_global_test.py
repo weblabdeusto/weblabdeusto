@@ -14,30 +14,23 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
-import sys
 import time
 import unittest
 
 import six
 
-from voodoo.gen import load_dir, CoordAddress
+from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
 
 import weblab.configuration_doc as configuration_doc
 
 import weblab.data.command as Command
-import weblab.data.server_type as ServerType
 import weblab.experiment.util as ExperimentUtil
-import weblab.lab.server as LaboratoryServer
-import weblab.core.alive_users as AliveUsersCollection
 import weblab.core.reservations as Reservation
 import weblab.core.server as UserProcessingServer
-import weblab.core.server as core_api
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
-from test.util.wlcontext import wlcontext
-from test.util.ports import new as new_port
 from test.util.module_disposer import case_uses_module
 
 ########################################################
