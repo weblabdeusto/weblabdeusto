@@ -139,16 +139,16 @@ class Case001TestCase(object):
                 self.assertEquals("ok", status, "Contents: " + req[1])
                 return Command.Command(req[1])
 
-    def _single_async_use(self, logout = True):
-        session_id = self.client.login('fedstudent1', 'password')
+    def _get_reserved(self):
+        session_id = self.client.login('intstudent1', 'password')
 
         user_information = self.client.get_user_information(session_id)
-        self.assertEquals( 'fedstudent1', user_information.login) 
-        self.assertEquals( 'Name of federated student 1', user_information.full_name)
+        self.assertEquals( 'intstudent1', user_information.login) 
+        self.assertEquals( 'Name of integration test 1', user_information.full_name)
         self.assertEquals( 'weblab@deusto.es', user_information.email)
 
         experiments = self.client.list_experiments(session_id)
-        self.assertEquals( 4, len(experiments))
+        self.assertEquals( 2, len(experiments))
 
         dummy1_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'dummy1' ]
         self.assertEquals( len(dummy1_experiments), 1)
@@ -176,6 +176,10 @@ class Case001TestCase(object):
                 isinstance(reservation, Reservation.ConfirmedReservation),
                 "Reservation %s is not Confirmed, as expected by this time" % reservation
             )
+        return session_id, reservation_id
+
+    def _single_async_use(self, logout = True):
+        session_id, reservation_id = self._get_reserved()
 
         # send the program again, but asynchronously. Though this should work, it is not really very customary
         # to send_file more than once in the same session. In fact, it is a feature which might get removed in
@@ -190,7 +194,7 @@ class Case001TestCase(object):
         # We need to wait for the programming to finish, while at the same
         # time making sure that the tests don't dead-lock.
         reqid = self.client.send_async_command(reservation_id, Command.Command("STATE"))
-        respcmd = self._get_async_response(reqid)
+        respcmd = self._get_async_response(reservation_id, reqid)
         response = respcmd.get_command_string()
 
         # Check that the current state is "Ready"
@@ -220,44 +224,8 @@ class Case001TestCase(object):
 
 
     def _single_sync_use(self, logout = True):
-        session_id = self.client.login('fedstudent1', 'password')
+        session_id, reservation_id = self._get_reserved()
 
-        user_information = self.client.get_user_information(session_id)
-        self.assertEquals( 'fedstudent1', user_information.login) 
-        self.assertEquals( 'Name of federated student 1', user_information.full_name)
-        self.assertEquals( 'weblab@deusto.es', user_information.email)
-
-        experiments = self.client.list_experiments(session_id)
-        self.assertEquals( 4, len(experiments))
-
-        dummy1_experiments = [ exp.experiment for exp in experiments if exp.experiment.name == 'dummy1' ]
-        self.assertEquals( len(dummy1_experiments), 1)
-
-        dummy1_experiment = dummy1_experiments[0]
-
-        # reserve it
-        status = self.client.reserve_experiment(session_id, dummy1_experiment.to_experiment_id(), "{}", "{}")
-
-        reservation_id = status.reservation_id
-
-        # wait until it is reserved
-        short_time = 0.1
-        times      = 13.0 / short_time
-
-        while times > 0:
-            new_status = self.client.get_reservation_status(reservation_id)
-            if not isinstance(new_status, Reservation.WaitingConfirmationReservation) and not isinstance(new_status, Reservation.WaitingReservation):
-                break
-            times -= 1
-            time.sleep(short_time)
-        reservation = self.client.get_reservation_status(reservation_id)
-        self.assertTrue(
-                isinstance(reservation, Reservation.ConfirmedReservation),
-                "Reservation %s is not Confirmed, as expected by this time" % reservation
-            )
-
-
-        # send a program synchronously (the "traditional" way)
         CONTENT = "content of the program FPGA"
         response = self.client.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
         self.assertEquals(response.commandstring, 'ack')
@@ -268,10 +236,6 @@ class Case001TestCase(object):
         response = self.client.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
         self.assertEquals(response.commandstring, "ChangeSwitch on 0")
 
-#         end session
-#         Note: Before async commands were implemented, this was actually done before
-#         checking the commands sent. If it was that way for a reason, it might be
-#         necessary to change it in the future.
         if logout:
             self.client.logout(session_id)
 
@@ -373,74 +337,6 @@ class Case001TestCase(object):
 
         with wlcontext(self.real_ups, session_id = user2_session_id):
             core_api.logout()
-
-        # Checking the commands sent
-        self.assertEquals( 1, len(self.fake_impact1._paths))
-        self.assertEquals( 1, len(self.fake_impact2._paths))
-        self.assertEquals( CONTENT1, self.fake_impact1._paths[0])
-        self.assertEquals( CONTENT2, self.fake_impact2._paths[0])
-
-        initial_open  = 1
-        initial_send  = 1
-        initial_close = 1
-
-        initial_total = initial_open + initial_send + initial_close
-
-        # ChangeSwitch off 1
-        self.assertEquals(
-                (0 + initial_total,1),
-                self.fake_serial_port1.dict['open'][0 + initial_open]
-            )
-        self.assertEquals(
-                (1 + initial_total,4),
-                self.fake_serial_port1.dict['send'][0 + initial_send]
-            )
-        self.assertEquals(
-                (2 + initial_total,None),
-                self.fake_serial_port1.dict['close'][0 + initial_close]
-            )
-
-        self.assertEquals(
-                (0 + initial_total,1),
-                self.fake_serial_port2.dict['open'][0 + initial_open]
-            )
-        self.assertEquals(
-                (1 + initial_total,1),
-                self.fake_serial_port2.dict['send'][0 + initial_send]
-            )
-        self.assertEquals(
-                (2 + initial_total,None),
-                self.fake_serial_port2.dict['close'][0 + initial_close]
-            )
-
-        # ClockActivation on 250
-        self.assertEquals(
-                (3 + initial_total,1),
-                self.fake_serial_port1.dict['open'][1 + initial_open]
-            )
-        self.assertEquals(
-                (4 + initial_total,32),
-                self.fake_serial_port1.dict['send'][1 + initial_send]
-            )
-
-        self.assertEquals(
-                (5 + initial_total,None),
-                self.fake_serial_port1.dict['close'][1 + initial_close]
-            )
-
-        self.assertEquals(
-                (3 + initial_total,1),
-                self.fake_serial_port2.dict['open'][1 + initial_open]
-            )
-        self.assertEquals(
-                (4 + initial_total,32),
-                self.fake_serial_port2.dict['send'][1 + initial_send]
-            )
-
-        self.assertEquals(
-                (5 + initial_total,None),
-                self.fake_serial_port2.dict['close'][1 + initial_close]
-            )
 
 @case_uses_module(UserProcessingServer)
 class Case001_Direct_TestCase(Case001TestCase, unittest.TestCase):

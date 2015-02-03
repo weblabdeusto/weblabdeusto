@@ -147,10 +147,26 @@ class WebLabDeustoClient(object):
         response_command = self._core_call('send_command', reservation_id = serialized_reservation_id, command = serialized_command)
         return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
 
+    def send_async_command(self, reservation_id, command):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        serialized_command = { 'commandstring' : command.commandstring }
+        request_id = self._core_call('send_async_command', reservation_id = serialized_reservation_id, command = serialized_command)
+        return request_id
+
     def send_file(self, reservation_id, file_content, file_info):
         serialized_reservation_id = {'id' : reservation_id.id}
         response_command = self._core_call('send_file', reservation_id = serialized_reservation_id, file_content = file_content, file_info = file_info)
         return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
+
+    def send_async_file(self, reservation_id, file_content, file_info):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        request_id = self._core_call('send_async_file', reservation_id = serialized_reservation_id, file_content = file_content, file_info = file_info)
+        return request_id
+
+    def check_async_command_status(self, reservation_id, request_identifiers):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response = self._core_call('check_async_command_status', reservation_id = serialized_reservation_id, request_identifiers = request_identifiers)
+        return response
 
     def get_reservation_status(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
