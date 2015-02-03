@@ -638,7 +638,7 @@ def populate_weblab_tests(engine, tests):
     all_groups = _create_groups(session, all_users, {
         ('Course 2008/09',    None)              : ('student1', 'student2'),
         ('Course 2009/10',    None)              : ('student1', 'student2', 'student3', 'student4', 'student5', 'student6'),
-        ('Federated users',   None)              : ('fedstudent1', 'fedstudent2', 'fedstudent3', 'fedstudent4'),
+        ('Federated users',   None)              : ('fedstudent1', 'fedstudent2', 'fedstudent3', 'fedstudent4', 'consumer1', 'provider1', 'provider2'),
         ('Mechatronics',      'Course 2008/09')  : ('student3', 'student4'),
         ('Telecomunications', 'Course 2008/09')  : ('student5', 'student6'),
     })
