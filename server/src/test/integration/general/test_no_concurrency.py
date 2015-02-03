@@ -39,7 +39,7 @@ from test.util.module_disposer import case_uses_module
 ########################################################
 
 # Abstract
-class Case001TestCase(object):
+class IntegrationNoConcurrencyTestCase(object):
     def setUp(self):
         self.global_config = load_dir(self.DEPLOYMENT_DIR)
 
@@ -298,7 +298,7 @@ class Case001TestCase(object):
         self.client.logout(user2_session_id)
 
 @case_uses_module(UserProcessingServer)
-class Case001_Direct_TestCase(Case001TestCase, unittest.TestCase):
+class IntegrationNoConcurrency_Direct_TestCase(IntegrationNoConcurrencyTestCase, unittest.TestCase):
     DEPLOYMENT_DIR = 'test/deployments/integration_tests/case01_direct/'
     PROCESSES = ['myprocess']
     CORE_ADDRESS = 'mycore:myprocess@myhost'
@@ -306,7 +306,7 @@ class Case001_Direct_TestCase(Case001TestCase, unittest.TestCase):
     EXPERIMENT_DUMMY2 = 'experiment_dummy1:myprocess@myhost'
 
 @case_uses_module(UserProcessingServer)
-class Case001_Http_TestCase(Case001TestCase, unittest.TestCase):
+class IntegrationNoConcurrency_Http_TestCase(IntegrationNoConcurrencyTestCase, unittest.TestCase):
     DEPLOYMENT_DIR = 'test/deployments/integration_tests/case01_http/'
     PROCESSES = ['myprocess1', 'myprocess2', 'myprocess3']
     CORE_ADDRESS = 'mycore:myprocess1@myhost'
@@ -314,7 +314,7 @@ class Case001_Http_TestCase(Case001TestCase, unittest.TestCase):
     EXPERIMENT_DUMMY2 = 'experiment_dummy1:myprocess3@myhost'
 
 def suite():
-    suites = (unittest.makeSuite(Case001_Direct_TestCase), unittest.makeSuite(Case001_Http_TestCase), )
+    suites = (unittest.makeSuite(IntegrationNoConcurrency_Direct_TestCase), unittest.makeSuite(IntegrationNoConcurrency_Http_TestCase), )
     return unittest.TestSuite( suites )
 
 if __name__ == '__main__':

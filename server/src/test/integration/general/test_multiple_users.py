@@ -17,8 +17,6 @@
 import time
 import unittest
 
-import six
-
 from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
 
@@ -28,14 +26,13 @@ import weblab.data.command as Command
 import weblab.experiment.util as ExperimentUtil
 import weblab.core.reservations as Reservation
 import weblab.core.server as UserProcessingServer
-import weblab.core.exc as core_exc
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
 from test.util.module_disposer import case_uses_module
 
 # Abstract
-class Case002TestCase(object):
+class IntegrationMultipleUsersTestCase(object):
     def setUp(self):
         self.global_config = load_dir(self.DEPLOYMENT_DIR)
 
@@ -173,7 +170,7 @@ class Case002TestCase(object):
         self.client.logout(session_id1)
 
 @case_uses_module(UserProcessingServer)
-class Case002_Direct_Memory_TestCase(Case002TestCase, unittest.TestCase):
+class IntegrationMultipleUsers_Direct_Memory_TestCase(IntegrationMultipleUsersTestCase, unittest.TestCase):
     DEPLOYMENT_DIR = 'test/deployments/integration_tests/case01_direct/'
     PROCESSES = ['myprocess']
     CORE_ADDRESS = 'mycore:myprocess@myhost'
@@ -182,7 +179,7 @@ class Case002_Direct_Memory_TestCase(Case002TestCase, unittest.TestCase):
 
 
 @case_uses_module(UserProcessingServer)
-class Case002_Http_Memory_TestCase(Case002TestCase, unittest.TestCase):
+class IntegrationMultipleUsers_Http_Memory_TestCase(IntegrationMultipleUsersTestCase, unittest.TestCase):
     DEPLOYMENT_DIR = 'test/deployments/integration_tests/case01_http/'
     PROCESSES = ['myprocess1', 'myprocess2', 'myprocess3']
     CORE_ADDRESS = 'mycore:myprocess1@myhost'
@@ -192,8 +189,8 @@ class Case002_Http_Memory_TestCase(Case002TestCase, unittest.TestCase):
 
 def suite():
     return unittest.TestSuite( (
-            unittest.makeSuite(Case002_Direct_Memory_TestCase),
-            unittest.makeSuite(Case002_Http_Memory_TestCase),
+            unittest.makeSuite(IntegrationMultipleUsers_Direct_Memory_TestCase),
+            unittest.makeSuite(IntegrationMultipleUsers_Http_Memory_TestCase),
         ))
 
 if __name__ == '__main__':
