@@ -141,6 +141,7 @@ class Archimedes(Experiment):
 
         load = self._send(board, "load")
         level = self._send(board, "level")
+        status = self._send(board, "status")
 
         if load == "ERROR":
             info["load"] = "ERROR"
@@ -153,6 +154,9 @@ class Archimedes(Experiment):
         else:
             num = level.split("=")[1]
             info["level"] = num
+
+        if status == "ERROR":
+            info["ball_status"] = "ERROR"
 
         return info
 

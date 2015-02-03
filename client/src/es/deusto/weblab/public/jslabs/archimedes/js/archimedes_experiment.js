@@ -161,6 +161,7 @@ ArchimedesExperiment = function (registry, view) {
 
                     instance.sensors["liquid.level"] = data["level"];
                     instance.sensors["ball.weight"] = data["load"];
+                    instance.updateBallStatus(data["ball_status"]);
 
                     $("#" + inst + "-table-sensors").datatable("updateAll");
 
