@@ -14,9 +14,8 @@
 #
 
 import json
-import urllib2
+import requests
 import datetime
-import cookielib
 
 from voodoo.gen import CoordAddress
 from voodoo.sessions.session_id import SessionId
@@ -24,6 +23,7 @@ from weblab.core.reservations import Reservation
 from weblab.data.command import Command, NullCommand
 from weblab.data.experiments import ReservationResult, RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId, ForbiddenReservationResult
 from weblab.data.dto.experiments import ExperimentCategory, Experiment, ExperimentClient, ExperimentAllowed
+from weblab.data.dto.users import User
 
 class WebLabDeustoClient(object):
 
@@ -32,8 +32,6 @@ class WebLabDeustoClient(object):
 
     def __init__(self, baseurl):
         self.baseurl         = baseurl
-        self.cj              = cookielib.CookieJar()
-        self.opener          = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
         self.weblabsessionid = "(not set)"
 
     def _call(self, url, method, user_agent, **kwargs):
@@ -41,13 +39,16 @@ class WebLabDeustoClient(object):
             'method' : method,
             'params' : kwargs
         })
-        req = urllib2.Request(url, data = request, headers = {'User-agent' : user_agent or 'WebLab-Deusto'})
-        uopen = self.opener.open(req)
-        content = uopen.read()
-        cookies = [ c for c in self.cj if c.name == 'weblabsessionid' ]
-        if len(cookies) > 0:
-            self.weblabsessionid = cookies[0].value
-        response = json.loads(content)
+        headers = {
+            'User-agent' : user_agent or 'WebLab-Deusto',
+            'content-type': 'application/json',
+        }
+        cookies = { 'weblabsessionid' : self.weblabsessionid, 'loginweblabsessionid' : self.weblabsessionid }
+        r = requests.post(url, data = request, headers = headers, cookies = cookies)
+        weblabsessionid = r.cookies.get('weblabsessionid')
+        if weblabsessionid:
+            self.weblabsessionid = weblabsessionid
+        response = r.json()
         if response.get('is_exception', False):
             raise Exception(response["message"])
         return response['result']
@@ -59,14 +60,10 @@ class WebLabDeustoClient(object):
         return self._call(self.baseurl + self.CORE_SUFFIX, method, user_agent, **kwargs)
 
     def get_cookies(self):
-        return [ cookie for cookie in self.cj if cookie.name in ['weblabsessionid', 'loginweblabsessionid'] ]
+        return { 'weblabsessionid' : self.weblabsessionid }
 
     def set_cookies(self, cookies):
-        for cookie in cookies:
-            self.cj.set_cookie(cookie)
-
-    def set_cookie(self, cookie):
-        self.cj.set_cookie(cookie)
+        self.weblabsessionid = cookies['weblabsessionid']
 
     def login(self, username, password):
         session_holder = self._login_call('login', username=username, password=password)
@@ -86,6 +83,17 @@ class WebLabDeustoClient(object):
                         consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
+
+    def logout(self, session_id):
+        serialized_session_id = {'id' : session_id.id}
+        return self._core_call('logout', session_id = serialized_session_id)
+
+    def get_user_information(self, session_id):
+        serialized_session_id     = {'id' : session_id.id}
+        user_information = self._core_call('get_user_information', session_id = serialized_session_id)
+        user = User(user_information['login'], user_information['full_name'], user_information['email'], user_information['role']['name'])
+        user.remainder = user_information
+        return user
 
     def list_experiments(self, session_id):
         serialized_session_id     = {'id' : session_id.id}
@@ -137,6 +145,11 @@ class WebLabDeustoClient(object):
         serialized_reservation_id = {'id' : reservation_id.id}
         serialized_command = { 'commandstring' : command.commandstring }
         response_command = self._core_call('send_command', reservation_id = serialized_reservation_id, command = serialized_command)
+        return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
+
+    def send_file(self, reservation_id, file_content, file_info):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response_command = self._core_call('send_file', reservation_id = serialized_reservation_id, file_content = file_content, file_info = file_info)
         return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
 
     def get_reservation_status(self, reservation_id):

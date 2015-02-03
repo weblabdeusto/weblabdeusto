@@ -18,8 +18,10 @@ class StorageExperiment(Experiment):
 
     def do_send_command_to_device(self, command):
         self.commands.append(command)
-        print command
         return command
+
+    def do_send_file_to_device(self, file_content, file_info):
+        return "ack"
 
     def clear(self):
         self.commands = []

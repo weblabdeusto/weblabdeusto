@@ -7,12 +7,12 @@ hosts:
             config_file: core_config.py
             type: core
           experiment_dummy1:
-            class: experiments.dummy.DummyExperiment
+            class: test.util.experiments.StorageExperiment
             config:
               dummy_verbose: false
             type: experiment
           experiment_dummy2:
-            class: experiments.dummy.DummyExperiment
+            class: test.util.experiments.StorageExperiment
             config:
               dummy_verbose: false
             type: experiment
