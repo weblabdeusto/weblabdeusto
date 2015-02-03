@@ -261,10 +261,10 @@ ArchimedesInstance = function (instanceid) {
         }
 
         if(upEnabled) {
-            $(getidselect("upButton") + " img").attr("src", "img/down_green.png");
+            $(getidselect("upButton") + " img").attr("src", "img/up_green.png");
             $(getidselect("upButton")).removeAttr("disabled");
         } else {
-            $(getidselect("upButton") + " img").attr("src", "img/down.png");
+            $(getidselect("upButton") + " img").attr("src", "img/up.png");
             $(getidselect("upButton")).attr("disabled", "disabled");
         }
     };

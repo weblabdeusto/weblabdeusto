@@ -157,6 +157,8 @@ class Archimedes(Experiment):
 
         if status == "ERROR":
             info["ball_status"] = "ERROR"
+        else:
+            info["ball_status"] = status
 
         return info
 
