@@ -174,6 +174,11 @@ class WebLabDeustoClient(object):
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
 
+    def poll(self, reservation_id):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response = self._core_call('poll',reservation_id=serialized_reservation_id)
+        return response
+
     def finished_experiment(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
         self._core_call('finished_experiment',reservation_id=serialized_reservation_id)

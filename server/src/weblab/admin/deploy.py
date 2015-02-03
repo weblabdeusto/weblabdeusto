@@ -615,7 +615,11 @@ def populate_weblab_tests(engine, tests):
         'fedstudent4'  : (federated,     'Name of federated user 4',      'weblab@deusto.es'),
 
         'intstudent1'  : (student,       'Name of integration test 1',    'weblab@deusto.es'),
-        'intstudent2'  : (student,       'Name of integration test 1',    'weblab@deusto.es'),
+        'intstudent2'  : (student,       'Name of integration test 2',    'weblab@deusto.es'),
+        'intstudent3'  : (student,       'Name of integration test 3',    'weblab@deusto.es'),
+        'intstudent4'  : (student,       'Name of integration test 4',    'weblab@deusto.es'),
+        'intstudent5'  : (student,       'Name of integration test 5',    'weblab@deusto.es'),
+        'intstudent6'  : (student,       'Name of integration test 6',    'weblab@deusto.es'),
 
         'prof1'        : (instructor,    'Name of instructor 1',          'weblab@deusto.es'),
         'prof2'        : (instructor,    'Name of instructor 2',          'weblab@deusto.es'),
@@ -641,7 +645,7 @@ def populate_weblab_tests(engine, tests):
     all_groups = _create_groups(session, all_users, {
         ('Course 2008/09',    None)              : ('student1', 'student2'),
         ('Course 2009/10',    None)              : ('student1', 'student2', 'student3', 'student4', 'student5', 'student6'),
-        ('Course Tests',      None)              : ('intstudent1', 'intstudent2'),
+        ('Course Tests',      None)              : ('intstudent1', 'intstudent2', 'intstudent3', 'intstudent4', 'intstudent5', 'intstudent6'),
         ('Federated users',   None)              : ('fedstudent1', 'fedstudent2', 'fedstudent3', 'fedstudent4', 'consumer1', 'provider1', 'provider2'),
         ('Mechatronics',      'Course 2008/09')  : ('student3', 'student4'),
         ('Telecomunications', 'Course 2008/09')  : ('student5', 'student6'),
