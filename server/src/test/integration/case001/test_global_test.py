@@ -55,11 +55,13 @@ class Case001TestCase(object):
             process_handler = self.global_config.load_process('myhost', process)
             self.process_handlers.append(process_handler)
 
-        self.core_config = self.global_config.create_config(CoordAddress.translate(self.CORE_ADDRESS))
-        self.client = WebLabDeustoClient('http://localhost:%s/weblab/' % self.core_config[configuration_doc.CORE_FACADE_PORT])
-
+        self.core_server       = GLOBAL_REGISTRY[self.CORE_ADDRESS]
         self.experiment_dummy1 = GLOBAL_REGISTRY[self.EXPERIMENT_DUMMY1]
         self.experiment_dummy2 = GLOBAL_REGISTRY[self.EXPERIMENT_DUMMY2]
+
+        self.core_config = self.core_server.config
+
+        self.client = WebLabDeustoClient('http://localhost:%s/weblab/' % self.core_config[configuration_doc.CORE_FACADE_PORT])
 
     def tearDown(self):
         GLOBAL_REGISTRY.clear()
@@ -223,115 +225,84 @@ class Case001TestCase(object):
                 return Command.Command(req[1])
 
     def test_single_uses_timeout(self):
-        backup_poll_time           = configuration.core_experiment_poll_time
-        backup_time_between_checks = self.cfg_manager.get_value('core_time_between_checks', AliveUsersCollection.DEFAULT_TIME_BETWEEN_CHECKS)
-        try:
-            self.cfg_manager._set_value('core_experiment_poll_time',1.5)
-            self.cfg_manager._set_value('core_time_between_checks',1.5)
-            self._single_use(logout = False, plus_async_use = False)
-            time.sleep(self.cfg_manager.get_value('core_experiment_poll_time') + 0.3 + self.cfg_manager.get_value('core_time_between_checks'))
-            self._single_use(logout = False, plus_async_use = False)
-        finally:
-            self.cfg_manager._set_value('core_experiment_poll_time',backup_poll_time)
-            self.cfg_manager._set_value('core_time_between_checks',backup_time_between_checks)
+        core_experiment_poll_time = 1.5
+        core_time_between_checks = 1.5
+        self.core_config._set_value('core_experiment_poll_time', core_experiment_poll_time)
+        self.core_config._set_value('core_time_between_checks', core_time_between_checks)
+        self._single_use(logout = False, plus_async_use = False)
+        time.sleep(core_experiment_poll_time + 0.3 + core_time_between_checks)
+        self._single_use(logout = False, plus_async_use = False)
 
     def test_two_multiple_uses_of_different_devices(self):
-        with wlcontext(self.real_ups):
-            user1_session_id = core_api.login('student1','password')
+        user1_session_id = self.client.login('intstudent1','password')
 
-        with wlcontext(self.real_ups, session_id = user1_session_id):
-            user1_experiments = core_api.list_experiments()
-            self.assertEquals( 5, len(user1_experiments))
+        user1_experiments = self.client.list_experiments(user1_session_id)
+        self.assertEquals( 2, len(user1_experiments))
 
-            fpga_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'ud-fpga' ]
-            self.assertEquals( len(fpga_experiments), 1)
+        dummy1_experiments = [ exp.experiment for exp in user1_experiments if exp.experiment.name == 'dummy1' ]
+        self.assertEquals( len(dummy1_experiments), 1)
 
-            # reserve it
-            status = core_api.reserve_experiment( fpga_experiments[0].to_experiment_id(), "{}", "{}")
+        # reserve it
+        status = self.client.reserve_experiment( user1_session_id, dummy1_experiments[0].to_experiment_id(), "{}", "{}")
+        user1_reservation_id = status.reservation_id
 
-            user1_reservation_id = status.reservation_id
 
-        with wlcontext(self.real_ups):
-            user2_session_id = core_api.login('student2','password')
+        user2_session_id = self.client.login('intstudent2','password')
 
-        with wlcontext(self.real_ups, session_id = user2_session_id):
-            user2_experiments = core_api.list_experiments()
-            self.assertEquals( 7, len(user2_experiments))
+        user2_experiments = self.client.list_experiments(user2_session_id)
+        self.assertEquals( 2, len(user2_experiments))
 
-            pld_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'ud-pld' ]
-            self.assertEquals( len(pld_experiments), 1)
+        dummy2_experiments = [ exp.experiment for exp in user2_experiments if exp.experiment.name == 'dummy2' ]
+        self.assertEquals( len(dummy2_experiments), 1)
 
-            # reserve it
-            status = core_api.reserve_experiment(pld_experiments[0].to_experiment_id(), "{}", "{}")
+        # reserve it
+        status = self.client.reserve_experiment(user2_session_id, dummy2_experiments[0].to_experiment_id(), "{}", "{}")
+        user2_reservation_id = status.reservation_id
 
-            user2_reservation_id = status.reservation_id
+
 
         short_time = 0.1
         times      = 9.0 / short_time
 
         while times > 0:
             time.sleep(short_time)
-            with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
-                new_status1 = core_api.get_reservation_status()
 
-            with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
-                new_status2 = core_api.get_reservation_status()
+            new_status1 = self.client.get_reservation_status(user1_reservation_id)
+
+            new_status2 = self.client.get_reservation_status(user2_reservation_id)
 
             if not isinstance(new_status1, Reservation.WaitingConfirmationReservation):
                 if not isinstance(new_status2, Reservation.WaitingConfirmationReservation):
                     break
             times -= 1
 
-        with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
-            self.assertTrue(isinstance(core_api.get_reservation_status(), Reservation.ConfirmedReservation))
-    
-        with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
-            self.assertTrue(isinstance(core_api.get_reservation_status(), Reservation.ConfirmedReservation))
+        self.assertTrue(isinstance(self.client.get_reservation_status(user1_reservation_id), Reservation.ConfirmedReservation))
+        self.assertTrue(isinstance(self.client.get_reservation_status(user2_reservation_id), Reservation.ConfirmedReservation))
 
+        # send a program
+        CONTENT1 = "content of the program DUMMY1"
+        response = self.client.send_file(user1_reservation_id, ExperimentUtil.serialize(CONTENT1), 'program')
+        self.assertEquals('ack', response.commandstring)
 
-        with wlcontext(self.real_ups, reservation_id = user1_reservation_id):
-            # send a program
-            CONTENT1 = "content of the program FPGA"
-            core_api.send_file(ExperimentUtil.serialize(CONTENT1), 'program')
+        # We need to wait for the programming to finish.
+        respcmd = self.client.send_command(user1_reservation_id, Command.Command("STATE DUMMY1"))
+        response = respcmd.get_command_string()
 
-            # We need to wait for the programming to finish.
-            start_time = time.time()
-            response = "STATE=not_ready"
-            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-                respcmd = core_api.send_command(Command.Command("STATE"))
-                response = respcmd.get_command_string()
-                time.sleep(0.2)
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE DUMMY1", response)
 
-            # Check that the current state is "Ready"
-            self.assertEquals("STATE=ready", response)
+        CONTENT2 = "content of the program PLD"
+        response = self.client.send_file(user2_reservation_id, ExperimentUtil.serialize(CONTENT2), 'program')
+        self.assertEquals('ack', response.commandstring)
 
-            core_api.send_command(Command.Command("ChangeSwitch off 1"))
-            core_api.send_command(Command.Command("ClockActivation on 250"))
-
-        with wlcontext(self.real_ups, reservation_id = user2_reservation_id):
-            CONTENT2 = "content of the program PLD"
-            core_api.send_file(ExperimentUtil.serialize(CONTENT2), 'program')
-
-            # We need to wait for the programming to finish.
-            start_time = time.time()
-            response = "STATE=not_ready"
-            while response in ("STATE=not_ready", "STATE=programming") and time.time() - start_time < XILINX_TIMEOUT:
-                respcmd = core_api.send_command(Command.Command("STATE"))
-                response = respcmd.get_command_string()
-                time.sleep(0.2)
-
-            # Check that the current state is "Ready"
-            self.assertEquals("STATE=ready", response)
-
-            core_api.send_command(Command.Command("ChangeSwitch on 0"))
-            core_api.send_command(Command.Command("ClockActivation on 250"))
+        # We need to wait for the programming to finish.
+        respcmd = self.client.send_command(user2_reservation_id, Command.Command("STATE DUMMY2"))
+        # Check that the current state is "Ready"
+        self.assertEquals("STATE DUMMY2", respcmd.commandstring)
 
         # end session
-        with wlcontext(self.real_ups, session_id = user1_session_id):
-            core_api.logout()
-
-        with wlcontext(self.real_ups, session_id = user2_session_id):
-            core_api.logout()
+        self.client.logout(user1_session_id)
+        self.client.logout(user2_session_id)
 
 @case_uses_module(UserProcessingServer)
 class Case001_Direct_TestCase(Case001TestCase, unittest.TestCase):
