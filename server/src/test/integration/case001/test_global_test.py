@@ -67,77 +67,38 @@ class Case001TestCase(object):
         for process_handler in self.process_handlers:
             process_handler.stop()
 
-
-    def test_single_uses_timeout(self):
-        backup_poll_time           = configuration.core_experiment_poll_time
-        backup_time_between_checks = self.cfg_manager.get_value('core_time_between_checks', AliveUsersCollection.DEFAULT_TIME_BETWEEN_CHECKS)
-        try:
-            self.cfg_manager._set_value('core_experiment_poll_time',1.5)
-            self.cfg_manager._set_value('core_time_between_checks',1.5)
-            self._single_use(logout = False, plus_async_use = False)
-            time.sleep(self.cfg_manager.get_value('core_experiment_poll_time') + 0.3 + self.cfg_manager.get_value('core_time_between_checks'))
-            self._single_use(logout = False, plus_async_use = False)
-        finally:
-            self.cfg_manager._set_value('core_experiment_poll_time',backup_poll_time)
-            self.cfg_manager._set_value('core_time_between_checks',backup_time_between_checks)
-
     def test_simple_single_uses(self):
         for _ in range(1):
             self._single_use()
         self._single_use()
         self._single_use()
 
-    def _wait_async_done(self, reservation_id, reqids):
+    def _single_use(self, logout = True, plus_async_use = True):
         """
-        _wait_async_done(session_id, reqids)
-        Helper methods that waits for the specified asynchronous requests to be finished,
-        and which asserts that they were successful. Note that it doesn't actually return
-        their responses.
-        @param reqids Tuple containing the request ids for the commands to check.
-        @return Nothing
+        Will use an experiment.
+        @param logout If true, the user will be logged out after the use. Otherwise not.
+        @param plus_async_use If true, after using the experiment synchronously, it will use it
+        again using the asynchronous versions of the send_command and send_file requests.
         """
-        # Wait until send_async_file query is actually finished.
-        reqsl = list(reqids)
-        max_count = 15
-        while len(reqsl) > 0:
-            time.sleep(0.1)
-            max_count -= 1
-            if max_count == 0:
-                raise Exception("Maximum time spent waiting async done")
-            requests = self.client.check_async_command_status(reservation_id, tuple(reqsl))
-            self.assertEquals(len(reqsl), len(requests))
-            for rid, req in six.iteritems(requests):
-                status = req[0]
-                self.assertTrue(status in ("running", "ok", "error"))
-                if status != "running":
-                    self.assertEquals("ok", status, "Contents: " + req[1])
-                    reqsl.remove(rid)
+        self._single_sync_use(logout)
+        if plus_async_use:
+            self._single_async_use(logout)
 
+    def _single_sync_use(self, logout = True):
+        session_id, reservation_id = self._get_reserved()
 
-    def _get_async_response(self, reservation_id, reqid):
-        """
-        _get_async_response(reqids)
-        Helper method that synchronously gets the response for the specified async request, asserting that
-        it was successful.
-        @param reqid The request identifier for the async request whose response we want
-        @return Response to the request, if successful. None, otherwise.
-        """
-        # Wait until send_async_file query is actually finished.
-        max_counter = 15
-        while True:
-            max_counter -= 1
-            if max_counter == 0:
-                raise Exception("Maximum times running get_async_response")
-            time.sleep(0.1)
-            requests = self.client.check_async_command_status(reservation_id, (reqid,))
-            self.assertEquals(1, len(requests))
-            self.assertTrue(reqid in requests)
-            req = requests[reqid]
-            status = req[0]
-            self.assertTrue(status in ("running", "ok", "error"))
-            if status != "running":
-                self.assertEquals("ok", status, "Contents: " + req[1])
-                return Command.Command(req[1])
+        CONTENT = "content of the program FPGA"
+        response = self.client.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
+        self.assertEquals(response.commandstring, 'ack')
+
+        response = self.client.send_command(reservation_id, Command.Command("STATE"))
+        self.assertEquals(response.commandstring, 'STATE')
+
+        response = self.client.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
+        self.assertEquals(response.commandstring, "ChangeSwitch on 0")
+
+        if logout:
+            self.client.logout(session_id)
 
     def _get_reserved(self):
         session_id = self.client.login('intstudent1', 'password')
@@ -210,35 +171,69 @@ class Case001TestCase(object):
         if logout:
             self.client.logout(session_id)
 
-
-    def _single_use(self, logout = True, plus_async_use = True):
+    def _wait_async_done(self, reservation_id, reqids):
         """
-        Will use an experiment.
-        @param logout If true, the user will be logged out after the use. Otherwise not.
-        @param plus_async_use If true, after using the experiment synchronously, it will use it
-        again using the asynchronous versions of the send_command and send_file requests.
+        _wait_async_done(session_id, reqids)
+        Helper methods that waits for the specified asynchronous requests to be finished,
+        and which asserts that they were successful. Note that it doesn't actually return
+        their responses.
+        @param reqids Tuple containing the request ids for the commands to check.
+        @return Nothing
         """
-        self._single_sync_use(logout)
-        if plus_async_use:
-            self._single_async_use(logout)
+        # Wait until send_async_file query is actually finished.
+        reqsl = list(reqids)
+        max_count = 15
+        while len(reqsl) > 0:
+            time.sleep(0.1)
+            max_count -= 1
+            if max_count == 0:
+                raise Exception("Maximum time spent waiting async done")
+            requests = self.client.check_async_command_status(reservation_id, tuple(reqsl))
+            self.assertEquals(len(reqsl), len(requests))
+            for rid, req in six.iteritems(requests):
+                status = req[0]
+                self.assertTrue(status in ("running", "ok", "error"))
+                if status != "running":
+                    self.assertEquals("ok", status, "Contents: " + req[1])
+                    reqsl.remove(rid)
 
+    def _get_async_response(self, reservation_id, reqid):
+        """
+        _get_async_response(reqids)
+        Helper method that synchronously gets the response for the specified async request, asserting that
+        it was successful.
+        @param reqid The request identifier for the async request whose response we want
+        @return Response to the request, if successful. None, otherwise.
+        """
+        # Wait until send_async_file query is actually finished.
+        max_counter = 15
+        while True:
+            max_counter -= 1
+            if max_counter == 0:
+                raise Exception("Maximum times running get_async_response")
+            time.sleep(0.1)
+            requests = self.client.check_async_command_status(reservation_id, (reqid,))
+            self.assertEquals(1, len(requests))
+            self.assertTrue(reqid in requests)
+            req = requests[reqid]
+            status = req[0]
+            self.assertTrue(status in ("running", "ok", "error"))
+            if status != "running":
+                self.assertEquals("ok", status, "Contents: " + req[1])
+                return Command.Command(req[1])
 
-    def _single_sync_use(self, logout = True):
-        session_id, reservation_id = self._get_reserved()
-
-        CONTENT = "content of the program FPGA"
-        response = self.client.send_file(reservation_id, ExperimentUtil.serialize(CONTENT), 'program')
-        self.assertEquals(response.commandstring, 'ack')
-
-        response = self.client.send_command(reservation_id, Command.Command("STATE"))
-        self.assertEquals(response.commandstring, 'STATE')
-
-        response = self.client.send_command(reservation_id, Command.Command("ChangeSwitch on 0"))
-        self.assertEquals(response.commandstring, "ChangeSwitch on 0")
-
-        if logout:
-            self.client.logout(session_id)
-
+    def test_single_uses_timeout(self):
+        backup_poll_time           = configuration.core_experiment_poll_time
+        backup_time_between_checks = self.cfg_manager.get_value('core_time_between_checks', AliveUsersCollection.DEFAULT_TIME_BETWEEN_CHECKS)
+        try:
+            self.cfg_manager._set_value('core_experiment_poll_time',1.5)
+            self.cfg_manager._set_value('core_time_between_checks',1.5)
+            self._single_use(logout = False, plus_async_use = False)
+            time.sleep(self.cfg_manager.get_value('core_experiment_poll_time') + 0.3 + self.cfg_manager.get_value('core_time_between_checks'))
+            self._single_use(logout = False, plus_async_use = False)
+        finally:
+            self.cfg_manager._set_value('core_experiment_poll_time',backup_poll_time)
+            self.cfg_manager._set_value('core_time_between_checks',backup_time_between_checks)
 
     def test_two_multiple_uses_of_different_devices(self):
         with wlcontext(self.real_ups):
