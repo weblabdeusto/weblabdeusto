@@ -82,9 +82,6 @@ DEFAULT_MESSAGE = 'Press <enter> to finish...\n'
 
 class RawInputWait(EventWait):
     def __init__(self, message = DEFAULT_MESSAGE):
-        print "RAW INPUT CREADO"
-        import traceback
-        traceback.print_stack()
         super(RawInputWait, self).__init__()
         self.message = message
     def wait(self):
