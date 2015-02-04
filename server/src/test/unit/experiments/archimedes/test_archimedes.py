@@ -39,7 +39,7 @@ class TestArchimedes(unittest.TestCase):
     def tearDown(self):
         self.experiment.do_dispose()
 
-    def __test_start(self):
+    def test_start(self):
         m = MagicMock(return_value="")
         self.experiment._send = m
         start = self.experiment.do_start_experiment("{}", "{}")
@@ -128,7 +128,7 @@ class TestArchimedes(unittest.TestCase):
         initialThreads = len(threading.enumerate())
         self.experiment.do_start_experiment("{}", "{}")
         self.experiment.do_dispose()
-        time.sleep(5)
+        time.sleep(20)
         afterThreads = len(threading.enumerate())
         self.assertEqual(initialThreads, afterThreads, "all threads destroyed")
 
