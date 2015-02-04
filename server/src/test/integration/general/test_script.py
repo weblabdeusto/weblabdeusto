@@ -32,6 +32,7 @@ class ScriptTestCase(unittest.TestCase):
         sys.argv = self.argv
         shutil.rmtree(self.temporary_folder)
 
+    @unittest.skip("weblab-admin create requires the user to run raw_input() when finished. We should change that mechanism with something like --dont-wait-input or so, and use the signals mechanisms. We also need to run this in another thread, so we can stop it whenever we want.")
     def test_running(self):
         sys.argv = shlex.split("weblab-admin create %s --quiet" % self.weblab_dir)
         weblab_admin()

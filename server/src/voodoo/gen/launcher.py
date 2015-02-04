@@ -32,7 +32,8 @@ import voodoo.counter as counter
 import voodoo.process_starter as process_starter
 import voodoo.rt_debugger as rt_debugger
 
-from . import load_dir
+# Can't locally import (from . import load_dir) since we're executing this file
+from voodoo.gen import load_dir
 
 ##########################################################
 #                                                        #
@@ -237,13 +238,13 @@ class Launcher(AbstractLauncher):
         finally:
             process_handler.stop()
 
-class MachineLauncher(AbstractLauncher):
+class HostLauncher(AbstractLauncher):
     def __init__(self,
             config_dir, host_name,
             event_waiters, logging_file_config,
             before_finish_callback = None, event_notifiers = None,
             pid_file = None, waiting_port = 54321, debugger_ports = None):
-        super(MachineLauncher, self).__init__(
+        super(HostLauncher, self).__init__(
                     config_dir, host_name,
                     event_waiters, logging_file_config,
                     before_finish_callback, event_notifiers
@@ -340,6 +341,10 @@ class MachineLauncher(AbstractLauncher):
                 break
             else:
                 time.sleep(0.05)
+
+# In the past, HostLauncher was called MachineLauncher. 
+# We keep this for compatiblity reasons
+MachineLauncher = HostLauncher
 
 def kill_launcher(pid_file):
     pid = int(open(pid_file).read())

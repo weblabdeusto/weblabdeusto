@@ -6,11 +6,11 @@ import yaml
 
 from voodoo.configuration import ConfigurationManager
 
-from .exc import GeneratorError
-from .util import _load_type
-from .address import CoordAddress
-from .locator import Locator
-from .servers import _create_server
+from voodoo.gen.exc import GeneratorError
+from voodoo.gen.util import _load_type
+from voodoo.gen.address import CoordAddress
+from voodoo.gen.locator import Locator
+from voodoo.gen.servers import _create_server
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
 CORE_CLASS = 'weblab.core.server.UserProcessingServer'

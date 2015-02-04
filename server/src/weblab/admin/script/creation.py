@@ -31,18 +31,21 @@ import sqlite3
 import urlparse
 import json
 import StringIO
+from collections import OrderedDict
 from optparse import OptionParser, OptionGroup
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import sqlalchemy
 
+import weblab.configuration_doc as configuration_doc
 from weblab.util import data_filename
 
 import weblab.db.model as Model
 from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
+from .utils import ordered_dump
 
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
@@ -930,85 +933,31 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
 
-    machine_config = ("""<?xml version="1.0" encoding="UTF-8"?>"""
-    """<machines
-        xmlns="http://www.weblab.deusto.es/configuration"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="global_configuration.xsd"
-    >
-
-    <machine>core_machine</machine>""")
+    global_config = {'hosts' : {}}
+    global_config['hosts']['core_host'] = OrderedDict()
+    core_host = global_config['hosts']['core_host']
+    core_host['runner'] = 'run.py'
+    core_host['config_file'] = 'core_host_config.py'
+    core_host['processes'] = {}
 
     if options[Creation.XMLRPC_EXPERIMENT]:
-        machine_config += """    <machine>exp_machine</machine>\n"""
-
-    machine_config += "\n\n</machines>\n"
-
-    open(os.path.join(directory, 'configuration.xml'), 'w').write(machine_config)
-
-    if options[Creation.XMLRPC_EXPERIMENT]:
-        exp_machine_dir = os.path.join(directory, 'exp_machine')
-        if not os.path.exists(exp_machine_dir):
-            os.mkdir(exp_machine_dir)
-
-        exp_machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
-        """<instances
-            xmlns="http://www.weblab.deusto.es/configuration"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="machine_configuration.xsd"
-        >
-
-        <runner file="run-xmlrpc.py"/>
-
-        <instance>exp_instance</instance>\n
-        </instances>""")
-
-        open(os.path.join(exp_machine_dir, 'configuration.xml'), 'w').write(exp_machine_configuration_xml)
-
-        exp_instance_dir = os.path.join(exp_machine_dir, 'exp_instance')
-        if not os.path.exists(exp_instance_dir):
-            os.mkdir(exp_instance_dir)
-
-        exp_instance_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>\n"""
-        """<servers \n"""
-        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-        """    xsi:schemaLocation="instance_configuration.xsd"\n"""
-        """>\n"""
-        """    <user>weblab</user>\n"""
-        """\n"""
-        """    <server>experiment1</server>\n"""
-        """</servers>\n""")
-
-        open(os.path.join(exp_instance_dir, 'configuration.xml'), 'w').write(exp_instance_configuration_xml)
-
-        xmlrpc_server_dir = os.path.join(exp_instance_dir, 'experiment1')
+        global_config['hosts']['exp_host'] = OrderedDict()
+        global_config['hosts']['exp_host']['runner'] = 'run-xmlrpc.py'
+        global_config['hosts']['exp_host']['processes'] = {}
+        global_config['hosts']['exp_host']['processes']['exp_instance'] = { 'components' : {}}
+        global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1'] = {
+                'type' : 'experiment',
+                'class' : 'experiments.dummy.DummyExperiment',
+            }
+        xmlrpc_experiment_config = global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1']
 
 
-    machine_dir = os.path.join(directory, 'core_machine')
-    if not os.path.exists(machine_dir):
-        os.mkdir(machine_dir)
-
-    machine_configuration_xml = ("""<?xml version="1.0" encoding="UTF-8"?>"""
-    """<instances
-        xmlns="http://www.weblab.deusto.es/configuration"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="machine_configuration.xsd"
-    >
-
-    <runner file="run.py"/>
-
-    <configuration file="machine_config.py"/>
-
-    """)
     for core_n in range(1, options[Creation.CORES] + 1):
-        machine_configuration_xml += "<instance>core_server%s</instance>\n    " % core_n
+        core_host['processes']['core_process%s' % core_n] = {'components' : {}}
 
-    machine_configuration_xml += "\n"
     if not options[Creation.INLINE_LAB_SERV]:
         for n in range(1, options[Creation.LAB_COPIES] + 1):
-            machine_configuration_xml += "    <instance>laboratory%s</instance>\n\n" % n
-    machine_configuration_xml += "</instances>\n"
+            core_host['processes']['laboratory%s' % n] = {'components' : {}}
 
     local_scheduling  = ""
 
@@ -1062,10 +1011,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     for n in range(1, options[Creation.LAB_COPIES] + 1):
         local_experiments = laboratory_experiments[n - 1]
         laboratory_servers += (
-        "    'laboratory%(n)s:%(laboratory_instance_name)s@core_machine' : {\n"
+        "    'laboratory%(n)s:%(laboratory_instance_name)s@core_host' : {\n"
         "%(local_experiments)s"
         "        },\n" % {
-                'laboratory_instance_name' : 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
+                'laboratory_instance_name' : 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
                 'local_experiments' : local_experiments, 'n' : n })
 
     other_core_coordinator_external_servers = ""
@@ -1081,7 +1030,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
 
 
-    machine_config_py =("# It must be here to retrieve this information from the dummy\n"
+    core_host_config_py =("# It must be here to retrieve this information from the dummy\n"
                         "core_universal_identifier       = %(core_universal_identifier)r\n"
                         "core_universal_identifier_human = %(core_universal_identifier_human)r\n"
                         "\n"
@@ -1226,207 +1175,79 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     }
 
 
-    open(os.path.join(machine_dir, 'configuration.xml'), 'w').write(machine_configuration_xml)
-    open(os.path.join(machine_dir, 'machine_config.py'), 'w').write(machine_config_py)
+    open(os.path.join(directory, 'core_host_config.py'), 'w').write(core_host_config_py)
 
-    ports = {
-        'core'  : [],
-    }
+    ports = []
 
     current_port = options[Creation.START_PORTS]
     creation_results[CreationResult.START_PORT] = current_port
 
     latest_core_server_directory = None
     for core_number in range(1, options[Creation.CORES] + 1):
-        core_instance_dir = os.path.join(machine_dir, 'core_server%s' % core_number)
-        latest_core_server_directory = core_instance_dir
-        if not os.path.exists(core_instance_dir):
-            os.mkdir(core_instance_dir)
-
-        instance_configuration_xml = (
-        """<?xml version="1.0" encoding="UTF-8"?>"""
-        """<servers \n"""
-        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-        """    xsi:schemaLocation="instance_configuration.xsd"\n"""
-        """>\n"""
-        """    <user>weblab</user>\n"""
-        """\n"""
-        """    <server>core</server>\n""")
+        current_core = core_host['processes']['core_process%s' % core_n]
+        current_core['components']['core'] = { 'type' : 'core' }
 
         if options[Creation.INLINE_LAB_SERV]:
             for n in range(1, options[Creation.LAB_COPIES] + 1):
-                instance_configuration_xml += """    <server>laboratory%s</server>\n""" % n
+                current_core['components']['laboratory%s' % n] = { 'type' : 'laboratory' }
             if not options[Creation.XMLRPC_EXPERIMENT]:
                 for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
-                    instance_configuration_xml += """    <server>experiment%s</server>\n""" % n
+                    current_core['components']['experiment%s' % n] = { 'class' : 'experiments.dummy.DummyExperiment', 'type' : 'experiment' }
             if options[Creation.VISIR_SERVER]:
-                instance_configuration_xml += """    <server>visir</server>\n"""
+                current_core['components']['visir'] = { 'class' : 'experiments.visir.VisirExperiment', 'type' : 'experiment' }
             if options[Creation.LOGIC_SERVER]:
-                instance_configuration_xml += """    <server>logic</server>\n"""
+                current_core['components']['logic'] = { 'class' : 'experiments.logic.server.LogicExperiment', 'type' : 'experiment' }
             if options[Creation.VM_SERVER]:
-                instance_configuration_xml += """     <server>vm</server>\n"""
-
-
-        instance_configuration_xml += (
-        """\n"""
-        """</servers>\n""")
-
-        open(os.path.join(core_instance_dir, 'configuration.xml'), 'w').write(instance_configuration_xml)
-
-        core_dir = os.path.join(core_instance_dir, 'core')
-        if not os.path.exists(core_dir):
-            os.mkdir(core_dir)
+                current_core['components']['vm'] = { 'class' : 'experiments.vm.server.VMExperiment', 'type' : 'experiment' }
 
         core_config = {
             'json'   : current_port,
             'route'  : 'route%s' % core_number,
-            'clean'  : core_number == 1
         }
-        ports['core'].append(core_config)
+        ports.append(core_config)
 
-        core_port = current_port + 1
-
-        current_port += 2
-
-        open(os.path.join(core_dir, 'configuration.xml'), 'w').write(
-        """<?xml version="1.0" encoding="UTF-8"?>"""
-        """<server\n"""
-        """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-        """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-        """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-        """>\n"""
-        """\n"""
-        """    <configuration file="server_config.py" />\n"""
-        """\n"""
-        """    <type>weblab.data.server_type::UserProcessing</type>\n"""
-        """    <methods>weblab.methods::UserProcessing</methods>\n"""
-        """\n"""
-        """    <implementation>weblab.core.server.UserProcessingServer</implementation>\n"""
-        """\n"""
-        """    <!-- <restriction>something else</restriction> -->\n"""
-        """\n"""
-        """    <protocols>\n"""
-        """        <!-- This server supports both Direct calls, as SOAP calls -->\n"""
-        """        <protocol name="Direct">\n"""
-        """            <coordinations>\n"""
-        """                <coordination></coordination>\n"""
-        """            </coordinations>\n"""
-        """            <creation></creation>\n"""
-        """        </protocol>\n"""
-        """        <protocol name="SOAP">\n"""
-        """            <coordinations>\n"""
-        """                <coordination>\n"""
-        """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
-        """                </coordination>\n"""
-        """            </coordinations>\n"""
-        """            <creation>\n"""
-        """                <parameter name="address" value=""     />\n"""
-        """                <parameter name="port"    value="%(port)s" />\n"""
-        """            </creation>\n"""
-        """        </protocol>\n"""
-        """    </protocols>\n"""
-        """</server>\n""" % { 'port' : core_port })
-
-        open(os.path.join(core_dir, 'server_config.py'), 'w').write((
-        "core_coordinator_clean   = %(clean)r\n"
-        "core_facade_server_route = %(route)r\n"
-        "core_facade_port    = %(json)r\n") % core_config)
+        current_core['components']['core']['config'] = {
+            configuration_doc.CORE_FACADE_PORT : current_port,
+            configuration_doc.COORDINATOR_CLEAN : core_number == 1,
+            configuration_doc.CORE_FACADE_SERVER_ROUTE : 'route%s' % core_number,
+        }
+        current_port += 1
 
     for n in range(1, options[Creation.LAB_COPIES] + 1):
-        laboratory_instance_name = 'core_server1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
+        laboratory_instance_name = 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
         experiments_in_lab = laboratory_experiment_instances[n - 1]
 
         if options[Creation.INLINE_LAB_SERV]:
-            lab_instance_dir = latest_core_server_directory
-        else:
-            lab_instance_dir = os.path.join(machine_dir, 'laboratory%s' % n)
-            if not os.path.exists(lab_instance_dir):
-                os.mkdir(lab_instance_dir)
+            current_lab_process_config = core_host['processes']['core_process1']
+            current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
 
-            lab_instance_configuration_xml = (
-                """<?xml version="1.0" encoding="UTF-8"?>\n"""
-                """<servers \n"""
-                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-                """    xsi:schemaLocation="instance_configuration.xsd"\n"""
-                """>\n"""
-                """    <user>weblab</user>\n"""
-                """\n"""
-                """    <server>laboratory%s</server>\n""" % n
-                )
+        else:
+            current_lab_process_config = core_host['processes']['laboratory%s' % n]
+
+            current_lab_process_config['components']['laboratory%s' % n] = { 
+                'type' : 'laboratory' ,
+                'protocols' : { 'port' : current_port },
+            }
+            current_port += 1
+
+            current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
 
             if not options[Creation.XMLRPC_EXPERIMENT]:
                 for dummy_id in experiments_in_lab.get('dummy', []):
-                    lab_instance_configuration_xml += """    <server>experiment%s</server>\n""" % dummy_id
+                    current_lab_process_config['components']['experiment%s' % dummy_id] = { 'class' : 'experiments.dummy.DummyExperiment', 'type' : 'experiment' }
 
             if len(experiments_in_lab.get('visir', [])) > 0:
-                lab_instance_configuration_xml += """    <server>visir</server>\n"""
+                current_lab_process_config['components']['visir'] = { 'class' : 'experiments.visir.VisirExperiment', 'type' : 'experiment' }
 
             if 'logic' in experiments_in_lab:
-                lab_instance_configuration_xml += """    <server>logic</server>\n"""
+                current_lab_process_config['components']['logic'] = { 'class' : 'experiments.logic.server.LogicExperiment', 'type' : 'experiment' }
 
             if 'vm' in experiments_in_lab:
-                lab_instance_configuration_xml += """     <server>vm</server>\n"""
-
-            lab_instance_configuration_xml += """</servers>\n"""
-
-            open(os.path.join(lab_instance_dir, 'configuration.xml'), 'w').write( lab_instance_configuration_xml )
-
-        lab_dir = os.path.join(lab_instance_dir, 'laboratory%s' % n)
-        if not os.path.exists(lab_dir):
-            os.mkdir(lab_dir)
-
-        port1 = current_port
-        current_port += 1
-        port2 = current_port
-        open(os.path.join(lab_dir, 'configuration.xml'), 'w').write((
-            """<?xml version="1.0" encoding="UTF-8"?>\n"""
-            """<server\n"""
-            """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-            """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-            """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-            """>\n"""
-            """\n"""
-            """    <configuration file="server_config.py" />\n"""
-            """\n"""
-            """    <type>weblab.data.server_type::Laboratory</type>\n"""
-            """    <methods>weblab.methods::Laboratory</methods>\n"""
-            """\n"""
-            """    <implementation>weblab.lab.server.LaboratoryServer</implementation>\n"""
-            """\n"""
-            """    <protocols>\n"""
-            """        <protocol name="Direct">\n"""
-            """            <coordinations>\n"""
-            """                <coordination></coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation></creation>\n"""
-            """        </protocol>\n"""
-            """        <protocol name="SOAP">\n"""
-            """            <coordinations>\n"""
-            """                <coordination>\n"""
-            """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
-            """                </coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation>\n"""
-            """                <parameter name="address" value=""     />\n"""
-            """                <parameter name="port"    value="%(port)s" />\n"""
-            """            </creation>\n"""
-            """        </protocol>\n"""
-            """        <protocol name="XMLRPC">\n"""
-            """            <coordinations>\n"""
-            """                <coordination>\n"""
-            """                    <parameter name="address" value="127.0.0.1:%(port2)s@NETWORK" />\n"""
-            """                </coordination>\n"""
-            """            </coordinations>\n"""
-            """            <creation>\n"""
-            """                <parameter name="address" value=""     />\n"""
-            """                <parameter name="port"    value="%(port2)s" />\n"""
-            """            </creation>\n"""
-            """        </protocol>\n"""
-            """    </protocols>\n"""
-            """</server>\n""") % {'port' : port1, 'port2' : port2})
-        current_port += 1
+                current_lab_process_config['components']['vm'] = { 'class' : 'experiments.vm.server.VMExperiment', 'type' : 'experiment' }
+        
+        local_lab_config_filename = 'lab%s_config.py' % n
+        lab_config_filepath = os.path.join(directory, local_lab_config_filename)
+        current_lab_comp_config['config_file'] = local_lab_config_filename
 
         laboratory_config_py = (
             """##################################\n"""
@@ -1441,14 +1262,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
             if options[Creation.XMLRPC_EXPERIMENT]:
                 lab_config_args['instance'] = 'exp_instance'
-                lab_config_args['machine']  = 'exp_machine'
+                lab_config_args['host']  = 'exp_host'
             else:
                 lab_config_args['instance'] = laboratory_instance_name
-                lab_config_args['machine']  = 'core_machine'
+                lab_config_args['host']  = 'core_host'
 
             laboratory_config_py += (
                 """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
-                """                'coord_address' : 'experiment%(n)s:%(instance)s@%(machine)s',\n"""
+                """                'coord_address' : 'experiment%(n)s:%(instance)s@%(host)s',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % lab_config_args
@@ -1456,7 +1277,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         for visir_id in experiments_in_lab.get('visir', []):
             laboratory_config_py += (
                 """        'exp%(n)s:%(visir_name)s@Visir experiments' : {\n"""
-                """                'coord_address' : 'visir:%(instance)s@core_machine',\n"""
+                """                'coord_address' : 'visir:%(instance)s@core_host',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name,
@@ -1465,7 +1286,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if 'vm' in experiments_in_lab:
             laboratory_config_py += (
                 """        'exp1:%(name)s@VM experiments' : {\n"""
-                """                'coord_address' : 'vm:%(instance)s@core_machine',\n"""
+                """                'coord_address' : 'vm:%(instance)s@core_host',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name,
@@ -1474,103 +1295,30 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if 'logic' in experiments_in_lab:
             laboratory_config_py += (
                 """        'exp1:ud-logic@PIC experiments' : {\n"""
-                """                'coord_address' : 'logic:%(instance)s@core_machine',\n"""
+                """                'coord_address' : 'logic:%(instance)s@core_host',\n"""
                 """                'checkers' : ()\n"""
                 """            },\n"""
             ) % { 'instance' : laboratory_instance_name }
 
         laboratory_config_py += """    }\n"""
-
-        open(os.path.join(lab_dir, 'server_config.py'), 'w').write(laboratory_config_py)
+        open(lab_config_filepath, 'w').write(laboratory_config_py)
 
         for dummy_id in experiments_in_lab.get('dummy', []):
             if options[Creation.XMLRPC_EXPERIMENT]:
-                experiment_dir = xmlrpc_server_dir
+                xmlrpc_experiment_config['protocols'] = {
+                    'supports' : 'xmlrpc',
+                    'port' : options[Creation.XMLRPC_EXPERIMENT_PORT],
+                }
             else:
-                experiment_dir = os.path.join(lab_instance_dir, 'experiment%s' % dummy_id)
-
-            if not os.path.exists(experiment_dir):
-                os.mkdir(experiment_dir)
-
-            experiment_configuration = (
-                """<?xml version="1.0" encoding="UTF-8"?>\n"""
-                """<server\n"""
-                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-                """>\n"""
-                """\n"""
-                """    <configuration file="server_config.py" />\n"""
-                """\n"""
-                """    <type>weblab.data.server_type::Experiment</type>\n"""
-                """    <methods>weblab.methods::Experiment</methods>\n"""
-                """\n"""
-                """    <implementation>experiments.dummy.DummyExperiment</implementation>\n"""
-                """\n"""
-                """    <restriction>%(dummy)s@%(dummy_category_name)s</restriction>\n"""
-                """\n"""
-                """    <protocols>\n"""
-                """        <protocol name="Direct">\n"""
-                """            <coordinations>\n"""
-                """                <coordination></coordination>\n"""
-                """            </coordinations>\n"""
-                """            <creation></creation>\n"""
-                """        </protocol>\n""") % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME] }
-
-            if options[Creation.XMLRPC_EXPERIMENT]:
-                experiment_configuration += (
-                """        <protocol name="XMLRPC">\n"""
-                """            <coordinations>\n"""
-                """                <coordination>\n"""
-                """                    <parameter name="address" value="127.0.0.1:%(port)s@NETWORK" />\n"""
-                """                </coordination>\n"""
-                """            </coordinations>\n"""
-                """            <creation>\n"""
-                """                <parameter name="address" value="127.0.0.1"     />\n"""
-                """                <parameter name="port"    value="%(port)s" />\n"""
-                """            </creation>\n"""
-                """        </protocol>\n"""
-                ) % {'port' : options[Creation.XMLRPC_EXPERIMENT_PORT] }
-
-            experiment_configuration += (
-                """    </protocols>\n"""
-                """</server>\n""")
-
-            open(os.path.join(experiment_dir, 'configuration.xml'), 'w').write(experiment_configuration)
-
-            open(os.path.join(experiment_dir, 'server_config.py'), 'w').write(
-                "dummy_verbose = True\n")
-
+                experiment_config = current_lab_process_config['components']['experiment%s' % dummy_id]
+                experiment_config['config'] = {
+                    'dummy_verbose' : True,
+                }
 
         if len(experiments_in_lab.get('visir', [])) > 0:
-            visir_dir = os.path.join(lab_instance_dir, 'visir')
-            if not os.path.exists(visir_dir):
-                os.mkdir(visir_dir)
-
-            open(os.path.join(visir_dir, 'configuration.xml'), 'w').write((
-                """<?xml version="1.0" encoding="UTF-8"?>\n"""
-                """<server\n"""
-                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-                """>\n"""
-                """\n"""
-                """    <configuration file="server_config.py" />\n"""
-                """\n"""
-                """    <type>weblab.data.server_type::Experiment</type>\n"""
-                """    <methods>weblab.methods::Experiment</methods>\n"""
-                """\n"""
-                """    <implementation>experiments.visir.VisirExperiment</implementation>\n"""
-                """\n"""
-                """    <protocols>\n"""
-                """        <protocol name="Direct">\n"""
-                """            <coordinations>\n"""
-                """                <coordination></coordination>\n"""
-                """            </coordinations>\n"""
-                """            <creation></creation>\n"""
-                """        </protocol>\n"""
-                """    </protocols>\n"""
-                """</server>\n"""))
+            local_visir_config_filename = 'visir_config.py'
+            visir_config_filename = os.path.join(directory, local_visir_config_filename)
+            current_lab_process_config['components']['visir']['config_file'] = local_visir_config_filename
 
             if options[Creation.VISIR_MEASUREMENT_SERVER] is not None:
                 if not ':' in options[Creation.VISIR_MEASUREMENT_SERVER] or options[Creation.VISIR_MEASUREMENT_SERVER].startswith(('http://','https://')) or '/' in options[Creation.VISIR_MEASUREMENT_SERVER].split(':')[1]:
@@ -1594,7 +1342,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 visir_php = """vt_use_visir_php = False\n"""
 
 
-            open(os.path.join(visir_dir, 'server_config.py'), 'w').write((
+            open(visir_config_filename, 'w').write((
                 """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
                 """vt_measure_server_target = "/measureserver"\n"""
                 """\n"""
@@ -1628,34 +1376,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 """\n""") % {'visir_measurement_server' : visir_measurement_server })
 
         if 'vm' in experiments_in_lab:
-            vm_dir = os.path.join(lab_instance_dir, 'vm')
-            if not os.path.exists(vm_dir):
-                os.mkdir(vm_dir)
-
-            open(os.path.join(vm_dir, 'configuration.xml'), 'w').write((
-                """<?xml version="1.0" encoding="UTF-8"?>\n"""
-                """<server\n"""
-                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-                """>\n"""
-                """\n"""
-                """    <configuration file="server_config.py" />\n"""
-                """\n"""
-                """    <type>weblab.data.server_type::Experiment</type>\n"""
-                """    <methods>weblab.methods::Experiment</methods>\n"""
-                """\n"""
-                """    <implementation>experiments.vm.server.VMExperiment</implementation>\n"""
-                """\n"""
-                """    <protocols>\n"""
-                """        <protocol name="Direct">\n"""
-                """            <coordinations>\n"""
-                """                <coordination></coordination>\n"""
-                """            </coordinations>\n"""
-                """            <creation></creation>\n"""
-                """        </protocol>\n"""
-                """    </protocols>\n"""
-                """</server>\n"""))
+            local_vm_config_filename = os.path.join('vm_config.py')
+            vm_config_filename = os.path.join(directory, local_vm_config_filename)
+            current_lab_process_config['components']['vm']['config_file'] = local_vm_config_filename
 
             # Load and fill the config file template
             template = load_template("vm_server_config.py.template")
@@ -1666,44 +1389,16 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                                   "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
                                   "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
 
-            open(os.path.join(vm_dir, 'server_config.py'), 'w').write(
-                cfgfile
-            )
+            open(vm_config_filename, 'w').write(cfgfile)
 
         if 'logic' in experiments_in_lab:
-            logic_dir = os.path.join(lab_instance_dir, 'logic')
-            if not os.path.exists(logic_dir):
-                os.mkdir(logic_dir)
+            current_lab_process_config['components']['vm']['config'] = { 
+                'logic_webcam_url' : '',
+            }
 
-            open(os.path.join(logic_dir, 'configuration.xml'), 'w').write((
-                """<?xml version="1.0" encoding="UTF-8"?>\n"""
-                """<server\n"""
-                """    xmlns="http://www.weblab.deusto.es/configuration" \n"""
-                """    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n"""
-                """    xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"\n"""
-                """>\n"""
-                """\n"""
-                """    <configuration file="server_config.py" />\n"""
-                """\n"""
-                """    <type>weblab.data.server_type::Experiment</type>\n"""
-                """    <methods>weblab.methods::Experiment</methods>\n"""
-                """\n"""
-                """    <implementation>experiments.logic.server.LogicExperiment</implementation>\n"""
-                """\n"""
-                """    <protocols>\n"""
-                """        <protocol name="Direct">\n"""
-                """            <coordinations>\n"""
-                """                <coordination></coordination>\n"""
-                """            </coordinations>\n"""
-                """            <creation></creation>\n"""
-                """        </protocol>\n"""
-                """    </protocols>\n"""
-                """</server>\n"""))
-
-            open(os.path.join(logic_dir, 'server_config.py'), 'w').write(
-            """logic_webcam_url = ""\n"""
-            """\n"""
-            )
+    global_config_filename = os.path.join(directory, 'configuration.yml')
+    global_config_contents = ordered_dump(global_config, width = 5, default_flow_style = False)
+    open(global_config_filename, 'w').write(global_config_contents)
 
 
     files_stored_dir = os.path.join(directory, 'files_stored')
@@ -1944,8 +1639,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         launch_script += (
         """    launcher = Launcher.Launcher(\n"""
         """                '.',\n"""
-        """                'core_machine',\n"""
-        """                'core_server1',\n"""
+        """                'core_host',\n"""
+        """                'core_process1',\n"""
         """                (\n"""
         """                    Launcher.SignalWait(signal.SIGTERM),\n"""
         """                    Launcher.SignalWait(signal.SIGINT),\n"""
@@ -1961,9 +1656,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    rt_debugger.launch_debugger(%s)\n""") % debugging_core_port
     else:
         launch_script += (
-        """    launcher = Launcher.MachineLauncher(\n"""
+        """    launcher = Launcher.HostLauncher(\n"""
         """                '.',\n"""
-        """                'core_machine',\n"""
+        """                'core_host',\n"""
         """                (\n"""
         """                    Launcher.SignalWait(signal.SIGTERM),\n"""
         """                    Launcher.SignalWait(signal.SIGINT),\n"""
@@ -1972,7 +1667,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                {\n""")
 
         for core_number in range(1, options[Creation.CORES] + 1):
-            launch_script += """                    "core_server%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
+            launch_script += """                    "core_process%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
 
         for n in range(1, options[Creation.LAB_COPIES] + 1):
             launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
@@ -1992,7 +1687,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             debugging_core_port = current_port
             debugging_ports.append(debugging_core_port)
             current_port += 1
-            launch_script += """                     'core_server%s' : %s, \n""" % (core_number, debugging_core_port)
+            launch_script += """                     'core_process%s' : %s, \n""" % (core_number, debugging_core_port)
         launch_script += ("""                }\n"""
             """            )\n""")
 
@@ -2025,13 +1720,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     debugging_config += "BASE_URL = %r\n\n" % base_url
     debugging_config += "# PORTS is used by the WebLab Bot to know what\n# ports it should wait prior to start using\n# the simulated clients.\n"
     debugging_config += "PORTS = {\n"
-    for protocol in ('json',):
-        protocol_configuration = []
-        for core_configuration in ports['core']:
-            core_protocol_configuration = core_configuration.get(protocol, None)
-            if core_protocol_configuration:
-                protocol_configuration.append(core_protocol_configuration)
-        debugging_config += """    %r : %r, \n""" % (protocol, protocol_configuration)
+    protocol_configuration = []
+    for core_configuration in ports:
+        core_protocol_configuration = core_configuration.get('json', None)
+        if core_protocol_configuration:
+            protocol_configuration.append(core_protocol_configuration)
+    debugging_config += """    'json' : %r, \n""" % (protocol_configuration)
     debugging_config += "}\n"
 
 
@@ -2043,16 +1737,16 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """try:\n"""
             """    import signal\n"""
             """    \n"""
-            """    import voodoo.gen.loader.Launcher as Launcher\n"""
+            """    import voodoo.gen.launcher as Launcher\n"""
             """    \n"""
             """    def before_shutdown():\n"""
             """        print "Stopping servers..."\n"""
             """    \n""")
 
         xmlrpc_launch_script += (
-        """    launcher = Launcher.MachineLauncher(\n"""
+        """    launcher = Launcher.HostLauncher(\n"""
         """                '.',\n"""
-        """                'exp_machine',\n"""
+        """                'exp_host',\n"""
         """                (\n"""
         """                    Launcher.SignalWait(signal.SIGTERM),\n"""
         """                    Launcher.SignalWait(signal.SIGINT),\n"""
@@ -2224,7 +1918,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
 
     proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports['core']:
+    for core_configuration in ports:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json/,' % d
@@ -2235,7 +1929,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_web>\n"""
 
     proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports['core']:
+    for core_configuration in ports:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/web/,' % d
@@ -2246,7 +1940,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_administration>\n"""
 
     proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports['core']:
+    for core_configuration in ports:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
@@ -2258,7 +1952,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
 
     proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['core']:
+    for core_configuration in ports:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json/,' % d
@@ -2269,7 +1963,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_web>\n"""
 
     proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports['core']:
+    for core_configuration in ports:
         d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
         apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % d
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/web/,' % d

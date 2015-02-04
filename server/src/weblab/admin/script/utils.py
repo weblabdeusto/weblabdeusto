@@ -18,9 +18,22 @@ from __future__ import print_function
 
 import os
 import sys
+from collections import OrderedDict
+
+import yaml
 
 from voodoo.gen.legacy import LegacyParser
 from voodoo.gen import load_dir
+
+def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
+    class OrderedDumper(yaml.Dumper):
+        pass
+    def _dict_representer(dumper, data):
+        return dumper.represent_mapping(
+            yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+            data.items())
+    OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    return yaml.dump(data, stream, OrderedDumper, **kwds)
 
 def check_dir_exists(directory, parser = None):
     if not os.path.exists(directory):
@@ -45,7 +58,6 @@ def run_with_config(directory, func):
         if os.path.exists(os.path.join('.', 'configuration.yml')):
             global_config = load_dir('.')
             configuration_files, configuration_values = global_config.get_all_config()
-            print(configuration_files, configuration_values)
         elif os.path.exists(os.path.join('.', 'configuration.xml')):
             print("Loading old-style configuration...", file=sys.stderr)
             parser = LegacyParser()
