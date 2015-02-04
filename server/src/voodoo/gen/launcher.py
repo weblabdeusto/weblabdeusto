@@ -82,6 +82,9 @@ DEFAULT_MESSAGE = 'Press <enter> to finish...\n'
 
 class RawInputWait(EventWait):
     def __init__(self, message = DEFAULT_MESSAGE):
+        print "RAW INPUT CREADO"
+        import traceback
+        traceback.print_stack()
         super(RawInputWait, self).__init__()
         self.message = message
     def wait(self):
@@ -96,7 +99,7 @@ class TimeWait(EventWait):
 
 class SocketWait(EventWait):
     def __init__(self, port):
-        super(SocketNotifier, self).__init__()
+        super(SocketWait, self).__init__()
         self.port = port
 
     def wait(self):
@@ -298,8 +301,7 @@ class HostLauncher(AbstractLauncher):
                     stdin = subprocess.PIPE
                 )
 
-            # TODO: Remove "user.not.used" (changing process_starter API)
-            os_process = process_starter.start_process('user.not.used', (), subprocess_kargs)
+            os_process = process_starter.start_process((), subprocess_kargs)
             os_processes.append(os_process)
 
         self.notify_and_wait()

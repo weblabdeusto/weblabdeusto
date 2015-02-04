@@ -20,7 +20,7 @@ import subprocess
 # except:
 #    pwd = None
 
-def start_process(username, popen_args = None, popen_kargs = None):
+def start_process(popen_args = None, popen_kargs = None):
     if popen_args is None:
         popen_args = ()
     if popen_kargs is None:

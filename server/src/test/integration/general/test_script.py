@@ -17,10 +17,37 @@ import os
 import sys
 import shlex
 import shutil
+import signal
+import time
 import tempfile
 import unittest
+import threading
 
 from weblab.admin.script import weblab as weblab_admin
+from test.util.ports import new as new_port
+
+class ServerLoader(threading.Thread):
+    def __init__(self, weblab_dir):
+        super(ServerLoader, self).__init__()
+        self.weblab_dir = weblab_dir
+        self.exc_info = None
+
+    def __enter__(self):
+        self.start()
+        raw_input("Started...")
+
+    def run(self):
+        try:
+            sys.argv = shlex.split("weblab-admin start %s" % self.weblab_dir)
+            weblab_admin()
+        except:
+            self.exc_info = sys.exc_info()
+            print self.exc_info
+
+    def __exit__(self, *args, **kwargs):
+        current_pid = os.getpid()
+        os.kill(current_pid, signal.SIGTERM)
+        self.join()
 
 class ScriptTestCase(unittest.TestCase):
     def setUp(self):
@@ -32,17 +59,20 @@ class ScriptTestCase(unittest.TestCase):
         sys.argv = self.argv
         shutil.rmtree(self.temporary_folder)
 
-    @unittest.skip("weblab-admin create requires the user to run raw_input() when finished. We should change that mechanism with something like --dont-wait-input or so, and use the signals mechanisms. We also need to run this in another thread, so we can stop it whenever we want.")
-    def test_running(self):
-        sys.argv = shlex.split("weblab-admin create %s --quiet" % self.weblab_dir)
+    @unittest.skip("weblab-admin create still requires the user to run raw_input() since in voodoo.launcher in the __main__ there's a raw_input")
+    def test_simple(self):
+        start_port = new_port() + 1000
+        # Make a port space
+        for _ in xrange(10):
+            new_port()
+        port = new_port()
+        sys.argv = shlex.split("weblab-admin create %s --quiet --not-interactive --socket-wait=%s --start-port=%s" % (self.weblab_dir, port, start_port))
         weblab_admin()
-        sys.argv = shlex.split("weblab-admin start %s" % self.weblab_dir)
-        try:
-            weblab_admin()
-            print "TEST THE SERVICES"
-        finally:
-            sys.argv = shlex.split("weblab-admin stop %s" % self.weblab_dir)
-            weblab_admin()
+        loader = ServerLoader(self.weblab_dir)
+        with loader:
+            print "Test the service, which is running in other thread"
+
+        print loader.exc_info
 
 def suite():
     return unittest.makeSuite(ScriptTestCase)

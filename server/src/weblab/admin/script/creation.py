@@ -93,6 +93,7 @@ class Creation(object):
     FORCE             = 'force'
     QUIET             = 'quiet'
     VERBOSE           = 'verbose'
+    SOCKET_WAIT       = 'socket_wait'
 
     # General information
 
@@ -429,16 +430,19 @@ def _build_parser():
     parser = OptionParser(usage="%prog create DIR [options]")
 
     parser.add_option("-f", "--force",            dest = Creation.FORCE, action="store_true", default=False,
-                                                   help = "Overwrite the contents even if the directory already existed.")
+                                                  help = "Overwrite the contents even if the directory already existed.")
 
     parser.add_option("-q", "--quiet",            dest = Creation.QUIET, action="store_true", default=False,
-                                                   help = "Do not display any output.")
+                                                  help = "Do not display any output.")
 
     parser.add_option("-v", "--verbose",          dest = Creation.VERBOSE, action="store_true", default=False,
-                                                   help = "Show more information about the process.")
+                                                  help = "Show more information about the process.")
 
-    parser.add_option("--not-interactive",          dest = Creation.NOT_INTERACTIVE, action="store_true", default=False,
-                                                   help = "Run the script in not interactive mode. Recommended for scripts only.")
+    parser.add_option("--not-interactive",        dest = Creation.NOT_INTERACTIVE, action="store_true", default=False,
+                                                  help = "Run the script in not interactive mode. Recommended for scripts only.")
+
+    parser.add_option("--socket-wait",            dest = Creation.SOCKET_WAIT, metavar="PORT", type="int", default=None,
+                                                  help = "Wait for a socket connection rather than sigterm/input")
 
     parser.add_option("--add-test-data",          dest = Creation.ADD_TEST_DATA, action="store_true", default=False,
                                                   help = "Populate the database with sample data")
@@ -1641,11 +1645,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                '.',\n"""
         """                'core_host',\n"""
         """                'core_process1',\n"""
-        """                (\n"""
-        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
-        """                    Launcher.SignalWait(signal.SIGINT),\n"""
-        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
-        """                ),\n"""
+        """                (\n""")
+        if options[Creation.SOCKET_WAIT]:
+            launch_script += ("""                    Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT])
+        else:
+            launch_script += ("""                    Launcher.SignalWait(signal.SIGTERM),\n"""
+                              """                    Launcher.SignalWait(signal.SIGINT),\n"""
+                              """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n""")
+        launch_script += ("""                ),\n"""
         """                "logs/config/logging.configuration.server1.txt",\n"""
         """                before_shutdown,\n"""
         """                (\n"""
@@ -1659,11 +1666,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    launcher = Launcher.HostLauncher(\n"""
         """                '.',\n"""
         """                'core_host',\n"""
-        """                (\n"""
-        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
-        """                    Launcher.SignalWait(signal.SIGINT),\n"""
-        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
-        """                ),\n"""
+        """                (\n""")
+        if options[Creation.SOCKET_WAIT]:
+            launch_script += ("""                    Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT])
+        else:
+            launch_script += ("""                    Launcher.SignalWait(signal.SIGTERM),\n"""
+                              """                    Launcher.SignalWait(signal.SIGINT),\n"""
+                              """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n""")
+        launch_script += ("""                ),\n"""
         """                {\n""")
 
         for core_number in range(1, options[Creation.CORES] + 1):
@@ -1747,11 +1757,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    launcher = Launcher.HostLauncher(\n"""
         """                '.',\n"""
         """                'exp_host',\n"""
-        """                (\n"""
-        """                    Launcher.SignalWait(signal.SIGTERM),\n"""
-        """                    Launcher.SignalWait(signal.SIGINT),\n"""
-        """                    Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n"""
-        """                ),\n"""
+        """                (\n""")
+        if options[Creation.SOCKET_WAIT]:
+            xml_launch_script += ("""                Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT] + 1)
+        else:
+            xml_launch_script += ("""                Launcher.SignalWait(signal.SIGTERM),\n"""
+                              """                Launcher.SignalWait(signal.SIGINT),\n"""
+                              """                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n""")
+        xmlrpc_launch_script += ("""                ),\n"""
         """                {\n""")
 
         xmlrpc_launch_script += """                    "exp_instance" : "logs%sconfig%slogging.configuration.exp_instance.txt",\n""" % (os.sep,os.sep)
