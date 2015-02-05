@@ -29,8 +29,14 @@ from weblab.experiment.experiment import Experiment
 #module_directory = os.path.join(*__name__.split('.')[:-1])
 
 
+
 from multiprocessing.pool import ThreadPool
 
+
+# Assign a process-level workpool. Previously we relied on a class-local workpool which was
+# active only while there were users logged in, but making it global makes it easier to make
+# the experiment concurrent, and to work around a certain scheduling bug.
+WORKPOOL = ThreadPool(8)
 
 DEFAULT_ARCHIMEDES_BOARD_TIMEOUT = 2
 
@@ -44,10 +50,6 @@ class Archimedes(Experiment):
         super(Archimedes, self).__init__(*args, **kwargs)
 
         self.DEBUG = False
-
-        self._lock = threading.Lock()
-
-        self._workpool = None
 
         self._cfg_manager = cfg_manager
 
@@ -95,16 +97,11 @@ class Archimedes(Experiment):
         if not hasattr(threading.current_thread(), "_children"):
             threading.current_thread()._children = weakref.WeakKeyDictionary()
 
-        # Allocate a small pool of worker threads to handle the requests to the board.
-        if self._workpool:
-            self._workpool.terminate()
-        self._workpool = ThreadPool(len(self.archimedes_instances))
-
         current_config = self.initial_configuration.copy()
 
         # Immediately pull all the balls up (so that all balls start up)
         # Carry out the operation in parallel.
-        responses = self._workpool.map(lambda board: self._send(board, "up"), self.archimedes_instances.values())
+        responses = WORKPOOL.map(lambda board: self._send(board, "up"), self.archimedes_instances.values())
         # Ignore the response. Assume it worked.
 
         # The client initial data is meant to contain a structure that defines what the client should show.
@@ -121,7 +118,7 @@ class Archimedes(Experiment):
         response = {}
 
         # Carry out the operation in parallel.
-        infos = self._workpool.map(self.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
+        infos = WORKPOOL.map(self.obtain_board_info, [self.archimedes_instances.get(b) for b in boards])
         for i in range(len(boards)):
             response[boards[i]] = infos[i]
 
@@ -165,7 +162,6 @@ class Archimedes(Experiment):
 
     @Override(Experiment)
     @logged("info")
-    @locked('_lock')
     def do_send_command_to_device(self, command):
         """
         Callback run when the client sends a command to the experiment
@@ -298,14 +294,8 @@ class Archimedes(Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        self._workpool.close()
-        self._workpool.terminate()
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
-
-        # Finish the thread pool
-        if self._workpool is not None:
-            self._workpool.terminate()
 
         return "ok"
 
