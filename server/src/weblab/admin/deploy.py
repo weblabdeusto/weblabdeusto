@@ -152,7 +152,7 @@ CONFIG_JS = {
 								   "cssWidth"				: "1024",
 								   "cssHeight"				: "680",
 								   "provide.file.upload"	: False,
-								   "html.file"				: "romie/romie.html"
+								   "html.file"				: "jslabs/romie/romie.html"
 							   },
 							   {
 								   "experiment.name"		: "visir-html5",
