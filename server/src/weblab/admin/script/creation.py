@@ -107,6 +107,7 @@ class Creation(object):
     SERVER_HOST       = 'server_host'
     POLL_TIME         = 'poll_time'
     INLINE_LAB_SERV   = 'inline_lab_serv'
+    NO_LAB            = 'no_lab'
     HTTP_SERVER_PORT  = 'http_server_port'
     LAB_COPIES        = 'lab_copies'
     ADMIN_USER        = 'admin_user'
@@ -476,6 +477,9 @@ def _build_parser():
 
     parser.add_option("--poll-time",              dest = Creation.POLL_TIME,     type="int",    default=350,
                                                   help = "Time in seconds that will wait before expiring a user session.")
+
+    parser.add_option("--no-lab",                 dest = Creation.NO_LAB, action="store_true", default=False,
+                                                  help = "Do not create any laboratory server or experiment server.")
 
     parser.add_option("--inline-lab-server",      dest = Creation.INLINE_LAB_SERV, action="store_true", default=False,
                                                   help = "Laboratory server included in the same process as the core server. "
@@ -909,8 +913,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL], role = 'administrator')
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
 
-    # dummy@Dummy experiments (local)
-    deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'dummy', group_name, 200)
+    if not options[Creation.NO_LAB]:
+        # dummy@Dummy experiments (local)
+        deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'dummy', group_name, 200)
 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', 'blank', group_name, 200)
@@ -944,7 +949,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     core_host['config_file'] = 'core_host_config.py'
     core_host['processes'] = {}
 
-    if options[Creation.XMLRPC_EXPERIMENT]:
+    if not options[Creation.NO_LAB] and options[Creation.XMLRPC_EXPERIMENT]:
         global_config['hosts']['exp_host'] = OrderedDict()
         global_config['hosts']['exp_host']['runner'] = 'run-xmlrpc.py'
         global_config['hosts']['exp_host']['processes'] = {}
@@ -959,79 +964,79 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     for core_n in range(1, options[Creation.CORES] + 1):
         core_host['processes']['core_process%s' % core_n] = {'components' : {}}
 
-    if not options[Creation.INLINE_LAB_SERV]:
+    if not options[Creation.NO_LAB] and not options[Creation.INLINE_LAB_SERV]:
         for n in range(1, options[Creation.LAB_COPIES] + 1):
             core_host['processes']['laboratory%s' % n] = {'components' : {}}
 
     local_scheduling  = ""
+    laboratory_servers = ""
+    other_core_coordinator_external_servers = ""
+    other_scheduling_systems = ""
 
     experiment_counter = 0
     laboratory_experiments  = {}
     laboratory_experiment_instances  = {}
 
-    for n in range(options[Creation.LAB_COPIES]):
-        laboratory_experiments[n] = ""
-        laboratory_experiment_instances[n] = {}
+    if not options[Creation.NO_LAB]:
+        for n in range(options[Creation.LAB_COPIES]):
+            laboratory_experiments[n] = ""
+            laboratory_experiment_instances[n] = {}
 
-    for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
-        local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : n }
-        lab_id = experiment_counter % options[Creation.LAB_COPIES]
-        laboratory_experiments[lab_id] += local_experiments
-        if 'dummy' not in laboratory_experiment_instances[lab_id]:
-            laboratory_experiment_instances[lab_id]['dummy'] = []
-        laboratory_experiment_instances[lab_id]['dummy'].append(n)
-        experiment_counter += 1
-    local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
-
-    if options[Creation.VISIR_SERVER]:
-        for n in xrange(1, options[Creation.VISIR_SLOTS] + 1):
-            local_experiments = "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+        for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
+            local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : n }
             lab_id = experiment_counter % options[Creation.LAB_COPIES]
             laboratory_experiments[lab_id] += local_experiments
-            if 'visir' not in laboratory_experiment_instances[lab_id]:
-                laboratory_experiment_instances[lab_id]['visir'] = []
-            laboratory_experiment_instances[lab_id]['visir'].append(n)
+            if 'dummy' not in laboratory_experiment_instances[lab_id]:
+                laboratory_experiment_instances[lab_id]['dummy'] = []
+            laboratory_experiment_instances[lab_id]['dummy'].append(n)
             experiment_counter += 1
-        local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
+        local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
 
-    if options[Creation.LOGIC_SERVER]:
-        local_experiments = "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
-        lab_id = experiment_counter % options[Creation.LAB_COPIES]
-        laboratory_experiments[lab_id] += local_experiments
-        laboratory_experiment_instances[lab_id]['logic'] = 1
-        experiment_counter += 1
-        local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
+        if options[Creation.VISIR_SERVER]:
+            for n in xrange(1, options[Creation.VISIR_SLOTS] + 1):
+                local_experiments = "            'exp%(n)s|%(name)s|Visir experiments'        : 'visir%(n)s@visir',\n" % { 'n' : n, 'name' : options[Creation.VISIR_EXPERIMENT_NAME] }
+                lab_id = experiment_counter % options[Creation.LAB_COPIES]
+                laboratory_experiments[lab_id] += local_experiments
+                if 'visir' not in laboratory_experiment_instances[lab_id]:
+                    laboratory_experiment_instances[lab_id]['visir'] = []
+                laboratory_experiment_instances[lab_id]['visir'].append(n)
+                experiment_counter += 1
+            local_scheduling  += "        'visir'            : ('PRIORITY_QUEUE', {}),\n"
 
-    if options[Creation.VM_SERVER]:
-        local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VM_EXPERIMENT_NAME] }
-        lab_id = experiment_counter % options[Creation.LAB_COPIES]
-        laboratory_experiments[lab_id] += local_experiments
-        laboratory_experiment_instances[lab_id]['vm'] = 1
-        experiment_counter += 1
-        local_scheduling  += "        'vm'            : ('PRIORITY_QUEUE', {}),\n"
+        if options[Creation.LOGIC_SERVER]:
+            local_experiments = "            'exp1|ud-logic|PIC experiments'        : 'logic@logic',\n"
+            lab_id = experiment_counter % options[Creation.LAB_COPIES]
+            laboratory_experiments[lab_id] += local_experiments
+            laboratory_experiment_instances[lab_id]['logic'] = 1
+            experiment_counter += 1
+            local_scheduling  += "        'logic'            : ('PRIORITY_QUEUE', {}),\n"
 
-    laboratory_servers = ""
+        if options[Creation.VM_SERVER]:
+            local_experiments = "            'exp1|%(name)s|VM experiments'        : 'vm@vm',\n" % { 'name' : options[Creation.VM_EXPERIMENT_NAME] }
+            lab_id = experiment_counter % options[Creation.LAB_COPIES]
+            laboratory_experiments[lab_id] += local_experiments
+            laboratory_experiment_instances[lab_id]['vm'] = 1
+            experiment_counter += 1
+            local_scheduling  += "        'vm'            : ('PRIORITY_QUEUE', {}),\n"
 
-    for n in range(1, options[Creation.LAB_COPIES] + 1):
-        local_experiments = laboratory_experiments[n - 1]
-        laboratory_servers += (
-        "    'laboratory%(n)s:%(laboratory_instance_name)s@core_host' : {\n"
-        "%(local_experiments)s"
-        "        },\n" % {
-                'laboratory_instance_name' : 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
-                'local_experiments' : local_experiments, 'n' : n })
+        for n in range(1, options[Creation.LAB_COPIES] + 1):
+            local_experiments = laboratory_experiments[n - 1]
+            laboratory_servers += (
+            "    'laboratory%(n)s:%(laboratory_instance_name)s@core_host' : {\n"
+            "%(local_experiments)s"
+            "        },\n" % {
+                    'laboratory_instance_name' : 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
+                    'local_experiments' : local_experiments, 'n' : n })
 
-    other_core_coordinator_external_servers = ""
-    other_scheduling_systems = ""
-    if options[Creation.ADD_FEDERATED_LOGIC]:
-        other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
-        other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
-    if options[Creation.ADD_FEDERATED_VISIR]:
-        other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
-        other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
-    if options[Creation.ADD_FEDERATED_SUBMARINE]:
-        other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
-        other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
+        if options[Creation.ADD_FEDERATED_LOGIC]:
+            other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
+            other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
+        if options[Creation.ADD_FEDERATED_VISIR]:
+            other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
+            other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
+        if options[Creation.ADD_FEDERATED_SUBMARINE]:
+            other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
+            other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
 
 
     core_host_config_py =("# It must be here to retrieve this information from the dummy\n"
@@ -1191,7 +1196,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         current_core = core_host['processes']['core_process%s' % core_n]
         current_core['components']['core'] = { 'type' : 'core' }
 
-        if options[Creation.INLINE_LAB_SERV]:
+        if not options[Creation.NO_LAB] and options[Creation.INLINE_LAB_SERV]:
             for n in range(1, options[Creation.LAB_COPIES] + 1):
                 current_core['components']['laboratory%s' % n] = { 'type' : 'laboratory' }
             if not options[Creation.XMLRPC_EXPERIMENT]:
@@ -1217,188 +1222,189 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         }
         current_port += 1
 
-    for n in range(1, options[Creation.LAB_COPIES] + 1):
-        laboratory_instance_name = 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
-        experiments_in_lab = laboratory_experiment_instances[n - 1]
+    if not options[Creation.NO_LAB]:
+        for n in range(1, options[Creation.LAB_COPIES] + 1):
+            laboratory_instance_name = 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n
+            experiments_in_lab = laboratory_experiment_instances[n - 1]
 
-        if options[Creation.INLINE_LAB_SERV]:
-            current_lab_process_config = core_host['processes']['core_process1']
-            current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
+            if options[Creation.INLINE_LAB_SERV]:
+                current_lab_process_config = core_host['processes']['core_process1']
+                current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
 
-        else:
-            current_lab_process_config = core_host['processes']['laboratory%s' % n]
+            else:
+                current_lab_process_config = core_host['processes']['laboratory%s' % n]
 
-            current_lab_process_config['components']['laboratory%s' % n] = { 
-                'type' : 'laboratory' ,
-                'protocols' : { 'port' : current_port },
-            }
-            current_port += 1
+                current_lab_process_config['components']['laboratory%s' % n] = { 
+                    'type' : 'laboratory' ,
+                    'protocols' : { 'port' : current_port },
+                }
+                current_port += 1
 
-            current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
+                current_lab_comp_config = current_lab_process_config['components']['laboratory%s' % n]
 
-            if not options[Creation.XMLRPC_EXPERIMENT]:
-                for dummy_id in experiments_in_lab.get('dummy', []):
-                    current_lab_process_config['components']['experiment%s' % dummy_id] = { 'class' : 'experiments.dummy.DummyExperiment', 'type' : 'experiment' }
+                if not options[Creation.XMLRPC_EXPERIMENT]:
+                    for dummy_id in experiments_in_lab.get('dummy', []):
+                        current_lab_process_config['components']['experiment%s' % dummy_id] = { 'class' : 'experiments.dummy.DummyExperiment', 'type' : 'experiment' }
 
-            if len(experiments_in_lab.get('visir', [])) > 0:
-                current_lab_process_config['components']['visir'] = { 'class' : 'experiments.visir.VisirExperiment', 'type' : 'experiment' }
+                if len(experiments_in_lab.get('visir', [])) > 0:
+                    current_lab_process_config['components']['visir'] = { 'class' : 'experiments.visir.VisirExperiment', 'type' : 'experiment' }
 
-            if 'logic' in experiments_in_lab:
-                current_lab_process_config['components']['logic'] = { 'class' : 'experiments.logic.server.LogicExperiment', 'type' : 'experiment' }
+                if 'logic' in experiments_in_lab:
+                    current_lab_process_config['components']['logic'] = { 'class' : 'experiments.logic.server.LogicExperiment', 'type' : 'experiment' }
+
+                if 'vm' in experiments_in_lab:
+                    current_lab_process_config['components']['vm'] = { 'class' : 'experiments.vm.server.VMExperiment', 'type' : 'experiment' }
+            
+            local_lab_config_filename = 'lab%s_config.py' % n
+            lab_config_filepath = os.path.join(directory, local_lab_config_filename)
+            current_lab_comp_config['config_file'] = local_lab_config_filename
+
+            laboratory_config_py = (
+                """##################################\n"""
+                """# Laboratory Server configuration #\n"""
+                """##################################\n"""
+                """\n"""
+                """laboratory_assigned_experiments = {\n"""
+            )
+
+            for dummy_id in experiments_in_lab.get('dummy', []):
+                lab_config_args = { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+
+                if options[Creation.XMLRPC_EXPERIMENT]:
+                    lab_config_args['instance'] = 'exp_instance'
+                    lab_config_args['host']  = 'exp_host'
+                else:
+                    lab_config_args['instance'] = laboratory_instance_name
+                    lab_config_args['host']  = 'core_host'
+
+                laboratory_config_py += (
+                    """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
+                    """                'coord_address' : 'experiment%(n)s:%(instance)s@%(host)s',\n"""
+                    """                'checkers' : ()\n"""
+                    """            },\n"""
+                ) % lab_config_args
+
+            for visir_id in experiments_in_lab.get('visir', []):
+                laboratory_config_py += (
+                    """        'exp%(n)s:%(visir_name)s@Visir experiments' : {\n"""
+                    """                'coord_address' : 'visir:%(instance)s@core_host',\n"""
+                    """                'checkers' : ()\n"""
+                    """            },\n"""
+                ) % { 'instance' : laboratory_instance_name,
+                      'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
 
             if 'vm' in experiments_in_lab:
-                current_lab_process_config['components']['vm'] = { 'class' : 'experiments.vm.server.VMExperiment', 'type' : 'experiment' }
-        
-        local_lab_config_filename = 'lab%s_config.py' % n
-        lab_config_filepath = os.path.join(directory, local_lab_config_filename)
-        current_lab_comp_config['config_file'] = local_lab_config_filename
+                laboratory_config_py += (
+                    """        'exp1:%(name)s@VM experiments' : {\n"""
+                    """                'coord_address' : 'vm:%(instance)s@core_host',\n"""
+                    """                'checkers' : ()\n"""
+                    """            },\n"""
+                ) % { 'instance' : laboratory_instance_name,
+                      'name' : options[Creation.VM_EXPERIMENT_NAME] }
 
-        laboratory_config_py = (
-            """##################################\n"""
-            """# Laboratory Server configuration #\n"""
-            """##################################\n"""
-            """\n"""
-            """laboratory_assigned_experiments = {\n"""
-        )
+            if 'logic' in experiments_in_lab:
+                laboratory_config_py += (
+                    """        'exp1:ud-logic@PIC experiments' : {\n"""
+                    """                'coord_address' : 'logic:%(instance)s@core_host',\n"""
+                    """                'checkers' : ()\n"""
+                    """            },\n"""
+                ) % { 'instance' : laboratory_instance_name }
 
-        for dummy_id in experiments_in_lab.get('dummy', []):
-            lab_config_args = { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
+            laboratory_config_py += """    }\n"""
+            open(lab_config_filepath, 'w').write(laboratory_config_py)
 
-            if options[Creation.XMLRPC_EXPERIMENT]:
-                lab_config_args['instance'] = 'exp_instance'
-                lab_config_args['host']  = 'exp_host'
-            else:
-                lab_config_args['instance'] = laboratory_instance_name
-                lab_config_args['host']  = 'core_host'
+            for dummy_id in experiments_in_lab.get('dummy', []):
+                if options[Creation.XMLRPC_EXPERIMENT]:
+                    xmlrpc_experiment_config['protocols'] = {
+                        'supports' : 'xmlrpc',
+                        'port' : options[Creation.XMLRPC_EXPERIMENT_PORT],
+                    }
+                else:
+                    experiment_config = current_lab_process_config['components']['experiment%s' % dummy_id]
+                    experiment_config['config'] = {
+                        'dummy_verbose' : True,
+                    }
 
-            laboratory_config_py += (
-                """        'exp%(n)s:%(dummy)s@%(dummy_category_name)s' : {\n"""
-                """                'coord_address' : 'experiment%(n)s:%(instance)s@%(host)s',\n"""
-                """                'checkers' : ()\n"""
-                """            },\n"""
-            ) % lab_config_args
+            if len(experiments_in_lab.get('visir', [])) > 0:
+                local_visir_config_filename = 'visir_config.py'
+                visir_config_filename = os.path.join(directory, local_visir_config_filename)
+                current_lab_process_config['components']['visir']['config_file'] = local_visir_config_filename
 
-        for visir_id in experiments_in_lab.get('visir', []):
-            laboratory_config_py += (
-                """        'exp%(n)s:%(visir_name)s@Visir experiments' : {\n"""
-                """                'coord_address' : 'visir:%(instance)s@core_host',\n"""
-                """                'checkers' : ()\n"""
-                """            },\n"""
-            ) % { 'instance' : laboratory_instance_name,
-                  'visir_name' : options[Creation.VISIR_EXPERIMENT_NAME], 'n' : visir_id }
+                if options[Creation.VISIR_MEASUREMENT_SERVER] is not None:
+                    if not ':' in options[Creation.VISIR_MEASUREMENT_SERVER] or options[Creation.VISIR_MEASUREMENT_SERVER].startswith(('http://','https://')) or '/' in options[Creation.VISIR_MEASUREMENT_SERVER].split(':')[1]:
+                        print >> stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
+                    visir_measurement_server = options[Creation.VISIR_MEASUREMENT_SERVER]
+                else:
+                    result = urlparse.urlparse(options[Creation.VISIR_BASE_URL])
+                    visir_measurement_server = result.netloc.split(':')[0] + ':8080'
 
-        if 'vm' in experiments_in_lab:
-            laboratory_config_py += (
-                """        'exp1:%(name)s@VM experiments' : {\n"""
-                """                'coord_address' : 'vm:%(instance)s@core_host',\n"""
-                """                'checkers' : ()\n"""
-                """            },\n"""
-            ) % { 'instance' : laboratory_instance_name,
-                  'name' : options[Creation.VM_EXPERIMENT_NAME] }
+                if options[Creation.VISIR_USE_PHP]:
+                    visir_php = ("""vt_use_visir_php = True\n"""
+                    """vt_base_url = "%(visir_base_url)s"\n"""
+                    """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
+                    """vt_login_email = "%(visir_login)s"\n"""
+                    """vt_login_password = "%(visir_password)s"\n""" % {
+                        'visir_base_url' : options[Creation.VISIR_BASE_URL],
+                        'visir_login'    : options[Creation.VISIR_LOGIN],
+                        'visir_password' : options[Creation.VISIR_PASSWORD],
+                    })
+                else:
+                    visir_php = """vt_use_visir_php = False\n"""
 
-        if 'logic' in experiments_in_lab:
-            laboratory_config_py += (
-                """        'exp1:ud-logic@PIC experiments' : {\n"""
-                """                'coord_address' : 'logic:%(instance)s@core_host',\n"""
-                """                'checkers' : ()\n"""
-                """            },\n"""
-            ) % { 'instance' : laboratory_instance_name }
 
-        laboratory_config_py += """    }\n"""
-        open(lab_config_filepath, 'w').write(laboratory_config_py)
+                open(visir_config_filename, 'w').write((
+                    """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
+                    """vt_measure_server_target = "/measureserver"\n"""
+                    """\n"""
+                    + visir_php +
+                    """\n"""
+                    """# You can also specify a directory where different circuits will be loaded, such as:\n"""
+                    """#\n"""
+                    """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
+                    """#\n"""
+                    """#\n"""
+                    """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
+                    """#\n"""
+                    """# vt_library = \"\"\"\n"""
+                    """# <!DOCTYPE components PUBLIC "-//Open labs//DTD COMPONENTS 1.0//EN" "http://openlabs.bth.se/DTDs/components-1.0.dtd">\n"""
+                    """# <components>\n"""
+                    """#    <component type="R" value="1.5M" pins="2">\n"""
+                    """#        <rotations>\n"""
+                    """#            <rotation ox="-27" oy ="-6" image="r_1.5M.png" rot="0">\n"""
+                    """#                <pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>\n"""
+                    """#            </rotation>\n"""
+                    """#            <rotation ox="-7" oy ="-27" image="r_1.5M.png" rot="90">\n"""
+                    """#                <pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>\n"""
+                    """#            </rotation>\n"""
+                    """#        </rotations>\n"""
+                    """#    </component>\n"""
+                    """#    <!-- More components -->\n"""
+                    """#\n"""
+                    """# </components>\n"""
+                    """# \"\"\"\n"""
+                    """#\n"""
+                    """\n""") % {'visir_measurement_server' : visir_measurement_server })
 
-        for dummy_id in experiments_in_lab.get('dummy', []):
-            if options[Creation.XMLRPC_EXPERIMENT]:
-                xmlrpc_experiment_config['protocols'] = {
-                    'supports' : 'xmlrpc',
-                    'port' : options[Creation.XMLRPC_EXPERIMENT_PORT],
+            if 'vm' in experiments_in_lab:
+                local_vm_config_filename = os.path.join('vm_config.py')
+                vm_config_filename = os.path.join(directory, local_vm_config_filename)
+                current_lab_process_config['components']['vm']['config_file'] = local_vm_config_filename
+
+                # Load and fill the config file template
+                template = load_template("vm_server_config.py.template")
+                cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR],
+                                      "vbox_vm_name" : options[Creation.VBOX_VM_NAME],
+                                      "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
+                                      "vm_url" : options[Creation.VM_URL],
+                                      "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
+                                      "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
+
+                open(vm_config_filename, 'w').write(cfgfile)
+
+            if 'logic' in experiments_in_lab:
+                current_lab_process_config['components']['vm']['config'] = { 
+                    'logic_webcam_url' : '',
                 }
-            else:
-                experiment_config = current_lab_process_config['components']['experiment%s' % dummy_id]
-                experiment_config['config'] = {
-                    'dummy_verbose' : True,
-                }
-
-        if len(experiments_in_lab.get('visir', [])) > 0:
-            local_visir_config_filename = 'visir_config.py'
-            visir_config_filename = os.path.join(directory, local_visir_config_filename)
-            current_lab_process_config['components']['visir']['config_file'] = local_visir_config_filename
-
-            if options[Creation.VISIR_MEASUREMENT_SERVER] is not None:
-                if not ':' in options[Creation.VISIR_MEASUREMENT_SERVER] or options[Creation.VISIR_MEASUREMENT_SERVER].startswith(('http://','https://')) or '/' in options[Creation.VISIR_MEASUREMENT_SERVER].split(':')[1]:
-                    print >> stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
-                visir_measurement_server = options[Creation.VISIR_MEASUREMENT_SERVER]
-            else:
-                result = urlparse.urlparse(options[Creation.VISIR_BASE_URL])
-                visir_measurement_server = result.netloc.split(':')[0] + ':8080'
-
-            if options[Creation.VISIR_USE_PHP]:
-                visir_php = ("""vt_use_visir_php = True\n"""
-                """vt_base_url = "%(visir_base_url)s"\n"""
-                """vt_login_url = "%(visir_base_url)sindex.php?sel=login_check"\n"""
-                """vt_login_email = "%(visir_login)s"\n"""
-                """vt_login_password = "%(visir_password)s"\n""" % {
-                    'visir_base_url' : options[Creation.VISIR_BASE_URL],
-                    'visir_login'    : options[Creation.VISIR_LOGIN],
-                    'visir_password' : options[Creation.VISIR_PASSWORD],
-                })
-            else:
-                visir_php = """vt_use_visir_php = False\n"""
-
-
-            open(visir_config_filename, 'w').write((
-                """vt_measure_server_addr = "%(visir_measurement_server)s"\n"""
-                """vt_measure_server_target = "/measureserver"\n"""
-                """\n"""
-                + visir_php +
-                """\n"""
-                """# You can also specify a directory where different circuits will be loaded, such as:\n"""
-                """#\n"""
-                """# vt_circuits_dir = "/home/weblab/Dropbox/VISIR-Circuits/"\n"""
-                """#\n"""
-                """#\n"""
-                """# You can also define your own library.xml in this configuration file by uncommenting:\n"""
-                """#\n"""
-                """# vt_library = \"\"\"\n"""
-                """# <!DOCTYPE components PUBLIC "-//Open labs//DTD COMPONENTS 1.0//EN" "http://openlabs.bth.se/DTDs/components-1.0.dtd">\n"""
-                """# <components>\n"""
-                """#    <component type="R" value="1.5M" pins="2">\n"""
-                """#        <rotations>\n"""
-                """#            <rotation ox="-27" oy ="-6" image="r_1.5M.png" rot="0">\n"""
-                """#                <pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>\n"""
-                """#            </rotation>\n"""
-                """#            <rotation ox="-7" oy ="-27" image="r_1.5M.png" rot="90">\n"""
-                """#                <pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>\n"""
-                """#            </rotation>\n"""
-                """#        </rotations>\n"""
-                """#    </component>\n"""
-                """#    <!-- More components -->\n"""
-                """#\n"""
-                """# </components>\n"""
-                """# \"\"\"\n"""
-                """#\n"""
-                """\n""") % {'visir_measurement_server' : visir_measurement_server })
-
-        if 'vm' in experiments_in_lab:
-            local_vm_config_filename = os.path.join('vm_config.py')
-            vm_config_filename = os.path.join(directory, local_vm_config_filename)
-            current_lab_process_config['components']['vm']['config_file'] = local_vm_config_filename
-
-            # Load and fill the config file template
-            template = load_template("vm_server_config.py.template")
-            cfgfile = template % { "vm_storage_dir" : options[Creation.VM_STORAGE_DIR],
-                                  "vbox_vm_name" : options[Creation.VBOX_VM_NAME],
-                                  "vbox_base_snapshot" : options[Creation.VBOX_BASE_SNAPSHOT],
-                                  "vm_url" : options[Creation.VM_URL],
-                                  "http_query_user_manager_url" : options[Creation.HTTP_QUERY_USER_MANAGER_URL],
-                                  "vm_estimated_load_time" : options[Creation.VM_ESTIMATED_LOAD_TIME] }
-
-            open(vm_config_filename, 'w').write(cfgfile)
-
-        if 'logic' in experiments_in_lab:
-            current_lab_process_config['components']['vm']['config'] = { 
-                'logic_webcam_url' : '',
-            }
 
     global_config_filename = os.path.join(directory, 'configuration.yml')
     global_config_contents = ordered_dump(global_config, width = 5, default_flow_style = False)
@@ -1432,14 +1438,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     for core_number in range(1, options[Creation.CORES] + 1):
         server_names.append('server%s' % core_number)
 
-    if not options[Creation.INLINE_LAB_SERV]:
-        for n in range(1, options[Creation.LAB_COPIES] + 1):
-            server_names.append('laboratory%s' % n)
-    if options[Creation.XMLRPC_EXPERIMENT] or not options[Creation.INLINE_LAB_SERV]:
-        server_names.append('experiment')
+    if not options[Creation.NO_LAB]:
+        if not options[Creation.INLINE_LAB_SERV]:
+            for n in range(1, options[Creation.LAB_COPIES] + 1):
+                server_names.append('laboratory%s' % n)
+        if options[Creation.XMLRPC_EXPERIMENT] or not options[Creation.INLINE_LAB_SERV]:
+            server_names.append('experiment')
 
-    if options[Creation.XMLRPC_EXPERIMENT]:
-        server_names.append('exp_instance')
+        if options[Creation.XMLRPC_EXPERIMENT]:
+            server_names.append('exp_instance')
 
     for server_name in server_names:
         logging_file = (
@@ -1678,9 +1685,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         for core_number in range(1, options[Creation.CORES] + 1):
             launch_script += """                    "core_process%s"     : "logs%sconfig%slogging.configuration.server%s.txt",\n""" % (core_number, os.sep, os.sep, core_number)
-
-        for n in range(1, options[Creation.LAB_COPIES] + 1):
-            launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
+        
+        if not options[Creation.NO_LAB]:
+            for n in range(1, options[Creation.LAB_COPIES] + 1):
+                launch_script += ("""                    "laboratory%s" : "logs%sconfig%slogging.configuration.laboratory%s.txt",\n""" % (n, os.sep, os.sep, n))
 
         launch_script += (
         """                },\n"""
@@ -1739,7 +1747,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     debugging_config += "}\n"
 
 
-    if options[Creation.XMLRPC_EXPERIMENT]:
+    if not options[Creation.NO_LAB] and options[Creation.XMLRPC_EXPERIMENT]:
         # XML-RPC runner
         xmlrpc_launch_script = (
             """#!/usr/bin/env python\n"""
@@ -1792,7 +1800,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     open(os.path.join(directory, 'run.py'), 'w').write( launch_script )
     os.chmod(os.path.join(directory, 'run.py'), stat.S_IRWXU)
 
-    if options[Creation.XMLRPC_EXPERIMENT]:
+    if not options[Creation.NO_LAB] and options[Creation.XMLRPC_EXPERIMENT]:
         open(os.path.join(directory, 'run-xmlrpc.py'), 'w').write( xmlrpc_launch_script )
         os.chmod(os.path.join(directory, 'run-xmlrpc.py'), stat.S_IRWXU)
 
