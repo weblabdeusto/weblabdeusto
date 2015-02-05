@@ -1075,7 +1075,6 @@ def populate_weblab_tests(engine, tests):
     _add_params(session, aquariumjs)
 
     submarinejs = Model.DbExperiment("submarinejs", cat_aquatic, start_date, end_date, 'js')
-    _add_params(session, submarinejs)
     session.add(submarinejs)
     _add_params(session, submarinejs)
 
