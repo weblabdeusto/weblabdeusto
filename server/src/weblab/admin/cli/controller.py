@@ -58,8 +58,8 @@ class DbConfiguration(object):
         self.db_port           = get_variable(global_vars, configuration_doc.DB_PORT)
         self.db_engine         = get_variable(global_vars, configuration_doc.DB_ENGINE)
         self.db_name           = get_variable(global_vars, configuration_doc.DB_DATABASE)
-        self.db_user           = get_variable(global_vars, configuration_doc.WEBLAB_DB_USERNAME)
-        self.db_pass           = get_variable(global_vars, configuration_doc.WEBLAB_DB_PASSWORD)
+        self.db_user           = get_variable(global_vars, configuration_doc.DB_USERNAME)
+        self.db_pass           = get_variable(global_vars, configuration_doc.DB_PASSWORD)
 
         if get_variable(global_vars, configuration_doc.COORDINATOR_IMPL) == 'sqlalchemy':
             self.coord_db_host     = get_variable(global_vars, configuration_doc.COORDINATOR_DB_HOST)
