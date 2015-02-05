@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server
+	xmlns="http://www.weblab.deusto.es/configuration" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
+>
+
+	<configuration file="server_config.py" />
+
+	<type>weblab.data.server_type::Experiment</type>
+	<methods>weblab.methods::Experiment</methods>
+
+	<implementation>experiments.ud_xilinx.server.UdXilinxExperiment</implementation>
+
+	<restriction>elevator@FPGA experiments</restriction>
+
+	<protocols>
+		<!-- This server supports both Direct calls, as SOAP calls -->
+		<protocol name="Direct">
+			<coordinations>
+				<coordination></coordination>
+			</coordinations>
+			<creation></creation>
+		</protocol>
+		<protocol name="SOAP">
+			<coordinations>
+				<coordination>
+					<parameter name="address" value="127.0.0.1:11032@PLD" />
+				</coordination>
+				<coordination>
+					<parameter name="address" value="192.168.0.1:11032@LABORATORYNETWORK" />
+				</coordination>
+				<coordination>
+					<parameter name="address" value="130.206.100.16:11032@INTERNET" />
+				</coordination>
+			</coordinations>
+			<creation>
+				<parameter name="address" value=""     />
+				<parameter name="port"    value="11032" />
+			</creation>
+		</protocol>
+	</protocols>
+</server>
+

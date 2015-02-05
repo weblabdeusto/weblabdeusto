@@ -102,6 +102,11 @@ class Archimedes(Experiment):
 
         current_config = self.initial_configuration.copy()
 
+        # Immediately pull all the balls up (so that all balls start up)
+        # Carry out the operation in parallel.
+        responses = self._workpool.map(lambda board: self._send(board, "up"), self.archimedes_instances.values())
+        # Ignore the response. Assume it worked.
+
         # The client initial data is meant to contain a structure that defines what the client should show.
         return json.dumps(
             {"initial_configuration": json.dumps(current_config), "view": client_initial_data, "batch": False})
@@ -136,6 +141,7 @@ class Archimedes(Experiment):
 
         load = self._send(board, "load")
         level = self._send(board, "level")
+        status = self._send(board, "status")
 
         if load == "ERROR":
             info["load"] = "ERROR"
@@ -148,6 +154,11 @@ class Archimedes(Experiment):
         else:
             num = level.split("=")[1]
             info["level"] = num
+
+        if status == "ERROR":
+            info["ball_status"] = "ERROR"
+        else:
+            info["ball_status"] = status
 
         return info
 
@@ -256,6 +267,8 @@ class Archimedes(Experiment):
             return "ball_slow"
         elif command == 'level':
             return "LOAD=1200"
+        elif command == 'status':
+            return 'BALL_UP'
         elif command == 'load':
             return "LOAD=1300"
         elif command == "image":

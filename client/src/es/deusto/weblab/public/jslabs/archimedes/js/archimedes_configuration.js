@@ -37,8 +37,9 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
         "archimedes5" : {
-            "ball_mass": 20,
-            "ball_density": 60,
+            "ball_mass": 620,
+            "ball_diameter": 5.0    , // cm
+            "ball_density": 9.47,
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
