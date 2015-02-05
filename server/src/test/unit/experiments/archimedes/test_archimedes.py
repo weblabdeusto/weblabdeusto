@@ -121,16 +121,26 @@ class TestArchimedes(unittest.TestCase):
         assert float(r["second"]["level"]) == 1200
         assert float(r["second"]["load"]) == 1300
 
-    def test_dispose_cleans_threads(self):
-        """
-        Archimedes Start creates a thread pool. Ensure that calling Dispose clears every thread.
-        """
-        initialThreads = len(threading.enumerate())
-        self.experiment.do_start_experiment("{}", "{}")
-        self.experiment.do_dispose()
-        time.sleep(20)
-        afterThreads = len(threading.enumerate())
-        self.assertEqual(initialThreads, afterThreads, "all threads destroyed")
+    # The following test is commented out for now because it is no longer a "challenge".
+    # We now rely on a permanent thread-pool.
+    #
+    # def test_dispose_cleans_threads(self):
+    #     """
+    #     Archimedes Start creates a thread pool. Ensure that calling Dispose clears every thread.
+    #     """
+    #
+    #     time.sleep
+    #
+    #     initialThreads = len(threading.enumerate())
+    #     self.experiment.do_start_experiment("{}", "{}")
+    #     self.experiment.do_dispose()
+    #
+    #     # TODO: This time should be *at most* 20 seconds. Ideally some kind of limited-time .join.
+    #     # Or similar.
+    #     time.sleep(20)
+    #
+    #     afterThreads = len(threading.enumerate())
+    #     self.assertEqual(initialThreads, afterThreads, "all threads destroyed")
 
 
 def suite():
