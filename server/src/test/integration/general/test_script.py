@@ -56,6 +56,8 @@ class ScriptTestCase(unittest.TestCase):
         self.argv = list(sys.argv)
 
     def tearDown(self):
+        # TODO: Look for child processes and kill them any way with a kill. For example, in voodoo.process_starter we could create a _CHILD_PROCESSES variable and a method such as kill_children()
+        # which will kill those processes created and update the list
         sys.argv = self.argv
         shutil.rmtree(self.temporary_folder)
 
