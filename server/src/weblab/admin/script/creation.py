@@ -1193,7 +1193,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     latest_core_server_directory = None
     for core_number in range(1, options[Creation.CORES] + 1):
-        current_core = core_host['processes']['core_process%s' % core_n]
+        current_core = core_host['processes']['core_process%s' % core_number]
         current_core['components']['core'] = { 'type' : 'core' }
 
         if not options[Creation.NO_LAB] and options[Creation.INLINE_LAB_SERV]:
@@ -1217,9 +1217,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
         current_core['components']['core']['config'] = {
             configuration_doc.CORE_FACADE_PORT : current_port,
-            configuration_doc.COORDINATOR_CLEAN : core_number == 1,
             configuration_doc.CORE_FACADE_SERVER_ROUTE : 'route%s' % core_number,
         }
+        if core_number == 1:
+            current_core['components']['core']['config'][configuration_doc.COORDINATOR_CLEAN] = True
         current_port += 1
 
     if not options[Creation.NO_LAB]:
@@ -1697,9 +1698,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
         """                ),\n"""
         """                pid_file = 'weblab.pid',\n""")
-        waiting_port = current_port
-        current_port += 1
-        launch_script += """                waiting_port = %r,\n""" % waiting_port
         launch_script += """                debugger_ports = { \n"""
         for core_number in range(1, options[Creation.CORES] + 1):
             debugging_core_port = current_port
@@ -1784,9 +1782,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                     Launcher.FileNotifier("_file_notifier", "server started"),\n"""
         """                ),\n"""
         """                pid_file = 'weblab_xmlrpc.pid',\n""")
-        waiting_port = current_port
-        current_port += 1
-        xmlrpc_launch_script += """                waiting_port = %r,\n""" % waiting_port
         xmlrpc_launch_script += ("""            )\n"""
             """\n"""
             """    launcher.launch()\n"""
