@@ -38,6 +38,7 @@
 	<server>experiment_submarine</server>
 	<server>experiment_aquarium</server>
     <server>experiment_aquariumjs</server>
+    <server>experiment_romie</server>
 	<server>experiment_unr</server>
 	<server>experiment_controlapp</server>
 	<server>experiment_incubator</server>
