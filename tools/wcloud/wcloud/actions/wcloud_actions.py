@@ -42,7 +42,7 @@ from flask import Flask
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 import sys
-from wcloud.tasks import db_tasks, redis_tasks
+from wcloud.actions import db_actions, redis_actions
 
 from weblab.admin.script import weblab_create, Creation
 
@@ -90,7 +90,6 @@ def connect_to_database(user, passwd, db_name):
     return connection, Session
 
 
-@celery_app.task(bind=True, name="wcloud.prepare_system")
 def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
     """
     Prepare the system. Ports and databases are assigned.
@@ -147,7 +146,7 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
 
     # Create a new database and assign the DB name.
     # TODO: Unhardcode / tidy this up.
-    db_name = db_tasks.create_db("wcloud_creator", flask_app.config["DB_WCLOUD_CREATOR_PASSWORD"],
+    db_name = db_actions.create_db("wcloud_creator", flask_app.config["DB_WCLOUD_CREATOR_PASSWORD"],
                                  "wcloud_%s" % entity.base_url, flask_app.config["DB_USERNAME"],
                                  flask_app.config["DB_PASSWORD"])
     entity.db_name = db_name
@@ -168,11 +167,11 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     # TODO: Tidy this up. Remove redis_env hardcoding.
     # Ensure REDIS is present.
     try:
-        redis_tasks.deploy_redis_instance(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
-    except (redis_tasks.AlreadyDeployedException) as ex:
+        redis_actions.deploy_redis_instance(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
+    except (redis_actions.AlreadyDeployedException) as ex:
         pass
 
-    redis_tasks.check_redis_deployment(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
+    redis_actions.check_redis_deployment(flask_app.config["REDIS_FOLDER"], settings[Creation.COORD_REDIS_PORT])
 
     settings[Creation.ADMIN_USER] = admin_user
     settings[Creation.ADMIN_NAME] = admin_name
@@ -196,7 +195,6 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     return settings
 
 
-@celery_app.task(bind=True, name="wcloud.create_weblab_environment")
 def create_weblab_environment(self, directory, settings):
     """
     2. Create the full WebLab-Deusto environment.
@@ -231,7 +229,6 @@ def create_weblab_environment(self, directory, settings):
     return results
 
 
-@celery_app.task(bind=True, name="wcloud.configure_web_server")
 def configure_web_server(self, creation_results):
     """
     3. Configures the Apache web server. (Adds a new, specific .conf to the Apache configuration files, so that
@@ -269,7 +266,6 @@ def weblab_starter_running():
         return False
 
 
-@celery_app.task(bind=True, name="wcloud.register_and_start_instance")
 def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_settings):
     """
     Registers and starts the new WebLab-Deusto instance.
@@ -340,7 +336,6 @@ def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_setting
         raise Exception(response)
 
 
-@celery_app.task(bind=True, name="wcloud.finish_deployment")
 def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, wcloud_settings):
     """
     Finishes the deployment, marks the entity as deployed and
@@ -376,9 +371,12 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, w
     Session.close_all()
 
 
-@celery_app.task(bind=True)
+
+
 def deploy_weblab_instance(self):
     """
+    TODO: This method should probably be removed once the taskmanager invokes the methods by itself.
+
     As of now this function does not run and is not meant to.
     Just for reference purposes.
     """
@@ -387,10 +385,6 @@ def deploy_weblab_instance(self):
     configure_web_server()
     register_and_start_instance()
     finish_deployment()
-
-
-if __name__ == "__main__":
-    celery_app.start(["celery", "-A", "wcloud.tasks.wcloud_tasks", "worker", "--loglevel=INFO"])
 
 
 
