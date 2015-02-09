@@ -5,12 +5,19 @@ This system automatically deploys WebLab-Deusto instances, already federated in 
 This way, secondary schools or universities may create and administrate their own WebLab-Deusto,
 create new users, assign them permissions on certain laboratories, etc.
 
+Architecture
+~~~~~~~~~~~~
+
+By running ``start-master-process.sh``, we run the following:
+
+ * We reload the apache server (to guarantee that previous changes have been applied, and which restarts the wCloud server)
+ * ``./scripts/admin_worker.sh``, which is a Celery worker running as root. It waits for events in the ``admintasks`` queue and processes them. Typically this is only reloading the apache server.
+ * ``./scripts/taskmanager_worker.sh``, which is a Celery worker running as user. It waits for events for creating WebLab-Deusto instances.
+ * ``./scripts/starter_worker.sh``, which is a Celery worker running as user. It waits for events for starting WebLab-Deusto instances.
+ * ``wcloud/weblab_starter.py``, which populates the starter queue with the existing instances.
+
 Deployment
 ~~~~~~~~~~
-
-Install the requirements::
-
-  pip install -r requirements.txt
 
 Then, configure the settings.py script with the database credentials. Deploy the database::
   

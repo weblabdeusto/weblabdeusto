@@ -7,8 +7,9 @@ if [ $UID != 0 ]; then
     exit -1
 fi
 
-nohup python apache_reloader.py > nohup_apache_reloader &
+nohup ./scripts/admin_worker.sh > nohup_admin_worker &
+
+/etc/init.d/apache2 reload
 
 su $USER_ACCOUNT -c "cd $(pwd) && ./user-processes.sh"
 
-/etc/init.d/apache2 reload

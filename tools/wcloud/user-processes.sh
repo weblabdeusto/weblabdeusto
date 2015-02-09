@@ -13,18 +13,17 @@ WCLOUD_DIR=$(pwd)
 #./launch.sh
 
 cd $WCLOUD_DIR
-#. /usr/local/bin/virtualenvwrapper.sh
-#. workon $VIRTUALENV_NAME
-
-. $VIRTUALENV_ACTIVATE
-
 
 
 sleep 2 # Wait until Redis servers are loaded before starting WebLab-Deusto instances
 
 echo -n "Starting taskmanager..."
-nohup python wcloud/taskmanager.py > nohup_taskmanager 2>&1 &
+nohup scripts/taskmanager_worker.sh > nohup_taskmanager 2>&1 &
 echo "Look at nohup_taskmanager"
+
+echo -n "Starting starter..."
+nohup scripts/starter_worker.sh > nohup_starter 2>&1 &
+echo "Look at nohup_starter"
 
 echo -n "Starting weblab starter... "
 nohup python wcloud/weblab_starter.py > nohup_weblab_starter 2>&1 &
