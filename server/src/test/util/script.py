@@ -23,6 +23,8 @@ import time
 import tempfile
 import threading
 
+import requests
+
 from weblab.admin.script import weblab as weblab_admin
 from test.util.ports import new as new_port
 from voodoo.process_starter import clean_created
@@ -34,7 +36,7 @@ def connect(port):
     s.close()
 
 class ServerCreator(threading.Thread):
-    def __init__(self, command = "", port_space = 10, startup_wait = 1):
+    def __init__(self, command = "", port_space = 10, startup_wait = 0.2):
         super(ServerCreator, self).__init__()
         self.startup_wait = startup_wait
         self.temporary_folder = tempfile.mkdtemp(prefix = 'remove_me_', suffix = '_testcase_script')
@@ -62,6 +64,17 @@ class ServerCreator(threading.Thread):
     def __enter__(self):
         self.start()
         time.sleep(self.startup_wait)
+        max_waiting_time = 3 # seconds
+        original_time = time.time()
+        while time.time() <= (original_time + max_waiting_time):
+            time.sleep(0.2)
+            try:
+                r = requests.get('%sjson' % self.address)
+            except:
+                pass
+            else:
+                if r.status_code == 200:
+                    break
         return self
 
     def run(self):

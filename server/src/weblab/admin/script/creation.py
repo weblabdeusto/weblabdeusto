@@ -47,6 +47,7 @@ from weblab.db.upgrade import DbSchedulingUpgrader
 import weblab.admin.deploy as deploy
 from .utils import ordered_dump
 
+from voodoo.resources_manager import is_testing
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
@@ -2073,7 +2074,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     #
     configuration_js = {}
 
-    lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
+    if is_testing():
+        lines = ["{}"]
+    else:
+        lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
     new_lines = uncomment_json(lines)
     configuration_js_data = json.loads(''.join(new_lines))
 
