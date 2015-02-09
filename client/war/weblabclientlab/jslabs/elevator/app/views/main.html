@@ -13,7 +13,7 @@
   <wl-upload></wl-upload>
 
 
-  <div class="row my-buttons-row text-center">
+  <div style="display:none" class="row my-buttons-row text-center">
       <div class="col col-xs-3">
           <button class="btn btn-info" ng-click="clickButton(1)">Button 1</button>
       </div>
@@ -27,4 +27,21 @@
           <button class="btn btn-info" ng-click="clickButton(4)">Button 4</button>
       </div>
   </div>
+
+
+  <div class="row my-buttons-row text-center">
+      <div class="col col-xs-3">
+          <wl-button ng-click="clickButton(1)">Button 1</wl-button>
+      </div>
+      <div class="col col-xs-3">
+          <wl-button ng-click="clickButton(2)">Button 2</wl-button>
+      </div>
+      <div class="col col-xs-3">
+          <wl-button ng-click="clickButton(3)">Button 3</wl-button>
+      </div>
+      <div class="col col-xs-3">
+          <wl-button ng-click="clickButton(4)">Button 4</wl-button>
+      </div>
+  </div>
+
 

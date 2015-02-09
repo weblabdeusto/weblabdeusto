@@ -1,0 +1,56 @@
+@font-face
+{
+	font-family: digital;
+	src: url(../fonts/digital-7.ttf);
+}
+
+header
+{
+	font-size: 3em;
+}
+
+.movements
+{
+	text-align: left;
+	font-family: digital;
+	font-weight: bold;
+}
+
+.points
+{
+	text-align: right;
+}
+
+.controls
+{
+	margin-top: 2em;
+}
+
+.camera2 img
+{
+	width: 80%;
+	padding: 25px;
+	cursor: pointer;
+}
+
+.controls button
+{
+	width: 55px;
+	height: 55px;
+	padding: 0px;
+}
+
+#question .modal-body form input[type="radio"]
+{
+	cursor: pointer;
+	margin-top: 1em;
+	margin-left: 3em;
+}
+
+#question .modal-body form label
+{
+	cursor: pointer;
+	padding-left: 0.5em;
+	font-weight: normal;
+	vertical-align: middle;
+}
