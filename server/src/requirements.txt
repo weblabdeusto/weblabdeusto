@@ -18,6 +18,11 @@
 # We use 0.8.100 to avoid the 0.9.0betas (which are < 0.8)
 SQLAlchemy<0.8.100,>0.8.0
 
+# Flask is used for every HTTP/XML-RPC communication
+Flask==0.10.1
+
+# Flask-SQLAlchemy is used for all the databases
+Flask-SQLAlchemy==0.16
 
 #
 # Limit the version of Flask-WTF to lower than 0.9. There are some
@@ -30,9 +35,6 @@ WTForms<2.0
 # Flask_admin is used for the new administration panel
 # 
 Flask-Admin==1.0.7
-
-# Flask 0.9 is used
-Flask==0.10
 
 # 
 # alembic is used for upgrading the database from version to version
