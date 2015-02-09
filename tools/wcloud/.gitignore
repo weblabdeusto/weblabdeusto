@@ -1,4 +1,5 @@
 nohup*
+config.py
 secret_settings.py
 config.sh
 redis_env

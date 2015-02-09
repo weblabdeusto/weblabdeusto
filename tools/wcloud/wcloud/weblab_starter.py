@@ -8,15 +8,15 @@ import shutil
 
 sys.path.append('.')
 
-import wcloud.deploymentsettings as deploymentsettings
+import config
 import wcloud.config.wcloud_settings_default as wcloud_settings_default
 import wcloud.config.wcloud_settings as wcloud_settings
 
 app = Flask(__name__)
 
-
 app.config.from_object(wcloud_settings_default)
 app.config.from_object(wcloud_settings)
+app.config.from_object(config)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 FILENAME = os.path.join(app.config['DIR_BASE'], 'instances.txt')
@@ -133,7 +133,7 @@ def main():
 
     if not os.path.exists(FILENAME):
         open(FILENAME, 'w').write("")
-        apache_conf_file = os.path.join(dir_base, deploymentsettings.APACHE_CONF_NAME)
+        apache_conf_file = os.path.join(dir_base, config.APACHE_CONF_NAME)
         open(apache_conf_file, 'w').write("")
         print "Note: WebLab-Deusto configuration directory (%s) created. Make sure %s is included in the Apache configuration" % (dir_base, apache_conf_file)
 
