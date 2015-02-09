@@ -20,10 +20,6 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index
-from sqlalchemy.orm import relation, backref
-from sqlalchemy.ext.declarative import declarative_base
-
 from voodoo.gen import CoordAddress
 
 from weblab.core.login.simple import create_user_auth
@@ -39,17 +35,19 @@ from weblab.data.dto.experiments import ExperimentUse
 
 import weblab.permissions as permissions
 
-Base = declarative_base()
+from flask.ext.sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 TABLE_KWARGS = get_table_kwargs()
 
-class AlembicVersion(Base):
+class AlembicVersion(db.Model):
     """ Alembic is a database version manager for SQLAlchemy. This class
     represents the internal way of Alembic for managing versions.
     """
     __tablename__ = 'alembic_version'
     
-    version_num = Column(String(32), nullable = False, primary_key = True)
+    version_num = db.Column(db.String(32), nullable = False, primary_key = True)
 
     def __init__(self, version_num):
         self.version_num = version_num
@@ -58,9 +56,9 @@ class AlembicVersion(Base):
 # N<->M RELATIONAL TABLES
 #
 
-t_user_is_member_of = Table('UserIsMemberOf', Base.metadata,
-    Column('user_id', Integer, ForeignKey('User.id'), primary_key=True),
-    Column('group_id', Integer, ForeignKey('Group.id'), primary_key=True)
+t_user_is_member_of = db.Table('UserIsMemberOf',
+    db.Column('user_id', db.Integer, db.ForeignKey('User.id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('Group.id'), primary_key=True)
     )
 
 
@@ -68,12 +66,12 @@ t_user_is_member_of = Table('UserIsMemberOf', Base.metadata,
 # USER AND GROUP DEFINITION
 #
 
-class DbRole(Base):
+class DbRole(db.Model):
     __tablename__  = 'Role'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name'), TABLE_KWARGS)
 
-    id   = Column(Integer, primary_key = True)
-    name = Column(String(20), nullable = False)
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(20), nullable = False)
 
     def __init__(self, name = None):
         super(DbRole, self).__init__()
@@ -92,19 +90,19 @@ class DbRole(Base):
         return Role(self.name)
 
 
-class DbUser(Base):
+class DbUser(db.Model):
     __tablename__  = 'User'
-    __table_args__ = (UniqueConstraint('login'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('login'), TABLE_KWARGS)
 
-    id        = Column(Integer, primary_key = True)
-    login     = Column(String(32), nullable = False, index = True)
-    full_name = Column(String(200), nullable = False, index = True)
-    email     = Column(String(255), nullable = False, index = True)
-    avatar    = Column(String(255))
-    role_id   = Column(Integer, ForeignKey("Role.id"))
+    id        = db.Column(db.Integer, primary_key = True)
+    login     = db.Column(db.String(32), nullable = False, index = True)
+    full_name = db.Column(db.String(200), nullable = False, index = True)
+    email     = db.Column(db.String(255), nullable = False, index = True)
+    avatar    = db.Column(db.String(255))
+    role_id   = db.Column(db.Integer, db.ForeignKey("Role.id"))
 
-    role      = relation("DbRole", backref=backref("users", order_by=id))
-    groups    = relation("DbGroup", secondary=t_user_is_member_of)
+    role      = db.relationship("DbRole", backref=db.backref("users", order_by=id))
+    groups    = db.relationship("DbGroup", secondary=t_user_is_member_of)
 
     def __init__(self, login = None, full_name = None, email = None, avatar=None, role=None):
         super(DbUser,self).__init__()
@@ -134,12 +132,12 @@ class DbUser(Base):
         return User(self.login, self.full_name, self.email, self.role.to_dto())
 
 
-class DbAuthType(Base):
+class DbAuthType(db.Model):
     __tablename__  = 'AuthType'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name'), TABLE_KWARGS)
 
-    id   = Column(Integer, primary_key = True)
-    name = Column(String(200), nullable = False, index = True)
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(200), nullable = False, index = True)
 
     def __init__(self, name = None):
         super(DbAuthType, self).__init__()
@@ -155,17 +153,17 @@ class DbAuthType(Base):
         )
 
 
-class DbAuth(Base):
+class DbAuth(db.Model):
     __tablename__  = 'Auth'
-    __table_args__ = (UniqueConstraint('auth_type_id', 'name'), UniqueConstraint('priority'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('auth_type_id', 'name'), db.UniqueConstraint('priority'), TABLE_KWARGS)
 
-    id            = Column(Integer, primary_key = True)
-    auth_type_id  = Column(Integer, ForeignKey("AuthType.id"), nullable = False)
-    name          = Column(String(200), nullable = False)
-    priority      = Column(Integer, nullable = False)
-    configuration = Column(Text)
+    id            = db.Column(db.Integer, primary_key = True)
+    auth_type_id  = db.Column(db.Integer, db.ForeignKey("AuthType.id"), nullable = False)
+    name          = db.Column(db.String(200), nullable = False)
+    priority      = db.Column(db.Integer, nullable = False)
+    configuration = db.Column(db.Text)
 
-    auth_type = relation("DbAuthType", backref=backref("auths", order_by=id, cascade='all,delete'))
+    auth_type = db.relationship("DbAuthType", backref=db.backref("auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, auth_type = None, name = None, priority = None, configuration=None):
         super(DbAuth, self).__init__()
@@ -193,17 +191,17 @@ class DbAuth(Base):
         return values[keys.index(key)]
 
 
-class DbUserAuth(Base):
+class DbUserAuth(db.Model):
     __tablename__  = 'UserAuth'
     __table_args__ = (TABLE_KWARGS)
 
-    id            = Column(Integer, primary_key = True)
-    user_id       = Column(Integer, ForeignKey('User.id'), nullable = False, index = True)
-    auth_id       = Column(Integer, ForeignKey('Auth.id'), nullable = False, index = True)
-    configuration = Column(Text)
+    id            = db.Column(db.Integer, primary_key = True)
+    user_id       = db.Column(db.Integer, db.ForeignKey('User.id'), nullable = False, index = True)
+    auth_id       = db.Column(db.Integer, db.ForeignKey('Auth.id'), nullable = False, index = True)
+    configuration = db.Column(db.Text)
 
-    user = relation("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))
-    auth = relation("DbAuth", backref=backref("user_auths", order_by=id, cascade='all,delete'))
+    user = db.relationship("DbUser", backref=db.backref("auths", order_by=id, cascade='all,delete'))
+    auth = db.relationship("DbAuth", backref=db.backref("user_auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, user = None, auth = None, configuration=None):
         super(DbUserAuth, self).__init__()
@@ -229,16 +227,16 @@ class DbUserAuth(Base):
         return create_user_auth(self.auth.auth_type.name, self.auth.configuration, self.configuration)
 
 
-class DbGroup(Base):
+class DbGroup(db.Model):
     __tablename__  = 'Group'
-    __table_args__ = (UniqueConstraint('parent_id', 'name'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('parent_id', 'name'), TABLE_KWARGS)
 
-    id        = Column(Integer, primary_key = True)
-    name      = Column(String(250), nullable = False, index = True)
-    parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
+    id        = db.Column(db.Integer, primary_key = True)
+    name      = db.Column(db.String(250), nullable = False, index = True)
+    parent_id = db.Column(db.Integer, db.ForeignKey("Group.id"), index = True)
 
-    children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
-    users    = relation("DbUser", secondary=t_user_is_member_of)
+    children = db.relationship("DbGroup", backref=db.backref("parent", remote_side=id, cascade='all,delete'))
+    users    = db.relationship("DbUser", secondary=t_user_is_member_of)
 
     def __init__(self, name = None, parent=None):
         super(DbGroup, self).__init__()
@@ -270,18 +268,18 @@ class DbGroup(Base):
 #
 
 
-class DbScheduler(Base):
+class DbScheduler(db.Model):
     """ A DbScheduler represents a Queue, an external WebLab-Deusto, iLab batch, or whatever. 
     """
     __tablename__ = 'Scheduler'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name'), TABLE_KWARGS)
 
-    id             = Column(Integer, primary_key = True)
-    name           = Column(String(255), nullable = False, index = True)
-    summary        = Column(String(255), nullable = False, index = True)
-    scheduler_type = Column(String(255), nullable = False, index = True)
-    config         = Column(String(4096), nullable = False)
-    is_external    = Column(Boolean, nullable = False, index = True)
+    id             = db.Column(db.Integer, primary_key = True)
+    name           = db.Column(db.String(255), nullable = False, index = True)
+    summary        = db.Column(db.String(255), nullable = False, index = True)
+    scheduler_type = db.Column(db.String(255), nullable = False, index = True)
+    config         = db.Column(db.String(4096), nullable = False)
+    is_external    = db.Column(db.Boolean, nullable = False, index = True)
 
     def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
         super(DbScheduler, self).__init__()
@@ -294,20 +292,20 @@ class DbScheduler(Base):
     def __unicode__(self):
         return self.summary
 
-class DbSchedulerResource(Base):
+class DbSchedulerResource(db.Model):
     """ A DbScheduler will have one or multiple resources, as long as 
     it is not external. If it is external, then it must have zero (since
     they're managed by the external system). """
 
     __tablename__  = 'SchedulerResource'
-    __table_args__ = (UniqueConstraint('name', 'scheduler_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name', 'scheduler_id'), TABLE_KWARGS)
 
-    id             = Column(Integer, primary_key = True)
-    name           = Column(String(255), nullable = False, index = True)
-    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
-    slots          = Column(Integer, nullable = False)
+    id             = db.Column(db.Integer, primary_key = True)
+    name           = db.Column(db.String(255), nullable = False, index = True)
+    scheduler_id   = db.Column(db.Integer, db.ForeignKey("Scheduler.id"), nullable = False, index = True)
+    slots          = db.Column(db.Integer, nullable = False)
 
-    scheduler = relation("DbScheduler", backref=backref("resources", order_by=id, cascade='all,delete'))
+    scheduler = db.relationship("DbScheduler", backref=db.backref("resources", order_by=id, cascade='all,delete'))
 
     def __init__(self, name = None, scheduler = None, slots = None):
         super(DbSchedulerResource, self).__init__()
@@ -315,7 +313,7 @@ class DbSchedulerResource(Base):
         self.scheduler = scheduler
         self.slots = slots
    
-class DbExperimentInstance(Base):
+class DbExperimentInstance(db.Model):
     """ A Experiment Instance is managed by the Laboratory Server. So basically
     it is an identification used between the Laboratory Server and the Core server to
     identify a particular experiment server. Each ExperimentInstance must be linked to
@@ -324,17 +322,17 @@ class DbExperimentInstance(Base):
     """
 
     __tablename__  = 'ExperimentInstance'
-    __table_args__ = (UniqueConstraint('name', 'scheduler_resource_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name', 'scheduler_resource_id'), TABLE_KWARGS)
 
-    id                      = Column(Integer, primary_key = True)
-    name                    = Column(String(255), nullable = False, index = True)
-    min_slot                = Column(Integer, nullable = False, index = True)
-    max_slot                = Column(Integer, nullable = False, index = True)
-    scheduler_resource_id   = Column(Integer, ForeignKey("SchedulerResource.id"), nullable = False, index = True)
-    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    id                      = db.Column(db.Integer, primary_key = True)
+    name                    = db.Column(db.String(255), nullable = False, index = True)
+    min_slot                = db.Column(db.Integer, nullable = False, index = True)
+    max_slot                = db.Column(db.Integer, nullable = False, index = True)
+    scheduler_resource_id   = db.Column(db.Integer, db.ForeignKey("SchedulerResource.id"), nullable = False, index = True)
+    experiment_id           = db.Column(db.Integer, db.ForeignKey("Experiment.id"), nullable = False, index = True)
 
-    scheduler_resource = relation("DbSchedulerResource", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
-    experiment = relation("DbExperiment", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    scheduler_resource = db.relationship("DbSchedulerResource", backref=db.backref("experiment_instances", order_by=id, cascade='all,delete'))
+    experiment = db.relationship("DbExperiment", backref=db.backref("experiment_instances", order_by=id, cascade='all,delete'))
     
     def __init__(self, name, slots, scheduler_resource):
         super(DbExperimentInstance, self).__init__()
@@ -346,12 +344,12 @@ class DbExperimentInstance(Base):
 # EXPERIMENTS DEFINITION
 #
 
-class DbExperimentCategory(Base):
+class DbExperimentCategory(db.Model):
     __tablename__  = 'ExperimentCategory'
-    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name'), TABLE_KWARGS)
 
-    id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False, index = True)
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(255), nullable = False, index = True)
 
     def __init__(self, name = None):
         super(DbExperimentCategory, self).__init__()
@@ -370,18 +368,18 @@ class DbExperimentCategory(Base):
         return ExperimentCategory(self.name)
 
 
-class DbExperiment(Base):
+class DbExperiment(db.Model):
     __tablename__  = 'Experiment'
-    __table_args__ = (UniqueConstraint('name', 'category_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('name', 'category_id'), TABLE_KWARGS)
 
-    id          = Column(Integer, primary_key = True)
-    name        = Column(String(255), nullable = False, index = True)
-    category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
-    start_date  = Column(DateTime, nullable = False)
-    end_date    = Column(DateTime, nullable = False)
-    client      = Column(String(255), index = True)
+    id          = db.Column(db.Integer, primary_key = True)
+    name        = db.Column(db.String(255), nullable = False, index = True)
+    category_id = db.Column(db.Integer, db.ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
+    start_date  = db.Column(db.DateTime, nullable = False)
+    end_date    = db.Column(db.DateTime, nullable = False)
+    client      = db.Column(db.String(255), index = True)
 
-    category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
+    category            = db.relationship("DbExperimentCategory", backref=db.backref("experiments", order_by=id, cascade='all,delete'))
 
     def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
@@ -436,17 +434,17 @@ class DbExperiment(Base):
     def to_dto(self):
         return self.to_business() # Temporal
 
-class DbExperimentClientParameter(Base):
+class DbExperimentClientParameter(db.Model):
     __tablename__  = 'ExperimentClientParameter'
     __table_args__ = (TABLE_KWARGS)
     
-    id               = Column(Integer, primary_key = True)
-    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    parameter_name   = Column(String(255), nullable = False, index = True)
-    parameter_type   = Column(String(15), nullable = False, index = True)
-    value            = Column(String(600), nullable = False)
+    id               = db.Column(db.Integer, primary_key = True)
+    experiment_id    = db.Column(db.Integer, db.ForeignKey("Experiment.id"), nullable = False, index = True)
+    parameter_name   = db.Column(db.String(255), nullable = False, index = True)
+    parameter_type   = db.Column(db.String(15), nullable = False, index = True)
+    value            = db.Column(db.String(600), nullable = False)
 
-    experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
+    experiment       = db.relationship("DbExperiment", backref=db.backref("client_parameters", order_by=id))
 
     def __init__(self, experiment = None, parameter_name = None, parameter_type = None, value = None):
         self.experiment     = experiment
@@ -454,17 +452,17 @@ class DbExperimentClientParameter(Base):
         self.parameter_type = parameter_type
         self.value          = value
 
-class DbSchedulerExternalExperimentEntry(Base):
+class DbSchedulerExternalExperimentEntry(db.Model):
     __tablename__ = 'SchedulerExternalExperimentEntry'
-    __table_args__ = (UniqueConstraint('experiment_id', 'scheduler_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('experiment_id', 'scheduler_id'), TABLE_KWARGS)
 
-    id             = Column(Integer, primary_key = True)
-    experiment_id  = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
-    config         = Column(String(1024))
+    id             = db.Column(db.Integer, primary_key = True)
+    experiment_id  = db.Column(db.Integer, db.ForeignKey("Experiment.id"), nullable = False, index = True)
+    scheduler_id   = db.Column(db.Integer, db.ForeignKey("Scheduler.id"), nullable = False, index = True)
+    config         = db.Column(db.String(1024))
     
-    experiment = relation("DbExperiment", backref=backref("external_schedulers", order_by=id))
-    scheduler  = relation("DbScheduler", backref=backref("external_experiments", order_by=id))
+    experiment = db.relationship("DbExperiment", backref=db.backref("external_schedulers", order_by=id))
+    scheduler  = db.relationship("DbScheduler", backref=db.backref("external_experiments", order_by=id))
 
     def __init__(self, experiment = None, scheduler = None, config = None):
         self.experiment = experiment
@@ -482,64 +480,64 @@ class DbSchedulerExternalExperimentEntry(Base):
 # EXPERIMENT INSTANCE MEMBERSHIP DEFINITION
 #
 
-class DbUserUsedExperiment(Base):
+class DbUserUsedExperiment(db.Model):
     __tablename__  = 'UserUsedExperiment'
-    __table_args__ = ( Index('idx_UserUsedExperiment_timetable', 'start_date_weekday', 'start_date_hour'),
-                       Index('idx_UserUsedExperiment_user_experiment', 'user_id', 'experiment_id'),
-                       Index('idx_UserUsedExperiment_user_origin', 'user_id', 'origin'),
+    __table_args__ = ( db.Index('idx_UserUsedExperiment_timetable', 'start_date_weekday', 'start_date_hour'),
+                       db.Index('idx_UserUsedExperiment_user_experiment', 'user_id', 'experiment_id'),
+                       db.Index('idx_UserUsedExperiment_user_origin', 'user_id', 'origin'),
 
-                       Index('idx_UserUsedExperiment_user_group_permission_id', 'user_id', 'group_permission_id'),
-                       Index('idx_UserUsedExperiment_user_user_permission_id', 'user_id', 'user_permission_id'),
-                       Index('idx_UserUsedExperiment_user_role_permission_id', 'user_id', 'role_permission_id'),
+                       db.Index('idx_UserUsedExperiment_user_group_permission_id', 'user_id', 'group_permission_id'),
+                       db.Index('idx_UserUsedExperiment_user_user_permission_id', 'user_id', 'user_permission_id'),
+                       db.Index('idx_UserUsedExperiment_user_role_permission_id', 'user_id', 'role_permission_id'),
 
-                       Index('idx_UserUsedExperiment_experiment_id_group_id', 'experiment_id', 'group_permission_id'),
-                       Index('idx_UserUsedExperiment_experiment_id_user_id', 'experiment_id', 'user_permission_id'),
-                       Index('idx_UserUsedExperiment_experiment_id_role_id', 'experiment_id', 'role_permission_id'),
+                       db.Index('idx_UserUsedExperiment_experiment_id_group_id', 'experiment_id', 'group_permission_id'),
+                       db.Index('idx_UserUsedExperiment_experiment_id_user_id', 'experiment_id', 'user_permission_id'),
+                       db.Index('idx_UserUsedExperiment_experiment_id_role_id', 'experiment_id', 'role_permission_id'),
                        TABLE_KWARGS)
 
-    id                      = Column(Integer, primary_key = True)
+    id                      = db.Column(db.Integer, primary_key = True)
 
     # Basic data
 
-    user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
-    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    start_date              = Column(DateTime, nullable = False, index = True)
-    start_date_micro        = Column(Integer, nullable = False)
-    end_date                = Column(DateTime, index = True)
-    end_date_micro          = Column(Integer)
+    user_id                 = db.Column(db.Integer, db.ForeignKey("User.id"), nullable = False, index = True)
+    experiment_id           = db.Column(db.Integer, db.ForeignKey("Experiment.id"), nullable = False, index = True)
+    start_date              = db.Column(db.DateTime, nullable = False, index = True)
+    start_date_micro        = db.Column(db.Integer, nullable = False)
+    end_date                = db.Column(db.DateTime, index = True)
+    end_date_micro          = db.Column(db.Integer)
 
     # TODO: use these new two fields
-    max_error_in_millis     = Column(Integer, nullable = True)
-    finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
+    max_error_in_millis     = db.Column(db.Integer, nullable = True)
+    finish_reason           = db.Column(db.Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
 
     # 
     # The following data is used for optimized analytics (optimized queries based on this data).
     # 
-    start_date_date         = Column(Date, index = True)
-    start_date_weekday      = Column(Integer, index = True) # 0..6, as in datetime.datetime.weekday()
-    start_date_hour         = Column(Integer, index = True) # 0..23
+    start_date_date         = db.Column(db.Date, index = True)
+    start_date_weekday      = db.Column(db.Integer, index = True) # 0..6, as in datetime.datetime.weekday()
+    start_date_hour         = db.Column(db.Integer, index = True) # 0..23
 
-    session_time_micro      = Column(BigInteger, index = True) # This should take into account finish_reason
-    session_time_seconds    = Column(Integer, index = True) # This should take into account finish_reason
+    session_time_micro      = db.Column(db.BigInteger, index = True) # This should take into account finish_reason
+    session_time_seconds    = db.Column(db.Integer, index = True) # This should take into account finish_reason
 
     # 
     # Who accessed the experiment?
     # 
 
-    permission_permanent_id = Column(String(255), nullable = True, index = True)
-    group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
-    user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
-    role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
-    origin                  = Column(String(255), nullable = False, index = True)
-    coord_address           = Column(String(255), nullable = False, index = True)
-    reservation_id          = Column(String(50), index = True)
+    permission_permanent_id = db.Column(db.String(255), nullable = True, index = True)
+    group_permission_id     = db.Column(db.Integer, db.ForeignKey('GroupPermission.id'), nullable = True)
+    user_permission_id      = db.Column(db.Integer, db.ForeignKey('UserPermission.id'), nullable = True)
+    role_permission_id      = db.Column(db.Integer, db.ForeignKey('RolePermission.id'), nullable = True)
+    origin                  = db.Column(db.String(255), nullable = False, index = True)
+    coord_address           = db.Column(db.String(255), nullable = False, index = True)
+    reservation_id          = db.Column(db.String(50), index = True)
 
-    user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
-    experiment              = relation("DbExperiment", backref=backref("user_uses", order_by=id))
+    user                    = db.relationship("DbUser", backref=db.backref("experiment_uses", order_by=id))
+    experiment              = db.relationship("DbExperiment", backref=db.backref("user_uses", order_by=id))
 
-    group_permission        = relation("DbGroupPermission", backref=backref("uses", order_by=id))
-    user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
-    role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
+    group_permission        = db.relationship("DbGroupPermission", backref=db.backref("uses", order_by=id))
+    user_permission         = db.relationship("DbUserPermission",  backref=db.backref("uses", order_by=id))
+    role_permission         = db.relationship("DbRolePermission",  backref=db.backref("uses", order_by=id))
 
     def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None, session_time_micro = None):
         super(DbUserUsedExperiment, self).__init__()
@@ -626,12 +624,12 @@ class DbUserUsedExperiment(Base):
 #
 # These properties will be added. The names will be "facebook", "mobile", "openid", "user.agent", etc.
 #
-class DbUserUsedExperimentProperty(Base):
+class DbUserUsedExperimentProperty(db.Model):
     __tablename__   = 'UserUsedExperimentProperty'
-    __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
+    __table_args__  = (db.UniqueConstraint('name'), TABLE_KWARGS)
 
-    id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False, index = True)
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(255), nullable = False, index = True)
 
     def __init__(self, name = None, id = None):
         self.name = name
@@ -640,17 +638,17 @@ class DbUserUsedExperimentProperty(Base):
     def __repr__(self):
         return "DbUserUsedExperimentProperty(id = %r, name = %r)" % (self.id, self.name)
 
-class DbUserUsedExperimentPropertyValue(Base):
+class DbUserUsedExperimentPropertyValue(db.Model):
     __tablename__  = 'UserUsedExperimentPropertyValue'
-    __table_args__ = (UniqueConstraint('property_name_id', 'experiment_use_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('property_name_id', 'experiment_use_id'), TABLE_KWARGS)
 
-    id                = Column(Integer, primary_key = True)
-    property_name_id  = Column(Integer, ForeignKey("UserUsedExperimentProperty.id"), nullable = False)
-    experiment_use_id = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
-    value             = Column(String(255))
+    id                = db.Column(db.Integer, primary_key = True)
+    property_name_id  = db.Column(db.Integer, db.ForeignKey("UserUsedExperimentProperty.id"), nullable = False)
+    experiment_use_id = db.Column(db.Integer, db.ForeignKey("UserUsedExperiment.id"), nullable = False)
+    value             = db.Column(db.String(255))
 
-    property_name  = relation("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
-    experiment_use = relation("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
+    property_name  = db.relationship("DbUserUsedExperimentProperty", backref=db.backref("values",     order_by=id, cascade='all,delete'))
+    experiment_use = db.relationship("DbUserUsedExperiment",         backref=db.backref("properties", order_by=id, cascade='all,delete'))
 
     def __init__(self, value = None, property_name = None, experiment_use = None, id = None):
         self.id = id
@@ -666,22 +664,22 @@ class DbUserUsedExperimentPropertyValue(Base):
             self.experiment_use_id
         )
 
-class DbUserFile(Base):
+class DbUserFile(db.Model):
     __tablename__  = 'UserFile'
-    __table_args__ = (Index('idx_UserFile_experiment_use_id_file_hash', 'experiment_use_id', 'file_hash'), TABLE_KWARGS)
+    __table_args__ = (db.Index('idx_UserFile_experiment_use_id_file_hash', 'experiment_use_id', 'file_hash'), TABLE_KWARGS)
 
-    id                     = Column(Integer, primary_key = True)
-    experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
-    file_sent              = Column(String(255), nullable = False)
-    file_hash              = Column(String(255), nullable = False, index = True)
-    file_info              = Column(Text)
-    response               = Column(Text)
-    timestamp_before       = Column(DateTime, nullable = False)
-    timestamp_before_micro = Column(Integer, nullable = False)
-    timestamp_after        = Column(DateTime)
-    timestamp_after_micro  = Column(Integer)
+    id                     = db.Column(db.Integer, primary_key = True)
+    experiment_use_id      = db.Column(db.Integer, db.ForeignKey("UserUsedExperiment.id"), nullable = False)
+    file_sent              = db.Column(db.String(255), nullable = False)
+    file_hash              = db.Column(db.String(255), nullable = False, index = True)
+    file_info              = db.Column(db.Text)
+    response               = db.Column(db.Text)
+    timestamp_before       = db.Column(db.DateTime, nullable = False)
+    timestamp_before_micro = db.Column(db.Integer, nullable = False)
+    timestamp_after        = db.Column(db.DateTime)
+    timestamp_after_micro  = db.Column(db.Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
+    experiment_use = db.relationship("DbUserUsedExperiment", backref=db.backref("files", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use = None, file_sent = None, file_hash = None, timestamp_before = None, file_info=None, response=None, timestamp_after=None):
         super(DbUserFile, self).__init__()
@@ -721,20 +719,20 @@ class DbUserFile(Base):
             )
 
 
-class DbUserCommand(Base):
+class DbUserCommand(db.Model):
     __tablename__  = 'UserCommand'
     __table_args__ = (TABLE_KWARGS)
 
-    id                     = Column(Integer, primary_key = True)
-    experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
-    command                = Column(Text, nullable = False)
-    response               = Column(Text)
-    timestamp_before       = Column(DateTime, nullable = False)
-    timestamp_before_micro = Column(Integer, nullable = False)
-    timestamp_after        = Column(DateTime)
-    timestamp_after_micro  = Column(Integer)
+    id                     = db.Column(db.Integer, primary_key = True)
+    experiment_use_id      = db.Column(db.Integer, db.ForeignKey("UserUsedExperiment.id"), nullable = False)
+    command                = db.Column(db.Text, nullable = False)
+    response               = db.Column(db.Text)
+    timestamp_before       = db.Column(db.DateTime, nullable = False)
+    timestamp_before_micro = db.Column(db.Integer, nullable = False)
+    timestamp_after        = db.Column(db.DateTime)
+    timestamp_after_micro  = db.Column(db.Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
+    experiment_use = db.relationship("DbUserUsedExperiment", backref=db.backref("commands", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use = None, command = None, timestamp_before = None, response=None, timestamp_after=None):
         super(DbUserCommand, self).__init__()
@@ -772,18 +770,18 @@ class DbUserCommand(Base):
 # USER PERMISSIONS
 #
 
-class DbUserPermission(Base):
+class DbUserPermission(db.Model):
     __tablename__  = 'UserPermission'
-    __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                 = Column(Integer, primary_key = True)
-    user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False, index = True)
-    date               = Column(DateTime, nullable = False)
-    comments           = Column(Text)
+    id                 = db.Column(db.Integer, primary_key = True)
+    user_id            = db.Column(db.Integer, db.ForeignKey("User.id"), nullable = False)
+    permission_type    = db.Column(db.String(255), nullable = False, index = True)
+    permanent_id       = db.Column(db.String(255), nullable = False, index = True)
+    date               = db.Column(db.DateTime, nullable = False)
+    comments           = db.Column(db.Text)
 
-    user               = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    user               = db.relationship("DbUser", backref=db.backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, user = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbUserPermission, self).__init__()
@@ -816,16 +814,16 @@ class DbUserPermission(Base):
         return permission
 
 
-class DbUserPermissionParameter(Base):
+class DbUserPermissionParameter(db.Model):
     __tablename__  = 'UserPermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
-    id                           = Column(Integer, primary_key = True)
-    permission_id                = Column(Integer, ForeignKey("UserPermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
-    value                        = Column(Text)
+    id                           = db.Column(db.Integer, primary_key = True)
+    permission_id                = db.Column(db.Integer, db.ForeignKey("UserPermission.id"), nullable = False)
+    permission_type_parameter    = db.Column(db.String(255), nullable = False, index = True)
+    value                        = db.Column(db.Text)
 
-    permission                = relation("DbUserPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = db.relationship("DbUserPermission", backref=db.backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbUserPermissionParameter, self).__init__()
@@ -852,18 +850,18 @@ class DbUserPermissionParameter(Base):
     def to_dto(self):
         return PermissionParameter( self.get_name(), self.get_datatype(), self.value )
 
-class DbRolePermission(Base):
+class DbRolePermission(db.Model):
     __tablename__  = 'RolePermission'
-    __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                            = Column(Integer, primary_key = True)
-    role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    permission_type               = Column(String(255), nullable = False, index = True)
-    permanent_id                  = Column(String(255), nullable = False, index = True)
-    date                          = Column(DateTime, nullable = False)
-    comments                      = Column(Text)
+    id                            = db.Column(db.Integer, primary_key = True)
+    role_id                       = db.Column(db.Integer, db.ForeignKey("Role.id"), nullable = False)
+    permission_type               = db.Column(db.String(255), nullable = False, index = True)
+    permanent_id                  = db.Column(db.String(255), nullable = False, index = True)
+    date                          = db.Column(db.DateTime, nullable = False)
+    comments                      = db.Column(db.Text)
 
-    role            = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    role            = db.relationship("DbRole", backref=db.backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, role = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbRolePermission, self).__init__()
@@ -897,16 +895,16 @@ class DbRolePermission(Base):
         return permission
 
 
-class DbRolePermissionParameter(Base):
+class DbRolePermissionParameter(db.Model):
     __tablename__  = 'RolePermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
-    id                           = Column(Integer, primary_key = True)
-    permission_id                = Column(Integer, ForeignKey("RolePermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
-    value                        = Column(Text)
+    id                           = db.Column(db.Integer, primary_key = True)
+    permission_id                = db.Column(db.Integer, db.ForeignKey("RolePermission.id"), nullable = False)
+    permission_type_parameter    = db.Column(db.String(255), nullable = False, index = True)
+    value                        = db.Column(db.Text)
 
-    permission                = relation("DbRolePermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = db.relationship("DbRolePermission", backref=db.backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbRolePermissionParameter, self).__init__()
@@ -934,18 +932,18 @@ class DbRolePermissionParameter(Base):
         return PermissionParameter( self.get_name(), self.get_datatype(), self.value )
 
 
-class DbGroupPermission(Base):
+class DbGroupPermission(db.Model):
     __tablename__  = 'GroupPermission'
-    __table_args__ = (UniqueConstraint('permanent_id'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permanent_id'), TABLE_KWARGS)
 
-    id                 = Column(Integer, primary_key = True)
-    group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False, index = True)
-    date               = Column(DateTime, nullable = False)
-    comments           = Column(Text)
+    id                 = db.Column(db.Integer, primary_key = True)
+    group_id           = db.Column(db.Integer, db.ForeignKey("Group.id"), nullable = False)
+    permission_type    = db.Column(db.String(255), nullable = False, index = True)
+    permanent_id       = db.Column(db.String(255), nullable = False, index = True)
+    date               = db.Column(db.DateTime, nullable = False)
+    comments           = db.Column(db.Text)
 
-    group           = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    group           = db.relationship("DbGroup", backref=db.backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, group = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbGroupPermission, self).__init__()
@@ -978,16 +976,16 @@ class DbGroupPermission(Base):
         return permission
 
 
-class DbGroupPermissionParameter(Base):
+class DbGroupPermissionParameter(db.Model):
     __tablename__  = 'GroupPermissionParameter'
-    __table_args__ = (UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
+    __table_args__ = (db.UniqueConstraint('permission_id', 'permission_type_parameter'), TABLE_KWARGS)
 
-    id                           = Column(Integer, primary_key = True)
-    permission_id                = Column(Integer, ForeignKey("GroupPermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
-    value                        = Column(Text)
+    id                           = db.Column(db.Integer, primary_key = True)
+    permission_id                = db.Column(db.Integer, db.ForeignKey("GroupPermission.id"), nullable = False)
+    permission_type_parameter    = db.Column(db.String(255), nullable = False, index = True)
+    value                        = db.Column(db.Text)
 
-    permission                = relation("DbGroupPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = db.relationship("DbGroupPermission", backref=db.backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbGroupPermissionParameter, self).__init__()

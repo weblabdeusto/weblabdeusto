@@ -37,6 +37,7 @@ import urllib2
 import logging
 import StringIO
 import optparse
+from flask import Flask
 
 def get_suites(avoid_integration = False, avoid_stress = True):
     ROOT_DIRECTORY=test.__file__[:test.__file__.rfind('test')]
@@ -253,7 +254,7 @@ def check_flakes():
 
 def deploy_testdb(options):
     from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database, insert_required_initial_coord_data
-    import weblab.db.model as Model
+    import weblab.db.model as model
     import weblab.core.coordinator.sql.model as CoordinatorModel
 
     import voodoo.sessions.db_lock_data as DbLockData
@@ -326,13 +327,14 @@ def deploy_testdb(options):
         print("Populating 'WebLabTests%s' database...  \t\t" % tests, end="")
         t = time.time()
 
-        engine = create_engine(weblab_test_db_str % tests, echo = False)
-        metadata = Model.Base.metadata
-        metadata.drop_all(engine)
-        metadata.create_all(engine)
-
-        insert_required_initial_data(engine)
-        populate_weblab_tests(engine, tests)
+        app = Flask(__name__)
+        sqlalchemy_url = app.config['SQLALCHEMY_DATABASE_URI'] = weblab_test_db_str % tests
+        model.db.init_app(app)
+        model.db.drop_all(app=app)
+        model.db.create_all(app=app)
+        with app.app_context():
+            insert_required_initial_data(sqlalchemy_url)
+            populate_weblab_tests(tests)
 
         print("[done] [%1.2fs]" % (time.time() - t))
 
@@ -345,7 +347,8 @@ def deploy_testdb(options):
         print("Populating 'WebLabCoordination%s' database...\t" % coord, end="")
         t = time.time()
 
-        engine = create_engine(weblab_coord_db_str % coord, echo = False)
+        url = weblab_coord_db_str % coord
+        engine = create_engine(url, echo = False)
 
         CoordinatorModel.load()
 
@@ -353,7 +356,7 @@ def deploy_testdb(options):
         metadata.drop_all(engine)
         metadata.create_all(engine)
         
-        insert_required_initial_coord_data(engine)
+        insert_required_initial_coord_data(url)
 
         print("[done] [%1.2fs]" % (time.time() - t))
 
