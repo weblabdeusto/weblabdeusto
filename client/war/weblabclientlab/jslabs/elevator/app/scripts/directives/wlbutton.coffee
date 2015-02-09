@@ -11,7 +11,7 @@
  # Command to press a button: SetPulse off 0       |    SetPulse on 0
 ###
 angular.module('elevatorApp')
-  .directive('wlButton', ->
+  .directive('wlButton', ($timeout) ->
     templateUrl: 'views/wlbutton.html',
     scope:
       'ident': '@ident'
@@ -23,7 +23,7 @@ angular.module('elevatorApp')
       scope.button.isOn = false;
       scope.isOn = -> return scope.button.isOn
 
-
+      # The function to invoke when a button is pressed.
       scope.press = ->
         console.debug("Button " + scope.ident + " pressed.")
 
@@ -31,39 +31,27 @@ angular.module('elevatorApp')
 
         Weblab.sendCommand "SetPulse on " + scope.ident,
           =>
-            console.debug "A"
+            console.debug "SetPulse succeeded"
+            scope.button.isOn = true
+
+            # In a few seconds, send an off command.
+            $timeout (
+              ->
+                Weblab.dbgSetOfflineSendCommandResponse "ok"
+                console.debug "Timeout Triggered"
+
+                Weblab.sendCommand "SetPulse off " + scope.ident,
+                  =>
+                    console.debug "SetPulse off succeded"
+                    scope.button.isOn = false
+                  ,
+                  =>
+                    console.debug "SetPulse off failed"
+                    scope.button.isOn = false
+              ),
+              2000
+
+          ,
           =>
-            console.debug "B"
-
-#          (=>
-#            console.debug "aSetPulse succeeded"
-#          ),(=>
-#            console.debug "SetPulse failed"
-#          )
-
-#        Weblab.sendCommand "SetPulse on " + scope.ident,
-#          =>
-#            # On success
-#            console.debug "SetPulse succeeded"
-#            scope.button.isOn = true
-#
-#            $timeout (->
-#              Weblab.dbgSetOfflineSendCommandResponse "ok"
-#              Weblab.sendCommand "SetPulse off " + scope.ident, (
-#                =>
-#                  # On success
-#                  scope.button.isOn = false
-#                ), (
-#                =>
-#                  # On failure
-#                  scope.button.isOn = false
-#                )
-#            ),(
-#            2000
-#            )
-#          =>
-#              # On failure
-#              console.debug "SetPulse failed"
-
-
+            console.debug "SetPulse failed"
   )
