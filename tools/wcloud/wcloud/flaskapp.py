@@ -17,9 +17,10 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
+import config
+
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
-import wcloud.config.wcloud_settings_default as wcloud_settings_default
 
 # TODO: We shouldn't need to instance flask from the tasks, nor link it to a specific database.
 
@@ -27,7 +28,7 @@ app = Flask(__name__)
 
 #Config
 app.config['SESSION_COOKIE_NAME'] = 'session-wcloud'
-app.config.from_object(wcloud_settings_default)
+app.config.from_object(config)
 app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 #Extensions

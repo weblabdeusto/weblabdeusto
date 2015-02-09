@@ -1,30 +1,30 @@
-"""
-WCLOUD_SETTINGS_DEFAULT
-
-This file contains the default wcloud settings. The settings in this file can be overriden
-by placing a wcloud_settings.py file in this same directory, or by specifying another file
-through the WCLOUD_SETTINGS environment variable.
-
-The order in which the config files will be applied is:
-wcloud_settings_default.py -> wcloud_settings.py -> WCLOUD_SETTINGS
-
-
-
-This file contains a sample configuration file. All the applications
-use a environment variable called WCLOUD_SETTINGS which must point to
-a valid Python file. If this file is found, those variables located there
-will replace these variables. So if you only need to establish passwords,
-reCAPTCHA configuration, etc., you only need to put the file with those 
-variables. However, for development that's not required.
-"""
-
 import os
+import sys
+sys.path.append(os.path.join('..','..','server','src'))
+from weblab.admin.script import Creation
 
+DEFAULT_DEPLOYMENT_SETTINGS = {
+    Creation.DB_ENGINE: 'mysql',
+    Creation.COORD_ENGINE: 'redis',
+    Creation.COORD_REDIS_DB: 0,                    # --coordination-redis-db=COORD_REDIS_DB
+    Creation.COORD_REDIS_PORT: 6379,               # --coordination-redis-port=PORT
+    Creation.ADMIN_USER: 'admin',              # --admin-user=admin
+    Creation.ADMIN_NAME: 'Administrator',              #  --admin-name=whatever
+    Creation.ADMIN_PASSWORD: 'password',          # --admin-password=whatever
+    Creation.ADMIN_MAIL: 'admin@admin.com',              # --admin-mail=whatever
+    Creation.START_PORTS: '10000',             # --start-port=10000
+    Creation.SYSTEM_IDENTIFIER: 'University of Deusto',       # -i Name of the university
+    Creation.SERVER_HOST: 'weblab.deusto.es',      # --server-host=whatever
+    Creation.ENTITY_LINK: 'http://www.deusto.es/', # --entity-link= http://www.deusto.es/
+    Creation.CORES: 3, 
+    Creation.ADD_FEDERATED_LOGIC : True,
+    Creation.ADD_FEDERATED_VISIR : True,
+    Creation.ADD_FEDERATED_SUBMARINE : True,
+}
 
-#################################
-# 
-# Flask general configuration
-# 
+APACHE_CONF_NAME = 'apache.conf'
+MIN_PORT = 14000
+
 DEBUG = True
 SECRET_KEY = os.urandom(32)
 

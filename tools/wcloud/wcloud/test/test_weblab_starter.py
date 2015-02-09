@@ -1,7 +1,8 @@
 import os
 import unittest
 from flask import Flask
-from wcloud.config import wcloud_settings_default, wcloud_settings
+
+import config
 
 from wcloud.weblab_starter import app, start_weblab, check_weblab, stop_weblab
 from wcloud.weblab_starter import main
@@ -12,8 +13,7 @@ import werkzeug
 wcloud_app = Flask(__name__)
 
 
-wcloud_app.config.from_object(wcloud_settings_default)
-wcloud_app.config.from_object(wcloud_settings)
+wcloud_app.config.from_object(config)
 wcloud_app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 FILENAME = os.path.join(wcloud_app.config['DIR_BASE'], 'instances.txt')

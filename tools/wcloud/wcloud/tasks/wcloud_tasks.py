@@ -58,12 +58,10 @@ from wcloud.tasks.celery_app import celery_app
 
 
 # TODO: Remove the dependency on this.
-import wcloud.config.wcloud_settings_default as wcloud_settings_default
-import wcloud.config.wcloud_settings as wcloud_settings
+import config
 
 flask_app = Flask(__name__)
-flask_app.config.from_object(wcloud_settings_default)
-flask_app.config.from_object(wcloud_settings)
+flask_app.config.from_object(config)
 flask_app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
 # TODO: Check that the config order is consistent.

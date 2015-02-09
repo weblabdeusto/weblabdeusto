@@ -254,11 +254,9 @@ def main():
 
 
 if __name__ == "__main__":
-    import wcloud.config.wcloud_settings as wcloud_settings
-    import wcloud.config.wcloud_settings_default as wcloud_settings_default
+    import config
 
-    app.config.from_object(wcloud_settings_default)
-    app.config.from_object(wcloud_settings)
+    app.config.from_object(config)
     app.config.from_envvar('WCLOUD_SETTINGS', silent=True)
 
     main()
