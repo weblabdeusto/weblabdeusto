@@ -79,6 +79,10 @@ class ServerCreator(threading.Thread):
 
     def run(self):
         try:
+            if 'PYTHONPATH' in os.environ:
+                os.environ['PYTHONPATH'] = os.pathsep.join((os.environ['PYTHONPATH'], os.path.abspath('.')))
+            else:
+                os.environ['PYTHONPATH'] = os.path.abspath('.')
             sys.argv = shlex.split("weblab-admin start %s" % self.weblab_dir)
             weblab_admin()
         except:
