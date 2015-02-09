@@ -18,7 +18,6 @@ def connect(user, passwd):
     return engine
 
 
-@celery_app.task
 def create_db(root_username, root_password, base_name, db_username, db_password):
     """
     Task to create a MySQL database upon request, which will be used by a WCLOUD instance.
@@ -71,7 +70,6 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
     return db_name
 
 
-@celery_app.task
 def destroy_db(root_username, root_password, db_name):
     """
     Destroys the specified database.

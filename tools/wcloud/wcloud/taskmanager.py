@@ -30,7 +30,8 @@ of the deployment.
 
 import os
 import sys
-from wcloud.tasks import wcloud_tasks
+from wcloud.actions import wcloud_actions
+from wcloud.tasks.celery_app import celery_app
 
 path_aux = sys.path[0].split('/')
 path_aux = os.path.join('/', *path_aux[0:len(path_aux) - 1])
@@ -46,6 +47,132 @@ from cStringIO import StringIO
 from flask import Flask, request
 
 from weblab.admin.script import Creation
+
+
+
+@celery_app.task(bind=True, name='deploy_weblab_instance')
+def deploy_weblab_instance(self, task):
+    """
+    Deploys a new WebLab instance with the specified parameters.
+
+    :param self: Reference to the Task itself, provided by Celery automatically.
+    :param task: Dictionary containing the parameters that define the new instance to be created.
+    :type task: dict
+    :return:
+    """
+    try:
+
+        if 'output' not in task:
+            task['output'] = ""
+        output = task['output']
+
+        # Track the current step by number.
+        step = 0
+
+        ######################################
+        #
+        # 1. Prepare the system
+        #
+        output.write('[done]\nPreparing requirements...')
+        if not self.request.called_directly:
+            self.update_state(state='PROGRESS',
+                              meta={'output': output, 'step': step})
+        settings = wcloud_actions.prepare_system(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {})
+        step += 1
+
+
+        #########################################################
+        #
+        # 2. Create the full WebLab-Deusto environment
+        #
+        output.write("[Done]\nCreating deployment directory...")
+        if not self.request.called_directly:
+            self.update_state(state='PROGRESS',
+                              meta={'output': output, 'step': step})
+        creation_results = wcloud_actions.create_weblab_environment(task["directory"], settings)
+        step += 1
+        # TODO: settings vs wcloud_settings. It is confusing.
+
+
+        ##########################################################
+        #
+        # 3. Configure the web server
+        #
+        output.write("[Done]\nConfiguring web server...")
+        if not self.request.called_directly:
+            self.update_state(state='PROGRESS',
+                              meta={'output': output, 'step': step})
+        wcloud_actions.configure_web_server(creation_results)
+        step += 1
+
+        ##########################################################
+        #
+        # 4. Register and start the new WebLab-Deusto instance
+        #
+        output.write("[Done]\nRegistering and starting instance...")
+        if not self.request.called_directly:
+            self.update_state(state='PROGRESS',
+                              meta={'output': output, 'step': step})
+        wcloud_actions.register_and_start_instance(task[u'email'], {})
+        step += 1
+
+
+        ##########################################################
+        #
+        # 5. Service deployed. Configure the response
+        #
+        output.write("[Done]\n\nCongratulations, your system is ready!")
+        # TODO: Probably it shouldn't say the system is ready until finish_deployment is over.
+
+        if not self.request.called_directly:
+            self.update_state(state='PROGRESS',
+                              meta={'output': output, 'step': step})
+        start_port, end_port = creation_results["start_port"], creation_results["end_port"]
+        wcloud_actions.finish_deployment(task[u'email'], settings, start_port, end_port, {})
+        step += 1
+
+        task['url'] = task['url_root'] + settings[Creation.BASE_URL]
+
+        # TODO: Doesn't make much sense to return the whole task. Maybe it should just return the URL.
+        return task
+
+    except:
+        import traceback
+
+        print(traceback.format_exc())
+        sys.stdout.flush()
+        self.task_status[task['task_id']] = TaskManager.STATUS_ERROR
+
+        # Revert changes:
+        #
+        # 1. Delete the directory
+        shutil.rmtree(task['directory'], ignore_errors=True)
+
+        #
+        # 2. Remove from apache and reload
+        # TODO
+
+        #
+        # 3. Remove from the instances to be loaded
+        # TODO
+
+        #
+        # 4. Remove from the database
+        # TODO
+
+
+
+
+
+
+
+########################################################
+#
+# THE CODE BELOW SHOULD PROBABLY BE REMOVED
+#
+########################################################
+
+
 
 
 class TaskManager(threading.Thread):
@@ -65,7 +192,8 @@ class TaskManager(threading.Thread):
         self.task_ids = {}
 
     def submit_task(self, task):
-        """Adds a task to the queue of jobs and initializes all the neccessary
+        """
+        Adds a task to the queue of jobs and initializes all the neccessary
         data of the task status
         
         :param task: A dict with all the necessary data to run the job
@@ -100,11 +228,14 @@ class TaskManager(threading.Thread):
         self._shutdown = True
 
     def run(self):
-        """Loop of the task manager. pops a job in each iteration and executes
+        """
+        TODO: The comment that follows is not up to date.
+        Loop of the task manager. pops a job in each iteration and executes
         the task until no tasks remain in the queue. The task manager will
         remain executing and awaiting for a task/job until _shutdown is true.
         This avoids concurrency problems: no more than one task will be executed
         at the same time.
+
         """
 
         while not self._shutdown:
@@ -124,7 +255,7 @@ class TaskManager(threading.Thread):
                 # 1. Prepare the system
                 #
                 output.write('[done]\nPreparing requirements...')
-                settings = wcloud_tasks.prepare_system.delay(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {}).get()
+                settings = wcloud_actions.prepare_system(task[u'email'], task['admin_user'], task['admin_name'], task['admin_password'], task['admin_email'], {})
 
 
                 #########################################################
@@ -132,7 +263,7 @@ class TaskManager(threading.Thread):
                 # 2. Create the full WebLab-Deusto environment
                 #
                 output.write("[Done]\nCreating deployment directory...")
-                creation_results = wcloud_tasks.create_weblab_environment.delay(task["directory"], settings).get()
+                creation_results = wcloud_actions.create_weblab_environment(task["directory"], settings)
                 # TODO: settings vs wcloud_settings. It is confusing.
 
 
@@ -141,7 +272,7 @@ class TaskManager(threading.Thread):
                 # 3. Configure the web server
                 # 
                 output.write("[Done]\nConfiguring web server...")
-                wcloud_tasks.configure_web_server.delay(creation_results).get()
+                wcloud_actions.configure_web_server(creation_results)
 
 
                 ##########################################################
@@ -149,7 +280,7 @@ class TaskManager(threading.Thread):
                 # 4. Register and start the new WebLab-Deusto instance
                 #
                 output.write("[Done]\nRegistering and starting instance...")
-                wcloud_tasks.register_and_start_instance.delay(task[u'email'], {}).get()
+                wcloud_actions.register_and_start_instance(task[u'email'], {})
 
 
                 ##########################################################
@@ -158,7 +289,7 @@ class TaskManager(threading.Thread):
                 #
                 output.write("[Done]\n\nCongratulations, your system is ready!")
                 start_port, end_port = creation_results["start_port"], creation_results["end_port"]
-                wcloud_tasks.finish_deployment.delay(task[u'email'], settings, start_port, end_port, {}).get()
+                wcloud_actions.finish_deployment(task[u'email'], settings, start_port, end_port, {})
 
                 task['url'] = task['url_root'] + settings[Creation.BASE_URL]
                 self.task_status[task['task_id']] = TaskManager.STATUS_FINISHED
