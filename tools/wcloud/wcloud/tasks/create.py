@@ -52,7 +52,7 @@ class TransactionProcessor(object):
  
     def __enter__(self):
         self.output.write(self.message + "... ")
-         _store_progress(self.task, self.result, self.output, self.step)
+        _store_progress(self.task, self.result, self.output, self.step)
         return self
  
     def __exit__(self, error_type, error_instance, tb):
