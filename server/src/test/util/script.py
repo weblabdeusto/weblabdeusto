@@ -27,6 +27,7 @@ import requests
 
 from voodoo.process_starter import clean_created
 import weblab.comm.proxy_server as proxy_server
+from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 from weblab.admin.script import weblab as weblab_admin
 from test.util.ports import new as new_port
 
@@ -42,6 +43,7 @@ class ServerCreator(threading.Thread):
     def __init__(self, command = "", port_space = 10, startup_wait = 0.2):
         super(ServerCreator, self).__init__()
         proxy_server.QUIET = True
+        self.address = ''
         self.startup_wait = startup_wait
         self.temporary_folder = tempfile.mkdtemp(prefix = 'remove_me_', suffix = '_testcase_script')
         self.weblab_dir = os.path.join(self.temporary_folder, 'weblab')
@@ -64,6 +66,8 @@ class ServerCreator(threading.Thread):
         finally:
             sys.argv = self.argv
 
+    def create_client(self):
+        return WebLabDeustoClient(self.address)
 
     def __enter__(self):
         self.start()

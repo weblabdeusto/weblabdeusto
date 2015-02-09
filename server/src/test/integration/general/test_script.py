@@ -15,21 +15,19 @@
 
 import unittest
 
-from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
-
 from test.util.script import ServerCreator
 
 class ScriptTestCase(unittest.TestCase):
     def test_simple(self):
         with ServerCreator("--cores=1") as sc:
-            client = WebLabDeustoClient(sc.address)
+            client = sc.create_client()
             session_id = client.login('admin', 'password')
             self.assertNotEquals(session_id, None)
 
     def test_multiple_cores(self):
         # TODO
         with ServerCreator("--cores=1") as sc:
-            client = WebLabDeustoClient(sc.address)
+            client = sc.create_client()
             session_id = client.login('admin', 'password')
             self.assertNotEquals(session_id, None)
 
