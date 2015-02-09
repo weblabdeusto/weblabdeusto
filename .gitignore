@@ -4,6 +4,7 @@
 # 
 *.pid
 *.swp
+*.swx
 _file_notifier*
 env
 .metadata
@@ -99,4 +100,3 @@ compiler.log
 #			   INTELLIJ IDEA (IDE)
 #
 .idea
-

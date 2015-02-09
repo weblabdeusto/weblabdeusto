@@ -22,11 +22,17 @@ import es.deusto.weblab.client.experiments.xilinx.ui.XilinxExperiment;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 
-public class XilinxCreatorFactory implements IExperimentCreatorFactory {
+public class XilinxCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameterDefault IS_MULTIRESOURCE_DEMO = new ExperimentParameterDefault("is.multiresource.demo", "Is a multiresource demo?", false);
+	public static final ExperimentParameterDefault IS_DEMO = new ExperimentParameterDefault("is.demo", "Is a demo?", false);
+	
 	@Override
 	public String getCodeName() {
 		return "xilinx";
@@ -53,6 +59,11 @@ public class XilinxCreatorFactory implements IExperimentCreatorFactory {
 				});
 			}
 		};
+	}
+
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter[] { IS_MULTIRESOURCE_DEMO, IS_DEMO, IHasExperimentParameters.WEBCAM_REFRESH_TIME };
 	}
 
 }

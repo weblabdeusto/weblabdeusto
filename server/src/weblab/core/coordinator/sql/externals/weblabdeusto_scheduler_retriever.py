@@ -19,8 +19,8 @@ import time
 import numbers
 import urllib2
 
-from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
+from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError
 
 import voodoo.log as log
 from voodoo.counter import next_name

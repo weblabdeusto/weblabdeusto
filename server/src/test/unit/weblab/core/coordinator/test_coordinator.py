@@ -21,7 +21,7 @@ import time as time_mod
 
 import json
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 
 import weblab.core.coordinator.sql.coordinator as sql_coordinator
@@ -102,7 +102,7 @@ class SlowConfirmerMock(object):
 
 
 def coord_addr(coord_addr_str):
-    return CoordAddress.CoordAddress.translate_address( coord_addr_str )
+    return CoordAddress.translate( coord_addr_str )
 
 class AbstractCoordinatorTestCase(object):
     

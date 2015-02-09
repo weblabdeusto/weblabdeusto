@@ -58,9 +58,6 @@ public class RobotMovementExperiment extends ExperimentBase {
 	private static final String UP = "FORWARD";
 
 
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-	
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -204,17 +201,9 @@ public class RobotMovementExperiment extends ExperimentBase {
 		this.timer = new WlTimer(false);	
 		
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 	}
 	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-			RobotMovementExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotMovementExperiment.DEFAULT_WEBCAM_REFRESH_TIME
-		);
-	}	
-	
-
 	/**
 	 * The initialize function gets called on the "reserve" stage,
 	 * before the experiment starts.
@@ -252,7 +241,7 @@ public class RobotMovementExperiment extends ExperimentBase {
 
 			@Override
 			public void onSuccess(ResponseCommand responseCommand) {
-				if(responseCommand.getCommandString().startsWith("File send")) {
+				if(responseCommand.getCommandString().startsWith("File sen")) {
 					RobotMovementExperiment.this.inputWidgetsPanel.setVisible(true);
 					RobotMovementExperiment.this.messages.setText(i18n.youCanControlTheBot());
 					RobotMovementExperiment.this.messages.stop();

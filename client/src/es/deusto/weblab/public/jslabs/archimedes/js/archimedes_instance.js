@@ -12,6 +12,10 @@ ArchimedesInstance = function (instanceid) {
         "ball.weight": 0
     };
 
+    // If an instance is paused then it is generally not being shown, and webcam and commands
+    // should not be refreshed / sent.
+    this.paused = false;
+
     // Simple utility function to retrieve a CSS selector for an
     // instance-specific ID.
     function getidselect(id) {
@@ -33,6 +37,19 @@ ArchimedesInstance = function (instanceid) {
         // TODO: Remove this.
         //this._retrieveLoadController.stop();
         //this._retrieveLevelController.stop();
+    };
+
+
+    // Pauses this instance (stops refreshing webcam, etc)
+    this.pause = function() {
+        this.cameraRefresher.stop();
+        this.paused = true;
+    };
+
+    // resumes this instance (refreshes webcam again, etc)
+    this.resume = function() {
+        this.cameraRefresher.start();
+        this.paused = false;
     };
 
 
@@ -201,6 +218,57 @@ ArchimedesInstance = function (instanceid) {
     };
 
 
+    //! Reports an update to the ball status.
+    //! The update may actually not be so; the ball status
+    //! might be the same as the previous.
+    //!
+    this.updateBallStatus = function(ballStatus) {
+        if(ballStatus == 'BALL_UP') {
+            // The ball is UP, DOWN should be enabled, UP should be disabled.
+            this.setUpDownStatus(false, true);
+        }
+        else if(ballStatus == 'BALL_DOWN') {
+            this.setUpDownStatus(true, false);
+        }
+        else if(ballStatus == 'BALL_GOING_DOWN')
+        {
+            this.setUpDownStatus(false, false);
+        }
+        else if(ballStatus == 'BALL_GOING_UP')
+        {
+            this.setUpDownStatus(false, false);
+        }
+        else
+        {
+            console.error("Unexpected ball status: " + ballStatus);
+            // Enable everything, This shouldn't happen though.
+            this.setUpDownStatus(true, true);
+        }
+    };
+
+
+    /**
+     * Sets the status of the up and down buttons. (Whether they are enabled or disbaled)
+     *
+     */
+    this.setUpDownStatus = function(upEnabled, downEnabled) {
+        if(downEnabled) {
+            $(getidselect("downButton") + " img").attr("src", "img/down_green.png");
+            $(getidselect("downButton")).removeAttr("disabled");
+        } else {
+            $(getidselect("downButton") + " img").attr("src", "img/down.png");
+            $(getidselect("downButton")).attr("disabled", "disabled");
+        }
+
+        if(upEnabled) {
+            $(getidselect("upButton") + " img").attr("src", "img/up_green.png");
+            $(getidselect("upButton")).removeAttr("disabled");
+        } else {
+            $(getidselect("upButton") + " img").attr("src", "img/up.png");
+            $(getidselect("upButton")).attr("disabled", "disabled");
+        }
+    };
+
 
     //! Initializes the Archimedes instance.
     //!
@@ -209,16 +277,12 @@ ArchimedesInstance = function (instanceid) {
         // Create the data tables.
         this.createDataTables();
 
-        // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (Weblab.checkOnline() == true)
-            hideFrame();
 
         // Call an updateView so that view-related things are always initialized.
         this.updateView();
 
         this.cameraRefresher = new CameraRefresher(instanceid + "-cam1");
-        this.cameraRefresher.setInterval(2000);
-        this.cameraRefresher.start();
+        this.cameraRefresher.setInterval(500);
 
         // Create the timer for later.
         timerDisplayer = new TimerDisplayer(instanceid + "-timer");
@@ -232,8 +296,8 @@ ArchimedesInstance = function (instanceid) {
             if (downButton.attr("disabled") == undefined) {
                 Weblab.sendCommand(instanceid + ":DOWN",
                     function (success) {
-                        $(getidselect("downButton") + " img").attr("src", "img/down_green.png");
-                        $(getidselect("downButton")).removeAttr("disabled");
+                        //$(getidselect("downButton") + " img").attr("src", "img/down_green.png");
+                        //$(getidselect("downButton")).removeAttr("disabled");
                     },
                     function (error) {
                         console.error("DOWN command failed: " + error);
@@ -241,8 +305,8 @@ ArchimedesInstance = function (instanceid) {
                     });
             }
 
-            $(getidselect("downButton") + " img").attr("src", "img/down.png");
-            $(getidselect("downButton")).attr("disabled", "disabled");
+            //$(getidselect("downButton") + " img").attr("src", "img/down.png");
+            //$(getidselect("downButton")).attr("disabled", "disabled");
         });
 
         var upButton = $(getidselect("upButton"));
@@ -252,8 +316,8 @@ ArchimedesInstance = function (instanceid) {
             if (upButton.attr("disabled") == undefined) {
                 Weblab.sendCommand(instanceid + ":UP",
                     function (success) {
-                        upButton.find("img").attr("src", "img/up_green.png");
-                        upButton.removeAttr("disabled");
+                        //upButton.find("img").attr("src", "img/up_green.png");
+                        //upButton.removeAttr("disabled");
                     },
                     function (error) {
                         console.error("UP command failed: " + error);
@@ -262,8 +326,8 @@ ArchimedesInstance = function (instanceid) {
             }
 
             // Disable the button for now.
-            upButton.find("img").attr("src", "img/up.png");
-            upButton.attr("disabled", "disabled");
+            //upButton.find("img").attr("src", "img/up.png");
+            //upButton.attr("disabled", "disabled");
         });
 
         var photoButton = $(getidselect("photoButton"));

@@ -20,14 +20,20 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.configuration.exceptions.ConfigurationException;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
+import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.IHasExperimentParameters;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
+import es.deusto.weblab.client.lab.experiments.util.applets.AbstractCreatorFactory;
 
-public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
+public class JavaAppletCreatorFactory implements IExperimentCreatorFactory, IHasExperimentParameters {
 
+	public static final ExperimentParameter JAR_FILE = new ExperimentParameter("jar.file", ExperimentParameter.Type.string, "The jar file URL");
+	public static final ExperimentParameter CODE = new ExperimentParameter("code", ExperimentParameter.Type.string, "The applet class");
+	
 	@Override
 	public String getCodeName() {
 		return "java";
@@ -42,11 +48,11 @@ public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
 		final String message;		
 		
 		try{
-			width   = configurationRetriever.getIntProperty("width");
-			height  = configurationRetriever.getIntProperty("height");
-			archive = configurationRetriever.getProperty("jar.file");
-			code    = configurationRetriever.getProperty("code");
-			message = configurationRetriever.getProperty("message");
+			width   = configurationRetriever.getIntProperty(AbstractCreatorFactory.WIDTH);
+			height  = configurationRetriever.getIntProperty(AbstractCreatorFactory.HEIGHT);
+			archive = configurationRetriever.getProperty(JAR_FILE);
+			code    = configurationRetriever.getProperty(CODE);
+			message = configurationRetriever.getProperty(AbstractCreatorFactory.MESSAGE);
 		}catch(ConfigurationException exc){
 			throw new ExperimentCreatorInstanciationException("Misconfigured experiment " + getCodeName() + ": " + exc.getMessage(), exc);
 		}
@@ -73,4 +79,11 @@ public class JavaAppletCreatorFactory implements IExperimentCreatorFactory{
 			}
 		};
 	}
+	
+	@Override
+	public ExperimentParameter[] getParameters() {
+		return new ExperimentParameter [] { AbstractCreatorFactory.WIDTH, AbstractCreatorFactory.HEIGHT, AbstractCreatorFactory.MESSAGE, AbstractCreatorFactory.PAGE_FOOTER,
+											JAR_FILE, CODE };
+	}
+
 }

@@ -16,19 +16,19 @@
 
 import datetime
 import calendar
+import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, UniqueConstraint, Table
+from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
-from weblab.login.simple import create_user_auth
+from weblab.core.login.simple import create_user_auth
 
-from weblab.data.dto.experiments import Experiment
-from weblab.data.dto.experiments import ExperimentCategory
+from weblab.data.dto.experiments import Experiment, ExperimentClient, ExperimentCategory
 from weblab.data.dto.permissions import Permission, PermissionParameter
 from weblab.data.experiments import ExperimentId, ExperimentUsage, FileSent, CommandSent
 from weblab.data.command import Command, NullCommand
@@ -98,8 +98,8 @@ class DbUser(Base):
 
     id        = Column(Integer, primary_key = True)
     login     = Column(String(32), nullable = False, index = True)
-    full_name = Column(String(200), nullable = False)
-    email     = Column(String(255), nullable = False)
+    full_name = Column(String(200), nullable = False, index = True)
+    email     = Column(String(255), nullable = False, index = True)
     avatar    = Column(String(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
@@ -266,6 +266,83 @@ class DbGroup(Base):
         return self.to_business_light() # Temporal
 
 ##############################################################################
+# SCHEDULERS DEFINITION
+#
+
+
+class DbScheduler(Base):
+    """ A DbScheduler represents a Queue, an external WebLab-Deusto, iLab batch, or whatever. 
+    """
+    __tablename__ = 'Scheduler'
+    __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    name           = Column(String(255), nullable = False, index = True)
+    summary        = Column(String(255), nullable = False, index = True)
+    scheduler_type = Column(String(255), nullable = False, index = True)
+    config         = Column(String(4096), nullable = False)
+    is_external    = Column(Boolean, nullable = False, index = True)
+
+    def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
+        super(DbScheduler, self).__init__()
+        self.name           = name
+        self.summary        = summary
+        self.scheduler_type = scheduler_type
+        self.config         = config
+        self.is_external    = is_external
+
+    def __unicode__(self):
+        return self.summary
+
+class DbSchedulerResource(Base):
+    """ A DbScheduler will have one or multiple resources, as long as 
+    it is not external. If it is external, then it must have zero (since
+    they're managed by the external system). """
+
+    __tablename__  = 'SchedulerResource'
+    __table_args__ = (UniqueConstraint('name', 'scheduler_id'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    name           = Column(String(255), nullable = False, index = True)
+    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
+    slots          = Column(Integer, nullable = False)
+
+    scheduler = relation("DbScheduler", backref=backref("resources", order_by=id, cascade='all,delete'))
+
+    def __init__(self, name = None, scheduler = None, slots = None):
+        super(DbSchedulerResource, self).__init__()
+        self.name = name
+        self.scheduler = scheduler
+        self.slots = slots
+   
+class DbExperimentInstance(Base):
+    """ A Experiment Instance is managed by the Laboratory Server. So basically
+    it is an identification used between the Laboratory Server and the Core server to
+    identify a particular experiment server. Each ExperimentInstance must be linked to
+    a DbschedulerResource. This table can't be created through the admin panel directly, 
+    but by registering it.
+    """
+
+    __tablename__  = 'ExperimentInstance'
+    __table_args__ = (UniqueConstraint('name', 'scheduler_resource_id'), TABLE_KWARGS)
+
+    id                      = Column(Integer, primary_key = True)
+    name                    = Column(String(255), nullable = False, index = True)
+    min_slot                = Column(Integer, nullable = False, index = True)
+    max_slot                = Column(Integer, nullable = False, index = True)
+    scheduler_resource_id   = Column(Integer, ForeignKey("SchedulerResource.id"), nullable = False, index = True)
+    experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+
+    scheduler_resource = relation("DbSchedulerResource", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    experiment = relation("DbExperiment", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    
+    def __init__(self, name, slots, scheduler_resource):
+        super(DbExperimentInstance, self).__init__()
+        self.name = name
+        self.slots = slots
+        self.scheduler_resource = scheduler_resource
+    
+##############################################################################
 # EXPERIMENTS DEFINITION
 #
 
@@ -302,15 +379,17 @@ class DbExperiment(Base):
     category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
     start_date  = Column(DateTime, nullable = False)
     end_date    = Column(DateTime, nullable = False)
+    client      = Column(String(255), index = True)
 
-    category = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
+    category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
 
-    def __init__(self, name = None, category = None, start_date = None, end_date = None):
+    def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
         self.name = name
         self.category = category
         self.start_date = start_date
         self.end_date = end_date
+        self.client = client
 
     def __repr__(self):
         return "DbExperiment(id = %r, name = %r, category = %r, start_date = %r, end_date = %r)" % (
@@ -325,16 +404,78 @@ class DbExperiment(Base):
         return u'%s@%s' % (self.name, self.category.name if self.category is not None else '')
 
     def to_business(self):
+        configuration = {}
+        for param in self.client_parameters:
+            try:
+                if param.value is not None and len(param.value):
+                    if param.parameter_type == 'string':
+                        configuration[param.parameter_name] = param.value
+                    elif param.parameter_type == 'integer':
+                        configuration[param.parameter_name] = int(param.value)
+                    elif param.parameter_type == 'floating':
+                        configuration[param.parameter_name] = float(param.value)
+                    elif param.parameter_type == 'bool':
+                        configuration[param.parameter_name] = param.value.lower() == 'true'
+                    else:
+                        print "Unknown Experiment Client Parameter type %s" % param.parameter_type
+            except (ValueError, TypeError) as e:
+                assert e is not None # avoid pyflakes
+                traceback.print_exc()
+                continue
+                
+        client = ExperimentClient(self.client, configuration)
         return Experiment(
             self.name,
             self.category.to_business(),
             self.start_date,
             self.end_date,
+            client,
             self.id
             )
 
     def to_dto(self):
         return self.to_business() # Temporal
+
+class DbExperimentClientParameter(Base):
+    __tablename__  = 'ExperimentClientParameter'
+    __table_args__ = (TABLE_KWARGS)
+    
+    id               = Column(Integer, primary_key = True)
+    experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    parameter_name   = Column(String(255), nullable = False, index = True)
+    parameter_type   = Column(String(15), nullable = False, index = True)
+    value            = Column(String(600), nullable = False)
+
+    experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
+
+    def __init__(self, experiment = None, parameter_name = None, parameter_type = None, value = None):
+        self.experiment     = experiment
+        self.parameter_name = parameter_name
+        self.parameter_type = parameter_type
+        self.value          = value
+
+class DbSchedulerExternalExperimentEntry(Base):
+    __tablename__ = 'SchedulerExternalExperimentEntry'
+    __table_args__ = (UniqueConstraint('experiment_id', 'scheduler_id'), TABLE_KWARGS)
+
+    id             = Column(Integer, primary_key = True)
+    experiment_id  = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
+    scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
+    config         = Column(String(1024))
+    
+    experiment = relation("DbExperiment", backref=backref("external_schedulers", order_by=id))
+    scheduler  = relation("DbScheduler", backref=backref("external_experiments", order_by=id))
+
+    def __init__(self, experiment = None, scheduler = None, config = None):
+        self.experiment = experiment
+        self.scheduler = scheduler
+        self.config = config
+
+    def __repr__(self):
+        return "DbSchedulerExternalExperimentEntry(%r, %r, %r)" % (self.experiment, self.scheduler, self.config)
+
+    def __unicode__(self):
+        return u"Entry for experiment %s on scheduler %s with config = %r" % (self.experiment, self.scheduler, self.config)
 
 
 ##############################################################################
@@ -343,31 +484,71 @@ class DbExperiment(Base):
 
 class DbUserUsedExperiment(Base):
     __tablename__  = 'UserUsedExperiment'
-    __table_args__ = (TABLE_KWARGS)
+    __table_args__ = ( Index('idx_UserUsedExperiment_timetable', 'start_date_weekday', 'start_date_hour'),
+                       Index('idx_UserUsedExperiment_user_experiment', 'user_id', 'experiment_id'),
+                       Index('idx_UserUsedExperiment_user_origin', 'user_id', 'origin'),
+
+                       Index('idx_UserUsedExperiment_user_group_permission_id', 'user_id', 'group_permission_id'),
+                       Index('idx_UserUsedExperiment_user_user_permission_id', 'user_id', 'user_permission_id'),
+                       Index('idx_UserUsedExperiment_user_role_permission_id', 'user_id', 'role_permission_id'),
+
+                       Index('idx_UserUsedExperiment_experiment_id_group_id', 'experiment_id', 'group_permission_id'),
+                       Index('idx_UserUsedExperiment_experiment_id_user_id', 'experiment_id', 'user_permission_id'),
+                       Index('idx_UserUsedExperiment_experiment_id_role_id', 'experiment_id', 'role_permission_id'),
+                       TABLE_KWARGS)
 
     id                      = Column(Integer, primary_key = True)
+
+    # Basic data
+
     user_id                 = Column(Integer, ForeignKey("User.id"), nullable = False, index = True)
     experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    start_date              = Column(DateTime, nullable = False)
+    start_date              = Column(DateTime, nullable = False, index = True)
     start_date_micro        = Column(Integer, nullable = False)
-    end_date                = Column(DateTime)
+    end_date                = Column(DateTime, index = True)
     end_date_micro          = Column(Integer)
+
     # TODO: use these new two fields
     max_error_in_millis     = Column(Integer, nullable = True)
     finish_reason           = Column(Integer, nullable = True) # NULL = unknown; 0 = actively finished; 1 = timed out (client); 2 = kicked by scheduler; 3 = batch.
-    permission_permanent_id = Column(String(255), nullable = True)
-    origin                  = Column(String(255), nullable = False)
-    coord_address           = Column(String(255), nullable = False)
+
+    # 
+    # The following data is used for optimized analytics (optimized queries based on this data).
+    # 
+    start_date_date         = Column(Date, index = True)
+    start_date_weekday      = Column(Integer, index = True) # 0..6, as in datetime.datetime.weekday()
+    start_date_hour         = Column(Integer, index = True) # 0..23
+
+    session_time_micro      = Column(BigInteger, index = True) # This should take into account finish_reason
+    session_time_seconds    = Column(Integer, index = True) # This should take into account finish_reason
+
+    # 
+    # Who accessed the experiment?
+    # 
+
+    permission_permanent_id = Column(String(255), nullable = True, index = True)
+    group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
+    user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
+    role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
+    origin                  = Column(String(255), nullable = False, index = True)
+    coord_address           = Column(String(255), nullable = False, index = True)
     reservation_id          = Column(String(50), index = True)
 
-    user       = relation("DbUser", backref=backref("experiment_uses", order_by=id))
-    experiment = relation("DbExperiment", backref=backref("user_uses", order_by=id))
+    user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
+    experiment              = relation("DbExperiment", backref=backref("user_uses", order_by=id))
 
-    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None):
+    group_permission        = relation("DbGroupPermission", backref=backref("uses", order_by=id))
+    user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
+    role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
+
+    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None, session_time_micro = None):
         super(DbUserUsedExperiment, self).__init__()
         self.user = user
         self.experiment = experiment
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
+        self.start_date_date = self.start_date.date()
+        self.start_date_hour = self.start_date.hour
+        self.start_date_weekday = self.start_date.weekday()
         self.set_end_date(end_date)
         self.origin = origin
         self.coord_address = coord_address
@@ -375,9 +556,22 @@ class DbUserUsedExperiment(Base):
         self.max_error_in_millis = max_error_in_millis
         self.finish_reason       = finish_reason
         self.permission_permanent_id = permission_permanent_id
+        self.group_permission = group_permission
+        self.user_permission = user_permission
+        self.role_permission = role_permission
+        if end_date is not None:
+            self.session_time_micro = (self.end_date - self.start_date).seconds * 1e6 + (self.end_date - self.start_date).microseconds
+            self.session_time_seconds = self.session_time_micro / 1000000
+        else:
+            self.session_time_micro = session_time_micro
+            if self.session_time_micro:
+                self.session_time_seconds = self.session_time_micro / 1000000
 
     def set_end_date(self, end_date):
         self.end_date, self.end_date_micro = _timestamp_to_splitted_utc_datetime(end_date)
+        if end_date:
+            self.session_time_micro = (self.end_date - self.start_date).seconds * 1e6 + (self.end_date - self.start_date).microseconds
+            self.session_time_seconds = self.session_time_micro / 1000000
 
     def __repr__(self):
         return "DbUserUsedExperiment(id = %r, user = %r, experiment = %r, start_date = %r, start_date_micro = %r, end_date = %r, end_date_micro = %r, origin = %r, coord_address = %r, reservation_id = %r)" % (
@@ -401,7 +595,7 @@ class DbUserUsedExperiment(Base):
         usage.from_ip           = self.origin
         usage.reservation_id    = self.reservation_id
         usage.experiment_id     = ExperimentId(self.experiment.name, self.experiment.category.name)
-        usage.coord_address     = CoordAddress.CoordAddress.translate_address(self.coord_address)
+        usage.coord_address     = CoordAddress.translate(self.coord_address)
         
         request_info = {}
         for prop in self.properties:
@@ -474,12 +668,12 @@ class DbUserUsedExperimentPropertyValue(Base):
 
 class DbUserFile(Base):
     __tablename__  = 'UserFile'
-    __table_args__ = (TABLE_KWARGS)
+    __table_args__ = (Index('idx_UserFile_experiment_use_id_file_hash', 'experiment_use_id', 'file_hash'), TABLE_KWARGS)
 
     id                     = Column(Integer, primary_key = True)
     experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
     file_sent              = Column(String(255), nullable = False)
-    file_hash              = Column(String(255), nullable = False)
+    file_hash              = Column(String(255), nullable = False, index = True)
     file_info              = Column(Text)
     response               = Column(Text)
     timestamp_before       = Column(DateTime, nullable = False)
@@ -585,7 +779,7 @@ class DbUserPermission(Base):
     id                 = Column(Integer, primary_key = True)
     user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
     permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False)
+    permanent_id       = Column(String(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
@@ -664,8 +858,8 @@ class DbRolePermission(Base):
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id                  = Column(String(255), nullable = False)
+    permission_type               = Column(String(255), nullable = False, index = True)
+    permanent_id                  = Column(String(255), nullable = False, index = True)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
@@ -747,7 +941,7 @@ class DbGroupPermission(Base):
     id                 = Column(Integer, primary_key = True)
     group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
     permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False)
+    permanent_id       = Column(String(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
@@ -832,3 +1026,4 @@ def _timestamp_to_splitted_utc_datetime(timestamp):
         return dt, dt.microsecond
     else:
         return None, None
+

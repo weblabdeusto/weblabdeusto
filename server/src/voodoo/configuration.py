@@ -72,9 +72,16 @@ CFG_LOCKING = False
 class NullLock(object):
     def acquire(self):
         pass
+   
     def release(self):
         pass
 
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args, **kwargs):
+        pass
+ 
 class ConfigurationManager(object):
     def __init__(self):
         super(ConfigurationManager,self).__init__()
@@ -113,6 +120,9 @@ class ConfigurationManager(object):
                     i,
                     getattr(holder,i)
                 )
+
+    def append_value(self, name, value):
+        self._set_value(name, value)
 
     def append_module(self, module):
         self._modules_lock.acquire()

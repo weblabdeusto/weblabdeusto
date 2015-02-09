@@ -16,7 +16,7 @@ The deployment we are running here is very small and relies of very few
 technologies. It has successfully been deployed even in `Raspberry Pi
 <http://www.raspberrypi.org/>`_ devices. But it also has several drawbacks:
 performance, lack of concurrent support for certain operations, etc. We will see
-how to implement more complex scenarios in `other section
+how to implement more complex scenarios in :ref:`other section
 <installation_further>`, but for bootstrapping a WebLab-Deusto instance and
 learning the basic concepts, this is enough.
 
@@ -246,7 +246,7 @@ Customizing the deployment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In this section, we have presented a very simple deployment. However, this
-deployment can be configured. While in the `next section
+deployment can be configured. While in the :ref:`next section
 <installation_further>`, we'll learn to configure `redis <http://redis.io/>`_,
 `MySQL <http://www.mysql.com/>`_ or `Apache <http://httpd.apache.org/>`_, there
 are some settings that we can modify at this level.

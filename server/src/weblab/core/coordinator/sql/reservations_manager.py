@@ -16,7 +16,8 @@
 from weblab.core.coordinator.sql.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
 import weblab.core.coordinator.exc as CoordExc
 
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError, OperationalError 
+from sqlalchemy.orm.exc import ConcurrentModificationError
 
 import json
 

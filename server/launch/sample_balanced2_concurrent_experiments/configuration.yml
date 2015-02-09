@@ -1,0 +1,679 @@
+config:
+  core_coordination_impl: redis
+  debug_mode: true
+  server_admin: weblab@deusto.es
+hosts:
+  main_machine:
+    config_file: main_machine/machine_config.py
+    runner: launch_sample_balanced2_concurrent_experiments_machine.py
+    processes:
+      main_instance1:
+        components:
+          core:
+            config_file: main_machine/main_instance1/core/server_config.py
+            type: core
+      main_instance2:
+        components:
+          core:
+            config_file: main_machine/main_instance2/core/server_config.py
+            type: core
+      main_instance3:
+        components:
+          core:
+            config_file: main_machine/main_instance3/core/server_config.py
+            type: core
+      lab_and_experiment1:
+        components:
+          laboratory:
+            config_file: main_machine/lab_and_experiment1/laboratory/server_config.py
+            type: laboratory
+            protocols:
+              port: 10029
+          experiment1:
+            config_file: main_machine/lab_and_experiment1/experiment1/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment2:
+            config_file: main_machine/lab_and_experiment1/experiment2/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment3:
+            config_file: main_machine/lab_and_experiment1/experiment3/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment4:
+            config_file: main_machine/lab_and_experiment1/experiment4/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment5:
+            config_file: main_machine/lab_and_experiment1/experiment5/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment6:
+            config_file: main_machine/lab_and_experiment1/experiment6/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment7:
+            config_file: main_machine/lab_and_experiment1/experiment7/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment8:
+            config_file: main_machine/lab_and_experiment1/experiment8/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment9:
+            config_file: main_machine/lab_and_experiment1/experiment9/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment10:
+            config_file: main_machine/lab_and_experiment1/experiment10/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment11:
+            config_file: main_machine/lab_and_experiment1/experiment11/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment12:
+            config_file: main_machine/lab_and_experiment1/experiment12/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment13:
+            config_file: main_machine/lab_and_experiment1/experiment13/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment14:
+            config_file: main_machine/lab_and_experiment1/experiment14/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment15:
+            config_file: main_machine/lab_and_experiment1/experiment15/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment16:
+            config_file: main_machine/lab_and_experiment1/experiment16/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment17:
+            config_file: main_machine/lab_and_experiment1/experiment17/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment18:
+            config_file: main_machine/lab_and_experiment1/experiment18/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment19:
+            config_file: main_machine/lab_and_experiment1/experiment19/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment20:
+            config_file: main_machine/lab_and_experiment1/experiment20/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment21:
+            config_file: main_machine/lab_and_experiment1/experiment21/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment22:
+            config_file: main_machine/lab_and_experiment1/experiment22/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment23:
+            config_file: main_machine/lab_and_experiment1/experiment23/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment24:
+            config_file: main_machine/lab_and_experiment1/experiment24/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment25:
+            config_file: main_machine/lab_and_experiment1/experiment25/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment26:
+            config_file: main_machine/lab_and_experiment1/experiment26/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment27:
+            config_file: main_machine/lab_and_experiment1/experiment27/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment28:
+            config_file: main_machine/lab_and_experiment1/experiment28/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment29:
+            config_file: main_machine/lab_and_experiment1/experiment29/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment30:
+            config_file: main_machine/lab_and_experiment1/experiment30/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment31:
+            config_file: main_machine/lab_and_experiment1/experiment31/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment32:
+            config_file: main_machine/lab_and_experiment1/experiment32/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment33:
+            config_file: main_machine/lab_and_experiment1/experiment33/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment34:
+            config_file: main_machine/lab_and_experiment1/experiment34/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment35:
+            config_file: main_machine/lab_and_experiment1/experiment35/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment36:
+            config_file: main_machine/lab_and_experiment1/experiment36/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment37:
+            config_file: main_machine/lab_and_experiment1/experiment37/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment38:
+            config_file: main_machine/lab_and_experiment1/experiment38/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment39:
+            config_file: main_machine/lab_and_experiment1/experiment39/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment40:
+            config_file: main_machine/lab_and_experiment1/experiment40/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment41:
+            config_file: main_machine/lab_and_experiment1/experiment41/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment42:
+            config_file: main_machine/lab_and_experiment1/experiment42/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment43:
+            config_file: main_machine/lab_and_experiment1/experiment43/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment44:
+            config_file: main_machine/lab_and_experiment1/experiment44/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment45:
+            config_file: main_machine/lab_and_experiment1/experiment45/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment46:
+            config_file: main_machine/lab_and_experiment1/experiment46/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment47:
+            config_file: main_machine/lab_and_experiment1/experiment47/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment48:
+            config_file: main_machine/lab_and_experiment1/experiment48/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment49:
+            config_file: main_machine/lab_and_experiment1/experiment49/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment50:
+            config_file: main_machine/lab_and_experiment1/experiment50/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment51:
+            config_file: main_machine/lab_and_experiment1/experiment51/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment52:
+            config_file: main_machine/lab_and_experiment1/experiment52/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment53:
+            config_file: main_machine/lab_and_experiment1/experiment53/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment54:
+            config_file: main_machine/lab_and_experiment1/experiment54/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment55:
+            config_file: main_machine/lab_and_experiment1/experiment55/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment56:
+            config_file: main_machine/lab_and_experiment1/experiment56/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment57:
+            config_file: main_machine/lab_and_experiment1/experiment57/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment58:
+            config_file: main_machine/lab_and_experiment1/experiment58/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment59:
+            config_file: main_machine/lab_and_experiment1/experiment59/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment60:
+            config_file: main_machine/lab_and_experiment1/experiment60/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment61:
+            config_file: main_machine/lab_and_experiment1/experiment61/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment62:
+            config_file: main_machine/lab_and_experiment1/experiment62/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment63:
+            config_file: main_machine/lab_and_experiment1/experiment63/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment64:
+            config_file: main_machine/lab_and_experiment1/experiment64/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment65:
+            config_file: main_machine/lab_and_experiment1/experiment65/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment66:
+            config_file: main_machine/lab_and_experiment1/experiment66/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment67:
+            config_file: main_machine/lab_and_experiment1/experiment67/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment68:
+            config_file: main_machine/lab_and_experiment1/experiment68/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment69:
+            config_file: main_machine/lab_and_experiment1/experiment69/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment70:
+            config_file: main_machine/lab_and_experiment1/experiment70/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment71:
+            config_file: main_machine/lab_and_experiment1/experiment71/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment72:
+            config_file: main_machine/lab_and_experiment1/experiment72/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment73:
+            config_file: main_machine/lab_and_experiment1/experiment73/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment74:
+            config_file: main_machine/lab_and_experiment1/experiment74/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment75:
+            config_file: main_machine/lab_and_experiment1/experiment75/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment76:
+            config_file: main_machine/lab_and_experiment1/experiment76/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment77:
+            config_file: main_machine/lab_and_experiment1/experiment77/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment78:
+            config_file: main_machine/lab_and_experiment1/experiment78/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment79:
+            config_file: main_machine/lab_and_experiment1/experiment79/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment80:
+            config_file: main_machine/lab_and_experiment1/experiment80/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+      lab_and_experiment2:
+        components:
+          laboratory:
+            config_file: main_machine/lab_and_experiment2/laboratory/server_config.py
+            type: laboratory
+            protocols:
+              port: 20029
+          experiment1:
+            config_file: main_machine/lab_and_experiment2/experiment1/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment2:
+            config_file: main_machine/lab_and_experiment2/experiment2/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment3:
+            config_file: main_machine/lab_and_experiment2/experiment3/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment4:
+            config_file: main_machine/lab_and_experiment2/experiment4/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment5:
+            config_file: main_machine/lab_and_experiment2/experiment5/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment6:
+            config_file: main_machine/lab_and_experiment2/experiment6/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment7:
+            config_file: main_machine/lab_and_experiment2/experiment7/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment8:
+            config_file: main_machine/lab_and_experiment2/experiment8/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment9:
+            config_file: main_machine/lab_and_experiment2/experiment9/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment10:
+            config_file: main_machine/lab_and_experiment2/experiment10/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment11:
+            config_file: main_machine/lab_and_experiment2/experiment11/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment12:
+            config_file: main_machine/lab_and_experiment2/experiment12/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment13:
+            config_file: main_machine/lab_and_experiment2/experiment13/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment14:
+            config_file: main_machine/lab_and_experiment2/experiment14/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment15:
+            config_file: main_machine/lab_and_experiment2/experiment15/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment16:
+            config_file: main_machine/lab_and_experiment2/experiment16/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment17:
+            config_file: main_machine/lab_and_experiment2/experiment17/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment18:
+            config_file: main_machine/lab_and_experiment2/experiment18/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment19:
+            config_file: main_machine/lab_and_experiment2/experiment19/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment20:
+            config_file: main_machine/lab_and_experiment2/experiment20/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment21:
+            config_file: main_machine/lab_and_experiment2/experiment21/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment22:
+            config_file: main_machine/lab_and_experiment2/experiment22/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment23:
+            config_file: main_machine/lab_and_experiment2/experiment23/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment24:
+            config_file: main_machine/lab_and_experiment2/experiment24/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment25:
+            config_file: main_machine/lab_and_experiment2/experiment25/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment26:
+            config_file: main_machine/lab_and_experiment2/experiment26/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment27:
+            config_file: main_machine/lab_and_experiment2/experiment27/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment28:
+            config_file: main_machine/lab_and_experiment2/experiment28/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment29:
+            config_file: main_machine/lab_and_experiment2/experiment29/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment30:
+            config_file: main_machine/lab_and_experiment2/experiment30/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment31:
+            config_file: main_machine/lab_and_experiment2/experiment31/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment32:
+            config_file: main_machine/lab_and_experiment2/experiment32/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment33:
+            config_file: main_machine/lab_and_experiment2/experiment33/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment34:
+            config_file: main_machine/lab_and_experiment2/experiment34/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment35:
+            config_file: main_machine/lab_and_experiment2/experiment35/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment36:
+            config_file: main_machine/lab_and_experiment2/experiment36/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment37:
+            config_file: main_machine/lab_and_experiment2/experiment37/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment38:
+            config_file: main_machine/lab_and_experiment2/experiment38/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment39:
+            config_file: main_machine/lab_and_experiment2/experiment39/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment40:
+            config_file: main_machine/lab_and_experiment2/experiment40/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment41:
+            config_file: main_machine/lab_and_experiment2/experiment41/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment42:
+            config_file: main_machine/lab_and_experiment2/experiment42/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment43:
+            config_file: main_machine/lab_and_experiment2/experiment43/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment44:
+            config_file: main_machine/lab_and_experiment2/experiment44/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment45:
+            config_file: main_machine/lab_and_experiment2/experiment45/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment46:
+            config_file: main_machine/lab_and_experiment2/experiment46/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment47:
+            config_file: main_machine/lab_and_experiment2/experiment47/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment48:
+            config_file: main_machine/lab_and_experiment2/experiment48/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment49:
+            config_file: main_machine/lab_and_experiment2/experiment49/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment50:
+            config_file: main_machine/lab_and_experiment2/experiment50/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment51:
+            config_file: main_machine/lab_and_experiment2/experiment51/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment52:
+            config_file: main_machine/lab_and_experiment2/experiment52/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment53:
+            config_file: main_machine/lab_and_experiment2/experiment53/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment54:
+            config_file: main_machine/lab_and_experiment2/experiment54/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment55:
+            config_file: main_machine/lab_and_experiment2/experiment55/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment56:
+            config_file: main_machine/lab_and_experiment2/experiment56/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment57:
+            config_file: main_machine/lab_and_experiment2/experiment57/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment58:
+            config_file: main_machine/lab_and_experiment2/experiment58/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment59:
+            config_file: main_machine/lab_and_experiment2/experiment59/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment60:
+            config_file: main_machine/lab_and_experiment2/experiment60/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment61:
+            config_file: main_machine/lab_and_experiment2/experiment61/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment62:
+            config_file: main_machine/lab_and_experiment2/experiment62/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment63:
+            config_file: main_machine/lab_and_experiment2/experiment63/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment64:
+            config_file: main_machine/lab_and_experiment2/experiment64/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment65:
+            config_file: main_machine/lab_and_experiment2/experiment65/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment66:
+            config_file: main_machine/lab_and_experiment2/experiment66/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment67:
+            config_file: main_machine/lab_and_experiment2/experiment67/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment68:
+            config_file: main_machine/lab_and_experiment2/experiment68/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment69:
+            config_file: main_machine/lab_and_experiment2/experiment69/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment70:
+            config_file: main_machine/lab_and_experiment2/experiment70/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment71:
+            config_file: main_machine/lab_and_experiment2/experiment71/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment72:
+            config_file: main_machine/lab_and_experiment2/experiment72/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment73:
+            config_file: main_machine/lab_and_experiment2/experiment73/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment74:
+            config_file: main_machine/lab_and_experiment2/experiment74/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment75:
+            config_file: main_machine/lab_and_experiment2/experiment75/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment76:
+            config_file: main_machine/lab_and_experiment2/experiment76/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment77:
+            config_file: main_machine/lab_and_experiment2/experiment77/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment78:
+            config_file: main_machine/lab_and_experiment2/experiment78/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment79:
+            config_file: main_machine/lab_and_experiment2/experiment79/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+          experiment80:
+            config_file: main_machine/lab_and_experiment2/experiment80/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+    host: 127.0.0.1

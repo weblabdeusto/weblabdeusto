@@ -1,0 +1,36 @@
+config:
+  core_coordination_impl: redis
+  debug_mode: true
+  server_admin: weblab@deusto.es
+hosts:
+  main_machine:
+    config_file: main_machine/machine_config.py
+    runner: launch_sample_balanced2_machine.py
+    processes:
+      main_instance1:
+        components:
+          core:
+            config_file: main_machine/main_instance1/core/server_config.py
+            type: core
+      main_instance2:
+        components:
+          core:
+            config_file: main_machine/main_instance2/core/server_config.py
+            type: core
+      main_instance3:
+        components:
+          core:
+            config_file: main_machine/main_instance3/core/server_config.py
+            type: core
+      lab_and_experiment:
+        components:
+          laboratory:
+            config_file: main_machine/lab_and_experiment/laboratory/server_config.py
+            type: laboratory
+            protocols:
+              port: 10029
+          experiment:
+            config_file: main_machine/lab_and_experiment/experiment/server_config.py
+            type: experiment
+            class: experiments.dummy.DummyExperiment
+    host: 127.0.0.1

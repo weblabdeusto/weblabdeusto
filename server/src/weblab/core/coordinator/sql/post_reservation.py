@@ -16,7 +16,8 @@
 import datetime
 import traceback
 
-from sqlalchemy.exc import IntegrityError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import ConcurrentModificationError
 
 from voodoo.typechecker import typecheck
 from weblab.core.coordinator.sql.model import PostReservationRetrievedData

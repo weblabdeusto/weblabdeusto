@@ -20,17 +20,16 @@ import datetime
 
 import mocker
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 from   test.util.module_disposer import case_uses_module
 
 import weblab.core.user_processor as UserProcessor
-from weblab.core.reservation_processor import ReservationProcessor
+from weblab.core.reservation_processor import ReservationProcessor, EXPERIMENT_POLL_TIME
 import weblab.core.reservations as Reservation
 import weblab.core.coordinator.confirmer as Confirmer
 import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.data.server_type as ServerType
-import weblab.data.client_address as ClientAddress
 
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
@@ -44,7 +43,7 @@ import weblab.data.dto.experiments as ExperimentUse
 import weblab.data.dto.users as User
 import weblab.data.dto.users as Role
 
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 
 from weblab.core.coordinator.resource import Resource
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
@@ -55,7 +54,7 @@ import weblab.lab.exc as LaboratoryErrors
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
+laboratory_coordaddr = CoordAddress.translate(
         "server:laboratoryserver@labmachine"
     )
 
@@ -85,7 +84,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.user_processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
+                        'db_session_id' : ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager,
                     self.coordinator,
@@ -97,7 +96,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         if faking_response:
             self._fake_simple_lab_response()
 
-        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
+        status = self.user_processor.reserve_experiment( ExperimentId('ud-dummy', 'Dummy experiments'), "{}", "{}", "127.0.0.1", 'uuid')
         self.reservation_processor = ReservationProcessor(
                     self.cfg_manager,
                     SessionId.SessionId(status.reservation_id.split(';')[0]),
@@ -153,7 +152,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         time_mock = self.mocker.mock()
         time_mock.time()
 
-        poll_time = self.cfg_manager.get_value(UserProcessor.EXPERIMENT_POLL_TIME)
+        poll_time = self.cfg_manager.get_value(EXPERIMENT_POLL_TIME)
         added = poll_time + 5
 
         self.mocker.result(time.time() + added)
@@ -170,7 +169,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
     def test_is_expired_expired_due_to_expiration_time(self):
         self._return_reserved()
 
-        poll_time = self.cfg_manager.get_value(UserProcessor.EXPERIMENT_POLL_TIME)
+        poll_time = self.cfg_manager.get_value(EXPERIMENT_POLL_TIME)
         added = poll_time - 5 # for example
         self.db.experiments_allowed[0].time_allowed = poll_time - 10
         self.assertTrue( added > 0 )
@@ -552,7 +551,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
         self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
-        self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
+        self.mocker.result(CoordAddress("exp","inst","mach"))
         self.lab_mock.should_experiment_finish(SessionId.SessionId('my_lab_session_id'))
         self.mocker.result(0)
         self.mocker.replay()
@@ -561,7 +560,7 @@ class ReservationProcessorTestCase(unittest.TestCase):
         self.lab_mock.reserve_experiment(ExperimentInstanceId('inst','ud-dummy','Dummy experiments'), "{}", mocker.ANY)
         self.mocker.result((SessionId.SessionId('my_lab_session_id'), 'ok', { 'address' : 'servexp:inst@mach' }))
         self.lab_mock.resolve_experiment_address('my_lab_session_id')
-        self.mocker.result(CoordAddress.CoordAddress("exp","inst","mach"))
+        self.mocker.result(CoordAddress("exp","inst","mach"))
         self.mocker.count(1,2)
 
 class FakeDatabase(object):
@@ -577,7 +576,7 @@ class FakeDatabase(object):
         self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
         self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ], 1
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
-        self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
+        self.roles = [ Role.Role("student"), Role.Role("instructor"), Role.Role("administrator") ]
 
     def is_access_forward(self, db_session_id):
         return True
@@ -585,49 +584,30 @@ class FakeDatabase(object):
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
-    def list_experiments(self, db_session_id):
+    def list_experiments(self, db_session_id, exp_name = None, cat_name = None):
         return self.experiments_allowed
 
     def get_user_by_name(self, db_session_id):
         return self.users[0]
 
-    def get_groups(self, db_session_id):
-        return self.groups
-
-    def get_roles(self, db_session_id):
-        return self.roles
-
-    def get_users(self, db_session_id):
-        return self.users
-
-    def get_experiments(self, db_session_id):
-        return self.experiments
-
-    def get_experiment_uses(self, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        return self.experiment_uses
-
 class FakeLocator(object):
     def __init__(self, lab):
         self.lab = lab
 
-    def get_server(self, server_type):
-        if server_type == ServerType.Laboratory:
-            return self.lab
-        raise Exception("Server not found")
-
-    def get_server_from_coordaddr(self, coord_addr, server_type):
-        if server_type == ServerType.Laboratory and laboratory_coordaddr == coord_addr:
+    def __getitem__(self, coord_addr):
+        if laboratory_coordaddr == coord_addr:
             return self.lab
         raise Exception("Server not found")
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007')
+    client = Experiment.ExperimentClient("client", {})
+    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007', client)
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name, 1, 'user')
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(

@@ -10,13 +10,10 @@ core_experiment_poll_time         = 30 # seconds
 # Core Server Facade configuration #
 ####################################
 
-core_facade_soap_port   = 10123
-core_facade_xmlrpc_port = 19345
-core_facade_json_port   = 18345
+core_facade_port   = 18345
 
-admin_facade_json_port   = 18545
 
-core_web_facade_port   = 19745
+
 
 ######################################
 # Core Server Database configuration #
@@ -70,7 +67,9 @@ core_coordinator_laboratory_servers = {
             "exp1|aquarium|Aquatic experiments"      : "submarine@submarine",
             "exp1|aquariumjs|Aquatic experiments"    : "submarine@submarine",
             "exp1|submarinejs|Aquatic experiments"   : "submarine@submarine",
+            "exp1|romie|Dummy experiments"           : "romie@romie",
             "exp1|archimedes|Aquatic experiments"    : "archimedes@archimedes",
+            "exp1|elevator|FPGA experiments"       : "elevator@elevator",
             "exp1|unr-physics|Physics experiments"   : "unr@unr",
             "exp1|blink-led|LabVIEW experiments"     : "labview@labview",
             "exp1|ud-pic18|PIC experiments"          : "pic18@pic18",
@@ -121,7 +120,9 @@ core_scheduling_systems = {
         "robot"       : ("PRIORITY_QUEUE", {}),
         "robotarm"    : ("PRIORITY_QUEUE", {}),
         "submarine"   : ("PRIORITY_QUEUE", {}),
+        "romie"       : ("PRIORITY_QUEUE", {}),
         "archimedes"  : ("PRIORITY_QUEUE", {}),
+        "elevator"    : ("PRIORITY_QUEUE", {}),
         "labview"     : ("PRIORITY_QUEUE", {}),
         "pic18"       : ("PRIORITY_QUEUE", {}),
         "binary"      : ("PRIORITY_QUEUE", {}),
@@ -137,3 +138,16 @@ core_universal_identifier_human = 'server at university X'
 
 core_server_url = 'http://localhost/weblab/'
 
+#####################################
+# Login Server Facade configuration #
+#####################################
+
+
+#######################################
+# Login Server Database configuration #
+#######################################
+
+weblab_db_username = 'weblab'
+weblab_db_password = 'weblab'
+
+uned_sso = True

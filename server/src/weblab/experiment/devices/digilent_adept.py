@@ -30,6 +30,12 @@ import weblab.experiment.devices.exc as DeviceErrors
 #   digilentmofas.write(str(msg)+"\n")
 #   digilentmofas.flush()
 
+DEBUG = True
+
+def debug(msg):
+    if DEBUG:
+        print(msg)
+
 class DigilentAdept(object):
 
     def __init__(self, cfg_manager):
@@ -67,7 +73,7 @@ class DigilentAdept(object):
         self._reserve_device()
         try:
             res, out, err = self._execute(cmd_params, digilent_adept)
-            print res, out, err
+            debug('%s %s %s' % (res, out, err))
         finally:
             self._release_device()
 

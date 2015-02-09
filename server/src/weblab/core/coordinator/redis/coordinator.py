@@ -43,6 +43,7 @@ from weblab.core.coordinator.coordinator import  NO_SCHEDULER, PRIORITY_QUEUE, E
 COORDINATOR_REDIS_DB       = 'coordinator_redis_db'
 COORDINATOR_REDIS_PASSWORD = 'coordinator_redis_password'
 COORDINATOR_REDIS_PORT     = 'coordinator_redis_port'
+COORDINATOR_REDIS_HOST     = 'coordinator_redis_host'
 
 class Coordinator(AbstractCoordinator):
 
@@ -60,12 +61,15 @@ class Coordinator(AbstractCoordinator):
         db       = cfg_manager.get_value(COORDINATOR_REDIS_DB,       None)
         password = cfg_manager.get_value(COORDINATOR_REDIS_PASSWORD, None)
         port     = cfg_manager.get_value(COORDINATOR_REDIS_PORT,     None)
+        host     = cfg_manager.get_value(COORDINATOR_REDIS_HOST,     None)
         if db is not None: 
             connection_kwargs['db']       = db
         if password is not None:
             connection_kwargs['password'] = password
         if port is not None:
             connection_kwargs['port']     = port
+        if host is not None:
+            connection_kwargs['host']     = host
         self.pool = redis.ConnectionPool(**connection_kwargs)
         self._redis_maker = lambda : redis.Redis(connection_pool = self.pool)
 

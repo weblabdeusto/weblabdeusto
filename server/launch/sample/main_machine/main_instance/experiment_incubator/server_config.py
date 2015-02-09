@@ -3,7 +3,7 @@
 
 fake_controller = True
 # fake_controller = False
-verbose_controller = True
+verbose_controller = False
 
 number_of_lights   = 3
 if fake_controller:

@@ -14,18 +14,13 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import es.deusto.weblab.client.configuration.FakeConfiguration;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 
 public class ExperimentFactoryResetter {
 	public static void reset(){
-		EntryRegistry.entries.clear();
-		final Map<String, String> globalConfiguration = new HashMap<String, String>();
-		final Map<String, List<Map<String, String>>> experimentsConfiguration = new HashMap<String, List<Map<String, String>>>();
+		final JSONObject experimentsConfiguration = new JSONObject();
 		
 		experimentsConfiguration.put("xilinx", createXilinxConfig());
 		experimentsConfiguration.put("dummy",  createSingleMap("ud-dummy","Dummy experiments"));
@@ -33,32 +28,31 @@ public class ExperimentFactoryResetter {
 		experimentsConfiguration.put("gpib1",  createSingleMap("ud-gpib1","GPIB experiments"));
 		experimentsConfiguration.put("gpib2",  createSingleMap("ud-gpib2","GPIB experiments"));
 		
-		final FakeConfiguration configuration = new FakeConfiguration(globalConfiguration, experimentsConfiguration);
 		try{
-			ExperimentFactory.loadExperiments(configuration);
+			ExperimentFactory.loadExperiments(experimentsConfiguration.toString());
 		}catch(Exception e){
 			e.printStackTrace();
 			throw new AssertionError("Unexpected exception raised: " + e.getMessage());
 		}
 	}
 	
-	private static List<Map<String, String>> createXilinxConfig(){
-		final List<Map<String, String>> xilinxExperiments = new Vector<Map<String, String>>();
-		xilinxExperiments.add(createMap("ud-pld","PLD experiments"));
-		xilinxExperiments.add(createMap("ud-fpga","FPGA experiments"));
+	private static JSONArray createXilinxConfig(){
+		final JSONArray xilinxExperiments = new JSONArray();
+		xilinxExperiments.set(0, createMap("ud-pld","PLD experiments"));
+		xilinxExperiments.set(1, createMap("ud-fpga","FPGA experiments"));
 		return xilinxExperiments;
 	}
 	
-	private static List<Map<String, String>> createSingleMap(String experimentName, String experimentCategory){
-		final List<Map<String, String>> singleMap = new Vector<Map<String, String>>();
-		singleMap.add(createMap(experimentName, experimentCategory));
+	private static JSONArray createSingleMap(String experimentName, String experimentCategory){
+		final JSONArray singleMap = new JSONArray();
+		singleMap.set(0, createMap(experimentName, experimentCategory));
 		return singleMap;
 	}
 	
-	private static Map<String, String> createMap(String experimentName, String experimentCategory){
-		final Map<String, String> map = new HashMap<String, String>();
-		map.put("experiment.name",     experimentName);
-		map.put("experiment.category", experimentCategory);
+	private static JSONObject createMap(String experimentName, String experimentCategory){
+		final JSONObject map = new JSONObject();
+		map.put("experiment.name",     new JSONString(experimentName));
+		map.put("experiment.category", new JSONString(experimentCategory));
 		return map;
 	}
 	

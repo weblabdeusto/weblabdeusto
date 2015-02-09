@@ -158,6 +158,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_archimedes:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:elevator@FPGA experiments':
+            {
+                'coord_address': 'experiment_elevator:main_instance@main_machine',
+                'checkers': ()
+            },
         'exp1:aquarium@Aquatic experiments':
             {
                  'coord_address': 'experiment_aquarium:main_instance@main_machine',
@@ -166,6 +171,11 @@ laboratory_assigned_experiments = {
         'exp1:aquariumjs@Aquatic experiments':
             {
                  'coord_address': 'experiment_aquariumjs:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:romie@Dummy experiments':
+            {
+                 'coord_address': 'experiment_romie:main_instance@main_machine',
                  'checkers': ()
             },
         'exp1:unr-physics@Physics experiments':

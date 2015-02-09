@@ -39,7 +39,7 @@ class CoordinationDatabaseManager(object):
         port     = CoordinationDatabaseManager.port     = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_PORT)
         dbname   = CoordinationDatabaseManager.dbname   = cfg_manager.get_doc_value(configuration_doc.COORDINATOR_DB_NAME)
 
-        if CoordinationDatabaseManager.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
+        if CoordinationDatabaseManager.engine is None or cfg_manager.get_doc_value(configuration_doc.DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, username, password, host, port, dbname)
 
             connect_args = {}

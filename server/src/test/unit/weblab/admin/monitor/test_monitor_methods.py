@@ -17,18 +17,20 @@ import unittest
 
 import time
 
+from   test.util.wlcontext import wlcontext
 from   test.util.module_disposer import case_uses_module
 import test.unit.configuration as configuration_module
 
 import weblab.admin.monitor.monitor_methods           as methods
 import voodoo.configuration      as ConfigurationManager
 import weblab.core.server    as UserProcessingServer
+import weblab.core.server    as core_api
 import weblab.core.coordinator.confirmer   as Confirmer
 import weblab.core.exc as core_exc
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
-import weblab.db.session                as DatabaseSession
+from weblab.data import ValidDatabaseSessionId
 
 import weblab.data.dto.experiments as Category
 import weblab.data.dto.experiments as Experiment
@@ -36,12 +38,11 @@ import weblab.data.dto.experiments as ExperimentAllowed
 from weblab.data.experiments import ExperimentId
 from weblab.data.experiments import ExperimentInstanceId
 import weblab.data.server_type                         as ServerType
-import weblab.data.client_address                      as ClientAddress
 from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.core.coordinator.resource import Resource
 
-import voodoo.gen.coordinator.CoordAddress  as CoordAddress
+from voodoo.gen import CoordAddress
 
 class ConfirmerMock(object):
     def __init__(self, *args, **kwargs):
@@ -79,7 +80,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
-        self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
+        self.coord_address = CoordAddress.translate( "server0:instance0@machine0" )
 
         self.ups = UserProcessingServer.UserProcessingServer(
                 self.coord_address,
@@ -125,8 +126,8 @@ class MonitorMethodsTestCase(unittest.TestCase):
     def test_list_all_users(self):
         first_time = time.time()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         result = methods.list_all_users.call()
         self.assertEquals(1, len(result))
@@ -140,8 +141,8 @@ class MonitorMethodsTestCase(unittest.TestCase):
     def test_list_all_users_invalid_user(self):
         first_time = time.time()
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         sess_mgr = self.ups._session_manager
         sess_obj = sess_mgr.get_session(sess_id)
@@ -161,16 +162,17 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         #
         # It returns only the sessions_ids of the experiments
         #
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( [], result )
-
-        status = self.ups.reserve_experiment( sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        
+        with wlcontext(self.ups, session_id = sess_id):
+            status = core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
         result = methods.get_experiment_ups_session_ids.call(category, experiment)
         self.assertEquals( 1, len(result) )
@@ -179,18 +181,18 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.assertEquals( "student2", login )
 
     def test_get_ups_session_ids_from_username(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id1, _ = self.ups._reserve_session(db_sess_id)
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id2, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id2, _ = self.ups._reserve_session(db_sess_id)
 
         sessions = methods.get_ups_session_ids_from_username.call("student2")
         self.assertEquals(set([sess_id1, sess_id2]), set(sessions))
 
     def test_get_reservation_id_no_one_using_it(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id1, _ = self.ups._reserve_session(db_sess_id)
 
         reservation_id = methods.get_reservation_id.call(sess_id1.id)
         self.assertEquals(None, reservation_id)
@@ -199,9 +201,10 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
         reservation_id = methods.get_reservation_id.call(sess_id.id)
         self.assertNotEquals(None, reservation_id)
@@ -210,28 +213,29 @@ class MonitorMethodsTestCase(unittest.TestCase):
         category   = "Dummy experiments"
         experiment = "ud-dummy"
 
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
-        status = self.ups.reserve_experiment(sess_id, ExperimentId( experiment, category ), "{}", "{}", ClientAddress.ClientAddress( "127.0.0.1" ))
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            status = core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
-        reservation_session_id = status.reservation_id
+            reservation_session_id = status.reservation_id
+            
+            with wlcontext(self.ups, reservation_id = reservation_session_id, session_id = sess_id):
+                status = core_api.get_reservation_status()
+                self.assertNotEquals( None, status )
 
-        status = self.ups.get_reservation_status(reservation_session_id)
-        self.assertNotEquals( None, status )
+                reservation_id = methods.get_reservation_id.call(sess_id.id)
+                methods.kickout_from_coordinator.call(reservation_id)
 
-        reservation_id = methods.get_reservation_id.call(sess_id.id)
-        methods.kickout_from_coordinator.call(reservation_id)
-
-        self.assertRaises( core_exc.NoCurrentReservationError, self.ups.get_reservation_status, reservation_session_id )
+                self.assertRaises( core_exc.NoCurrentReservationError, core_api.get_reservation_status)
 
     def test_kickout_from_ups(self):
-        db_sess_id = DatabaseSession.ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        db_sess_id = ValidDatabaseSessionId('student2', "student")
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         methods.kickout_from_ups.call(sess_id.id)
-
-        self.assertRaises( core_exc.SessionNotFoundError,
-                self.ups.get_reservation_status, sess_id)
+        with wlcontext(self.ups, session_id = sess_id):
+            self.assertRaises( core_exc.SessionNotFoundError, core_api.get_reservation_status)
 
 class FakeLocator(object):
     def __init__(self):
@@ -262,12 +266,13 @@ class FakeDatabase(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
-    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007' )
+    client = Experiment.ExperimentClient('myclient', {})
+    exp = Experiment.Experiment( exp_name, cat, '01/01/2007', '31/12/2007', client )
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, 'permission::user')
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, 'permission::user', 1, 'user')
 
 def suite():
     return unittest.makeSuite(MonitorMethodsTestCase)

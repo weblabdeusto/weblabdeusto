@@ -16,8 +16,8 @@ import unittest
 
 import datetime
 
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
-import weblab.comm.server as RemoteFacadeServer
+from voodoo.gen import CoordAddress
+from weblab.core.new_server import simplify_response
 
 class SimplifyResponseTestCase(unittest.TestCase):
 
@@ -84,7 +84,7 @@ class SimplifyResponseTestCase(unittest.TestCase):
 
     def test_simplify_response_coordaddr(self):
         addr = CoordAddress('mach','inst','serv')
-        self._check(addr, {'instance_id': 'inst', 'server_id': 'serv', 'machine_id': 'mach'})
+        self._check(addr, {'process': 'inst', 'component': 'serv', 'host': 'mach'})
 
     def test_simplify_response_maxdepth(self):
         class A(object):
@@ -110,9 +110,9 @@ class SimplifyResponseTestCase(unittest.TestCase):
 
     def _check(self, msg, expected, limit = None):
         if limit is not None:
-            simplified = RemoteFacadeServer.simplify_response(msg, limit = limit)
+            simplified = simplify_response(msg, limit = limit)
         else:
-            simplified = RemoteFacadeServer.simplify_response(msg)
+            simplified = simplify_response(msg)
         self.assertEquals(simplified, expected)
 
 

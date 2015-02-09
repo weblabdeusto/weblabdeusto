@@ -14,45 +14,15 @@
 
 package es.deusto.weblab.client.experiments.controlapp;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.RunAsyncCallback;
+import es.deusto.weblab.client.experiments.redirect.RedirectCreatorFactory;
 
-import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.experiments.controlapp.ui.ControlAppExperiment;
-import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
-import es.deusto.weblab.client.lab.experiments.ExperimentFactory.MobileSupport;
-import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
-import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
-
-public class ControlAppCreatorFactory implements IExperimentCreatorFactory {
+/**
+ * Maintain compatibility with STUBA labs. Should use Redirect instead of control-app
+ */
+public class ControlAppCreatorFactory extends RedirectCreatorFactory {
 
 	@Override
 	public String getCodeName() {
 		return "control-app";
 	}
-
-	@Override
-	public ExperimentCreator createExperimentCreator(final IConfigurationRetriever configurationRetriever) {
-		return new ExperimentCreator(MobileSupport.full, getCodeName()){
-			@Override
-			public void createWeb(final IBoardBaseController boardController, final IExperimentLoadedCallback callback) {
-				GWT.runAsync(new RunAsyncCallback() {
-					@Override
-					public void onSuccess() {
-						callback.onExperimentLoaded(new ControlAppExperiment(
-								configurationRetriever,
-								boardController
-							));
-					}
-					
-					@Override
-					public void onFailure(Throwable e){
-						callback.onFailure(e);
-					}
-				});
-			}
-		};
-	}
-
 }

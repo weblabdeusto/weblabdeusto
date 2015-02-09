@@ -41,9 +41,6 @@ import es.deusto.weblab.client.ui.widgets.WlWebcam;
 
 public class RobotStandardExperiment extends ExperimentBase {
 	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-
 	/******************
 	 * UIBINDER RELATED
 	 ******************/
@@ -96,7 +93,7 @@ public class RobotStandardExperiment extends ExperimentBase {
 		public void onSuccess(ResponseCommand responseCommand) {
 			RobotStandardExperiment.this.uploadStructurePanel.setVisible(false);
 			RobotStandardExperiment.this.messages.stop();
-			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok")){
+			if(responseCommand.getCommandString().toLowerCase().trim().equals("ok") || responseCommand.getCommandString().startsWith("File sen")){
 				setMessage(i18n.theProgramIsBeingExecutedInTheBot());
 			}else{
 				setMessage(i18n.thereWasAnError(responseCommand.getCommandString()));
@@ -127,20 +124,12 @@ public class RobotStandardExperiment extends ExperimentBase {
 		this.timer = new WlTimer(false);	
 		
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(this.getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 		
 		this.uploadStructure = new UploadStructure();
 		this.uploadStructure.setFileInfo("program");
 	}
 	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(
-			RobotStandardExperiment.WEBCAM_REFRESH_TIME_PROPERTY, 
-			RobotStandardExperiment.DEFAULT_WEBCAM_REFRESH_TIME
-		);
-	}	
-	
-
 	/**
 	 * The initialize function gets called on the "reserve" stage,
 	 * before the experiment starts.

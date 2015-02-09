@@ -19,7 +19,7 @@ import datetime
 
 import mocker
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 from   test.util.module_disposer import case_uses_module
 
 import weblab.configuration_doc as configuration_doc
@@ -30,7 +30,6 @@ import weblab.core.coordinator.store as TemporalInformationStore
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 from weblab.core.coordinator.config_parser import COORDINATOR_LABORATORY_SERVERS
 import weblab.data.server_type as ServerType
-import weblab.data.client_address as ClientAddress
 from weblab.core.coordinator.gateway import create as coordinator_create, SQLALCHEMY
 
 import weblab.data.dto.users as Group
@@ -42,8 +41,7 @@ import weblab.data.dto.experiments as ExperimentAllowed
 import weblab.data.dto.experiments as ExperimentUse
 import weblab.data.dto.users as User
 import weblab.data.dto.users as Role
-
-import weblab.db.session as DbSession
+from weblab.data import ValidDatabaseSessionId
 
 from weblab.core.coordinator.resource import Resource
 
@@ -52,7 +50,7 @@ import weblab.core.exc as coreExc
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
+laboratory_coordaddr = CoordAddress.translate(
         "server:laboratoryserver@labmachine"
     )
 
@@ -82,7 +80,7 @@ class UserProcessorTestCase(unittest.TestCase):
         self.processor = UserProcessor.UserProcessor(
                     self.locator,
                     {
-                        'db_session_id' : DbSession.ValidDatabaseSessionId('my_db_session_id')
+                        'db_session_id' : ValidDatabaseSessionId('my_db_session_id')
                     },
                     self.cfg_manager, self.coordinator, self.db, self.commands_store
                 )
@@ -95,9 +93,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('<invalid>', 'Dummy experiments'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_unknown_experiment_category(self):
@@ -105,9 +101,7 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.UnknownExperimentIdError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy','<invalid>'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_experiment_not_found(self):
@@ -117,16 +111,13 @@ class UserProcessorTestCase(unittest.TestCase):
             coreExc.NoAvailableExperimentFoundError,
             self.processor.reserve_experiment,
             ExperimentId('ud-dummy', 'Dummy experiments'),
-            "{}", "{}",
-            ClientAddress.ClientAddress("127.0.0.1"),
-            'uuid'
+            "{}", "{}", "127.0.0.1", 'uuid'
         )
 
     def test_reserve_experiment_waiting_confirmation(self):
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
-                    "{}", "{}",
-                    ClientAddress.ClientAddress("127.0.0.1"), 'uuid')
+                    "{}", "{}", "127.0.0.1", 'uuid')
         self.assertTrue( isinstance( status, WebLabSchedulingStatus.WaitingConfirmationQueueStatus) )
 
     def test_reserve_experiment_repeated_uuid(self):
@@ -135,8 +126,7 @@ class UserProcessorTestCase(unittest.TestCase):
         status = self.processor.reserve_experiment(
                     ExperimentId('ud-dummy', 'Dummy experiments'),
                     "{}", '{ "%s" : [["%s","server x"]]}' % (UserProcessor.SERVER_UUIDS, uuid),
-                    ClientAddress.ClientAddress("127.0.0.1"), uuid
-                )
+                    "127.0.0.1", uuid)
         self.assertEquals( 'replicated', status )
 
 
@@ -153,7 +143,7 @@ class FakeDatabase(object):
         self.experiments = [ generate_experiment('ud-dummy', 'Dummy experiments') ]
         self.experiment_uses = [ generate_experiment_use("student2", self.experiments[0]) ], 1
         self.users = [ User.User("admin1", "Admin Test User", "admin1@deusto.es", Role.Role("administrator")) ]
-        self.roles = [ Role.Role("student"), Role.Role("Professor"), Role.Role("Administrator") ]
+        self.roles = [ Role.Role("student"), Role.Role("instructor"), Role.Role("administrator") ]
 
     def is_access_forward(self, db_session_id):
         return True
@@ -161,26 +151,11 @@ class FakeDatabase(object):
     def store_experiment_usage(self, db_session_id, experiment_usage):
         pass
 
-    def list_experiments(self, db_session_id):
-        return self.experiments_allowed
+    def list_experiments(self, db_session_id, exp_name = None, cat_name = None):
+        return [ exp for exp in self.experiments_allowed if exp.experiment.name == exp_name and exp.experiment.category.name == cat_name ]
 
     def get_user_by_name(self, db_session_id):
         return self.users[0]
-
-    def get_groups(self, db_session_id):
-        return self.groups
-
-    def get_roles(self, db_session_id):
-        return self.roles
-
-    def get_users(self, db_session_id):
-        return self.users
-
-    def get_experiments(self, db_session_id):
-        return self.experiments
-
-    def get_experiment_uses(self, db_session_id, from_date, to_date, group_id, experiment_id, start_row, end_row, sort_by):
-        return self.experiment_uses
 
 class FakeLocator(object):
     def __init__(self, lab):
@@ -206,17 +181,19 @@ class FakeConfirmer(object):
 
 def generate_experiment(exp_name,exp_cat_name):
     cat = Category.ExperimentCategory(exp_cat_name)
+    client = Experiment.ExperimentClient("client", {})
     exp = Experiment.Experiment(
         exp_name,
         cat,
         '01/01/2007',
-        '31/12/2007'
+        '31/12/2007',
+        client
     )
     return exp
 
 def generate_experiment_allowed(time_allowed, exp_name, exp_cat_name):
     exp = generate_experiment(exp_name, exp_cat_name)
-    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name)
+    return ExperimentAllowed.ExperimentAllowed(exp, time_allowed, 5, True, '%s::user' % exp_name, 1, 'user')
 
 def generate_experiment_use(user_login, exp):
     exp_use = ExperimentUse.ExperimentUse(

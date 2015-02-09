@@ -54,7 +54,7 @@ Date: (pending)
     game).
 
 - requirements
-  - Drop support for Python 2.5
+  - Drop support for Python 2.5 and Python 2.6
 
 - other
   - migrated from SVN to Mercurial and then to git.

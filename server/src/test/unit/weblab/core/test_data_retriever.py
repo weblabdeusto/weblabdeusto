@@ -19,7 +19,7 @@ import time
 import datetime
 from voodoo.override import Override
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
@@ -56,7 +56,7 @@ def wait_for(retriever, iterations = 5, max_wait = 10):
             raise AssertionError("Maximum time waiting reached")
 
 def coord_addr(coord_addr_str):
-    return CoordAddress.CoordAddress.translate_address( coord_addr_str )
+    return CoordAddress.translate( coord_addr_str )
 
 class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def setUp(self):
@@ -65,6 +65,11 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration)
         self.dbmanager = DatabaseGateway(cfg_manager)
         self.dbmanager._delete_all_uses()
+        session = self.dbmanager.Session()
+        try:    
+            student1 = self.dbmanager._get_user(session, 'student1')
+        finally:
+            session.close()
 
         self.initial_store  = TemporalInformationStore.InitialTemporalInformationStore()
         self.finished_store = TemporalInformationStore.FinishTemporalInformationStore()
@@ -77,7 +82,7 @@ class TemporalInformationRetrieverTestCase(unittest.TestCase):
         self.initial_time = self.end_time = datetime.datetime.now()
         self.initial_timestamp = self.end_timestamp = time.time()
 
-        request_info = {'username':'student1','role':'student'}
+        request_info = {'username':'student1','role':'student','permission_scope' : 'user', 'permission_id' : student1.id}
         exp_id = ExperimentId('ud-dummy','Dummy Experiments')
 
         self.entry1 = TemporalInformationStore.InitialInformationEntry(

@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
@@ -33,7 +34,7 @@ public class BlankExperiment extends ExperimentBase {
 	
 	@Override
 	public void initialize() {
-		final String html = this.configurationRetriever.getProperty("html", "");
+		final String html = this.configurationRetriever.getProperty(BlankCreatorFactory.HTML_CONTENTS);
 		this.vpanel.add(new HTML(html));
 	}
 	

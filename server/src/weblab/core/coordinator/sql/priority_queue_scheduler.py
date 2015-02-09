@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import sys
 import json
 import time
 import datetime
@@ -21,13 +22,12 @@ import random
 from voodoo.log import logged
 import voodoo.log as log
 
-import sqlalchemy
 from sqlalchemy import not_
 from sqlalchemy.orm import join
-from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy.exc import IntegrityError, OperationalError, ConcurrentModificationError
+from sqlalchemy.orm.exc import StaleDataError, ConcurrentModificationError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
@@ -40,6 +40,8 @@ import weblab.core.coordinator.status as WSS
 from weblab.data.experiments import ExperimentInstanceId
 
 EXPIRATION_TIME  = 3600 # seconds
+
+DEBUG = False
 
 ###########################################################
 #
@@ -63,6 +65,8 @@ def exc_checker(func):
                     else:
                         raise
         except:
+            if DEBUG:
+                print("Error in exc_checker: ", sys.exc_info())
             log.log(
                 PriorityQueueScheduler, log.level.Error,
                 "Unexpected exception while running %s" % func.__name__ )
@@ -182,13 +186,13 @@ class PriorityQueueScheduler(Scheduler):
                     raise Exception("Invalid state: there is an resource_instance of the resource_type the user was waiting for which doesn't have any experiment_instance of the experiment_type the user was waiting for")
 
                 str_lab_coord_address        = requested_experiment_instance.laboratory_coord_address
-                lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+                lab_coord_address            = CoordAddress.translate(str_lab_coord_address)
                 obtained_time                = concrete_current_reservation.time
                 lab_session_id               = concrete_current_reservation.lab_session_id
                 if concrete_current_reservation.exp_info:
                     exp_info                 = json.loads(concrete_current_reservation.exp_info)
                 else:
-                    epx_info                 = {}
+                    exp_info                 = {}
                 initial_configuration        = concrete_current_reservation.initial_configuration
                 initialization_in_accounting = concrete_current_reservation.initialization_in_accounting
 
@@ -490,6 +494,8 @@ class PriorityQueueScheduler(Scheduler):
                         session.add(concrete_current_reservation)
                         session.commit()
                     except IntegrityError as ie:
+                        if DEBUG:
+                            print("IntegrityError when adding concrete_current_reservation: ", sys.exc_info())
                         # Other scheduler confirmed the user or booked the reservation, rollback and try again
                         # But log just in case
                         log.log(
@@ -499,6 +505,9 @@ class PriorityQueueScheduler(Scheduler):
                         session.rollback()
                         break
                     except Exception as e:
+                        if DEBUG:
+                            print("Other error when adding concrete_current_reservation: ", sys.exc_info())
+
                         log.log(
                             PriorityQueueScheduler, log.level.Warning,
                             "Exception looping on update_queues: %s" % e )
@@ -535,6 +544,9 @@ class PriorityQueueScheduler(Scheduler):
             except (ConcurrentModificationError, IntegrityError) as ie:
                 # Something happened somewhere else, such as the user being confirmed twice, the experiment being reserved twice or so on.
                 # Rollback and start again
+                if DEBUG:
+                    print("Other ConcurrentModificationError or IntegrityError in update_queues: ", sys.exc_info())
+
                 log.log(
                     PriorityQueueScheduler, log.level.Warning,
                     "Exception while updating queues, reverting and trying again: %s" % ie )
@@ -584,7 +596,10 @@ class PriorityQueueScheduler(Scheduler):
             if reservations_removed:
                 try:
                     session.commit()
-                except sqlalchemy.exceptions.ConcurrentModificationError as e:
+                except ConcurrentModificationError as e:
+                    if DEBUG:
+                        print("Other error when commiting when reservations_removed: ", sys.exc_info())
+
                     log.log(
                         PriorityQueueScheduler, log.level.Warning,
                         "IntegrityError: %s" % e )
@@ -616,7 +631,10 @@ class PriorityQueueScheduler(Scheduler):
                 session.delete(current_resource_slot)
 
             session.commit()
-        except sqlalchemy.exceptions.ConcurrentModificationError:
+        except ConcurrentModificationError:
+            if DEBUG:
+                print("Error when cleaning: ", sys.exc_info())
+
             pass # Another process is cleaning concurrently
         finally:
             session.close()

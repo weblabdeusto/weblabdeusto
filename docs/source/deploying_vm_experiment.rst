@@ -263,7 +263,7 @@ configured properly.
 Especifically, the host machine will need to connect to two ports on the windows Virtual Machine:
 
 	* Remote Desktop port (3389). The port end users will connect to. VM will need to accept connections to it from the Internet. 
-	* In-VM Manager port (6791). The WebLab-Deusto server will connect to it and command a password change when needed. 
+	* In-VM Manager port (6789). The WebLab-Deusto server will connect to it and command a password change when needed.
 	
 .. Warning:: RDP port needs to be accessible from the Internet. Otherwise, end-users will not be able to connect to the machine.
 			 The VM Manager port, however, **should only** be accessible from the host machine. Otherwise, an attacker could
@@ -284,13 +284,26 @@ There are essentially two ways to configure the network:
 	   need to forward port 3389 and 6791 properly. That is not particularly hard, but isn't trivial either, so NAT **is not
 	   recommended**.
 	#. **Bridged Adapter**: The VM will connect to the Internet directly. This **is the recommended** way. The Windows VM will be given
-	   its own IP on your local network. If your local network doesn't support DHCP, further configuration may be needed.
+	   its own IP on your local network. If your local network doesn't support DHCP, further configuration may be needed. Note, however,
+	   that choosing this configuration means that the Guest and Host machines will communicate through your local network directly.
+	   If your local network is somehow restricted or filtered by a firewall, this may lead to issues (See the third note).
 	   
 It is hence suggested that you choose *Bridged Adapter*.
 
 .. Note:: You might need to restart the VM before network configuration changes take effect.	
 
-.. Note:: From this point, this guide will assume that you are indeed using a *Bridged Adapter* network. 
+.. Note:: From this point, this guide will assume that you are indeed using a *Bridged Adapter* network.
+
+.. Note:: Choosing the Bridged Adapter configuration means that the communication between the Host and the Guest machine will be
+          carried out through the local network. If your local network is restricted or filtered by a firewall, problems may arise.
+          If you do indeed have a firewall, you will need to make sure that port 3389 (RDP) and port 6789 (communication between Guest
+          and Host) are open. Port 3389 is easy to test, as you can assume that if RDP works, the port is open. Port 6789
+          is harder to test, and if it is being blocked, you will only notice later on this guide, when you carry out the
+          suggested tests. If the firewall can't be turned off or configured, then you could also use **NAT** instead of **Bridged Adapter**.
+          Though the concept is similar, using **NAT** is not fully covered in this guide. The only difference, however, should be
+          that you would need to configure *Port Forwarding* within the Virtual Box configuration, so that you can access the required
+          ports from the Host machine.
+
 
 
 *Checking the network config*
@@ -339,7 +352,8 @@ Try to connect to the VM IP. It should work. If it doesn't:
 	**CHECKLIST** *(Ensure the following before skipping to the next section)*
 	
 	#. My guest Windows (virtualized Windows) supports Microsoft .NET Framework 3.5
-	#. My guest Windows can be accessed through Remote Desktop from my host Windows
+	#. My guest Windows can be accessed through Remote Desktop from my host Windows.
+	#. The firewall on my local network should not prevent access to port 6789.
 
 
 
@@ -402,7 +416,8 @@ and that the service is installed properly.
 We will now carry out a few tests to check whether WeblabVMService is working as expected with our current settings.
 
 **Test 1**
-This test should be done within the guest OS. That is, within the virtualized Windows.
+This test should be done within the guest OS. That is, within the virtualized Windows. *(This test is meant to check that
+the In-VM Manager is working properly and can change the local password).*
 
 	#. If the WeblabVMService is not running already, start it.
 	#. Open a browser window.
@@ -418,7 +433,8 @@ This test should be done within the guest OS. That is, within the virtualized Wi
 	   
 	   
 **Test 2**
-This test assumes that the first test was successful. We will try the following:
+This test assumes that the first test was successful. We will try the following, *(This test is meant to check that the In-VM
+Manager can indeed be accessed and used from the Host machine).*
 
 	#. If the WeblabVMService is not running already, start it.
 	#. Find out the IP that has been assigned to your Virtual Machine in your local network. This is the IP we used
@@ -434,13 +450,19 @@ This test assumes that the first test was successful. We will try the following:
 		  something went wrong. Most often, this means that the guest OS is not accessible from the host OS. Try to login into your host
 		  OS through RDP, in the same way you did before when you configured the *network settings* of the VM (in previous sections of this guide).
 		  If you still can connect to the machine through RDP, then you should repeat the first test, to make sure the service is still working.
-		  If RDP is working, and the first test is working, but the second test is still failing, please repeat the second test with a different
+		  If RDP is working, and the first test is working, but the second test is still failing, please make sure that you have no firewall which may
+		  be blocking port 6789 on your local network (see the previous *network settings* section if you do). You may also try to repeat the second test with a different
 		  browser. If it still does not work, please :ref:`contact <contact>` the developers for support. (In this guide, from this point, we will assume that
 		  the second test did work. If it didn't, you may not want to proceed until the issue is solved).
 		  
 Congratulations, if you are here, both tests should have passed. This means that WeblabVMService is properly installed and working.
 
 
+.. Warning::
+	**CHECKLIST** *(Ensure the following before going on to the next section.)*
+
+	#. Test 1 was completed and works as expected.
+	#. Test 2 was completed and works as expected.
 
 
 Preparing the Virtual Machine: Base Snapshot
@@ -668,6 +690,8 @@ then please :ref:`contact <contact>` the Weblab developers for support.
 
 *The VM experiment appears, I can reserve, but when the experiment loads, the progress bar never finishes.*
 
+Make sure that you have installed the In-VM Manager properly by carrying out every suggested test and checklist. Particularly, make sure that
+you can change your Guest's password from your Host machine through http://{guest-ip}/?sessionid=newpassword.
 Check the console in case there is an error. If there is, please :ref:`contact <contact>` the Weblab developers for support. 
 
 

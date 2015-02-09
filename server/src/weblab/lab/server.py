@@ -16,13 +16,14 @@
 #
 
 import re
+import traceback
 
 import voodoo.log as log
 from voodoo.log import logged
 from voodoo.sessions.checker import check_session
 import voodoo.sessions.session_type as SessionType
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.exceptions.exceptions as GeneratorErrors
+from voodoo.gen import CoordAddress
+from voodoo.gen.exc import GeneratorError
 
 from voodoo.threaded import threaded
 import weblab.lab.async_request as AsyncRequest
@@ -116,42 +117,49 @@ class LaboratoryServer(object):
                 raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid configuration entry. Expected format: %s; found: %s" %
                     (LaboratoryServer.EXPERIMENT_INSTANCE_ID_REGEX, experiment_instance_id))
             else:
-                # ExperimentInstanceId
-                groups = mo.groups()
-                (   exp_inst_name,
-                    exp_name,
-                    exp_cat_name
-                ) = groups
-                experiment_instance_id = ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
+                number = data.get('number', 1)
 
-                # CoordAddress
-                try:
-                    coord_address = CoordAddress.CoordAddress.translate_address(data['coord_address'])
-                except GeneratorErrors.GeneratorError:
-                    raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid coordination address: %s" % data['coord_address'])
+                for n in range(1, number + 1):
+                    # ExperimentInstanceId
+                    groups = mo.groups()
+                    (   exp_inst_name,
+                        exp_name,
+                        exp_cat_name
+                    ) = groups
 
-                # CheckingHandlers
-                checkers = data.get('checkers', ())
-                checking_handlers = {}
-                for checker in checkers:
-                    klazz = checker[0]
-                    if klazz in IsUpAndRunningHandler.HANDLERS:
-                        argss, kargss = (), {}
-                        if len(checker) >= 3:
-                            kargss = checker[2]
-                        if len(checker) >= 2:
-                            argss = checker[1]
-                        checking_handlers[repr(checker)] = eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
-                    else:
-                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
+                    if number > 1:
+                        exp_inst_name += '__%s' % n
 
-                # API
-                api = data.get('api', None)
-                
-                # Polling: if it manages its own polling, the client does not need to manage it
-                manages_polling = data.get('manages_polling', False)
+                    experiment_instance_id = ExperimentInstanceId(exp_inst_name, exp_name, exp_cat_name)
 
-                parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling }) )
+                    # CoordAddress
+                    try:
+                        coord_address = CoordAddress.translate(data['coord_address'])
+                    except GeneratorError:
+                        raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid coordination address: %s" % data['coord_address'])
+
+                    # CheckingHandlers
+                    checkers = data.get('checkers', ())
+                    checking_handlers = {}
+                    for checker in checkers:
+                        klazz = checker[0]
+                        if klazz in IsUpAndRunningHandler.HANDLERS:
+                            argss, kargss = (), {}
+                            if len(checker) >= 3:
+                                kargss = checker[2]
+                            if len(checker) >= 2:
+                                argss = checker[1]
+                            checking_handlers[repr(checker)] = eval('IsUpAndRunningHandler.'+klazz)(*argss, **kargss)
+                        else:
+                            raise LaboratoryErrors.InvalidLaboratoryConfigurationError("Invalid IsUpAndRunningHandler: %s" % klazz)
+
+                    # API
+                    api = data.get('api', None)
+                    
+                    # Polling: if it manages its own polling, the client does not need to manage it
+                    manages_polling = data.get('manages_polling', False)
+
+                    parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling, 'number' : number }) )
         return parsed_experiments
 
     def _load_assigned_experiments(self):
@@ -203,6 +211,17 @@ class LaboratoryServer(object):
             
         return api
     
+    @logged(log.level.Info)
+    @caller_check(ServerType.UserProcessing)
+    def do_list_experiments(self):
+        # TODO: this should return a list of elements such as:
+        # [
+        #      {
+        #           'id'     : 'experiment_id1',
+        #           'number' : 60,
+        #      }
+        # ]
+        return []
 
     @logged(log.level.Info)
     @caller_check(ServerType.UserProcessing)
@@ -238,7 +257,7 @@ class LaboratoryServer(object):
         # Obtain the API of the experiment.
         api = self._find_api(experiment_instance_id, experiment_coord_address)
 
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
 
         if api == ExperimentApiLevel.level_1:
             experiment_server.start_experiment()
@@ -293,7 +312,6 @@ class LaboratoryServer(object):
                     response = json.loads(experiment_response)
                     finished = response.get(Coordinator.FINISH_FINISHED_MESSAGE)
                 except:
-                    import traceback
                     traceback.print_exc()
         finally:
             if finished:
@@ -311,7 +329,7 @@ class LaboratoryServer(object):
         @param experiment_instance_id To identify the experiment instance
         """
         experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
         
         # Find out which api we're supposed to use
         api = self._assigned_experiments.get_api(experiment_instance_id)
@@ -344,14 +362,14 @@ class LaboratoryServer(object):
         """
         try:
             experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+            experiment_server = self._locator[experiment_coord_address]
 
             reported_api = experiment_server.get_api()
         except:
             # get_api failed, test if the server is online
             try:
                 experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-                self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
+                self._locator[experiment_coord_address]
                 # it is online! check the get_api
                 try:
                     reported_api = experiment_server.get_api()
@@ -405,7 +423,7 @@ class LaboratoryServer(object):
             # Try to call the WebLab service
             experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
             try:
-                self._locator.check_server_at_coordaddr(experiment_coord_address, ServerType.Experiment)
+                self._locator.check_component(experiment_coord_address)
             except Exception as e:
                 failing_experiment_instance_ids[experiment_instance_id] = str(e)
                 self.log_error(experiment_instance_id, str(e))
@@ -424,7 +442,6 @@ class LaboratoryServer(object):
                         current_error_message += '; ' + failing_experiment_instance_ids[experiment_instance_id]
                     failing_experiment_instance_ids[experiment_instance_id] = current_error_message
                     self.log_error(experiment_instance_id, current_error_message)
-
 
         return failing_experiment_instance_ids
 
@@ -446,7 +463,7 @@ class LaboratoryServer(object):
             return (0, '') # No way to know this information; don't ask again
         else:
             experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
-            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+            experiment_server = self._locator[experiment_coord_address]
             return experiment_server.is_up_and_running()
 
     @logged(log.level.Info)
@@ -460,7 +477,7 @@ class LaboratoryServer(object):
             return 0 # No way to know this information: don't ask again
         else:
             experiment_coord_address = session['experiment_coord_address']
-            experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+            experiment_server = self._locator[experiment_coord_address]
             api = self._assigned_experiments.get_api(experiment_instance_id)
             if api == ExperimentApiLevel.level_2_concurrent:
                 lab_session_id = session['session_id']
@@ -496,7 +513,7 @@ class LaboratoryServer(object):
         api = self._assigned_experiments.get_api(experiment_instance_id)
         
         experiment_coord_address = session['experiment_coord_address']
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
 
         try:
             if api.endswith("concurrent"):
@@ -520,7 +537,7 @@ class LaboratoryServer(object):
         api = self._assigned_experiments.get_api(experiment_instance_id)
         
         experiment_coord_address = session['experiment_coord_address']
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
 
         try:
             if api.endswith("concurrent"):
@@ -549,7 +566,7 @@ class LaboratoryServer(object):
         api = self._assigned_experiments.get_api(experiment_instance_id)
         
         experiment_coord_address = session['experiment_coord_address']
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
 
         try:
             if api.endswith("concurrent"):
@@ -666,7 +683,7 @@ class LaboratoryServer(object):
         api = self._assigned_experiments.get_api(experiment_instance_id)
         
         experiment_coord_address = session['experiment_coord_address']
-        experiment_server = self._locator.get_server_from_coordaddr(experiment_coord_address, ServerType.Experiment)
+        experiment_server = self._locator[experiment_coord_address]
 
         try:
             if api.endswith("concurrent"):

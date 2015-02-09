@@ -14,14 +14,16 @@
 #
 
 import json
-import urllib2
-import cookielib
+import requests
+import datetime
 
-from voodoo.gen.coordinator.CoordAddress import CoordAddress
+from voodoo.gen import CoordAddress
 from voodoo.sessions.session_id import SessionId
 from weblab.core.reservations import Reservation
 from weblab.data.command import Command, NullCommand
 from weblab.data.experiments import ReservationResult, RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ExperimentUsage, LoadedFileSent, CommandSent, ExperimentId, ForbiddenReservationResult
+from weblab.data.dto.experiments import ExperimentCategory, Experiment, ExperimentClient, ExperimentAllowed
+from weblab.data.dto.users import User
 
 class WebLabDeustoClient(object):
 
@@ -30,8 +32,6 @@ class WebLabDeustoClient(object):
 
     def __init__(self, baseurl):
         self.baseurl         = baseurl
-        self.cj              = cookielib.CookieJar()
-        self.opener          = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cj))
         self.weblabsessionid = "(not set)"
 
     def _call(self, url, method, user_agent, **kwargs):
@@ -39,13 +39,16 @@ class WebLabDeustoClient(object):
             'method' : method,
             'params' : kwargs
         })
-        req = urllib2.Request(url, data = request, headers = {'User-agent' : user_agent or 'WebLab-Deusto'})
-        uopen = self.opener.open(req)
-        content = uopen.read()
-        cookies = [ c for c in self.cj if c.name == 'weblabsessionid' ]
-        if len(cookies) > 0:
-            self.weblabsessionid = cookies[0].value
-        response = json.loads(content)
+        headers = {
+            'User-agent' : user_agent or 'WebLab-Deusto',
+            'content-type': 'application/json',
+        }
+        cookies = { 'weblabsessionid' : self.weblabsessionid, 'loginweblabsessionid' : self.weblabsessionid }
+        r = requests.post(url, data = request, headers = headers, cookies = cookies)
+        weblabsessionid = r.cookies.get('weblabsessionid')
+        if weblabsessionid:
+            self.weblabsessionid = weblabsessionid
+        response = r.json()
         if response.get('is_exception', False):
             raise Exception(response["message"])
         return response['result']
@@ -57,14 +60,10 @@ class WebLabDeustoClient(object):
         return self._call(self.baseurl + self.CORE_SUFFIX, method, user_agent, **kwargs)
 
     def get_cookies(self):
-        return [ cookie for cookie in self.cj if cookie.name in ['weblabsessionid', 'loginweblabsessionid'] ]
+        return { 'weblabsessionid' : self.weblabsessionid }
 
     def set_cookies(self, cookies):
-        for cookie in cookies:
-            self.cj.set_cookie(cookie)
-
-    def set_cookie(self, cookie):
-        self.cj.set_cookie(cookie)
+        self.weblabsessionid = cookies['weblabsessionid']
 
     def login(self, username, password):
         session_holder = self._login_call('login', username=username, password=password)
@@ -84,6 +83,42 @@ class WebLabDeustoClient(object):
                         consumer_data=consumer_data)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
+
+    def logout(self, session_id):
+        serialized_session_id = {'id' : session_id.id}
+        return self._core_call('logout', session_id = serialized_session_id)
+
+    def get_user_information(self, session_id):
+        serialized_session_id     = {'id' : session_id.id}
+        user_information = self._core_call('get_user_information', session_id = serialized_session_id)
+        user = User(user_information['login'], user_information['full_name'], user_information['email'], user_information['role']['name'])
+        user.remainder = user_information
+        return user
+
+    def list_experiments(self, session_id):
+        serialized_session_id     = {'id' : session_id.id}
+        experiment_list = self._core_call('list_experiments', session_id = serialized_session_id)
+        experiments = []
+        for external_experiment in experiment_list:
+            category = ExperimentCategory(external_experiment['experiment']['category']['name'])
+            # 2012-04-10T15:22:38
+            start_date = datetime.datetime.strptime(external_experiment['experiment']['start_date'], "%Y-%m-%dT%H:%M:%S")
+            end_date   = datetime.datetime.strptime(external_experiment['experiment']['end_date'], "%Y-%m-%dT%H:%M:%S")
+            if 'client' in external_experiment['experiment']:
+                client = ExperimentClient(external_experiment['experiment']['client'], {})
+            else:
+                client = None
+            if 'permission_id' in external_experiment:
+                permission_id = external_experiment['permission_id']
+                permission_scope = external_experiment['permission_scope']
+            else:
+                permission_id = None
+                permission_scope = None
+
+            exp = Experiment(name = external_experiment['experiment']['name'], category = category, start_date = start_date, end_date = end_date, client = client)
+            exp_allowed = ExperimentAllowed(exp, time_allowed = external_experiment['time_allowed'], priority = external_experiment['priority'], initialization_in_accounting = external_experiment['initialization_in_accounting'], permanent_id = external_experiment['permanent_id'], permission_id = permission_id, permission_scope = permission_scope)
+            experiments.append(exp_allowed)
+        return experiments
 
     def get_experiment_use_by_id(self, session_id, reservation_id):
         serialized_session_id     = {'id' : session_id.id}
@@ -112,11 +147,37 @@ class WebLabDeustoClient(object):
         response_command = self._core_call('send_command', reservation_id = serialized_reservation_id, command = serialized_command)
         return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
 
+    def send_async_command(self, reservation_id, command):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        serialized_command = { 'commandstring' : command.commandstring }
+        request_id = self._core_call('send_async_command', reservation_id = serialized_reservation_id, command = serialized_command)
+        return request_id
+
+    def send_file(self, reservation_id, file_content, file_info):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response_command = self._core_call('send_file', reservation_id = serialized_reservation_id, file_content = file_content, file_info = file_info)
+        return Command(response_command['commandstring'] if 'commandstring' in response_command and response_command['commandstring'] is not None else NullCommand())
+
+    def send_async_file(self, reservation_id, file_content, file_info):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        request_id = self._core_call('send_async_file', reservation_id = serialized_reservation_id, file_content = file_content, file_info = file_info)
+        return request_id
+
+    def check_async_command_status(self, reservation_id, request_identifiers):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response = self._core_call('check_async_command_status', reservation_id = serialized_reservation_id, request_identifiers = request_identifiers)
+        return response
+
     def get_reservation_status(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
         reservation_holder = self._core_call('get_reservation_status',reservation_id=serialized_reservation_id)
         reservation = self._parse_reservation_holder(reservation_holder)
         return reservation
+
+    def poll(self, reservation_id):
+        serialized_reservation_id = {'id' : reservation_id.id}
+        response = self._core_call('poll',reservation_id=serialized_reservation_id)
+        return response
 
     def finished_experiment(self, reservation_id):
         serialized_reservation_id = {'id' : reservation_id.id}
@@ -146,7 +207,10 @@ class WebLabDeustoClient(object):
         experiment_id = ExperimentId(experiment_use['experiment_id']['exp_name'], experiment_use['experiment_id']['cat_name'])
 
         addr = experiment_use['coord_address']
-        coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
+        if 'machine_id' in addr:
+            coord_address = CoordAddress(addr['machine_id'],addr['instance_id'],addr['server_id'])
+        else:
+            coord_address = CoordAddress(addr['host'],addr['process'],addr['component'])
 
         use = ExperimentUsage(experiment_use['experiment_use_id'], experiment_use['start_date'], experiment_use['end_date'], experiment_use['from_ip'], experiment_id, experiment_use['reservation_id'], coord_address, experiment_use['request_info'])
         for sent_file in experiment_use['sent_files']:

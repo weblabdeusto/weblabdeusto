@@ -73,22 +73,28 @@ _sorted_variables.extend([
 DATABASE = (COMMON, 'Database')
 DESCRIPTIONS[DATABASE] = """The database configuration applies to the Core Server and the Login Server (which both connect to the same database)."""
 
-DB_HOST                         = 'db_host'
-DB_PORT                         = 'db_port'
-DB_DATABASE                     = 'db_database'
-DB_ENGINE                       = 'db_engine'
-WEBLAB_DB_USERNAME              = 'weblab_db_username'
-WEBLAB_DB_PASSWORD              = 'weblab_db_password'
-WEBLAB_DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
+DB_HOST                  = 'db_host'
+DB_PORT                  = 'db_port'
+DB_DATABASE              = 'db_database'
+DB_ENGINE                = 'db_engine'
+DB_ECHO                  = 'db_echo'
+DB_POOL_SIZE             = 'db_pool_size'
+DB_MAX_OVERFLOW          = 'db_max_overflow'
+DB_USERNAME              = 'weblab_db_username'
+DB_PASSWORD              = 'weblab_db_password'
+DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
 
 _sorted_variables.extend([
-    (DB_HOST,                         _Argument(DATABASE, basestring,  'localhost', "Location of the database server")),
-    (DB_PORT,                         _Argument(DATABASE, int,  None,        "Port where the database is listening, if any")),
-    (DB_DATABASE,                     _Argument(DATABASE, basestring,  'WebLab',    "Name of the main database")),
-    (DB_ENGINE,                       _Argument(DATABASE, basestring,  'mysql',     "Engine used. Example: mysql, sqlite")),
-    (WEBLAB_DB_USERNAME,              _Argument(DATABASE, basestring,  "weblab",    "WebLab database username")),
-    (WEBLAB_DB_PASSWORD,              _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
-    (WEBLAB_DB_FORCE_ENGINE_CREATION, _Argument(DATABASE, bool, False,       "Force the creation of an engine each time")),
+    (DB_HOST,                         _Argument(DATABASE, basestring, 'localhost',  "Location of the database server")),
+    (DB_PORT,                         _Argument(DATABASE, int,               None,  "Port where the database is listening, if any")),
+    (DB_DATABASE,                     _Argument(DATABASE, basestring,    'WebLab',  "Name of the main database")),
+    (DB_ENGINE,                       _Argument(DATABASE, basestring,     'mysql',  "Engine used. Example: mysql, sqlite")),
+    (DB_ECHO,                         _Argument(DATABASE, bool,             False,  "Display in stdout all the SQL sentences")),
+    (DB_POOL_SIZE,                    _Argument(DATABASE, int,                  5,  "Maximum number of spare connections to the database.")),
+    (DB_MAX_OVERFLOW,                 _Argument(DATABASE, int,                 35,  "Maximum number of connections to the database.")),
+    (DB_USERNAME,                     _Argument(DATABASE, basestring,    "weblab",  "WebLab database username")),
+    (DB_PASSWORD,                     _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
+    (DB_FORCE_ENGINE_CREATION,        _Argument(DATABASE, bool,             False,  "Force the creation of an engine each time")),
 ])
 
 # 
@@ -188,13 +194,14 @@ CORE_FACADE = (CORE_SERVER, 'Facade')
 DESCRIPTIONS[CORE_FACADE] = """Here you can customize the general web services consumed by the clients. Stuff like which ports will be used, etc."""
 
 CORE_FACADE_SERVER_ROUTE            = 'core_facade_server_route'
-CORE_FACADE_JSON_BIND               = 'core_facade_json_bind'
-CORE_FACADE_JSON_PORT               = 'core_facade_json_port'
+
+CORE_FACADE_BIND                    = 'core_facade_bind'
+CORE_FACADE_PORT                    = 'core_facade_port'
 
 _sorted_variables.extend([
     (CORE_FACADE_SERVER_ROUTE,            _Argument(CORE_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (CORE_FACADE_JSON_BIND,               _Argument(CORE_FACADE, basestring, '',                        """Binding address for the JSON facade at Core Server""")),
-    (CORE_FACADE_JSON_PORT,               _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the JSON facade at Core Server""")),
+    (CORE_FACADE_BIND,                    _Argument(CORE_FACADE, basestring, '',                 """Binding address for the main facade at Core server""")), 
+    (CORE_FACADE_PORT,                    _Argument(CORE_FACADE, int, NO_DEFAULT,                """Binding address for the main facade at Core Server""")),
 ])
 
 # 
@@ -245,14 +252,10 @@ DESCRIPTIONS[LOGIN_FACADE] = """The login facade configuration variables are use
 
 LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
 LOGIN_FACADE_SERVER_ROUTE            = 'login_facade_server_route'
-LOGIN_FACADE_JSON_BIND               = 'login_facade_json_bind'
-LOGIN_FACADE_JSON_PORT               = 'login_facade_json_port'
 
 _sorted_variables.extend([
     (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
     (LOGIN_FACADE_SERVER_ROUTE,            _Argument(LOGIN_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-    (LOGIN_FACADE_JSON_BIND,               _Argument(LOGIN_FACADE, basestring, "", """Binding address for the JSON facade at Login Server""")), 
-    (LOGIN_FACADE_JSON_PORT,               _Argument(LOGIN_FACADE, int, NO_DEFAULT, """Port number for the JSON facade at Login Server""")), 
 ])
 
 

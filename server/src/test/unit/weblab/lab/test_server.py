@@ -19,10 +19,9 @@ import unittest
 
 import weblab.data.command as Command
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
-import voodoo.gen.locator.EasyLocator as EasyLocator
+from voodoo.gen import CoordAddress
 
-import voodoo.gen.exceptions.protocols.ProtocolErrors as ProtocolErrors
+from voodoo.gen.exc import InternalCommunicationError
 
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
@@ -76,10 +75,7 @@ class LaboratoryServerLoadingTestCase(unittest.TestCase):
         self.cfg_manager = ConfigurationManager.ConfigurationManager()
         self.cfg_manager.append_module(configuration_module)
 
-        self.locator        = EasyLocator.EasyLocator(
-                    CoordAddress.CoordAddress('mach','inst','serv'),
-                    FakeLocator((FakeClient(),))
-                )
+        self.locator = FakeLocator(FakeClient())
 
         self.experiment_instance_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
 
@@ -139,15 +135,12 @@ class LaboratoryServerManagementTestCase(unittest.TestCase):
         self.cfg_manager.append_module(configuration_module)
 
         self.fake_client  = FakeClient()
-        self.fake_locator = FakeLocator((self.fake_client, ))
-        self.locator        = EasyLocator.EasyLocator(
-                    CoordAddress.CoordAddress('mach','inst','serv'),
-                    self.fake_locator
-                )
+        self.fake_locator = FakeLocator(self.fake_client)
+        self.locator      = self.fake_locator
 
         self.experiment_instance_id     = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
         self.experiment_instance_id_old = ExperimentInstanceId("exp_inst","exp_name","exp_cat2")
-        self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
+        self.experiment_coord_address = CoordAddress.translate('myserver:myinstance@mymachine')
 
         self.cfg_manager._set_value('laboratory_assigned_experiments',
                             { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver:myinstance@mymachine',
@@ -348,14 +341,11 @@ class LaboratoryServerSendingTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration_module)
 
         self.fake_client  = FakeClient()
-        self.fake_locator = FakeLocator((self.fake_client,))
-        locator = EasyLocator.EasyLocator(
-                    CoordAddress.CoordAddress('mach','inst','serv'),
-                    self.fake_locator
-                  )
+        self.fake_locator = FakeLocator(self.fake_client)
+        locator = self.fake_locator
 
         self.experiment_instance_id = ExperimentInstanceId("exp_inst","exp_name","exp_cat")
-        self.experiment_coord_address = CoordAddress.CoordAddress.translate_address('myserver:myinstance@mymachine')
+        self.experiment_coord_address = CoordAddress.translate('myserver:myinstance@mymachine')
 
         cfg_manager._set_value('laboratory_assigned_experiments',
                         { 'exp_inst:exp_name@exp_cat': { 'coord_address': 'myserver1:myinstance@mymachine',
@@ -578,19 +568,14 @@ class FakeLocator(object):
         self.clients = clients
         self.fail_on_server_request = None
 
-    def retrieve_methods(self, server_type):
-        return weblab_methods.Experiment
-
-    def get_server_from_coord_address(self, coord_address, client_coord_address, server_type, restrictions):
+    def __getitem__(self, coord_address):
         if self.fail_on_server_request is None:
             return self.clients
         raise Exception(self.fail_on_server_request)
 
-    def inform_server_not_working(self, server_not_working, server_type, restrictions_of_server):
-        pass
-
-    def check_server_at_coordaddr(self):
-        pass
+    def check_component(self, coord_addr):
+        if self.fail_on_server_request:
+            raise Exception(self.fail_on_server_request)
 
 ###############################################
 # Fake Client
@@ -639,14 +624,14 @@ class FakeClient(object):
 
     def send_command_to_device(self, command):
         if self.fail:
-            raise ProtocolErrors.RemoteError("lelele","Lalala")
+            raise InternalCommunicationError("lelele","Lalala")
         else:
             self.commands.append(command)
             return self.responses.pop(0)
 
     def send_file_to_device(self, file, file_info):
         if self.fail:
-            raise ProtocolErrors.RemoteError("lelele","Lalala")
+            raise InternalCommunicationError("lelele","Lalala")
         else:
             self.files.append((file, file_info))
             return self.responses.pop(0)

@@ -67,9 +67,7 @@ def weblab():
     main_command = sys.argv[1]
     if main_command == 'create':
         weblab_create(sys.argv[2])
-
-        # This line will not necessarily be called, because weblab_create exits by itself by default.
-        sys.exit(0)
+        return
 
     if main_command == 'start':
         weblab_start(sys.argv[2])

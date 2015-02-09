@@ -15,35 +15,49 @@
 #     sudo apt-get install build-essential python-dev
 # 
 
-# We use 0.7.100 to avoid the 0.8.0betas (which are < 0.8)
-SQLAlchemy<0.7.100
+# We use 0.8.100 to avoid the 0.9.0betas (which are < 0.8)
+SQLAlchemy<0.8.100,>0.8.0
 
+# Flask is used for every HTTP/XML-RPC communication
+Flask==0.10.1
 
-# 
-# SOAPpy is used for communication among different WebLab-Deusto processes.
-# It is not strictly required (other protocols can be used), but it is the
-# one that provides less errors.
-# 
-
-SOAPpy<0.13
+# Flask-SQLAlchemy is used for all the databases
+Flask-SQLAlchemy==0.16
 
 #
 # Limit the version of Flask-WTF to lower than 0.9. There are some
 # WebLab incompatibility issues with higher versions.
 #
-Flask-WTF<0.9
+Flask-WTF==0.9.4
 WTForms<2.0
 
 # 
 # Flask_admin is used for the new administration panel
 # 
-# Flask-Admin>=1.0.4,<1.1
-Flask-Admin==1.0.6
-
-# Flask 0.9 is used
-Flask==0.9
+Flask-Admin==1.0.7
 
 # 
 # alembic is used for upgrading the database from version to version
 # 
 alembic<0.6
+
+# 
+# networkx is used for generating communities and plagiarism detection
+# 
+networkx==1.8.1
+
+# 
+# PyYAML is used for parsing the main configuration file
+# 
+PyYAML==3.11
+
+# 
+# requests is used in all the HTTP communications as a client
+# (both internal communications and external to federated environments)
+# 
+requests==2.5.1
+
+#
+# six is used for starting to support compatibility with Python 3
+# 
+six==1.9.0

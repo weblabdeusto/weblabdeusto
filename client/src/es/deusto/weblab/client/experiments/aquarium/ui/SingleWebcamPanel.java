@@ -35,9 +35,6 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 
 	@UiField(provided=true) WlWebcam webcam;
 	
-	private static final String WEBCAM_REFRESH_TIME_PROPERTY   = "webcam.refresh.millis";
-	private static final int    DEFAULT_WEBCAM_REFRESH_TIME    = 200;
-	
 	private IConfigurationRetriever configurationRetriever;
 	
 	interface SingleWebcamPanelUiBinder extends UiBinder<Widget, SingleWebcamPanel> {
@@ -48,7 +45,7 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 		this.configurationRetriever = configurationRetriever;
 		
 		this.webcam = GWT.create(WlWebcam.class);
-		this.webcam.setTime(getWebcamRefreshingTime());
+		this.webcam.setTime(this.configurationRetriever);
 		initWidget(uiBinder.createAndBindUi(this));
 		
 		parseWebcamConfig(initialConfiguration, camera);
@@ -58,11 +55,6 @@ public class SingleWebcamPanel extends Composite implements IDisposableWidgetsCo
 		this.webcam.start();
 	}
 	
-	private int getWebcamRefreshingTime() {
-		return this.configurationRetriever.getIntProperty(WEBCAM_REFRESH_TIME_PROPERTY, DEFAULT_WEBCAM_REFRESH_TIME);
-	}	
-	
-
 	private void parseWebcamConfig(String initialConfiguration, int camera) {
 		System.out.println("Aquarium: initial config:" + initialConfiguration);
 		final JSONValue initialConfigValue   = JSONParser.parseStrict(initialConfiguration);

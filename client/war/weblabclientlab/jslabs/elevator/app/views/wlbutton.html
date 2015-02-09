@@ -1,0 +1,10 @@
+<style>
+    .elevator-btn {
+        width: 75px
+    }
+</style>
+
+<div class="" style="display: block">
+    <img ng-show="isOn()" class="thumbnail elevator-btn" ng-src="images/button_on.png"/>
+    <img ng-click="press()" ng-show="!isOn()" class="thumbnail elevator-btn" ng-src="images/button_off.png"/>
+</div>

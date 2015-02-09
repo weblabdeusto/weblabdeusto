@@ -16,13 +16,12 @@
 
 import unittest
 import time
-import datetime
 
 import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 import weblab.core.db as DatabaseGateway
 
@@ -30,54 +29,57 @@ from weblab.data.experiments import ExperimentUsage, CommandSent, FileSent
 from weblab.data.experiments import ExperimentId
 import weblab.data.command as Command
 
-import weblab.db.exc as DbErrors
+from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParameterFormatError
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
-        student1 = gateway._get_user(session, 'student1')
+        try:
+            student1 = gateway._get_user(session, 'student1')
 
-        initial_usage = ExperimentUsage()
-        initial_usage.start_date    = time.time()
-        initial_usage.end_date      = time.time()
-        initial_usage.from_ip       = "130.206.138.16"
-        initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        initial_usage.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
-        initial_usage.reservation_id = reservation_id
+            initial_usage = ExperimentUsage()
+            initial_usage.start_date    = time.time()
+            initial_usage.end_date      = time.time()
+            initial_usage.from_ip       = "130.206.138.16"
+            initial_usage.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
+            initial_usage.coord_address = CoordAddress("machine1","instance1","server1")
+            initial_usage.reservation_id = reservation_id
 
-        file1 = FileSent(
-                    'path/to/file1',
-                    '{sha}12345',
-                    time.time()
-            )
+            file1 = FileSent(
+                        'path/to/file1',
+                        '{sha}12345',
+                        time.time()
+                )
 
-        file2 = FileSent(
-                    'path/to/file2',
-                    '{sha}123456',
-                    time.time(),
-                    Command.Command('response'),
-                    time.time(),
-                    file_info = 'program'
-            )
+            file2 = FileSent(
+                        'path/to/file2',
+                        '{sha}123456',
+                        time.time(),
+                        Command.Command('response'),
+                        time.time(),
+                        file_info = 'program'
+                )
 
-        command1 = CommandSent(
-                    Command.Command("your command1"),
-                    time.time()
-            )
+            command1 = CommandSent(
+                        Command.Command("your command1"),
+                        time.time()
+                )
 
-        command2 = CommandSent(
-                    Command.Command("your command2"),
-                    time.time(),
-                    Command.Command("your response2"),
-                    time.time()
-            )
+            command2 = CommandSent(
+                        Command.Command("your command2"),
+                        time.time(),
+                        Command.Command("your response2"),
+                        time.time()
+                )
 
-        initial_usage.append_command(command1)
-        initial_usage.append_command(command2)
-        initial_usage.append_file(file1)
-        initial_usage.append_file(file2)
-        initial_usage.request_info = {'facebook' : False}
-        gateway.store_experiment_usage(student1.login, initial_usage)
-        return student1, initial_usage, command1, command2, file1, file2
+            initial_usage.append_command(command1)
+            initial_usage.append_command(command2)
+            initial_usage.append_file(file1)
+            initial_usage.append_file(file2)
+            initial_usage.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
+            gateway.store_experiment_usage(student1.login, initial_usage)
+            return student1, initial_usage, command1, command2, file1, file2
+        finally:
+            session.close()
 
 class DatabaseGatewayTestCase(unittest.TestCase):
     """Note: Methods tested from UserProcessingServer won't be tested again here."""
@@ -87,10 +89,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         cfg_manager.append_module(configuration)
         self.gateway = DatabaseGateway.create_gateway(cfg_manager)
         self.gateway._delete_all_uses()
+        self.session = self.gateway.Session()
+
+    def tearDown(self):
+        self.session.close()
 
     def test_get_user_by_name(self):
         self.assertRaises(
-            DbErrors.DbProvidedUserNotFoundError,
+            DbProvidedUserNotFoundError,
             self.gateway.get_user_by_name,
             'studentXX'
         )
@@ -155,8 +161,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_add_command(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -166,7 +171,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -177,14 +182,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info = {'facebook' : False}
+        usage1.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -195,7 +200,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info = {'facebook' : False}
+        usage2.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -239,8 +244,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("finish",       full_usage2.commands[1].response.commandstring)
 
     def test_update_command(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
 
@@ -249,9 +253,9 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
-        usage1.request_info = {'facebook' : False}
+        usage1.request_info = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
 
@@ -278,8 +282,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_finish_experiment_usage(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -288,7 +291,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.start_date    = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -299,13 +302,13 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -316,7 +319,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -358,8 +361,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
 
     def test_add_file(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -369,7 +371,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
 
         command1 = CommandSent(
@@ -380,14 +382,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage1.append_command(command1)
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
 
         command2 = CommandSent(
@@ -398,7 +400,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
             )
 
         usage2.append_command(command2)
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -436,8 +438,7 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
 
     def test_update_file(self):
-        session = self.gateway.Session()
-        student1 = self.gateway._get_user(session, 'student1')
+        student1 = self.gateway._get_user(self.session, 'student1')
 
         RESERVATION_ID1 = 'my_reservation_id1'
         RESERVATION_ID2 = 'my_reservation_id2'
@@ -447,18 +448,18 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         usage1.end_date      = time.time()
         usage1.from_ip       = "130.206.138.16"
         usage1.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage1.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage1.coord_address = CoordAddress("machine1","instance1","server1")
         usage1.reservation_id = RESERVATION_ID1
-        usage1.request_info  = {'facebook' : False}
+        usage1.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         usage2 = ExperimentUsage()
         usage2.start_date    = time.time()
         usage2.end_date      = time.time()
         usage2.from_ip       = "130.206.138.17"
         usage2.experiment_id = ExperimentId("ud-dummy","Dummy experiments")
-        usage2.coord_address = CoordAddress.CoordAddress("machine1","instance1","server1") #.translate_address("server1:instance1@machine1")
+        usage2.coord_address = CoordAddress("machine1","instance1","server1")
         usage2.reservation_id = RESERVATION_ID2
-        usage2.request_info  = {'facebook' : False}
+        usage2.request_info  = {'facebook' : False, 'permission_scope' : 'user', 'permission_id' : student1.id}
 
         self.gateway.store_experiment_usage(student1.login, usage1)
         self.gateway.store_experiment_usage(student1.login, usage2)
@@ -506,9 +507,8 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals("response",       full_usage1.sent_files[0].response.commandstring)
 
     def test_gather_permissions(self):
-        session = self.gateway.Session()
-        student2 = self.gateway._get_user(session, "student2")
-        permissions = self.gateway._gather_permissions(session, student2, "experiment_allowed")
+        student2 = self.gateway._get_user(self.session, "student2")
+        permissions = self.gateway._gather_permissions(self.session, student2, "experiment_allowed")
 
         # PLD (User Permissions)
         pld_permissions = [ perm for perm in permissions if perm.get_parameter("experiment_permanent_id").value == "ud-pld"]
@@ -519,11 +519,11 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(first_permission.get_parameter('experiment_permanent_id').value,'ud-pld')
         self.assertEquals(first_permission.get_parameter('experiment_category_id').value, 'PLD experiments')
         self.assertEquals(first_permission.get_parameter('time_allowed').value, '100')
-        self.assertEquals(self.gateway._get_float_parameter_from_permission(session, first_permission, 'time_allowed'), 100.0)
+        self.assertEquals(self.gateway._get_float_parameter_from_permission(self.session, first_permission, 'time_allowed'), 100.0)
         self.assertRaises(
-                DbErrors.InvalidPermissionParameterFormatError,
+                InvalidPermissionParameterFormatError,
                 self.gateway._get_float_parameter_from_permission,
-                session,
+                self.session,
                 first_permission,
                 'experiment_permanent_id'
             )
@@ -561,34 +561,6 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertEquals(fpga_permission.get_permission_type(), 'experiment_allowed')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_name(), 'experiment_permanent_id')
         self.assertEquals(fpga_permission.get_parameter('experiment_permanent_id').get_datatype(), 'string')
-
-        experiments = self.gateway.get_experiments(student2.login)
-        self.assertEquals(len(experiments), 0)
-
-    def test_get_experiment_uses(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = datetime.datetime.utcnow()
-        to_date = datetime.datetime.utcnow()
-        group_id = 1
-        experiment_id = 1
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '8', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
-    def test_get_experiment_uses_with_null_params(self):
-        student2 = self.gateway.get_user_by_name('student2')
-        from_date = None
-        to_date = None
-        group_id = None
-        experiment_id = None
-
-        self.gateway._insert_user_used_experiment("student2", "ud-fpga", "FPGA experiments", time.time(), "unknown", "fpga:process1@scabb", '5', time.time())
-
-        experiment_uses = self.gateway.get_experiment_uses(student2.login, from_date, to_date, group_id, experiment_id)
-        self.assertEquals(len(experiment_uses), 0)
-
 
 def suite():
     return unittest.makeSuite(DatabaseGatewayTestCase)
