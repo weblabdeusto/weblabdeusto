@@ -25,9 +25,12 @@ import threading
 
 import requests
 
+from voodoo.process_starter import clean_created
+import weblab.comm.proxy_server as proxy_server
 from weblab.admin.script import weblab as weblab_admin
 from test.util.ports import new as new_port
-from voodoo.process_starter import clean_created
+
+
 
 def connect(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,6 +41,7 @@ def connect(port):
 class ServerCreator(threading.Thread):
     def __init__(self, command = "", port_space = 10, startup_wait = 0.2):
         super(ServerCreator, self).__init__()
+        proxy_server.QUIET = True
         self.startup_wait = startup_wait
         self.temporary_folder = tempfile.mkdtemp(prefix = 'remove_me_', suffix = '_testcase_script')
         self.weblab_dir = os.path.join(self.temporary_folder, 'weblab')
@@ -99,4 +103,5 @@ class ServerCreator(threading.Thread):
             raise AssertionError("Process should be dead by now")
         if self.exc_info is not None:
             raise AssertionError("Process failed: %s" % self.exc_info)
+        proxy_server.QUIET = False
 
