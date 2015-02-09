@@ -70,16 +70,16 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
     return db_name
 
 
-def destroy_db(root_username, root_password, db_name):
+def destroy_db(wcloud_creator_username, wcloud_creator_password, db_name):
     """
     Destroys the specified database.
 
-    @param root_username: MySQL root username to use.
-    @param root_password: MySQL root password to use.
+    @param wcloud_creator_username: MySQL username to use.
+    @param wcloud_creator_password: MySQL password to use.
     @param db_name: Name of the database to destroy.
     """
-    engine = connect(root_username, root_password)
-    engine.execute("DROP DATABASE %s" % db_name)
+    engine = connect(wcloud_creator_username, wcloud_creator_password)
+    engine.execute("DROP DATABASE if exists %s" % db_name)
 
     return True
 

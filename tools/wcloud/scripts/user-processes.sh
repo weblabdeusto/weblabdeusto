@@ -8,7 +8,7 @@ source config.sh
 sleep 2 # Wait until Redis servers are loaded before starting WebLab-Deusto instances
 
 echo -n "Starting taskmanager..."
-nohup scripts/taskmanager_worker.sh > nohup_taskmanager 2>&1 &
+nohup scripts/create_worker.sh > nohup_create 2>&1 &
 echo "Look at nohup_taskmanager"
 
 echo -n "Starting starter..."

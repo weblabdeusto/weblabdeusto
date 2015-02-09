@@ -30,6 +30,7 @@ of the deployment.
 
 import os
 import time
+import shutil
 import traceback
 import urllib2
 import sys
@@ -43,13 +44,29 @@ from wcloud import app, db
 from wcloud.actions import db_actions, redis_actions
 from wcloud.models import User, Entity
 from wcloud.tasks.celery_app import celery_app
+from wcloud.tasks.admin_tasks import apache_reload
+from wcloud.tasks.starter_tasks import start_weblab, stop_weblab
 
 from weblab.admin.script import weblab_create, Creation
 
 # TODO: Currently "models" is trying to load the "wcloud" database. A way to override that
 # session when in tests would be very useful.
 
-def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_password, admin_email, wcloud_settings):
+def rollback_prepare_system(wcloud_user_email):
+    user = db.session.query(User).filter_by(email=wcloud_user_email).first()
+    try:
+        db_name = db_actions.destroy_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloud_%s" % user.entity.base_url)
+    except:
+        traceback.print_exc()
+    
+    try:
+        user.entity.db_name = None
+        db.session.add(user.entity)
+        db.session.commit()
+    except:
+        traceback.print_exc()
+
+def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, admin_email):
     """
     Prepare the system. Ports and databases are assigned.
 
@@ -60,7 +77,6 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     @param wcloud_settings: Dictionary containing settings. Those will override both the default_settings and the ones
     declared through the WCLOUD_SETTINGS environment variable.
     """
-    #self.update_state(state="PROGRESS", meta={"action": "Preparing system"})
 
     # Get the wcloud user.
     user = db.session.query(User).filter_by(email=wcloud_user_email).first()
@@ -140,8 +156,10 @@ def prepare_system(self, wcloud_user_email, admin_user, admin_name, admin_passwo
     settings[Creation.ENTITY_LINK] = user.entity.link_url
     return settings
 
+def rollback_create_weblab_environment(directory):
+    shutil.rmtree(directory)
 
-def create_weblab_environment(self, directory, settings):
+def create_weblab_environment(directory, settings):
     """
     2. Create the full WebLab-Deusto environment.
 
@@ -150,8 +168,6 @@ def create_weblab_environment(self, directory, settings):
     @return: Results of the Weblab creation process. They may be required to take further action, such as
     adding the new instance to the Web Server configuration.
     """
-
-    #self.update_state(state="PROGRESS", meta={"action": "Creating deployment directory"})
 
     output = StringIO()
     command_output = StringIO()
@@ -175,116 +191,83 @@ def create_weblab_environment(self, directory, settings):
     return results
 
 
-def configure_web_server(self, creation_results):
+def rollback_configure_web_server(creation_results):
+    try:
+        apache_filename = os.path.join(app.config['DIR_BASE'], app.config['APACHE_CONF_NAME'])
+        new_line = 'Include "%s"\n' % creation_results['apache_file']
+        lines = [ line for line in open(apache_filename) if line != new_line ]
+        new_contents = ''.join(lines)
+        open(apache_filename, 'w').write(new_contents)
+    except:
+        traceback.print_exc()
+
+def configure_web_server(creation_results):
     """
     3. Configures the Apache web server. (Adds a new, specific .conf to the Apache configuration files, so that
     the new Weblab-Deusto instance is run appropriately).
-
-    REQUIREMENT: For this to work, the Apache Reloader script must be listening for requests on the
-    APACHER_RELOADER_PORT, which is 1662 by default.
     """
 
     ##########################################################
     #
     # 3. Configure the web server
     #
-    #self.update_state(state="PROGRESS", meta={"action": "Configuring Web Server"})
 
     # Create Apache configuration
-    with open(os.path.join(app.config['DIR_BASE'], app.config['APACHE_CONF_NAME'], 'a') as f:
+    with open(os.path.join(app.config['DIR_BASE'], app.config['APACHE_CONF_NAME']), 'a') as f:
         conf_dir = creation_results['apache_file']
         f.write('Include "%s"\n' % conf_dir)
 
     # Reload apache
-    opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-    print(opener.open('http://127.0.0.1:%s/' % app.config['APACHE_RELOADER_PORT']).read())
+    apache_reload.delay().get()
 
 
-def weblab_starter_running():
-    try:
-        url = 'http://127.0.0.1:%s' % app.config['WEBLAB_STARTER_PORT']
-        req = urllib2.Request(url)
-        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-        response = opener.open(req).read()
-        return True
-    except:
-        return False
+def rollback_register_and_start_instance(directory):
+    stop_weblab(directory)
 
-
-def register_and_start_instance(self, wcloud_user_email, explicit_wcloud_settings):
+def register_and_start_instance(wcloud_user_email, directory):
     """
     Registers and starts the new WebLab-Deusto instance.
     This might take a while.
 
-    REQUIREMENTS: The WebLab Starter must be running on WEBLAB_STARTER_PORT
-    as defined in the configuration files. By defualt, this port is 1663.
+    REQUIREMENTS: The WebLab Starter must be running on Celery
 
     @param wcloud_user_email: The email of the wcloud user whose instance we are deploying.
     """
-    #self.update_state(state="PROGRESS", meta={"action": "Registering and Starting the new Weblab Instance"})
-
     print "[DBG]: ON REGISTER AND START INSTANCE"
-
-    # Override the items in the config that are contained in the explicit_wcloud_settings dictionary.
-    flask_app.config.update(explicit_wcloud_settings)
 
     try:
         # Get the wcloud entity.
         user = db.session.query(User).filter_by(email=wcloud_user_email).first()
         entity = user.entity
-
-        if entity is None:
-            result = "[register_and_start_instance]: ERROR: Could not retrieve entity from the database %s" % app.config["DB_NAME"]
-            sys.stderr.write(result)
-            raise Exception(result)
     except:
         sys.stderr.write(
             "[register_and_start_instance]: ERROR: Recovering wcloud user from DB. DB_NAME: %s" % flask_app.config[
                 "DB_NAME"])
+        raise
 
-    global response
-    import urllib2
-    import traceback
+    if entity is None:
+        result = "[register_and_start_instance]: ERROR: Could not retrieve entity from the database %s" % app.config["DB_NAME"]
+        sys.stderr.write(result)
+        raise Exception(result)
+    
+    start_weblab.delay(directory, True).get()
+    
 
-    response = None
-    is_error = False
+def rollback_finish_deployment(wcloud_user_email):
+    user = db.session.query(User).filter_by(email=wcloud_user_email).first()
+    if user is not None:
+        user.entity.start_port_number = None
+        user.entity.end_port_number = None
+        db.session.add(user.entity)
+        db.session.commit()
 
-    # Verify that the Weblab Starter seems to be running
-    starter_running = weblab_starter_running()
-    if not starter_running:
-        print "Apparently the WebLab starter is not running."
-        is_error = True
-        response = "Apparently the WebLab starter is not running."
-
-    try:
-        url = 'http://127.0.0.1:%s/deployments/' % flask_app.config['WEBLAB_STARTER_PORT']
-        req = urllib2.Request(url, json.dumps({'name': entity.base_url}), {'Content-Type': 'application/json'})
-        opener = urllib2.build_opener(urllib2.ProxyHandler({}))
-        response = opener.open(req).read()
-    except:
-        is_error = True
-        reason = traceback.format_exc()
-        response = "There was an error registering or starting the service. Contact the administrator: %s" % reason
-        traceback.print_exc()
-
-    print "Ended. is_error=%s; response=%s" % (is_error, response)
-
-    if is_error:
-        raise Exception(response)
-
-
-def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, wcloud_settings):
+def finish_deployment(wcloud_user_email, start_port, end_port):
     """
     Finishes the deployment, marks the entity as deployed and
     configures the response.
     """
-    #self.update_state(state="PROGRESS", meta={"action": "Finishing the deployment."})
-
     # Get the wcloud entity.
     user = db.session.query(User).filter_by(email=wcloud_user_email).first()
-    entity = user.entity
-
-    url = settings[Creation.SERVER_HOST] + "/" + entity.base_url
 
     # Save in database data like last port
     # Note: this is thread-safe since the task manager is
@@ -293,10 +276,10 @@ def finish_deployment(self, wcloud_user_email, settings, start_port, end_port, w
     user.entity.end_port_number = end_port
 
     # Save
-    db.session.add(user)
+    db.session.add(user.entity)
     db.session.commit()
 
-def deploy_weblab_instance(self):
+def deploy_weblab_instance():
     """
     TODO: This method should probably be removed once the taskmanager invokes the methods by itself.
 

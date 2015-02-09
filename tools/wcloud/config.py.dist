@@ -26,7 +26,8 @@ APACHE_CONF_NAME = 'apache.conf'
 MIN_PORT = 14000
 
 DEBUG = True
-SECRET_KEY = os.urandom(32)
+# SECRET_KEY = os.urandom(32)
+SECRET_KEY = 'DONT USE THIS IN PRODUCTION!!!'
 
 ADMIN_MAIL = 'weblab@deusto.es'
 

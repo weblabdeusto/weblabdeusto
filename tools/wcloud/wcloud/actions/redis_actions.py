@@ -4,6 +4,7 @@ from redis.exceptions import ConnectionError
 import redis
 
 from wcloud.tasks.celery_app import celery_app
+from wcloud.tasks.starter_tasks import start_redis
 
 
 class AlreadyDeployedException(Exception):
@@ -82,7 +83,7 @@ def check_redis_deployment(redis_env_folder, port):
         r.ping()
     except ConnectionError:
         # The server seems to be down, we start it.
-        os.system("redis-server %s" % os.path.join(redis_env_folder, "redis_%d.conf" % port))
+        start_redis.delay(redis_env_folder, "redis_%d.conf" % port, port).get()
         started_by_us = True
 
     r = redis.StrictRedis(host="127.0.0.1", port=port, db=0)

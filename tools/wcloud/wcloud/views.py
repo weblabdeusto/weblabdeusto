@@ -34,7 +34,7 @@ from wcloud.flaskapp import db, app
 from wcloud import utils
 from wcloud.forms import RegistrationForm, LoginForm, ConfigurationForm, DisabledConfigurationForm, DeployForm
 from wcloud.models import User, Token, Entity
-from wcloud.taskmanager import TaskManager
+from wcloud.tasks.create import deploy_weblab_instance
 
 SESSION_TYPE = 'labdeployer_admin'
 
@@ -137,7 +137,7 @@ def register():
         password = form.password.data
 
         # Create user
-        user = User(email, hashlib.sha1(password).hexdigest(), full_name)
+        user = User(email, unicode(hashlib.sha1(password).hexdigest()), full_name)
         user.active = False
 
         mail_confirmation = app.config["MAIL_CONFIRMATION_ENABLED"]
@@ -278,10 +278,10 @@ def configure():
         # Exract data from the form
         logo = request.files['logo']
         logo_data = logo.stream.read()
-        logo_ext = (logo.name or '').split('.')[-1]
+        logo_ext = (logo.name or u'').split('.')[-1]
         if len(logo_ext) not in (3, 4):
             # That's not an extension
-            logo_ext = 'jpeg'
+            logo_ext = u'jpeg'
         name = form.name.data
         base_url = form.base_url.data
         link_url = form.link_url.data
@@ -431,25 +431,8 @@ def deploy():
 
         directory = os.path.join(app.config['DIR_BASE'], entity.base_url)
 
-        task = {'directory': directory,
-                'email': email,
-                'admin_user': admin_user,
-                'admin_name': admin_name,
-                'admin_email': admin_email,
-                'admin_password': admin_password,
-                'url_root': base_url}
-
-        task_json = json.dumps(task)
-
-        url = "http://127.0.0.1:%s/task/" % app.config['TASK_MANAGER_PORT']
-        req = urllib2.Request(url,
-                              task_json,
-                              {'Content-Type': 'application/json',
-                               'Content-Length': len(task_json)})
-        f = opener.open(req)
-        response = f.read()
-        f.close()
-        return redirect(url_for('result', deploy_id=response))
+        result = deploy_weblab_instance.delay(directory, email, admin_user, admin_name, admin_email, admin_password, base_url)
+        return redirect(url_for('result', deploy_id=result.task_id))
 
     return render_template('deploy.html', form=form, enabled=enabled, url=base_url + entity.base_url)
 
@@ -457,15 +440,10 @@ def deploy():
 @app.route('/dashboard/deploy/result/<deploy_id>')
 @login_required
 def result(deploy_id):
-    try:
-        url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
-        req = urllib2.Request(url)
-        f = opener.open(req)
-        response = f.read()
-        f.close()
-    except Exception as e:
-        flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
-        return render_template('result.html', stdout='Not available')
+    result = deploy_weblab_instance.AsyncResult(deploy_id)
+
+    # TODO: check that the current user has permission
+    # TODO: Do soething with this result!!!
 
     loop = True
     response = json.loads(response)
@@ -484,15 +462,9 @@ def result(deploy_id):
 @app.route('/dashboard/deploy/ready/<deploy_id>')
 @login_required
 def result_ready(deploy_id):
-    try:
-        url = "http://127.0.0.1:%s/task/%s/" % (app.config['TASK_MANAGER_PORT'], deploy_id)
-        req = urllib2.Request(url)
-        f = opener.open(req)
-        response = f.read()
-        f.close()
-    except Exception as e:
-        flash(u"Error retrieving data from task manager: %s" % unicode(e), 'error')
-        return render_template('result.html', stdout='Not available')
+    result = deploy_weblab_instance.AsyncResult(deploy_id)
+    # TODO: check that the current user has permission
+    # TODO: Do soething with this result!!!
 
     response = json.loads(response)
     if response.get('status') != TaskManager.STATUS_FINISHED:
