@@ -46,9 +46,6 @@ from wcloud.actions import db_actions, redis_actions
 
 from weblab.admin.script import weblab_create, Creation
 
-from wcloud import deploymentsettings
-# import deploymentsettings
-
 from wcloud.models import User, Entity
 from wcloud.tasks.celery_app import celery_app
 

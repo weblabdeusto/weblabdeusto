@@ -17,7 +17,8 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError, RecaptchaField
+from flask.ext.wtf import Form, RecaptchaField
+from wtforms import BooleanField, TextField, PasswordField, FileField, validators, ValidationError
 
 from flask.ext.uploads import UploadSet, IMAGES
 
@@ -79,7 +80,8 @@ images = UploadSet("images", IMAGES)
 
 class ConfigurationForm(Form):
     name = TextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: My institution")
-    logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
+    # logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
+    logo = FileField('Institution logo', validators=[])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')], 
