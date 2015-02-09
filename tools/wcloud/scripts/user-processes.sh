@@ -3,17 +3,7 @@
 pwd
 source config.sh
 
-export WCLOUD_REDIS=/home/weblab/redis_env
-
 # The WCLOUD dir is generally the one this script is called from.
-WCLOUD_DIR=$(pwd)
-
-# This is done in production but I temporarily disable it for testing.
-#cd ${WCLOUD_REDIS}
-#./launch.sh
-
-cd $WCLOUD_DIR
-
 
 sleep 2 # Wait until Redis servers are loaded before starting WebLab-Deusto instances
 
