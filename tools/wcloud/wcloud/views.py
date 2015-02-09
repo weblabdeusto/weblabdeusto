@@ -450,10 +450,12 @@ def result(deploy_id):
         loop = False
         flash("Deployment failed. Contact the administrator")
 
-    if result.result:
-        output = result.result.get('output', 'No output yet')
-    else:
+    if result.result is None:
         output = 'Pending job...'
+    elif isinstance(result.result, Exception):
+        output = result.result.args[0]
+    else:
+        output = result.result.get('output', 'No output yet')
 
     return render_template('result.html',
                            status=result.status,
@@ -471,10 +473,12 @@ def result_ready(deploy_id):
     if result.status != 'SUCCESS':
         return redirect(url_for('result', deploy_id=deploy_id))
 
-    if result.result:
-        output = result.result.get('output', 'No output yet')
-    else:
+    if result.result is None:
         output = 'Pending job...'
+    elif isinstance(result.result, Exception):
+        output = result.result.args[0]
+    else:
+        output = result.result.get('output', 'No output yet')
 
     return render_template('result-ready.html',
                            status=result.status,

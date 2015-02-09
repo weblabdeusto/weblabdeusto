@@ -157,7 +157,8 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     return settings
 
 def rollback_create_weblab_environment(directory):
-    shutil.rmtree(directory)
+    if os.path.exists(directory):
+        shutil.rmtree(directory)
 
 def create_weblab_environment(directory, settings):
     """

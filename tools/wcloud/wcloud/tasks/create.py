@@ -37,9 +37,9 @@ def _store_progress(task, result, output, step):
 class TransactionProcessor(object):
     def __init__(self, task, result, output):
         self.rollback_functions = []
-        self.task = self.task 
-        self.result = self.result
-        self.output = self.output
+        self.task = task 
+        self.result = result
+        self.output = output
         self.message = ""
         self.step = 0
  
@@ -73,7 +73,7 @@ class TransactionProcessor(object):
             _store_progress(self.task, self.result, self.output, self.step)
         self.step += 1
 
-@celery_app.task(bind=True, name='deploy_weblab_instance')
+@celery_app.task(bind=True)
 def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin_email, admin_password, base_url):
     """
     Deploys a new WebLab instance with the specified parameters.

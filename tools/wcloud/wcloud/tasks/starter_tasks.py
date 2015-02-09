@@ -5,7 +5,7 @@ import subprocess
 from wcloud import app as flask_app
 from wcloud.tasks.celery_app import celery_app
 
-@celery_app.task(bind=True, name='start_weblab')
+@celery_app.task(bind=True)
 def start_weblab(self, dirname, wait):
     stdout_path = os.path.join(dirname, "stdout.txt")
     stderr_path = os.path.join(dirname, "stderr.txt")
@@ -68,13 +68,15 @@ def stop_weblab(dirname):
     return True
 
 
-@celery_app.task(bind=True, name='start_redis')
+@celery_app.task(bind=True)
 def start_redis(self, directory, config_file, port):
     stdout_path = os.path.join(directory, "stdout_redis_%s.txt" % port)
     stderr_path = os.path.join(directory, "stderr_redis_%s.txt" % port)
 
-    subprocess.Popen(['nohup','redis-server', directory, config_file],
+    process = subprocess.Popen(['nohup','redis-server', os.path.join(directory, config_file)],
                 stdout = open(stdout_path, 'w+', 0),
                 stderr = open(stderr_path, 'w+', 0),
                 stdin  = subprocess.PIPE)
+    time.sleep(2)
 
+    print "redis-server started: %s" % (process.poll() is None)

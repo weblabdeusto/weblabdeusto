@@ -1,6 +1,9 @@
 from celery import Celery
 
-celery_app = Celery("celery_tasks", broker="redis://localhost:6379", backend="redis://localhost:6379")
+celery_app = Celery("celery_tasks", broker="redis://localhost:6379/0", backend='redis')
+# celery_app = Celery("celery_tasks", broker="redis://localhost:6379", backend="redis://localhost:6379")
+# celery_app = Celery("celery_tasks", broker="redis://localhost:6379", backend="redis://localhost:6379")
+# celery_app = Celery("celery_tasks", broker="amqp://", backend='amqp')
 
 celery_app.conf.update(
     CELERY_ROUTES = {
@@ -13,3 +16,4 @@ celery_app.conf.update(
     CELERY_ACCEPT_CONTENT=('json',),
     CELERY_RESULT_SERIALIZER = 'json',
 )
+

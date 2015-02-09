@@ -811,6 +811,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if options[Creation.LOGO_PATH] is not None:
         original_logo_path = options[Creation.LOGO_PATH]
+        print options
+        print options[Creation.LOGO_PATH]
+        print "WTF"
+        print options[Creation.LOGO_PATH] is not None
         if not os.path.exists(original_logo_path):
             print >> stderr, "ERROR: logo path does not exist"
             exit_func(-1)
