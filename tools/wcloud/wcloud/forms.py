@@ -56,7 +56,7 @@ class BaseURLExists(object):
 
 #Forms
 class LoginForm(Form):
-    email = TextField('Email Address', [validators.Length(min=6, max=35),
+    email = TextField('Email Address', [validators.Length(min=5, max=35),
                         validators.Email()])
     password = PasswordField('New Password', [
         validators.Required(),
@@ -65,7 +65,7 @@ class LoginForm(Form):
 
 class RegistrationForm(Form):
     full_name = TextField('Full name', [validators.Length(min=4, max=25)])
-    email = TextField('Email Address', [validators.Length(min=6, max=35),
+    email = TextField('Email Address', [validators.Length(min=5, max=35),
                                 validators.Email(),
                                 UserExists('User already exists')])
     password = PasswordField('New Password', [
