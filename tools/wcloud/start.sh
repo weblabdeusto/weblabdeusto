@@ -11,5 +11,5 @@ nohup ./scripts/admin_worker.sh > nohup_admin_worker &
 
 /etc/init.d/apache2 reload
 
-su $USER_ACCOUNT -c "cd $(pwd) && ./user-processes.sh"
+su $USER_ACCOUNT -c "cd $(pwd) && ./scripts/user-processes.sh"
 
