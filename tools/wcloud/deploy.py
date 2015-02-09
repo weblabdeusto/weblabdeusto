@@ -1,10 +1,12 @@
+import os
 import sys
 import traceback
 from wcloud import db
 
 try:
     db.drop_all()
-    db.create_all()
+    db.session.execute("drop table alembic_version")
+    os.system("alembic upgrade head")
 except:
     traceback.print_exc()
     print >> sys.stderr, ""
