@@ -2,7 +2,7 @@ import os
 import time
 import subprocess
 
-from wcloud import app
+from wcloud import app as flask_app
 from wcloud.tasks.celery_app import celery_app
 
 @celery_app.task(bind=True, name='start_weblab')
@@ -39,7 +39,7 @@ def wait_process(process):
 
     print "Waiting for process to start and stay..."
 
-    time_to_wait = app.config.get("WEBLAB_STARTUP_TIME", 20)
+    time_to_wait = flask_app.config.get("WEBLAB_STARTUP_TIME", 20)
 
     start_time = time.time()
 

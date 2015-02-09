@@ -52,11 +52,13 @@ class TransactionProcessor(object):
  
     def __enter__(self):
         self.output.write(self.message + "... ")
+        print(self.message + "... ")
         _store_progress(self.task, self.result, self.output, self.step)
         return self
  
     def __exit__(self, error_type, error_instance, tb):
         if error_instance is not None:
+            print("[error]\n")
             traceback.print_exc()
             for func, args, kwargs in self.rollback_functions[::-1]:
                 try:
@@ -66,6 +68,7 @@ class TransactionProcessor(object):
             
             raise Exception("Error while %s" % self.message)
         else: 
+            print("[done]\n")
             self.output.write("[done]\n")
             _store_progress(self.task, self.result, self.output, self.step)
         self.step += 1

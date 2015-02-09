@@ -441,21 +441,23 @@ def deploy():
 @login_required
 def result(deploy_id):
     result = deploy_weblab_instance.AsyncResult(deploy_id)
-
     # TODO: check that the current user has permission
-    # TODO: Do soething with this result!!!
 
     loop = True
-    response = json.loads(response)
-    if response.get('status') == TaskManager.STATUS_FINISHED:
+    if result.status == 'SUCCESS':
         return redirect(url_for('result_ready', deploy_id=deploy_id))
-    elif response.get('status') == TaskManager.STATUS_ERROR:
+    elif result.status not in ('PROGRESS', 'PENDING'):
         loop = False
         flash("Deployment failed. Contact the administrator")
 
+    if result.result:
+        output = result.result.get('output', 'No output yet')
+    else:
+        output = 'Pending job...'
+
     return render_template('result.html',
-                           status=response.get('status', 'Task not found'),
-                           stdout=response.get('output', 'Not available'),
+                           status=result.status,
+                           stdout=output,
                            deploy_id=deploy_id, loop=loop)
 
 
@@ -466,13 +468,17 @@ def result_ready(deploy_id):
     # TODO: check that the current user has permission
     # TODO: Do soething with this result!!!
 
-    response = json.loads(response)
-    if response.get('status') != TaskManager.STATUS_FINISHED:
+    if result.status != 'SUCCESS':
         return redirect(url_for('result', deploy_id=deploy_id))
 
+    if result.result:
+        output = result.result.get('output', 'No output yet')
+    else:
+        output = 'Pending job...'
+
     return render_template('result-ready.html',
-                           status=response.get('status', 'Task not found'),
-                           stdout=response.get('output', 'Not available'),
+                           status=result.status,
+                           stdout=output,
                            deploy_id=deploy_id, url=response.get('url', ''))
 
 

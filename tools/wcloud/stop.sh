@@ -7,6 +7,7 @@ fi
 
 killall weblab-admin
 killall python
+killall celery
 killall redis-server
 
 /etc/init.d/apache2 reload

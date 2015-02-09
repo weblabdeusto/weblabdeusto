@@ -7,7 +7,9 @@ if [ $UID != 0 ]; then
     exit -1
 fi
 
-nohup ./scripts/admin_worker.sh > nohup_admin_worker &
+echo "Starting admin worker" | tee -a nohup_admin_worker
+date >> nohup_admin_worker
+nohup ./scripts/admin_worker.sh >> nohup_admin_worker &
 
 /etc/init.d/apache2 reload
 

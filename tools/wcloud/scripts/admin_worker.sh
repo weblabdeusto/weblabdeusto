@@ -6,4 +6,4 @@ if [ $UID != 0 ]; then
     exit -1
 fi
 
-celery -A wcloud.tasks.admin_tasks worker -Q admintasks --loglevel=info
+celery -A wcloud.tasks.admin_tasks worker -Q admintasks --loglevel=DEBUG --concurrency=1
