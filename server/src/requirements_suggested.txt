@@ -2,7 +2,7 @@
 # Pillow (a PIL fork compatible with setuptools) is used to resize 
 # the logo image if necessary, when using weblab-admin create.
 # 
-pillow
+pillow==2.0
 
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 

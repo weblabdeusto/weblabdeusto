@@ -1,14 +1,1 @@
-Flask<0.10
-Flask-sqlalchemy<1
-Flask-WTF<0.9
-Flask-Uploads<0.2
-pillow==2.0
-Flask-admin<1.1
 
-SQLAlchemy==0.8.2
-
-mysql-python<1.3
-
-celery
-
-nose
