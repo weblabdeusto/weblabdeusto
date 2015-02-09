@@ -22,9 +22,9 @@ def create_db(root_username, root_password, base_name, db_username, db_password)
     """
     Task to create a MySQL database upon request, which will be used by a WCLOUD instance.
 
-    Assumes: An user has already been created to grant priviledges to.
+    Assumes: An user has already been created to grant privileges to.
 
-    @param root_username: MySQL root username, or a username for an account with db creation priviledges.
+    @param root_username: MySQL root username, or a username for an account with db creation privileges.
     @param root_password: MySQL root password.
     @param base_name: Base name to give to the new database. If it exists, a unique name will be created,
     normally by appending a number.
