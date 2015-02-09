@@ -21,7 +21,7 @@ from wcloud.flaskapp import app, db
 
 from flask import session, redirect, url_for, request, Markup
 from flask.ext.admin import Admin, AdminIndexView
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask.ext.admin.contrib.sqla import ModelView
 import wcloud.models as models
 
 databases_per_port = app.config['REDIS_DBS_PER_PORT']
