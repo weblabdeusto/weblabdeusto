@@ -1637,9 +1637,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    \n"""
         """    import voodoo.gen.launcher as Launcher\n"""
         """    \n"""
-        """    def before_shutdown():\n"""
-        """        print "Stopping servers..."\n"""
-        """    \n""")
+        """    def before_shutdown():\n""")
+    if options[Creation.QUIET]:
+        launch_script += """        pass\n"""
+    else:
+        launch_script += """        print "Stopping servers..."\n"""
+
+    launch_script += """    \n"""
 
     debugging_ports = []
 
@@ -1755,9 +1759,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """    \n"""
             """    import voodoo.gen.launcher as Launcher\n"""
             """    \n"""
-            """    def before_shutdown():\n"""
+            """    def before_shutdown():\n""")
+        if options[Creation.QUIET]:
+            """        pass\n"""
+        else:
             """        print "Stopping servers..."\n"""
-            """    \n""")
+        xmlrpc_launch_script += """    \n"""
 
         xmlrpc_launch_script += (
         """    launcher = Launcher.HostLauncher(\n"""
