@@ -1,1 +1,1 @@
-
+from .flaskapp import db
