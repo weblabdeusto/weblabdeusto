@@ -3,18 +3,23 @@
 
 {% block body %}
     {% from "macros/_formhelpers.html" import render_field %}
-    <h1>Log in</h1>
-    <br/>
-    <form method="POST" action="{{ url_for('login', next=next) }}" class="form-horizontal">
-      <fieldset>
-            {{ form.hidden_tag() }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.password) }}
-            
-            <div class="form-actions">
-                <input type="submit" value="Log in" class="btn btn-primary">
-            </div>
-        </fieldset>
-    </form>
+    <div class="row">
+        <div class="col col-xs-6 col-xs-offset-2">
+            <h1>Log in</h1>
+            <br/>
+
+            <form method="POST" action="{{ url_for('login', next=next) }}" class="form-horizontal">
+                <fieldset>
+                    {{ form.hidden_tag() }}
+                    {{ render_field(form.email) }}
+                    {{ render_field(form.password) }}
+
+                    <div class="form-actions">
+                        <input type="submit" value="Log in" class="btn btn-primary">
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
 {% endblock body %}
 

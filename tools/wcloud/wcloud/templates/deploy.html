@@ -4,7 +4,7 @@
 {% block body %}
 
     <div class="row">
-        <div class="offset2 span6">
+        <div class="col col-xs-6 col-xs-offset-2">
     
             <h1>Basic configuration</h1>
             <br/>
@@ -19,7 +19,7 @@
                 {{ render_field(form.admin_password) }}
                 {{ render_field(form.admin_email) }}
 
-                <div class="alert alert-error">
+                <div class="alert alert-warning">
                     <strong>Important note:</strong> once you deploy it, you may change the administrator data, but you changing the basic configuration (url, name of institution, logo) requires contacting the administrators. Additionally, take into account that you <strong>can only create one deployment</strong>. If you wish more, contact the administrators.
                 </div>
 
@@ -31,7 +31,7 @@
             </form>
             {% else %}
             
-            <p class="alert">You have already deployed the system, so you can not redeploy it again. You can access it <a href="{{ url }}">here</a>. If you need to change anything, contact the administrator.</p>
+            <p class="alert alert-warning">You have already deployed the system, so you can not redeploy it again. You can access it <a href="{{ url }}">here</a>. If you need to change anything, contact the administrator.</p>
 
             {% endif %}
    
