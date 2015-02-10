@@ -17,7 +17,7 @@ date >> nohup_starter
 nohup scripts/starter_worker.sh >> nohup_starter 2>&1 &
 echo "Look at nohup_starter"
 
-echo -n "Starting weblab starter... " | tee -a nohup_weblab_starter
-date >> nohup_weblab_starter
-nohup python wcloud/weblab_starter.py >> nohup_weblab_starter 2>&1 &
+echo -n "Starting weblab starter... " | tee -a nohup_start_existing_instances
+date >> nohup_start_existing_instances
+nohup scripts/start_existing_instances.sh >> nohup_start_existing_instances 2>&1 &
 echo "Look at nohup_weblabstarter"
