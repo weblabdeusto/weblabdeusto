@@ -12,6 +12,16 @@ DEBUG = True
 
 @celery_app.task(bind=True)
 def start_weblab(self, dirname, wait):
+    """
+    Starts an existing WebLab instance.
+
+    :param dirname: Directory that contains the instance (on which weblab-admin will be invoked). Example: /home/weblab/instances/myinstance
+    :type dirname: str
+
+    :param wait: Time to wait for the instance to start before reporting an error.
+    :type wait: int
+    """
+
     stdout_path = os.path.join(dirname, "stdout.txt")
     stderr_path = os.path.join(dirname, "stderr.txt")
 
@@ -104,6 +114,17 @@ def stop_weblab(dirname):
 
 @celery_app.task(bind=True)
 def start_redis(self, directory, config_file, port):
+    """
+    Starts the specified redis instance.
+
+    :param directory: Directory that contains the files for the instance, including the .conf file that defines it.
+    :param config_file: The name of the configuration file for the instance.
+    :param port: Port that the instance will listen on.
+
+    # TODO: The port parameter should maybe be removed and be read from the configuration file.
+
+    :return:
+    """
     stdout_path = os.path.join(directory, "stdout_redis_%s.txt" % port)
     stderr_path = os.path.join(directory, "stderr_redis_%s.txt" % port)
 
