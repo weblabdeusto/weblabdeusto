@@ -47,15 +47,15 @@
                     <ul class="nav navbar-nav">
                         {% if session.get('logged_in', False) %}
                             <li {% if current_link == 'home' %}class="active"{% endif %}><a
-                                    href="{{ url_for('home') }}">Home</a></li>
+                                    href="{{ url_for('home') }}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
                             <li {% if current_link == 'configure' %}class="active"{% endif %}><a
-                                    href="{{ url_for('configure') }}">Configure</a></li>
+                                    href="{{ url_for('configure') }}"><span class="glyphicon glyphicon-cog"></span> Configure</a></li>
                             <li {% if current_link == 'deploy' %}class="active"{% endif %}><a
-                                    href="{{ url_for('deploy') }}">Deploy</a></li>
+                                    href="{{ url_for('deploy') }}"><span class="glyphicon glyphicon-circle-arrow-down"></span> Deploy</a></li>
 
                             {% if config["DEBUG"] and config["DEBUG_UNDEPLOY_ENABLED"] %}
                                 <li {% if current_link == 'undeploy' %}class="active"{% endif %}><a
-                                        href="{{ url_for('undeploy') }}">Undeploy</a></li>
+                                        href="{{ url_for('undeploy') }}"><span class="glyphicon glyphicon-remove"></span> Undeploy</a></li>
                             {% endif %}
 
                         {% else %}
@@ -88,7 +88,7 @@
                 {% if category == 'success' %}
                     <div class="alert alert-success">
                 {% elif category == 'error' %}
-                    <div class="alert alert-error">
+                    <div class="alert alert-danger">
                 {% endif %}
             <button class="close" data-dismiss="alert">×</button>
             {{ message }}
