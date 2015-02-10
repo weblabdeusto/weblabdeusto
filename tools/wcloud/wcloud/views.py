@@ -448,7 +448,7 @@ def result(deploy_id):
         return redirect(url_for('result_ready', deploy_id=deploy_id))
     elif result.status not in ('PROGRESS', 'PENDING'):
         loop = False
-        flash("Deployment failed. Contact the administrator")
+        flash("Deployment failed. Contact the administrators at <a href='mailto:weblab@deusto.es'>weblab@deusto.es</a>.", "error")
 
     if result.result is None:
         output = 'Pending job...'
