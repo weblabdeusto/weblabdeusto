@@ -220,7 +220,9 @@ def configure_web_server(creation_results):
         f.write('Include "%s"\n' % conf_dir)
 
     # Reload apache
-    apache_reload.delay().get()
+    result = apache_reload.delay()
+    while not result.ready():
+        time.sleep(0.1)
 
 
 def rollback_register_and_start_instance(directory):
@@ -252,7 +254,9 @@ def register_and_start_instance(wcloud_user_email, directory):
         sys.stderr.write(result)
         raise Exception(result)
     
-    start_weblab.delay(directory, True).get()
+    result = start_weblab.delay(directory, True)
+    while not result.ready():
+        time.sleep(0.1)
     
 
 def rollback_finish_deployment(wcloud_user_email):
