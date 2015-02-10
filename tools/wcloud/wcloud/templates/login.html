@@ -11,8 +11,8 @@
             <form method="POST" action="{{ url_for('login', next=next) }}" class="form-horizontal">
                 <fieldset>
                     {{ form.hidden_tag() }}
-                    {{ render_field(form.email) }}
-                    {{ render_field(form.password) }}
+                    {{ render_field(form.email, placeholder="E-mail address") }}
+                    {{ render_field(form.password, placeholder="Password") }}
 
                     <div class="form-actions">
                         <input type="submit" value="Log in" class="btn btn-success">

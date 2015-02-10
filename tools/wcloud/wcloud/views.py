@@ -83,8 +83,7 @@ def login():
 
         #User exists?
         if user is None:
-            form.email.errors = ['Invalid credentials']
-            form.password.errors = ['Invalid credentials']
+            flash("Invalid credentials", "error")
         else:
             #User is active
             if not user.active:
@@ -114,8 +113,7 @@ def login():
 
                 return redirect(url_for('configure'))
             else:
-                form.email.errors = ['Invalid credentials']
-                form.password.errors = ['Invalid credentials']
+                flash("Invalid credentials", "error")
 
     next_url = request.args.get('next')
     return render_template('login.html', form=form, next=next_url)

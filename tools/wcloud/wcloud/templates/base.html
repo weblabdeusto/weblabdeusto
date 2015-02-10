@@ -102,7 +102,7 @@
                     <div class="alert alert-danger">
                 {% endif %}
                 <button class="close" data-dismiss="alert">×</button>
-                {{ message }}
+                {{ message|safe }}
                 </div>
             {% endfor %}
         {% endif %}
