@@ -5,11 +5,14 @@ import glob
 import os
 import re
 
+import wcloud.tasks.starter_tasks
+
+
 # Issue a task for each existing weblab instance
 print "Creating tasks for starting existing weblab instances..."
 instances_dir_base = app.config["DIR_BASE"]
 
-instance_dirs = glob.glob(os.path.join(instances_dir_base, "/*"))
+instance_dirs = glob.glob(os.path.join(instances_dir_base, "*"))
 for instance_dir in instance_dirs:
     starter_tasks.start_weblab.delay(instance_dir, 20)
 
