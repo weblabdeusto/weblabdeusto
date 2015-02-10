@@ -10,7 +10,7 @@ from wcloud.tasks.celery_app import celery_app
 
 DEBUG = True
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name = 'start_weblab')
 def start_weblab(self, dirname, wait):
     """
     Starts an existing WebLab instance.
@@ -112,7 +112,7 @@ def stop_weblab(dirname):
     return True
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name = 'start_redis')
 def start_redis(self, directory, config_file, port):
     """
     Starts the specified redis instance.

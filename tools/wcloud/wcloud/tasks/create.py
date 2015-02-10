@@ -73,7 +73,7 @@ class TransactionProcessor(object):
             _store_progress(self.task, self.result, self.output, self.step)
         self.step += 1
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name = 'deploy_weblab_instance')
 def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin_email, admin_password, base_url):
     """
     Deploys a new WebLab instance with the specified parameters.
