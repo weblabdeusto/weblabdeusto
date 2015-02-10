@@ -22,7 +22,7 @@ def start_weblab(self, dirname, wait):
     if help_process.poll() != 0:
         raise Exception("weblab-admin not installed. Are you running on a development environment?")
 
-    process = subprocess.Popen(['nohup','weblab-admin', 'start', dirname],
+    process = subprocess.Popen(['nohup', 'weblab-admin', 'start', dirname],
                 stdout = open(stdout_path, 'w+', 0),
                 stderr = open(stderr_path, 'w+', 0),
                 stdin  = subprocess.PIPE)

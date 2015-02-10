@@ -33,16 +33,22 @@ def deploy_redis_instance(redis_env_folder, port):
 
 
     @param redis_env_folder: Folder on which to create the redis conf files that will define the instance,
-    and that eventually will be used to start the same instance easily.
+    and that eventually will be used to start the same instance easily. If it doesn't exist it will be created.
+    If it is not a folder then an exception will be thrown.
     @param port: Port under which the new Redis instance will listen.
 
     @return: True if the instance is supposedly deployed successfully. An exception is otherwise thrown.
     """
 
     # Ensure that the specified folder exists already.
+    if not os.path.exists(redis_env_folder):
+        os.mkdir(redis_env_folder)
+        if not os.path.isdir(redis_env_folder):
+            raise Exception("Could not create the redis env folder %s. We cannot deploy the Redis instance." % redis_env_folder)
+
     if not os.path.isdir(redis_env_folder):
         raise Exception(
-            "The specified folder (%s) does not exist. We cannot deploy the Redis instance." % redis_env_folder)
+            "The specified redis folder (%s) is not a directory. We cannot deploy the Redis instance." % redis_env_folder)
 
     # Generate the config file.
     conf = StringIO.StringIO()
