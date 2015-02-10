@@ -83,37 +83,37 @@ def login():
 
         #User exists?
         if user is None:
-            flash('Register first please', 'error')
-            return redirect(url_for('register'))
-
-        #User is active
-        if not user.active:
-            flash(
-                "Your account isn't active. Follow the e-mail instructions. If you didn't receive it, check the SPAM directory or contact the admin at %s." %
-                app.config['ADMIN_MAIL'], 'error')
-            return redirect(url_for('index'))
-
-        #If exists and is active check the password
-        hash_password = hashlib.sha1(password).hexdigest()
-
-        if user.password == hash_password:
-
-            #Insert data in session
-            session['logged_in'] = True
-            session['session_type'] = SESSION_TYPE
-            session['user_id'] = user.id
-            session['user_email'] = user.email
-
-            flash('Logged in', 'success')
-
-            #Redirect
-            next_url = request.args.get('next')
-            if next_url != '' and next_url != None:
-                return redirect(next_url)
-
-            return redirect(url_for('configure'))
+            flash('Invalid username', 'error')
         else:
-            flash('Failure login', 'error')
+            #User is active
+            if not user.active:
+                flash(
+                    "Your account isn't active. Follow the e-mail instructions. If you didn't receive it, check the SPAM directory or contact the admin at %s." %
+                    app.config['ADMIN_MAIL'], 'error')
+                return redirect(url_for('index'))
+
+            #If exists and is active check the password
+            hash_password = hashlib.sha1(password).hexdigest()
+
+            if user.password == hash_password:
+
+                #Insert data in session
+                session['logged_in'] = True
+                session['session_type'] = SESSION_TYPE
+                session['user_id'] = user.id
+                session['user_email'] = user.email
+                session['is_admin'] = user.is_admin
+
+                flash('Logged in', 'success')
+
+                #Redirect
+                next_url = request.args.get('next')
+                if next_url != '' and next_url != None:
+                    return redirect(next_url)
+
+                return redirect(url_for('configure'))
+            else:
+                flash('Invalid password', 'error')
 
     next_url = request.args.get('next')
     return render_template('login.html', form=form, next=next_url)
@@ -441,7 +441,11 @@ def deploy():
 @login_required
 def result(deploy_id):
     result = deploy_weblab_instance.AsyncResult(deploy_id)
-    # TODO: check that the current user has permission
+    if isinstance(result.result, dict):
+        email = result.result.get('email')
+        if email is not None and email != session['user_email'] and not session['is_admin']:
+            return "You don't have permissions to see this deployment id"
+        # If email is None or it's not a dict, it's pending or something like that.
 
     loop = True
     if result.status == 'SUCCESS':
@@ -467,8 +471,11 @@ def result(deploy_id):
 @login_required
 def result_ready(deploy_id):
     result = deploy_weblab_instance.AsyncResult(deploy_id)
-    # TODO: check that the current user has permission
-    # TODO: Do soething with this result!!!
+    if isinstance(result.result, dict):
+        email = result.result.get('email')
+        if email is not None and email != session['user_email'] and not session['is_admin']:
+            return "You don't have permissions to see this deployment id"
+        # If email is None or it's not a dict, it's pending or something like that.
 
     if result.status != 'SUCCESS':
         return redirect(url_for('result', deploy_id=deploy_id))
@@ -496,6 +503,7 @@ def logout():
     session.pop('session_type', None)
     session.pop('user_id', None)
     session.pop('user_email', None)
+    session.pop('is_admin', None)
 
     flash('Logged out', 'success')
     return redirect(url_for('index'))
