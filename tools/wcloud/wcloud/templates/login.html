@@ -15,7 +15,8 @@
                     {{ render_field(form.password) }}
 
                     <div class="form-actions">
-                        <input type="submit" value="Log in" class="btn btn-primary">
+                        <input type="submit" value="Log in" class="btn btn-success">
+                        <a href="{{ url_for('register') }}"><input type="button" class="btn btn-primary btn-large" value="Register"/></a>
                     </div>
                 </fieldset>
             </form>
