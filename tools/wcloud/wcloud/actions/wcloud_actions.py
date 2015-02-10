@@ -55,7 +55,7 @@ from weblab.admin.script import weblab_create, Creation
 def rollback_prepare_system(wcloud_user_email):
     user = db.session.query(User).filter_by(email=wcloud_user_email).first()
     try:
-        db_name = db_actions.destroy_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], "wcloud_%s" % user.entity.base_url)
+        db_actions.destroy_db("wcloud_creator", app.config["DB_WCLOUD_CREATOR_PASSWORD"], user.entity.db_name)
     except:
         traceback.print_exc()
     

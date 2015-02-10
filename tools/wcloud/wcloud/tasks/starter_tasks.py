@@ -15,8 +15,12 @@ def start_weblab(self, dirname, wait):
     stdout_path = os.path.join(dirname, "stdout.txt")
     stderr_path = os.path.join(dirname, "stderr.txt")
 
-    print "Starting instance: %s" % dirname,
+    print "Starting instance: %s" % dirname
 
+    print "We are first checking that weblab-admin exists. Usage will be printed:"
+
+    # If reading the logs this is slightly counter-intuitive, because it seems that
+    # the command was typed wrongly when the usage appears.
     help_process = subprocess.Popen(['weblab-admin', 'create', '--help'])
     help_process.wait()
     if help_process.poll() != 0:

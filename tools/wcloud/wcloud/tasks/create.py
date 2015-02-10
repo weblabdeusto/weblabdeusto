@@ -98,7 +98,7 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
     #
     transaction.register_rollback(wcloud_actions.rollback_prepare_system, email)
 
-    with transaction("Preparing requirements"):
+    with transaction("preparing requirements"):
         current_instance_settings = wcloud_actions.prepare_system(email, admin_user, admin_name, admin_password, admin_email)
 
     #########################################################
@@ -107,7 +107,7 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
     #
     transaction.register_rollback(wcloud_actions.rollback_create_weblab_environment, directory)
 
-    with transaction("Creating deployment directory"):
+    with transaction("creating deployment directory"):
         creation_results = wcloud_actions.create_weblab_environment(directory, current_instance_settings)
 
     ##########################################################
@@ -116,7 +116,7 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
     #
     transaction.register_rollback(wcloud_actions.rollback_configure_web_server, creation_results)
 
-    with transaction("Configuring web server"):
+    with transaction("configuring web server"):
         wcloud_actions.configure_web_server(creation_results)
 
     ##########################################################
@@ -125,7 +125,7 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
     #
     transaction.register_rollback(wcloud_actions.rollback_register_and_start_instance, directory)
 
-    with transaction("Registering and starting instance"):
+    with transaction("registering and starting instance"):
         wcloud_actions.register_and_start_instance(email, directory)
 
     ##########################################################
@@ -134,7 +134,7 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
     #
     transaction.register_rollback(wcloud_actions.rollback_finish_deployment, email)
 
-    with transaction("Checking deployment"):
+    with transaction("checking deployment"):
         wcloud_actions.finish_deployment(email, creation_results["start_port"], creation_results["end_port"])
     
     ##########################################################
