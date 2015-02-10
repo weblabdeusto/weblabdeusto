@@ -16,7 +16,8 @@ DEFAULT_DEPLOYMENT_SETTINGS = {
     Creation.SYSTEM_IDENTIFIER: 'University of Deusto',       # -i Name of the university
     Creation.SERVER_HOST: 'weblab.deusto.es',      # --server-host=whatever
     Creation.ENTITY_LINK: 'http://www.deusto.es/', # --entity-link= http://www.deusto.es/
-    Creation.CORES: 3, 
+    Creation.CORES: 1, 
+    Creation.NO_LAB: True, 
     Creation.ADD_FEDERATED_LOGIC : True,
     Creation.ADD_FEDERATED_VISIR : True,
     Creation.ADD_FEDERATED_SUBMARINE : True,

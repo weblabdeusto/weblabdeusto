@@ -201,8 +201,12 @@ class ConfigurationManager(object):
                 expected_type = eval(arg.type)
             else:
                 expected_type = arg.type
+
             if not isinstance(value, (expected_type, type(None))):
-                raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
+                if expected_type == int and isinstance(value, long):
+                    pass
+                else:
+                    raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
 
         return value
 

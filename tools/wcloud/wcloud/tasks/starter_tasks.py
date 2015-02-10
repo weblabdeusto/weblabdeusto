@@ -1,9 +1,14 @@
 import os
 import time
+import traceback
 import subprocess
+
+import requests
 
 from wcloud import app as flask_app
 from wcloud.tasks.celery_app import celery_app
+
+DEBUG = True
 
 @celery_app.task(bind=True)
 def start_weblab(self, dirname, wait):
@@ -12,6 +17,11 @@ def start_weblab(self, dirname, wait):
 
     print "Starting instance: %s" % dirname,
 
+    help_process = subprocess.Popen(['weblab-admin', 'create', '--help'])
+    help_process.wait()
+    if help_process.poll() != 0:
+        raise Exception("weblab-admin not installed. Are you running on a development environment?")
+
     process = subprocess.Popen(['nohup','weblab-admin', 'start', dirname],
                 stdout = open(stdout_path, 'w+', 0),
                 stderr = open(stderr_path, 'w+', 0),
@@ -19,8 +29,13 @@ def start_weblab(self, dirname, wait):
 
     print "[done]"
 
+    variables = {}
+    execfile(os.path.join(dirname, 'debugging.py'), variables, variables)
+    ports = variables['PORTS']['json']
+    urls = [ 'http://localhost:%s/weblab/json/' % port for port in ports ]
+
     if wait:
-        wait_process(process)
+        wait_process(urls, stdout_path, stderr_path)
 
     errors = open(stderr_path).read()
     print "[dbg] Stderr: " + errors
@@ -31,7 +46,20 @@ def start_weblab(self, dirname, wait):
     print "[dbg:END OF STDOUT]"
     return
 
-def wait_process(process):
+def _test_weblab(urls):
+    for url in urls:
+        try:
+            r = requests.get(url, proxies = {})
+        except:
+            if DEBUG:
+                traceback.print_exc()
+            return False
+        else:
+            if r.status_code != 200:
+                return False
+    return True
+
+def wait_process(urls, stdout_path, stderr_path):
     """
     Checks that the Process is running for the number of seconds specified in the configuration.
     If within that time the process stops running, an exception is thrown.
@@ -48,14 +76,16 @@ def wait_process(process):
     # TODO: The 4 here is a magic number. This should probably be improved. Ideally, with a better way to detect
     # failures.
     time.sleep(7)
-    if time_to_wait > 7:
-        time_to_wait -= 7
 
-    while time.time() - start_time < time_to_wait:
-        if process.poll() is not None:  # Ensure that the process does not finish early.
-            raise Exception("Weblab was apparently not started successfully (not running after %f seconds)" % (time.time() - start_time))
+    while (time.time() - start_time) < time_to_wait:
+        if _test_weblab(urls):
+            break
+        time.sleep(0.3)
 
-    # TODO: we should check whether the process is started (e.g., contacting the port periodically)
+    if not _test_weblab(urls):
+        print open(stdout_path).read()
+        print open(stderr_path).read()
+        raise Exception("Weblab was apparently not started successfully (not running after %f seconds)" % (time.time() - start_time))
 
 def stop_weblab(dirname):
     print "Stopping instance: %s" % dirname,
@@ -73,10 +103,10 @@ def start_redis(self, directory, config_file, port):
     stdout_path = os.path.join(directory, "stdout_redis_%s.txt" % port)
     stderr_path = os.path.join(directory, "stderr_redis_%s.txt" % port)
 
-    process = subprocess.Popen(['nohup','redis-server', os.path.join(directory, config_file)],
+    process_args = ['nohup','redis-server', os.path.join(directory, config_file) ]
+    print "Calling", process_args,"from",os.getcwd()
+    process = subprocess.Popen(process_args,
                 stdout = open(stdout_path, 'w+', 0),
-                stderr = open(stderr_path, 'w+', 0),
-                stdin  = subprocess.PIPE)
+                stderr = open(stderr_path, 'w+', 0))
     time.sleep(2)
 
-    print "redis-server started: %s" % (process.poll() is None)

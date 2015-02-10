@@ -473,17 +473,19 @@ def result_ready(deploy_id):
     if result.status != 'SUCCESS':
         return redirect(url_for('result', deploy_id=deploy_id))
 
+    url = 'not provided'
     if result.result is None:
         output = 'Pending job...'
     elif isinstance(result.result, Exception):
         output = result.result.args[0]
     else:
         output = result.result.get('output', 'No output yet')
+        url = result.result.get('url', 'No URL provided')
 
     return render_template('result-ready.html',
                            status=result.status,
                            stdout=output,
-                           deploy_id=deploy_id, url=response.get('url', ''))
+                           deploy_id=deploy_id, url=url)
 
 
 @app.route('/logout')

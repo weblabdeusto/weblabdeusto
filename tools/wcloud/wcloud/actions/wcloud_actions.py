@@ -105,6 +105,7 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
 
     if entity.logo != None and entity.logo != "":
         settings[Creation.LOGO_PATH] = tmp_logo.name
+        settings[Creation.LOGO_PATH + '__tmp_file'] = tmp_logo
     else:
         settings[Creation.LOGO_PATH] = None
 
@@ -151,7 +152,7 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     if last_port is None:
         last_port = app.config['MIN_PORT']
 
-    settings[Creation.START_PORTS] = last_port + 1
+    settings[Creation.START_PORTS] = int(last_port + 1) # prevent Long
     settings[Creation.SYSTEM_IDENTIFIER] = user.entity.name
     settings[Creation.ENTITY_LINK] = user.entity.link_url
     return settings

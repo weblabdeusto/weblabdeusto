@@ -144,6 +144,6 @@ def deploy_weblab_instance(self, directory, email, admin_user, admin_name, admin
 
     output.write("\nCongratulations, your system is ready!")
     result['output'] = output.getvalue()
-    result['url'] = base_url + settings[Creation.BASE_URL]
+    result['url'] = base_url + current_instance_settings[Creation.BASE_URL]
     return result
 

@@ -6,6 +6,7 @@ import redis
 from wcloud.tasks.celery_app import celery_app
 from wcloud.tasks.starter_tasks import start_redis
 
+DEBUG = False
 
 class AlreadyDeployedException(Exception):
     """
@@ -47,7 +48,9 @@ def deploy_redis_instance(redis_env_folder, port):
     conf = StringIO.StringIO()
     conf.write("port %d \n" % port)
     conf.write("daemonize yes \n")
-    conf.write("logfile redis_%d_logfile.txt \n" % port)
+    conf.write("logfile %s \n" % (os.path.join(redis_env_folder, "redis_%d_logfile.txt" % port)))
+    if DEBUG:
+        conf.write("loglevel verbose \n")
 
     config_file_name = "redis_%d.conf" % port
 
@@ -90,7 +93,8 @@ def check_redis_deployment(redis_env_folder, port):
     r.ping()
 
     if started_by_us:
-        r.shutdown()
+        # r.shutdown()
+        pass
 
     return True
 
