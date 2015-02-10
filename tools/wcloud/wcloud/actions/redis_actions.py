@@ -93,7 +93,7 @@ def check_redis_deployment(redis_env_folder, port):
         r.ping()
     except ConnectionError:
         # The server seems to be down, we start it.
-        result = start_redis.delay(redis_env_folder, "redis_%d.conf" % port, port)
+        result = start_redis.delay(redis_env_folder, "redis_%d.conf" % port)
         while not result.ready():
             time.sleep(0.1)
         started_by_us = True

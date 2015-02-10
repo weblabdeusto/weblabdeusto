@@ -113,7 +113,7 @@ def stop_weblab(dirname):
 
 
 @celery_app.task(bind=True, name = 'start_redis')
-def start_redis(self, directory, config_file, port):
+def start_redis(self, directory, config_file):
     """
     Starts the specified redis instance.
 
@@ -121,17 +121,10 @@ def start_redis(self, directory, config_file, port):
     :param config_file: The name of the configuration file for the instance.
     :param port: Port that the instance will listen on.
 
-    # TODO: The port parameter should maybe be removed and be read from the configuration file.
-
     :return:
     """
-    stdout_path = os.path.join(directory, "stdout_redis_%s.txt" % port)
-    stderr_path = os.path.join(directory, "stderr_redis_%s.txt" % port)
-
     process_args = ['nohup','redis-server', os.path.join(directory, config_file) ]
     print "Calling", process_args,"from",os.getcwd()
-    process = subprocess.Popen(process_args,
-                stdout = open(stdout_path, 'w+', 0),
-                stderr = open(stderr_path, 'w+', 0))
+    process = subprocess.Popen(process_args)
     time.sleep(2)
 
