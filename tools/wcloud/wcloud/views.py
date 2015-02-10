@@ -179,8 +179,6 @@ def register():
             # Send email
             try:
                 utils.send_email(app, body, subject, from_email, user.email, body_html)
-                flash("Mail sent to %s from %s with subject '%s'. Check your SPAM folder if you don't receive it." % (
-                    user.email, from_email, subject), 'success')
             except:
                 db.session.delete(token)
                 db.session.delete(user)
@@ -189,6 +187,9 @@ def register():
                     "There was an error sending the e-mail. This might be because of a invalid e-mail address. Please re-check it.",
                     "error")
                 return render_template('register.html', form=form)
+            else:
+                flash("Mail sent to %s from %s with subject '%s'. Check your SPAM folder if you don't receive it." % (
+                    user.email, from_email, subject), 'success')
 
             flash("""Thanks for registering. You have an
                   email with the steps to confirm your account""", 'success')
