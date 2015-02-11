@@ -61,7 +61,7 @@ class HomeView(AdminIndexView):
 
 class UsersPanel(AdministratorModelView):
 
-    column_list = ('full_name', 'email', 'is_admin', 'active', 'token.token', 'entity.name', 'entity.base_url')
+    column_list = ('full_name', 'email', 'is_admin', 'active', 'token.token', 'entity.name', 'entity.base_url', 'ip_address', 'creation_date')
 
     can_edit   = True
     can_create = False
@@ -83,10 +83,9 @@ class TokensPanel(AdministratorModelView):
 
 class EntitiesPanel(AdministratorModelView):
 
-    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'mysql', 'redis port', 'redis db')
+    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'db_name', 'redis port', 'redis db')
 
     column_formatters = {
-        'mysql' : lambda v, c, e, p: 'wcloud%s' % e.id,
         'redis port' : lambda v, c, e, p: initial_redis_port + e.id / databases_per_port,
         'redis db'   : lambda v, c, e, p: e.id % databases_per_port,
         'base_url'   : lambda v, c, e, p: Markup("""<a target="_blank" href="https://cloud.weblab.deusto.es/w/%s">%s</a>""" % (e.base_url, e.base_url))

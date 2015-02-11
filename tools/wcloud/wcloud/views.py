@@ -24,6 +24,7 @@ import json
 import hashlib
 import urllib2
 import datetime
+import traceback
 
 from functools import wraps
 
@@ -139,6 +140,8 @@ def register():
         # Create user
         user = User(email, unicode(hashlib.sha1(password).hexdigest()), full_name)
         user.active = False
+        user.creation_date = datetime.datetime.now()
+        user.ip_address = request.headers.get('HTTP_X_FORWARDED_FOR', request.remote_addr)
 
         mail_confirmation = app.config["MAIL_CONFIRMATION_ENABLED"]
 
@@ -151,6 +154,22 @@ def register():
 
         db.session.add(user)
         db.session.commit()
+
+        try:
+            from_email = 'weblab@deusto.es'
+
+            body_html = """ <html>
+                                <head></head>
+                                <body>
+                                  <p>New registered user in wCloud: %s</p>
+                                </body>
+                              </html>""" % email
+            body = "New registered user: %s" % email
+            subject = 'New registration'
+
+            utils.send_email(app, body, subject, from_email, app.config['ADMINISTRATORS'], body_html)
+        except:
+            traceback.print_exc()
 
         if mail_confirmation:
             # Create email
@@ -434,7 +453,7 @@ def deploy():
         result = deploy_weblab_instance.delay(directory, email, admin_user, admin_name, admin_email, admin_password, base_url)
         return redirect(url_for('result', deploy_id=result.task_id))
 
-    return render_template('deploy.html', form=form, enabled=enabled, url=base_url + entity.base_url)
+    return render_template('deploy.html', form=form, enabled=enabled, url=base_url + '/w/' + entity.base_url)
 
 def _report_failure_to_admin(deploy_id, report):
 

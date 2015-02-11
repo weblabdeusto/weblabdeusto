@@ -24,12 +24,14 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    id        = Column(Integer, primary_key=True)
-    email     = Column(Unicode(200), nullable=False, unique=True, index = True)
-    password  = Column(Unicode(200), nullable=False)
-    full_name = Column(Unicode(200), nullable=False)
-    active    = Column(Boolean, nullable = False)
-    is_admin  = Column(Boolean, nullable = True, server_default = "0")
+    id             = Column(Integer, primary_key=True)
+    email          = Column(Unicode(200), nullable=False, unique=True, index = True)
+    password       = Column(Unicode(200), nullable=False)
+    full_name      = Column(Unicode(200), nullable=False)
+    ip_address     = Column(Unicode(200))
+    creation_date  = Column(DateTime)
+    active         = Column(Boolean, nullable = False)
+    is_admin       = Column(Boolean, nullable = True, server_default = "0")
 
     token_id = Column(Integer, db.ForeignKey('tokens.id'))
     token    = db.relationship('Token', cascade="all, delete-orphan",
