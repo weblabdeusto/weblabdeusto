@@ -437,6 +437,30 @@ def deploy():
 
     return render_template('deploy.html', form=form, enabled=enabled, url=base_url + entity.base_url)
 
+def _report_failure_to_admin(deploy_id, report):
+
+    email = session['user_email']
+    from_email = 'weblab@deusto.es'
+
+    link = url_for('result', deploy_id = deploy_id, _external=True)
+    body_html = """ <html>
+                        <head></head>
+                        <body>
+                          <p>Error ocurred for deployment (%(deploy_id)s) for user %(email)s<p>
+                          <pre>%(report)s</pre>
+                          <p>Check it in:</p>
+                          <ul>
+                            <li>%(link)s</li>
+                          </ul>
+                          <p>Best regards,</p>
+                          <p>wCloud system</p>
+                        </body>
+                      </html>""" % dict(link=link, deploy_id = deploy_id, email = email, report = report)
+    print(body_html)
+    body = """Error ocurred in wCloud."""
+    subject = 'wCloud failure'
+
+    utils.send_email(app, body, subject, from_email, app.config['ADMINISTRATORS'], body_html)
 
 @app.route('/dashboard/deploy/result/<deploy_id>')
 @login_required
@@ -451,16 +475,21 @@ def result(deploy_id):
     loop = True
     if result.status == 'SUCCESS':
         return redirect(url_for('result_ready', deploy_id=deploy_id))
-    elif result.status not in ('PROGRESS', 'PENDING'):
-        loop = False
-        flash("Deployment failed. Contact the administrators at <a href='mailto:weblab@deusto.es'>weblab@deusto.es</a>.", "error")
 
     if result.result is None:
         output = 'Pending job...'
-    elif isinstance(result.result, Exception):
-        output = result.result.args[0]
     else:
-        output = result.result.get('output', 'No output yet')
+        if isinstance(result.result, dict):
+            if result.result.get('is_error'):
+                loop = False
+                flash("Deployment failed. Contact the administrators at <a href='mailto:weblab@deusto.es'>weblab@deusto.es</a>.", "error")
+                _report_failure_to_admin(deploy_id, result.result['report'])
+                print result.result['report']
+            output = result.result.get('output', 'No output yet')
+        else:
+            loop = False
+            print result.result
+            output = "Invalid result. Contact administrator."
 
     return render_template('result.html',
                            status=result.status,
@@ -484,11 +513,18 @@ def result_ready(deploy_id):
     url = 'not provided'
     if result.result is None:
         output = 'Pending job...'
-    elif isinstance(result.result, Exception):
-        output = result.result.args[0]
     else:
-        output = result.result.get('output', 'No output yet')
-        url = result.result.get('url', 'No URL provided')
+        if isinstance(result.result, dict):
+            if result.result.get('is_error'):
+                _report_failure_to_admin(deploy_id, result.result['report'])
+                flash("Deployment failed. Contact the administrators at <a href='mailto:weblab@deusto.es'>weblab@deusto.es</a>.", "error")
+
+            output = result.result.get('output', 'No output yet')
+            url = result.result.get('url', 'No URL provided')
+            print result.result['report']
+        else:
+            output = "Invalid result. Contact admin"
+            url = "Invalid result. Contact admin"
 
     return render_template('result-ready.html',
                            status=result.status,

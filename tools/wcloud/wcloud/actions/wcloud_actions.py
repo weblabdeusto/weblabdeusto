@@ -157,6 +157,8 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     settings[Creation.ENTITY_LINK] = user.entity.link_url
     return settings
 
+class WebLabEnvironmentCreationError(Exception): pass
+
 def rollback_create_weblab_environment(directory):
     if os.path.exists(directory):
         shutil.rmtree(directory)
@@ -177,7 +179,7 @@ def create_weblab_environment(directory, settings):
     def exit_func(code):
         traceback.print_exc()
         print "[WebLabCreate] Output:", command_output.getvalue()
-        raise Exception("Error creating weblab: %s" % code)
+        raise WebLabEnvironmentCreationError("Error creating weblab: %s" % code, command_output.getvalue())
 
     results = weblab_create(directory,
                             settings,
