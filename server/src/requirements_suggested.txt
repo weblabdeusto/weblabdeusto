@@ -13,13 +13,6 @@ pillow==2.0
 # 
 
 # 
-# numpy is only used in the WebLab Bot. If you are not going to
-# measure the speed of the system, this module will not be used
-# 
-
-numpy<1.7
-
-# 
 # If using Redis for scheduling, hiredis makes the redis 
 # library to go faster. If using SQL, this is useless.
 # 
@@ -56,3 +49,12 @@ python-ldap<2.5
 #     sudo apt-get install libfreetype6-dev libpng12-dev
 # 
 # matplotlib<1.2
+
+# 
+# numpy is only used in the WebLab Bot. If you are not going to
+# measure the speed of the system, this module will not be used
+# 
+
+numpy<1.7
+
+
