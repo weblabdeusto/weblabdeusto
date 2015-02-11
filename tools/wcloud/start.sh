@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ${0%/*}
+
 source config.sh
 
 if [ $UID != 0 ]; then
