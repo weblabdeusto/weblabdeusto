@@ -1,37 +1,52 @@
-
-from flaskapp import app
-from tasks import starter_tasks
-import glob
 import os
+import sys
 import re
+import glob
+import time
+import threading
 
-import wcloud.tasks.starter_tasks
+sys.path.append('.')
+from wcloud import app
+import wcloud.tasks.starter_tasks as starter_tasks
 
+if __name__ == '__main__':
 
-# Issue a task for each existing weblab instance
-print "Creating tasks for starting existing weblab instances..."
-instances_dir_base = app.config["DIR_BASE"]
+    # IMPORTANT: REDIS GOES FIRST (otherwise weblab will not start)
 
-instance_dirs = glob.glob(os.path.join(instances_dir_base, "*"))
-for instance_dir in instance_dirs:
-    starter_tasks.start_weblab.delay(instance_dir, 20)
+    # Issue a task for each existing redis configuration file
+    print "Creating tasks for starting existing redis instances..."
+    redis_folder = app.config["REDIS_FOLDER"]
+    redis_instances = glob.glob(os.path.join(redis_folder, "*.conf"))
 
-# Issue a task for each existing redis configuration file
-print "Creating tasks for starting existing redis instances..."
-redis_folder = app.config["REDIS_FOLDER"]
-redis_instances = glob.glob(os.path.join(redis_folder, "/*.conf"))
+    threads = []
 
-for redis_instance in redis_instances:
-    # Find out the alleged port for the instance. This can be obtained from the name, but the 'real'
-    # definition is in the config file itself. Maybe the start_redis method should actually be
-    # changed so as not to require the port. TODO:
-    filename = os.path.basename(redis_instance)
-    directory = os.path.dirname(redis_instance)
-    m = re.match(""".*_([0-9]+)\.conf""", filename)
-    try:
-        port = m.group(1)
-    except:
-        # TODO: Consider whether we should avoid throwing an exception here so that the supposedly correct instances
-        # can actually start.
-        raise Exception("ERROR starting redis instances. Could not start them due to wrong conf file: %s" % redis_instance)
-    starter_tasks.start_redis(directory, filename, port)
+    for redis_instance in redis_instances:
+        time.sleep(0.5)
+        filename = os.path.basename(redis_instance)
+        directory = os.path.dirname(redis_instance)
+        print "Starting %s" % (os.path.join(directory, filename))
+        t = threading.Thread(target = starter_tasks.start_redis, args = (directory, filename))
+        t.start()
+        threads.append(t)
+
+    time.sleep(10)
+    for t in threads:
+        t.join()
+    print "All redis servers started"
+
+    # Issue a task for each existing weblab instance
+    print "Creating tasks for starting existing weblab instances..."
+    instances_dir_base = app.config["DIR_BASE"]
+    threads = []
+
+    instance_dirs = [ d for d in glob.glob(os.path.join(instances_dir_base, "*")) if os.path.isdir(d) ]
+    for instance_dir in instance_dirs:
+        t = threading.Thread(target = starter_tasks.start_weblab, args = (instance_dir, 50))
+        t.start()
+        threads.append(t)
+
+    time.sleep(3)
+    for t in threads:
+        t.join()
+    print "All WebLab-Deusto servers started"
+

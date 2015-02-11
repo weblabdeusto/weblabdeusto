@@ -80,7 +80,7 @@ def generate_proxy_handler(paths):
 
         def log_message(self, *args, **kwargs):
             if not QUIET:
-                BaseHTTPSErver.BaseHTTPRequestHandler.log_message(self, *args, **kwargs)
+                BaseHTTPServer.BaseHTTPRequestHandler.log_message(self, *args, **kwargs)
 
         def do_POST(self):
             try:

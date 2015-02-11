@@ -7,7 +7,7 @@ class ApacheReloadException(Exception):
     pass
 
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name = 'apache_reload')
 def apache_reload(self):
     result = subprocess.check_call(["/etc/init.d/apache2", "reload"])
 

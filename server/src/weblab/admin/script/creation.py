@@ -1030,15 +1030,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                     'laboratory_instance_name' : 'core_process1' if options[Creation.INLINE_LAB_SERV] else 'laboratory%s' % n,
                     'local_experiments' : local_experiments, 'n' : n })
 
-        if options[Creation.ADD_FEDERATED_LOGIC]:
-            other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
-            other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
-        if options[Creation.ADD_FEDERATED_VISIR]:
-            other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
-            other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
-        if options[Creation.ADD_FEDERATED_SUBMARINE]:
-            other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
-            other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_LOGIC]:
+        other_core_coordinator_external_servers += "    'ud-logic@PIC experiments'          : [ 'logic_external' ],\n"
+        other_scheduling_systems                += "        'logic_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_VISIR]:
+        other_core_coordinator_external_servers += "    '%s@Visir experiments'           : [ 'visir_external' ],\n" % options[Creation.VISIR_EXPERIMENT_NAME]
+        other_scheduling_systems                += "        'visir_external'   : weblabdeusto_federation_demo,\n"
+    if options[Creation.ADD_FEDERATED_SUBMARINE]:
+        other_core_coordinator_external_servers += "    'submarine@Aquatic experiments'    : [ 'aquatic_external' ],\n"
+        other_scheduling_systems                += "        'aquatic_external'   : weblabdeusto_federation_demo,\n"
 
 
     core_host_config_py =("# It must be here to retrieve this information from the dummy\n"

@@ -8,9 +8,9 @@ import requests
 from wcloud import app as flask_app
 from wcloud.tasks.celery_app import celery_app
 
-DEBUG = True
+DEBUG = False
 
-@celery_app.task(bind=True)
+@celery_app.task(bind=True, name = 'start_weblab')
 def start_weblab(self, dirname, wait):
     """
     Starts an existing WebLab instance.
@@ -31,7 +31,7 @@ def start_weblab(self, dirname, wait):
 
     # If reading the logs this is slightly counter-intuitive, because it seems that
     # the command was typed wrongly when the usage appears.
-    help_process = subprocess.Popen(['weblab-admin', 'create', '--help'])
+    help_process = subprocess.Popen(['weblab-admin', 'create', '--help'], stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     help_process.wait()
     if help_process.poll() != 0:
         raise Exception("weblab-admin not installed. Are you running on a development environment?")
@@ -49,7 +49,7 @@ def start_weblab(self, dirname, wait):
     urls = [ 'http://localhost:%s/weblab/json/' % port for port in ports ]
 
     if wait:
-        wait_process(urls, stdout_path, stderr_path)
+        wait_process(urls, wait, stdout_path, stderr_path)
 
     errors = open(stderr_path).read()
     print "[dbg] Stderr: " + errors
@@ -73,7 +73,7 @@ def _test_weblab(urls):
                 return False
     return True
 
-def wait_process(urls, stdout_path, stderr_path):
+def wait_process(urls, wait, stdout_path, stderr_path):
     """
     Checks that the Process is running for the number of seconds specified in the configuration.
     If within that time the process stops running, an exception is thrown.
@@ -81,7 +81,7 @@ def wait_process(urls, stdout_path, stderr_path):
 
     print "Waiting for process to start and stay..."
 
-    time_to_wait = flask_app.config.get("WEBLAB_STARTUP_TIME", 20)
+    time_to_wait = flask_app.config.get("WEBLAB_STARTUP_TIME", wait or 20)
 
     start_time = time.time()
 
@@ -112,8 +112,8 @@ def stop_weblab(dirname):
     return True
 
 
-@celery_app.task(bind=True)
-def start_redis(self, directory, config_file, port):
+@celery_app.task(bind=True, name = 'start_redis')
+def start_redis(self, directory, config_file):
     """
     Starts the specified redis instance.
 
@@ -121,17 +121,10 @@ def start_redis(self, directory, config_file, port):
     :param config_file: The name of the configuration file for the instance.
     :param port: Port that the instance will listen on.
 
-    # TODO: The port parameter should maybe be removed and be read from the configuration file.
-
     :return:
     """
-    stdout_path = os.path.join(directory, "stdout_redis_%s.txt" % port)
-    stderr_path = os.path.join(directory, "stderr_redis_%s.txt" % port)
-
     process_args = ['nohup','redis-server', os.path.join(directory, config_file) ]
     print "Calling", process_args,"from",os.getcwd()
-    process = subprocess.Popen(process_args,
-                stdout = open(stdout_path, 'w+', 0),
-                stderr = open(stderr_path, 'w+', 0))
+    process = subprocess.Popen(process_args)
     time.sleep(2)
 

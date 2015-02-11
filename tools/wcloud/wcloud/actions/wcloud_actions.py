@@ -96,12 +96,7 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     # Copy the default settings from the config file.
     settings = app.config['DEFAULT_DEPLOYMENT_SETTINGS'].copy()
 
-    # settings[Creation.BASE_URL] = 'w/' + entity.base_url
-    settings[Creation.BASE_URL] = entity.base_url
-
-    # TODO: Originally a w/ was preppended. That is confusing because knowing the BASE_URL
-    # is required in other parts of the code. For instance, for the create itself.
-    # We remove it for now. May have side effects, and maybe should be added somehow.
+    settings[Creation.BASE_URL] = '/w/' + entity.base_url
 
     if entity.logo != None and entity.logo != "":
         settings[Creation.LOGO_PATH] = tmp_logo.name
@@ -157,6 +152,8 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     settings[Creation.ENTITY_LINK] = user.entity.link_url
     return settings
 
+class WebLabEnvironmentCreationError(Exception): pass
+
 def rollback_create_weblab_environment(directory):
     if os.path.exists(directory):
         shutil.rmtree(directory)
@@ -177,7 +174,7 @@ def create_weblab_environment(directory, settings):
     def exit_func(code):
         traceback.print_exc()
         print "[WebLabCreate] Output:", command_output.getvalue()
-        raise Exception("Error creating weblab: %s" % code)
+        raise WebLabEnvironmentCreationError("Error creating weblab: %s" % code, command_output.getvalue())
 
     results = weblab_create(directory,
                             settings,
@@ -220,7 +217,9 @@ def configure_web_server(creation_results):
         f.write('Include "%s"\n' % conf_dir)
 
     # Reload apache
-    apache_reload.delay().get()
+    result = apache_reload.delay()
+    while not result.ready():
+        time.sleep(0.1)
 
 
 def rollback_register_and_start_instance(directory):
@@ -252,7 +251,9 @@ def register_and_start_instance(wcloud_user_email, directory):
         sys.stderr.write(result)
         raise Exception(result)
     
-    start_weblab.delay(directory, True).get()
+    result = start_weblab.delay(directory, 20)
+    while not result.ready():
+        time.sleep(0.1)
     
 
 def rollback_finish_deployment(wcloud_user_email):

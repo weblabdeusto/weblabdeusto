@@ -1,4 +1,5 @@
 import os
+import time
 import StringIO
 from redis.exceptions import ConnectionError
 import redis
@@ -92,7 +93,9 @@ def check_redis_deployment(redis_env_folder, port):
         r.ping()
     except ConnectionError:
         # The server seems to be down, we start it.
-        start_redis.delay(redis_env_folder, "redis_%d.conf" % port, port).get()
+        result = start_redis.delay(redis_env_folder, "redis_%d.conf" % port)
+        while not result.ready():
+            time.sleep(0.1)
         started_by_us = True
 
     r = redis.StrictRedis(host="127.0.0.1", port=port, db=0)
