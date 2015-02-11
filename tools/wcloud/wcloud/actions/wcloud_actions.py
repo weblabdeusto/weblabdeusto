@@ -251,7 +251,7 @@ def register_and_start_instance(wcloud_user_email, directory):
         sys.stderr.write(result)
         raise Exception(result)
     
-    result = start_weblab.delay(directory, True)
+    result = start_weblab.delay(directory, 20)
     while not result.ready():
         time.sleep(0.1)
     
