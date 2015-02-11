@@ -70,3 +70,27 @@ Those are the following:
 * A MySQL server is running.
 * The root MySQL user is "root" and its password is: "password".
 
+
+
+
+ACKNOWLEDGEMENTS
+~~~~~~~~~~~~~~~~
+
+.. image:: logos/mcloud.png
+  :alt: mCloud project
+  :align: center
+
+wCloud is part of the `mCloud project <http://innovation.logica.com.es/web/mcloud/>`_ (IPT-2011-1558-430000), 
+Este proyecto ha recibido financiación del Ministerio de Economía y Competitividad, dentro del Plan Nacional 
+de Investigación Científica, Desarrollo e Innovación Tecnológica 2008-2011 y el Fondo Europeo de Desarrollo Regional (FEDER).
+
+.. image:: logos/feder.png
+  :alt: FEDER: Una manera de hacer Europa
+  
+.. image:: logos/inn.jpg
+  :alt: Innpacto
+  
+.. image:: logos/mec.png
+  :alt: Ministerio de Economía y Competitividad
+
+
