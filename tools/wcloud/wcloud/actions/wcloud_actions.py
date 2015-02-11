@@ -96,12 +96,7 @@ def prepare_system(wcloud_user_email, admin_user, admin_name, admin_password, ad
     # Copy the default settings from the config file.
     settings = app.config['DEFAULT_DEPLOYMENT_SETTINGS'].copy()
 
-    # settings[Creation.BASE_URL] = 'w/' + entity.base_url
-    settings[Creation.BASE_URL] = entity.base_url
-
-    # TODO: Originally a w/ was preppended. That is confusing because knowing the BASE_URL
-    # is required in other parts of the code. For instance, for the create itself.
-    # We remove it for now. May have side effects, and maybe should be added somehow.
+    settings[Creation.BASE_URL] = '/w/' + entity.base_url
 
     if entity.logo != None and entity.logo != "":
         settings[Creation.LOGO_PATH] = tmp_logo.name
