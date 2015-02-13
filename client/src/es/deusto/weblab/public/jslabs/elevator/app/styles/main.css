@@ -8,6 +8,17 @@ body {
     user-select: none;
 }
 
+wl-webcam div {
+    width: 100%;
+    text-align: center;
+    height: 450px;
+}
+
+wl-webcam div img {
+    border: 2px solid darkgray;
+    height: 550px;
+}
+
 .my-elevator-controls {
 }
 

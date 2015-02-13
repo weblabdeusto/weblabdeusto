@@ -3,16 +3,20 @@
 
 <div class="row">
 
-    <div class="col col-sm-4 col-xs-12">
-        <wl-webcam src="//www.weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
+    <div class="col col-xs-12 col-sm-3">
+        <wl-webcam src="images/fake_webcam_back.jpg"></wl-webcam>
+    </div>
+
+    <div class="col col-sm-3 col-xs-12">
+        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1" src="images/fake_webcam_controls.jpg"></wl-webcam>
     </div>
 
     <wl-elevator-controls></wl-elevator-controls>
 
     <wl-calling-controls></wl-calling-controls>
 
-    <div class="col col-sm-4 col-xs-12">
-        <wl-webcam src="//www.weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
+    <div class="col col-sm-3 col-xs-12">
+        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1" src="images/fake_webcam_front.jpg"></wl-webcam>
     </div>
 </div> <!-- !row -->
 
@@ -23,4 +27,8 @@
         </progressbar>
         <wl-upload></wl-upload>
     </div>
+</div>
+
+<div class="row">
+
 </div>
