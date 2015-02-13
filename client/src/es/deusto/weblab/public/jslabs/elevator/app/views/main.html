@@ -8,21 +8,34 @@
     </div>
 
     <div class="col col-sm-3 col-xs-12">
-        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1" src="images/fake_webcam_controls.jpg"></wl-webcam>
+        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1"
+                   src="images/fake_webcam_controls.jpg"></wl-webcam>
     </div>
 
-    <wl-elevator-controls></wl-elevator-controls>
+    <div class="col col-sm-3 col-xs-12">
 
-    <wl-calling-controls></wl-calling-controls>
+        <div class="row">
+            <div class="col col-sm-6 col-xs-12">
+                <wl-elevator-controls></wl-elevator-controls>
+            </div>
+
+            <div class="col col-sm-6 col-xs-12">
+                <wl-calling-controls></wl-calling-controls>
+            </div>
+        </div>
+    </div>
+
 
     <div class="col col-sm-3 col-xs-12">
-        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1" src="images/fake_webcam_front.jpg"></wl-webcam>
+        <wl-webcam disabled-src="//www.weblab.deusto.es/webcam/proxied.py/fpga1"
+                   src="images/fake_webcam_front.jpg"></wl-webcam>
     </div>
 </div> <!-- !row -->
 
-<div class="row">
+<div class="row" style="margin-top: 20px">
     <div class="col col-xs-12 col-sm-4 col-sm-offset-4">
-        <progressbar ng-show="shouldShowStatus()" class="progress-striped active" style="width: 100%; height: 30px" ng-init="dynamic = 50"
+        <progressbar ng-show="shouldShowStatus()" class="progress-striped active" style="width: 100%; height: 30px"
+                     ng-init="dynamic = 50"
                      animate="true" value="'100'" type="success"><b>Programming the board</b>
         </progressbar>
         <wl-upload></wl-upload>

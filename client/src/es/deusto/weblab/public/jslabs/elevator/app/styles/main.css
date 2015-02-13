@@ -11,12 +11,15 @@ body {
 wl-webcam div {
     width: 100%;
     text-align: center;
-    height: 450px;
+    height: 500px;
 }
 
 wl-webcam div img {
     border: 2px solid darkgray;
-    height: 550px;
+
+    /* So that the image is resized automatically to fit the container" */
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .my-elevator-controls {
