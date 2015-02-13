@@ -115,7 +115,7 @@ def check_exceptions(func):
                         # WebLabInternalServerError
                         log(weblab_class, level.Warning,
                                 "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
-                        log_exc(weblab_class, log.level.Info)
+                        log_exc(weblab_class, level.Info)
                         return _raise_exception(ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
     return wrapper
