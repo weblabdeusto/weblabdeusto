@@ -11,5 +11,5 @@ angular.module('elevatorApp')
     templateUrl: 'views/wlelevatorcontrols.html',
     restrict: 'E'
     link: (scope, element, attrs) ->
-      pass
+
   )
