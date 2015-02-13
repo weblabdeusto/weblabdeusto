@@ -15,7 +15,8 @@ angular.module('elevatorApp')
     templateUrl: 'views/wlbutton.html',
     scope:
       'ident': '@ident',
-      'caption': '@caption'
+      'caption': '@caption',
+      'overlay': '@overlay'
     restrict: 'E'
     link: (scope, element, attrs) ->
 
