@@ -9,3 +9,7 @@ body {
 
 .my-elevator-controls {
 }
+
+.my-calling-controls * * legend {
+  font-size: 1.2em;
+}
