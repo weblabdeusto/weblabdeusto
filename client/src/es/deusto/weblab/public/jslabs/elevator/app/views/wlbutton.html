@@ -1,10 +1,35 @@
 <style>
     .elevator-btn {
-        width: 75px
+        width: 50px;
+
+        border: 1px solid darkgray;
+        border-radius: 3px;
+        padding: 2px;
     }
+
+    .elevator-btn-pressed {
+        /* To be displayed only while the button is being pressed by the user. */
+        background-color: lightgray;
+    }
+
+    .elevator-caption {
+        display: block;
+    }
+
+    .elevator-btn-img-wrapper {
+        vertical-align: top;
+        display: inline-block;
+        text-align: center;
+    }
+
 </style>
 
-<div class="" style="display: block">
-    <img ng-show="isOn()" class="thumbnail elevator-btn" ng-src="images/button_on.png"/>
-    <img ng-click="press()" ng-show="!isOn()" class="thumbnail elevator-btn" ng-src="images/button_off.png"/>
+<!-- TODO: Add on-hover effect to the buttons -->
+
+<div class="elevator-btn-img-wrapper">
+    <img ng-show="isOn" class="elevator-btn" ng-src="images/button_on.png"/>
+    <img ng-click="press()" ng-show="!isOn" class="elevator-btn" ng-class="{ 'elevator-btn-pressed' : isPressed }" ng-src="images/button_off.png"/>
+    <span class="elevator-caption">
+        {{ caption }}
+    </span>
 </div>
