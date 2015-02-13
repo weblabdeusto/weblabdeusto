@@ -101,21 +101,57 @@
                 {% else %}
                     <div class="alert alert-danger">
                 {% endif %}
-                <button class="close" data-dismiss="alert">×</button>
-                {{ message|safe }}
-                </div>
+            <button class="close" data-dismiss="alert">×</button>
+            {{ message|safe }}
+            </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
     {% block body %}
     {% endblock body %}
 
-    <hr>
+    <hr style="height: 12px; border: 0; box-shadow: inset 0 12px 12px -12px"/>
 
     <footer>
         {% block footer %}
-            <p style="text-align: center; font-style: italic; font-size: 10px">wCloud, the <a
+
+            <style>
+
+                p.footertext {
+                    text-align: center; font-style: italic; font-size: 12px
+                }
+
+                img.logo {
+                    width: 100px
+                }
+            </style>
+
+                <p class="footertext" style="">wCloud, the <a
                     href="http://www.weblab.deusto.es/">WebLab-Deusto</a> cloud hosting service.</p>
+
+
+            <div class="text-center">
+                <div>
+                    <img class="logo" src="{{ url_for("static", filename="img/mec.jpg") }}"/>
+                    <img class="logo" src="{{ url_for("static", filename="img/feder.png") }}"/>
+                    <img class="logo" src="{{ url_for("static", filename="img/inn.jpg") }}"/>
+                </div>
+
+                <p class="footertext">
+                    The mCloud project has received funding from the Ministry of Economy and Competitiveness, within the
+                    Spanish National Plan for Scientific and Technical Research and Innovation 2008-2011 and the
+                    European Regional Development Fund (ERDF).
+                </p>
+                <p class="footertext">
+{#                El proyecto mCloud ha recibido financiación del Ministerio de Economía y Competitividad, dentro del Plan#}
+{#                Nacional de#}
+{#                Investigación Científica, Desarrollo e Innovación Tecnológica 2008-2011 y el Fondo Europeo de Desarrollo#}
+{#                Regional#}
+{#                (FEDER)#}
+                </p>
+
+            </div>
+
         {% endblock footer %}
     </footer>
 
