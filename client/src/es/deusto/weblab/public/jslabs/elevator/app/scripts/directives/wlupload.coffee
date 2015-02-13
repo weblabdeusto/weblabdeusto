@@ -21,11 +21,10 @@ angular.module('elevatorApp')
         console.log scope.files
 
         scope.upload = $upload.upload(
-          url: '../../../web/upload/'
+          url: '../../../../../web/upload/'
           data: {},
           file: scope.files
         ).progress( (evt) ->
-          debugger
           console.log "Progress: " + parseInt(100.0 * evt.loaded / evt.total) + '% file : ' + evt.config.file.name
         ).success( (data, status, headers, config) ->
           console.log 'file ' + config.file.name + 'is uploaded successfully. Response: ' + data

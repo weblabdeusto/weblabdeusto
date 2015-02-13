@@ -14,25 +14,31 @@ angular.module('elevatorApp')
   .directive('wlButton', ($timeout) ->
     templateUrl: 'views/wlbutton.html',
     scope:
-      'ident': '@ident'
+      'ident': '@ident',
+      'caption': '@caption',
+      'overlay': '@overlay'
     restrict: 'E'
     link: (scope, element, attrs) ->
 
       # The button can currently be on or off.
       scope.button = {};
-      scope.button.isOn = false;
-      scope.isOn = -> return scope.button.isOn
+      scope.isOn = false
+      scope.isPressed = false;
 
       # The function to invoke when a button is pressed.
       scope.press = ->
         console.debug("Button " + scope.ident + " pressed.")
+
+        # Mark the button as pressed.
+        scope.isPressed = true
 
         Weblab.dbgSetOfflineSendCommandResponse("ok")
 
         Weblab.sendCommand "SetPulse on " + scope.ident,
           =>
             console.debug "SetPulse succeeded"
-            scope.button.isOn = true
+            scope.isOn = true
+            scope.isPressed = false
 
             # In a few seconds, send an off command.
             $timeout (
@@ -43,11 +49,13 @@ angular.module('elevatorApp')
                 Weblab.sendCommand "SetPulse off " + scope.ident,
                   =>
                     console.debug "SetPulse off succeded"
-                    scope.button.isOn = false
+                    scope.isOn = false
+                    scope.isPressed = false
                   ,
                   =>
                     console.debug "SetPulse off failed"
                     scope.button.isOn = false
+                    scope.isPressed = false
               ),
               2000
 

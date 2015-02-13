@@ -65,6 +65,14 @@ fieldset {
 	float: left;
 }
 
+.dragoverAccept {
+	border: 5px dashed blue;
+}
+
+.dragoverReject {
+	border: 5px dashed red;
+}
+
 .drop-box.dragover {
 	border: 5px dashed blue;
 }
