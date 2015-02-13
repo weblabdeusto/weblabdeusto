@@ -2,10 +2,15 @@
 body {
     padding-top: 20px;
     padding-bottom: 20px;
+
+    /* We do not allow text selection. For most of the interface text selection would just be a glitch.
+    May need to be enabled for specific controls */
+    user-select: none;
 }
 
 .my-elevator-controls {
 }
+
 
 .my-calling-controls * * legend {
     font-size: 1.2em;
@@ -20,6 +25,10 @@ body {
 
     position: relative;
     display: block;
+}
+
+.elevator-btn:hover{
+    border: 1px solid black;
 }
 
 .elevator-btn-pressed {

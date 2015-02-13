@@ -15,7 +15,8 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ui.bootstrap'
   ])
   .config ($routeProvider) ->
     $routeProvider

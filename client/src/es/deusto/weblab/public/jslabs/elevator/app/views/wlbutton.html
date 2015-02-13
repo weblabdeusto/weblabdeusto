@@ -1,8 +1,9 @@
 <!-- TODO: Add on-hover effect to the buttons -->
 
 <div style="position: relative" class="elevator-btn-img-wrapper">
-    <img ng-show="isOn" class="elevator-btn" ng-src="images/button_on.png"/>
-    <img ng-click="press()" ng-show="!isOn" class="elevator-btn" ng-class="{ 'elevator-btn-pressed' : isPressed }"
+    <!-- onmousedown, so that we don't drag&drop the button -->
+    <img onmousedown="return false" ng-show="isOn" class="elevator-btn" ng-src="images/button_on.png"/>
+    <img onmousedown="return false" ng-click="press()" ng-show="!isOn" class="elevator-btn" ng-class="{ 'elevator-btn-pressed' : isPressed }"
          ng-src="images/button_off.png"/>
     <div style="position: absolute">
         <img style="" class="elevator-btn-overlay" ng-show="overlay" ng-src="{{ overlay }}"/>
