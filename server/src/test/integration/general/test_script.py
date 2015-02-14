@@ -19,16 +19,15 @@ from test.util.script import ServerCreator
 
 class ScriptTestCase(unittest.TestCase):
     def test_simple(self):
-        with ServerCreator("--cores=1") as sc:
+        with ServerCreator(u"--cores=1") as sc:
             client = sc.create_client()
-            session_id = client.login('admin', 'password')
+            session_id = client.login(u'admin', u'password')
             self.assertNotEquals(session_id, None)
 
     def test_multiple_cores(self):
-        # TODO
-        with ServerCreator("--cores=1") as sc:
+        with ServerCreator(u"--cores=3 --db-engine=mysql --db-name=WebLabIntTests1 --db-user=weblab --db-passwd=weblab --coordination-engine=redis") as sc:
             client = sc.create_client()
-            session_id = client.login('admin', 'password')
+            session_id = client.login(u'admin', u'password')
             self.assertNotEquals(session_id, None)
 
 def suite():

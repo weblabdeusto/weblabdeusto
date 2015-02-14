@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 """
 develop.py is a script used for the development of WebLab-Deusto. It 
@@ -311,6 +311,8 @@ def deploy_testdb(options):
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests2",        weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests3",        weblab_db_username, weblab_db_password, db_dir = db_dir)
 
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabIntTests1",     weblab_db_username, weblab_db_password, db_dir = db_dir)
+
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination",  weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination2", weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination3", weblab_db_username, weblab_db_password, db_dir = db_dir)
@@ -455,7 +457,7 @@ if __name__ == '__main__':
     testdb_options.add_option('--deploy-test-db',   dest='deploy_testdb', action='store_true', default=False,
                                                     help = "Deploys the testing database.")
                                                    
-    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='sqlite', metavar="ENGINE",
+    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='mysql', metavar="ENGINE",
                                                     help = "engine used for the testing database.")
     
     testdb_options.add_option('--db-create-db',     dest='testdb_create_db', action='store_true', default=False,

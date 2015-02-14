@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from __future__ import unicode_literals
+
 import os
 import sys
 import shlex

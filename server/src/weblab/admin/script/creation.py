@@ -14,6 +14,8 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+from __future__ import unicode_literals
+
 try:
     from PIL import Image
 except ImportError:
@@ -572,8 +574,8 @@ def _build_parser():
     experiments.add_option("--vm-experiment-name",  dest = Creation.VM_EXPERIMENT_NAME, default='vm', type="string", metavar='EXPERIMENT_NAME',
                                                        help = "Name of the VM experiment. "  )
 
-    experiments.add_option("--vm-storage-dir",  dest = Creation.VM_STORAGE_DIR, default='C:\Users\lrg\.VirtualBox\Machines', type="string", metavar='STORAGE_DIR',
-                                                   help = "Directory where the VirtualBox machines are located. For example: c:\users\lrg\.VirtualBox\Machines"  )
+    experiments.add_option("--vm-storage-dir",  dest = Creation.VM_STORAGE_DIR, default='C:\\Users\\lrg\\.VirtualBox\\Machines', type="string", metavar='STORAGE_DIR',
+                                                   help = "Directory where the VirtualBox machines are located. For example: c:\\users\\lrg\\.VirtualBox\\Machines"  )
 
     experiments.add_option("--vbox-vm-name",  dest = Creation.VBOX_VM_NAME, default='UbuntuDefVM2', type="string", metavar='VBOX_VM_NAME',
                                                    help = "Name of the Virtual Box machine which this experiment uses. Is often different from the Hard Disk name."  )
