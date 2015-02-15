@@ -55,13 +55,13 @@ def get_suites(avoid_integration = False, avoid_stress = True):
             content_path = directory + os.sep + content
             if content_path.endswith('.py') and content_path != '__init__.py':
                 module_name = content[:-len('.py')]
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 if hasattr(mod, 'suite'):
                     suites.append(mod.suite())
             elif os.path.isdir(content_path) and os.path.exists(content_path + os.sep + '__init__.py'):
                 module_name = content
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 recursion_on_modules(mod, content_path)
 
@@ -96,7 +96,7 @@ def runConsole(single_test, avoid_integration, argv):
         module = None
     else:
         module_name = single_test[:-3].replace(os.sep,'.')
-        module =  __import__(module_name, globals(), locals(), [module_name])
+        module =  __import__(module_name, globals(), locals(), [str(module_name)])
 
     old_sys_exit = sys.exit
     def _exit(status = 0):
