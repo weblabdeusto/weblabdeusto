@@ -271,7 +271,7 @@ class HostLauncher(AbstractLauncher):
             else:
                 debugger_port = self.debugger_ports.get(process_name, "None")
             args = (
-                        "python",
+                        sys.executable,
                         "-OO",
                         __file__,
                         self.config_dir,
