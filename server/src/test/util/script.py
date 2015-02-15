@@ -42,7 +42,7 @@ def connect(port):
     s.close()
 
 class ServerCreator(threading.Thread):
-    def __init__(self, command = "", port_space = 10, startup_wait = 0.2):
+    def __init__(self, command = "", port_space = 10, startup_wait = 0.8):
         super(ServerCreator, self).__init__()
         proxy_server.QUIET = True
         self.address = ''
@@ -66,6 +66,12 @@ class ServerCreator(threading.Thread):
             shutil.rmtree(self.temporary_folder)
             raise
         finally:
+            variables = {}
+            execfile(os.path.join(self.temporary_folder, 'weblab', 'debugging.py'), variables, variables)
+            self.ports = variables['PORTS']
+            self.temporal_addresses = []
+            for port in self.ports:
+                self.temporal_addresses.append('http://localhost:%s/weblab/' % port)
             sys.argv = self.argv
 
     def create_client(self):
@@ -74,17 +80,23 @@ class ServerCreator(threading.Thread):
     def __enter__(self):
         self.start()
         time.sleep(self.startup_wait)
-        max_waiting_time = 3 # seconds
+        max_waiting_time = 8 # seconds
         original_time = time.time()
+
         while time.time() <= (original_time + max_waiting_time):
             time.sleep(0.2)
+            finished = True
+
             try:
-                r = requests.get('%sjson' % self.address)
+                for address in (self.temporal_addresses + [self.address]):
+                    r = requests.get('%sjson' % self.address)
+                    if r.status_code != 200:
+                        finished = False
             except:
-                pass
-            else:
-                if r.status_code == 200:
-                    break
+                finished = False
+
+            if finished:
+                break
         return self
 
     def run(self):
