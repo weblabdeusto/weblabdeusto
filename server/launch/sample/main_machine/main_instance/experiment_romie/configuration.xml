@@ -12,7 +12,7 @@
 
 	<implementation>experiments.romie.RoMIExperiment</implementation>
 
-	<restriction>romie@Dummy experiments</restriction>
+	<restriction>romie@Robot experiments</restriction>
 
 	<protocols>
 		<protocol name="Direct">

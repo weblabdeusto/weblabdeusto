@@ -148,7 +148,8 @@ CONFIG_JS = {
 	                    	   },
 							   {
 								   "experiment.name"		: "romie",
-								   "experiment.category"	: "Dummy experiments",
+								   "experiment.category"	: "Robot experiments",
+								   "experiment.picture"		: "/img/experiments/robot.jpg",
 								   "cssWidth"				: "1024",
 								   "cssHeight"				: "680",
 								   "provide.file.upload"	: False,
@@ -982,7 +983,7 @@ def populate_weblab_tests(engine, tests):
     session.add(jsfpga)
     _add_params(session, jsfpga)
 
-    romie = Model.DbExperiment("romie", cat_dummy, start_date, end_date, 'js')
+    romie = Model.DbExperiment("romie", cat_robot, start_date, end_date, 'js')
     session.add(romie)
     _add_params(session, romie)
 
@@ -1383,9 +1384,9 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_romie_allowed)
     up_any_romie_allowed_p1 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p1, "romie")
     session.add(up_any_romie_allowed_p1)
-    up_any_romie_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Dummy experiments")
+    up_any_romie_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Robot experiments")
     session.add(up_any_romie_allowed_p2)
-    up_any_romie_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "900")
+    up_any_romie_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "1200")
     session.add(up_any_romie_allowed_p3)
 
     up_any_visir_html5_allowed = Model.DbUserPermission(
