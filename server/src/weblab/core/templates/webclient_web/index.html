@@ -141,114 +141,137 @@
 {% block scripts %}
     <script type="text/javascript">
 
-        var store = new Persist.Store("weblabweb");
 
+        /**
+         * Angular code.
+         */
+        angular
+                .module("loginScreen", [])
+                .controller("LoginScreenController", LoginScreenController);
 
-        $(document).ready(function () {
-            console.log("INITIALIZING");
+        function LoginScreenController($scope) {
 
-            var $lastSubmit = undefined;
+        }
 
-            // Remember which submit is clicked.
-            $("input[type=submit]").click(function (ev) {
-                $lastSubmit = ev.target;
-            });
-
-            $("#login-form-ignore").submit(function (ev) {
-
-                // This is only a form for the auto-enter. We do not want a submit.
-                ev.preventDefault();
-
-                var $status = $("#login-status");
-
-                var username = "";
-                var password = "";
-                if ($lastSubmit.id == "guestlogin") {
-                    username = "demo";
-                    password = "demo";
-                } else {
-                    username = $("#username").val();
-                    password = $("#password").val();
-                }
-
-                $status.attr("style", "visibility: auto");
-                $status.attr("class", "alert alert-info");
-                $status.text("{{ gettext("Logging in...") }}");
-                {# WeblabWeb.setTargetURLs("{{ url_for("redir_login_json") }}", "{{ url_for("redir_json") }}"); #}
-                WeblabWeb._login(username, password)
-                        .done(function (ev, a) {
-                            $status.attr("class", "alert alert-success");
-                            $status.text("{{ gettext("Logged in. Please wait...") }}");
-
-                            console.log(ev);
-
-                            var sessionid = ev;
-
-                            // TODO: Hard-coding the path could actually fail if the weblab instance was not set at root.
-                            // It was added because there used to be a bug where the python redirectors would set cookies
-                            // on the root path while this function would set cookies on the local client path.
-                            // Maybe the whole sessionid could actually be removed.
-                            $.cookie("sessionid", sessionid, {path: "/"});
-
-                            console.log(sprintf("[DBG]: Logged in from JS with weblabsessionid=%s sessionid=%s route=%s loginweblabsessionid=%s", $.cookie("weblabsessionid"), $.cookie("sessionid"), $.cookie("route"), $.cookie("loginweblabsessionid")));
-
-                            WeblabWeb._get_user_information(sessionid)
-                                    .done(function (info) {
-                                        store.set("userinfo", JSON.stringify(info));
-
-                                        // We do not pass the sid here anymore because now it is done
-                                        // through persist.js.
-
-                                        // TODO: Currently we cannot do a relative redirect because our index is actually
-                                        // the root, which means that with and without the / bar the result would be different.
-
-                                        {# We enforce an absolute path for security #}
-                                        {% if not request.args.get("next") %}
-                                            {#  window.location = "{{ url_for("labs") }}"; #}
-                                        {% else %}
-                                        window.location = "{{ url_for("index", _external=True) + request.args.get("next")[1:] | safe }}";
-                                        {% endif %}
-                                    })
-                                    .fail(function (err) {
-                                        $status.attr("class", "alert alert-danger");
-                                        if (err.message != undefined) {
-                                            $status.text(err.message);
-                                        } else {
-                                            $status.text("{{ gettext("Error: Failed to login.") }}");
-                                        }
-                                    });
-                        })
-                        .fail(function (ev) {
-                            $status.attr("class", "alert alert-danger");
-
-                            if (ev.message != undefined) {
-                                $status.text(ev.message);
-                            } else {
-                                $status.text("{{ gettext("Error: Failed to login.") }}");
-                            }
-                            console.log(ev);
-                        });
-            });
-
-
-        }); // !ready
-
-
-        // Do an AJAX query in parallel (both document loading and the query can take place at
-        // the same time).
-        (function () {
-            var doc_ready = $.Deferred();
-            $(doc_ready.resolve);
-{#            $.when(doc_ready, $.ajax({"url": "{{ url_for("configuration") }}"}))#}
-                    .done(function (ready, config, third) {
-                        configuration = config[0]; // Store it GLOBALLY.
-                        store.set("configuration", JSON.stringify(configuration));
-                    })
-                    .fail(function (err, reason) {
-                        console.error("{{ gettext("Failed to retrieve configuration") }}");
-                        console.error(reason);
-                    });
-        })();
+        // We manually bootstrap the page so that we don't have to pre-load this code.
+        angular.element(document).ready(function () {
+            angular.bootstrap(document, ['loginScreen']);
+        });
 
     </script>
 {% endblock %}
+
+
+{# Old JS login code. To be removed eventually. #}
+
+{##}
+{#        var store = new Persist.Store("weblabweb");#}
+{##}
+{##}
+{#        $(document).ready(function () {#}
+{#            console.log("INITIALIZING");#}
+{##}
+{#            var $lastSubmit = undefined;#}
+{##}
+{#            // Remember which submit is clicked.#}
+{#            $("input[type=submit]").click(function (ev) {#}
+{#                $lastSubmit = ev.target;#}
+{#            });#}
+{##}
+{#            $("#login-form-ignore").submit(function (ev) {#}
+{##}
+{#                // This is only a form for the auto-enter. We do not want a submit.#}
+{#                ev.preventDefault();#}
+{##}
+{#                var $status = $("#login-status");#}
+{##}
+{#                var username = "";#}
+{#                var password = "";#}
+{#                if ($lastSubmit.id == "guestlogin") {#}
+{#                    username = "demo";#}
+{#                    password = "demo";#}
+{#                } else {#}
+{#                    username = $("#username").val();#}
+{#                    password = $("#password").val();#}
+{#                }#}
+{##}
+{#                $status.attr("style", "visibility: auto");#}
+{#                $status.attr("class", "alert alert-info");#}
+{#                $status.text("{{ gettext("Logging in...") }}");#}
+{# WeblabWeb.setTargetURLs("{{ url_for("redir_login_json") }}", "{{ url_for("redir_json") }}"); #}
+{#                WeblabWeb._login(username, password)#}
+{#                        .done(function (ev, a) {#}
+{#                            $status.attr("class", "alert alert-success");#}
+{#                            $status.text("{{ gettext("Logged in. Please wait...") }}");#}
+{##}
+{#                            console.log(ev);#}
+{##}
+{#                            var sessionid = ev;#}
+{##}
+{#                            // TODO: Hard-coding the path could actually fail if the weblab instance was not set at root.#}
+{#                            // It was added because there used to be a bug where the python redirectors would set cookies#}
+{#                            // on the root path while this function would set cookies on the local client path.#}
+{#                            // Maybe the whole sessionid could actually be removed.#}
+{#                            $.cookie("sessionid", sessionid, {path: "/"});#}
+{##}
+{#                            console.log(sprintf("[DBG]: Logged in from JS with weblabsessionid=%s sessionid=%s route=%s loginweblabsessionid=%s", $.cookie("weblabsessionid"), $.cookie("sessionid"), $.cookie("route"), $.cookie("loginweblabsessionid")));#}
+{##}
+{#                            WeblabWeb._get_user_information(sessionid)#}
+{#                                    .done(function (info) {#}
+{#                                        store.set("userinfo", JSON.stringify(info));#}
+{##}
+{#                                        // We do not pass the sid here anymore because now it is done#}
+{#                                        // through persist.js.#}
+{##}
+{#                                        // TODO: Currently we cannot do a relative redirect because our index is actually#}
+{#                                        // the root, which means that with and without the / bar the result would be different.#}
+{##}
+{# We enforce an absolute path for security #}
+{#                                        {% if not request.args.get("next") %}#}
+{#  window.location = "{{ url_for("labs") }}"; #}
+{#                                        {% else %}#}
+{#                                        window.location = "{{ url_for("index", _external=True) + request.args.get("next")[1:] | safe }}";#}
+{#                                        {% endif %}#}
+{#                                    })#}
+{#                                    .fail(function (err) {#}
+{#                                        $status.attr("class", "alert alert-danger");#}
+{#                                        if (err.message != undefined) {#}
+{#                                            $status.text(err.message);#}
+{#                                        } else {#}
+{#                                            $status.text("{{ gettext("Error: Failed to login.") }}");#}
+{#                                        }#}
+{#                                    });#}
+{#                        })#}
+{#                        .fail(function (ev) {#}
+{#                            $status.attr("class", "alert alert-danger");#}
+{##}
+{#                            if (ev.message != undefined) {#}
+{#                                $status.text(ev.message);#}
+{#                            } else {#}
+{#                                $status.text("{{ gettext("Error: Failed to login.") }}");#}
+{#                            }#}
+{#                            console.log(ev);#}
+{#                        });#}
+{#            });#}
+{##}
+{##}
+{#        }); // !ready#}
+
+
+{#        // Do an AJAX query in parallel (both document loading and the query can take place at#}
+{#        // the same time).#}
+{#        (function () {#}
+{#            var doc_ready = $.Deferred();#}
+{#            $(doc_ready.resolve);#}
+{#            $.when(doc_ready, $.ajax({"url": "{{ url_for("configuration") }}"}))#}
+{#            .#}
+{#            done(function (ready, config, third) {#}
+{#                configuration = config[0]; // Store it GLOBALLY.#}
+{#                store.set("configuration", JSON.stringify(configuration));#}
+{#            })#}
+{#                    .fail(function (err, reason) {#}
+{#                        console.error("{{ gettext("Failed to retrieve configuration") }}");#}
+{#                        console.error(reason);#}
+{#                    });#}
+{#        })();#}
+
