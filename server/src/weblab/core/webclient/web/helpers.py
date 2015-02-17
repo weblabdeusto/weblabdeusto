@@ -7,6 +7,7 @@ import requests
 
 def build_experiments_list(experiments_list, experiments_config):
     """
+    DEPRECATED
     Builds a merged experiments list which contains, for only those experiments which the user
     is allowed to use, the extra information contained within experiments_config.
 
