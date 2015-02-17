@@ -8,11 +8,16 @@
  # Controller of the elevatorApp
 ###
 angular.module('elevatorApp')
-  .controller 'MainCtrl', ($scope) ->
+  .controller 'MainCtrl', ($scope, RefreshState) ->
 
     # Create basic parameters for the whole experiment
     $scope.experiment = {}
     $scope.experiment.status = 'ready'
+
+    # Start refreshing the state
+    RefreshState.start (state) ->
+      $scope.experiment.status = state
+
 
     # Get an appropriate description for the current status of the experiment.
     $scope.experiment.getStatusDescription = ->
@@ -59,6 +64,8 @@ angular.module('elevatorApp')
         return "alert-success"
       else
         return "alert-danger"
+
+
 
     $scope.shouldShowStatus = ->
       return $scope.experiment.status == 'programming'
