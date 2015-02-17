@@ -2,6 +2,14 @@
 <hr>
 
 <div class="row">
+    <div class="col-xs-12 col-sm-6 col-sm-push-3">
+        <div class="alert" ng-class="experiment.getStatusClass()">
+            {{ experiment.getStatusDescription() }}
+        </div>
+    </div>
+</div>
+
+<div class="row">
 
     <div class="col col-xs-12 col-sm-3">
         <wl-webcam src="images/fake_webcam_back.jpg"></wl-webcam>
