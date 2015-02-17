@@ -1,0 +1,23 @@
+<div onmousedown="return false;" class="text-center">
+    <div class="row">
+        <div class="col col-xs-12">
+            <div style="margin-left: auto; margin-right: auto" class="well">
+                <div>
+                    <div class="btn btn-info" ng-file-select ng-accept="'.vhd,.bit'" ng-model="files" multiple="false">Select Program</div>
+                </div>
+                <div style="width: 100%">
+                    <div ng-file-drop ng-model="files"
+                         style="display:block; width: 10%; min-width: 150px; margin-left: auto; margin-right: auto"
+                         class="drop-box"
+                         drag-over-class="{accept:'dragoverAccept', reject:'dragoverReject', delay:100}"
+                         multiple="true"
+                         allow-dir="false" accept="'.vhd,.bit'">
+                        Drop here
+                    </div>
+                </div>
+                <div ng-no-file-drop>File Farg/Drop is not supported for this browser</div>
+            </div>
+
+        </div>
+    </div>
+</div>

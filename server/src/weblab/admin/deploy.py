@@ -33,7 +33,7 @@ def _add_params(session, experiment):
 
     experiment_config = {}
     for experiment_client in client_config:
-        if (experiment_client['experiment.name'] == experiment.name and 
+        if (experiment_client['experiment.name'] == experiment.name and
                 experiment_client['experiment.category'] == experiment.category.name ):
                 experiment_config = experiment_client
                 break
@@ -56,10 +56,10 @@ def _add_params(session, experiment):
 
     session.commit()
 
-# 
+#
 # Original JavaScript configuration
-# 
-CONFIG_JS = { 
+#
+CONFIG_JS = {
 					"flash" : [
 					           {
 					        	   "experiment.name"     : "flashdummy",
@@ -108,7 +108,7 @@ CONFIG_JS = {
 	                    		   "html.file"				: "jslabs/aquarium/aquarium.html",
 								   "experiment.info.link" : "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
 								   "experiment.info.description" : "description"
-	                    	   },	
+	                    	   },
  				   {
 					   "experiment.name"		: "archimedes",
 					   "experiment.category"	: "Aquatic experiments",
@@ -146,6 +146,14 @@ CONFIG_JS = {
 	                    		   "provide.file.upload"	: True,
 	                    		   "html.file"				: "jsxilinx/watertank/watertank.html"
 	                    	   },
+							   {
+								   "experiment.name"		: "romie",
+								   "experiment.category"	: "Dummy experiments",
+								   "cssWidth"				: "1024",
+								   "cssHeight"				: "680",
+								   "provide.file.upload"	: False,
+								   "html.file"				: "jslabs/romie/romie.html"
+							   },
 							   {
 								   "experiment.name"		: "visir-html5",
 								   "experiment.category"	: "Visir experiments",
@@ -741,13 +749,13 @@ def populate_weblab_tests(engine, tests):
     session.add(any)
 
     prof1 = Model.DbUser("prof1", "Name of instructor 1", "weblab@deusto.es", None, instructor)
-    session.add(prof1)    
+    session.add(prof1)
 
     prof2 = Model.DbUser("prof2", "Name of instructor 2", "weblab@deusto.es", None, instructor)
-    session.add(prof2)    
+    session.add(prof2)
 
     prof3 = Model.DbUser("prof3", "Name of instructor 3", "weblab@deusto.es", None, instructor)
-    session.add(prof3)    
+    session.add(prof3)
 
     student1 = Model.DbUser("student1", "Name of student 1", "weblab@deusto.es", None, student)
     session.add(student1)
@@ -974,14 +982,18 @@ def populate_weblab_tests(engine, tests):
     javadummy = Model.DbExperiment("javadummy", cat_dummy, start_date, end_date, 'java')
     session.add(javadummy)
     _add_params(session, javadummy)
-    
+
     jsdummy = Model.DbExperiment("jsdummy", cat_dummy, start_date, end_date, 'js')
     session.add(jsdummy)
     _add_params(session, jsdummy)
-    
+
     jsfpga = Model.DbExperiment("jsfpga", cat_fpga, start_date, end_date, 'js')
     session.add(jsfpga)
     _add_params(session, jsfpga)
+
+    romie = Model.DbExperiment("romie", cat_dummy, start_date, end_date, 'js')
+    session.add(romie)
+    _add_params(session, romie)
 
     visir_html5 = Model.DbExperiment("visir-html5", cat_visir, start_date, end_date, 'js')
     session.add(visir_html5)
@@ -1058,7 +1070,7 @@ def populate_weblab_tests(engine, tests):
     submarine = Model.DbExperiment("submarine", cat_submarine, start_date, end_date, 'submarine')
     session.add(submarine)
     _add_params(session, submarine)
-    
+
     http = Model.DbExperiment("http", cat_http, start_date, end_date, 'redirect')
     session.add(http)
     _add_params(session, http)
@@ -1102,13 +1114,13 @@ def populate_weblab_tests(engine, tests):
     microelectronics = Model.DbExperiment("microelectronics", cat_ilab, start_date, end_date, 'ilab-batch')
     session.add(microelectronics)
     _add_params(session, microelectronics)
-    
+
     pic18 = Model.DbExperiment("ud-pic18", cat_pic, start_date, end_date, 'pic18')
     session.add(pic18)
     _add_params(session, pic18)
 
     # Permissions
-    
+
     gp_course0809_fpga_allowed = Model.DbGroupPermission(
         groupCourse0809,
         experiment_allowed,
@@ -1323,7 +1335,7 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_elevator_allowed_p3)
 
 
-    
+
     up_arch_archimedes_allowed = Model.DbUserPermission(
         archimedes_user,
         experiment_allowed,
@@ -1369,6 +1381,21 @@ def populate_weblab_tests(engine, tests):
     session.add(up_any_jsfpga_allowed_p2)
     up_any_jsfpga_allowed_p3 = Model.DbUserPermissionParameter(up_any_jsfpga_allowed, experiment_allowed_p3, "1400")
     session.add(up_any_jsfpga_allowed_p3)
+
+    up_any_romie_allowed = Model.DbUserPermission(
+        any,
+        experiment_allowed,
+        "any::romie",
+        datetime.datetime.utcnow(),
+        "Permission for any to use romie"
+    )
+    session.add(up_any_romie_allowed)
+    up_any_romie_allowed_p1 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p1, "romie")
+    session.add(up_any_romie_allowed_p1)
+    up_any_romie_allowed_p2 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p2, "Dummy experiments")
+    session.add(up_any_romie_allowed_p2)
+    up_any_romie_allowed_p3 = Model.DbUserPermissionParameter(up_any_romie_allowed, experiment_allowed_p3, "900")
+    session.add(up_any_romie_allowed_p3)
 
     up_any_visir_html5_allowed = Model.DbUserPermission(
         any,

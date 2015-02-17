@@ -46,15 +46,17 @@ class DatabaseConnection(object):
             port          = cfg_manager.get_doc_value(configuration_doc.DB_PORT)
             dbname        = cfg_manager.get_doc_value(configuration_doc.DB_DATABASE)
             engine        = cfg_manager.get_doc_value(configuration_doc.DB_ENGINE)
-            user          = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_USERNAME)
-            password      = cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_PASSWORD)
+            pool_size     = cfg_manager.get_doc_value(configuration_doc.DB_POOL_SIZE)
+            max_overflow  = cfg_manager.get_doc_value(configuration_doc.DB_MAX_OVERFLOW)
+            user          = cfg_manager.get_doc_value(configuration_doc.DB_USERNAME)
+            password      = cfg_manager.get_doc_value(configuration_doc.DB_PASSWORD)
         except CfgErrors.KeyNotFoundError as knfe:
             raise DbMisconfiguredError(
                     "Configuration manager didn't provide values for at least one parameter: %s" % knfe,
                     knfe
                 )
 
-        if self.engine is None or cfg_manager.get_doc_value(configuration_doc.WEBLAB_DB_FORCE_ENGINE_CREATION):
+        if self.engine is None or cfg_manager.get_doc_value(configuration_doc.DB_FORCE_ENGINE_CREATION):
             getconn = generate_getconn(engine, user, password, host, port, dbname)
 
             if engine == 'sqlite':
@@ -70,7 +72,7 @@ class DatabaseConnection(object):
                                   "USER":     user, "PASSWORD": password,
                                   "HOST":     host, "DATABASE": dbname  }
 
-                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=15, max_overflow=20, recycle=3600)
+                pool = sqlalchemy.pool.QueuePool(getconn, pool_size=pool_size, max_overflow=max_overflow, recycle=3600)
 
             self.engine = create_engine(connection_url, echo=False, convert_unicode=True, pool = pool)
 

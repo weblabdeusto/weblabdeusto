@@ -1,0 +1,195 @@
+ <!DOCTYPE html>
+<html>
+	<head>
+		<title>RoMIE</title>
+		<meta charset="UTF-8">
+
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/style.css">
+
+		<script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/romie.js"></script>
+		<script src="js/game.js"></script>
+		<script>
+			$(parent.document).find('iframe[name=wlframe]').hide();
+
+			function init()
+			{
+				romie = new Romie();
+				game = new Game(194.16); //3*60+14+0.16 [3min 14,16 seconds];
+				onboard = "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard"; // "http://192.168.0.88/image.jpg";
+				topCam = "https://www.weblab.deusto.es/webcam/proxied.py/romie_top"; // "http://192.168.0.89/image.jpg";
+				big = onboard;
+
+				$("#bigcam").append('<img src="'+big+'">');
+
+				$('button.forward').click(function(){if( ! romie.isMoving())romie.forward(function(tag){game.getQuestion(tag);})});
+				$('button.left').click(function(){if ( ! romie.isMoving()) romie.left();});
+				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
+
+				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
+				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
+				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
+				$('#game_end .modal-footer button').click(function(){$('#game_end').modal("hide")});
+
+				$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
+
+				updateCam1 = function()
+				{
+					d = new Date();
+					$('.camera1 img').attr("src", big+"?"+d.getTime());
+				}
+
+				$('.camera1 img').bind("load",function(){setTimeout(updateCam1, 400)});
+				updateCam1();
+
+				updateCam2 = function()
+				{
+					if (game.isTopCamActive() && game.topCamTime() > 0)
+					{
+						d = new Date();
+						$('.camera2 img').attr("src", onboard+"?"+d.getTime());
+					}
+					else if (game.isTopCamActive())
+					{
+						game.deactivateTopCam();
+						big = onboard;
+						$('.camera2 img').attr("src", "img/black.png");
+					}
+				}
+
+				$('.camera2 img').bind("load",function(){setTimeout(updateCam2, 400)});
+				updateCam2();
+
+				$('.camera2 img').click(function() //TODO Seems that it does not work properly
+				{
+					if (game.topCamTime() > 0 && ! game.isTopCamActive())
+					{
+						big = topCam;
+						game.activateTopCam();
+					}
+					else if (game.topCamTime() > 0)
+					{
+						game.deactivateTopCam();
+						big = onboard;
+						clearInterval(camera2);
+						$('.camera2 img').attr("src", "img/black.png");
+					}
+				});
+
+				$(parent.document).find('iframe[name=wlframe]').show();
+			}
+
+			Weblab.setOnStartInteractionCallback(init);
+		</script>
+	</head>
+	<body>
+		<header>
+			<section class="container">
+				<div class="row">
+					<section class="col-md-3 col-md-offset-3 left time"><span>0</span></section>
+					<section class="col-md-3 left points"><span>0</span></section>
+				</div>
+			</container>
+		</header>
+		<section class="container">
+			<div class="row">
+				<section id="bigcam" class="col-md-6 col-md-offset-2 camera1"></section>
+			</div>
+			<div class="row">
+				<section class="col-md-2 col-md-offset-4 container controls">
+					<div class="row">
+						<button type="button" class="col-md-1 col-md-offset-2 forward">
+							<img src="img/forward.png" alt="Forward">
+						</button>
+					</div>
+					<div class="row">
+						<button type="button" class="col-md-1 left">
+							<img src="img/left.png" alt="Left">
+						</button>
+						<button type="button" class="col-md-1 right">
+							<img src="img/right.png" alt="Right">
+						</button>
+					</div>
+				</section>
+				<section class="col-md-3 col-md-offset- camera2">
+					<img src="img/black.png">
+				</section>
+			</div>
+		</section>
+
+		<!-- Modal -->
+		<div class="modal fade" id="question" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title" id="questionLabel"></h4>
+					</div>
+					<div class="modal-body">
+						<form action=""></form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Responder</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Correct -->
+		<div class="modal fade" id="response_ok" tabindex="-1" role="dialog" aria-labelledby="ResponseOKLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">¡Respuesta correcta!</h4>
+					</div>
+					<div class="modal-body">
+						<p>¡Felicidades! La respuesta elegida era la correcta.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Fail -->
+		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">¡Error!</h4>
+					</div>
+					<div class="modal-body">
+						<p>¡Error! La respuesta elegida es errónea.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- End -->
+		<div class="modal fade" id="game_end" tabindex="-1" role="dialog" aria-labelledby="GameEndLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Fin del juego</h4>
+					</div>
+					<div class="modal-body">
+						<p>¡Se ha acabado el tiempo! Tu puntuación final ha sido <span id="game_end_points"></span></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Aceptar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
