@@ -89,7 +89,7 @@ class Locator(object):
         """ Verify that we can connect to that server. Each server implements a 'test_me' method which returns whatever we receive. we call it with a random number. """
         result = self.get(coord_address)
         if result:
-            random_number = random.random()
+            random_number = unicode(random.random())
             try:
                 result = result.test_me(random_number)
             except:
