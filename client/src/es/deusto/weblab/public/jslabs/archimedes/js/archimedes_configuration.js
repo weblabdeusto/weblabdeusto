@@ -1,6 +1,7 @@
 
     var Registry = {
         "archimedes1" : {
+            "name": "1st Tube",
             "ball_mass": 32.7, // g
             "ball_diameter": 3.9, // cm
             "ball_density": 1.05,
@@ -10,6 +11,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
+            "name": "2nd Tube",
             "ball_mass": 41,
             "ball_diameter": 3.9, // cm
             "ball_density": 1.32,
@@ -19,6 +21,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
         },
         "archimedes3" : {
+            "name": "3rd Tube",
             "ball_mass": 2.8,
             "ball_diameter": 3.9, // cm
             "ball_density": 0.09,
@@ -28,6 +31,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate"
         },
         "archimedes4" : {
+            "name": "4th Tube",
             "ball_mass": 30,
             "ball_diameter": 3.9, // cm
             "ball_density": 0.96,
@@ -37,6 +41,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
         "archimedes5" : {
+            "name": "5th Tube",
             "ball_mass": 620,
             "ball_diameter": 5.0    , // cm
             "ball_density": 9.47,
@@ -46,6 +51,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
         },
         "archimedes6" : {
+            "name": "6th Tube",
             "ball_mass": 89.1,
             "ball_density": 0.79,
             "ball_diameter": 6, // cm
@@ -55,6 +61,7 @@
             "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate"
         },
         "archimedes7" : {
+            "name": "7th Tube",
             "ball_mass": 43.3,
             "ball_density": 0.66,
             "ball_diameter": 5, // cm
