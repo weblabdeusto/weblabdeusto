@@ -158,4 +158,4 @@ hosts:
             config:
               general_questions: ../../launch/sample/main_machine/main_instance/experiment_romie/general.json
             type: experiment
-            class: experiments.romie.RoMIExperiment
+            class: experiments.romie.romie.RoMIExperiment
