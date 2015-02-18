@@ -1,10 +1,16 @@
 from collections import defaultdict
+import json
+import os
 import urllib
 
 from flask import render_template, url_for, request, flash, redirect
 
+from helpers import remove_comments_from_json
+
 # from weblab.webclient.web.helpers import get_experiments_data
+import requests
 from weblab.core.wl import weblab_api
+import hashlib
 
 
 @weblab_api.route_webclient("/labs.html")
@@ -14,7 +20,7 @@ def labs():
     """
     # We also want access to the experiment's list for the user.
     # TODO: Take into account the somewhat unclear difference between the loginweblabsessionid and the other one.
-    cookie = request.cookies.get("loginweblabsessionid", None)
+    cookie = request.cookies.get("weblabsessionid", None)
     if cookie is None:
         flash("You are not logged in", category="error")
         return redirect(url_for(".index"))
@@ -27,9 +33,51 @@ def labs():
     experiments_raw = weblab_api.api.list_experiments()
 
     experiments, experiments_by_category = _get_experiment_info(experiments_raw)
+    loggedin_info = _get_loggedin_info()
 
-    return render_template("webclient_web/labs.html", experiments=experiments, experiments_by_category=experiments_by_category,
-                           urllib=urllib)
+    return render_template("webclient_web/labs.html", experiments=experiments,
+                           experiments_by_category=experiments_by_category,
+                           urllib=urllib, loggedin=loggedin_info)
+
+
+def _get_loggedin_info():
+    """
+    Returns a dictionary with several parameters to render the logged_in part of the website.
+    PRERREQUISITE: weblab_api.ctx.reservation_id must be set.
+    :return: info dictionary
+    :rtype: dict
+    """
+
+    ADMIN_URL = "http://www.weblab.deusto.es/weblab/administration/admin/"
+    PROFILE_URL = "http://www.weblab.deusto.es/weblab/administration/profile/"
+
+    # Retrieve the configuration.js info.
+    core_server_url = weblab_api.server_instance.core_server_url
+    configuration_js_url = os.path.join(*[core_server_url, "client", "weblabclientlab", "configuration.js"])
+    configuration_js = requests.get(configuration_js_url).content
+    configuration_js = remove_comments_from_json(configuration_js)
+    configuration_js = json.loads(configuration_js)
+
+    # Retrieve user information
+    user_info = weblab_api.api.get_user_information()
+
+    # Calculate the admin and profile urls.
+    admin_url = os.path.join(*[core_server_url, ""])
+
+    # Calculate the Gravatar from the mail
+    gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(user_info.email.lower()).hexdigest() + "?"
+    gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
+
+    info = {}
+    info["logo_url"] = os.path.join(*[core_server_url, "client", "weblabclientlab", configuration_js["host.entity.image"].lstrip('/')])
+    info["host_link"] = configuration_js["host.entity.link"]
+    info["full_name"] = user_info.full_name
+    info["profile_img"] = ""
+    info["gravatar"] = gravatar_url
+    info["admin_url"] = ADMIN_URL
+    info["profile_url"] = PROFILE_URL
+
+    return info
 
 
 def _get_experiment_info(experiments_raw):

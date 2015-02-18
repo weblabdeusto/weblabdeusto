@@ -179,6 +179,13 @@ def list_experiments():
 @weblab_api.route_api('/user/info/')
 @load_user_processor
 def get_user_information():
+    """
+    get_user_information()
+    Retrieves the user information for the current user.
+
+    :return: User object with the information. The User object contains, among others: full_name, login, email
+    :rtype: weblab.data.dto.User
+    """
     user_information = weblab_api.ctx.user_processor.get_user_information()
     if weblab_api.ctx.user_processor.is_admin():
         admin_url = weblab_api.ctx.core_server_url + "administration/admin/"

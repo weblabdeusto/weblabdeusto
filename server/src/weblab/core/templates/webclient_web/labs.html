@@ -28,16 +28,16 @@
 
             <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
             {% for exp_key, experiment in experiments.items() %}
-                <div class="experiment-description well" data-name="{{ experiment["experiment.name"] }}"
-                     data-category="{{ experiment["experiment.category"] }}"
+                <div class="experiment-description well" data-name="{{ experiment["name"] }}"
+                     data-category="{{ experiment["category"] }}"
                      data-experimentid="{{ exp_key }}">
-                    <h3>{{ experiment["experiment.name"] }}</h3>
-                    <h4>{{ experiment["experiment.category"] }}</h4>
+                    <h3>{{ experiment["name"] }}</h3>
+                    <h4>{{ experiment["category"] }}</h4>
 
                     <div class="row">
                         <div class="col-sm-2" style="text-align: center">
                             <img style="display: inline-block" class="img-responsive img-thumbnail"
-                                 src="{{ IMAGES_FOLDER + experiment.get("experiment.picture", "") }}"
+                                 src="{{ IMAGES_FOLDER + experiment["config"].get("experiment.picture", "") }}"
                                  alt="experiment_picture" width="80" height="100"/>
                         </div>
 
@@ -48,7 +48,7 @@
                                 immersed into water.
                             </p>
                             <p>
-                                <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["experiment_type"] }}
+                                <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["type"] }}
                             </p>
 
                             {# TO-DO: Enable this #}
