@@ -1,3 +1,9 @@
+.container
+{
+    padding-top: 60px;
+}
+
+
 .timer
 {
     position: fixed;
@@ -168,4 +174,9 @@ dd,dl {
     padding: 10px;
     border-radius: 6px;
     box-shadow: 2px 2px 5px 2px #222;
+}
+
+
+.my-btn-disabled {
+    background-color: lightgray;
 }

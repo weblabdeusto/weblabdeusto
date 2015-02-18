@@ -337,7 +337,7 @@ ArchimedesInstance = function (instanceid) {
             if ($(photoButton).attr("disabled") == undefined) {
 
                 //$("#hdpic").attr("src", "img/image_placeholder.png");
-                $("#hdpic").attr("src", "");
+                //$("#hdpic").attr("src", "");
                 $("#photoModal").modal();
 
                 Weblab.sendCommand(instanceid + ":IMAGE",
@@ -355,7 +355,7 @@ ArchimedesInstance = function (instanceid) {
 
             // Disable the button for now.
             $(this).find("img").attr("src", "img/photo.png");
-            photoButton.attr("disabled", "disabled");
+            $(this).attr("disabled", "disabled");
         });
 
 
