@@ -125,7 +125,7 @@ class InternalFlaskServer(Server):
                 else:
                     return "Shutdown not available"
 
-        self._thread = threading.Thread(target = self.application.run, kwargs = {'port' : self.port, 'debug' : False, 'host' : ''})
+        self._thread = threading.Thread(target = self.application.run, kwargs = {'port' : self.port, 'debug' : False, 'host' : '', 'threaded' : True})
         self._thread.setDaemon(True)
         self._thread.setName(next_counter('InternalFlaskServer'))
 
