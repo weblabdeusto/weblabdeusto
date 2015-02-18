@@ -7,7 +7,6 @@ from flask import render_template, url_for, request, flash, redirect
 
 from helpers import remove_comments_from_json
 
-# from weblab.webclient.web.helpers import get_experiments_data
 import requests
 from weblab.core.wl import weblab_api
 import hashlib
