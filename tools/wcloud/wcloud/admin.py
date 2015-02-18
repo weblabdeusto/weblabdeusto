@@ -17,11 +17,11 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from wcloud import app, db
+from wcloud.flaskapp import app, db
 
 from flask import session, redirect, url_for, request, Markup
 from flask.ext.admin import Admin, AdminIndexView
-from flask.ext.admin.contrib.sqlamodel import ModelView
+from flask.ext.admin.contrib.sqla import ModelView
 import wcloud.models as models
 
 databases_per_port = app.config['REDIS_DBS_PER_PORT']
@@ -61,9 +61,9 @@ class HomeView(AdminIndexView):
 
 class UsersPanel(AdministratorModelView):
 
-    column_list = ('full_name', 'email', 'active', 'token.token', 'entity.name', 'entity.base_url')
+    column_list = ('full_name', 'email', 'is_admin', 'active', 'token.token', 'entity.name', 'entity.base_url', 'ip_address', 'creation_date')
 
-    can_edit   = False
+    can_edit   = True
     can_create = False
     can_delete = False
 
@@ -83,13 +83,12 @@ class TokensPanel(AdministratorModelView):
 
 class EntitiesPanel(AdministratorModelView):
 
-    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'mysql', 'redis port', 'redis db')
+    column_list = ('name', 'user.full_name', 'user.email', 'link_url','base_url','start_port_number','end_port_number','deployed', 'db_name', 'redis port', 'redis db')
 
     column_formatters = {
-        'mysql' : lambda c, e, p: 'wcloud%s' % e.id,
-        'redis port' : lambda c, e, p: initial_redis_port + e.id / databases_per_port,
-        'redis db'   : lambda c, e, p: e.id % databases_per_port,
-        'base_url'   : lambda c, e, p: Markup("""<a target="_blank" href="https://cloud.weblab.deusto.es/w/%s">%s</a>""" % (e.base_url, e.base_url))
+        'redis port' : lambda v, c, e, p: initial_redis_port + e.id / databases_per_port,
+        'redis db'   : lambda v, c, e, p: e.id % databases_per_port,
+        'base_url'   : lambda v, c, e, p: Markup("""<a target="_blank" href="https://cloud.weblab.deusto.es/w/%s">%s</a>""" % (e.base_url, e.base_url))
     }
 
     can_edit   = False

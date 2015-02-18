@@ -15,7 +15,6 @@
 
 from voodoo import log
 from voodoo.gen.caller_checker import caller_check
-from voodoo.gen.exceptions.locator import LocatorErrors
 from voodoo.log import logged
 from voodoo.sessions import session_type as SessionType, manager as SessionManager, session_id as SessionId
 from voodoo.sessions.checker import check_session
@@ -79,12 +78,12 @@ class ProxyServer(object):
 
     def _load_translator(self, session):
         if session['trans_coord_addr'] is not None:
-            return self._locator.get_server_from_coordaddr(session['trans_coord_addr'], ServerType.Translator)
+            return self._locator[session['trans_coord_addr']]
         else:
             return self._create_default_translator()
 
     def _load_laboratory(self, session):
-        return self._locator.get_server_from_coordaddr(session['lab_coord_addr'], ServerType.Laboratory)
+        return self._locator[session['lab_coord_addr']]
 
     def _load_proxy_session_handler(self, session):
         translator = self._load_translator(session)
@@ -111,12 +110,14 @@ class ProxyServer(object):
         return DEFAULT_TRANSLATORS[klazz_name]
 
     def _find_translator(self, experiment_unique_id):
-        try:
-            translator = self._locator.get_server(ServerType.Translator, restrictions=experiment_unique_id)
+        potential_translators = self._locator.find_by_type(ServerType.Translator)
+        if potential_translators:
             is_default = False
-        except LocatorErrors.NoServerFoundError:
+            translator = self._locator[potential_translators[0]]
+        else:
             translator = self._create_default_translator()
             is_default = True
+
         return translator, is_default
 
     #===========================================================================

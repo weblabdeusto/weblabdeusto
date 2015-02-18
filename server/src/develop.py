@@ -13,6 +13,8 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+from __future__ import print_function, unicode_literals
+
 """
 develop.py is a script used for the development of WebLab-Deusto. It 
 runs the tests with different UIs, install the requirements, deploys 
@@ -53,13 +55,13 @@ def get_suites(avoid_integration = False, avoid_stress = True):
             content_path = directory + os.sep + content
             if content_path.endswith('.py') and content_path != '__init__.py':
                 module_name = content[:-len('.py')]
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 if hasattr(mod, 'suite'):
                     suites.append(mod.suite())
             elif os.path.isdir(content_path) and os.path.exists(content_path + os.sep + '__init__.py'):
                 module_name = content
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 recursion_on_modules(mod, content_path)
 
@@ -94,7 +96,7 @@ def runConsole(single_test, avoid_integration, argv):
         module = None
     else:
         module_name = single_test[:-3].replace(os.sep,'.')
-        module =  __import__(module_name, globals(), locals(), [module_name])
+        module =  __import__(module_name, globals(), locals(), [str(module_name)])
 
     old_sys_exit = sys.exit
     def _exit(status = 0):
@@ -158,14 +160,12 @@ def runXml(folder):
 
 def debugThreads():
     import threading
-    print "%i threads running:" % threading.activeCount()
+    print("%i threads running:" % threading.activeCount())
     for i in threading.enumerate():
-        print i,i.__module__
-    print
-    import voodoo.gen.protocols.SOAP.ServerSOAP as SSOAP
-    print "ServerSoap:",SSOAP._resource_manager.get_current_resources()
+        print(i,i.__module__)
+    print()
     from test.util.ports import CURRENT_PORT
-    print "Max port achieved:", CURRENT_PORT
+    print("Max port achieved:", CURRENT_PORT)
 
 def get_files():
 
@@ -217,19 +217,17 @@ def check_unused_exceptions(exceptions_folder, source_folders):
 
     for exception in exceptions:
         exc_file = exceptions[exception][1]
-        print >> sys.stderr, "Unused exception: %s at %s" % (exception, exc_file)
+        print("Unused exception: %s at %s" % (exception, exc_file), file=sys.stderr)
 
 def check_all_unused_exceptions():
     check_unused_exceptions( 'weblab/exceptions', ('weblab', ) )
     check_unused_exceptions( 'voodoo/exceptions', ('voodoo', 'weblab') )
-    check_unused_exceptions( 'voodoo/gen/exceptions', ('voodoo', 'weblab') )
-
 
 def check_flakes():
     try:
         from pyflakes.scripts.pyflakes import main as main_pyflakes
     except ImportError:
-        print >> sys.stderr, "pyflakes not installed. Did you run pip install -r requirements_tests.txt or python develop.py --install-basic-requirements?"
+        print("pyflakes not installed. Did you run pip install -r requirements_tests.txt or python develop.py --install-basic-requirements?", file=sys.stderr)
         return -1
 
     stdout = sys.stdout
@@ -248,13 +246,13 @@ def check_flakes():
     lines = [ line for line in results.split('\n') if line.find('generated') < 0 ]
     for line in lines:
         if len(line.strip()) > 0:
-            print >> sys.stderr, line
+            print(line, file=sys.stderr)
 
     check_all_unused_exceptions()
     return 0
 
 def deploy_testdb(options):
-    from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database
+    from weblab.admin.deploy import insert_required_initial_data, populate_weblab_tests, generate_create_database, insert_required_initial_coord_data
     import weblab.db.model as Model
     import weblab.core.coordinator.sql.model as CoordinatorModel
 
@@ -313,19 +311,21 @@ def deploy_testdb(options):
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests2",        weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests3",        weblab_db_username, weblab_db_password, db_dir = db_dir)
 
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabIntTests1",     weblab_db_username, weblab_db_password, db_dir = db_dir)
+
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination",  weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination2", weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination3", weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabSessions",      weblab_db_username, weblab_db_password, db_dir = db_dir)
 
-        print "Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t)
+        print("Databases created.\t\t\t\t[done] [%1.2fs]" % (time.time() - t))
     
     #####################################################################
     # 
     # Populating main database
     #
     for tests in ('','2','3'):
-        print "Populating 'WebLabTests%s' database...  \t\t" % tests, 
+        print("Populating 'WebLabTests%s' database...  \t\t" % tests, end="")
         t = time.time()
 
         engine = create_engine(weblab_test_db_str % tests, echo = False)
@@ -336,7 +336,7 @@ def deploy_testdb(options):
         insert_required_initial_data(engine)
         populate_weblab_tests(engine, tests)
 
-        print "[done] [%1.2fs]" % (time.time() - t)
+        print("[done] [%1.2fs]" % (time.time() - t))
 
     #####################################################################
     # 
@@ -344,7 +344,7 @@ def deploy_testdb(options):
     # 
 
     for coord in ('','2','3'):
-        print "Populating 'WebLabCoordination%s' database...\t" % coord,
+        print("Populating 'WebLabCoordination%s' database...\t" % coord, end="")
         t = time.time()
 
         engine = create_engine(weblab_coord_db_str % coord, echo = False)
@@ -353,9 +353,11 @@ def deploy_testdb(options):
 
         metadata = CoordinatorModel.Base.metadata
         metadata.drop_all(engine)
-        metadata.create_all(engine)    
+        metadata.create_all(engine)
+        
+        insert_required_initial_coord_data(engine)
 
-        print "[done] [%1.2fs]" % (time.time() - t)
+        print("[done] [%1.2fs]" % (time.time() - t))
 
 
     #####################################################################
@@ -364,7 +366,7 @@ def deploy_testdb(options):
     # 
 
 
-    print "Populating 'WebLabSessions' database...\t\t",
+    print("Populating 'WebLabSessions' database...\t\t", end="")
     t = time.time()
 
     engine = create_engine(weblab_sessions_db_str, echo = False)
@@ -377,9 +379,9 @@ def deploy_testdb(options):
     metadata.drop_all(engine)
     metadata.create_all(engine)   
 
-    print "[done] [%1.2fs]" % (time.time() - t)
+    print("[done] [%1.2fs]" % (time.time() - t))
 
-    print "Total database deployment: \t\t\t[done] [%1.2fs]" % (time.time() - t_initial)
+    print("Total database deployment: \t\t\t[done] [%1.2fs]" % (time.time() - t_initial))
 
 
 
@@ -455,7 +457,7 @@ if __name__ == '__main__':
     testdb_options.add_option('--deploy-test-db',   dest='deploy_testdb', action='store_true', default=False,
                                                     help = "Deploys the testing database.")
                                                    
-    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='sqlite', metavar="ENGINE",
+    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='mysql', metavar="ENGINE",
                                                     help = "engine used for the testing database.")
     
     testdb_options.add_option('--db-create-db',     dest='testdb_create_db', action='store_true', default=False,
@@ -545,9 +547,9 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.CRITICAL + 1)
 
     if len(os.environ.get('http_proxy','')) > 0 and not options.dont_disable_proxies:
-        print >> sys.stderr, "Some tests fail when a proxy is present."
-        print >> sys.stderr, "The proxy will be disabled to run the tests."
-        print >> sys.stderr, "Pass --dont-disable-proxies to avoid this behavior"
+        print("Some tests fail when a proxy is present.", file=sys.stderr)
+        print("The proxy will be disabled to run the tests.", file=sys.stderr)
+        print("Pass --dont-disable-proxies to avoid this behavior", file=sys.stderr)
         os.environ.pop('http_proxy',None)
         os.environ.pop('https_proxy',None)
         opener = urllib2.build_opener(urllib2.ProxyHandler({}))
@@ -561,7 +563,7 @@ if __name__ == '__main__':
         if options.directory is not None:
             runXml(options.directory)
         else:
-            print >>sys.stderr, "Select xml folder"
+            print("Select xml folder", file=sys.stderr)
     else:
-        print >>sys.stderr, "Unregistered user interface: %s" % options.ui
+        print("Unregistered user interface: %s" % options.ui, file=sys.stderr)
 

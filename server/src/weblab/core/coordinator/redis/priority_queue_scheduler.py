@@ -22,7 +22,7 @@ from voodoo.log import logged
 import voodoo.log as log
 from voodoo.typechecker import typecheck
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 from voodoo.override import Override
 
@@ -244,7 +244,7 @@ class PriorityQueueScheduler(Scheduler):
                 exp_info                 = {}
             timestamp_before             = datetime.datetime.fromtimestamp(timestamp_before_tstamp)
             timestamp_after              = datetime.datetime.fromtimestamp(timestamp_after_tstamp)
-            lab_coord_address            = CoordAddress.CoordAddress.translate_address(str_lab_coord_address)
+            lab_coord_address            = CoordAddress.translate(str_lab_coord_address)
 
             if initialization_in_accounting:
                 before = timestamp_before_tstamp

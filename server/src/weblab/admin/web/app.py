@@ -203,7 +203,7 @@ class AdministrationApplication(object):
         exc = None
         for fake_name in fake_names:
             try:
-                session_id, route = self.ups.do_reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
+                session_id, route = self.ups._reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
             except Exception as exc:
                 pass
             else:

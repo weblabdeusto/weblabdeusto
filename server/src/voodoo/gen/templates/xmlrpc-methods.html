@@ -1,0 +1,17 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>WebLab internal communications</h1>
+            <p>This is a service for the internal communications. You may use either XML-RPC to call this method (using <tt>Util.</tt> before the method) or posting data to /method_name.</p>
+            <h1>List of methods</h1>
+            <ul>
+                {% for method in methods %}
+                    <li>{{ method }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </body>
+</html>

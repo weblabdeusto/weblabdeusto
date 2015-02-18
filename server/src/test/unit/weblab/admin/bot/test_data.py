@@ -53,6 +53,9 @@ if Data.NUMPY_AVAILABLE:
 else:
     print >> sys.stderr, "numpy not available. Disabling weblab.admin.bot tests."
 
+def suite():
+    return unittest.makeSuite(DataTestCase)
+
 if __name__ == '__main__':
     unittest.main()
 

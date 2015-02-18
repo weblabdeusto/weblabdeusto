@@ -49,8 +49,9 @@ def _build_requirements():
 class WebLabBuild(_build_py):
     def run(self):
         if not self.dry_run:
-
-            # If the WEBLAB_OPT_NOCLIENT option is specified then we will skip the client compilation.
+            if os.path.exists('build'):
+                shutil.rmtree('build')
+            # If the  WEBLAB_OPT_NOCLIENT option is specified then we will skip the client compilation.
             if os.environ.get("WEBLAB_OPT_NOCLIENT") is None:
                 _build_requirements()
                 lib_war = os.path.join(self.build_lib, 'weblabdeusto_data', 'war')

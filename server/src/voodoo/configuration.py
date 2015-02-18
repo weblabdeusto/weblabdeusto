@@ -72,9 +72,16 @@ CFG_LOCKING = False
 class NullLock(object):
     def acquire(self):
         pass
+   
     def release(self):
         pass
 
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args, **kwargs):
+        pass
+ 
 class ConfigurationManager(object):
     def __init__(self):
         super(ConfigurationManager,self).__init__()
@@ -113,6 +120,9 @@ class ConfigurationManager(object):
                     i,
                     getattr(holder,i)
                 )
+
+    def append_value(self, name, value):
+        self._set_value(name, value)
 
     def append_module(self, module):
         self._modules_lock.acquire()
@@ -191,8 +201,12 @@ class ConfigurationManager(object):
                 expected_type = eval(arg.type)
             else:
                 expected_type = arg.type
+
             if not isinstance(value, (expected_type, type(None))):
-                raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
+                if expected_type == int and isinstance(value, long):
+                    pass
+                else:
+                    raise InvalidTypeError("Configuration value '%s' expected of type '%r' but '%r' found" % (key, arg.type, value))
 
         return value
 

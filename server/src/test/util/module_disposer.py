@@ -39,23 +39,23 @@ def uses_module(module, verbose = None):
                 vvv = verbose
 
             if vvv:
-                print "Test %s: retrieving current resources" % func.__name__
+                print("Test %s: retrieving current resources" % func.__name__)
             resources = module._resource_manager.get_current_resources()
             if vvv:
-                print "Test %s: retrieved resources: %s" % (func.__name__, resources)
-                print "Test %s: running test..." % func.__name__
+                print("Test %s: retrieved resources: %s" % (func.__name__, resources))
+                print("Test %s: running test..." % func.__name__)
             try:
                 func(self,*args,**kargs)
             finally:
                 if vvv:
-                    print "Test %s: Test run..." % func.__name__
+                    print("Test %s: Test run..." % func.__name__)
                     resources_after = module._resource_manager.get_current_resources()
-                    print "Test %s: Resources after running test: %s" % (func.__name__,resources_after)
+                    print("Test %s: Resources after running test: %s" % (func.__name__,resources_after))
                 module._resource_manager.remove_resources_from(resources)
                 if vvv:
-                    print "Test %s: resources cleaned" % func.__name__
+                    print("Test %s: resources cleaned" % func.__name__)
                     new_resources = module._resource_manager.get_current_resources()
-                    print "Test %s: remaining resources: %s" % (func.__name__,new_resources)
+                    print("Test %s: remaining resources: %s" % (func.__name__,new_resources))
 
         real_func.__name__ = wrapped_func.__name__
         real_func.__doc___ = wrapped_func.__doc__
@@ -80,10 +80,10 @@ def case_uses_module(module, verbose = None):
         realSetUp = klass.setUp
         def wrappedSetUp(self):
             if vvv:
-                print "setUp @ %s: retrieving current resources" % klass.__name__
+                print("setUp @ %s: retrieving current resources" % klass.__name__)
             klass._module_disposer[module.__name__].before_last_setup = module._resource_manager.get_current_resources()
             if vvv:
-                print "setUp @ %s: retrieved resources: %s" % (klass.__name__, klass._module_disposer[module.__name__].before_last_setup)
+                print("setUp @ %s: retrieved resources: %s" % (klass.__name__, klass._module_disposer[module.__name__].before_last_setup))
 
             realSetUp(self)
         klass.setUp = wrappedSetUp
@@ -93,12 +93,12 @@ def case_uses_module(module, verbose = None):
             realTearDown(self)
 
             if vvv:
-                print "tearDown @ %s: Remaining resources: %s" % (klass.__name__, module._resource_manager.get_current_resources())
+                print("tearDown @ %s: Remaining resources: %s" % (klass.__name__, module._resource_manager.get_current_resources()))
 
             resources = klass._module_disposer[module.__name__].before_last_setup
             module._resource_manager.remove_resources_from(resources)
             if vvv:
-                print "tearDown @ %s: resources cleaned. Remaining: %s" % (klass.__name__, module._resource_manager.get_current_resources())
+                print("tearDown @ %s: resources cleaned. Remaining: %s" % (klass.__name__, module._resource_manager.get_current_resources()))
         klass.tearDown = wrappedTearDown
 
         return klass

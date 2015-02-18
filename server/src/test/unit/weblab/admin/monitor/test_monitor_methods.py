@@ -42,7 +42,7 @@ from weblab.data.dto.users import User
 from weblab.data.dto.users import Role
 from weblab.core.coordinator.resource import Resource
 
-import voodoo.gen.coordinator.CoordAddress  as CoordAddress
+from voodoo.gen import CoordAddress
 
 class ConfirmerMock(object):
     def __init__(self, *args, **kwargs):
@@ -80,7 +80,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         self.coordinator = coordinator_create(SQLALCHEMY, self.locator, self.cfg_manager, ConfirmerClass = ConfirmerMock)
         self.coordinator._clean()
 
-        self.coord_address = CoordAddress.CoordAddress.translate_address( "server0:instance0@machine0" )
+        self.coord_address = CoordAddress.translate( "server0:instance0@machine0" )
 
         self.ups = UserProcessingServer.UserProcessingServer(
                 self.coord_address,
@@ -127,7 +127,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         first_time = time.time()
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         result = methods.list_all_users.call()
         self.assertEquals(1, len(result))
@@ -142,7 +142,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         first_time = time.time()
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         sess_mgr = self.ups._session_manager
         sess_obj = sess_mgr.get_session(sess_id)
@@ -163,7 +163,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         experiment = "ud-dummy"
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         #
         # It returns only the sessions_ids of the experiments
@@ -182,17 +182,17 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
     def test_get_ups_session_ids_from_username(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id1, _ = self.ups._reserve_session(db_sess_id)
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id2, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id2, _ = self.ups._reserve_session(db_sess_id)
 
         sessions = methods.get_ups_session_ids_from_username.call("student2")
         self.assertEquals(set([sess_id1, sess_id2]), set(sessions))
 
     def test_get_reservation_id_no_one_using_it(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id1, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id1, _ = self.ups._reserve_session(db_sess_id)
 
         reservation_id = methods.get_reservation_id.call(sess_id1.id)
         self.assertEquals(None, reservation_id)
@@ -202,7 +202,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         experiment = "ud-dummy"
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
@@ -214,7 +214,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
         experiment = "ud-dummy"
 
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
         with wlcontext(self.ups, session_id = sess_id):
             status = core_api.reserve_experiment(ExperimentId( experiment, category ), "{}", "{}")
 
@@ -231,7 +231,7 @@ class MonitorMethodsTestCase(unittest.TestCase):
 
     def test_kickout_from_ups(self):
         db_sess_id = ValidDatabaseSessionId('student2', "student")
-        sess_id, _ = self.ups.do_reserve_session(db_sess_id)
+        sess_id, _ = self.ups._reserve_session(db_sess_id)
 
         methods.kickout_from_ups.call(sess_id.id)
         with wlcontext(self.ups, session_id = sess_id):

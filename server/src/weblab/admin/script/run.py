@@ -14,6 +14,8 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+from __future__ import unicode_literals
+
 import os
 import sys
 
@@ -23,7 +25,7 @@ from optparse import OptionParser
 
 from weblab.admin.script.upgrade import check_updated
 from weblab.admin.script.utils import check_dir_exists, run_with_config
-from voodoo.gen.loader.ConfigurationParser import GlobalParser
+from voodoo.gen import load_dir
 
 #########################################################################################
 # 
@@ -49,13 +51,16 @@ def check_pid(pid):
 def weblab_start(directory):
     parser = OptionParser(usage="%prog start DIR [options]")
 
-    parser.add_option("-m", "--machine",           dest="machine", default=None, metavar="MACHINE",
-                                                   help = "If there is more than one machine in the configuration, which one should be started.")
-    parser.add_option("-l", "--list-machines",     dest="list_machines", action='store_true', default=False, 
-                                                   help = "List machines.")
+    parser.add_option('-m', '--host', '--machine',
+                                                   dest='host', default=None, metavar='HOST',
+                                                   help = 'If there is more than one host in the configuration, which one should be started.')
 
-    parser.add_option("-s", "--script",            dest="script", default=None, metavar="SCRIPT",
-                                                   help = "If the runner option is not available, which script should be used.")
+    parser.add_option('-l', '--list-hosts', '--list-machines',     
+                                                   dest='list_hosts', action='store_true', default=False, 
+                                                   help = 'List hosts.')
+
+    parser.add_option('-s', '--script',            dest='script', default=None, metavar='SCRIPT',
+                                                   help = 'If the runner option is not available, which script should be used.')
 
     options, args = parser.parse_args()
 
@@ -90,37 +95,36 @@ def weblab_start(directory):
                 print >> sys.stderr, "Provided script %s does not exist" % options.script
                 sys.exit(-1)
         else:
-            parser = GlobalParser()
-            global_configuration = parser.parse('.')
-            if options.list_machines:
-                for machine in global_configuration.machines:
-                    print ' - %s' % machine
+            global_configuration = load_dir('.')
+            if options.list_hosts:
+                for host in global_configuration:
+                    print ' - %s' % host
                 sys.exit(0)
 
-            machine_name = options.machine
-            if machine_name is None: 
-                if len(global_configuration.machines) == 1:
-                    machine_name = global_configuration.machines.keys()[0]
+            host_name = options.host
+            if host_name is None: 
+                if len(global_configuration) == 1:
+                    host_name = global_configuration.keys()[0]
                 else:
-                    print >> sys.stderr, "System has more than one machine (see -l). Please detail which machine you want to start with the -m option."
+                    print >> sys.stderr, "System has more than one host (see -l). Please detail which host you want to start with the --host option."
                     sys.exit(-1)
 
-            if not machine_name in global_configuration.machines:
-                print >> sys.stderr, "Error: %s machine does not exist. Use -l to see the list of existing machines." % machine_name
+            if not host_name in global_configuration:
+                print >> sys.stderr, "Error: %s host does not exist. Use -l to see the list of existing hosts." % host_name
                 sys.exit(-1)
 
-            machine_config = global_configuration.machines[machine_name]
-            if machine_config.runner is None:
+            host_config = global_configuration[host_name]
+            if host_config.runner is None:
                 if os.path.exists('run.py'):
                     execfile('run.py')
                 else:
-                    print >> sys.stderr, "No runner was specified, and run.py was not available. Please the -s argument to specify the script or add the <runner file='run.py'/> option in %s." % machine_name
+                    print >> sys.stderr, "No runner was specified, and run.py was not available. Please the -s argument to specify the script or add the <runner file='run.py'/> option in %s." % host_name
                     sys.exit(-1)
             else:
-                if os.path.exists(machine_config.runner):
-                    execfile(machine_config.runner)
+                if os.path.exists(host_config.runner):
+                    execfile(host_config.runner)
                 else:
-                    print >> sys.stderr, "Misconfigured system. Machine %s points to %s which does not exist." % (machine_name, os.path.abspath(machine_config.runner))
+                    print >> sys.stderr, "Misconfigured system. Machine %s points to %s which does not exist." % (host_name, os.path.abspath(host_config.runner))
                     sys.exit(-1)
     finally:
         os.chdir(old_cwd)

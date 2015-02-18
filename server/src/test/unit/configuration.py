@@ -16,6 +16,7 @@
 # This module will be loaded and reloaded by the ConfigurationManager
 
 import os
+import sys
 
 try:
     import MySQLdb
@@ -132,7 +133,7 @@ core_facade_port = 18346
 weblab_xilinx_experiment_xilinx_device = 'PLD'
 
 xilinx_home = "."
-xilinx_impact_full_path = ["python","./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
+xilinx_impact_full_path = [sys.executable,"./test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
 xilinx_device_to_program = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
 xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'

@@ -29,7 +29,7 @@ else:
 
 from voodoo.sessions.session_id import SessionId
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 import voodoo.configuration      as ConfigurationManager
 
 import weblab.core.login.manager as login_manager
@@ -54,7 +54,7 @@ fake_ldap_invalid_passwd  = "fake_ldap_invalid_passwd"
 class LoginServerTestCase(unittest.TestCase):
 
     def setUp(self):
-        coord_address = CoordAddress.CoordAddress.translate_address(
+        coord_address = CoordAddress.translate(
                 "server0:instance0@machine0")
 
         self.cfg_manager = ConfigurationManager.ConfigurationManager()

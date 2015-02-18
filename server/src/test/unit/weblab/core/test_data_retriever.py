@@ -19,7 +19,7 @@ import time
 import datetime
 from voodoo.override import Override
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
@@ -56,7 +56,7 @@ def wait_for(retriever, iterations = 5, max_wait = 10):
             raise AssertionError("Maximum time waiting reached")
 
 def coord_addr(coord_addr_str):
-    return CoordAddress.CoordAddress.translate_address( coord_addr_str )
+    return CoordAddress.translate( coord_addr_str )
 
 class TemporalInformationRetrieverTestCase(unittest.TestCase):
     def setUp(self):

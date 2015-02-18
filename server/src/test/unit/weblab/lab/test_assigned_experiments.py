@@ -19,7 +19,7 @@ import unittest
 import weblab.lab.exc as LaboratoryErrors
 
 import weblab.lab.assigned_experiments as AssignedExperiments
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 
 from weblab.data.experiments import ExperimentInstanceId
 
@@ -30,7 +30,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
 
 
     def test_add_server(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )
@@ -44,7 +44,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         )
 
     def test_list_experiment_instance_ids(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )
@@ -53,7 +53,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self.assertEquals([self.exp_inst_id], result)
 
     def test_get_coord_address(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )
@@ -62,7 +62,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self.assertEquals(clients_coord_addresses, coord_address)
 
     def test_get_lab_session_id(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )
@@ -72,7 +72,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
         self.assertEquals("foo", lab_session_id)
 
     def test_get_is_up_and_running_handlers(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )
@@ -82,7 +82,7 @@ class AssignedExperimentsTestCase(unittest.TestCase):
 
 
     def test_reserve_experiment(self):
-        clients_coord_addresses = CoordAddress.CoordAddress.translate_address("myserver:myinstance@mymachine")
+        clients_coord_addresses = CoordAddress.translate("myserver:myinstance@mymachine")
         checking_handlers = ('WebcamIsUpAndRunningHandler',)
 
         self._assigned_micro_servers.add_server( self.exp_inst_id, clients_coord_addresses, { 'checkers' : checking_handlers } )

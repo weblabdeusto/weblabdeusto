@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>wCloud</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,103 +10,155 @@
     {% block headers_meta %}
     {% endblock %}
 
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap3/css/bootstrap.min.css') }}">
     <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
     </style>
-   <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}">
 
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
 
-  </head>
+</head>
 
-  <body>
+<body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
+<div class="navbar navbar-default navbar-fixed-top">
+    <div class="navbar-inner">
 
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="{{ url_for('index') }}">wCloud</a>
-          <div class="nav-collapse">
-            {% block navbar %}
-<ul class="nav">
-    {% if session.get('logged_in', False) %}
-    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('home')      }}">Home</a></li>
-    <li {% if current_link == 'configure' %}class="active"{%endif%}><a href="{{ url_for('configure') }}">Configure</a></li>
-    <li {% if current_link == 'deploy'    %}class="active"{%endif%}><a href="{{ url_for('deploy')    }}">Deploy</a></li>
-    {% else %}
-    <li {% if current_link == 'home'      %}class="active"{%endif%}><a href="{{ url_for('index')     }}">Home</a></li>
-    {% endif %}
-    <li {% if current_link == 'about'     %}class="active"{%endif%}><a href="{{ url_for('about')     }}">About</a></li>
-    <li {% if current_link == 'contact'   %}class="active"{%endif%}><a href="{{ url_for('contact')   }}">Contact</a></li>
-</ul>
-{% if session.get('logged_in', False) %}
-<ul class="nav pull-right" >
-    <li><a href="{{ url_for('logout') }}">Logout ({{session['user_email']}})</a></li>
-</ul>
-{% endif %}
 
-            {% endblock navbar %}
-          </div><!--/.nav-collapse -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('index') }}">wCloud</a>
+            </div>
+
+            <div class="collapse navbar-collapse">
+                {% block navbar %}
+                    <ul class="nav navbar-nav">
+                        {% if session.get('logged_in', False) %}
+                            <li {% if current_link == 'home' %}class="active"{% endif %}><a
+                                    href="{{ url_for('home') }}"><span class="glyphicon glyphicon-home"></span> Home</a>
+                            </li>
+                            <li {% if current_link == 'configure' %}class="active"{% endif %}><a
+                                    href="{{ url_for('configure') }}"><span class="glyphicon glyphicon-cog"></span>
+                                Configure</a></li>
+                            <li {% if current_link == 'deploy' %}class="active"{% endif %}><a
+                                    href="{{ url_for('deploy') }}"><span
+                                    class="glyphicon glyphicon-circle-arrow-down"></span> Deploy</a></li>
+
+                            {% if config["DEBUG"] and config["DEBUG_UNDEPLOY_ENABLED"] %}
+                                <li {% if current_link == 'undeploy' %}class="active"{% endif %}><a
+                                        href="{{ url_for('undeploy') }}"><span
+                                        class="glyphicon glyphicon-remove"></span> Undeploy</a></li>
+                            {% endif %}
+
+                        {% else %}
+                            <li {% if current_link == 'home' %}class="active"{% endif %}><a
+                                    href="{{ url_for('index') }}"><span class="glyphicon glyphicon-home"></span>
+                                Home</a></li>
+                        {% endif %}
+                        <li {% if current_link == 'about' %}class="active"{% endif %}><a
+                                href="{{ url_for('about') }}"><span class="glyphicon glyphicon-book"></span> About</a>
+                        </li>
+                        <li {% if current_link == 'contact' %}class="active"{% endif %}><a
+                                href="{{ url_for('contact') }}"><span class="glyphicon glyphicon-user"></span>
+                            Contact</a></li>
+                    </ul>
+                    {% if session.get('logged_in', False) %}
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-off"></span> Logout
+                                ({{ session['user_email'] }})</a></li>
+                        </ul>
+                    {% endif %}
+
+                {% endblock navbar %}
+            </div>
+            <!--/.nav-collapse -->
         </div>
 
-      </div>
     </div>
+</div>
 
-    <div class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-          {% for category, message in messages %}
-            {% if category == 'success' %}
-              <div class="alert alert-success">
-            {% elif category == 'error' %}
-              <div class="alert alert-error">
-            {% endif %}
-                <button class="close" data-dismiss="alert">×</button>
-                {{ message }}
-              </div>
-          {% endfor %}
+            {% for category, message in messages %}
+                {% if category == 'success' %}
+                    <div class="alert alert-success">
+                {% elif category == 'error' %}
+                    <div class="alert alert-danger">
+                {% else %}
+                    <div class="alert alert-danger">
+                {% endif %}
+            <button class="close" data-dismiss="alert">×</button>
+            {{ message|safe }}
+            </div>
+            {% endfor %}
         {% endif %}
-      {% endwith %}
-      {% block body %}
-      {% endblock body %}
-      
-      <hr>
+    {% endwith %}
+    {% block body %}
+    {% endblock body %}
 
-      <footer>
-         {% block footer %}
-         <p style="text-align: center; font-style: italic; font-size: 10px">wCloud, the <a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> cloud hosting service.</p>
-         {% endblock footer %}
-      </footer>
+    <hr style="height: 12px; border: 0; box-shadow: inset 0 12px 12px -12px"/>
+
+    <footer>
+        {% block footer %}
+
+            <style>
+
+                p.footertext {
+                    text-align: center; font-style: italic; font-size: 12px
+                }
+
+                img.logo {
+                    width: 100px
+                }
+            </style>
+
+                <p class="footertext" style="">wCloud, the <a
+                    href="http://www.weblab.deusto.es/">WebLab-Deusto</a> cloud hosting service.</p>
+
+
+            <div class="text-center">
+                <div>
+                    <img class="logo" src="{{ url_for("static", filename="img/mec.jpg") }}"/>
+                    <img class="logo" src="{{ url_for("static", filename="img/feder.png") }}"/>
+                    <img class="logo" src="{{ url_for("static", filename="img/inn.jpg") }}"/>
+                </div>
+
+                <p class="footertext">
+                    The mCloud project has received funding from the Ministry of Economy and Competitiveness, within the
+                    Spanish National Plan for Scientific and Technical Research and Innovation 2008-2011 and the
+                    European Regional Development Fund (ERDF).
+                </p>
+                <p class="footertext">
+{#                El proyecto mCloud ha recibido financiación del Ministerio de Economía y Competitividad, dentro del Plan#}
+{#                Nacional de#}
+{#                Investigación Científica, Desarrollo e Innovación Tecnológica 2008-2011 y el Fondo Europeo de Desarrollo#}
+{#                Regional#}
+{#                (FEDER)#}
+                </p>
+
+            </div>
+
+        {% endblock footer %}
+    </footer>
 
     </div> <!-- /container -->
 
-    <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-transition.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-alert.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-dropdown.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-scrollspy.js') }}"></script>
+    <script src="{{ url_for('static', filename='jquery/jquery-2.1.3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
 
-    <script src="{{ url_for('static', filename='js/bootstrap-tab.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-tooltip.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-popover.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-button.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-collapse.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap-carousel.js') }}"></script>
-
-    <script src="{{ url_for('static', filename='js/bootstrap-typeahead.js') }}"></script>
-
-  </body>
+</body>
 </html>

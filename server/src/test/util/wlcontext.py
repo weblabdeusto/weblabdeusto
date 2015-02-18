@@ -17,7 +17,7 @@ class wlcontext(object):
         self.local = threading.local()
 
     def __enter__(self):
-        self.local.request_context = self.server._facade_app.test_request_context()
+        self.local.request_context = self.server.app.test_request_context()
         self.local.request_context.__enter__()
         kwargs = { 'server_instance' : self.server }
         if self.session_id:

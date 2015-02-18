@@ -2,7 +2,7 @@
 # Pillow (a PIL fork compatible with setuptools) is used to resize 
 # the logo image if necessary, when using weblab-admin create.
 # 
-pillow
+pillow==2.0
 
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 
@@ -11,13 +11,6 @@ pillow
 #  
 #     sudo apt-get install build-essential
 # 
-
-# 
-# numpy is only used in the WebLab Bot. If you are not going to
-# measure the speed of the system, this module will not be used
-# 
-
-numpy<1.7
 
 # 
 # If using Redis for scheduling, hiredis makes the redis 
@@ -48,19 +41,6 @@ mysql-python<1.3
 python-ldap<2.5 
 
 # 
-# The WebLab-Deusto deployment files are based on XML. If you
-# make an error, it may be difficult to find it. If you want
-# to check the syntax with XSLT, the lxml library is 
-# recommended.
-# 
-# It will require you to install libxml2 and libxslt1 
-# development libraries:
-#     sudo apt-get install libxml2-dev libxslt1-dev
-# 
-
-lxml<2.4
-
-# 
 # The WebLab-Deusto Bot uses matplotlib to plot the graphics
 # of the time measurements. Not activated since sometimes it 
 # fails and the rest of packages are not installed.
@@ -69,3 +49,12 @@ lxml<2.4
 #     sudo apt-get install libfreetype6-dev libpng12-dev
 # 
 # matplotlib<1.2
+
+# 
+# numpy is only used in the WebLab Bot. If you are not going to
+# measure the speed of the system, this module will not be used
+# 
+
+numpy<1.7
+
+

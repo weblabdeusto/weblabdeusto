@@ -32,28 +32,28 @@ def _register(permission_type):
 # 
 #                Experiment allowed
 # 
-EXPERIMENT_ALLOWED = 'experiment_allowed'
-EXPERIMENT_ALLOWED_DESC = "Users with this permission will be able to use a particular laboratory during an amount of time. The amount of time will contain or not the initialization time."
+EXPERIMENT_ALLOWED = u'experiment_allowed'
+EXPERIMENT_ALLOWED_DESC = u"Users with this permission will be able to use a particular laboratory during an amount of time. The amount of time will contain or not the initialization time."
 
-EXPERIMENT_PERMANENT_ID            = 'experiment_permanent_id'
-EXPERIMENT_PERMANENT_ID_DTYPE      = 'string'
-EXPERIMENT_PERMANENT_ID_DESC       = 'the unique name of the experiment'
+EXPERIMENT_PERMANENT_ID            = u'experiment_permanent_id'
+EXPERIMENT_PERMANENT_ID_DTYPE      = u'string'
+EXPERIMENT_PERMANENT_ID_DESC       = u'the unique name of the experiment'
 
-EXPERIMENT_CATEGORY_ID             = 'experiment_category_id'
-EXPERIMENT_CATEGORY_ID_DTYPE       = 'string'
-EXPERIMENT_CATEGORY_ID_DESC        = 'the unique name of the category of experiment'
+EXPERIMENT_CATEGORY_ID             = u'experiment_category_id'
+EXPERIMENT_CATEGORY_ID_DTYPE       = u'string'
+EXPERIMENT_CATEGORY_ID_DESC        = u'the unique name of the category of experiment'
 
-TIME_ALLOWED                       = 'time_allowed'
-TIME_ALLOWED_DTYPE                 = 'float'
-TIME_ALLOWED_DESC                  = 'Time allowed (in seconds)'
+TIME_ALLOWED                       = u'time_allowed'
+TIME_ALLOWED_DTYPE                 = u'float'
+TIME_ALLOWED_DESC                  = u'Time allowed (in seconds)'
 
-PRIORITY                           = 'priority'
-PRIORITY_DTYPE                     = 'int'
-PRIORITY_DESC                      = 'Priority (the lower value the higher priority)'
+PRIORITY                           = u'priority'
+PRIORITY_DTYPE                     = u'int'
+PRIORITY_DESC                      = u'Priority (the lower value the higher priority)'
 
-INITIALIZATION_IN_ACCOUNTING       = 'initialization_in_accounting'
-INITIALIZATION_IN_ACCOUNTING_DTYPE = 'bool'
-INITIALIZATION_IN_ACCOUNTING_DESC  = 'time_allowed, should count with the initialization time or not?'
+INITIALIZATION_IN_ACCOUNTING       = u'initialization_in_accounting'
+INITIALIZATION_IN_ACCOUNTING_DTYPE = u'bool'
+INITIALIZATION_IN_ACCOUNTING_DESC  = u'time_allowed, should count with the initialization time or not?'
 
 experiment_allowed = PermissionType(EXPERIMENT_ALLOWED, EXPERIMENT_ALLOWED_DESC, 
                                     [ PermissionTypeParameter(EXPERIMENT_PERMANENT_ID,      EXPERIMENT_PERMANENT_ID_DTYPE,      EXPERIMENT_PERMANENT_ID_DESC      ),
@@ -70,12 +70,12 @@ _register(experiment_allowed)
 # 
 
 
-ADMIN_PANEL_ACCESS      = 'admin_panel_access'
-ADMIN_PANEL_ACCESS_DESC = "Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel."
+ADMIN_PANEL_ACCESS      = u'admin_panel_access'
+ADMIN_PANEL_ACCESS_DESC = u"Users with this permission will be allowed to access the administration panel. The only parameter determines if the user has full_privileges to use the admin panel."
 
-FULL_PRIVILEGES       = 'full_privileges'
-FULL_PRIVILEGES_DTYPE = 'bool'
-FULL_PRIVILEGES_DESC  = 'full privileges (True) or not (False)'
+FULL_PRIVILEGES       = u'full_privileges'
+FULL_PRIVILEGES_DTYPE = u'bool'
+FULL_PRIVILEGES_DESC  = u'full privileges (True) or not (False)'
 
 admin_panel_access = PermissionType(ADMIN_PANEL_ACCESS, ADMIN_PANEL_ACCESS_DESC, 
                                     [ PermissionTypeParameter(FULL_PRIVILEGES,      FULL_PRIVILEGES_DTYPE,      FULL_PRIVILEGES_DESC ) ])
@@ -88,8 +88,8 @@ _register(admin_panel_access)
 # 
 
 
-ACCESS_FORWARD      = 'access_forward'
-ACCESS_FORWARD_DESC = "Users with this permission will be allowed to forward reservations to other external users."
+ACCESS_FORWARD      = u'access_forward'
+ACCESS_FORWARD_DESC = u"Users with this permission will be allowed to forward reservations to other external users."
 
 access_forward = PermissionType(ACCESS_FORWARD, ACCESS_FORWARD_DESC, [] )
 
@@ -100,8 +100,8 @@ _register(access_forward)
 #             Profile editing disabled
 # 
 
-CANT_CHANGE_PROFILE      = 'profile_editing_disabled'
-CANT_CHANGE_PROFILE_DESC = "Disable profile editing. Useful for demo accounts, for instance"
+CANT_CHANGE_PROFILE      = u'profile_editing_disabled'
+CANT_CHANGE_PROFILE_DESC = u"Disable profile editing. Useful for demo accounts, for instance"
 
 cant_change_profile = PermissionType(CANT_CHANGE_PROFILE, CANT_CHANGE_PROFILE_DESC, [])
 
@@ -112,12 +112,12 @@ _register(cant_change_profile)
 #            Instrutor is a teacher of a group
 # 
 
-INSTRUCTOR_OF_GROUP      = 'instructor_of_group'
-INSTRUCTOR_OF_GROUP_DESC = 'Users with this permission will see these groups'
+INSTRUCTOR_OF_GROUP      = u'instructor_of_group'
+INSTRUCTOR_OF_GROUP_DESC = u'Users with this permission will see these groups'
 
-TARGET_GROUP       = 'target_group'
-TARGET_GROUP_DTYPE = 'int'
-TARGET_GROUP_DESC  = 'Identifier of the group to be instructed.'
+TARGET_GROUP       = u'target_group'
+TARGET_GROUP_DTYPE = u'int'
+TARGET_GROUP_DESC  = u'Identifier of the group to be instructed.'
 
 instructor_of_group = PermissionType(INSTRUCTOR_OF_GROUP, INSTRUCTOR_OF_GROUP_DESC, 
                                                     [ PermissionTypeParameter(TARGET_GROUP, TARGET_GROUP_DTYPE, TARGET_GROUP_DESC) ])

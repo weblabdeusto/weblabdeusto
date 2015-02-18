@@ -19,7 +19,7 @@ import weblab.configuration_doc as configuration_doc
 import weblab.core.login.exc as LoginErrors
 import weblab.core.exc as coreExc
 import weblab.exc as WebLabErrors
-import voodoo.gen.exceptions.exceptions as VoodooErrors
+import voodoo.exc as VoodooErrors
 
 def simplify_response(response, limit = 15, counter = 0):
     """
@@ -61,7 +61,7 @@ EXCEPTIONS = (
         (coreExc.UnknownExperimentIdError,    ErrorCodes.CLIENT_UNKNOWN_EXPERIMENT_ID_EXCEPTION_CODE,  True),
         (coreExc.WebLabCoreError,             ErrorCodes.UPS_GENERAL_EXCEPTION_CODE,                   False),
         (WebLabErrors.WebLabError,            ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE,                False),
-        (VoodooErrors.GeneratorError,         ErrorCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
+        (VoodooErrors.VoodooError,         ErrorCodes.VOODOO_GENERAL_EXCEPTION_CODE,                False),
         (Exception,                           ErrorCodes.PYTHON_GENERAL_EXCEPTION_CODE,                False)
 
     )
@@ -115,7 +115,7 @@ def check_exceptions(func):
                         # WebLabInternalServerError
                         log(weblab_class, level.Warning,
                                 "Unexpected %s raised on %s: %s: %s" % ( exc.__name__, func.__name__, e, e.args))
-                        log_exc(weblab_class, log.level.Info)
+                        log_exc(weblab_class, level.Info)
                         return _raise_exception(ErrorCodes.WEBLAB_GENERAL_EXCEPTION_CODE, UNEXPECTED_ERROR_MESSAGE_TEMPLATE % config.get_value(SERVER_ADMIN_EMAIL, DEFAULT_SERVER_ADMIN_EMAIL) )
 
     return wrapper

@@ -20,7 +20,6 @@ import json
 import voodoo.log as log
 from voodoo.typechecker import typecheck
 from voodoo.sessions.session_id import SessionId
-import voodoo.resources_manager as ResourceManager
 
 import weblab.configuration_doc as configuration_doc
 from weblab.data.experiments import ExperimentUsage
@@ -33,8 +32,6 @@ from weblab.core.coordinator.status import WebLabSchedulingStatus
 from weblab.data.experiments import RunningReservationResult, WaitingReservationResult, CancelledReservationResult, FinishedReservationResult, ForbiddenReservationResult
 
 from weblab.core.wl import weblab_api
-
-_resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessor")
 
 FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
 SERVER_UUIDS   = 'server_uuid'

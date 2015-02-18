@@ -19,7 +19,7 @@ import datetime
 
 import mocker
 
-import voodoo.gen.coordinator.CoordAddress as CoordAddress
+from voodoo.gen import CoordAddress
 from   test.util.module_disposer import case_uses_module
 
 import weblab.configuration_doc as configuration_doc
@@ -50,7 +50,7 @@ import weblab.core.exc as coreExc
 import test.unit.configuration as configuration_module
 import voodoo.configuration as ConfigurationManager
 
-laboratory_coordaddr = CoordAddress.CoordAddress.translate_address(
+laboratory_coordaddr = CoordAddress.translate(
         "server:laboratoryserver@labmachine"
     )
 

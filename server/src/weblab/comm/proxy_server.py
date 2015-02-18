@@ -29,6 +29,7 @@ REDIRECT        = 'redirect:'
 FILE            = 'file:'
 
 PROTOCOLS = PROXY, FILE, PROXY_SESSION, PROXIES, REDIRECT
+QUIET = False
 
 def generate_proxy_handler(paths):
 
@@ -76,6 +77,10 @@ def generate_proxy_handler(paths):
             except:
                 self.log_error('Error processing %s' % self.path)
                 raise
+
+        def log_message(self, *args, **kwargs):
+            if not QUIET:
+                BaseHTTPServer.BaseHTTPRequestHandler.log_message(self, *args, **kwargs)
 
         def do_POST(self):
             try:

@@ -460,8 +460,6 @@ class UserProcessingServer(object):
     to an appropriate UserProcessor for the specified session identifier.
     """
 
-    FACADE_SERVERS = ( WebLabFlaskServer, )
-
     def __init__(self, coord_address, locator, cfg_manager, dont_start = False, *args, **kwargs):
         super(UserProcessingServer,self).__init__(*args, **kwargs)
 
@@ -469,6 +467,7 @@ class UserProcessingServer(object):
 
         self._stopping = False
         self._cfg_manager    = cfg_manager
+        self.config          = cfg_manager
         self._locator        = locator
 
         self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)
@@ -536,16 +535,13 @@ class UserProcessingServer(object):
 
         self._server_route   = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
 
-        self._facade_servers = []
-        self._facade_app = None # TODO: REMOVE ME
-        if not dont_start:
-            for FacadeClass in self.FACADE_SERVERS:
-                facade_server = FacadeClass(self, cfg_manager)
-                self._facade_servers.append(facade_server)
-                facade_server.start()
+        self.flask_server = WebLabFlaskServer(self, cfg_manager)
 
-                if hasattr(facade_server, 'app'):
-                    self._facade_app = facade_server.app
+        self.dont_start = cfg_manager.get_value('dont_start', dont_start)
+        if not self.dont_start:
+            self.flask_server.start()
+
+        self.app = self.flask_server.app
 
         #
         # Start checking times
@@ -568,8 +564,9 @@ class UserProcessingServer(object):
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
-        for facade_server in self._facade_servers:
-            facade_server.stop()
+
+        if not self.dont_start:
+            self.flask_server.stop()
 
     def _load_user(self, session):
         return UserProcessor.UserProcessor(self._locator, session, self._cfg_manager, self._coordinator, self._db_manager, self._commands_store)
@@ -626,7 +623,7 @@ class UserProcessingServer(object):
     # Session operations  #
     # # # # # # # # # # # #
 
-    def do_reserve_session(self, db_session_id):
+    def _reserve_session(self, db_session_id):
         session_id = self._session_manager.create_session()
         initial_session = {
             'db_session_id'       : db_session_id,

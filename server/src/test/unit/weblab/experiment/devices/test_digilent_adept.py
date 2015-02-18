@@ -24,6 +24,7 @@ import test.unit.configuration as configuration_module
 class DigilentAdeptTestCase(unittest.TestCase):
 
     def setUp(self):
+        digilent_adept.DEBUG = False
         cfg_manager = ConfigurationManager()
         cfg_manager.append_module(configuration_module)
         self.device = digilent_adept.DigilentAdept(cfg_manager)

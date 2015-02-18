@@ -22,7 +22,7 @@ def inner(signals = False):
 
     import signal
     import weblab
-    import voodoo.gen.loader.Launcher as Launcher
+    import voodoo.gen.launcher as Launcher
     import voodoo.rt_debugger as rt_debugger
 
     rt_debugger.launch_debugger()
