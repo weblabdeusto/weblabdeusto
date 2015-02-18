@@ -70,10 +70,7 @@ def _get_loggedin_info():
     info["logo_url"] = os.path.join(*[core_server_url, "client", "weblabclientlab", configuration_js["host.entity.image"].lstrip('/')])
     info["host_link"] = configuration_js["host.entity.link"]
     info["full_name"] = user_info.full_name
-    info["profile_img"] = ""
     info["gravatar"] = gravatar_url
-    info["admin_url"] = admin_url
-    info["profile_url"] = admin_url
 
     return info
 
