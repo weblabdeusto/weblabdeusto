@@ -3,10 +3,11 @@ import StringIO
 
 import six
 import yaml
+import traceback
 
 from voodoo.configuration import ConfigurationManager
 
-from voodoo.gen.exc import GeneratorError
+from voodoo.gen.exc import GeneratorError, LoadingError
 from voodoo.gen.util import _load_type
 from voodoo.gen.address import CoordAddress
 from voodoo.gen.locator import Locator
@@ -65,7 +66,11 @@ class GlobalConfig(dict):
         """
         config = self.create_config(coord_address)
         component_config = self[coord_address]
-        ComponentClass = _load_type(component_config.component_class)
+        try:
+            ComponentClass = _load_type(component_config.component_class)
+        except Exception as e:
+            traceback.print_exc()
+            raise LoadingError(u"Error loading component: %r for server %s: %s" % (component_config.component_class, coord_address, e))
         locator = Locator(self, coord_address)
         instance = ComponentClass(coord_address, locator, config)
         server = _create_server(instance, coord_address, component_config)
