@@ -48,9 +48,6 @@ def _get_loggedin_info():
     :rtype: dict
     """
 
-    ADMIN_URL = "http://www.weblab.deusto.es/weblab/administration/admin/"
-    PROFILE_URL = "http://www.weblab.deusto.es/weblab/administration/profile/"
-
     # Retrieve the configuration.js info.
     core_server_url = weblab_api.server_instance.core_server_url
     configuration_js_url = os.path.join(*[core_server_url, "client", "weblabclientlab", "configuration.js"])
@@ -63,6 +60,7 @@ def _get_loggedin_info():
 
     # Calculate the admin and profile urls.
     admin_url = os.path.join(*[core_server_url, ""])
+    profile_url = os.path.join(*[core_server_url, ""])
 
     # Calculate the Gravatar from the mail
     gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(user_info.email.lower()).hexdigest() + "?"
@@ -74,8 +72,8 @@ def _get_loggedin_info():
     info["full_name"] = user_info.full_name
     info["profile_img"] = ""
     info["gravatar"] = gravatar_url
-    info["admin_url"] = ADMIN_URL
-    info["profile_url"] = PROFILE_URL
+    info["admin_url"] = admin_url
+    info["profile_url"] = admin_url
 
     return info
 
