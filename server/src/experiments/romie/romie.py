@@ -60,6 +60,8 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
+			self.user
+
 		return ""
 
 	@Override(Experiment.Experiment)
