@@ -21,6 +21,7 @@ from voodoo.log import logged
 import urllib2
 import json
 import random
+import sqlite3
 
 DEBUG = True
 ROMIE_SERVER = "http://192.168.0.190:8000/"
@@ -37,9 +38,13 @@ class RoMIExperiment(Experiment.Experiment):
 		Reads the base config parameters from the config file.
 		"""
 
+		self.database = self._cfg_manager.get_value("forotech_db")
+
 		self.questions = {}
-		general_question_file = self._cfg_manager.get_value("general_questions")
-		self.questions['general'] = json.loads(open(general_question_file).read())
+		self.questions['general'] = json.loads(open("general.json").read())
+		self.questions['space'] = json.loads(open("space.json").read())
+		self.questions['science'] = json.loads(open("science.json").read())
+		self.questions['maths'] = json.loads(open("maths.json").read())
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -108,6 +113,14 @@ class RoMIExperiment(Experiment.Experiment):
 			category = command[4]
 
 			return self.questions[category][difficulty][question]['correct'] == response
+
+		elif command.startsWith("FINISH"):
+			command = command.split()
+			conn = sqlite3.connect(self.database)
+
+			#conn.execute(QUERY);
+			conn.commit()
+			conn.close()
 
 		return "OK"
 
