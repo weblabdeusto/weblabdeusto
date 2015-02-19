@@ -2,7 +2,7 @@
 <div id="{{instanceid}}-experiment-instance" class="instance-column column col-xs-12 col-sm-6 col-md-3"> <!-- col-md-* and col-md-offset-* are added dynamically -->
     <div class="page-header">
         <h1 class="arch-instance-title">
-            {{instanceid}}
+            {{instancename}}
         </h1>
     </div>
     <div class="col-md-12 column">
@@ -68,9 +68,9 @@
             </div>
 
             <!-- To be filled by the custom datatables plugin -->
-            <div id="{{instanceid}}-table-sensors" class="sensor-data"/>
-            <div id="{{instanceid}}-table-liquid"/>
-            <div id="{{instanceid}}-table-ball"/>
+            <div id="{{instanceid}}-table-sensors" class="my-data-table sensor-data"/>
+            <div id="{{instanceid}}-table-liquid" class="my-data-table"/>
+            <div id="{{instanceid}}-table-ball" class="my-data-table"/>
 
         </div>
 
