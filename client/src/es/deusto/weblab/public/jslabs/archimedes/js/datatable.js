@@ -73,6 +73,7 @@
                 var thead = $("<thead>").appendTo(table);
                 var header_tr = $("<tr>").appendTo(thead);
                 var th = $("<th>").appendTo(header_tr);
+                $("<th>").appendTo(header_tr);
                 th.text(this.getText(this.settings.header));
 
                 var tbody = $("<tbody>").appendTo(table);

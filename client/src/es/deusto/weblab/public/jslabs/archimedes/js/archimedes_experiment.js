@@ -36,7 +36,7 @@ ArchimedesExperiment = function (registry, view) {
 
                 var data = Registry[instance];
                 instancesNumber += 1;
-                rendered += Mustache.render(template, {"instanceid": instance, "webcam": data.webcam});
+                rendered += Mustache.render(template, {"instanceid": instance, "webcam": data.webcam, instancename: Registry[instance].name});
             }
 
             // Insert it.
