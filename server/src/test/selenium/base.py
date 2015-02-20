@@ -25,9 +25,8 @@ class SeleniumBaseTest(unittest.TestCase):
 
         self.core_server = GLOBAL_REGISTRY['mycore:myprocess@myhost']
 
-
-
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
 
         # Starts a test deployment.
         self.start_test_weblab_deployment()
@@ -68,7 +67,8 @@ class SeleniumBaseTest(unittest.TestCase):
             return alert_text
         finally: self.accept_next_alert = True
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(self):
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)
 

@@ -48,9 +48,9 @@ def _get_loggedin_info():
     """
 
     # Retrieve the configuration.js info.
-    core_server_url = weblab_api.server_instance.core_server_url
-    configuration_js_url = os.path.join(*[core_server_url, "client", "weblabclientlab", "configuration.js"])
-    configuration_js = requests.get(configuration_js_url).content
+    deployment_dir = weblab_api.config.get("deployment_dir")
+    configuration_js_path = os.path.join(*[deployment_dir, "configuration.js"])
+    configuration_js = open(configuration_js_path).read()
     configuration_js = remove_comments_from_json(configuration_js)
     configuration_js = json.loads(configuration_js)
 
@@ -62,6 +62,7 @@ def _get_loggedin_info():
     gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
 
     info = {}
+    core_server_url = weblab_api.server_instance.core_server_url
     info["logo_url"] = os.path.join(*[core_server_url, "client", "weblabclientlab", configuration_js["host.entity.image"].lstrip('/')])
     info["host_link"] = configuration_js["host.entity.link"]
     info["full_name"] = user_info.full_name
