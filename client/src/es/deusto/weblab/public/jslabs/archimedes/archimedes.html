@@ -41,7 +41,7 @@
 
 <!-- Some small MUSTACHE templates -->
 <script type="x-tmpl-mustache" id="shown-button-template">
-    <label class="btn btn-success active" data-instance="{{ instance }}" style="margin-bottom: 10px; margin-right: 5px; margin-left: 5px" >
+    <label title="{{ tooltip }}" class="btn btn-success active" data-instance="{{ instance }}" style="margin-bottom: 10px; margin-right: 5px; margin-left: 5px" >
         <input id="{{ id }}" type="checkbox" checked>{{ text }}</input>
     </label>
 </script>
@@ -55,6 +55,15 @@
         "ball.weight.liquid.level" : "Ball weight & Liquid level",
         "close": "Close",
         "hd.picture" : "HD Picture",
+
+        "show": "Show",
+        "hide": "Hide",
+
+        "showInstancesHelpTitle": "Show or hide a particular tube",
+        "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.",
+
+        "sensorsHelpTitle": "Sensor information",
+        "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.",
 
         "sensors": "Sensors",
         "liquid": "Liquid",
@@ -123,10 +132,15 @@
             if(text == undefined)
                 text = name;
 
-            var rendered = Mustache.render($("#shown-button-template").html(), {text: text, id: "show-" + name, instance: name});
+            var rendered = Mustache.render($("#shown-button-template").html(), {text: text, tooltip: $.i18n._("hide"), id: "show-" + name, instance: name});
             $("#shownpanel").append($(rendered));
+
+            $("#show-hide-tooltip").attr("title", $.i18n._("showInstancesHelpTitle"));
+            $("#show-hide-tooltip").data("content", $.i18n._("showInstancesHelpContent"));
+            $("#show-hide-tooltip").popover({html: true});
         });
 
+        // To handle clicks on the buttons of the instance show/hide panel
         $("#shownpanel>label").click(function(ev){
 
             var changed = $(ev.target);
@@ -142,10 +156,12 @@
             if(changed.find("input").prop("checked")) {
                 // Hide
                 $("#" + instance_name + "-experiment-instance").fadeOut(600);
+                changed.attr("title", $.i18n._("show"));
                 instance.pause(); // Resume webcam etc.
             } else {
                 // Show
                 $("#" + instance_name + "-experiment-instance").fadeIn(600);
+                changed.attr("title", $.i18n._("hide"));
                 instance.resume(); // Stop webcam etc.
             }
         });
@@ -234,7 +250,12 @@
     <!-- To show or hide instances in standard mode -->
     <div class="row">
         <div class="col-lg-12 well">
-            <legend class="legend">Show or Hide instances</legend>
+            <legend class="legend">Toggle to <strong style="color: green">show</strong> or <strong style="color: slategray">hide</strong> each tube
+                <a id="show-hide-tooltip" tabindex="0" class="glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="bottom" data-trigger="focus"
+                   title=""
+                   data-content="">
+                </a>
+            </legend>
             <div class="" id="shownpanel" data-toggle="buttons">
                 <!-- To be filled. Buttons are dynamically added here -->
             </div>
