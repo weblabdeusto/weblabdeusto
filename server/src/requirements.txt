@@ -49,7 +49,6 @@ alembic<0.6
 # 
 networkx==1.8.1
 
-<<<<<<< HEAD
 #
 # Babel is used for flask internationalization.
 #
