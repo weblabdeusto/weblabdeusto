@@ -57,10 +57,6 @@ def _get_loggedin_info():
     # Retrieve user information
     user_info = weblab_api.api.get_user_information()
 
-    # Calculate the admin and profile urls.
-    admin_url = os.path.join(*[core_server_url, ""])
-    profile_url = os.path.join(*[core_server_url, ""])
-
     # Calculate the Gravatar from the mail
     gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(user_info.email.lower()).hexdigest() + "?"
     gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
