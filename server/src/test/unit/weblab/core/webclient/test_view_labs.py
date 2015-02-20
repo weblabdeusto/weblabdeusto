@@ -52,13 +52,12 @@ class TestViewLabs(unittest.TestCase):
         """
         Ensure that the labs page seems to load.
         """
-        pass
         rv = self.app.get('/weblab/web/webclient/labs.html')
-        # self.assertEqual(rv.status_code, 200, "Labs page does not return 200")
-        # self.assertIn("My Experiments", rv.data, "Labs page does not contain the expected 'My Experiments' text")
-        # self.assertIn("Name of any", rv.data, "Labs page does not contain the expected 'Name of any' text")
-        # self.assertIn("Log out", rv.data, "Labs page does not contain the expected 'Log out' text")
-        # self.assertIn("Filter by", rv.data, "Labs page does not contain the expected 'Filter by' text")
+        self.assertEqual(rv.status_code, 200, "Labs page does not return 200")
+        self.assertIn("My Experiments", rv.data, "Labs page does not contain the expected 'My Experiments' text")
+        self.assertIn("Name of any", rv.data, "Labs page does not contain the expected 'Name of any' text")
+        self.assertIn("Log out", rv.data, "Labs page does not contain the expected 'Log out' text")
+        self.assertIn("Filter by", rv.data, "Labs page does not contain the expected 'Filter by' text")
 
     # def test_labs_page(self):
     #     """
