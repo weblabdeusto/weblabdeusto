@@ -45,10 +45,11 @@ class ProcessHandler(object):
             component.stop()
 
 class GlobalConfig(dict):
-    def __init__(self, config_files, config_values):
+    def __init__(self, config_files, config_values, deployment_dir):
         super(GlobalConfig, self).__init__()
         self.config_files = config_files
         self.config_values = config_values
+        self.deployment_dir = deployment_dir
     
     def __getitem__(self, name):
         if isinstance(name, CoordAddress):
@@ -121,6 +122,7 @@ class GlobalConfig(dict):
         self._update_config(config, host_config)
         self._update_config(config, process_config)
         self._update_config(config, component_config)
+        config.append_value('deployment_dir', self.deployment_dir)
         return config
 
     def _update_config(self, config, config_holder):
@@ -204,7 +206,7 @@ def _load_contents(contents, directory):
     global_value = contents
 
     config_files, config_values = _process_config(global_value, directory)
-    global_config = GlobalConfig(config_files, config_values)
+    global_config = GlobalConfig(config_files, config_values, directory)
 
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
         config_files, config_values = _process_config(host_value, directory)
