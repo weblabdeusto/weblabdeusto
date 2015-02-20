@@ -38,13 +38,13 @@ class RoMIExperiment(Experiment.Experiment):
 		Reads the base config parameters from the config file.
 		"""
 
-		self.database = self._cfg_manager.get_value("forotech_db")
+		self.database = self._cfg_manager.get_value('romie_sqlite')
 
 		self.questions = {}
-		self.questions['general'] = json.loads(open("general.json").read())
-		self.questions['space'] = json.loads(open("space.json").read())
-		self.questions['science'] = json.loads(open("science.json").read())
-		self.questions['maths'] = json.loads(open("maths.json").read())
+		self.questions['general'] = json.loads(open('general.json').read())
+		self.questions['space'] = json.loads(open('space.json').read())
+		self.questions['science'] = json.loads(open('science.json').read())
+		self.questions['maths'] = json.loads(open('maths.json').read())
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -60,7 +60,8 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
-			self.user
+			print args
+			print kwargs
 
 		return ""
 
