@@ -1,0 +1,29 @@
+[
+	[
+		{
+			"question": "¿Qué espectro de ondas electromagnéticas usan las radiografías?",
+			"answers": [
+				"Rayos gamma",
+				"Rayos X",
+				"Ondas de radio"
+			],
+			"correct": 1,
+			"points": 125,
+			"time": 20
+		}
+	],
+	[
+		{
+			"question": "¿Cuantos huesos tiene el ser humano?",
+			"answers": [
+				128,
+				204,
+				233,
+				206
+			],
+			"correct": 3,
+			"points": 175,
+			"time": 30
+		}
+	]
+]
