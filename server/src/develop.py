@@ -13,7 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 """
 develop.py is a script used for the development of WebLab-Deusto. It 
@@ -55,13 +55,13 @@ def get_suites(avoid_integration = False, avoid_stress = True):
             content_path = directory + os.sep + content
             if content_path.endswith('.py') and content_path != '__init__.py':
                 module_name = content[:-len('.py')]
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 if hasattr(mod, 'suite'):
                     suites.append(mod.suite())
             elif os.path.isdir(content_path) and os.path.exists(content_path + os.sep + '__init__.py'):
                 module_name = content
-                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [module_name])
+                mod = __import__(module.__name__ + '.' + module_name, globals(), locals(), [str(module_name)])
                 setattr(module, module_name, mod)
                 recursion_on_modules(mod, content_path)
 
@@ -96,7 +96,7 @@ def runConsole(single_test, avoid_integration, argv):
         module = None
     else:
         module_name = single_test[:-3].replace(os.sep,'.')
-        module =  __import__(module_name, globals(), locals(), [module_name])
+        module =  __import__(module_name, globals(), locals(), [str(module_name)])
 
     old_sys_exit = sys.exit
     def _exit(status = 0):
@@ -311,6 +311,8 @@ def deploy_testdb(options):
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests2",        weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests3",        weblab_db_username, weblab_db_password, db_dir = db_dir)
 
+        create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabIntTests1",     weblab_db_username, weblab_db_password, db_dir = db_dir)
+
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination",  weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination2", weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabCoordination3", weblab_db_username, weblab_db_password, db_dir = db_dir)
@@ -455,7 +457,7 @@ if __name__ == '__main__':
     testdb_options.add_option('--deploy-test-db',   dest='deploy_testdb', action='store_true', default=False,
                                                     help = "Deploys the testing database.")
                                                    
-    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='sqlite', metavar="ENGINE",
+    testdb_options.add_option('--db-engine',        dest='testdb_engine', default='mysql', metavar="ENGINE",
                                                     help = "engine used for the testing database.")
     
     testdb_options.add_option('--db-create-db',     dest='testdb_create_db', action='store_true', default=False,

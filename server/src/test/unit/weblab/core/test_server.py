@@ -53,7 +53,6 @@ laboratory_coordaddr = CoordAddress.translate(
     )
 
 @case_uses_module(UserProcessingServer)
-@case_uses_module(UserProcessor)
 @case_uses_module(Confirmer)
 class UserProcessingServerTestCase(unittest.TestCase):
     """Note: We will test the underlying layers from this level to make the testing task less repetitive."""

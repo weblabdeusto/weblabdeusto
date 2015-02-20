@@ -154,3 +154,8 @@ hosts:
             config_file: main_machine/main_instance/experiment_elevator/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
+          experiment_romie:
+            config:
+              general_questions: ../../launch/sample/main_machine/main_instance/experiment_romie/general.json
+            type: experiment
+            class: experiments.romie.RoMIExperiment

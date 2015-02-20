@@ -5,7 +5,7 @@
 # Windows environments at the time of this writing (only for development).
 # 
 
-redis<2.7
+redis<2.11,>2.10
 
 # 
 # In order to use MySQL, the pymysql OR the MySQLdb (mysql-python) libraries are

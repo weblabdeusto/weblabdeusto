@@ -1,2 +1,9 @@
 nohup*
+config.py
 secret_settings.py
+config.sh
+redis_env
+redis_template
+
+
+wcloud/config/wcloud_settings.py

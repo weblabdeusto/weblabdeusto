@@ -14,6 +14,8 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
+from __future__ import unicode_literals
+
 import os
 import sys
 

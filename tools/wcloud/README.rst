@@ -5,12 +5,19 @@ This system automatically deploys WebLab-Deusto instances, already federated in 
 This way, secondary schools or universities may create and administrate their own WebLab-Deusto,
 create new users, assign them permissions on certain laboratories, etc.
 
+Architecture
+~~~~~~~~~~~~
+
+By running ``start-master-process.sh``, we run the following:
+
+ * We reload the apache server (to guarantee that previous changes have been applied, and which restarts the wCloud server)
+ * ``./scripts/admin_worker.sh``, which is a Celery worker running as root. It waits for events in the ``admintasks`` queue and processes them. Typically this is only reloading the apache server.
+ * ``./scripts/taskmanager_worker.sh``, which is a Celery worker running as user. It waits for events for creating WebLab-Deusto instances.
+ * ``./scripts/starter_worker.sh``, which is a Celery worker running as user. It waits for events for starting WebLab-Deusto instances.
+ * ``wcloud/weblab_starter.py``, which populates the starter queue with the existing instances.
+
 Deployment
 ~~~~~~~~~~
-
-Install the requirements::
-
-  pip install -r requirements.txt
 
 Then, configure the settings.py script with the database credentials. Deploy the database::
   
@@ -51,4 +58,39 @@ TODO list
 
 * setup.py
 * Find out why unicode with utf-8 is failing
+
+
+
+UNIT TESTING
+~~~~~~~~~~~~
+
+The system is being redesigned to be somewhat generic. However, the Unit Testing still makes some assumptions.
+Those are the following:
+
+* A MySQL server is running.
+* The root MySQL user is "root" and its password is: "password".
+
+
+
+
+ACKNOWLEDGEMENTS
+~~~~~~~~~~~~~~~~
+
+.. image:: logos/mcloud.png
+  :alt: mCloud project
+  :align: center
+
+wCloud is part of the `mCloud project <http://innovation.logica.com.es/web/mcloud/>`_ (IPT-2011-1558-430000), 
+Este proyecto ha recibido financiación del Ministerio de Economía y Competitividad, dentro del Plan Nacional 
+de Investigación Científica, Desarrollo e Innovación Tecnológica 2008-2011 y el Fondo Europeo de Desarrollo Regional (FEDER).
+
+.. image:: logos/feder.png
+  :alt: FEDER: Una manera de hacer Europa
+  
+.. image:: logos/inn.jpg
+  :alt: Innpacto
+  
+.. image:: logos/mec.png
+  :alt: Ministerio de Economía y Competitividad
+
 

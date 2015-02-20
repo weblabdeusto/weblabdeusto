@@ -1,0 +1,10 @@
+
+This file is meant to contain a list of the weird errors that have been seen related to wcloud.
+Not all of those are necessarily easy to replicate.
+
+
+
+Related to: weblab-admin / SQLAlchemy
+Creation fails with a "Table X (Role) already exists error", triggered by
+creation.py: _check_database_connection.
+The mysql database exists but is empty when the function is called.

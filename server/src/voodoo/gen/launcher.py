@@ -32,7 +32,8 @@ import voodoo.counter as counter
 import voodoo.process_starter as process_starter
 import voodoo.rt_debugger as rt_debugger
 
-from . import load_dir
+# Can't locally import (from . import load_dir) since we're executing this file
+from voodoo.gen import load_dir
 
 ##########################################################
 #                                                        #
@@ -106,7 +107,7 @@ class TimeWait(EventWait):
 
 class SocketWait(EventWait):
     def __init__(self, port):
-        super(SocketNotifier, self).__init__()
+        super(SocketWait, self).__init__()
         self.port = port
 
     def wait(self):
@@ -242,7 +243,7 @@ class Launcher(AbstractLauncher):
     def __init__(self,
                     config_dir, host_name, process_name,
                     event_waiters, logging_file_config,
-                    before_finish_callback = None, event_notifiers = None):
+                    before_finish_callback = None, event_notifiers = ()):
         super(Launcher, self).__init__(
                     config_dir, host_name,
                     event_waiters, logging_file_config,
@@ -262,39 +263,27 @@ class Launcher(AbstractLauncher):
         finally:
             process_handler.stop()
 
-class MachineLauncher(AbstractLauncher):
+class HostLauncher(AbstractLauncher):
     def __init__(self,
             config_dir, host_name,
             event_waiters, logging_file_config,
             before_finish_callback = None, event_notifiers = None,
             pid_file = None, waiting_port = 54321, debugger_ports = None):
-        super(MachineLauncher, self).__init__(
+        super(HostLauncher, self).__init__(
                     config_dir, host_name,
                     event_waiters, logging_file_config,
                     before_finish_callback, event_notifiers
                 )
-        self.waiting_port   = waiting_port
         self.debugger_ports = debugger_ports
         if pid_file is not None:
             mypid = str(os.getpid())
             open(pid_file, 'w').write(mypid)
-
-    def _create_socket(self):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
-        self.socket.bind(('',self.waiting_port))
-        self.socket.listen(5)
-
-    def _wait_for_process_to_start(self):
-        self.socket.accept()
 
     def launch(self):
         global_configuration = load_dir(self.config_dir)
         host_configuration = global_configuration.get(self.host_name)
         if host_configuration is None:
             raise Exception("Machine %s not found" % self.host_name)
-
-        self._create_socket()
 
         os_processes = []
         for process_name in host_configuration:
@@ -307,14 +296,13 @@ class MachineLauncher(AbstractLauncher):
             else:
                 debugger_port = self.debugger_ports.get(process_name, "None")
             args = (
-                        "python",
+                        sys.executable,
                         "-OO",
                         __file__,
                         self.config_dir,
                         self.host_name, 
                         process_name,
                         logging_file_config,
-                        str(self.waiting_port),
                         str(debugger_port)
                     )
             subprocess_kargs = dict(
@@ -322,23 +310,17 @@ class MachineLauncher(AbstractLauncher):
                     stdin = subprocess.PIPE
                 )
 
-            # TODO: Remove "user.not.used" (changing process_starter API)
-            os_process = process_starter.start_process('user.not.used', (), subprocess_kargs)
+            os_process = process_starter.start_process((), subprocess_kargs)
             os_processes.append(os_process)
 
         self.notify_and_wait()
 
-        for os_process in os_processes:
-            try:
-                os_process.stdin.write("\n")
-            except:
-                pass
-
-        self.wait_for_subprocesses(os_processes)
-
         if len(os_processes) > 0:
             for os_process in os_processes:
-                os_process.terminate()
+                try:
+                    os_process.terminate()
+                except:
+                    pass
 
         self.wait_for_subprocesses(os_processes)
 
@@ -366,20 +348,23 @@ class MachineLauncher(AbstractLauncher):
             else:
                 time.sleep(0.05)
 
+# In the past, HostLauncher was called MachineLauncher. 
+# We keep this for compatiblity reasons
+MachineLauncher = HostLauncher
+
 def kill_launcher(pid_file):
     pid = int(open(pid_file).read())
     os.kill(pid, signal.SIGTERM)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 7:
+    if len(sys.argv) != 6:
         print >> sys.stderr, "Error: invalid number of arguments"
         sys.exit(-1)
 
-    _, config_dir, host_name, process_name, logging_file, waiting_port, debugger_port = sys.argv
-    waiters = (RawInputWait(""),)
-    notifiers = (SocketNotifier("localhost", int(waiting_port)),)
+    _, config_dir, host_name, process_name, logging_file, debugger_port = sys.argv
+    waiters = (SignalWait(),)
     if debugger_port != "None":
         rt_debugger.launch_debugger(int(debugger_port))
-    launcher = Launcher(config_dir, host_name, process_name, waiters, logging_file, event_notifiers = notifiers)
+    launcher = Launcher(config_dir, host_name, process_name, waiters, logging_file)
     launcher.launch()
 

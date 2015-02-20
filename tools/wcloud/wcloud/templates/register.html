@@ -4,18 +4,18 @@
 {% block body %}
     {% from "macros/_formhelpers.html" import render_field %}
     <div class="row">
-        <div class="offset2 span7">
-            <h1>Registration</h1>
+        <div class="col col-xs-6 col-xs-offset-3 text-center">
+            <h1 class="">Registration</h1>
             <br/>
 
             <form method="POST" action="{{ url_for('register') }}" class="form-horizontal">
                 {{ form.hidden_tag() }}
                 
                 <fieldset>
-                    {{ render_field(form.full_name) }}
-                    {{ render_field(form.email) }}
-                    {{ render_field(form.password) }}
-                    {{ render_field(form.confirm) }}
+                    {{ render_field(form.full_name, placeholder = "Full name") }}
+                    {{ render_field(form.email, placeholder = "E-mail") }}
+                    {{ render_field(form.password, placeholder = "Password") }}
+                    {{ render_field(form.confirm, placeholder = "Repeat password") }}
                     {% if form|attr('recaptcha') %}
                         {{ render_field(form.recaptcha) }}
                     {% endif %}

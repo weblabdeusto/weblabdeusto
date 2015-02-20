@@ -237,5 +237,8 @@ class CommunicationsTest(unittest.TestCase):
         # In XML-RPC, it's not propagated
         self.assertRaises(InternalCapturedServerCommunicationError, locator[self.lab_addr3].testing_lab, 0, 0)
 
+def suite():
+    return unittest.makeSuite(LoaderTest)
+
 if __name__ == '__main__':
     unittest.main()

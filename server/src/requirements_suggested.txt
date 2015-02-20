@@ -2,7 +2,7 @@
 # Pillow (a PIL fork compatible with setuptools) is used to resize 
 # the logo image if necessary, when using weblab-admin create.
 # 
-pillow
+pillow==2.0
 
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 
@@ -11,13 +11,6 @@ pillow
 #  
 #     sudo apt-get install build-essential
 # 
-
-# 
-# numpy is only used in the WebLab Bot. If you are not going to
-# measure the speed of the system, this module will not be used
-# 
-
-numpy<1.7
 
 # 
 # If using Redis for scheduling, hiredis makes the redis 
@@ -56,3 +49,12 @@ python-ldap<2.5
 #     sudo apt-get install libfreetype6-dev libpng12-dev
 # 
 # matplotlib<1.2
+
+# 
+# numpy is only used in the WebLab Bot. If you are not going to
+# measure the speed of the system, this module will not be used
+# 
+
+numpy<1.7
+
+

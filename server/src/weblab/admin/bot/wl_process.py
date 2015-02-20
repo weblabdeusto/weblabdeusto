@@ -16,6 +16,7 @@
 
 import StringIO
 import os
+import sys
 import traceback
 import glob
 import subprocess
@@ -112,7 +113,7 @@ class WebLabProcess(object):
         stderr_f = open(self.stderr_name,'w')
         stdout_f.write('Process %s started at %s\n' % (self.launch_file, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
         stdout_f.flush()
-        self.popen = subprocess.Popen(["python", "-OO", self.launch_file],
+        self.popen = subprocess.Popen([sys.executable, "-OO", self.launch_file],
                                       cwd=self.launch_path,
                                       stdin=subprocess.PIPE,
                                       stdout=stdout_f,

@@ -17,9 +17,12 @@
 # "mCloud: http://innovacion.grupogesfor.com/web/mcloud"
 #
 
-from flask.ext.wtf import Form, BooleanField, TextField, PasswordField, FileField, validators, file_allowed, ValidationError, RecaptchaField
+from flask.ext.wtf import Form, RecaptchaField
+from wtforms import BooleanField, TextField, PasswordField, FileField, validators, ValidationError
 
 from flask.ext.uploads import UploadSet, IMAGES
+
+import wcloud.models as models
 from wcloud.models import User, Entity
 from flask import session
 
@@ -53,16 +56,16 @@ class BaseURLExists(object):
 
 #Forms
 class LoginForm(Form):
-    email = TextField('Email Address', [validators.Length(min=6, max=35),
+    email = TextField('Email Address', [validators.Length(min=5, max=35),
                         validators.Email()])
-    password = PasswordField('New Password', [
+    password = PasswordField('Password', [
         validators.Required(),
     ])
 
 
 class RegistrationForm(Form):
     full_name = TextField('Full name', [validators.Length(min=4, max=25)])
-    email = TextField('Email Address', [validators.Length(min=6, max=35),
+    email = TextField('Email Address', [validators.Length(min=5, max=35),
                                 validators.Email(),
                                 UserExists('User already exists')])
     password = PasswordField('New Password', [
@@ -77,7 +80,8 @@ images = UploadSet("images", IMAGES)
 
 class ConfigurationForm(Form):
     name = TextField('Institution name', [validators.Length(min=4, max=100)], description = "Example: My institution")
-    logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
+    # logo = FileField('Institution logo', validators=[ file_allowed(images, "Images only")])
+    logo = FileField('Institution logo', validators=[])
     base_url = TextField('Base url', [validators.Length(min=4, max=100),
                                 validators.Regexp('^[\w-]+$'),
                                 BaseURLExists('Base url already exists')], 
@@ -107,17 +111,3 @@ class DeployForm(Form):
     admin_email = TextField('Admin email', [validators.Length(min=4, max=100),
                                 validators.Email()], description = "Administrator's e-mail. Example jdoe@myinstitution.com")
     
-    def validate_characters(form, field): # XXX work around to avoid problems with UTF-8
-        for c in field.data:
-            if c.lower() not in 'abcdefghijklmnopqrstuvwxyz0123456789._-@ ':
-                raise ValidationError("Invalid characters found")
- 
-    def validate_admin_user(form, field): # XXX work around to avoid problems with UTF-8
-        for c in field.data:
-            if c.lower() not in 'abcdefghijklmnopqrstuvwxyz0123456789._-':
-                raise ValidationError("Invalid characters found")
-        
-    validate_admin_name     = validate_characters
-    validate_admin_password = validate_characters
-    validate_admin_email    = validate_characters
-

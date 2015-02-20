@@ -25,3 +25,7 @@ mock<1.1
 # coverage is used to detail how much code is covered by unit tests
 # 
 coverage<3.6
+
+# 
+# nose is used in wcloud
+nose==1.3.4

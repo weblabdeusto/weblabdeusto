@@ -6,11 +6,11 @@ import yaml
 
 from voodoo.configuration import ConfigurationManager
 
-from .exc import GeneratorError
-from .util import _load_type
-from .address import CoordAddress
-from .locator import Locator
-from .servers import _create_server
+from voodoo.gen.exc import GeneratorError
+from voodoo.gen.util import _load_type
+from voodoo.gen.address import CoordAddress
+from voodoo.gen.locator import Locator
+from voodoo.gen.servers import _create_server
 
 LAB_CLASS  = 'weblab.lab.server.LaboratoryServer'
 CORE_CLASS = 'weblab.core.server.UserProcessingServer'
@@ -45,10 +45,11 @@ class ProcessHandler(object):
             component.stop()
 
 class GlobalConfig(dict):
-    def __init__(self, config_files, config_values):
+    def __init__(self, config_files, config_values, deployment_dir):
         super(GlobalConfig, self).__init__()
         self.config_files = config_files
         self.config_values = config_values
+        self.deployment_dir = deployment_dir
     
     def __getitem__(self, name):
         if isinstance(name, CoordAddress):
@@ -63,7 +64,7 @@ class GlobalConfig(dict):
         Create an instance, attach the required communication servers, and return 
         both.
         """
-        config = self._create_config(coord_address)
+        config = self.create_config(coord_address)
         component_config = self[coord_address]
         ComponentClass = _load_type(component_config.component_class)
         locator = Locator(self, coord_address)
@@ -121,7 +122,7 @@ class GlobalConfig(dict):
         
         return all_config_files, all_config_values
 
-    def _create_config(self, coord_address):
+    def create_config(self, coord_address):
         host_config = self[coord_address.host]
         process_config = host_config[coord_address.process]
         component_config = process_config[coord_address.component]
@@ -131,6 +132,7 @@ class GlobalConfig(dict):
         self._update_config(config, host_config)
         self._update_config(config, process_config)
         self._update_config(config, component_config)
+        config.append_value('deployment_dir', self.deployment_dir)
         return config
 
     def _update_config(self, config, config_holder):
@@ -223,7 +225,7 @@ def _load_contents(contents, directory):
     global_value = contents
 
     config_files, config_values = _process_config(global_value, directory)
-    global_config = GlobalConfig(config_files, config_values)
+    global_config = GlobalConfig(config_files, config_values, directory)
 
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
         config_files, config_values = _process_config(host_value, directory)

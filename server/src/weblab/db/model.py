@@ -20,7 +20,7 @@ import traceback
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index
+from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index, Unicode
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -73,7 +73,7 @@ class DbRole(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(20), nullable = False)
+    name = Column(Unicode(20), nullable = False)
 
     def __init__(self, name = None):
         super(DbRole, self).__init__()
@@ -97,10 +97,10 @@ class DbUser(Base):
     __table_args__ = (UniqueConstraint('login'), TABLE_KWARGS)
 
     id        = Column(Integer, primary_key = True)
-    login     = Column(String(32), nullable = False, index = True)
-    full_name = Column(String(200), nullable = False, index = True)
-    email     = Column(String(255), nullable = False, index = True)
-    avatar    = Column(String(255))
+    login     = Column(Unicode(32), nullable = False, index = True)
+    full_name = Column(Unicode(200), nullable = False, index = True)
+    email     = Column(Unicode(255), nullable = False, index = True)
+    avatar    = Column(Unicode(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
     role      = relation("DbRole", backref=backref("users", order_by=id))
@@ -139,7 +139,7 @@ class DbAuthType(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(200), nullable = False, index = True)
+    name = Column(Unicode(200), nullable = False, index = True)
 
     def __init__(self, name = None):
         super(DbAuthType, self).__init__()
@@ -161,7 +161,7 @@ class DbAuth(Base):
 
     id            = Column(Integer, primary_key = True)
     auth_type_id  = Column(Integer, ForeignKey("AuthType.id"), nullable = False)
-    name          = Column(String(200), nullable = False)
+    name          = Column(Unicode(200), nullable = False)
     priority      = Column(Integer, nullable = False)
     configuration = Column(Text)
 
@@ -234,7 +234,7 @@ class DbGroup(Base):
     __table_args__ = (UniqueConstraint('parent_id', 'name'), TABLE_KWARGS)
 
     id        = Column(Integer, primary_key = True)
-    name      = Column(String(250), nullable = False, index = True)
+    name      = Column(Unicode(250), nullable = False, index = True)
     parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
 
     children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
@@ -277,10 +277,10 @@ class DbScheduler(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id             = Column(Integer, primary_key = True)
-    name           = Column(String(255), nullable = False, index = True)
-    summary        = Column(String(255), nullable = False, index = True)
-    scheduler_type = Column(String(255), nullable = False, index = True)
-    config         = Column(String(4096), nullable = False)
+    name           = Column(Unicode(255), nullable = False, index = True)
+    summary        = Column(Unicode(255), nullable = False, index = True)
+    scheduler_type = Column(Unicode(255), nullable = False, index = True)
+    config         = Column(Unicode(4096), nullable = False)
     is_external    = Column(Boolean, nullable = False, index = True)
 
     def __init__(self, name = None, summary = None, scheduler_type = None, config = None, is_external = None):
@@ -303,7 +303,7 @@ class DbSchedulerResource(Base):
     __table_args__ = (UniqueConstraint('name', 'scheduler_id'), TABLE_KWARGS)
 
     id             = Column(Integer, primary_key = True)
-    name           = Column(String(255), nullable = False, index = True)
+    name           = Column(Unicode(255), nullable = False, index = True)
     scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
     slots          = Column(Integer, nullable = False)
 
@@ -327,7 +327,7 @@ class DbExperimentInstance(Base):
     __table_args__ = (UniqueConstraint('name', 'scheduler_resource_id'), TABLE_KWARGS)
 
     id                      = Column(Integer, primary_key = True)
-    name                    = Column(String(255), nullable = False, index = True)
+    name                    = Column(Unicode(255), nullable = False, index = True)
     min_slot                = Column(Integer, nullable = False, index = True)
     max_slot                = Column(Integer, nullable = False, index = True)
     scheduler_resource_id   = Column(Integer, ForeignKey("SchedulerResource.id"), nullable = False, index = True)
@@ -351,7 +351,7 @@ class DbExperimentCategory(Base):
     __table_args__ = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False, index = True)
+    name = Column(Unicode(255), nullable = False, index = True)
 
     def __init__(self, name = None):
         super(DbExperimentCategory, self).__init__()
@@ -375,11 +375,11 @@ class DbExperiment(Base):
     __table_args__ = (UniqueConstraint('name', 'category_id'), TABLE_KWARGS)
 
     id          = Column(Integer, primary_key = True)
-    name        = Column(String(255), nullable = False, index = True)
+    name        = Column(Unicode(255), nullable = False, index = True)
     category_id = Column(Integer, ForeignKey("ExperimentCategory.id"), nullable = False, index = True)
     start_date  = Column(DateTime, nullable = False)
     end_date    = Column(DateTime, nullable = False)
-    client      = Column(String(255), index = True)
+    client      = Column(Unicode(255), index = True)
 
     category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
 
@@ -442,9 +442,9 @@ class DbExperimentClientParameter(Base):
     
     id               = Column(Integer, primary_key = True)
     experiment_id    = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
-    parameter_name   = Column(String(255), nullable = False, index = True)
-    parameter_type   = Column(String(15), nullable = False, index = True)
-    value            = Column(String(600), nullable = False)
+    parameter_name   = Column(Unicode(255), nullable = False, index = True)
+    parameter_type   = Column(Unicode(15), nullable = False, index = True)
+    value            = Column(Unicode(600), nullable = False)
 
     experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
 
@@ -461,7 +461,7 @@ class DbSchedulerExternalExperimentEntry(Base):
     id             = Column(Integer, primary_key = True)
     experiment_id  = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
     scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
-    config         = Column(String(1024))
+    config         = Column(Unicode(1024))
     
     experiment = relation("DbExperiment", backref=backref("external_schedulers", order_by=id))
     scheduler  = relation("DbScheduler", backref=backref("external_experiments", order_by=id))
@@ -526,13 +526,13 @@ class DbUserUsedExperiment(Base):
     # Who accessed the experiment?
     # 
 
-    permission_permanent_id = Column(String(255), nullable = True, index = True)
+    permission_permanent_id = Column(Unicode(255), nullable = True, index = True)
     group_permission_id     = Column(Integer, ForeignKey('GroupPermission.id'), nullable = True)
     user_permission_id      = Column(Integer, ForeignKey('UserPermission.id'), nullable = True)
     role_permission_id      = Column(Integer, ForeignKey('RolePermission.id'), nullable = True)
-    origin                  = Column(String(255), nullable = False, index = True)
-    coord_address           = Column(String(255), nullable = False, index = True)
-    reservation_id          = Column(String(50), index = True)
+    origin                  = Column(Unicode(255), nullable = False, index = True)
+    coord_address           = Column(Unicode(255), nullable = False, index = True)
+    reservation_id          = Column(Unicode(50), index = True)
 
     user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
     experiment              = relation("DbExperiment", backref=backref("user_uses", order_by=id))
@@ -631,7 +631,7 @@ class DbUserUsedExperimentProperty(Base):
     __table_args__  = (UniqueConstraint('name'), TABLE_KWARGS)
 
     id   = Column(Integer, primary_key = True)
-    name = Column(String(255), nullable = False, index = True)
+    name = Column(Unicode(255), nullable = False, index = True)
 
     def __init__(self, name = None, id = None):
         self.name = name
@@ -647,7 +647,7 @@ class DbUserUsedExperimentPropertyValue(Base):
     id                = Column(Integer, primary_key = True)
     property_name_id  = Column(Integer, ForeignKey("UserUsedExperimentProperty.id"), nullable = False)
     experiment_use_id = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
-    value             = Column(String(255))
+    value             = Column(Unicode(255))
 
     property_name  = relation("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
     experiment_use = relation("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
@@ -672,8 +672,8 @@ class DbUserFile(Base):
 
     id                     = Column(Integer, primary_key = True)
     experiment_use_id      = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
-    file_sent              = Column(String(255), nullable = False)
-    file_hash              = Column(String(255), nullable = False, index = True)
+    file_sent              = Column(Unicode(255), nullable = False)
+    file_hash              = Column(Unicode(255), nullable = False, index = True)
     file_info              = Column(Text)
     response               = Column(Text)
     timestamp_before       = Column(DateTime, nullable = False)
@@ -778,8 +778,8 @@ class DbUserPermission(Base):
 
     id                 = Column(Integer, primary_key = True)
     user_id            = Column(Integer, ForeignKey("User.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False, index = True)
+    permission_type    = Column(Unicode(255), nullable = False, index = True)
+    permanent_id       = Column(Unicode(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
@@ -822,7 +822,7 @@ class DbUserPermissionParameter(Base):
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("UserPermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
+    permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbUserPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
@@ -858,8 +858,8 @@ class DbRolePermission(Base):
 
     id                            = Column(Integer, primary_key = True)
     role_id                       = Column(Integer, ForeignKey("Role.id"), nullable = False)
-    permission_type               = Column(String(255), nullable = False, index = True)
-    permanent_id                  = Column(String(255), nullable = False, index = True)
+    permission_type               = Column(Unicode(255), nullable = False, index = True)
+    permanent_id                  = Column(Unicode(255), nullable = False, index = True)
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
@@ -903,7 +903,7 @@ class DbRolePermissionParameter(Base):
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("RolePermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
+    permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbRolePermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
@@ -940,8 +940,8 @@ class DbGroupPermission(Base):
 
     id                 = Column(Integer, primary_key = True)
     group_id           = Column(Integer, ForeignKey("Group.id"), nullable = False)
-    permission_type    = Column(String(255), nullable = False, index = True)
-    permanent_id       = Column(String(255), nullable = False, index = True)
+    permission_type    = Column(Unicode(255), nullable = False, index = True)
+    permanent_id       = Column(Unicode(255), nullable = False, index = True)
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
@@ -984,7 +984,7 @@ class DbGroupPermissionParameter(Base):
 
     id                           = Column(Integer, primary_key = True)
     permission_id                = Column(Integer, ForeignKey("GroupPermission.id"), nullable = False)
-    permission_type_parameter    = Column(String(255), nullable = False, index = True)
+    permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
     permission                = relation("DbGroupPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))

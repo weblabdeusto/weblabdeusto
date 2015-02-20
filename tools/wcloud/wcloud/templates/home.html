@@ -4,19 +4,24 @@
 {% block body %}
 
     <div class="row">
-        <div class="offset2 span6">
-    
+        <div class="col col-xs-6 col-xs-offset-3">
+
             <h1>Welcome, {{ user.full_name }}!</h1>
             <br/>
-            
-            <p>This is the WebLab-Deusto creation wizard. With it, you can automatically generate 
-            your own WebLab-Deusto system, on which you can manage your users, grant them permissions
-            on certain laboratories, etc.</p>
+
+            <p>This is the WebLab-Deusto creation wizard. With it, you can automatically generate
+                your own WebLab-Deusto system, on which you can manage your users, grant them permissions
+                on certain laboratories, etc.</p>
+
             <p>The process is very simple: click on the <i><a href="{{ url_for('configure') }}">Configure</a></i> tab
-            and fill the data related to your institution (university, secondary school, etc.). Then, click on the
-            <i><a href="{{ url_for('deploy') }}">Deploy</a></i> tab to fill the administrator data and deploy the system.
-            Once deployed, you will be able to modify users (including the administrator data) and permissions, but not 
-            the parameters provided in the <i>Configure</i> panel. You may however change those by contacting us.</p>
+                and fill the data related to your institution (university, secondary school, etc.). Then, click on the
+                <i><a href="{{ url_for('deploy') }}">Deploy</a></i> tab to fill the administrator data and deploy the
+                system.
+                Once deployed, you will be able to modify users (including the administrator data) and permissions, but
+                not
+                the parameters provided in the <i>Configure</i> panel. You may however change those by contacting us.
+            </p>
+
             <p>Enjoy!</p>
         </div>
     </div>

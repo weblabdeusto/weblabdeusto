@@ -184,6 +184,12 @@ ArchimedesInstance = function (instanceid) {
             translator: $.i18n._.bind($.i18n)
         });
 
+        // Create the tooltip for the sensors tab.
+        var sensorsrow = $(getidselect("table-sensors")).find("thead>tr>:first-child");
+        var tooltip = $('<a tabindex="0" style="margin-left: 1em; font-size: 1.2em;" class="glyphicon glyphicon-info-sign"/>');
+        sensorsrow.append(tooltip);
+        tooltip.popover({html: true, placement: "bottom", trigger: "", title: $.i18n._("sensorsHelpTitle"), content: $.i18n._("sensorsHelpContent")})
+
         $(getidselect("table-liquid")).datatable({
             header: $.i18n._("Liquid"),
             vars: {
@@ -337,7 +343,7 @@ ArchimedesInstance = function (instanceid) {
             if ($(photoButton).attr("disabled") == undefined) {
 
                 //$("#hdpic").attr("src", "img/image_placeholder.png");
-                $("#hdpic").attr("src", "");
+                //$("#hdpic").attr("src", "");
                 $("#photoModal").modal();
 
                 Weblab.sendCommand(instanceid + ":IMAGE",
@@ -355,7 +361,7 @@ ArchimedesInstance = function (instanceid) {
 
             // Disable the button for now.
             $(this).find("img").attr("src", "img/photo.png");
-            photoButton.attr("disabled", "disabled");
+            $(this).attr("disabled", "disabled");
         });
 
 

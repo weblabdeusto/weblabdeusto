@@ -1,0 +1,104 @@
+import os
+import sys
+sys.path.append(os.path.join('..','..','server','src'))
+from weblab.admin.script import Creation
+
+DEFAULT_DEPLOYMENT_SETTINGS = {
+    Creation.DB_ENGINE: 'mysql',
+    Creation.COORD_ENGINE: 'redis',
+    Creation.COORD_REDIS_DB: 0,                    # --coordination-redis-db=COORD_REDIS_DB
+    Creation.COORD_REDIS_PORT: 6379,               # --coordination-redis-port=PORT
+    Creation.ADMIN_USER: 'admin',              # --admin-user=admin
+    Creation.ADMIN_NAME: 'Administrator',              #  --admin-name=whatever
+    Creation.ADMIN_PASSWORD: 'password',          # --admin-password=whatever
+    Creation.ADMIN_MAIL: 'admin@admin.com',              # --admin-mail=whatever
+    Creation.START_PORTS: '10000',             # --start-port=10000
+    Creation.SYSTEM_IDENTIFIER: 'University of Deusto',       # -i Name of the university
+    Creation.SERVER_HOST: 'weblab.deusto.es',      # --server-host=whatever
+    Creation.ENTITY_LINK: 'http://www.deusto.es/', # --entity-link= http://www.deusto.es/
+    Creation.CORES: 1, 
+    Creation.NO_LAB: True, 
+    Creation.ADD_FEDERATED_LOGIC : True,
+    Creation.ADD_FEDERATED_VISIR : True,
+    Creation.ADD_FEDERATED_SUBMARINE : True,
+}
+
+APACHE_CONF_NAME = 'apache.conf'
+MIN_PORT = 14000
+
+DEBUG = True
+# SECRET_KEY = os.urandom(32)
+SECRET_KEY = 'DONT USE THIS IN PRODUCTION!!!'
+
+ADMIN_MAIL = 'weblab@deusto.es'
+
+# If you want to support reCAPTCHA, set this to
+# True and provide the credentials
+RECAPTCHA_ENABLED = False
+RECAPTCHA_PUBLIC_KEY  = 'public key'
+RECAPTCHA_PRIVATE_KEY = 'private key'
+
+
+MAIL_CONFIRMATION_ENABLED = False
+
+DEBUG_UNDEPLOY_ENABLED = True
+
+
+# 
+# We have to use multiple Redis servers (Redis supports by default up to 16 databases,
+# and adding more may affect performance)
+# 
+REDIS_START_PORT=6379 + 1 # So we don't use the 6379
+REDIS_DBS_PER_PORT=16
+
+# Folder on which to place the REDIS .conf files. It must exist.
+REDIS_FOLDER = "redis_env"
+
+##########################
+# 
+# DB configuration:
+# 
+# Both MySQL and PostgreSQL are supported
+# 
+DB_NAME = 'wcloud'
+DB_HOST = '127.0.0.1'
+
+# 
+# PostgreSQL
+# DB_PORT = 5432
+# DB_USERNAME = 'postgres'
+# DB_PASSWORD = 'postgres'
+# 
+# MySQL
+# 
+DB_PORT = 3306
+DB_USERNAME = 'wcloud'
+DB_PASSWORD = 'password'
+
+# Password to assign to the "wcloud_creator" mysql user,
+# which is used to create the MySQL databases.
+DB_WCLOUD_CREATOR_PASSWORD = 'password'
+
+# Password to assign to the "wcloud" mysql user,
+# which has access to all "wcloud%" databases.
+DB_WCLOUD_PASSWORD = 'password'
+
+# 
+# PostgreSQL
+# SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
+# 
+# MySQL
+# 
+SQLALCHEMY_DATABASE_URI = 'mysql://%s:%s@%s:%d/%s' % (DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME )
+
+#############################
+#
+# Services configuration
+# 
+WEBLAB_STARTER_PORT  = 1663
+APACHE_RELOADER_PORT = 1662
+TASK_MANAGER_PORT    = 1661
+
+PUBLIC_URL = 'http://localhost'
+DIR_BASE = os.path.expanduser(os.path.join('~', '.weblab')) # home path
+ADMINISTRATORS = ('pablo.orduna@deusto.es',)

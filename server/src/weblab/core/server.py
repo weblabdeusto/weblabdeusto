@@ -502,6 +502,7 @@ class UserProcessingServer(object):
 
         self._stopping = False
         self._cfg_manager    = cfg_manager
+        self.config          = cfg_manager
         self._locator        = locator
 
         self.core_server_url = cfg_manager.get_doc_value(configuration_doc.CORE_SERVER_URL)

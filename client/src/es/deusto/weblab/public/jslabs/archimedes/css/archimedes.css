@@ -1,3 +1,9 @@
+.container
+{
+    padding-top: 60px;
+}
+
+
 .timer
 {
     position: fixed;
@@ -122,19 +128,32 @@ dd,dl {
     padding-top: 10px;
 }
 
-.sensor-data>table
+/*.sensor-data>table*/
+/*{*/
+    /*outline: 4px solid #b9bab9;*/
+/*}*/
+
+/*.sensor-data>table>thead*/
+/*{*/
+    /*background-color: #66afe9;*/
+    /*font-weight: bold;*/
+/*}*/
+
+.my-data-table>table
 {
-    outline: 4px solid #d3d0c7;
+    outline: 4px solid #b9bab9;
 }
 
-.sensor-data>table>thead
+.my-data-table>table>thead
 {
-    background-color: #66afe9;
+    background-color: #eef1ee;
     font-weight: bold;
 }
 
-
-
+.my-data-table>table>thead>tr>th
+{
+    border: none;
+}
 
 
 .editmodeh
@@ -168,4 +187,9 @@ dd,dl {
     padding: 10px;
     border-radius: 6px;
     box-shadow: 2px 2px 5px 2px #222;
+}
+
+
+.my-btn-disabled {
+    background-color: lightgray;
 }

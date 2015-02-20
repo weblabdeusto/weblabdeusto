@@ -4,14 +4,14 @@
 {% block body %}
 
     <div class="row">
-        <div class="offset2 span6">
-    
+        <div class="col col-xs-6 col-xs-offset-3">
+
             <h1>About wCloud</h1>
             <br/>
             
             <p>wCloud is an automated system for deploying <a href="http://www.weblab.deusto.es/">WebLab-Deusto</a> remote laboratory instances in the cloud. 
             With this system, anyone can create for free their own instance, which will use real equipment deployed in the WebLab-Deusto network. Examples of these laboratories are listed <a href="http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html">here</a>.</p>
-            <p><a href="{{ url_for('register') }}">Register here</a></p>
+            <p><a class="btn btn-primary" href="{{ url_for('register') }}">Register here</a></p>
         </div>
     </div>
 
