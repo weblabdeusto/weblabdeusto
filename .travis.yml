@@ -7,7 +7,6 @@ install:
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
     - npm install -g mocha
     - cd experiments/unmanaged/http/nodejs; npm install; cd ../../../../;
-    - cd flask_client/testpjs; npm install; cd ../../;
 script:
     - cd server/src; python develop.py; cd ../..;
     - cd experiments/unmanaged/http/nodejs/; mocha; cd ../../../../;
