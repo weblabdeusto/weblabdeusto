@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-romie_sqlite = 'forotech.db'
+romie_sqlite = '../../launch/sample/main_machine/main_instance/experiment_romie/forotech.db'
 questions = [
 	[ # 0 difficulty
 		{

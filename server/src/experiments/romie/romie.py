@@ -55,8 +55,7 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
-			print args
-			print kwargs
+		self.db = sqlite3.connect(self.database)
 
 		return ""
 
@@ -127,4 +126,6 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 		if(DEBUG):
 			print "[RoMIE] do_dispose called"
+
+		self.db.close()
 		return "OK"
