@@ -96,7 +96,8 @@ Game.prototype.answerQuestion = function()
 
 Game.prototype.getQuestion = function(tag)
 {
-	difficulty = Math.floor(this.points/250);
+	difficulty = Math.floor(this.points/200);
+	if (difficulty > 10) difficulty = 10;
 	Weblab.sendCommand("QUESTION "+difficulty, function(response){this.showQuestion(response);}.bind(this));
 }
 
