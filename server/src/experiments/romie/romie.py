@@ -39,12 +39,7 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 
 		self.database = self._cfg_manager.get_value('romie_sqlite')
-
-		self.questions = {}
-		self.questions['general'] = json.loads(open('general.json').read())
-		self.questions['space'] = json.loads(open('space.json').read())
-		self.questions['science'] = json.loads(open('science.json').read())
-		self.questions['maths'] = json.loads(open('maths.json').read())
+		self.questions = self._cfg_manager.get_value('questions')
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -88,16 +83,14 @@ class RoMIExperiment(Experiment.Experiment):
 			command = command.split()
 
 			difficulty = int(command[1])
-			category = command[2]
 
-			questions = self.questions[category][difficulty];
+			questions = self.questions[difficulty];
 			question_nr =random.randint(0, len(questions)-1)
 			question = questions[question_nr]
 
 			response_question = {
 				'index': question_nr,
 				'difficulty': difficulty,
-				'category': category,
 				'question': question['question'],
 				'answers': question['answers'],
 				'points': question['points'],
@@ -113,9 +106,8 @@ class RoMIExperiment(Experiment.Experiment):
 			response = int(command[1])
 			difficulty = int(command[2])
 			question = int(command[3])
-			category = command[4]
 
-			return self.questions[category][difficulty][question]['correct'] == response
+			return self.questions[difficulty][question]['correct'] == response
 
 		elif command.startsWith("FINISH"):
 			command = command.split()

@@ -155,7 +155,6 @@ hosts:
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
           experiment_romie:
-            config:
-              romie_sqlite: main_machine/main_instance/experiment_romie/forotech.db
+            config_file: main_machine/main_instance/experiment_romie/server_config.py
             type: experiment
             class: experiments.romie.romie.RoMIExperiment

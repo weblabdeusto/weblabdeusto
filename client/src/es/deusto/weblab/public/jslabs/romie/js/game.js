@@ -37,7 +37,7 @@ Game.prototype.endGame = function()
 	clearInterval(this.timer);
 	$('#game_end_points').text(this.points);
 
-	// TODO show records
+	// TODO show records and save
 
 	$('#game_end').modal('show');
 }
@@ -71,7 +71,7 @@ Game.prototype.answerQuestion = function()
 		$("#question").modal('hide');
 
 		Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
-			this.question["index"]+" "+this.question["category"], function(response)
+			this.question["index"], function(response)
 			{
 				if (response == 'True')
 				{
@@ -96,12 +96,8 @@ Game.prototype.answerQuestion = function()
 
 Game.prototype.getQuestion = function(tag)
 {
-	// TODO better difficulty check and more categories
-	difficulty = Math.floor(this.points/100);
-	categories = ["general", "space", "science", "maths"]
-	category = categories[Math.floor(Math.random() * (categories.length-1))];
-
-	Weblab.sendCommand("QUESTION "+difficulty+" "+category, function(response){this.showQuestion(response);}.bind(this));
+	difficulty = Math.floor(this.points/250);
+	Weblab.sendCommand("QUESTION "+difficulty, function(response){this.showQuestion(response);}.bind(this));
 }
 
 Game.prototype.getTopCamTime = function()
