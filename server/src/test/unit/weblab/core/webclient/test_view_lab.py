@@ -14,11 +14,12 @@
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
 import unittest
-from flask import request
+
 from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
 
-class TestViewLabs(unittest.TestCase):
+
+class TestViewLab(unittest.TestCase):
 
     def setUp(self):
         GLOBAL_REGISTRY.clear()
@@ -65,4 +66,10 @@ class TestViewLabs(unittest.TestCase):
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()
+
+
+def suite():
+    return unittest.TestSuite((
+            unittest.makeSuite(TestViewLab),
+        ))
 

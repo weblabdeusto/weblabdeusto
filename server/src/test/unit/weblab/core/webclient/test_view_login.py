@@ -91,3 +91,9 @@ class TestViewLogin(unittest.TestCase):
 
         self.handler.stop()
 
+
+def suite():
+    return unittest.TestSuite((
+            unittest.makeSuite(TestViewLogin),
+        ))
+
