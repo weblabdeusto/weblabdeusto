@@ -4,17 +4,17 @@
 
 {% macro scripts() %}
     <script type="text/javascript"
-            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/vendor/jquery.ui.widget.js") }}"></script>
+            src="{{ url_for(".static", filename="jQuery-File-Upload-9.8.0/js/vendor/jquery.ui.widget.js") }}"></script>
     <script type="text/javascript"
-            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/jquery.iframe-transport.js") }}"></script>
+            src="{{ url_for(".static", filename="jQuery-File-Upload-9.8.0/js/jquery.iframe-transport.js") }}"></script>
     <script type="text/javascript"
-            src="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/js/jquery.fileupload.js") }}"></script>
+            src="{{ url_for(".static", filename="jQuery-File-Upload-9.8.0/js/jquery.fileupload.js") }}"></script>
 {% endmacro %}
 
 {% macro styles() %}
-    <link href="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload.css") }}"
+    <link href="{{ url_for(".static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload.css") }}"
           rel="stylesheet">
-    <link href="{{ url_for("static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload-ui.css") }}"
+    <link href="{{ url_for(".static", filename="jQuery-File-Upload-9.8.0/css/jquery.fileupload-ui.css") }}"
           rel="stylesheet">
 {% endmacro %}
 

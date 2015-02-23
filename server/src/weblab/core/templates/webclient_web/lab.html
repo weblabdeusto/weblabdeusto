@@ -1,7 +1,7 @@
-{% extends "_logged_base.html" %}
+{% extends "webclient_web/_logged_base.html" %}
 {% set title="Lab - " %}
 
-{% import "_upload.html" as upload %}
+{% import "webclient_web/_upload.html" as upload %}
 
 {% block styles %}
     {{ super() }}
@@ -95,9 +95,9 @@
     $("#exp-frame").load(function () {
         console.debug("Injecting scripts");
 
-        InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
-        InjectScriptIntoFrame("{{ url_for('static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
-        InjectScriptIntoFrame("{{ url_for('static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
+        InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
+        InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
+        InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
     });
 
 
@@ -148,7 +148,7 @@
         if (error.code == "JSON:Client.SessionNotFound") {
             errorStatus("{{ gettext("You are not logged in") }}");
             setTimeout(function () {
-                window.location = "{{ url_for("index") }}";
+                window.location = "{{ url_for(".index") }}";
             }, 1500);
         }
         else {
@@ -209,21 +209,21 @@
 
 
     {# TODO: Switch for .min files on release #}
-    <script type="text/javascript" src="{{ url_for("static", filename="bower_components/jquery/dist/jquery.min.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for("static", filename="bower_components/angular/angular.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for("static", filename="js/iframeResizer.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/jquery/dist/jquery.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.min.js") }}"></script>
 
 
     {# Embedded templates #}
-    {% include 'apps/lab/expinfo.template.html' %}
-    {% include 'apps/lab/reserve-status.directive.html' %}
+    {% include 'webclient_web/apps/lab/expinfo.template.html' %}
+    {% include 'webclient_web/apps/lab/reserve-status.directive.html' %}
 
     {# Fake includes so that we can use Jinja2 directives #}
     <script type="text/javascript">
-        {% include 'apps/lab/app.js' %}
-        {% include 'apps/lab/lab.controller.js' %}
-        {% include 'apps/lab/expinfo.directive.js' %}
-        {% include 'apps/lab/reserve-status.directive.js' %}
+        {% include 'webclient_web/apps/lab/app.js' %}
+        {% include 'webclient_web/apps/lab/lab.controller.js' %}
+        {% include 'webclient_web/apps/lab/expinfo.directive.js' %}
+        {% include 'webclient_web/apps/lab/reserve-status.directive.js' %}
     </script>
 
 {% endblock %}

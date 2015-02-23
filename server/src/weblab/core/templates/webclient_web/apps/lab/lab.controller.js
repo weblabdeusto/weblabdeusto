@@ -65,7 +65,7 @@ function LabController($scope) {
                 var wexp = frame.contentWindow.Weblab.getWeblabExp();
                 currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                 var url = result["url"];
-                wexp.setTargetURL("{{ url_for('redir_json', _external=True) }}");
+                // {# wexp.setTargetURL("{{ url_for('redir_json', _external=True) }}"); #}
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
                 // Listen also for a dispose, for other ui changes.

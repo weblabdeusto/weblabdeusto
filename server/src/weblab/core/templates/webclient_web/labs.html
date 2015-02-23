@@ -51,10 +51,11 @@
                                 <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["type"] }}
                             </p>
 
-                            {# TO-DO: Enable this #}
-{#                            <a href="{{ url_for("lab", category = experiment["experiment.category"], name = urllib.quote_plus(experiment["experiment.name"]), type = experiment["experiment_type"]) }}">#}
-{#                                <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>#}
-{#                            </a>#}
+                            {% if experiment["type"] == "js" %}
+                            <a href="{{ url_for(".lab", category = experiment["category"], name = urllib.quote_plus(experiment["name"]), type = experiment["type"]) }}">
+                                <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>
+                            </a>
+                            {% endif %}
 
                         </div>
                     </div>
