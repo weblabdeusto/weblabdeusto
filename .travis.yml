@@ -11,5 +11,3 @@ install:
 script:
     - cd server/src; python develop.py; cd ../..;
     - cd experiments/unmanaged/http/nodejs/; mocha; cd ../../../../;
-    - cd flask_client/testpjs; python testweblab_launcher.py; cd ../../;
-    - cd flask_client; nosetests test; cd ..;
