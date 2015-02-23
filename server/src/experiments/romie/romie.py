@@ -21,6 +21,7 @@ from voodoo.log import logged
 import urllib2
 import json
 import random
+import sqlite3
 
 DEBUG = True
 ROMIE_SERVER = "http://192.168.0.190:8000/"
@@ -37,9 +38,8 @@ class RoMIExperiment(Experiment.Experiment):
 		Reads the base config parameters from the config file.
 		"""
 
-		self.questions = {}
-		general_question_file = self._cfg_manager.get_value("general_questions")
-		self.questions['general'] = json.loads(open(general_question_file).read())
+		self.database = self._cfg_manager.get_value('romie_sqlite')
+		self.questions = self._cfg_manager.get_value('questions')
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -54,6 +54,8 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
+
+		self.db = sqlite3.connect(self.database)
 
 		return ""
 
@@ -80,16 +82,14 @@ class RoMIExperiment(Experiment.Experiment):
 			command = command.split()
 
 			difficulty = int(command[1])
-			category = command[2]
 
-			questions = self.questions[category][difficulty];
+			questions = self.questions[difficulty];
 			question_nr =random.randint(0, len(questions)-1)
 			question = questions[question_nr]
 
 			response_question = {
 				'index': question_nr,
 				'difficulty': difficulty,
-				'category': category,
 				'question': question['question'],
 				'answers': question['answers'],
 				'points': question['points'],
@@ -105,9 +105,16 @@ class RoMIExperiment(Experiment.Experiment):
 			response = int(command[1])
 			difficulty = int(command[2])
 			question = int(command[3])
-			category = command[4]
 
-			return self.questions[category][difficulty][question]['correct'] == response
+			return self.questions[difficulty][question]['correct'] == response
+
+		elif command.startsWith("FINISH"):
+			command = command.split()
+			conn = sqlite3.connect(self.database)
+
+			#conn.execute(QUERY);
+			conn.commit()
+			conn.close()
 
 		return "OK"
 
@@ -119,4 +126,6 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 		if(DEBUG):
 			print "[RoMIE] do_dispose called"
+
+		self.db.close()
 		return "OK"

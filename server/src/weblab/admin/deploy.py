@@ -52,340 +52,341 @@ def _add_params(session, experiment):
 
     session.commit()
 
-# 
+#
 # Please keep the alphabetical order
-# 
+#
 CONFIG_JS = {
     "aquarium@Aquatic experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
         "experiment.picture": "/img/experiments/aquarium.png"
-    }, 
+    },
     "aquariumjs@Aquatic experiments": {
-        "height": 1000, 
-        "width": 1024, 
-        "html.file": "jslabs/aquarium/aquarium.html", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium", 
-        "experiment.info.description": "description", 
+        "height": 1000,
+        "width": 1024,
+        "html.file": "jslabs/aquarium/aquarium.html",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+        "experiment.info.description": "description",
         "experiment.picture": "/img/experiments/aquarium.png"
-    }, 
+    },
     "archimedes@Aquatic experiments": {
-        "html.file": "jslabs/archimedes/archimedes.html", 
-        "cssHeight": "1000", 
-        "cssWidth": "1024", 
+        "html.file": "jslabs/archimedes/archimedes.html",
+        "cssHeight": "1000",
+        "cssWidth": "1024",
         "experiment.picture": "/img/experiments/aquarium.png"
-    }, 
+    },
     "binary@Games": {
         "experiment.picture": "/img/experiments/binary.jpg"
-    }, 
+    },
     "blink-led@LabVIEW experiments": {
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
+    },
     "control-app@Control experiments": {
         "experiment.picture": "/img/experiments/bulb.png"
-    }, 
-    "dummy1@Dummy experiments": {}, 
-    "dummy2@Dummy experiments": {}, 
-    "dummy3@Dummy experiments": {}, 
-    "dummy3_with_other_name@Dummy experiments": {}, 
-    "dummy4@Dummy experiments": {}, 
-    "dummy@Dummy experiments": {}, 
+    },
+    "dummy1@Dummy experiments": {},
+    "dummy2@Dummy experiments": {},
+    "dummy3@Dummy experiments": {},
+    "dummy3_with_other_name@Dummy experiments": {},
+    "dummy4@Dummy experiments": {},
+    "dummy@Dummy experiments": {},
     "elevator@FPGA experiments": {
-        "cssHeight": "1000", 
-        "cssWidth": "1024", 
-        "html.file": "jslabs/elevator/dist/index.html", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#elevator", 
-        "experiment.info.description": "Experiment with an elevator", 
+        "cssHeight": "1000",
+        "cssWidth": "1024",
+        "html.file": "jslabs/elevator/dist/index.html",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#elevator",
+        "experiment.info.description": "Experiment with an elevator",
         "experiment.picture": "/img/experiments/elevator.png"
-    }, 
+    },
     "external-robot-movement@Robot experiments": {
-        "html": "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client.", 
+        "html": "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client.",
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
+    },
     "Fisica-1-PXI@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "Fisica-1@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "Fisica-2-PXI@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "Fisica-2@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "Fisica-3-PXI@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "Fisica-3@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "flashdummy@Dummy experiments": {
-        "swf.file": "WeblabFlashSample.swf", 
-        "experiment.info.description": "description", 
-        "height": 350, 
-        "message": "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.", 
-        "flash.timeout": 20, 
-        "width": 500, 
-        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy", 
-        "experiment.picture": "/img/experiments/flash.jpg", 
+        "swf.file": "WeblabFlashSample.swf",
+        "experiment.info.description": "description",
+        "height": 350,
+        "message": "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Adobe Flash in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+        "flash.timeout": 20,
+        "width": 500,
+        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy",
+        "experiment.picture": "/img/experiments/flash.jpg",
         "page.footer": ""
-    }, 
+    },
     "fpga-board-bit@LabVIEW experiments": {
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
+    },
     "fpga-board-config@LabVIEW experiments": {
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
+    },
     "fpga-board-experiment@LabVIEW experiments": {
-        "send.file": True, 
+        "send.file": True,
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
-    "http@HTTP experiments": {}, 
+    },
+    "http@HTTP experiments": {},
     "incubator@Farm experiments": {
-        "html": "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results.", 
-        "experiment.reserve.button.shown": False, 
+        "html": "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results.",
+        "experiment.reserve.button.shown": False,
         "experiment.picture": "/img/experiments/incubator.jpg"
-    }, 
+    },
     "javadummy@Dummy experiments": {
-        "height": 350, 
-        "width": 500, 
-        "code": "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet", 
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy", 
-        "message": "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.", 
-        "jar.file": "WeblabJavaSample.jar", 
+        "height": 350,
+        "width": 500,
+        "code": "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy",
+        "message": "Note: This is not a real experiment, it's just a demo so as to show that WebLab-Deusto can integrate different web technologies (such as Java Applets in this experiment). This demostrates that developing experiments in WebLab-Deusto is really flexible.",
+        "jar.file": "WeblabJavaSample.jar",
         "experiment.picture": "/img/experiments/java.jpg"
-    }, 
+    },
     "jsdummy@Dummy experiments": {
-        "html.file": "jstest.html", 
-        "provide.file.upload": True, 
-        "height": 350, 
-        "width": 500, 
+        "html.file": "jstest.html",
+        "provide.file.upload": True,
+        "height": 350,
+        "width": 500,
         "experiment.picture": "/img/experiments/java.jpg"
-    }, 
+    },
     "jsfpga@FPGA experiments": {
-        "html.file": "jsxilinx/watertank/watertank.html", 
-        "provide.file.upload": True, 
-        "height": "600", 
-        "width": "800", 
+        "html.file": "jsxilinx/watertank/watertank.html",
+        "provide.file.upload": True,
+        "height": "600",
+        "width": "800",
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "logic@Games": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
         "experiment.picture": "/img/experiments/logic.jpg"
-    }, 
+    },
     "lxi_visir@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "microelectronics@iLab experiments": {
-        "code": "weblab.client.graphicalUI.GraphicalApplet", 
-        "experiment.reserve.button.shown": False, 
-        "service_broker": "http://www.weblab.deusto.es/weblab/web/ilab/", 
-        "archive": "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar", 
-        "lab_server_id": "microelectronics", 
+        "code": "weblab.client.graphicalUI.GraphicalApplet",
+        "experiment.reserve.button.shown": False,
+        "service_broker": "http://www.weblab.deusto.es/weblab/web/ilab/",
+        "archive": "http://weblab2.mit.edu/client/v7.0b5/signed_Weblab-client.jar",
+        "lab_server_id": "microelectronics",
         "experiment.picture": "/img/experiments/MIT.jpg"
-    }, 
+    },
     "prototyping-board-01@LabVIEW experiments": {
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
+    },
     "robot-maze@Robot experiments": {
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
+    },
     "robot-movement@Robot experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
+    },
     "robot-proglist@Robot experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
+    },
     "robot-standard@Robot experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#robot",
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
+    },
     "robotarm@Robot experiments": {
-        "experiment.info.description": "description", 
+        "experiment.info.description": "description",
         "experiment.picture": "/img/experiments/robot.jpg"
-    }, 
-    "romie@Dummy experiments" : {
+    },
+    "romie@Robot experiments" : {
         "cssWidth": "1024",
         "cssHeight": "680",
         "provide.file.upload": False,
+        "experiment.picture": "/img/experiments/robot.jpg",
         "html.file": "jslabs/romie/romie.html"
     },
     "submarine@Aquatic experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
         "experiment.picture": "/img/experiments/submarine.png"
-    }, 
+    },
     "submarine@Submarine experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
         "experiment.picture": "/img/experiments/submarine.png"
-    }, 
+    },
     "submarinejs@Aquatic experiments": {
-        "cssHeight": "1000", 
-        "cssWidth": "1024", 
-        "html.file": "jslabs/submarine/submarine.html", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium", 
-        "experiment.info.description": "description", 
+        "cssHeight": "1000",
+        "cssWidth": "1024",
+        "html.file": "jslabs/submarine/submarine.html",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
+        "experiment.info.description": "description",
         "experiment.picture": "/img/experiments/submarine.png"
-    }, 
+    },
     "testone@LabVIEW experiments": {
         "experiment.picture": "/img/experiments/labview.jpg"
-    }, 
+    },
     "ud-binary@PLD experiments": {
         "experiment.picture": "/img/experiments/binary.jpg"
-    }, 
+    },
     "ud-demo-fpga@FPGA experiments": {
-        "experiment.info.description": "description", 
-        "is.demo": True, 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga", 
+        "experiment.info.description": "description",
+        "is.demo": True,
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-demo-pld@PLD experiments": {
-        "experiment.info.description": "description", 
-        "is.demo": True, 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#cpld", 
+        "experiment.info.description": "description",
+        "is.demo": True,
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#cpld",
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-demo-xilinx@Xilinx experiments": {
-        "experiment.info.description": "description", 
-        "is.demo": True, 
-        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx", 
-        "is.multiresource.demo": True, 
+        "experiment.info.description": "description",
+        "is.demo": True,
+        "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Demo_Xilinx",
+        "is.multiresource.demo": True,
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
-    "ud-dummy-batch@Dummy experiments": {}, 
-    "ud-dummy@Dummy experiments": {}, 
+    },
+    "ud-dummy-batch@Dummy experiments": {},
+    "ud-dummy@Dummy experiments": {},
     "ud-fpga@FPGA experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
-    "ud-gpib1@GPIB experiments": {}, 
-    "ud-gpib2@GPIB experiments": {}, 
-    "ud-gpib@GPIB experiments": {}, 
+    },
+    "ud-gpib1@GPIB experiments": {},
+    "ud-gpib2@GPIB experiments": {},
+    "ud-gpib@GPIB experiments": {},
     "ud-linux-vm@VM experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#virtual-machine-lab",
         "experiment.picture": "/img/experiments/virtualbox.jpg"
-    }, 
+    },
     "ud-logic@Dummy experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
         "experiment.picture": "/img/experiments/logic.jpg"
-    }, 
+    },
     "ud-logic@PIC experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
         "experiment.picture": "/img/experiments/logic.jpg"
-    }, 
+    },
     "ud-pic18@PIC experiments": {
         "experiment.picture": "/img/experiments/microchip.jpg"
-    }, 
+    },
     "ud-pld-1@PLD experiments": {
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-pld-2@PLD experiments": {
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-pld@PLD experiments": {
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-test-pic18-1@PIC experiments": {
-        "is.demo": True, 
+        "is.demo": True,
         "experiment.picture": "/img/experiments/microchip.jpg"
-    }, 
+    },
     "ud-test-pic18-2@PIC experiments": {
-        "is.demo": True, 
+        "is.demo": True,
         "experiment.picture": "/img/experiments/microchip.jpg"
-    }, 
+    },
     "ud-test-pic18-3@PIC experiments": {
-        "is.demo": True, 
+        "is.demo": True,
         "experiment.picture": "/img/experiments/microchip.jpg"
-    }, 
+    },
     "ud-test-pld1@PLD experiments": {
-        "is.demo": True, 
+        "is.demo": True,
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-test-pld2@PLD experiments": {
-        "is.demo": True, 
+        "is.demo": True,
         "experiment.picture": "/img/experiments/xilinx.jpg"
-    }, 
+    },
     "ud-win-vm@VM experiments": {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
-    }, 
+    },
     "unr-physics@Physics experiments": {
         "experiment.picture": "/img/experiments/unr.jpg"
-    }, 
+    },
     "visir-fed-balance-multiple@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir-fed-balance@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir-html5@Visir experiments": {
-        "html.file": "visir-html5/visir.html", 
-        "provide.file.upload": False, 
-        "cssHeight": "520", 
-        "cssWidth": "805", 
+        "html.file": "visir-html5/visir.html",
+        "provide.file.upload": False,
+        "cssHeight": "520",
+        "cssWidth": "805",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir-lesson2@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir-student@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir-uned@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visir@Visir experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "visirtest@Dummy experiments": {
-        "experiment.info.description": "description", 
-        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir", 
+        "experiment.info.description": "description",
+        "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
         "experiment.picture": "/img/experiments/visir.jpg"
-    }, 
+    },
     "vm-win@Dummy experiments": {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
-    }, 
+    },
     "vm@Dummy experiments": {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
-    }, 
+    },
     "vm@VM experiments": {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
     }
@@ -573,7 +574,7 @@ def _grant_permission_to_user(session, users_data, experiments_data, login, exp_
     up_allowed_p2 = Model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
     session.add(up_allowed_p2)
     up_allowed_p3 = Model.DbUserPermissionParameter(up_allowed, permissions.TIME_ALLOWED, six.text_type(time))
-    session.add(up_allowed_p3)        
+    session.add(up_allowed_p3)
 
 def _grant_permissions_to_users(session, users_data, experiments_data, permissions_data):
     for args in permissions_data:
@@ -686,7 +687,7 @@ def populate_weblab_tests(engine, tests):
         ('robot-proglist',          'Robot experiments')     : 'robot-proglist',
         ('robot-standard',          'Robot experiments')     : 'robot-standard',
         ('robotarm',                'Robot experiments')     : 'robotarm',
-        ('romie',                   'Dummy experiments')     : 'js',
+        ('romie',                   'Robot experiments')     : 'js',
         ('submarine',               'Submarine experiments') : 'submarine',
         ('submarinejs',             'Aquatic experiments')   : 'js',
         ('ud-demo-fpga',            'FPGA experiments')      : 'xilinx',
@@ -762,7 +763,7 @@ def populate_weblab_tests(engine, tests):
         ('any',        'robot-proglist',          'Robot experiments',      200),
         ('any',        'robot-standard',          'Robot experiments',      200),
         ('any',        'robotarm',                'Robot experiments',      200),
-        ('any',        'romie',                   'Dummy experiments',      900),
+        ('any',        'romie',                   'Robot experiments',      1200),
         ('any',        'submarine',               'Submarine experiments',  200),
         ('any',        'submarinejs',             'Aquatic experiments',    200),
         ('any',        'ud-demo-fpga',            'FPGA experiments',       200),

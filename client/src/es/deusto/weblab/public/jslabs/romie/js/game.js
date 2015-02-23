@@ -1,3 +1,9 @@
+function pad(n, width, z) {
+	z = z || '0';
+	n = n + '';
+	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
 Game = function(time)
 {
 	this.points = 0;
@@ -14,7 +20,8 @@ Game.prototype.startGame = function()
 	this.timer = setInterval(function() {
 
 		this.time -= 0.01;
-		$('.time span').html(Math.floor(this.time/60) + ":" + (Math.floor((this.time%60) * 100) / 100));
+
+		$('.time span').html(Math.floor(this.time/60) + ":" + pad(Math.floor(this.time%60), 2) + "," + Math.floor((this.time%60) * 100-Math.floor(this.time%60)*100));
 		if (this.time <= 0)
 		{
 			this.time = 0;
@@ -22,8 +29,7 @@ Game.prototype.startGame = function()
 
 			this.endGame();
 		}
-
-		}.bind(this), 10);
+	}.bind(this), 10);
 }
 
 Game.prototype.endGame = function()
@@ -31,7 +37,7 @@ Game.prototype.endGame = function()
 	clearInterval(this.timer);
 	$('#game_end_points').text(this.points);
 
-	// TODO show records
+	// TODO show records and save
 
 	$('#game_end').modal('show');
 }
@@ -65,7 +71,7 @@ Game.prototype.answerQuestion = function()
 		$("#question").modal('hide');
 
 		Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
-			this.question["index"]+" "+this.question["category"], function(response)
+			this.question["index"], function(response)
 			{
 				if (response == 'True')
 				{
@@ -90,11 +96,9 @@ Game.prototype.answerQuestion = function()
 
 Game.prototype.getQuestion = function(tag)
 {
-	// TODO better difficulty check and more categories
-	difficulty = Math.floor(this.points/500);
-	category = "general";
-
-	Weblab.sendCommand("QUESTION "+difficulty+" "+category, function(response){this.showQuestion(response);}.bind(this));
+	difficulty = Math.floor(this.points/200);
+	if (difficulty > 10) difficulty = 10;
+	Weblab.sendCommand("QUESTION "+difficulty, function(response){this.showQuestion(response);}.bind(this));
 }
 
 Game.prototype.getTopCamTime = function()
