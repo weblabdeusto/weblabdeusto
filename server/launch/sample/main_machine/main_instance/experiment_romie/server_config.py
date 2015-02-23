@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-romie_sqlite = '../../launch/sample/main_machine/main_instance/experiment_romie/forotech.db'
+import os
+
+romie_sqlite = os.path.join(CURRENT_PATH, "forotech.db")
 questions = [
 	[ # 0 difficulty
 		{
