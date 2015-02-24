@@ -3,6 +3,7 @@
 import os
 
 romie_sqlite = os.path.join(CURRENT_PATH, "forotech.db")
+
 questions = [
 	[ # 0 difficulty
 		{

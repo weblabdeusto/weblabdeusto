@@ -14,14 +14,24 @@
 		<script src="js/game.js"></script>
 		<script>
 			$(parent.document).find('iframe[name=wlframe]').hide();
-			// TODO registration
+
+			function register()
+			{
+				$('#register .modal-footer button').click(function(){$('#register').modal('hide')});
+				$('#register').on('hidden.bs.modal', init);
+				$('#register').modal('show');
+
+				// TODO registration
+
+				$(parent.document).find('iframe[name=wlframe]').show();
+			}
 
 			function init()
 			{
 				romie = new Romie();
 				game = new Game(194.16); //3*60+14+0.16 [3min 14,16 seconds];
-				onboard = "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard"; // "http://192.168.0.88/image.jpg";
-				topCam = "https://www.weblab.deusto.es/webcam/proxied.py/romie_top"; // "http://192.168.0.89/image.jpg";
+				onboard = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard';
+				topCam = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_top';
 				big = onboard;
 
 				$("#bigcam").append('<img src="'+big+'">');
@@ -31,9 +41,9 @@
 				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
 
 				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
-				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
-				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
-				$('#game_end .modal-footer button').click(function(){$('#game_end').modal("hide")});
+				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal('hide')});
+				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal('hide')});
+				$('#game_end .modal-footer button').click(function(){$('#game_end').modal('hide')});
 
 				$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
 
@@ -51,17 +61,17 @@
 					if (game.isTopCamActive() && game.topCamTime() > 0)
 					{
 						d = new Date();
-						$('.camera2 img').attr("src", onboard+"?"+d.getTime());
+						$('.camera2 img').attr('src', onboard+'?'+d.getTime());
 					}
 					else if (game.isTopCamActive())
 					{
 						game.deactivateTopCam();
 						big = onboard;
-						$('.camera2 img').attr("src", "img/black.png");
+						$('.camera2 img').attr('src', 'img/black.png');
 					}
 				}
 
-				$('.camera2 img').bind("load",function(){setTimeout(updateCam2, 400)});
+				$('.camera2 img').bind('load',function(){setTimeout(updateCam2, 400)});
 				updateCam2();
 
 				$('.camera2 img').click(function() //TODO Seems that it does not work properly
@@ -76,14 +86,12 @@
 						game.deactivateTopCam();
 						big = onboard;
 						clearInterval(camera2);
-						$('.camera2 img').attr("src", "img/black.png");
+						$('.camera2 img').attr('src', 'img/black.png');
 					}
 				});
-
-				$(parent.document).find('iframe[name=wlframe]').show();
 			}
 
-			Weblab.setOnStartInteractionCallback(init);
+			Weblab.setOnStartInteractionCallback(register);
 		</script>
 	</head>
 	<body>
@@ -121,8 +129,49 @@
 			</div>
 		</section>
 
-		<!-- Modal -->
-		<div class="modal fade" id="question" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<!-- Register -->
+		<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="registerLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="registerLabel">¡Bienvenido a Romie!</h4>
+					</div>
+					<div class="modal-body">
+						<p>Hola, bienvenido. En unos segundos podrás comenzar a jugar con Romie, e intentar conseguir una puntuación muy alta para llevarte <b>un iPad</b>. Pero antes, necesitamos que rellenes estos datos.</p>
+						<form action="">
+							<input type="text" name="name" placeholder="Nombre">
+							<input type="text" name="surname" placeholder="Apellido">
+							<input type="text" name="school" placeholder="Colegio">
+
+							<label for="bday">Fecha de nacimiento:</label>
+							<input type="number" min="0" max="31" name="bday" id="bday" placeholder="Día">
+							<select name="bmon">
+								<option value="0" selected>Mes</option>
+								<option value="1">Enero</option>
+								<option value="2">Febrero</option>
+								<option value="3">Marzo</option>
+								<option value="4">Abril</option>
+								<option value="5">Mayo</option>
+								<option value="6">Junio</option>
+								<option value="7">Julio</option>
+								<option value="8">Agosto</option>
+								<option value="9">Septiembre</option>
+								<option value="10">Octubre</option>
+								<option value="11">Noviembre</option>
+								<option value="12">Diciembre</option>
+							</select>
+							<input type="number" min="1990" max="2010" placeholder="Año">
+ 						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Comenzar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Question -->
+		<div class="modal fade" id="question" tabindex="-1" role="dialog" aria-labelledby="questionLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -140,7 +189,7 @@
 		</div>
 
 		<!-- Correct -->
-		<div class="modal fade" id="response_ok" tabindex="-1" role="dialog" aria-labelledby="ResponseOKLabel" aria-hidden="true">
+		<div class="modal fade" id="response_ok" tabindex="-1" role="dialog" aria-labelledby="ResponseOKLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -158,7 +207,7 @@
 		</div>
 
 		<!-- Fail -->
-		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true">
+		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -176,7 +225,7 @@
 		</div>
 
 		<!-- End -->
-		<div class="modal fade" id="game_end" tabindex="-1" role="dialog" aria-labelledby="GameEndLabel" aria-hidden="true">
+		<div class="modal fade" id="game_end" tabindex="-1" role="dialog" aria-labelledby="GameEndLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
