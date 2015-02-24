@@ -17,11 +17,13 @@
 
 			function register()
 			{
-				$('#register .modal-footer button').click(function(){$('#register').modal('hide')});
-				$('#register').on('hidden.bs.modal', init);
-				$('#register').modal('show');
+				$('#register .modal-footer button').click(function(){
+					// TODO registration
 
-				// TODO registration
+					$('#register').modal('hide');
+					init();
+				});
+				$('#register').modal('show');
 
 				$(parent.document).find('iframe[name=wlframe]').show();
 			}
@@ -138,29 +140,51 @@
 					</div>
 					<div class="modal-body">
 						<p>Hola, bienvenido. En unos segundos podrás comenzar a jugar con Romie, e intentar conseguir una puntuación muy alta para llevarte <b>un iPad</b>. Pero antes, necesitamos que rellenes estos datos.</p>
-						<form action="">
-							<input type="text" name="name" placeholder="Nombre">
-							<input type="text" name="surname" placeholder="Apellido">
-							<input type="text" name="school" placeholder="Colegio">
+						<form action=""  class="form-horizontal">
+							<div class="form-group">
+								<label for="name" class="col-sm-2 control-label">Nombre y apellido:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="name" id="name" placeholder="Nombre">
+									<input type="text" class="form-control" name="surname" id="surname" placeholder="Apellido">
+								</div>
+							</div>
 
-							<label for="bday">Fecha de nacimiento:</label>
-							<input type="number" min="0" max="31" name="bday" id="bday" placeholder="Día">
-							<select name="bmon">
-								<option value="0" selected>Mes</option>
-								<option value="1">Enero</option>
-								<option value="2">Febrero</option>
-								<option value="3">Marzo</option>
-								<option value="4">Abril</option>
-								<option value="5">Mayo</option>
-								<option value="6">Junio</option>
-								<option value="7">Julio</option>
-								<option value="8">Agosto</option>
-								<option value="9">Septiembre</option>
-								<option value="10">Octubre</option>
-								<option value="11">Noviembre</option>
-								<option value="12">Diciembre</option>
-							</select>
-							<input type="number" min="1990" max="2010" placeholder="Año">
+							<div class="form-group">
+								<label for="school" class="col-sm-2 control-label">Colegio:</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" name="school" id="school" placeholder="Colegio">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="bday" class="col-sm-2 control-label">Fecha de nacimiento:</label>
+								<div class="col-sm-10">
+									<input type="number" class="form-control" min="0" max="31" name="bday" id="bday" placeholder="Día">
+									<select class="form-control" name="bmon">
+										<option value="0" selected>Mes</option>
+										<option value="1">Enero</option>
+										<option value="2">Febrero</option>
+										<option value="3">Marzo</option>
+										<option value="4">Abril</option>
+										<option value="5">Mayo</option>
+										<option value="6">Junio</option>
+										<option value="7">Julio</option>
+										<option value="8">Agosto</option>
+										<option value="9">Septiembre</option>
+										<option value="10">Octubre</option>
+										<option value="11">Noviembre</option>
+										<option value="12">Diciembre</option>
+									</select>
+									<input type="number" class="form-control" min="1990" max="2010" placeholder="Año">
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="email" class="col-sm-2 control-label">Correo electrónico:</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" name="email" id="email" placeholder="Correo electrónico">
+								</div>
+							</div>
  						</form>
 					</div>
 					<div class="modal-footer">
