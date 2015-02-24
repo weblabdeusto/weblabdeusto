@@ -14,6 +14,7 @@
 #
 import types
 import threading
+import os
 import voodoo.log as log
 from voodoo.lock import RWLock
 
@@ -37,7 +38,7 @@ class _ConfigurationModule(object):
 class _ConfigurationPath(object):
     def __init__(self, path):
         class Holder(object):
-            CURRENT_PATH = path
+            CURRENT_PATH = os.path.dirname(path)
             execfile(path, globals(), locals())
         self.holder = Holder
         self._path  = path
@@ -46,7 +47,7 @@ class _ConfigurationPath(object):
     def reload(self):
         try:
             class Holder(object):
-                CURRENT_PATH = self._path
+                CURRENT_PATH = os.path.dirname(self._path)
                 execfile(self._path, globals(), locals())
         except Exception as e:
             log.log(
