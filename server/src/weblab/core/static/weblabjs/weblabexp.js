@@ -95,6 +95,7 @@ WeblabExp = function (frameMode) {
 
     /**
      * Enables the debugging mode, in which commands do not really send anything to the server.
+     * This is similar to the local-test mode.
      * @see: dbgSetSendCommandResponse()
      */
     this.enableDebuggingMode = function () {
@@ -115,7 +116,7 @@ WeblabExp = function (frameMode) {
      * @returns {bool} True if the debugging mode is enabled, false otherwise.
      */
     this.isDebuggingMode = function () {
-        return mDebuggingMode;
+        return mDebuggingMode || this.isLocalTest();
     };
 
     /**
@@ -141,10 +142,7 @@ WeblabExp = function (frameMode) {
      */
     this._guessFrameMode = function () {
         var mode;
-        if($.QueryString["free"] != undefined)
-            mode = false;
-        else
-            mode = true;
+        mode = $.QueryString["free"] == undefined;
 
         console.debug("Guess Frame Mode: " + mode);
 
@@ -165,9 +163,9 @@ WeblabExp = function (frameMode) {
      * Meant to be called from the Weblab client itself whenever the reservation finishes, in FRAME mode,
      * to provide the actual reservation ID, once it is ready.
      * In FRAME mode it will trigger a call to the start interaction handlers.
-     * In FREE mode it shouldn't be used and it will currently trigger an exception.
+     * In FREE mode it shouldn't be called from outside of this file.
      *
-     * It should only be called once. Calling it twice should also trigger an exception.
+     * It should only be called once. Calling it twice should trigger an exception.
      *
      * @param {str} reservation_id: The reservation ID.
      * @param {number} time: Time left for the experiment. If not an int, it will be rounded from the float.
@@ -177,9 +175,6 @@ WeblabExp = function (frameMode) {
 
         console.debug("[reservationReady] ReservationReady called");
         console.debug("Frame Mode: " + this.isFrameMode());
-
-        if (this.isFrameMode() == false)
-            throw new Error("_reservationReady is not supported in FREE mode (only in FRAME mode)");
 
         if (mStartCalled == true)
             throw new Error("_reservationReady should only be called once");
@@ -241,6 +236,20 @@ WeblabExp = function (frameMode) {
      */
     this.setTargetURLToTesting = function () {
         this.CORE_URL = "http://localhost:18345";
+    };
+
+    /**
+    * Checks whether the experiment is apparently not linked to Weblab and thus running in a local test mode.
+    * @returns {boolean}
+    */
+    this.isLocalTest = function() {
+        // Check whether the page is an iframe. If it is, then it is not a local test.
+        if ( window.location !== window.parent.location ) {
+            return false;
+        }
+
+        // Check whether we are in free-mode. If we are, then this page is not a local test either.
+        return !this.isFrameMode();
     };
 
     /**
@@ -606,7 +615,7 @@ WeblabExp = function (frameMode) {
             mOnStartPromise.done(startHandler);
         }
         return mOnStartPromise.promise();
-    }
+    };
 
     /**
      * @callback startHandler
@@ -632,7 +641,7 @@ WeblabExp = function (frameMode) {
             mOnFinishPromise.done(finishHandler.bind(this));
         }
         return mOnFinishPromise.promise();
-    }
+    };
 
     /**
      * @callback finishHandler

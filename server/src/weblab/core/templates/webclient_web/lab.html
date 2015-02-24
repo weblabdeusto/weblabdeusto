@@ -97,8 +97,8 @@
     $("#exp-frame").load(function () {
         console.debug("Injecting scripts");
 
-        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.
-        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.
+{#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.#}
+{#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.#}
         InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
     });
 

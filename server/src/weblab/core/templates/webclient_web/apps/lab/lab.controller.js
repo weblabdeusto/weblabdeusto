@@ -66,10 +66,11 @@ function LabController($scope) {
                 $scope.reserveMessage.type = 'info';
 
                 var frame = $("#exp-frame")[0];
-                var wexp = frame.contentWindow.Weblab.getWeblabExp();
+                var wexp = frame.contentWindow.weblabExp; // This value is hard-coded in the experiment's HTML. // TODO: Make it prettier.
                 currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                 var url = result["url"];
-                // {# wexp.setTargetURL("{{ url_for('redir_json', _external=True) }}"); #}
+                var json_url = "{{ json_url }}";
+                wexp.setTargetURL(json_url);
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
                 // Listen also for a dispose, for other ui changes.

@@ -18,9 +18,7 @@
 
 
     <!-- WebLab library -->
-    <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
-    <script type="text/javascript" src="../../../weblabjs/weblabexp.js"></script>
-    <script type="text/javascript" src="../../../weblabjs/weblabexp_compat.js"></script>
+    <script type="text/javascript" src="../../weblabjs/weblabexp.js"></script>
 
     <!-- Archimedes-specific JS & CSS -->
     <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
@@ -101,6 +99,10 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
+
+        // Initialize the Weblab library.
+        weblabExp = new WeblabExp();
+
         // global
         archimedesExperiment = new ArchimedesExperiment(Registry, View);
 
@@ -283,6 +285,7 @@
 
 
 <script type="text/javascript">
+
     var cur_hash = location.hash.substring(1);
     var configure = "";
     var variables = cur_hash.split('&');

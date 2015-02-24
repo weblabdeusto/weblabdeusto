@@ -300,15 +300,17 @@ ArchimedesInstance = function (instanceid) {
             console.log("DOWN");
 
             if (downButton.attr("disabled") == undefined) {
-                Weblab.sendCommand(instanceid + ":DOWN",
-                    function (success) {
-                        //$(getidselect("downButton") + " img").attr("src", "img/down_green.png");
-                        //$(getidselect("downButton")).removeAttr("disabled");
-                    },
-                    function (error) {
-                        console.error("DOWN command failed: " + error);
-                        displayErrorMessage("DOWN command failed");
-                    });
+                weblabExp.sendCommand(instanceid + ":DOWN")
+                    .done(
+                        function (success) {
+                            //$(getidselect("downButton") + " img").attr("src", "img/down_green.png");
+                            //$(getidselect("downButton")).removeAttr("disabled");
+                        })
+                    .done(
+                        function (error) {
+                            console.error("DOWN command failed: " + error);
+                            displayErrorMessage("DOWN command failed");
+                        });
             }
 
             //$(getidselect("downButton") + " img").attr("src", "img/down.png");
@@ -320,11 +322,13 @@ ArchimedesInstance = function (instanceid) {
             console.log("UP");
 
             if (upButton.attr("disabled") == undefined) {
-                Weblab.sendCommand(instanceid + ":UP",
+                weblabExp.sendCommand(instanceid + ":UP")
+                    .done(
                     function (success) {
                         //upButton.find("img").attr("src", "img/up_green.png");
                         //upButton.removeAttr("disabled");
-                    },
+                    })
+                    .done(
                     function (error) {
                         console.error("UP command failed: " + error);
                         displayErrorMessage("UP command failed");
@@ -346,13 +350,15 @@ ArchimedesInstance = function (instanceid) {
                 //$("#hdpic").attr("src", "");
                 $("#photoModal").modal();
 
-                Weblab.sendCommand(instanceid + ":IMAGE",
+                weblabExp.sendCommand(instanceid + ":IMAGE")
+                    .done(
                     function (data) {
                         photoButton.removeAttr("disabled");
 
                         $("#hdpic").attr("src", "data:image/jpg;base64," + data);
                         $(this).find("img").attr("src", "img/photo_green.png");
-                    },
+                    })
+                    .done(
                     function (error) {
                         console.error("Error: " + error);
                         displayErrorMessage("IMAGE command failed");
@@ -380,9 +386,10 @@ ArchimedesInstance = function (instanceid) {
                     "3:60\n" +
                     "4:90";
 
-                Weblab.dbgSetOfflineSendCommandResponse(fakeData);
+                weblabExp.setSendCommandResponse(fakeData);
 
-                Weblab.sendCommand(instanceid + ":PLOT",
+                weblabExp.sendCommand(instanceid + ":PLOT")
+                    .done(
                     function (data) {
 
                         plotButton.removeAttr("disabled");
@@ -402,7 +409,8 @@ ArchimedesInstance = function (instanceid) {
                         drawChart(items);
 
                         plotButton.find("img").attr("src", "img/plot_green.png");
-                    },
+                    })
+                    .done(
                     function (error) {
                         console.error("Error: " + error);
                         displayErrorMessage("PLOT command failed");
