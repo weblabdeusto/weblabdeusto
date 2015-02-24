@@ -53,13 +53,12 @@
 
 
 
-    {% if experiment_type == "js" %}
+    {% if experiment["type"] == "js" %}
         <div class="" style="padding-top: 20px">
             <div class="">
                 <!-- We append a rawgit base URL for testing -->
                 <iframe id="exp-frame" width="100%" scrolling="no"
-                        src="{{ config['LAB_URL'] + experiment['html.file'] }}" style="border: 0;">
-
+                        src="{{ lab_url + experiment['config']['html.file'] }}" style="border: 0;">
                 </iframe>
             </div>
         </div>
@@ -77,6 +76,9 @@
     {{ upload.code(config["UPLOAD_URL"]) }}
 
     <script type="text/javascript">
+
+    console.log("THE EXPERIMENT IS: ");
+    console.log({{ experiment|tojson }});
 
     var $reserveStatusRow = $("#reserve-status-row");
     var $reserveStatus = $("#reserve-status");
@@ -196,8 +198,6 @@
                 $("#exp-frame").iFrameResize({log: false, enablePublicMethods: true, checkOrigin: false}, "#exp-frame");
             }, 100);
         });
-
-        // TODO: Unify the "reserving experiment" alert.
 
         $("#finish-experiment-btn").click(function (ev) {
             currentExperiment.finishExperiment();

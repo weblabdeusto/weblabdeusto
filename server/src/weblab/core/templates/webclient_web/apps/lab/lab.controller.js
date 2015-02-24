@@ -18,6 +18,9 @@ function LabController($scope) {
         type: 'info'
     };
 
+    var json_url = "{{ json_url }}";
+    WeblabWeb.setTargetURLs(json_url, json_url);
+
 
     /**
      * Checks whether the experiment is active.
@@ -29,9 +32,11 @@ function LabController($scope) {
     }
 
     function reserveInFrame() {
-        var sessionid = "{{ request.cookies.get('sessionid') }}";
-        var name = "{{ experiment['experiment.name'] }}";
-        var category = "{{ experiment['experiment.category'] }}";
+        var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
+        sessionid = sessionid.split(".", 1)[0];
+
+        var name = "{{ experiment['name'] }}";
+        var category = "{{ experiment['category'] }}";
 
         $(".reserve-btn").attr("disabled", "");
 
@@ -55,7 +60,6 @@ function LabController($scope) {
                 onReserveFail(error);
             })
             .done(function (uid, time, initial_config, result) {
-
                 $scope.experiment.active = true;
 
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
@@ -81,9 +85,11 @@ function LabController($scope) {
     }
 
     function reserveInWindow() {
-        var sessionid = "{{ request.cookies.get('sessionid') }}";
-        var name = "{{ experiment['experiment.name'] }}";
-        var category = "{{ experiment['experiment.category'] }}";
+        var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
+        sessionid = sessionid.split('.')[0];
+
+        var name = "{{ experiment['name'] }}";
+        var category = "{{ experiment['category'] }}";
 
         $(".reserve-free-btn").attr("disabled", "");
         infoStatus("{{ gettext('Reserving experiment...') }}");

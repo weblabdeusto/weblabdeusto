@@ -1,14 +1,8 @@
-import logging
-
+import os
 from flask import render_template, url_for, request, flash, redirect
 
-# from weblab.webclient.web.flask_app import flask_app
-# from weblab.webclient.web.helpers import get_experiments_data
-# from weblab.webclient.web.weblabweb import WeblabWeb, WeblabWebException
-from requests import cookies
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient.web.helpers import _get_loggedin_info, _get_experiment_info
-
 from weblab.core.wl import weblab_api
 
 
@@ -38,7 +32,12 @@ def lab():
 
         experiment = experiments[name]
 
-        return render_template("webclient_web/lab.html", experiment=experiment, loggedin=loggedin_info)
+        # Get the target URL for the JS API.
+        core_server_url = weblab_api.server_instance.core_server_url
+        json_url = os.path.join(*[core_server_url, "json/"])
+        lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
+
+        return render_template("webclient_web/lab.html", experiment=experiment, loggedin=loggedin_info, json_url=json_url, lab_url=lab_url)
 
     except SessionNotFoundError as ex:
         flash("You are not logged in", category="error")
