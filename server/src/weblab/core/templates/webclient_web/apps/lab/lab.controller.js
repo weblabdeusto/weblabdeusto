@@ -118,17 +118,17 @@ function LabController($scope) {
                 $scope.reserveMessage.type = 'info';
 
                 {# TODO: Tidy this up. #}
-                {% if experiment_type == "js" %}
+                {% if experiment["type"] == "js" %}
 
                     var params = {
                         "r": id,
                         "c": initConfig,
                         "t": time,
-                        "u": "{{ url_for("redir_json", _external=True) }}",
+                        "u": "{{ json_url }}",
                         "free": "true"
                     };
                     {# //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"; #}
-                    var redir = "{{ config['LAB_URL'] + experiment['html.file'] }}";
+                    var redir = "{{ lab_url + experiment['config']['html.file'] }}";
                     redir += "?" + $.param(params);
                     console.log(redir);
 

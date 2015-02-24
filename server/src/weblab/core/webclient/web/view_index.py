@@ -78,5 +78,5 @@ def logout():
         except:
             flash("Could not logout", category="warning")
 
-    return redirect(url_for("index"))
+    return redirect(url_for(".index"))
 
