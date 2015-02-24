@@ -6,6 +6,9 @@ class VoodooGenError(VoodooError):
 class GeneratorError(VoodooGenError):
     pass
 
+class LoadingError(GeneratorError):
+    pass
+
 class InternalCommunicationError(VoodooGenError):
     pass
 

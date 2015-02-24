@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS "forotech" (
+"username" TEXT PRIMARY KEY,
+"name" TEXT,
+"SURNAME" TEXT,
+"email" TEXT UNIQUE,
+"points" INTEGER
+) WITHOUT ROWID;

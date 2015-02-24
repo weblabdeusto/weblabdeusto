@@ -173,7 +173,7 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_aquariumjs:main_instance@main_machine',
                  'checkers': ()
             },
-        'exp1:romie@Dummy experiments':
+        'exp1:romie@Robot experiments':
             {
                  'coord_address': 'experiment_romie:main_instance@main_machine',
                  'checkers': ()
