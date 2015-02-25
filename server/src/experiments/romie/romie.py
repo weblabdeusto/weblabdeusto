@@ -55,8 +55,6 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
-		#self.db = sqlite3.connect(self.database)
-
 		return ""
 
 	@Override(Experiment.Experiment)
@@ -108,13 +106,19 @@ class RoMIExperiment(Experiment.Experiment):
 
 			return self.questions[difficulty][question]['correct'] == response
 
-		elif command.startsWith("FINISH"):
+		elif command.startswith("FINISH"):
 			command = command.split()
 			conn = sqlite3.connect(self.database)
 
 			#conn.execute(QUERY);
 			conn.commit()
 			conn.close()
+		if command == 'CHECK_REGISTER':
+			# TODO check if already regisered
+			return 'REGISTER'
+		if command.startswith('REGISTER'):
+			# TODO register user
+			return 'OK'
 
 		return "OK"
 
@@ -127,5 +131,4 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_dispose called"
 
-		#self.db.close()
 		return "OK"

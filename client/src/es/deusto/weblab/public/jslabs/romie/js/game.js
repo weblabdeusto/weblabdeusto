@@ -38,6 +38,7 @@ Game.prototype.endGame = function()
 	$('#game_end_points').text(this.points);
 
 	// TODO show records and save
+	// TODO save data and movements
 
 	$('#game_end').modal('show');
 }
