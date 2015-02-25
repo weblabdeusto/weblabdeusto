@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <title>WebLab&#8209;Deusto - {{ title }}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap-glyphicons.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
+
+    {% block styles %}
+    {% endblock %}
+    <style>
+        body { 
+            padding-top: 20px;
+        }
+        .spacer {
+            display: inline-block;
+            width: 6em;
+            height: 3em;
+        }
+        .vmargin-20 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            border-top-color: rgb(229, 229, 229);
+            border-top-style: solid;
+            border-top-width: 1px;
+            margin-top: 20px;
+            color: rgb(119, 119, 119);
+        }
+
+        .footer-text {
+            margin-top: 20px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+    {% block header %}
+    {% endblock %}
+</head>
+<body>
+<!--    <a href="http://github.com/weblabdeusto/weblabdeusto/"><img style="position: fixed; top: 0; right: 0; border: 0; z-index: 50000;"
+        src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+        -->
+
+    <!-- 
+    <div class="navbar navbar-fixed-top">
+        <div class="container">
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".weblab-navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="https://www.weblab.deusto.es/" style="padding-top: 5px; padding-bottom: 5px">
+                <img alt="WebLab-Deusto" src="assets/img/ball_small.png" style="margin-right: 10px">&nbsp;WebLab&#8209;Deusto
+            </a>
+            <div class="nav-collapse collapse weblab-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li {% if link == "home" %}class="active"{% endif %}><a href="index.html">Home</a></li>
+                    <li {% if link == "project" %}class="active"{% endif %} class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Project  <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="software.html">Software</a></li>
+                            <li><a href="equipment.html">Equipment</a></li>
+                            <li><a href="awards.html">Awards</a></li>
+                        </ul>
+                    </li>
+                    <li {% if link == "labs" %}class="active"{% endif %}><a href="labs.html">Labs</a></li>
+                    <li {% if link == "research" %}class="active"{% endif %}><a href="projects.html">Research</a></li>
+                    <li {% if link == "team" %}class="active"{% endif %} class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Team <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="members.html">Members</a></li>
+                            <li><a href="projects_and_dissertations.html">Academic projects and dissertations</a></li>
+                            <li><a href="https://www.weblab.deusto.es/web/">Team page</a></li>
+                        </ul>
+                    </li>
+                    <li {% if link == "other_projects" %}class="active"{% endif %} class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Other Projects  <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="second_lab.html">Second Life</a></li>
+                            <li><a href="boole_deusto.html">Boole-Deusto</a></li>
+                        </ul>
+                    </li>
+                    <li {% if link == "contact" %}class="active"{% endif %}><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    -->
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                {% with messages = get_flashed_messages(with_categories = True) %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{% if category == 'error' %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endwith %}
+                </div>
+            </div>
+        </div>
+
+
+{% block body %}
+
+
+{% endblock %}
+
+    <div class="footer">
+        <div class="container footer-text">
+            <div class="text-center">
+                <p>WebLab-Deusto r<a href="">3384</a> | Last update: Monday, June 30, 2014</p>
+                <p>
+                {% for lang in "العربية", "Čeština", "English", "Español", "Euskara", "Deutsch", "Français", "Magyar", "Nederlands", "Português", "Română", "Русский", "Slovenčina" %}
+                    <a href="">{{ lang }}</a>
+                {% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+<script src="{{ url_for(".static", filename="js/jquery.js") }}"></script>
+<script src="{{ url_for(".static", filename="bootstrap3/js/bootstrap.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/mustache.js") }}"></script>
+<script src="{{ url_for(".static", filename="weblabjs/weblabweb.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/persist-min.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/md5.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/sprintf.min.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/jquery.cookie-1.4.1.min.js") }}"></script>
+
+<script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
+
+<script type="text/javascript">
+    // We redirect all local requests through the flask server so that we can deal with
+    // the routing cookies that are currently required. This will probably change in the
+    // future.
+    {# WeblabWeb.LOGIN_URL = "{{ url_for("redir_login_json") }}"; #}
+    {# WeblabWeb.CORE_URL = "{{ url_for("redir_json") }}"; #}
+</script>
+
+<script type="text/javascript"> 
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+    try {
+        var pageTracker = _gat._getTracker("UA-12576838-2");
+        pageTracker._trackPageview();
+    } catch(err) {}
+</script> 
+
+{% block scripts %}
+
+{% endblock %}
+</body>
+</html>

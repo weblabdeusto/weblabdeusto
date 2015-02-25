@@ -3,10 +3,11 @@ import StringIO
 
 import six
 import yaml
+import traceback
 
 from voodoo.configuration import ConfigurationManager
 
-from voodoo.gen.exc import GeneratorError
+from voodoo.gen.exc import GeneratorError, LoadingError
 from voodoo.gen.util import _load_type
 from voodoo.gen.address import CoordAddress
 from voodoo.gen.locator import Locator
@@ -66,7 +67,11 @@ class GlobalConfig(dict):
         """
         config = self.create_config(coord_address)
         component_config = self[coord_address]
-        ComponentClass = _load_type(component_config.component_class)
+        try:
+            ComponentClass = _load_type(component_config.component_class)
+        except Exception as e:
+            traceback.print_exc()
+            raise LoadingError(u"Error loading component: %r for server %s: %s" % (component_config.component_class, coord_address, e))
         locator = Locator(self, coord_address)
         instance = ComponentClass(coord_address, locator, config)
         server = _create_server(instance, coord_address, component_config)
@@ -83,6 +88,16 @@ class GlobalConfig(dict):
         return ProcessHandler(component_handlers)
 
     def load_process(self, host, process):
+        """
+        Starts a WebLab process with the configuration that is currently loaded in the calling object.
+        Unless the dont-start flag has been enabled in the configuration, this will start the Flask
+        server and start listening for requests.
+
+        :param host: Name of the host (specified in the configuration)
+        :type host: str
+        :param process: Name of the process (specified in the configuration)
+        :type process: str
+        """
         process_handler = self.create_process(host, process)
         process_handler.start()
         return process_handler
@@ -187,6 +202,15 @@ def _process_config(tree, directory):
     return config_files, config_values
 
 def load_dir(directory):
+    """
+    Loads the WebLab instance global configuration within the specified directory, which can be
+    used to start WebLab instances.
+
+    :param directory: Directory to load configuration files from.
+    :type directory: str
+    :return: The global configuration object with the loaded configuration
+    :rtype: GlobalConfig
+    """
     if not os.path.exists(directory):
         raise GeneratorError("Directory %s does not exist" % directory)
 
