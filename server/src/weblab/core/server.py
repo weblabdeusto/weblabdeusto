@@ -32,6 +32,7 @@ import weblab.configuration_doc as configuration_doc
 import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
+from weblab.core.babel import Babel
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
@@ -178,6 +179,13 @@ def list_experiments():
 @weblab_api.route_api('/user/info/')
 @load_user_processor
 def get_user_information():
+    """
+    get_user_information()
+    Retrieves the user information for the current user.
+
+    :return: User object with the information. The User object contains, among others: full_name, login, email
+    :rtype: weblab.data.dto.User
+    """
     user_information = weblab_api.ctx.user_processor.get_user_information()
     if weblab_api.ctx.user_processor.is_admin():
         admin_url = weblab_api.ctx.core_server_url + "administration/admin/"
@@ -408,6 +416,24 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
 
+        # Initialize internationalization code.
+        if Babel is None:
+            print "Not using Babel. Everything will be in English"
+        else:
+            babel = Babel(self.app)
+
+            supported_languages = ['en']
+            supported_languages.extend([translation.language for translation in babel.list_translations()])
+
+            @babel.localeselector
+            def get_locale():
+                locale = request.args.get('locale', None)
+                if locale is None:
+                    locale = request.accept_languages.best_match(supported_languages)
+                if locale is None:
+                    locale = 'en'
+                return locale
+
         # Mostly for debugging purposes, this snippet will print the site-map so that we can check
         # which methods we are routing.
         @self.app.route("/site-map")
@@ -451,7 +477,16 @@ class WebLabFlaskServer(WebLabWsgiServer):
         core_web = Blueprint('core_web', __name__)
         weblab_api.apply_routes_web(core_web, server)
         self.app.register_blueprint(core_web, url_prefix = '/weblab/web')
-       
+
+        # Register the blueprint for the new (year 2015) flask-based web client.
+        # The .apply_routes_webclient method is dynamically generated, the name matches
+        # that in the wl.py module.
+        # Attempt at setting the right static folder.
+        static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
+        core_webclient = Blueprint('core_webclient', __name__, static_folder=static_folder)
+        weblab_api.apply_routes_webclient(core_webclient, server)
+        self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
+
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
 class UserProcessingServer(object):

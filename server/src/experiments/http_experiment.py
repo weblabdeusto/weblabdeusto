@@ -55,6 +55,15 @@ class HttpExperiment(Experiment):
             return urllib2.urlopen(request, json.dumps(data)).read()
 
     def do_start_experiment(self, serialized_client_initial_data, serialized_server_initial_data):
+        """
+        Invoked by WebLab on the start experiment event.
+        :param serialized_client_initial_data: Initial client configuration. As a JSON-parseable string.
+        :type serialized_client_initial_data: str
+        :param serialized_server_initial_data: Initial data provided by the server. As a JSON-parseable string.
+        :type serialized_server_initial_data: str
+        :return: JSON parseable string containing the initial_configuration dictionary, which includes an "url" and a "back" url.
+        :rtype: str
+        """
         try:
             back_url = json.loads(serialized_client_initial_data).get('back','')
 

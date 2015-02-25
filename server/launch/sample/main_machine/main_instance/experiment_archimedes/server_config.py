@@ -9,5 +9,5 @@ archimedes_instances = {
     "default": "http://192.168.0.161:80"
 }
 
-archimedes_real_device = True
+archimedes_real_device = False
 

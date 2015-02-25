@@ -1,0 +1,18 @@
+{
+  "name": "flaskclient",
+  "version": "0.0.0",
+  "homepage": "https://github.com/zstars/weblabdeusto",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.3.8",
+    "jquery": "~2.1.3"
+  }
+}

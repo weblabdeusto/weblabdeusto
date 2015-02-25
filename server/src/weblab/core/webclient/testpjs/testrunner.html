@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <title> Tests </title>
+        <link rel="stylesheet" href="./node_modules/mocha/mocha.css" />
+    </head>
+    <body>
+        <!-- This file is meant to run PhantomJS - Mocha tests. -->
+        <div id="mocha"></div>
+        <script src="./node_modules/mocha/mocha.js"></script>
+        <script src="./node_modules/chai/chai.js"></script>
+        <script src="../flaskclient/static/js/jquery.js"></script>
+        <script src="../flaskclient/static/weblabjs/weblabweb.js"></script>
+        <script src="../flaskclient/static/weblabjs/weblabexp.js"></script>
+        <script>
+            mocha.ui('bdd');
+            mocha.reporter('html');
+            var should = chai.should();
+            var expect = chai.expect;
+
+        </script>
+        <script src="test_weblabweb.js"></script>
+        <script src="test_weblabexp.js"></script>
+        <script>
+
+            // Direct the tests to the testing weblab instance and not to the standard one
+            // (the main deployed instance).
+            WeblabWeb.setTargetURLsToTesting();
+
+            // WeblabExp now sets the URLs itself.
+
+            if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
+            else { mocha.run(); }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,229 @@
+{% extends "webclient_web/_logged_base.html" %}
+{% set title="Lab - " %}
+
+{% import "webclient_web/_upload.html" as upload %}
+
+{% block styles %}
+    {{ super() }}
+    {{ upload.styles() }}
+{% endblock %}
+
+{% block body %}
+
+    {{ super() }}
+
+    <div class="container" id="reserve-container" ng-app="lab" ng-controller="LabController">
+
+        <div class="text-center">
+            <h2>{{ gettext("Reserve this experiment") }}</h2>
+        </div>
+
+        <wl-exp-info></wl-exp-info>
+
+        <button ng-click="reserveInFrame()">Test</button>
+
+        <div class="row">
+            <div class="col-lg-2 col-lg-offset-4 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                   id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
+            </div>
+            <div class="col-lg-2 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+                   id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
+            </div>
+        </div>
+
+        <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" type="reserveMessage.type"></wl-reserve-status>
+
+    </div>
+
+
+    <div class="container" id="finish-container" style="display: none">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this
+                    experiment</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="file-upload-container" style="margin-top: 20px">
+        {{ upload.content() }}
+    </div>
+
+
+
+    {% if experiment["type"] == "js" %}
+        <div class="" style="padding-top: 20px">
+            <div class="">
+                <!-- We append a rawgit base URL for testing -->
+                <iframe id="exp-frame" width="100%" scrolling="no"
+                        src="{{ lab_url + experiment['config']['html.file'] }}" style="border: 0;">
+                </iframe>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    {{ super() }}
+
+    {{ upload.scripts() }}
+
+    {{ upload.code(config["UPLOAD_URL"]) }}
+
+    <script type="text/javascript">
+
+    console.log("THE EXPERIMENT IS: ");
+    console.log({{ experiment|tojson }});
+
+    var $reserveStatusRow = $("#reserve-status-row");
+    var $reserveStatus = $("#reserve-status");
+
+    function InjectScriptIntoFrame(url) {
+        myIframe = document.getElementById("exp-frame");
+        var script = myIframe.contentWindow.document.createElement("script");
+        script.async = false;
+        script.defer = false;
+        script.type = "text/javascript";
+        script.src = url;
+        myIframe.contentWindow.document.head.appendChild(script);
+    }
+
+    {# Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one #}
+    $("#exp-frame").load(function () {
+        console.debug("Injecting scripts");
+
+{#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.#}
+{#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.#}
+        InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
+    });
+
+
+    /**
+     * Handle certain ui actions when the experiment finishes.
+     */
+    function onReserveDone() {
+        // Switch the finish and reserve containers.
+        $("#reserve-container").slideUp(500);
+        $("#finish-container").slideDown(500);
+
+        // Re-enable the Reserve buttons, for when they are shown later.
+        $(".reserve-btn").removeAttr("disabled");
+
+        // In a while, remove the reserve alert.
+        // Note: As of now this isn't actually seen because the whole container is hidden.
+        $("#reserve-status-row").delay(500).fadeOut(500);
+
+        // Hide the upload container.
+        $("#file-upload-container").delay(500).fadeOut(500);
+    }
+
+
+    /**
+     * Handle certain ui actions when the experiment finishes.
+     */
+    function onExperimentFinished() {
+        // We should probably show some kind of experiment-finished message.
+
+        $("#reserve-container").slideDown(500);
+        $("#finish-container").slideUp(500);
+
+        // Reload the frame.
+        // This is particularly important at the moment because the WeblabExp compatibility library
+        // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
+        $('#exp-frame').attr('src', function (i, val) {
+            return val;
+        });
+    }
+
+
+    /**
+     * Reserve experiment failed.
+     */
+    function onReserveFail(error) {
+
+        // We logged out.
+        if (error.code == "JSON:Client.SessionNotFound") {
+            errorStatus("{{ gettext("You are not logged in") }}");
+            setTimeout(function () {
+                window.location = "{{ url_for(".index") }}";
+            }, 1500);
+        }
+        else {
+            errorStatus("{{ gettext("Failed to reserve: ") }}" + error.message)
+        }
+    }
+
+
+    /**
+     * Displays the specified reserve info status.
+     * @param {string} info: Info message that will appear in blue.
+     */
+    function infoStatus(info) {
+        $reserveStatusRow.show();
+        $reserveStatus.text(info);
+        $reserveStatus.addClass("alert-info");
+        $reserveStatus.removeClass("alert-danger");
+    }
+
+    /**
+     * Displays the specified error info status.
+     * @param {str} error: Error message that will appear in red.
+     */
+    function errorStatus(error) {
+        $reserveStatusRow.show();
+        $reserveStatus.text(error);
+        $reserveStatus.addClass("alert-danger");
+        $reserveStatus.removeClass("alert-info");
+    }
+
+
+    {# Await for the page #}
+    $(document).ready(function () {
+
+        //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
+
+        // Load the iframeResizer when the frame loads.
+        $("#exp-frame").on("load", function (ev) {
+            // For some reason it doesn't work without a timeout. Don't know why.
+            // TODO: Check why it doesn't work without a timeout and try to remove it.
+            // Consider also whether we actually need to do this for each reload or one time is enough.
+            // Note: Actually, maybe that is because the injected script needs to finish loading.
+            // TODO: Add some kind of callback so that we can run this when the script within the iframe finishes loading.
+            setTimeout(function () {
+                $("#exp-frame").iFrameResize({log: false, enablePublicMethods: true, checkOrigin: false}, "#exp-frame");
+            }, 100);
+        });
+
+        $("#finish-experiment-btn").click(function (ev) {
+            currentExperiment.finishExperiment();
+        });
+
+    }); //! document.ready
+
+    </script>
+
+
+    {# TODO: Switch for .min files on release #}
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/jquery/dist/jquery.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.min.js") }}"></script>
+
+
+    {# Embedded templates #}
+    {% include 'webclient_web/apps/lab/expinfo.template.html' %}
+    {% include 'webclient_web/apps/lab/reserve-status.directive.html' %}
+
+    {# Fake includes so that we can use Jinja2 directives #}
+    <script type="text/javascript">
+        {% include 'webclient_web/apps/lab/app.js' %}
+        {% include 'webclient_web/apps/lab/lab.controller.js' %}
+        {% include 'webclient_web/apps/lab/expinfo.directive.js' %}
+        {% include 'webclient_web/apps/lab/reserve-status.directive.js' %}
+    </script>
+
+{% endblock %}

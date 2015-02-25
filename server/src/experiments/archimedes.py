@@ -112,7 +112,6 @@ class Archimedes(Experiment):
     def handle_command_allinfo(self, command):
         """
         Handles an ALLINFO command, which has the format: ALLINFO:instance1:instance2...
-        @param {str} command: The command.
         """
         boards = command.split(":")[1:]
         response = {}

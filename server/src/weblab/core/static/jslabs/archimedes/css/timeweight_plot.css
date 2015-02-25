@@ -1,0 +1,27 @@
+#plotModalBody {
+  font: 10px sans-serif;
+}
+
+
+.background {
+    fill: #F8FBEF;
+}
+
+.axis path,
+
+.axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 3;
+}
+
+.gfxline {
+    fill: none;
+    stroke-width: 3;
+    stroke: blue;
+}
+
+.area {
+    fill: steelblue;
+    fill-opacity: 0.1;
+}
