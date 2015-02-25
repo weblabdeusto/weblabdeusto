@@ -306,7 +306,7 @@ ArchimedesInstance = function (instanceid) {
                             //$(getidselect("downButton") + " img").attr("src", "img/down_green.png");
                             //$(getidselect("downButton")).removeAttr("disabled");
                         })
-                    .done(
+                    .fail(
                         function (error) {
                             console.error("DOWN command failed: " + error);
                             displayErrorMessage("DOWN command failed");
@@ -328,7 +328,7 @@ ArchimedesInstance = function (instanceid) {
                         //upButton.find("img").attr("src", "img/up_green.png");
                         //upButton.removeAttr("disabled");
                     })
-                    .done(
+                    .fail(
                     function (error) {
                         console.error("UP command failed: " + error);
                         displayErrorMessage("UP command failed");
@@ -358,7 +358,7 @@ ArchimedesInstance = function (instanceid) {
                         $("#hdpic").attr("src", "data:image/jpg;base64," + data);
                         $(this).find("img").attr("src", "img/photo_green.png");
                     })
-                    .done(
+                    .fail(
                     function (error) {
                         console.error("Error: " + error);
                         displayErrorMessage("IMAGE command failed");
@@ -410,7 +410,7 @@ ArchimedesInstance = function (instanceid) {
 
                         plotButton.find("img").attr("src", "img/plot_green.png");
                     })
-                    .done(
+                    .fail(
                     function (error) {
                         console.error("Error: " + error);
                         displayErrorMessage("PLOT command failed");

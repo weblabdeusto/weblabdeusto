@@ -34,13 +34,18 @@ def handle_login_POST():
         session_id = weblab_api.api.login(username, password)
     except InvalidCredentialsError:
         flash("Invalid username or password", category="error")
-        return redirect(url_for(".index"))
+        # _scheme is a workaround. See comment in other redirect.
+        return redirect(url_for(".index", _external=True, _scheme=request.scheme))
     except:
         traceback.print_exc()
         flash("There was an unexpected error while logging in.", 500)
         return make_response("There was an unexpected error while logging in.", 500)
     else:
-        response = make_response(redirect(url_for(".labs")))
+        # TODO: Find proper way to do this.
+        # This currently redirects to HTTP even if being called from HTTPS. Tried _external as a workaround but didn't work.
+        # More info: https://github.com/mitsuhiko/flask/issues/773
+        # For now we force the scheme from the request.
+        response = make_response(redirect(url_for(".labs", _external=True, _scheme=request.scheme)))
         """ @type: flask.Response """
 
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
@@ -78,5 +83,5 @@ def logout():
         except:
             flash("Could not logout", category="warning")
 
-    return redirect(url_for(".index"))
+    return redirect(url_for(".index", _external=True, _scheme=request.scheme))
 

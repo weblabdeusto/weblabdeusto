@@ -99,7 +99,7 @@
 
 {#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp.js', _external=True) }}"); // New experiments API.#}
 {#        // InjectScriptIntoFrame("{{ url_for('.static', filename='weblabjs/weblabexp_compat.js', _external=True) }}"); // Provides an API like the old one, but which uses the new one.#}
-        InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True) }}"); // Automatic iframe resizing.
+        InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}"); // Automatic iframe resizing.
     });
 
 
@@ -189,14 +189,28 @@
 
         // Load the iframeResizer when the frame loads.
         $("#exp-frame").on("load", function (ev) {
-            // For some reason it doesn't work without a timeout. Don't know why.
-            // TODO: Check why it doesn't work without a timeout and try to remove it.
-            // Consider also whether we actually need to do this for each reload or one time is enough.
-            // Note: Actually, maybe that is because the injected script needs to finish loading.
-            // TODO: Add some kind of callback so that we can run this when the script within the iframe finishes loading.
-            setTimeout(function () {
-                $("#exp-frame").iFrameResize({log: false, enablePublicMethods: true, checkOrigin: false}, "#exp-frame");
-            }, 100);
+
+            // We cannot call the iFrameResize function straightaway, because, the way we handle this as of now, is to load
+            // the internal resize script within the iframe asynchronously. This means that we need to make sure it has
+            // finished loading.
+            // TODO: Consider whether we should assume that the experiment scripts include the script by themselves.
+            var timesTried = 0;
+            var initResizeInterval = setInterval(function () {
+                if("#exp-frame" !== undefined) {
+                    $("#exp-frame").iFrameResize({
+                        log: false,
+                        enablePublicMethods: true,
+                        checkOrigin: false
+                    }, "#exp-frame");
+                    clearInterval(initResizeInterval);
+                } else {
+                    timesTried++;
+                    if(timesTried > 10) {
+                        clearInterval(initResizeInterval);
+                        console.error("[RESIZE]: We failed to resize the experiment's iframe. Maybe the experiment's iframe resizer script could not be injected properly.");
+                    }
+                }
+            }, 500);
         });
 
         $("#finish-experiment-btn").click(function (ev) {

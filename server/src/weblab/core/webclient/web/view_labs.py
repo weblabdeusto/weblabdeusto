@@ -16,7 +16,8 @@ def labs():
     cookie = request.cookies.get("weblabsessionid", None)
     if cookie is None:
         flash("You are not logged in", category="error")
-        return redirect(url_for(".index"))
+        # _ext + _scheme is a workaround around an http(s) issue.
+        return redirect(url_for(".index", _external=True, _scheme=request.scheme))
 
     # Prepare to call the weblab_api
     weblab_api.ctx.reservation_id = cookie
