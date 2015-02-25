@@ -114,10 +114,21 @@ class RoMIExperiment(Experiment.Experiment):
 
 			conn = sqlite3.connect(self.database)
 			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
+
+			cur = conn.cursor()
+			cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
+			result = cur.fetchall()
+			ranking = list()
+
+			for user in result:
+				current = (user[0] == self.username)
+				ranking.append({"name":user[1], "surname":user[2], "school":user[3], "points":user[4], "current":current})
+
 			conn.commit()
 			conn.close()
 
-			return 'OK' #TODO return JSON of best 10
+			return json.dumps(ranking)
+
 		elif command == 'CHECK_REGISTER':
 			conn = sqlite3.connect(self.database)
 			cur = conn.cursor()
