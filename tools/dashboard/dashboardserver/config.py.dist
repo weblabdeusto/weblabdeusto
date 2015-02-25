@@ -1,0 +1,11 @@
+
+from celery.schedules import crontab
+from datetime import timedelta
+
+CELERYBEAT_SCHEDULE = {
+    'add-check': {
+        'task': 'check.http_get_code',
+        'schedule': timedelta(seconds=15),
+        'args': ('archimedes.cam1', 'Test archimedes webcam 1', 'http://www.google.com', 200)
+    }
+}
