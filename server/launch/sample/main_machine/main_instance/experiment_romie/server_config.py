@@ -27,6 +27,63 @@ questions = [
 			"correct": 3,
 			"points": 65,
 			"time": 25
+		},
+		{
+			"question": '¿Cual es la longitud de una circunferencia?',
+			"answers": [
+				'4*pi*r',
+				'4/3*pi*r',
+				'2*pi*r',
+				'pi*r'
+			],
+			"correct": 2,
+			"points": 65,
+			"time": 25
+		},
+		{
+			"question": 'El número pi está presente en',
+			"answers": [
+				'La Naturaleza',
+				'Cilindros',
+				'Esferas',
+				'Todas son correctas'
+			],
+			"correct": 3,
+			"points": 55,
+			"time": 20
+		},
+		{
+			"question": 'El número pi es un número',
+			"answers": [
+				'Racional',
+				'Irracional',
+				'Ninguna de las anteriores',
+			],
+			"correct": 1,
+			"points": 55,
+			"time": 20
+		},
+		{
+			"question": '¿Qué representa el numero pi?',
+			"answers": [
+				'La proporción entre la longitud de una circunferencia y su diametro',
+				'La proporción entre la superficie de un cuadrado y la longitud sus lados',
+				'Ninguna de las dos es correcta',
+			],
+			"correct": 0,
+			"points": 50,
+			"time": 20
+		},
+		{
+			"question": '¿Cúantos decimales tiene el número pi?',
+			"answers": [
+				'4',
+				'10',
+				'Infinitos',
+			],
+			"correct": 2,
+			"points": 50,
+			"time": 20
 		}
 	],
 	[ # 1 difficulty
@@ -62,6 +119,18 @@ questions = [
 				'El director'
 			],
 			"correct": 3,
+			"points": 80,
+			"time": 22
+		},
+		{
+			"question": '¿Cuál es el volumen de una esfera?',
+			"answers": [
+				'4*pi*r',
+				'4/3*pi*r',
+				'2*pi*r',
+				'pi*r'
+			],
+			"correct": 1,
 			"points": 80,
 			"time": 22
 		}
@@ -142,6 +211,30 @@ questions = [
 			"correct": 0,
 			"points": 165,
 			"time": 25
+		},
+		{
+			"question": '¿Qué matemático realizó la primera estimación del valor de pi?',
+			"answers": [
+				'Galileo Galilei',
+				'René Descartes',
+				'Arquímedes de Siracusa',
+				'Pitágoras'
+			],
+			"correct": 2,
+			"points": 165,
+			"time": 25
+		},
+		{
+			"question": '¿Cuál fue la primera civilización en emplear el número pi?',
+			"answers": [
+				'Romanos',
+				'Egipcios',
+				'Griegos',
+				'Persas'
+			],
+			"correct": 1,
+			"points": 165,
+			"time": 25
 		}
 	],
 	[ # 5 difficulty
@@ -168,6 +261,18 @@ questions = [
 			"correct": 2,
 			"points": 205,
 			"time": 25
+		},
+		{
+			"question": '¿Cuál es el record actual en el cálculo de decimales del número pi?',
+			"answers": [
+				'Mil',
+				'Tres millones,
+				'Diez trillones,
+				'Siete billones
+			],
+			"correct": 2,
+			"points": 205,
+			"time": 25
 		}
 	],
 	[ # 6 difficulty
@@ -182,6 +287,18 @@ questions = [
 			"correct": 1,
 			"points": 225,
 			"time": 25
+		},
+		{
+			"question": '¿En qué año se data la primera referencia al número pi?',
+			"answers": [
+				'1650 adC',
+				'0',
+				'200 adC',
+				'1000 adC'
+			],
+			"correct": 0,
+			"points": 225,
+			"time": 25
 		}
 	],
 	[ # 7 difficulty
@@ -192,6 +309,17 @@ questions = [
 				'Atila',
 				'Julio Cesar',
 				'Joffrey Baratheon'
+			],
+			"correct": 1,
+			"points": 215,
+			"time": 20
+		},
+		{
+			"question": '¿Quién popularizo el número Pi?',
+			"answers": [
+				'William Oughtred',
+				'William Jones',
+				'Leonhard Euler'
 			],
 			"correct": 1,
 			"points": 215,
