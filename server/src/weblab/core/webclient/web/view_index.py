@@ -40,7 +40,8 @@ def handle_login_POST():
         flash("There was an unexpected error while logging in.", 500)
         return make_response("There was an unexpected error while logging in.", 500)
     else:
-        response = make_response(redirect(url_for(".labs")))
+        # _external to try to workaround pseudo-bug: https://github.com/mitsuhiko/flask/issues/773
+        response = make_response(redirect(url_for(".labs", _external=True)))
         """ @type: flask.Response """
 
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)

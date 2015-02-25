@@ -33,7 +33,9 @@ def lab():
         experiment = experiments[name]
 
         # Get the target URL for the JS API.
-        core_server_url = weblab_api.server_instance.core_server_url
+        # Note: The following commented line should work best; but it doesn't make sure that the protocol matches.
+        # core_server_url = weblab_api.server_instance.core_server_url
+        core_server_url = os.path.join(*[url_for(".index"), "../../"])
         json_url = os.path.join(*[core_server_url, "json/"])
         # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
         lab_url = os.path.join(url_for(".static", filename=""))
