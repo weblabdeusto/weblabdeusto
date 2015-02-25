@@ -16,9 +16,7 @@
 			$(parent.document).find('iframe[name=wlframe]').hide();
 
 			function start() {
-				console.log("START");
 				Weblab.sendCommand("CHECK_REGISTER", function(response) {
-					console.log(response);
 					if (response == "REGISTER") register();
 					else init();
 				});
@@ -28,15 +26,13 @@
 
 				$('#register .modal-footer button').click(function() {
 
-					// TODO if user exists do not register
-					// TODO registration
 					register_ok = true;
 
 					name = $('#name').val();
 					surname = $('#surname').val();
 					school = $('#school').val();
 					bday = parseInt($('#bday').val());
-					bmon = parseInt($('[name=bmon]').val());
+					bmon = parseInt($('[name=bmon]').val())-1;
 					byear = parseInt($('[name=byear]').val());
 					email = $('#email').val();
 
@@ -57,7 +53,7 @@
 						$('#email-group').addClass('has-error');
 					}
 
-					if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 1 || bmon > 12) {
+					if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
 						register_ok = false;
 						$('#bday-group').addClass('has-error');
 					} else {
@@ -65,18 +61,24 @@
 						if (( ! (byear % 4) && byear % 100) || ! (byear % 400))
 							daysInMonth[1] = 29;
 
-						if (bday > daysInMonth[bmon-1]) {
+						if (bday > daysInMonth[bmon]) {
 							register_ok = false;
 							$('#bday-group').addClass('has-error');
 						}
 					}
 
 					if (register_ok) {
+						bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
+						unix = Math.floor(bdate.getTime()/1000);
 
-						// TODO send data to Weblab and hide modal as callback
 
-						$('#register').modal('hide');
-						init();
+						command = "REGISTER:-:"+name+":-:"+surname+":-:"+school+":-:"+unix+":-:"+email;
+						Weblab.sendCommand(command, function(response) {
+							if (response == 'OK') {
+								$('#register').modal('hide');
+								init();
+							}
+						});
 					}
 				});
 

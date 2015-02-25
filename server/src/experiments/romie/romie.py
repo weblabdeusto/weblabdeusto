@@ -48,12 +48,15 @@ class RoMIExperiment(Experiment.Experiment):
 
 	@Override(Experiment.Experiment)
 	@logged("info")
-	def do_start_experiment(self, *args, **kwargs):
+	def do_start_experiment(self, client_initial_data, server_initial_data):
 		"""
 		Callback run when the experiment is started.
 		"""
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
+
+		data = json.loads(server_initial_data)
+		self.username = data['request.username']
 
 		return ""
 
@@ -65,7 +68,7 @@ class RoMIExperiment(Experiment.Experiment):
 		@param command Command sent by the client, as a string.
 		"""
 		if(DEBUG):
-			print "[RoMIE] do_send_command_to_device called"
+			print "[RoMIE] Command received: %s" % command
 
 		global ROMIE_SERVER
 
@@ -113,10 +116,21 @@ class RoMIExperiment(Experiment.Experiment):
 			#conn.execute(QUERY);
 			conn.commit()
 			conn.close()
-		if command == 'CHECK_REGISTER':
-			# TODO check if already regisered
-			return 'REGISTER'
-		if command.startswith('REGISTER'):
+		elif command == 'CHECK_REGISTER':
+			conn = sqlite3.connect(self.database)
+			cur = conn.cursor()
+
+			cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
+			count = cur.fetchone()[0]
+
+			result = ''
+			if count == 0:
+				result = 'REGISTER'
+
+			conn.close()
+
+			return result
+		elif command.startswith('REGISTER'):
 			# TODO register user
 			return 'OK'
 
