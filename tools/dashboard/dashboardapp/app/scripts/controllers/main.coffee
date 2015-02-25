@@ -14,3 +14,18 @@ angular.module('dashboardappApp')
       'AngularJS'
       'Karma'
     ]
+
+    $scope.components =
+      archimedes1:
+        webcamtest1:
+          text: "First webcam is working"
+          status: "OK"
+          date: "2015-02-23"
+          task_state: "finished"
+      fpga:
+        whatever:
+          text: "First webcam is working"
+          status: "OK"
+          date: "2015-02-23"
+          task_state: "finished"
+

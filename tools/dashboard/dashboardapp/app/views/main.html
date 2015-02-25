@@ -1,16 +1,7 @@
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col col-md-6">
-            <div class="well" style="background-color: #EEFFEE">
-                <legend>Archimedes</legend>
-
-                <p><i class="fa fa-check"/> First webcam is working</p>
-                <p style="background-color: #FFFFEE"><i class="fa fa-warning" style="color: orange"/> Second webcam is working</p>
-                <p><i class="fa fa-remove"/> Archimedes data makes sense</p>
-
-                <button class="btn btn-info">View history</button>
-                <button class="btn btn-warning">Run all</button>
-            </div>
+        <div ng-repeat="(componentid, component) in components">
+            <my-component componentid="componentid" component="component"></my-component>
         </div>
     </div>
 </div>
