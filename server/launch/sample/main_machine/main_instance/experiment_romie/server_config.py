@@ -32,7 +32,7 @@ questions = [
 	],
 	[ # 1 difficulty
 		{
-			"question": '¿Cuántas horas tiene el 29 de febrero de un año visiesto?',
+			"question": '¿Cuántas horas tiene el 29 de febrero de un año bisiesto?',
 			"answers": [
 				23.5,
 				24,
@@ -81,7 +81,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿Qué mide el número pi (π)?',
+			"question": '¿Qué relaciona el número pi (π)?',
 			"answers": [
 				'La relación entre el diámetro y la superficie de un círculo',
 				'La relación entre el radio y el diámetro de un círculo',

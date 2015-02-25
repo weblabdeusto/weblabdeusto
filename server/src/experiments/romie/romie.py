@@ -111,11 +111,13 @@ class RoMIExperiment(Experiment.Experiment):
 
 		elif command.startswith("FINISH"):
 			command = command.split()
-			conn = sqlite3.connect(self.database)
 
-			#conn.execute(QUERY);
+			conn = sqlite3.connect(self.database)
+			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
 			conn.commit()
 			conn.close()
+
+			return 'OK' #TODO return JSON of best 10
 		elif command == 'CHECK_REGISTER':
 			conn = sqlite3.connect(self.database)
 			cur = conn.cursor()
@@ -131,7 +133,14 @@ class RoMIExperiment(Experiment.Experiment):
 
 			return result
 		elif command.startswith('REGISTER'):
-			# TODO register user
+			data = json.loads(command.split()[1])
+
+			conn = sqlite3.connect(self.database)
+			conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
+				(self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
+			conn.commit()
+			conn.close()
+
 			return 'OK'
 
 		return "OK"

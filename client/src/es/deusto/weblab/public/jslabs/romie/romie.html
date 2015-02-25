@@ -19,6 +19,8 @@
 				Weblab.sendCommand("CHECK_REGISTER", function(response) {
 					if (response == "REGISTER") register();
 					else init();
+
+					$(parent.document).find('iframe[name=wlframe]').show();
 				});
 			}
 
@@ -71,8 +73,9 @@
 						bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
 						unix = Math.floor(bdate.getTime()/1000);
 
+						data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email};
 
-						command = "REGISTER:-:"+name+":-:"+surname+":-:"+school+":-:"+unix+":-:"+email;
+						command = "REGISTER " + JSON.stringify(data);
 						Weblab.sendCommand(command, function(response) {
 							if (response == 'OK') {
 								$('#register').modal('hide');
@@ -91,7 +94,6 @@
 				$('#email').focusin(function(){$('#email-group').removeClass('has-error');});
 
 				$('#register').modal('show');
-				$(parent.document).find('iframe[name=wlframe]').show();
 			}
 
 			function init() {
@@ -205,7 +207,8 @@
 						<h4 class="modal-title" id="registerLabel">¡Bienvenido a Romie!</h4>
 					</div>
 					<div class="modal-body">
-						<p>Hola, bienvenido. En unos segundos podrás comenzar a jugar con Romie, e intentar conseguir una puntuación muy alta para llevarte <b>un iPad</b>. Pero antes, necesitamos que rellenes estos datos.</p>
+						<p>Hola, bienvenido. En unos segundos podrás comenzar a jugar con Romie, e intentar conseguir una puntuación muy alta para llevarte <b>un iPad</b>. Pero antes, necesitamos que rellenes estos datos, que serán usados para ponernos en contacto contigo si ganas.</p>
+						<p>Nota: podrás jugar las veces que quieras, pero solo se guardará tu última puntuación.</p>
 
 						<form action="" class="form-horizontal">
 							<div class="form-group" id="name-group">

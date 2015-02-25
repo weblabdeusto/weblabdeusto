@@ -37,8 +37,9 @@ Game.prototype.endGame = function()
 	clearInterval(this.timer);
 	$('#game_end_points').text(this.points);
 
-	// TODO show records and save
-	// TODO save data and movements
+	Weblab.sendCommand("FINISH " + this.points, function(response) {
+		// TODO show ranking
+	});
 
 	$('#game_end').modal('show');
 }
