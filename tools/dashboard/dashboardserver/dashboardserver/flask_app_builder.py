@@ -8,6 +8,6 @@ def build_flask_app():
     flask_app.config["DEBUG"] = False
     flask_app.config["SECRET_KEY"] = "SECRET"
 
-    flask_app.config.from_pyfile("config")
+    flask_app.config.from_pyfile("../config.py")
 
     return flask_app
