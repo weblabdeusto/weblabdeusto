@@ -93,19 +93,19 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 #html_theme = 'sphinxdoc'
 
-sys.path.append(os.path.abspath('source/_themes'))
-html_theme_path = ['_themes']
-html_theme = 'sphinx-theme-okfn'
-html_theme_options = {
-        'logo_icon': '_static/logo-ball.png',
-        'show_okfn_logo' : False,
-        'git_repo' : 'http://github.com/weblabdeusto/weblabdeusto/',
-#        'google_analytics_id': '',
-}
+# sys.path.append(os.path.abspath('source/_themes'))
+# html_theme_path = ['_themes']
+html_theme = 'sphinxdoc'
+# html_theme_options = {
+#         'logo_icon': '_static/logo-ball.png',
+#         'show_okfn_logo' : False,
+#         'git_repo' : 'http://github.com/weblabdeusto/weblabdeusto/',
+# #        'google_analytics_id': '',
+# }
 
-html_sidebars = {
-    '**':  ['localtoc.html', 'globaltoc.html']
-}
+# html_sidebars = {
+#     '**':  ['localtoc.html', 'globaltoc.html']
+# }
 
 
 #html_theme = 'bootstrap'
