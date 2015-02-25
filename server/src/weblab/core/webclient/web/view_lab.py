@@ -45,7 +45,7 @@ def lab():
     except SessionNotFoundError as ex:
         flash("You are not logged in", category="error")
         next = request.full_path
-        return redirect(url_for(".index", next=next))
+        return redirect(url_for(".index", _external=True, _scheme=request.scheme, next=next))
     except Exception as ex:
         raise ex
 
