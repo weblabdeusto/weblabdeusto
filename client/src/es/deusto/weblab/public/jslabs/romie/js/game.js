@@ -37,7 +37,19 @@ Game.prototype.endGame = function()
 	clearInterval(this.timer);
 	$('#game_end_points').text(this.points);
 
-	// TODO show records and save
+	Weblab.sendCommand("FINISH " + this.points, function(response) {
+		data = JSON.parse(response);
+
+		for (i = 0; i < Object.keys(data).length; i++) {
+			$('table tbody').append($('<tr>').addClass(data[i]["current"] ? 'success' : '')
+				.append($('<td>').text(i+1))
+				.append($('<td>').text(data[i]["name"]))
+				.append($('<td>').text(data[i]["surname"]))
+				.append($('<td>').text(data[i]["school"]))
+				.append($('<td>').text(data[i]["points"]))
+			);
+		}
+	});
 
 	$('#game_end').modal('show');
 }

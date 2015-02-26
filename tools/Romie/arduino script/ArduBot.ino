@@ -10,6 +10,12 @@ void ReadTag(void);        // Reads RFID tags using software serial.
 boolean detect=false;
 char next=NULL;
 
+//lastTurn = 1 -> last turn to left
+//lastTurn = 0 -> last turn to right
+
+boolean lastTurn = 0;
+boolean centered = 1;
+
 // Instantiates the Software Serial emulation used by the RFID sensor.
 SoftwareSerial swSerial=SoftwareSerial(rxPin, txPin); // RX, TX
 
@@ -78,6 +84,8 @@ void loop()
       {
       case 'F': // The command is "F": Forward 
         // If a wall is in the way, the robot stops and sends an "NAK" signal.
+        if(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW) centered = 0;
+        else centered=1;
         if(digitalRead(Wall)==LOW)
         {
           Serial.print("NAK");
@@ -90,13 +98,32 @@ void loop()
           Motors.stop(); 
           next=NULL;
         }
+        else if(centered==0){
+          if(lastTurn==0){
+            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnRight(100);
+            Motors.stop();
+            Serial.print("NAK");
+            Serial.println();
+            Serial.flush();
+            next=NULL;
+          }
+          else{
+            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnLeft(100);
+            Motors.stop();
+            Serial.print("NAK");
+            Serial.println();
+            Serial.flush();
+            next=NULL;  
+          } 
+        }
         // If there is no wall, the robot advances (until the next intersection).
         else
         {
           //Serial.print("Command received: Move Forward");
           //Serial.println();
-          Motors.forward(100);
-          delay(300);
+          if(digitalRead(Wall)==HIGH){
+              while(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH) Motors.forward(100);
+          }
         }                  
         break;
 
@@ -113,6 +140,7 @@ void loop()
         Serial.print("ACK");
         Serial.println();
         Serial.flush();
+        lastTurn = 0;
         break;
 
       case 'L': // The command is "L": Left    
@@ -128,6 +156,7 @@ void loop()
         Serial.print("ACK");
         Serial.println();
         Serial.flush();
+        lastTurn = 1;
         break;
         
       case 'S': // The commmand is "S": Read Wall Sensor    

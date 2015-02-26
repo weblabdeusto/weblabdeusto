@@ -14,14 +14,94 @@
 		<script src="js/game.js"></script>
 		<script>
 			$(parent.document).find('iframe[name=wlframe]').hide();
-			// TODO registration
 
-			function init()
-			{
+			function start() {
+				Weblab.sendCommand("CHECK_REGISTER", function(response) {
+					if (response == "REGISTER") register();
+					else init();
+
+					$(parent.document).find('iframe[name=wlframe]').show();
+				});
+			}
+
+			function register() {
+
+				$('#register .modal-footer button').click(function() {
+
+					register_ok = true;
+
+					name = $('#name').val();
+					surname = $('#surname').val();
+					school = $('#school').val();
+					bday = parseInt($('#bday').val());
+					bmon = parseInt($('[name=bmon]').val())-1;
+					byear = parseInt($('[name=byear]').val());
+					email = $('#email').val();
+
+					if (name.length < 3 || surname.length < 3) {
+						register_ok = false;
+						$('#name-group').addClass('has-error');
+					}
+
+					if (school.length < 3) {
+						register_ok = false;
+						$('#school-group').addClass('has-error');
+					}
+
+					email_regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+					if ( ! email_regex.test(email)) {
+						register_ok = false;
+						$('#email-group').addClass('has-error');
+					}
+
+					if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
+						register_ok = false;
+						$('#bday-group').addClass('has-error');
+					} else {
+						daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+						if (( ! (byear % 4) && byear % 100) || ! (byear % 400))
+							daysInMonth[1] = 29;
+
+						if (bday > daysInMonth[bmon]) {
+							register_ok = false;
+							$('#bday-group').addClass('has-error');
+						}
+					}
+
+					if (register_ok) {
+						bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
+						unix = Math.floor(bdate.getTime()/1000);
+
+						data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email};
+
+						command = "REGISTER " + JSON.stringify(data);
+						Weblab.sendCommand(command, function(response) {
+							if (response == 'OK') {
+								$('#register').modal('hide');
+								init();
+							}
+						});
+					}
+				});
+
+				$('#name').focusin(function(){$('#name-group').removeClass('has-error');});
+				$('#surname').focusin(function(){$('#name-group').removeClass('has-error');});
+				$('#school').focusin(function(){$('#school-group').removeClass('has-error');});
+				$('#bday').focusin(function(){$('#bday-group').removeClass('has-error');});
+				$('[name=bmon]').focusin(function(){$('#bday-group').removeClass('has-error');});
+				$('[name=byear]').focusin(function(){$('#bday-group').removeClass('has-error');});
+				$('#email').focusin(function(){$('#email-group').removeClass('has-error');});
+
+				$('#register').modal('show');
+			}
+
+			function init() {
+
 				romie = new Romie();
 				game = new Game(194.16); //3*60+14+0.16 [3min 14,16 seconds];
-				onboard = "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard"; // "http://192.168.0.88/image.jpg";
-				topCam = "https://www.weblab.deusto.es/webcam/proxied.py/romie_top"; // "http://192.168.0.89/image.jpg";
+				onboard = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard';
+				topCam = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_top';
 				big = onboard;
 
 				$("#bigcam").append('<img src="'+big+'">');
@@ -31,9 +111,9 @@
 				$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
 
 				$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
-				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal("hide")});
-				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal("hide")});
-				$('#game_end .modal-footer button').click(function(){$('#game_end').modal("hide")});
+				$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal('hide')});
+				$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal('hide')});
+				$('#game_end .modal-footer button').click(function(){$('#game_end').modal('hide')});
 
 				$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
 
@@ -51,17 +131,17 @@
 					if (game.isTopCamActive() && game.topCamTime() > 0)
 					{
 						d = new Date();
-						$('.camera2 img').attr("src", onboard+"?"+d.getTime());
+						$('.camera2 img').attr('src', onboard+'?'+d.getTime());
 					}
 					else if (game.isTopCamActive())
 					{
 						game.deactivateTopCam();
 						big = onboard;
-						$('.camera2 img').attr("src", "img/black.png");
+						$('.camera2 img').attr('src', 'img/black.png');
 					}
 				}
 
-				$('.camera2 img').bind("load",function(){setTimeout(updateCam2, 400)});
+				$('.camera2 img').bind('load',function(){setTimeout(updateCam2, 400)});
 				updateCam2();
 
 				$('.camera2 img').click(function() //TODO Seems that it does not work properly
@@ -76,14 +156,12 @@
 						game.deactivateTopCam();
 						big = onboard;
 						clearInterval(camera2);
-						$('.camera2 img').attr("src", "img/black.png");
+						$('.camera2 img').attr('src', 'img/black.png');
 					}
 				});
-
-				$(parent.document).find('iframe[name=wlframe]').show();
 			}
 
-			Weblab.setOnStartInteractionCallback(init);
+			Weblab.setOnStartInteractionCallback(start);
 		</script>
 	</head>
 	<body>
@@ -121,8 +199,83 @@
 			</div>
 		</section>
 
-		<!-- Modal -->
-		<div class="modal fade" id="question" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<!-- Register -->
+		<div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="registerLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="registerLabel">¡Bienvenido a Romie!</h4>
+					</div>
+					<div class="modal-body">
+						<p>Hola, bienvenido. En unos segundos podrás comenzar a jugar con Romie, e intentar conseguir una puntuación muy alta para llevarte <b>un iPad</b>. Pero antes, necesitamos que rellenes estos datos, que serán usados para ponernos en contacto contigo si ganas.</p>
+						<p>Nota: podrás jugar las veces que quieras, pero solo se guardará tu última puntuación.</p>
+
+						<form action="" class="form-horizontal">
+							<div class="form-group" id="name-group">
+								<label for="name" class="col-sm-3 control-label">Nombre y apellido:</label>
+								<div class="col-sm-9 row">
+									<div class="col-xs-5">
+										<input type="text" class="form-control" name="name" id="name" placeholder="Nombre">
+									</div>
+									<div class="col-xs-5">
+										<input type="text" class="form-control" name="surname" id="surname" placeholder="Apellido">
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group" id="school-group">
+								<label for="school" class="col-sm-3 control-label">Colegio:</label>
+								<div class="col-sm-9">
+									<input type="text" class="form-control" name="school" id="school" placeholder="Colegio">
+								</div>
+							</div>
+
+							<div class="form-group" id="bday-group">
+								<label for="bday" class="col-sm-3 control-label">Fecha de nacimiento:</label>
+								<div class="col-sm-9 row">
+									<div class="col-xs-3">
+										<input type="number" class="form-control" min="0" max="31" name="bday" id="bday" placeholder="Día">
+									</div>
+									<div class="col-xs-5">
+										<select class="form-control" name="bmon">
+											<option value="0" selected>Mes</option>
+											<option value="1">Enero</option>
+											<option value="2">Febrero</option>
+											<option value="3">Marzo</option>
+											<option value="4">Abril</option>
+											<option value="5">Mayo</option>
+											<option value="6">Junio</option>
+											<option value="7">Julio</option>
+											<option value="8">Agosto</option>
+											<option value="9">Septiembre</option>
+											<option value="10">Octubre</option>
+											<option value="11">Noviembre</option>
+											<option value="12">Diciembre</option>
+										</select>
+									</div>
+									<div class="col-xs-4">
+										<input type="number" class="form-control" min="1950" max="2010" name="byear" placeholder="Año">
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group" id="email-group">
+								<label for="email" class="col-sm-3 control-label">Correo electrónico:</label>
+								<div class="col-sm-9">
+									<input type="email" class="form-control" name="email" id="email" placeholder="Correo electrónico">
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary">Comenzar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Question -->
+		<div class="modal fade" id="question" tabindex="-1" role="dialog" aria-labelledby="questionLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -140,7 +293,7 @@
 		</div>
 
 		<!-- Correct -->
-		<div class="modal fade" id="response_ok" tabindex="-1" role="dialog" aria-labelledby="ResponseOKLabel" aria-hidden="true">
+		<div class="modal fade" id="response_ok" tabindex="-1" role="dialog" aria-labelledby="ResponseOKLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -158,7 +311,7 @@
 		</div>
 
 		<!-- Fail -->
-		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true">
+		<div class="modal fade" id="response_wrong" tabindex="-1" role="dialog" aria-labelledby="ResponseWrongLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -176,7 +329,7 @@
 		</div>
 
 		<!-- End -->
-		<div class="modal fade" id="game_end" tabindex="-1" role="dialog" aria-labelledby="GameEndLabel" aria-hidden="true">
+		<div class="modal fade" id="game_end" tabindex="-1" role="dialog" aria-labelledby="GameEndLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -185,6 +338,20 @@
 					</div>
 					<div class="modal-body">
 						<p>¡Se ha acabado el tiempo! Tu puntuación final ha sido <span id="game_end_points"></span></p>
+						<p>Este es el ranking de las mejores puntuaciones:</p>
+
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<td>Posición</td>
+									<td>Nombre</td>
+									<td>Apellido</td>
+									<td>Colegio</td>
+									<td>Puntos</td>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary">Aceptar</button>

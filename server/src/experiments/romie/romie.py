@@ -48,14 +48,15 @@ class RoMIExperiment(Experiment.Experiment):
 
 	@Override(Experiment.Experiment)
 	@logged("info")
-	def do_start_experiment(self, *args, **kwargs):
+	def do_start_experiment(self, client_initial_data, server_initial_data):
 		"""
 		Callback run when the experiment is started.
 		"""
 		if(DEBUG):
 			print "[RoMIE] do_start_experiment called"
 
-		#self.db = sqlite3.connect(self.database)
+		data = json.loads(server_initial_data)
+		self.username = data['request.username']
 
 		return ""
 
@@ -67,7 +68,7 @@ class RoMIExperiment(Experiment.Experiment):
 		@param command Command sent by the client, as a string.
 		"""
 		if(DEBUG):
-			print "[RoMIE] do_send_command_to_device called"
+			print "[RoMIE] Command received: %s" % command
 
 		global ROMIE_SERVER
 
@@ -108,13 +109,50 @@ class RoMIExperiment(Experiment.Experiment):
 
 			return self.questions[difficulty][question]['correct'] == response
 
-		elif command.startsWith("FINISH"):
+		elif command.startswith("FINISH"):
 			command = command.split()
-			conn = sqlite3.connect(self.database)
 
-			#conn.execute(QUERY);
+			conn = sqlite3.connect(self.database)
+			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
+
+			cur = conn.cursor()
+			cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
+			result = cur.fetchall()
+			ranking = list()
+
+			for user in result:
+				current = (user[0] == self.username)
+				ranking.append({"name":user[1], "surname":user[2], "school":user[3], "points":user[4], "current":current})
+
 			conn.commit()
 			conn.close()
+
+			return json.dumps(ranking)
+
+		elif command == 'CHECK_REGISTER':
+			conn = sqlite3.connect(self.database)
+			cur = conn.cursor()
+
+			cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
+			count = cur.fetchone()[0]
+
+			result = ''
+			if count == 0:
+				result = 'REGISTER'
+
+			conn.close()
+
+			return result
+		elif command.startswith('REGISTER'):
+			data = json.loads(command.split()[1])
+
+			conn = sqlite3.connect(self.database)
+			conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
+				(self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
+			conn.commit()
+			conn.close()
+
+			return 'OK'
 
 		return "OK"
 
@@ -127,5 +165,4 @@ class RoMIExperiment(Experiment.Experiment):
 		if(DEBUG):
 			print "[RoMIE] do_dispose called"
 
-		#self.db.close()
 		return "OK"
