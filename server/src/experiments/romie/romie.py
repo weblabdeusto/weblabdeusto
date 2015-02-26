@@ -39,7 +39,6 @@ class RoMIExperiment(Experiment.Experiment):
 		"""
 
 		self.database = self._cfg_manager.get_value('romie_sqlite')
-		self.questions = self._cfg_manager.get_value('questions')
 
 	@Override(Experiment.Experiment)
 	@logged("info")
@@ -60,6 +59,7 @@ class RoMIExperiment(Experiment.Experiment):
 		self.question = {}
 		self.points = 0
 		self.last_tag = ''
+		self.questions = self._cfg_manager.get_value('questions')
 
 		return ""
 
@@ -77,10 +77,7 @@ class RoMIExperiment(Experiment.Experiment):
 
 		if command == 'F':
 			tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
-			if tag.startswith('Tag') and tag is not self.last_tag:
-
-				print "Current tag: '%s'" % tag
-				print "Last tag: '%s'" % self.last_tag
+			if tag.startswith('Tag') and tag != self.last_tag:
 
 				self.last_tag = tag
 

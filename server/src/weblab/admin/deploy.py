@@ -228,7 +228,7 @@ CONFIG_JS = {
     },
     "romie@Robot experiments" : {
         "cssWidth": "1250",
-        "cssHeight": "750",
+        "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"

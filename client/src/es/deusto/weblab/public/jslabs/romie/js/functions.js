@@ -4,7 +4,7 @@ function start() {
 		else init();
 
 		$(parent.document).find('iframe[name=wlframe]').show();
-		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top + 50, 0);
+		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
 	});
 }
 

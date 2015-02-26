@@ -1,4 +1,4 @@
- -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 
@@ -769,5 +769,5 @@ questions = [
 			"points": 215,
 			"time": 20
 		}
-	],
+	]
 ]

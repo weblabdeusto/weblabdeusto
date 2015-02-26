@@ -6,8 +6,8 @@
 
 header
 {
-	font-size: 3em;
-	margin: 1em;
+	font-size: 2.5em;
+	margin-bottom: 0.25em;
 }
 
 .movements
@@ -24,7 +24,7 @@ header
 
 .controls
 {
-	margin-top: 2em;
+	margin-top: 9em;
 }
 
 .camera1, .camera2
@@ -32,9 +32,21 @@ header
 	text-align: center;
 }
 
+.camera1 img
+{
+	width: 85%;
+}
+
 .camera2 img
 {
-	width: 80%;
+	width: 260px;
+}
+
+.camera2 p
+{
+	width: 240px;
+	text-align: center;
+	margin: auto;
 }
 
 .controls button
@@ -44,10 +56,40 @@ header
 	padding: 0px;
 }
 
-.science
+.sponsors
 {
-	text-align: center;
-	margin: 1em;
+	padding-top: 2.5em;
+}
+
+.inactive p.inactive
+{
+	font-weight: bold;
+	font-size: 1.25em;
+	color: #FFFFFF;
+	margin-top: -150px;
+}
+
+.active
+{
+	cursor: pointer;
+}
+
+.active p.active
+{
+	font-weight: bold;
+	font-size: 1.25em;
+	color: #FFFFFF;
+	margin-top: -150px;
+}
+
+.active p.inactive
+{
+	display: none;
+}
+
+.inactive p.active
+{
+	display: none;
 }
 
 #question .modal-body form input[type="radio"]
