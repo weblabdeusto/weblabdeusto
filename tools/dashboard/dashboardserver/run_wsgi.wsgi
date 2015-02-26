@@ -3,7 +3,6 @@
 import os
 import sys
 
-from dashboardserver import flask_app as app
 
 
 DASHBOARD_DIR = os.path.dirname(__file__)
@@ -12,6 +11,10 @@ if DASHBOARD_DIR == '':
 
 sys.path.insert(0, DASHBOARD_DIR)
 os.chdir(DASHBOARD_DIR)
+
+
+from dashboardserver import flask_app as app
+
 
 sys.stdout = open('stdout.txt', 'w', 0)
 sys.stderr = open('stderr.txt', 'w', 0)
