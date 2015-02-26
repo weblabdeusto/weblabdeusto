@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS "forotech" (
 "birthday" INTEGER,
 "email" TEXT UNIQUE,
 "points" INTEGER
-) WITHOUT ROWID;
+);
