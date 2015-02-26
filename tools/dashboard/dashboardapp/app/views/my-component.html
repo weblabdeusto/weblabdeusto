@@ -3,7 +3,7 @@
         <legend>{{ componentid }}</legend>
 
 
-        <div ng-repeat="(elementid, element) in component">
+        <div ng-repeat="(elementid, element) in component | NonInternal">
 
             <p ng-if="element.status == 'OK'"><i class="fa fa-check"/> {{ element.text }}</p>
             <p ng-if="element.status == 'WARNING'" style="background-color: #FFFFEE"><i class="fa fa-warning"/> {{ element.text }}</p>
