@@ -1,4 +1,5 @@
 from flask import jsonify
+from flask.ext.cors import cross_origin
 import flask_app_builder
 from flask.ext import restful
 
@@ -15,6 +16,7 @@ def index():
 
 
 @flask_app.route("/status")
+@cross_origin()
 def status():
     data = {}
     data["archimedes"] = {

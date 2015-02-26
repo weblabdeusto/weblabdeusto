@@ -1,9 +1,10 @@
 import datetime
+import re
 import requests
 import redis
 from celery import Celery
 
-celery_app = Celery('tasks', broker='redis://', backend='redis://')
+celery_app = Celery('tasks', broker='redis://')
 
 r = redis.StrictRedis(host='localhost', db=0)
 
@@ -82,4 +83,18 @@ def check_http_get_response(check_id, msg, url, regex):
     :param regex: Regex to check the response with.
     :return:
     """
-    return "OK"
+    result = None
+    report(TASK_STATE.RUNNING, check_id, msg, result)
+
+    try:
+        req = requests.get(url)
+        text = req.text
+        result = re.search(regex, text, re.MULTILINE, re.DOTALL)
+        if result is None:
+            result = "ERROR"
+        else:
+            result = "OK"
+    except:
+        result = "FAIL"
+
+    report(TASK_STATE.FINISHED, check_id, msg, result)
