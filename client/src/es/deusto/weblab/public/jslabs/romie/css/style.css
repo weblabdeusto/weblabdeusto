@@ -7,6 +7,7 @@
 header
 {
 	font-size: 3em;
+	margin: 1em;
 }
 
 .movements
@@ -26,11 +27,14 @@ header
 	margin-top: 2em;
 }
 
+.camera1, .camera2
+{
+	text-align: center;
+}
+
 .camera2 img
 {
 	width: 80%;
-	padding: 25px;
-	cursor: pointer;
 }
 
 .controls button
@@ -38,6 +42,12 @@ header
 	width: 55px;
 	height: 55px;
 	padding: 0px;
+}
+
+.science
+{
+	text-align: center;
+	margin: 1em;
 }
 
 #question .modal-body form input[type="radio"]

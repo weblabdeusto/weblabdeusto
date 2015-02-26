@@ -11,15 +11,19 @@ Game = function(time)
 	this.topCamTimmer = null;
 	this.timer = null;
 	this.topCamTime = 0;
+	this.lastTime = null;
 
 	this.startGame();
 }
 
 Game.prototype.startGame = function()
 {
+	this.lastTime = new Date();
 	this.timer = setInterval(function() {
 
-		this.time -= 0.01;
+		date = new Date();
+		this.time -= (date.getTime()-this.lastTime.getTime())/1000;
+		this.lastTime = date;
 
 		$('.time span').html(Math.floor(this.time/60) + ":" + pad(Math.floor(this.time%60), 2) + "," + Math.floor((this.time%60) * 100-Math.floor(this.time%60)*100));
 		if (this.time <= 0)
@@ -37,7 +41,7 @@ Game.prototype.endGame = function()
 	clearInterval(this.timer);
 	$('#game_end_points').text(this.points);
 
-	Weblab.sendCommand("FINISH " + this.points, function(response) {
+	Weblab.sendCommand("FINISH", function(response) {
 		data = JSON.parse(response);
 
 		for (i = 0; i < Object.keys(data).length; i++) {
@@ -56,9 +60,6 @@ Game.prototype.endGame = function()
 
 Game.prototype.showQuestion = function(question)
 {
-	console.log(question);
-	question = JSON.parse(question);
-
 	$('#questionLabel').html(question["question"]);
 
 	i = 0;
@@ -80,11 +81,8 @@ Game.prototype.answerQuestion = function()
 
 	if ( ! isNaN(answer))
 	{
-		$("#question").modal('hide');
+		Weblab.sendCommand("ANSWER " + answer,  function(response) {
 
-		Weblab.sendCommand("ANSWER "+answer+" "+this.question["difficulty"]+" "+
-			this.question["index"], function(response)
-			{
 				if (response == 'True')
 				{
 					this.points += this.question["points"];
@@ -103,16 +101,12 @@ Game.prototype.answerQuestion = function()
 				$('#questionLabel').html("");
 				$('#question .modal-body form').html("");
 			}.bind(this));
+
+		$("#question").modal('hide');
 	}
 }
 
-Game.prototype.getQuestion = function(tag)
-{
-	difficulty = Math.floor(this.points/200);
-	if (difficulty > 10) difficulty = 10;
-	Weblab.sendCommand("QUESTION "+difficulty, function(response){this.showQuestion(response);}.bind(this));
-}
-
+// TODO
 Game.prototype.getTopCamTime = function()
 {
 	return this.topCamTime;
@@ -139,9 +133,4 @@ Game.prototype.activateTopCam = function()
 		else
 			this.deactivateTopCam();
 	}.bind(this), 1000);
-}
-
-Game.prototype.getPoints = function()
-{
-	return this.points;
 }

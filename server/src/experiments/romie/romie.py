@@ -57,6 +57,9 @@ class RoMIExperiment(Experiment.Experiment):
 
 		data = json.loads(server_initial_data)
 		self.username = data['request.username']
+		self.question = {}
+		self.points = 0
+		self.last_tag = ''
 
 		return ""
 
@@ -73,44 +76,71 @@ class RoMIExperiment(Experiment.Experiment):
 		global ROMIE_SERVER
 
 		if command == 'F':
-			return urllib2.urlopen("%sf" % ROMIE_SERVER).read()
+			tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
+			if tag.startswith('Tag') and tag is not self.last_tag:
+
+				print "Current tag: '%s'" % tag
+				print "Last tag: '%s'" % self.last_tag
+
+				self.last_tag = tag
+
+				questions = self.questions[int(self.points/150)];
+				question_nr = random.randint(0, len(questions)-1)
+				self.question = questions[question_nr]
+
+				response_question = {
+					'question': self.question['question'],
+					'answers': self.question['answers'],
+					'points': self.question['points'],
+					'time': self.question['time']
+				}
+
+				return json.dumps(response_question)
+			else:
+				return 'OK'
 		elif command == 'L':
 			return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
 		elif command == 'R':
 			return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
-		elif command.startswith("QUESTION"):
-
-			command = command.split()
-
-			difficulty = int(command[1])
-
-			questions = self.questions[difficulty];
-			question_nr =random.randint(0, len(questions)-1)
-			question = questions[question_nr]
-
-			response_question = {
-				'index': question_nr,
-				'difficulty': difficulty,
-				'question': question['question'],
-				'answers': question['answers'],
-				'points': question['points'],
-				'time': question['time']
-			}
-
-			return json.dumps(response_question)
-
 		elif command.startswith("ANSWER"):
 
-			command = command.split()
+			response = int(command.split()[1])
+			correct = self.question['correct'] == response
 
-			response = int(command[1])
-			difficulty = int(command[2])
-			question = int(command[3])
+			if correct:
+				self.points += self.question['points']
+				self.update_points()
+				self.question = {}
 
-			return self.questions[difficulty][question]['correct'] == response
+			return correct
 
-		elif command.startswith("FINISH"):
-			command = command.split()
+		elif command == 'CHECK_REGISTER':
+			conn = sqlite3.connect(self.database)
+			cur = conn.cursor()
+
+			cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
+			count = cur.fetchone()[0]
+
+			result = ''
+			if count == 0:
+				result = 'REGISTER'
+
+			conn.close()
+
+			return result
+
+		elif command.startswith('REGISTER'):
+			data = json.loads(command.split(' ', 1)[1])
+
+			conn = sqlite3.connect(self.database)
+			conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
+				(self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
+			conn.commit()
+			conn.close()
+
+			return 'OK'
+
+		elif command == 'FINISH':
 
 			conn = sqlite3.connect(self.database)
 			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
@@ -129,31 +159,6 @@ class RoMIExperiment(Experiment.Experiment):
 
 			return json.dumps(ranking)
 
-		elif command == 'CHECK_REGISTER':
-			conn = sqlite3.connect(self.database)
-			cur = conn.cursor()
-
-			cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
-			count = cur.fetchone()[0]
-
-			result = ''
-			if count == 0:
-				result = 'REGISTER'
-
-			conn.close()
-
-			return result
-		elif command.startswith('REGISTER'):
-			data = json.loads(command.split()[1])
-
-			conn = sqlite3.connect(self.database)
-			conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
-				(self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
-			conn.commit()
-			conn.close()
-
-			return 'OK'
-
 		return "OK"
 
 	@Override(Experiment.Experiment)
@@ -166,3 +171,12 @@ class RoMIExperiment(Experiment.Experiment):
 			print "[RoMIE] do_dispose called"
 
 		return "OK"
+
+	def update_points(self):
+		"""
+		Add points in the database
+		"""
+		conn = sqlite3.connect(self.database)
+		conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+		conn.commit()
+		conn.close()
