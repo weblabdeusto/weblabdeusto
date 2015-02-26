@@ -14,6 +14,11 @@ def index():
     return "Welcome to the DashBoard server"
 
 
+# @flask_app.route("/app/<path:file>")
+# def app(file):
+#     return ""
+
+
 
 @flask_app.route("/status")
 @cross_origin()
