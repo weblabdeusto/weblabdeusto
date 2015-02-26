@@ -16,15 +16,13 @@ angular.module('dashboardappApp')
     ]
 
     Components = $resource('/status')
-    $scope.components_raw = Components.get ( (data) ->
+    $scope.components = Components.get ( (data) ->
       console.log "[/status]: Components obtained."
-      $scope.components = data.toJSON()
     ), ( ->
       console.error "[/status]: Error obtaining components: Trying test URL."
 
       Components = $resource('http://localhost:5000/status')
-      $scope.components_raw = Components.get ( (data) ->
-        $scope.components = data.toJSON()
+      $scope.components = Components.get ( (data) ->
         console.log "[/status]: Components obtained (from localhost server)"
       ), ( ->
         console.error "[/status]: Error obtaining components from localhost."
