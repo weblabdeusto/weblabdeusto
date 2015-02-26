@@ -13,7 +13,7 @@ sys.path.insert(0, DASHBOARD_DIR)
 os.chdir(DASHBOARD_DIR)
 
 
-from dashboardserver import flask_app as app
+from dashboardserver import flask_app as application
 
 
 sys.stdout = open('stdout.txt', 'w', 0)
