@@ -19,6 +19,13 @@ TASK_STATE = enum(
 )
 
 
+class CheckException(Exception):
+
+    def __init__(self, msg):
+        super(CheckException, self).__init__(msg)
+        self.msg = msg
+
+
 def report(task_state, check_id, msg, result):
     """
     Reports a check result.
