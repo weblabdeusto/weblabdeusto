@@ -1,7 +1,7 @@
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
 		if (response == "REGISTER") register();
-		else init();
+		else init(response);
 
 		$(parent.document).find('iframe[name=wlframe]').show();
 		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
@@ -61,10 +61,9 @@ function register() {
 
 			command = "REGISTER " + JSON.stringify(data);
 			Weblab.sendCommand(command, function(response) {
-				if (response == 'OK') {
-					$('#register').modal('hide');
-					init();
-				}
+				time = parseFloat(response);
+				$('#register').modal('hide');
+				init(time);
 			});
 		}
 	});
@@ -80,10 +79,10 @@ function register() {
 	$('#register').modal('show');
 }
 
-function init() {
+function init(time) {
 
 	romie = new Romie();
-	game = new Game(194.16); //3*60+14+0.16 [3min 14,16 seconds];
+	game = new Game(time);
 	onboard = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard';
 	topCam = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_top';
 	big = onboard;

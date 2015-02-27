@@ -22,6 +22,7 @@ import urllib2
 import json
 import random
 import sqlite3
+import time
 
 DEBUG = True
 ROMIE_SERVER = "http://192.168.0.190:8000/"
@@ -60,6 +61,7 @@ class RoMIExperiment(Experiment.Experiment):
 		self.points = 0
 		self.last_tag = ''
 		self.questions = self._cfg_manager.get_value('questions')
+		self.finish_time = 0
 
 		return ""
 
@@ -75,7 +77,9 @@ class RoMIExperiment(Experiment.Experiment):
 
 		global ROMIE_SERVER
 
-		if command == 'F':
+		if command == 'TIME':
+			return self.finish_time
+		elif command == 'F':
 			tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
 			if tag.startswith('Tag') and tag != self.last_tag:
 
@@ -87,9 +91,7 @@ class RoMIExperiment(Experiment.Experiment):
 
 				response_question = {
 					'question': self.question['question'],
-					'answers': self.question['answers'],
-					'points': self.question['points'],
-					'time': self.question['time']
+					'answers': self.question['answers']
 				}
 
 				return json.dumps(response_question)
@@ -106,10 +108,12 @@ class RoMIExperiment(Experiment.Experiment):
 
 			if correct:
 				self.points += self.question['points']
+				self.finish_time += self.question['time']
 				self.update_points()
 				self.question = {}
+				# TODO remove question
 
-			return correct
+			return json.dumps({"correct": correct, "points": self.points, "finish_time": self.finish_time})
 
 		elif command == 'CHECK_REGISTER':
 			conn = sqlite3.connect(self.database)
@@ -121,6 +125,9 @@ class RoMIExperiment(Experiment.Experiment):
 			result = ''
 			if count == 0:
 				result = 'REGISTER'
+			else:
+				self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+				result = self.finish_time
 
 			conn.close()
 
@@ -135,7 +142,9 @@ class RoMIExperiment(Experiment.Experiment):
 			conn.commit()
 			conn.close()
 
-			return 'OK'
+			self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+
+			return self.finish_time
 
 		elif command == 'FINISH':
 
@@ -156,7 +165,7 @@ class RoMIExperiment(Experiment.Experiment):
 
 			return json.dumps(ranking)
 
-		return "OK"
+		return "ERROR"
 
 	@Override(Experiment.Experiment)
 	@logged("info")

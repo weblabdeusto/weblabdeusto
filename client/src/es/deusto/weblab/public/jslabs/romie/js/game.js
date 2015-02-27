@@ -7,30 +7,23 @@ function pad(n, width, z) {
 Game = function(time)
 {
 	this.points = 0;
-	this.time = time;
+	this.endTime = new Date(time*1000);
 	this.topCamTimmer = null;
 	this.timer = null;
 	this.topCamTime = 0;
-	this.lastTime = null;
 
 	this.startGame();
 }
 
 Game.prototype.startGame = function()
 {
-	this.lastTime = new Date();
 	this.timer = setInterval(function() {
 
-		date = new Date();
-		this.time -= (date.getTime()-this.lastTime.getTime())/1000;
-		this.lastTime = date;
+		time = (this.endTime.getTime()-(new Date()).getTime())/1000;
 
-		$('.time span').html(Math.floor(this.time/60) + ":" + pad(Math.floor(this.time%60), 2) + "," + Math.floor((this.time%60) * 100-Math.floor(this.time%60)*100));
-		if (this.time <= 0)
-		{
-			this.time = 0;
+		$('.time span').html(Math.floor(time/60) + ":" + pad(Math.floor(time%60), 2) + "," + Math.floor((time%60) * 100-Math.floor(time%60)*100));
+		if (time <= 0) {
 			$('.time span').html("0:00.00");
-
 			this.endGame();
 		}
 	}.bind(this), 10);
@@ -82,25 +75,26 @@ Game.prototype.answerQuestion = function()
 	if ( ! isNaN(answer))
 	{
 		Weblab.sendCommand("ANSWER " + answer,  function(response) {
+			response = JSON.parse(response);
 
-				if (response == 'True')
-				{
-					this.points += this.question["points"];
-					this.time += this.question["time"];
+			if (response['correct'])
+			{
+				this.points = response["points"];
+				this.endTime = new Date(response["finish_time"]*1000);
 
-					$('.points span').html(this.points);
-					this.topCamTime += 10;
-					$('#response_ok').modal('show');
-				}
-				else
-				{
-					$('#response_wrong').modal('show');
-				}
+				$('.points span').html(this.points);
+				this.topCamTime += 10;
+				$('#response_ok').modal('show');
+			}
+			else
+			{
+				$('#response_wrong').modal('show');
+			}
 
-				this.question = {};
-				$('#questionLabel').html("");
-				$('#question .modal-body form').html("");
-			}.bind(this));
+			this.question = {};
+			$('#questionLabel').html("");
+			$('#question .modal-body form').html("");
+		}.bind(this));
 
 		$("#question").modal('hide');
 	}
