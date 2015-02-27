@@ -5,17 +5,35 @@ from checks import celery_app, CheckException
 import time
 
 
+def _wait_by_css(driver, css):
+    max_times = 20
+    times = 0
+    while True:
+        try:
+            elem = driver.find_element_by_css_selector(css)
+            if elem is not None:
+                return
+        except:
+            times += 1
+            if times > max_times:
+                raise Exception("Timeout")
+            time.sleep(0.5)
+
+
 @celery_app.task(name="check.archimedes")
 def check_archimedes(experiment_url, user, password):
     # Initialize the driver
 
-    if not os.environ.get("SELENIUM_NON_HEADLESS"):
+    if True and not os.environ.get("SELENIUM_NON_HEADLESS"):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
-        dcap["phantomjs.page.settings.userAgent"] = (
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
-            "(KHTML, like Gecko) Chrome/30.0.87"
-        )
-        driver = webdriver.PhantomJS(desired_capabilities=dcap)
+        # dcap["phantomjs.page.settings.userAgent"] = (
+        #     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
+        #     "(KHTML, like Gecko) Chrome/30.0.87"
+        # )
+        # dcap["phantomjs.page.customHeaders"] = {
+        #     "Accept-Language": "en-US,en;q=0.5"
+        # }
+        driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no"])
     else:
         profile = FirefoxProfile()
         profile.set_preference("intl.accept_languages", "en")
@@ -31,7 +49,7 @@ def check_archimedes(experiment_url, user, password):
         # Go to the experiment and login
         driver.get(base_url)
 
-        time.sleep(2)
+        time.sleep(1)
 
         # Find username & password fields.
         usernameField = driver.find_element_by_css_selector("input[type=text]")
@@ -44,11 +62,23 @@ def check_archimedes(experiment_url, user, password):
 
         # Find the reserve button.
         archimedes = driver.find_element_by_xpath("//button[text()='Reserve']")
-        archimedes.click()
+
+        try:
+            archimedes.click()
+        except:
+            # Can throw an exception due to bug: https://github.com/detro/ghostdriver/issues/202
+            # But apparently it can be ignored.
+            pass
+
+        # Reserve can take a long while if there is a queue.
+        _wait_by_css(driver, "#wlframe")
 
         # Switch to the iframe context.
         frame = driver.find_element_by_css_selector("#wlframe")
         driver.switch_to.frame(frame)
+
+        # Wait a while for the frame to load. For now, in seconds.
+        time.sleep(6)
 
         # Find all the up buttons and ensure they are disabled.
         buttons = driver.find_elements_by_css_selector("img.arch-control")
@@ -99,7 +129,7 @@ def check_archimedes(experiment_url, user, password):
 
 
 if __name__ == "__main__":
-    url = "https://weblab.deusto.es/weblab/client/#page=experiment&exp.category=Aquatic%20experiments&exp.name=archimedes"
+    url = "https://weblab.deusto.es/weblab/client/#page=experiment&exp.category=Aquatic%20experiments&exp.name=archimedes&locale=en"
     import config
 
     user = config.WEBLAB_USER
