@@ -22,6 +22,16 @@ def _wait_by_css(driver, css):
 
 @celery_app.task(name="check.archimedes")
 def check_archimedes(experiment_url, user, password):
+    """
+    This is currently not working on PhantomJS due to its use of an old Qt-related JS core which
+    does not have function.Prototype.bind.
+    There may be some workarounds.
+    :param experiment_url:
+    :param user:
+    :param password:
+    :return:
+    """
+
     # Initialize the driver
 
     if True and not os.environ.get("SELENIUM_NON_HEADLESS"):
@@ -33,7 +43,7 @@ def check_archimedes(experiment_url, user, password):
         # dcap["phantomjs.page.customHeaders"] = {
         #     "Accept-Language": "en-US,en;q=0.5"
         # }
-        driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no"])
+        driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no", "--remote-debugger-port=6500"])
     else:
         profile = FirefoxProfile()
         profile.set_preference("intl.accept_languages", "en")
@@ -46,8 +56,8 @@ def check_archimedes(experiment_url, user, password):
 
     try:
 
-        # Go to the experiment and login
-        driver.get(base_url)
+        # Login
+        driver.get("""https://weblab.deusto.es/weblab/web/webclient/""")
 
         time.sleep(1)
 
@@ -56,28 +66,30 @@ def check_archimedes(experiment_url, user, password):
         usernameField.send_keys(user)
         passwordField = driver.find_element_by_css_selector("input[type=password]")
         passwordField.send_keys(password)
-        loginButton = driver.find_element_by_css_selector("button")
-        if loginButton.text != u"Log in": raise CheckException("Log in button not found")
+        loginButton = driver.find_element_by_id("login")
+        if "Log in" not in loginButton.get_attribute("value"): raise CheckException("Log in button not found")
         loginButton.click()
 
-        # Find the reserve button.
-        archimedes = driver.find_element_by_xpath("//button[text()='Reserve']")
+        # Go to the actual experiment
+        driver.get(base_url)
 
-        try:
-            archimedes.click()
-        except:
-            # Can throw an exception due to bug: https://github.com/detro/ghostdriver/issues/202
-            # But apparently it can be ignored.
-            pass
+        print "[We are in the experiment reserve screen]"
+
+
+        archimedes = driver.find_element_by_id("reserve-free-btn")
+
+        archimedes.click()
 
         # Reserve can take a long while if there is a queue.
-        _wait_by_css(driver, "#wlframe")
+        # _wait_by_css(driver, "#wlframe")
 
-        # Switch to the iframe context.
-        frame = driver.find_element_by_css_selector("#wlframe")
-        driver.switch_to.frame(frame)
+        # ONLY FOR OLD WEBLAB CLIENT Switch to the iframe context.
+        # frame = driver.find_element_by_css_selector("#wlframe")
+        # driver.switch_to.frame(frame)
 
         # Wait a while for the frame to load. For now, in seconds.
+        _wait_by_css(driver, "img.arch-control")
+
         time.sleep(6)
 
         # Find all the up buttons and ensure they are disabled.
@@ -129,7 +141,7 @@ def check_archimedes(experiment_url, user, password):
 
 
 if __name__ == "__main__":
-    url = "https://weblab.deusto.es/weblab/client/#page=experiment&exp.category=Aquatic%20experiments&exp.name=archimedes&locale=en"
+    url = "https://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes"
     import config
 
     user = config.WEBLAB_USER
