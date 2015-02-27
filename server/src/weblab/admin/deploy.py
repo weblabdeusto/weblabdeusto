@@ -227,10 +227,10 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/robot.jpg"
     },
     "romie@Robot experiments" : {
-        "cssWidth": "1024",
-        "cssHeight": "680",
+        "cssWidth": "1250",
+        "cssHeight": "700",
         "provide.file.upload": False,
-        "experiment.picture": "/img/experiments/robot.jpg",
+        "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"
     },
     "submarine@Aquatic experiments": {
