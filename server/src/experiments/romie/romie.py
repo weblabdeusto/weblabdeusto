@@ -24,7 +24,8 @@ import random
 import sqlite3
 import time
 
-DEBUG = True
+# Actually defined through the configuration.
+DEBUG = None
 ROMIE_SERVER = "http://192.168.0.190:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
