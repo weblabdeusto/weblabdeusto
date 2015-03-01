@@ -57,10 +57,11 @@ class RoMIExperiment(Experiment.Experiment):
 
 		data = json.loads(server_initial_data)
 		self.username = data['request.username']
+		self.questions = self._cfg_manager.get_value('questions')
 		self.question = {}
+		self.q_difficulty = 0
 		self.points = 0
 		self.last_tag = ''
-		self.questions = self._cfg_manager.get_value('questions')
 		self.finish_time = 0
 
 		return ""
@@ -83,9 +84,12 @@ class RoMIExperiment(Experiment.Experiment):
 
 				self.last_tag = tag
 
-				questions = self.questions[int(self.points/150)];
-				question_nr = random.randint(0, len(questions)-1)
-				self.question = questions[question_nr]
+				self.q_difficulty = int(self.points/100)
+				if self.q_difficulty > 10:
+					self.q_difficulty = 10
+
+				index = random.randint(0, len(self.questions[self.q_difficulty])-1)
+				self.question = self.questions[self.q_difficulty][index]
 
 				response_question = {
 					'question': self.question['question'],
@@ -108,7 +112,7 @@ class RoMIExperiment(Experiment.Experiment):
 				self.points += self.question['points']
 				self.finish_time += self.question['time']
 				self.update_points()
-				self.questions.remove(self.question)
+				self.questions[self.q_difficulty].remove(self.question)
 				self.question = {}
 
 			return json.dumps({"correct": correct, "points": self.points, "finish_time": self.finish_time})
