@@ -58,7 +58,7 @@ class RoMIExperiment(Experiment.Experiment):
 		data = json.loads(server_initial_data)
 		self.username = data['request.username']
 		self.question = {}
-		self.points = 50
+		self.points = 0
 		self.last_tag = ''
 		self.questions = self._cfg_manager.get_value('questions')
 		self.finish_time = 0

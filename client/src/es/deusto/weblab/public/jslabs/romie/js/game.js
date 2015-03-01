@@ -4,12 +4,13 @@ function pad(n, width, z) {
 	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
-Game = function(time) {
+Game = function(time, topCamUpdater) {
 	this.points = 0;
 	this.endTime = new Date(time*1000);
 	this.topCamTimmer = null;
 	this.timer = null;
-	this.topCamTime = 0;
+	this.cameraStartTime = null;
+	this.topCamUpdater = topCamUpdater;
 
 	this.startGame();
 }
@@ -70,7 +71,7 @@ Game.prototype.answerQuestion = function() {
 
 	if ( ! isNaN(answer))
 	{
-		Weblab.sendCommand("ANSWER " + answer,  function(response) {
+		Weblab.sendCommand("ANSWER " + answer, function(response) {
 			response = JSON.parse(response);
 
 			if (response['correct'])
@@ -81,6 +82,11 @@ Game.prototype.answerQuestion = function() {
 				$('.points span').html(this.points);
 				this.topCamTime += 10;
 				$('#response_ok').modal('show');
+				$('#response_ok').on('hidden.bs.modal', function() {
+					$('.camera2').removeClass('inactive');
+					$('.camera2').addClass('active');
+					$('.camera2').click(this.activateTopCam);
+				});
 			}
 			else
 			{
@@ -96,31 +102,25 @@ Game.prototype.answerQuestion = function() {
 	}
 }
 
-// TODO
-Game.prototype.getTopCamTime = function()
-{
-	return this.topCamTime;
-}
+Game.prototype.activateTopCam = function() {
+	$('.camera2 p').hide();
+	$('.camera2').unbind('click');
+	$('.camera2').css('cursor', 'auto');
+	cameraStartDate = new Date();
 
-Game.prototype.isTopCamActive = function()
-{
-	return this.topCamActive;
-}
+	$('.camera2 img').on("load", {startDate: cameraStartDate.getTime()}, function(event) {
+		setTimeout(function(startDate) {
+			d = new Date();
+			if (startDate > (d.getTime()-10000)) {
+				$('.camera2 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+d.getTime());
+			} else {
+				$('.camera2').removeClass('active');
+				$('.camera2').addClass('inactive');
+				$('.camera2 img').attr('src', 'img/black.png');
+				$('.camera2 p').removeAttr("style");
+			}
+		}, 400, event.data.startDate);
+	});
 
-Game.prototype.deactivateTopCam = function()
-{
-	this.topCamActive = false;
-}
-
-Game.prototype.activateTopCam = function()
-{
-	this.topCamActive = true;
-
-	this.topCamTimer = setInterval(function()
-	{
-		if (this.topCamActive)
-			this.topCamTime--;
-		else
-			this.deactivateTopCam();
-	}.bind(this), 1000);
+	$('.camera2 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+cameraStartDate.getTime());
 }

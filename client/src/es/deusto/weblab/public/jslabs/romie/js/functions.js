@@ -81,62 +81,25 @@ function register() {
 }
 
 function init(time) {
-
 	romie = new Romie();
 	game = new Game(time);
-	onboard = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard';
-	topCam = 'https://www.weblab.deusto.es/webcam/proxied.py/romie_top';
-	big = onboard;
 
 	$('button.forward').click(function(){if( ! romie.isMoving()) romie.forward(function(question){game.showQuestion(question);})});
 	$('button.left').click(function(){if ( ! romie.isMoving()) romie.left();});
 	$('button.right').click(function(){if ( ! romie.isMoving()) romie.right();});
 
-	$('#question .modal-footer button').click(function(){game.answerQuestion();}.bind(game));
+	$('#question .modal-footer button').click(function(){game.answerQuestion();});
 	$('#response_wrong .modal-footer button').click(function(){$('#response_wrong').modal('hide')});
 	$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal('hide')});
 	$('#game_end .modal-footer button').click(function(){$('#game_end').modal('hide')});
 
-	$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
+	$('#game_end').on('hidden.bs.modal', function(){Weblab.clean()});
 
 	updateCam1 = function() {
 		d = new Date();
-		$('.camera1 img').attr("src", big+"?"+d.getTime());
+		$('.camera1 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
 	}
 
-	$('.camera1 img').bind("load",function(){setTimeout(updateCam1, 400)});
+	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
 	updateCam1();
-
-	updateCam2 = function() {
-		if (game.isTopCamActive() && game.topCamTime() > 0)
-		{
-			d = new Date();
-			$('.camera2 img').attr('src', onboard+'?'+d.getTime());
-		}
-		else if (game.isTopCamActive())
-		{
-			game.deactivateTopCam();
-			big = onboard;
-			$('.camera2 img').attr('src', 'img/black.png');
-		}
-	}
-
-	$('.camera2 img').bind('load',function(){setTimeout(updateCam2, 400)});
-	updateCam2();
-
-	$('.camera2 img').click(function() //TODO Seems that it does not work properly
-	{
-		if (game.topCamTime() > 0 && ! game.isTopCamActive())
-		{
-			big = topCam;
-			game.activateTopCam();
-		}
-		else if (game.topCamTime() > 0)
-		{
-			game.deactivateTopCam();
-			big = onboard;
-			clearInterval(camera2);
-			$('.camera2 img').attr('src', 'img/black.png');
-		}
-	});
 }
