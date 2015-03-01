@@ -77,6 +77,7 @@ function register() {
 	$('#email').focusin(function(){$('#email-group').removeClass('has-error');});
 
 	$('#register').modal('show');
+	setTimeout(function(){if ($('#register').is(':visible')) Weblab.clean();}, 120000); // 2*60*1000
 }
 
 function init(time) {
@@ -98,8 +99,7 @@ function init(time) {
 
 	$('#game_end').on('hidden.bs.modal',function(){Weblab.clean()});
 
-	updateCam1 = function()
-	{
+	updateCam1 = function() {
 		d = new Date();
 		$('.camera1 img').attr("src", big+"?"+d.getTime());
 	}
@@ -107,8 +107,7 @@ function init(time) {
 	$('.camera1 img').bind("load",function(){setTimeout(updateCam1, 400)});
 	updateCam1();
 
-	updateCam2 = function()
-	{
+	updateCam2 = function() {
 		if (game.isTopCamActive() && game.topCamTime() > 0)
 		{
 			d = new Date();

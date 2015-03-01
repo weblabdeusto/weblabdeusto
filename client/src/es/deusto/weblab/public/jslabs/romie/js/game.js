@@ -4,8 +4,7 @@ function pad(n, width, z) {
 	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
-Game = function(time)
-{
+Game = function(time) {
 	this.points = 0;
 	this.endTime = new Date(time*1000);
 	this.topCamTimmer = null;
@@ -15,10 +14,8 @@ Game = function(time)
 	this.startGame();
 }
 
-Game.prototype.startGame = function()
-{
+Game.prototype.startGame = function() {
 	this.timer = setInterval(function() {
-
 		time = (this.endTime.getTime()-(new Date()).getTime())/1000;
 
 		$('.time span').html(Math.floor(time/60) + ":" + pad(Math.floor(time%60), 2) + "," + Math.floor((time%60) * 100-Math.floor(time%60)*100));
@@ -29,15 +26,15 @@ Game.prototype.startGame = function()
 	}.bind(this), 10);
 }
 
-Game.prototype.endGame = function()
-{
+Game.prototype.endGame = function() {
 	clearInterval(this.timer);
-	$('#game_end_points').text(this.points);
 
 	Weblab.sendCommand("FINISH", function(response) {
 		data = JSON.parse(response);
+		console.log(data);
 
 		for (i = 0; i < Object.keys(data).length; i++) {
+			if (data[i]["current"]) $('#game_end_points').text(data[i]["points"]);
 			$('table tbody').append($('<tr>').addClass(data[i]["current"] ? 'success' : '')
 				.append($('<td>').text(i+1))
 				.append($('<td>').text(data[i]["name"]))
@@ -46,13 +43,13 @@ Game.prototype.endGame = function()
 				.append($('<td>').text(data[i]["points"]))
 			);
 		}
-	});
 
-	$('#game_end').modal('show');
+		$('#game_end').modal('show');
+		setTimeout(function(){Weblab.clean();}, 15000); // 15*1000
+	});
 }
 
-Game.prototype.showQuestion = function(question)
-{
+Game.prototype.showQuestion = function(question) {
 	$('#questionLabel').html(question["question"]);
 
 	i = 0;
@@ -68,8 +65,7 @@ Game.prototype.showQuestion = function(question)
 	this.question = question;
 }
 
-Game.prototype.answerQuestion = function()
-{
+Game.prototype.answerQuestion = function() {
 	answer = parseInt($('#question input[name="answer"]:checked').val());
 
 	if ( ! isNaN(answer))

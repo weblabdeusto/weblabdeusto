@@ -3,7 +3,7 @@
 import os
 
 romie_sqlite = os.path.join(CURRENT_PATH, "forotech.db")
-romie_time = 194.159
+romie_time = 25#194.159
 questions = [
 	[ # 0 difficulty
 		{

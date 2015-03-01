@@ -58,7 +58,7 @@ class RoMIExperiment(Experiment.Experiment):
 		data = json.loads(server_initial_data)
 		self.username = data['request.username']
 		self.question = {}
-		self.points = 0
+		self.points = 50
 		self.last_tag = ''
 		self.questions = self._cfg_manager.get_value('questions')
 		self.finish_time = 0
@@ -77,9 +77,7 @@ class RoMIExperiment(Experiment.Experiment):
 
 		global ROMIE_SERVER
 
-		if command == 'TIME':
-			return self.finish_time
-		elif command == 'F':
+		if command == 'F':
 			tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
 			if tag.startswith('Tag') and tag != self.last_tag:
 
@@ -110,8 +108,8 @@ class RoMIExperiment(Experiment.Experiment):
 				self.points += self.question['points']
 				self.finish_time += self.question['time']
 				self.update_points()
+				self.questions.remove(self.question)
 				self.question = {}
-				# TODO remove question
 
 			return json.dumps({"correct": correct, "points": self.points, "finish_time": self.finish_time})
 
@@ -126,6 +124,7 @@ class RoMIExperiment(Experiment.Experiment):
 			if count == 0:
 				result = 'REGISTER'
 			else:
+				self.update_points()
 				self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 				result = self.finish_time
 
@@ -149,7 +148,7 @@ class RoMIExperiment(Experiment.Experiment):
 		elif command == 'FINISH':
 
 			conn = sqlite3.connect(self.database)
-			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
+			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
 
 			cur = conn.cursor()
 			cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
@@ -162,7 +161,6 @@ class RoMIExperiment(Experiment.Experiment):
 
 			conn.commit()
 			conn.close()
-
 			return json.dumps(ranking)
 
 		return "ERROR"
