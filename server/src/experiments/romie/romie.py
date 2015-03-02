@@ -86,7 +86,7 @@ class RoMIExperiment(Experiment.Experiment):
 
                 self.last_tag = tag
 
-                self.q_difficulty = int(self.points/75)
+                self.q_difficulty = int(self.points/85000)
                 if self.q_difficulty > 10:
                     self.q_difficulty = 10
 
