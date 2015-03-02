@@ -25,10 +25,13 @@ angular.module('elevatorApp')
         console.log $cookies
 
         term = ""
-        weblabsessionid = ""
+        # TODO: As of now this doesnt work because it requires the reservationid, which is not available to the
+        # old API. Meanwhile, the experiment can be configured to use the provide.fileupload flag from the
+        # configuration (Which will have the appropriate effect).
+        reservationid = ""
         try
           term = scope.files[0].name.split(".").pop()
-          weblabsessionid = $cookies.weblabsessionid
+          reservationid = ""
         catch e
           console.log "Could not extract file_info from name"
 
@@ -38,7 +41,7 @@ angular.module('elevatorApp')
           url: '../../../../../web/upload/'
           data:
             file_info: term
-            session_id: weblabsessionid
+            session_id: reservationid
             is_async: "false"
           file: scope.files[0]
           fileFormDataName: 'file_sent'
