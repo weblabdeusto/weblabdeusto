@@ -120,7 +120,7 @@ questions = [
             "time": 30
         }
     ],
-	[ # 1 difficulty
+    [ # 1 difficulty
         {
             "question": '¿Cuántas horas tiene el 29 de febrero de un año bisiesto?',
             "answers": [
