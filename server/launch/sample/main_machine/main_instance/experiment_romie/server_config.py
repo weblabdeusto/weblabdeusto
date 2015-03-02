@@ -13,8 +13,8 @@ questions = [
 				'Ondas de radio'
 			],
 			"correct": 1,
-			"points": 55,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
 			"question": 'En un programa informático ¿Qué es la barra de herramientas?',
@@ -24,8 +24,8 @@ questions = [
 				'Barra con llaves inglesas para arreglar el PC'
 			],
 			"correct": 1,
-			"points": 55,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
 			"question": '¿Cuántos huesos tiene el ser humano?',
@@ -36,42 +36,42 @@ questions = [
 				206
 			],
 			"correct": 3,
-			"points": 65,
-			"time": 25
+			"points": 80,
+			"time": 35
 		},
 		{
-			"question": 'El número pi está presente en',
+			"question": 'El número pi(π) está presente en',
 			"answers": [
-				'La naturaleza'
+				'La naturaleza',
 				'Cilindros',
 				'Esferas',
 				'Todas son correctas'
 			],
 			"correct": 3,
-			"points": 55,
-			"time": 20
+			"points": 75,
+			"time": 30
 		},
 		{
-			"question": '¿Cúantos decimales tiene el número pi?',
+			"question": '¿Cúantos decimales tiene el número pi(π)?',
 			"answers": [
 				'4',
 				'10',
 				'Infinitos',
 			],
 			"correct": 2,
-			"points": 50,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
-			"question": 'Si multiplicamos el diametro del pie de un elefante por 2pi ¿Qué obtenemos?',
+			"question": 'Si multiplicamos el diametro del pie de un elefante por 2*π ¿Qué obtenemos?',
 			"answers": [
 				'Su peso',
 				'Su altura',
 				'La superficie de sus orejas'
 			],
 			"correct": 1,
-			"points": 50,
-			"time": 20
+			"points": 75,
+			"time": 30
 		},
 		{
 			"question": '¿Qué paralelogramo no tiene los lados adyacentes iguales ni los ángulos rectos?',
@@ -81,8 +81,8 @@ questions = [
 				'Romboide'
 			],
 			"correct": 2,
-			"points": 50,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
 			"question": '¿Cuántos milímetros son un decámetro?',
@@ -93,8 +93,8 @@ questions = [
 				100
 			],
 			"correct": 2,
-			"points": 50,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
 			"question": '¿Cómo llamamos a la estrella luminosa centro de nuestro sistema planetario?',
@@ -105,8 +105,8 @@ questions = [
 				'Orión'
 			],
 			"correct": 1,
-			"points": 50,
-			"time": 20
+			"points": 70,
+			"time": 30
 		},
 		{
 			"question": '¿Qué es un mp3?',
@@ -116,8 +116,19 @@ questions = [
 				'Un formato de imagen'
 			],
 			"correct": 1,
-			"points": 50,
-			"time": 20
+			"points": 60,
+			"time": 25
+		},
+		{
+			"question": 'El número pi(π) fue encontrado por',
+			"answers": [
+				'la civilización occidental',
+				'varias civilizaciones simultáneamente más o menos (griega, china, india...)',
+				'revelación mística: vino del cielo o de un lugar similar'
+			],
+			"correct": 1,
+			"points": 80,
+			"time": 30
 		}
 	],
 	[ # 1 difficulty
@@ -129,8 +140,8 @@ questions = [
 				24.5
 			],
 			"correct": 1,
-			"points": 70,
-			"time": 20
+			"points": 100,
+			"time": 25
 		},
 		{
 			"question": '¿En qué año se descubrió América?',
@@ -141,7 +152,7 @@ questions = [
 				1812
 			],
 			"correct": 2,
-			"points": 85,
+			"points": 100,
 			"time": 25
 		},
 		{
@@ -153,8 +164,8 @@ questions = [
 				'El director'
 			],
 			"correct": 3,
-			"points": 80,
-			"time": 22
+			"points": 100,
+			"time": 25
 		},
 		{
 			"question": '¿Qué mide una pinta?',
@@ -165,7 +176,7 @@ questions = [
 				'No hay ninguna medida llamada pinta'
 			],
 			"correct": 0,
-			"points": 140,
+			"points": 100,
 			"time": 24
 		},
 		{
@@ -177,7 +188,7 @@ questions = [
 				'Calibre'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 110,
 			"time": 24
 		},
 		{
@@ -189,7 +200,7 @@ questions = [
 				'46'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 100,
 			"time": 24
 		},
 		{
@@ -201,11 +212,11 @@ questions = [
 				360
 			],
 			"correct": 0,
-			"points": 50,
-			"time": 20
+			"points": 90,
+			"time": 25
 		},
 		{
-			"question": 'El número pi fue...',
+			"question": 'El número pi(π) fue...',
 			"answers": [
 				'Inventado',
 				'Descubierto',
@@ -214,8 +225,8 @@ questions = [
 				'Ninguna de las anteriores'
 			],
 			"correct": 1,
-			"points": 50,
-			"time": 20
+			"points": 100,
+			"time": 25
 		},
 		{
 			"question": '¿Qué es el login?',
@@ -225,8 +236,18 @@ questions = [
 				'Un logo pequeño'
 			],
 			"correct": 0,
-			"points": 50,
-			"time": 20
+			"points": 90,
+			"time": 25
+		},
+		{
+			"question": 'En 1987, en EE.UU., el congresista Edwin J. Goodwin intentó que el congreso norteamericano aprobara un proyecto que implicaba "cuadrar el círculo" y que implicaba para pi(π) un valor de 3,2.',
+			"answers": [
+				'Verdadero aunque increíble',
+				'Falso y no sé por qué',
+			],
+			"correct": 0,
+			"points": 90,
+			"time": 25
 		}
 	],
 	[ # 2 difficulty
@@ -255,7 +276,7 @@ questions = [
 			"time": 20
 		},
 		{
-			"question": 'El número pi es un número',
+			"question": 'El número pi(π) es un número',
 			"answers": [
 				'Racional',
 				'Irracional',
@@ -294,7 +315,7 @@ questions = [
 			"answers": [
 				'e',
 				10,
-				'Pi',
+				'Pi(π)',
 				'Ninguna es correcta'
 			],
 			"correct": 2,
@@ -304,10 +325,10 @@ questions = [
 		{
 			"question": 'Qué se puede recordar con este poema?\nSoy y seré a todos definible\nmi nombre tengo que daros\ncociente diametral siempre inmedible\nsoy de los redondos aros',
 			"answers": [
-				'Las primeras 20 cifras o dígitos del número pi',
+				'Las primeras 20 cifras o dígitos del número pi(π)',
 				'Lo bonita que es la poesía',
-				'El alcance del número pi',
-				'Esto no tiene que ver con pi'
+				'El alcance del número pi(π)',
+				'Esto no tiene que ver con pi(π)'
 			],
 			"correct": 0,
 			"points": 155,
@@ -316,7 +337,7 @@ questions = [
 		{
 			"question": 'En esta frase “Hizo fundir asimismo un mar de diez codos de un lado al otro, perfectamente redondo. Tenía cinco codos de altura y a su alrededor un cordón de treinta codos” ¿Cuánto vale pi según este texto?',
 			"answers": [
-				'pi',
+				'pi(π)',
 				3,
 				3,141592,
 				'No se sabe, es un texto bíblico'
@@ -399,7 +420,7 @@ questions = [
 			"time": 24
 		},
 		{
-			"question": '¿Cuándo se celebra el día mundial del número pi?',
+			"question": '¿Cuándo se celebra el día mundial del número pi(π)?',
 			"answers": [
 				'8 de abril',
 				'14 de marzo',
@@ -407,6 +428,18 @@ questions = [
 				'29 de febrero'
 			],
 			"correct": 1,
+			"points": 140,
+			"time": 24
+		},
+		{
+			"question": '¿Cuál es el dígito del 0 al 9 que tarda más en salir en el número pi(π)?',
+			"answers": [
+				0,
+				1,
+				7,
+				3
+			],
+			"correct": 2,
 			"points": 140,
 			"time": 24
 		}
@@ -437,7 +470,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿Qué matemático realizó la primera estimación del valor de pi?',
+			"question": '¿Qué matemático realizó la primera estimación del valor de pi(π)?',
 			"answers": [
 				'Galileo Galilei',
 				'René Descartes',
@@ -449,7 +482,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿Cuál fue la primera civilización en emplear el número pi?',
+			"question": '¿Cuál fue la primera civilización en emplear el número pi(π)?',
 			"answers": [
 				'Romanos',
 				'Egipcios',
@@ -461,7 +494,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿Crees que tu número de teléfono aparece dentro del número pi?',
+			"question": '¿Crees que tu número de teléfono aparece dentro del número pi(π)?',
 			"answers": [
 				'Sí, probablemente ',
 				'No, probablemente',
@@ -469,6 +502,26 @@ questions = [
 				'El número pi no tiene nada que ver con mi teléfono'
 			],
 			"correct": 0,
+			"points": 165,
+			"time": 25
+		},
+		{
+			"question": 'La persona que más dígitos sabe de memoria del número pi(π), Lu Chao, es capaz de recitar:',
+			"answers": [
+				'67.890 decimales',
+				'1.000 decimales',
+				'100.000.000 decimales'			],
+			"correct": 0,
+			"points": 165,
+			"time": 25
+		},
+		{
+			"question": '¿Cuánto vale el volumen de un cilindro?',
+			"answers": [
+				'4/3*π*r',
+				'π²*h',
+				'2*π*h'			],
+			"correct": 1,
 			"points": 165,
 			"time": 25
 		}
@@ -499,7 +552,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿Cuantos decimales del número pi se conocen hoy?',
+			"question": '¿Cuantos decimales del número pi(π) se conocen hoy?',
 			"answers": [
 				'Mil',
 				'Tres millones',
@@ -519,7 +572,7 @@ questions = [
 				'Marte'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 200,
 			"time": 24
 		},
 		{
@@ -531,7 +584,18 @@ questions = [
 				'Roma'
 			],
 			"correct": 2,
-			"points": 140,
+			"points": 200,
+			"time": 24
+		},
+		{
+			"question": 'William Shanks, matemático inglés, dedico 20 años de su vida a la obtención de 707 decimales de pi(π).(En 1945 se descubrió que había cometido un error en el decimal 528 y a partir de este todos los demás eran incorrectos)',
+			"answers": [
+				'Cierto',
+				'Falso',
+				'El número pi no tiene tantos decimales'
+			],
+			"correct": 0,
+			"points": 200,
 			"time": 24
 		}
 	],
@@ -549,7 +613,7 @@ questions = [
 			"time": 25
 		},
 		{
-			"question": '¿En qué año se data la primera referencia al número pi?',
+			"question": '¿En qué año se data la primera referencia al número pi(π)?',
 			"answers": [
 				'1650 adC',
 				'0',
@@ -563,28 +627,28 @@ questions = [
 		{
 			"question": '¿Cuál es el volumen de una esfera?',
 			"answers": [
-				'4*pi*r',
-				'4/3*pi*r',
-				'2*pi*r',
-				'pi*r'
+				'4*π*r',
+				'4/3*π*r',
+				'2*π*r',
+				'π*r'
 			],
 			"correct": 1,
-			"points": 80,
+			"points": 225,
 			"time": 22
 		},
 		{
-			"question": '¿se repiten por igual los dígitos del 0 al 9 dentro del número pi?',
+			"question": '¿se repiten por igual los dígitos del 0 al 9 dentro del número pi(π)?',
 			"answers": [
 				'Sí',
 				'No',
 				'No se sabe por ahora, pero se cree que sí'
 			],
 			"correct": 2,
-			"points": 80,
+			"points": 225,
 			"time": 22
 		},
 		{
-			"question": '¿Quién no ha estado directamente relacionado con el cálculo del número pi?',
+			"question": '¿Quién no ha estado directamente relacionado con el cálculo del número pi(π)?',
 			"answers": [
 				'Euler',
 				'Einstein',
@@ -592,7 +656,7 @@ questions = [
 				'Newton'
 			],
 			"correct": 1,
-			"points": 80,
+			"points": 225,
 			"time": 22
 		}
 	],
@@ -606,7 +670,7 @@ questions = [
 				'Joffrey Baratheon'
 			],
 			"correct": 1,
-			"points": 215,
+			"points": 250,
 			"time": 20
 		},
 		{
@@ -618,33 +682,20 @@ questions = [
 				1
 			],
 			"correct": 2,
-			"points": 215,
+			"points": 250,
 			"time": 20
 		},
 		{
-			"question": '¿se repiten por igual los dígitos del 00 al 99 dentro del número pi?',
+			"question": '¿se repiten por igual los dígitos del 00 al 99 dentro del número pi(π)?',
 			"answers": [
 				'Sí',
 				'No',
 				'No se sabe por ahora, pero se cree que sí'
 			],
 			"correct": 2,
-			"points": 215,
-			"time": 20
-		},
-		{
-			"question": 'La expresión (2/1)*(2/3)*(4/3)*(4/5)*(6/5)*(6/7)*….. es igual a',
-			"answers": [
-				'Pi',
-				'Pi/2',
-				'Pi/4',
-				'Ni idea'
-			],
-			"correct": 1,
-			"points": 215,
+			"points": 250,
 			"time": 20
 		}
-
 	],
 	[ # 8 difficulty
 		{
@@ -668,11 +719,11 @@ questions = [
 				'Faraday'
 			],
 			"correct": 0,
-			"points": 140,
+			"points": 255,
 			"time": 24
 		},
 		{
-			"question": '¿El número pi se parece al número…??',
+			"question": '¿El número pi(π) se parece al número…??',
 			"answers": [
 				'e',
 				'Aureo',
@@ -680,7 +731,7 @@ questions = [
 				'raiz(2)'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 255,
 			"time": 24
 		}
 	],
@@ -710,7 +761,7 @@ questions = [
 			"time": 31
 		},
 		{
-			"question": '¿Es correcto este número pi: 3,14159365358979323846264?',
+			"question": '¿Es correcto este número pi(π): 3,14159365358979323846264?',
 			"answers": [
 				'Sí',
 				'No, hay al menos un dígito cambiado',
@@ -747,26 +798,38 @@ questions = [
 			"time": 20
 		},
 		{
-			"question": '¿Quién popularizo el número Pi?',
+			"question": '¿Quién popularizo el número pi(π)?',
 			"answers": [
 				'William Oughtred',
 				'William Jones',
 				'Leonhard Euler'
 			],
 			"correct": 1,
-			"points": 215,
+			"points": 340,
 			"time": 20
 		},
 		{
 			"question": 'La expresión 1+(1/3)+(1*2)/(3*5)+(1*2*3)/(3*5*7)+(….. es igual a',
 			"answers": [
-				'Pi',
-				'Pi/2',
-				'Pi/4',
+				'π',
+				'π/2',
+				'π/4',
 				'Ni idea'
 			],
 			"correct": 1,
-			"points": 215,
+			"points": 340,
+			"time": 20
+		},
+		{
+			"question": 'La expresión (2/1)*(2/3)*(4/3)*(4/5)*(6/5)*(6/7)*….. es igual a',
+			"answers": [
+				'π',
+				'π/2',
+				'π/4',
+				'Ni idea'
+			],
+			"correct": 1,
+			"points": 340,
 			"time": 20
 		}
 	]
