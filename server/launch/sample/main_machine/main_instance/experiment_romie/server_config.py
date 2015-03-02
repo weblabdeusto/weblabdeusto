@@ -14,7 +14,7 @@ questions = [
 				'Ondas de radio'
 			],
 			"correct": 1,
-			"points": 70,
+			"points": 55000,
 			"time": 30
 		},
 		{
@@ -25,7 +25,7 @@ questions = [
 				'Barra con llaves inglesas para arreglar el PC'
 			],
 			"correct": 1,
-			"points": 70,
+			"points": 51000,
 			"time": 30
 		},
 		{
@@ -37,7 +37,7 @@ questions = [
 				206
 			],
 			"correct": 3,
-			"points": 80,
+			"points": 55000,
 			"time": 35
 		},
 		{
@@ -49,7 +49,7 @@ questions = [
 				'Todas son correctas'
 			],
 			"correct": 3,
-			"points": 75,
+			"points": 51000,
 			"time": 30
 		},
 		{
@@ -60,7 +60,7 @@ questions = [
 				'Infinitos',
 			],
 			"correct": 2,
-			"points": 70,
+			"points": 51000,
 			"time": 30
 		},
 		{
@@ -71,7 +71,7 @@ questions = [
 				'La superficie de sus orejas'
 			],
 			"correct": 1,
-			"points": 75,
+			"points": 55000,
 			"time": 30
 		},
 		{
@@ -82,7 +82,7 @@ questions = [
 				'Romboide'
 			],
 			"correct": 2,
-			"points": 70,
+			"points": 55000,
 			"time": 30
 		},
 		{
@@ -94,7 +94,7 @@ questions = [
 				100
 			],
 			"correct": 2,
-			"points": 70,
+			"points": 51000,
 			"time": 30
 		},
 		{
@@ -106,7 +106,7 @@ questions = [
 				'Orión'
 			],
 			"correct": 1,
-			"points": 70,
+			"points": 51000,
 			"time": 30
 		},
 		{
@@ -117,7 +117,7 @@ questions = [
 				'Un formato de imagen'
 			],
 			"correct": 1,
-			"points": 60,
+			"points": 51000,
 			"time": 25
 		},
 		{
@@ -128,7 +128,7 @@ questions = [
 				'revelación mística: vino del cielo o de un lugar similar'
 			],
 			"correct": 1,
-			"points": 80,
+			"points": 55000,
 			"time": 30
 		}
 	],
@@ -141,7 +141,7 @@ questions = [
 				24.5
 			],
 			"correct": 1,
-			"points": 100,
+			"points": 51000,
 			"time": 25
 		},
 		{
@@ -153,7 +153,7 @@ questions = [
 				1812
 			],
 			"correct": 2,
-			"points": 100,
+			"points": 55000,
 			"time": 25
 		},
 		{
@@ -165,7 +165,7 @@ questions = [
 				'El director'
 			],
 			"correct": 3,
-			"points": 100,
+			"points": 51000,
 			"time": 25
 		},
 		{
@@ -177,7 +177,7 @@ questions = [
 				'No hay ninguna medida llamada pinta'
 			],
 			"correct": 0,
-			"points": 100,
+			"points": 55000,
 			"time": 24
 		},
 		{
@@ -189,7 +189,7 @@ questions = [
 				'Calibre'
 			],
 			"correct": 1,
-			"points": 110,
+			"points": 53000,
 			"time": 24
 		},
 		{
@@ -201,7 +201,7 @@ questions = [
 				'46'
 			],
 			"correct": 1,
-			"points": 100,
+			"points": 51000,
 			"time": 24
 		},
 		{
@@ -213,7 +213,7 @@ questions = [
 				360
 			],
 			"correct": 0,
-			"points": 90,
+			"points": 51000,
 			"time": 25
 		},
 		{
@@ -226,7 +226,7 @@ questions = [
 				'Ninguna de las anteriores'
 			],
 			"correct": 1,
-			"points": 100,
+			"points": 52000,
 			"time": 25
 		},
 		{
@@ -237,17 +237,7 @@ questions = [
 				'Un logo pequeño'
 			],
 			"correct": 0,
-			"points": 90,
-			"time": 25
-		},
-		{
-			"question": 'En 1987, en EE.UU., el congresista Edwin J. Goodwin intentó que el congreso norteamericano aprobara un proyecto que implicaba "cuadrar el círculo" y que implicaba para pi(π) un valor de 3,2.',
-			"answers": [
-				'Verdadero aunque increíble',
-				'Falso y no sé por qué',
-			],
-			"correct": 0,
-			"points": 90,
+			"points": 55000,
 			"time": 25
 		}
 	],
@@ -261,7 +251,7 @@ questions = [
 				'De Huesca'
 			],
 			"correct": 1,
-			"points": 105,
+			"points": 51000,
 			"time": 25
 		},
 		{
@@ -273,7 +263,7 @@ questions = [
 				'La relación entre el diámetro y la circunferencia de un círculo'
 			],
 			"correct": 3,
-			"points": 115,
+			"points": 55000,
 			"time": 20
 		},
 		{
@@ -284,7 +274,7 @@ questions = [
 				'Ninguna de las anteriores',
 			],
 			"correct": 1,
-			"points": 55,
+			"points": 51000,
 			"time": 20
 		},
 		{
@@ -296,7 +286,7 @@ questions = [
 				3
 			],
 			"correct": 2,
-			"points": 155,
+			"points": 51000,
 			"time": 20
 		},
 		{
@@ -308,19 +298,7 @@ questions = [
 				'Ninguna es correcta'
 			],
 			"correct": 0,
-			"points": 155,
-			"time": 20
-		},
-		{
-			"question": ' la altura de la pirámide de Keops dividida por su base da como resultado...',
-			"answers": [
-				'e',
-				10,
-				'Pi(π)',
-				'Ninguna es correcta'
-			],
-			"correct": 2,
-			"points": 155,
+			"points": 52000,
 			"time": 20
 		},
 		{
@@ -332,7 +310,7 @@ questions = [
 				'Esto no tiene que ver con pi(π)'
 			],
 			"correct": 0,
-			"points": 155,
+			"points": 51000,
 			"time": 20
 		},
 		{
@@ -344,7 +322,7 @@ questions = [
 				'No se sabe, es un texto bíblico'
 			],
 			"correct": 1,
-			"points": 155,
+			"points": 53000,
 			"time": 20
 		}
 	],
@@ -358,7 +336,7 @@ questions = [
 				'EIL'
 			],
 			"correct": 2,
-			"points": 135,
+			"points": 110000,
 			"time": 25
 		},
 		{
@@ -370,7 +348,7 @@ questions = [
 				'No hay ninguna medida llamada pinta'
 			],
 			"correct": 0,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -382,7 +360,7 @@ questions = [
 				'Hermano'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -394,7 +372,7 @@ questions = [
 				0
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -405,7 +383,7 @@ questions = [
 				'Las dos cosas'
 			],
 			"correct": 2,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -417,7 +395,7 @@ questions = [
 				'No tiene nada que ver'
 			],
 			"correct": 2,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -429,7 +407,7 @@ questions = [
 				'29 de febrero'
 			],
 			"correct": 1,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		},
 		{
@@ -441,7 +419,7 @@ questions = [
 				3
 			],
 			"correct": 2,
-			"points": 140,
+			"points": 110000,
 			"time": 24
 		}
 	],
@@ -455,7 +433,7 @@ questions = [
 				'pi*r'
 			],
 			"correct": 2,
-			"points": 65,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -467,7 +445,7 @@ questions = [
 				'Los góbulos rojos'
 			],
 			"correct": 0,
-			"points": 165,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -479,7 +457,7 @@ questions = [
 				'Pitágoras'
 			],
 			"correct": 2,
-			"points": 165,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -491,7 +469,7 @@ questions = [
 				'Persas'
 			],
 			"correct": 1,
-			"points": 165,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -503,7 +481,7 @@ questions = [
 				'El número pi no tiene nada que ver con mi teléfono'
 			],
 			"correct": 0,
-			"points": 165,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -513,7 +491,7 @@ questions = [
 				'1.000 decimales',
 				'100.000.000 decimales'			],
 			"correct": 0,
-			"points": 165,
+			"points": 120000,
 			"time": 25
 		},
 		{
@@ -523,7 +501,17 @@ questions = [
 				'π²*h',
 				'2*π*h'			],
 			"correct": 1,
-			"points": 165,
+			"points": 120000,
+			"time": 25
+		},
+		{
+			"question": 'En 1987, en EE.UU., el congresista Edwin J. Goodwin intentó que el congreso norteamericano aprobara un proyecto que implicaba "cuadrar el círculo" y que implicaba para pi(π) un valor de 3,2.',
+			"answers": [
+				'Verdadero aunque increíble',
+				'Falso y no sé por qué',
+			],
+			"correct": 0,
+			"points": 120000,
 			"time": 25
 		}
 	],
@@ -537,7 +525,7 @@ questions = [
 				1994
 			],
 			"correct": 2,
-			"points": 195,
+			"points": 130000,
 			"time": 24
 		},
 		{
@@ -549,7 +537,7 @@ questions = [
 				2005
 			],
 			"correct": 2,
-			"points": 205,
+			"points": 130000,
 			"time": 25
 		},
 		{
@@ -561,7 +549,7 @@ questions = [
 				'Siete billones'
 			],
 			"correct": 2,
-			"points": 205,
+			"points": 130000,
 			"time": 25
 		},
 		{
@@ -573,7 +561,7 @@ questions = [
 				'Marte'
 			],
 			"correct": 1,
-			"points": 200,
+			"points": 130000,
 			"time": 24
 		},
 		{
@@ -585,7 +573,7 @@ questions = [
 				'Roma'
 			],
 			"correct": 2,
-			"points": 200,
+			"points": 130000,
 			"time": 24
 		},
 		{
@@ -596,7 +584,7 @@ questions = [
 				'El número pi no tiene tantos decimales'
 			],
 			"correct": 0,
-			"points": 200,
+			"points": 130000,
 			"time": 24
 		}
 	],
@@ -610,7 +598,7 @@ questions = [
 				1987
 			],
 			"correct": 1,
-			"points": 225,
+			"points": 130000,
 			"time": 25
 		},
 		{
@@ -622,7 +610,7 @@ questions = [
 				'1000 adC'
 			],
 			"correct": 0,
-			"points": 225,
+			"points": 130000,
 			"time": 25
 		},
 		{
@@ -634,7 +622,7 @@ questions = [
 				'π*r'
 			],
 			"correct": 1,
-			"points": 225,
+			"points": 130000,
 			"time": 22
 		},
 		{
@@ -645,7 +633,7 @@ questions = [
 				'No se sabe por ahora, pero se cree que sí'
 			],
 			"correct": 2,
-			"points": 225,
+			"points": 130000,
 			"time": 22
 		},
 		{
@@ -657,7 +645,7 @@ questions = [
 				'Newton'
 			],
 			"correct": 1,
-			"points": 225,
+			"points": 130000,
 			"time": 22
 		}
 	],
@@ -671,7 +659,7 @@ questions = [
 				'Joffrey Baratheon'
 			],
 			"correct": 1,
-			"points": 250,
+			"points": 140000,
 			"time": 20
 		},
 		{
@@ -683,7 +671,7 @@ questions = [
 				1
 			],
 			"correct": 2,
-			"points": 250,
+			"points": 140000,
 			"time": 20
 		},
 		{
@@ -694,7 +682,7 @@ questions = [
 				'No se sabe por ahora, pero se cree que sí'
 			],
 			"correct": 2,
-			"points": 250,
+			"points": 140000,
 			"time": 20
 		}
 	],
@@ -708,7 +696,7 @@ questions = [
 				'Burgos'
 			],
 			"correct": 0,
-			"points": 255,
+			"points": 140000,
 			"time": 20
 		},
 		{
@@ -720,7 +708,7 @@ questions = [
 				'Faraday'
 			],
 			"correct": 0,
-			"points": 255,
+			"points": 140000,
 			"time": 24
 		},
 		{
@@ -732,7 +720,7 @@ questions = [
 				'raiz(2)'
 			],
 			"correct": 1,
-			"points": 255,
+			"points": 140000,
 			"time": 24
 		}
 	],
@@ -746,7 +734,7 @@ questions = [
 				'William Oughtred'
 			],
 			"correct": 3,
-			"points": 314,
+			"points": 140000,
 			"time": 31
 		},
 		{
@@ -758,7 +746,7 @@ questions = [
 				'Pitágoras'
 			],
 			"correct": 3,
-			"points": 314,
+			"points": 140000,
 			"time": 31
 		},
 		{
@@ -769,7 +757,7 @@ questions = [
 				'Tal vez'
 			],
 			"correct": 1,
-			"points": 314,
+			"points": 140000,
 			"time": 31
 		},
 		{
@@ -781,7 +769,7 @@ questions = [
 				'Ni idea'
 			],
 			"correct": 2,
-			"points": 314,
+			"points": 140000,
 			"time": 31
 		}
 	],
@@ -795,7 +783,7 @@ questions = [
 				'Aproximadamente 92 días'
 			],
 			"correct": 0,
-			"points": 340,
+			"points": 250000,
 			"time": 20
 		},
 		{
@@ -806,7 +794,7 @@ questions = [
 				'Leonhard Euler'
 			],
 			"correct": 1,
-			"points": 340,
+			"points": 200000,
 			"time": 20
 		},
 		{
@@ -818,7 +806,7 @@ questions = [
 				'Ni idea'
 			],
 			"correct": 1,
-			"points": 340,
+			"points": 350000,
 			"time": 20
 		},
 		{
@@ -830,7 +818,7 @@ questions = [
 				'Ni idea'
 			],
 			"correct": 1,
-			"points": 340,
+			"points": 350000,
 			"time": 20
 		}
 	]
