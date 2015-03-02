@@ -139,6 +139,11 @@ hosts:
             config_file: main_machine/main_instance/experiment_incubator/server_config.py
             type: experiment
             class: experiments.incubator.IncubatorExperiment
+          experiment_new_incubator:
+            config:
+              server: http://192.168.0.222/
+            type: experiment
+            class: experiments.new_incubator.NewIncubatorExperiment
           experiment_robot_maze:
             type: experiment
             class: experiments.robot_maze.RobotMaze

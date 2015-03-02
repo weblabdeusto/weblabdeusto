@@ -159,6 +159,13 @@ CONFIG_JS = {
         "experiment.reserve.button.shown": False,
         "experiment.picture": "/img/experiments/incubator.jpg"
     },
+    "new_incubator@Farm experiments": {
+        "cssWidth": "1000",
+        "cssHeight": "700",
+        "provide.file.upload": False,
+        "experiment.picture": "/img/experiments/incubator.jpg",
+        "html.file": "jslabs/incubator/incubator.html"
+    },
     "javadummy@Dummy experiments": {
         "height": 350,
         "width": 500,
@@ -678,6 +685,7 @@ def populate_weblab_tests(engine, tests):
         ('flashdummy',              'Dummy experiments')     : 'flash',
         ('http',                    'HTTP experiments')      : 'redirect',
         ('incubator',               'Farm experiments')      : 'incubator',
+        ('new_incubator',           'Farm experiments')      : 'new_incubator',
         ('javadummy',               'Dummy experiments')     : 'java',
         ('jsdummy',                 'Dummy experiments')     : 'js',
         ('jsfpga',                  'FPGA experiments')      : 'js',
@@ -754,7 +762,7 @@ def populate_weblab_tests(engine, tests):
         ('any',        'elevator',                'FPGA experiments',      1400),
         ('any',        'external-robot-movement', 'Robot experiments',      200),
         ('any',        'http',                    'HTTP experiments',       200),
-        ('any',        'incubator',               'Farm experiments',       200),
+        ('any',        'new_incubator',           'Farm experiments',       300),
         ('any',        'jsdummy',                 'Dummy experiments',     1400),
         ('any',        'jsfpga',                  'FPGA experiments',      1400),
         ('any',        'microelectronics',        'iLab experiments',       200),

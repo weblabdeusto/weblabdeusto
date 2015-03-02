@@ -230,6 +230,11 @@ laboratory_assigned_experiments = {
                 'coord_address' : 'experiment_incubator:main_instance@main_machine',
                 'checkers': ()
             },
+        'exp1:new_incubator@Farm experiments':
+            {
+                'coord_address' : 'experiment_new_incubator:main_instance@main_machine',
+                'checkers': ()
+            },
         'exp1:robot-maze@Robot experiments':
             {
                 'coord_address' : 'experiment_robot_maze:main_instance@main_machine',
