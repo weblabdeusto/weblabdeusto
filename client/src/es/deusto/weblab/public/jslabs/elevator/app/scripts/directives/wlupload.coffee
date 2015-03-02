@@ -9,7 +9,7 @@
  # # In Weblab official page upload is done to: https://weblab.deusto.es/weblab/web/upload/
 ###
 angular.module('elevatorApp')
-  .directive('wlUpload', ($upload) ->
+  .directive('wlUpload', ($upload, $cookies) ->
     templateUrl: 'views/wlupload.html',
     restrict: 'E'
     link: (scope, element, attrs) ->
@@ -17,13 +17,29 @@ angular.module('elevatorApp')
 
         if scope.files == undefined
           return
-        console.log "WATCH HASs: "
+
+        console.log "THE WATCH HAS: "
         console.log scope.files
-        
+
+        console.log "Cookies service: "
+        console.log $cookies
+
+        term = ""
+        weblabsessionid = ""
+        try
+          term = scope.files[0].name.split(".").pop()
+          weblabsessionid = $cookies.weblabsessionid
+        catch e
+          console.log "Could not extract file_info from name"
+
+        debugger;
+
         scope.upload = $upload.upload(
           url: '../../../../../web/upload/'
           data:
-            file_info: "vhd"
+            file_info: term
+            session_id: weblabsessionid
+            is_async: "false"
           file: scope.files[0]
           fileFormDataName: 'file_sent'
         ).progress( (evt) ->

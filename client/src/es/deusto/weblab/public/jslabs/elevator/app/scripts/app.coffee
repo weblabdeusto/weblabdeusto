@@ -12,6 +12,7 @@ angular
   .module('elevatorApp', [
 #    'ngAnimate',              # Somewhat crazily, if we enable ng-animate ng-show starts applying some kind of animation on its own, which is not desirable.
     'ngResource',
+    'ngCookies',
     'ngRoute',
     'ngSanitize',
     'ngTouch',
