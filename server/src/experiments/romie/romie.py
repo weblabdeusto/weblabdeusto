@@ -79,6 +79,7 @@ class RoMIExperiment(Experiment.Experiment):
             print "[RoMIE] Command received: %s" % command
 
         global ROMIE_SERVER
+        print "HELLO"
 
         if command == 'F':
             tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
@@ -86,9 +87,12 @@ class RoMIExperiment(Experiment.Experiment):
 
                 self.last_tag = tag
 
-                self.q_difficulty = int(self.points/85000)
+                self.q_difficulty = int(self.points/65000)
                 if self.q_difficulty > 10:
                     self.q_difficulty = 10
+
+                print "Points: %d" % self.points
+                print " Difficulty: %d" % self.q_difficulty
 
                 index = random.randint(0, len(self.questions[self.q_difficulty])-1)
                 self.question = self.questions[self.q_difficulty][index]
@@ -110,9 +114,13 @@ class RoMIExperiment(Experiment.Experiment):
             response = int(command.split()[1])
             correct = self.question['correct'] == response
 
+            print correct
+
             if correct:
                 time_bonus = 30-(time.time()-self.last_correct)
-                bonus = (self.q_difficulty/10)*(time_bonus/5 if time_bonus > 5 else 1)
+                bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
+                print "Time bonus: %d" % bonus
+                print "Bonus: %d" % bonus
                 self.last_correct = time.time()
                 self.points += self.question['points']*bonus
                 self.finish_time += self.question['time']*bonus
