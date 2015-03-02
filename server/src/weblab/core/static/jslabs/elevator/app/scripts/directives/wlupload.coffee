@@ -14,7 +14,6 @@ angular.module('elevatorApp')
     restrict: 'E'
     link: (scope, element, attrs) ->
       scope.$watch "files", ->
-
         if scope.files == undefined
           return
         console.log "WATCH HAS: "
@@ -22,12 +21,16 @@ angular.module('elevatorApp')
 
         scope.upload = $upload.upload(
           url: '../../../../../web/upload/'
-          data: {},
+          data: {
+          },
+          fields: {
+            file_info: "vhd"
+          },
           file: scope.files
         ).progress( (evt) ->
           console.log "Progress: " + parseInt(100.0 * evt.loaded / evt.total) + '% file : ' + evt.config.file.name
         ).success( (data, status, headers, config) ->
-          console.log 'file ' + config.file.name + 'is uploaded successfully. Response: ' + data
+          console.log 'file ' + config.file.name + ' is uploaded successfully. Response: ' + data
         ).error( ->
           console.error("Could not upload the file");
         )

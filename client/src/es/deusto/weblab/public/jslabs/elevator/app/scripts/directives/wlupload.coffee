@@ -17,13 +17,15 @@ angular.module('elevatorApp')
 
         if scope.files == undefined
           return
-        console.log "WATCH HAS: "
+        console.log "WATCH HASs: "
         console.log scope.files
-
+        
         scope.upload = $upload.upload(
           url: '../../../../../web/upload/'
-          data: {},
-          file: scope.files
+          data:
+            file_info: "vhd"
+          file: scope.files[0]
+          fileFormDataName: 'file_sent'
         ).progress( (evt) ->
           console.log "Progress: " + parseInt(100.0 * evt.loaded / evt.total) + '% file : ' + evt.config.file.name
         ).success( (data, status, headers, config) ->
