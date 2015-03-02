@@ -1,3 +1,5 @@
+registering = false;
+
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
 		if (response == "REGISTER") register();
@@ -11,60 +13,67 @@ function start() {
 function register() {
 
 	$('#register .modal-footer button').click(function() {
+		if ( ! registering) {
+			register_ok = true;
+			registering = true;
 
-		register_ok = true;
+			name = $('#name').val();
+			surname = $('#surname').val();
+			school = $('#school').val();
+			bday = parseInt($('#bday').val());
+			bmon = parseInt($('[name=bmon]').val())-1;
+			byear = parseInt($('[name=byear]').val());
+			email = $('#email').val();
 
-		name = $('#name').val();
-		surname = $('#surname').val();
-		school = $('#school').val();
-		bday = parseInt($('#bday').val());
-		bmon = parseInt($('[name=bmon]').val())-1;
-		byear = parseInt($('[name=byear]').val());
-		email = $('#email').val();
+			if (name.length < 3 || surname.length < 3) {
+				register_ok = false;
+				$('#name-group').addClass('has-error');
+			}
 
-		if (name.length < 3 || surname.length < 3) {
-			register_ok = false;
-			$('#name-group').addClass('has-error');
-		}
+			if (school.length < 3) {
+				register_ok = false;
+				$('#school-group').addClass('has-error');
+			}
 
-		if (school.length < 3) {
-			register_ok = false;
-			$('#school-group').addClass('has-error');
-		}
+			email_regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-		email_regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+			if ( ! email_regex.test(email)) {
+				register_ok = false;
+				$('#email-group').addClass('has-error');
+			}
 
-		if ( ! email_regex.test(email)) {
-			register_ok = false;
-			$('#email-group').addClass('has-error');
-		}
-
-		if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
-			register_ok = false;
-			$('#bday-group').addClass('has-error');
-		} else {
-			daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
-			if (( ! (byear % 4) && byear % 100) || ! (byear % 400))
-				daysInMonth[1] = 29;
-
-			if (bday > daysInMonth[bmon]) {
+			if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
 				register_ok = false;
 				$('#bday-group').addClass('has-error');
+			} else {
+				daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+				if (( ! (byear % 4) && byear % 100) || ! (byear % 400))
+					daysInMonth[1] = 29;
+
+				if (bday > daysInMonth[bmon]) {
+					register_ok = false;
+					$('#bday-group').addClass('has-error');
+				}
 			}
-		}
 
-		if (register_ok) {
-			bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
-			unix = Math.floor(bdate.getTime()/1000);
+			if (register_ok) {
+				bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
+				unix = Math.floor(bdate.getTime()/1000);
 
-			data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email};
+				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email};
 
-			command = "REGISTER " + JSON.stringify(data);
-			Weblab.sendCommand(command, function(response) {
-				time = parseFloat(response);
-				$('#register').modal('hide');
-				init(time);
-			});
+				command = "REGISTER " + JSON.stringify(data);
+				Weblab.sendCommand(command, function(response) {
+					if (response == "ERROR EMAIL") {
+						$('#email-group').addClass('has-error');
+						registering = false;
+					} else {
+						time = parseFloat(response);
+						$('#register').modal('hide');
+						init(time);
+					}
+				});
+			}
 		}
 	});
 
