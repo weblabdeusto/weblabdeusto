@@ -58,7 +58,7 @@ class RoMIExperiment(Experiment.Experiment):
 
         data = json.loads(server_initial_data)
         self.username = data['request.username']
-        self.questions = self._cfg_manager.get_value('questions')
+        self.questions = self._cfg_manager.get_value('questions')[:]
         self.question = {}
         self.q_difficulty = 0
         self.points = 0
@@ -86,7 +86,7 @@ class RoMIExperiment(Experiment.Experiment):
 
                 self.last_tag = tag
 
-                self.q_difficulty = int(self.points/85000)
+                self.q_difficulty = int(self.points/65000)
                 if self.q_difficulty > 10:
                     self.q_difficulty = 10
 
@@ -112,7 +112,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             if correct:
                 time_bonus = 30-(time.time()-self.last_correct)
-                bonus = (self.q_difficulty/10)*(time_bonus/5 if time_bonus > 5 else 1)
+                bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
                 self.last_correct = time.time()
                 self.points += self.question['points']*bonus
                 self.finish_time += self.question['time']*bonus
