@@ -3,13 +3,13 @@
         <legend>{{ componentid }}</legend>
 
 
-        <div ng-repeat="(elementid, element) in component">
+        <div ng-repeat="(elementid, element) in component | NonInternal">
 
-            <p ng-if="element.status == 'OK'"><i class="fa fa-check"/> {{ element.text }}</p>
-            <p ng-if="element.status == 'WARNING'" style="background-color: #FFFFEE"><i class="fa fa-warning"/> {{ element.text }}</p>
-            <p ng-if="element.status == 'ERROR'"><i class="fa fa-remove"/> {{ element.text }}</p>
-            <p ng-if="element.status == 'FAIL'"><i class="fa fa-remove"/> {{ element.text }}</p>
-            <p ng-if="element.status == undefined"><i class="fa fa-question"/> {{ element.text }}</p>
+            <p ng-if="element.status == 'OK'"><i class="fa fa-check"></i> {{ element.text }}</p>
+            <p ng-if="element.status == 'WARNING'" style="background-color: #FFFFEE"><i class="fa fa-warning"></i> {{ element.text }}</p>
+            <p ng-if="element.status == 'ERROR'"><i class="fa fa-remove"></i> {{ element.text }}</p>
+            <p ng-if="element.status == 'FAIL'"><i class="fa fa-remove"></i> {{ element.text }}</p>
+            <p ng-if="element.status == undefined"><i class="fa fa-question"></i> {{ element.text }}</p>
 
         </div>
 
