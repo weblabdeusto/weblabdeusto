@@ -193,8 +193,15 @@ class RoMIExperiment(Experiment.Experiment):
         Update points in the database
         """
         conn = sqlite3.connect(self.database)
-        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
-        conn.commit()
+
+        cur = conn.cursor()
+        cur.execute('SELECT points FROM forotech WHERE username = ?', (self.username,))
+        points = cur.fetchone()[0]
+
+        if (points < self.points):
+	        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+	        conn.commit()
+
         conn.close()
 
     def email_exists(self, email):
