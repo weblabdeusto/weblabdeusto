@@ -23,7 +23,7 @@ import json
 import time
 
 # Actually defined through the configuration.
-DEBUG = True
+DEBUG = None
 
 class NewIncubatorExperiment(Experiment.Experiment):
 
@@ -53,8 +53,10 @@ class NewIncubatorExperiment(Experiment.Experiment):
             print "[Incubator] do_start_experiment called"
 
         self.lightStatus = urllib2.urlopen("%slstatus" % self.server).read() == 'ON'
+        self.lightStatus = False
         self.lastCheck = time.time()
         self.lastLight = 0
+        self.data = {}
 
         return ""
 
@@ -88,7 +90,7 @@ class NewIncubatorExperiment(Experiment.Experiment):
             return json.dumps(self.data)
 
         elif command == 'LIGHT_STATUS':
-            return self.lighStatus
+            return self.lightStatus
 
         return "ERROR"
 

@@ -685,7 +685,7 @@ def populate_weblab_tests(engine, tests):
         ('flashdummy',              'Dummy experiments')     : 'flash',
         ('http',                    'HTTP experiments')      : 'redirect',
         ('incubator',               'Farm experiments')      : 'incubator',
-        ('new_incubator',           'Farm experiments')      : 'new_incubator',
+        ('new_incubator',           'Farm experiments')      : 'js',
         ('javadummy',               'Dummy experiments')     : 'java',
         ('jsdummy',                 'Dummy experiments')     : 'js',
         ('jsfpga',                  'FPGA experiments')      : 'js',

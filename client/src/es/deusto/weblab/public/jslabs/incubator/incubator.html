@@ -27,7 +27,7 @@
 					Weblab.sendCommand("DATA", function(response) {
 						data = JSON.parse(response);
 						$('#temperature span').text(data["temperature"]+"ºC");
-						$('#temperature span').text(data["humidity"]+"%");
+						$('#humidity span').text(data["humidity"]+"%");
 
 						setTimeout(updateData, 2000);
 					});
@@ -39,8 +39,9 @@
 				}
 
 				$('#camera').on("load", function(){setTimeout(updateCam, 400)});
-				updateData();
 				updateCam();
+				updateData();
+				$(parent.document).find('iframe[name=wlframe]').show();
 			}
 
 			Weblab.setOnStartInteractionCallback(start);
@@ -54,12 +55,12 @@
 			<section class="col-md-4">
 				<section id="temperature" class="col-md-6">Temperatura: <span></span></section>
 				<section id="humidity" class="col-md-6">Humedad: <span></span></section>
-				<section class="col-md-12">
+				<section class="col-md-12" style="margin-top: 4em">
 					<button id="light_on">
-						<img alt="Encender Lámpara" src="img/light_on.png"> Encender Lámpara
+						<img alt="Encender Lámpara" src="img/light_on.png"> Encender
 					</button>
 					<button id="light_off">
-						<img alt="Apagar Lámpara" src="img/light_off.png"> Apagar Lámpara
+						<img alt="Apagar Lámpara" src="img/light_off.png"> Apagar
 					</button>
 				</section>
 			</section>
