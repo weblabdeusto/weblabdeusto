@@ -10,11 +10,32 @@ import threading
 
 import config
 
+threads = {}
+
+users_in = 0
+
+def user_t():
+    do_full_experiment_use()
+
 
 def main():
-    print "Running ExperimentBot"
-    do_full_experiment_use()
-    print "DONE"
+
+    print "Starting all threads... "
+    for i in range(config.NUM_USERS):
+        t = threading.Thread(None, user_t)
+        threads[t] = t
+        t.start()
+    print " done."
+
+    while True:
+        print "Users in the experiment: %d" % users_in
+        time.sleep(5)
+
+        for t in threads.values():
+            if t.is_alive(): break
+        else:
+            break
+
 
 def do_full_experiment_use():
     """
@@ -23,19 +44,19 @@ def do_full_experiment_use():
     :return:
     """
     wc = WebLabDeustoClient(config.WEBLAB_BASE_URL)
-    sessionid = wc.login("demo", "demo")
+    sessionid = wc.login(config.LOGIN, config.PASSWORD)
     if not sessionid: raise Exception("Wrong login")
 
     # Reserve the flash dummy experiment.
     experiment_id = ExperimentId(config.EXP_NAME, config.EXP_CATEGORY)
     waiting = wc.reserve_experiment(sessionid, experiment_id, "{}", "{}", None)
-    print "Reserve response: %r" % waiting
+    # print "Reserve response: %r" % waiting
 
     reservation_id = waiting.reservation_id
 
     while True:
         status = wc.get_reservation_status(reservation_id)
-        print "Reservation status: %r" % status
+        # print "Reservation status: %r" % status
 
         if type(status) is WaitingReservation:
             time.sleep(1)
@@ -48,15 +69,19 @@ def do_full_experiment_use():
 
     print "Experiment reserved."
 
+    global users_in
+    users_in += 1
+
     # Send some commands.
 
     for i in range(config.COMMANDS_PER_USER):
         # What's commandstring actually for??
         cmd = Command(config.COMMAND)
         result = wc.send_command(reservation_id, cmd)
-        print "Command result: %r" % result
+        # print "Command result: %r" % result
         time.sleep(config.TIME_BETWEEN_COMMANDS)
 
+    users_in -= 1
 
     result = wc.logout(sessionid)
     print "Logout result: %r" % result

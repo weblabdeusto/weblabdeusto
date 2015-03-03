@@ -1,10 +1,12 @@
 
 WEBLAB_BASE_URL = "https://weblab.deusto.es/weblab/"
 
+LOGIN = "tester"
+PASSWORD = "tester"
 
 
 EXP_CATEGORY = "Dummy experiments"
-EXP_NAME = "flashdummy"
+EXP_NAME = "ud-dummys"
 
 COMMAND = "SetPulse on 1"
 COMMANDS_PER_USER = 30
