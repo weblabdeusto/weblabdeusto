@@ -3,6 +3,9 @@
 	<head>
 		<title>Incubadora</title>
 		<meta charset="UTF-8">
+
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+
 		<script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
 		<script type="text/javascript" src="../../jslib/weblabjs.js"></script>
 		<script src="js/bootstrap.min.js"></script>
@@ -10,7 +13,34 @@
 			$(parent.document).find('iframe[name=wlframe]').hide();
 
 			start = function() {
-				// TODO
+				Weblab.sendCommand("LIGHT_STATUS", function(response) {
+					if (response == 'True') {
+						$('ligh_on').prop('disabled', true);
+						$('ligh_off').prop('disabled', false);
+					} else {
+						$('ligh_on').prop('disabled', false);
+						$('ligh_off').prop('disabled', true);
+					}
+				});
+
+				updateData = function() {
+					Weblab.sendCommand("DATA", function(response) {
+						data = JSON.parse(response);
+						$('#temperature span').text(data["temperature"]+"ºC");
+						$('#temperature span').text(data["humidity"]+"%");
+
+						setTimeout(updateData, 2000);
+					});
+				}
+
+				updateCam = function() {
+					d = new Date();
+					$('#camera').attr("src", "http://www.weblab.deusto.es/webcam/proxied.py/incubator1?"+d.getTime());
+				}
+
+				$('#camera').on("load", function(){setTimeout(updateCam, 400)});
+				updateData();
+				updateCam();
 			}
 
 			Weblab.setOnStartInteractionCallback(start);
@@ -19,11 +49,11 @@
 	<body>
 		<section class="container-fluid">
 			<section class="col-md-8">
-				<img alt="Cámara" src="http://www.weblab.deusto.es/webcam/proxied.py/incubator1">
+				<img id="camera" alt="Cámara" src="http://www.weblab.deusto.es/webcam/proxied.py/incubator1">
 			</section>
 			<section class="col-md-4">
-				<section id="temperature" class="col-md-6"><img alt="Estado" src="img/ok.png"><span></span></section>
-				<section id="humidity" class="col-md-6"><img alt="Estado" src="img/ok.png"><span></span></section>
+				<section id="temperature" class="col-md-6">Temperatura: <span></span></section>
+				<section id="humidity" class="col-md-6">Humedad: <span></span></section>
 				<section class="col-md-12">
 					<button id="light_on">
 						<img alt="Encender Lámpara" src="img/light_on.png"> Encender Lámpara

@@ -19,6 +19,8 @@ from voodoo.override import Override
 from voodoo.log import logged
 
 import urllib2
+import json
+import time
 
 # Actually defined through the configuration.
 DEBUG = True
@@ -50,6 +52,10 @@ class NewIncubatorExperiment(Experiment.Experiment):
         if(DEBUG):
             print "[Incubator] do_start_experiment called"
 
+        self.lightStatus = urllib2.urlopen("%slstatus" % self.server).read() == 'ON'
+        self.lastCheck = time.time()
+        self.lastLight = 0
+
         return ""
 
     @Override(Experiment.Experiment)
@@ -63,13 +69,26 @@ class NewIncubatorExperiment(Experiment.Experiment):
             print "[Incubator] Command received: %s" % command
 
         if command == 'L_ON':
-            return urllib2.urlopen("%slon" % self.server).read()
+            if (self.lastLight < (time.time()-10)):
+                self.lightStatus = True
+                self.lastLight = time.time()
+                urllib2.urlopen("%slon" % self.server).read()
+
+            return self.lightStatus
         elif command == 'L_OFF':
-            return urllib2.urlopen("%sloff" % self.server).read()
-        elif command == 'TEMP':
-            return urllib2.urlopen("%stemp" % ROMIE_SERVER).read()
-        elif command == 'HUM':
-            return urllib2.urlopen("%stemp" % ROMIE_SERVER).read()
+            if (self.lastLight < (time.time()-10)):
+                self.lightStatus = True
+                self.lastLight = time.time()
+                urllib2.urlopen("%slon" % self.server).read()
+
+            return self.lightStatus
+        elif command == 'DATA':
+            if (self.lastCheck < (time.time()-2))
+                self.data = json.loads(urllib2.urlopen("%sdata" % self.server).read())
+            return json.dumps(self.data)
+
+        elif command == 'LIGHT_STATUS':
+            return self.lighStatus
 
         return "ERROR"
 
@@ -80,6 +99,6 @@ class NewIncubatorExperiment(Experiment.Experiment):
         Callback to perform cleaning after the experiment ends.
         """
         if(DEBUG):
-            print "[RoMIE] do_dispose called"
+            print "[Incubator] do_dispose called"
 
         return "OK"
