@@ -162,7 +162,7 @@ class RoMIExperiment(Experiment.Experiment):
             conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
 
             cur = conn.cursor()
-            cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
+            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech%" ORDER BY points DESC LIMIT 10')
             result = cur.fetchall()
             ranking = list()
 
