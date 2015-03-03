@@ -23,10 +23,10 @@ import json
 import random
 import sqlite3
 import time
+import copy
 
 # Actually defined through the configuration.
 DEBUG = None
-ROMIE_SERVER = "http://192.168.0.190:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
 
@@ -58,7 +58,8 @@ class RoMIExperiment(Experiment.Experiment):
 
         data = json.loads(server_initial_data)
         self.username = data['request.username']
-        self.questions = self._cfg_manager.get_value('questions')[:]
+        self.server = self._cfg_manager.get_value('romie_server')
+        self.questions = copy.deepcopy(self._cfg_manager.get_value('questions'))
         self.question = {}
         self.q_difficulty = 0
         self.points = 0
@@ -78,10 +79,8 @@ class RoMIExperiment(Experiment.Experiment):
         if(DEBUG):
             print "[RoMIE] Command received: %s" % command
 
-        global ROMIE_SERVER
-
         if command == 'F':
-            tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
+            tag = urllib2.urlopen("%sf" % self.server).read()
             if tag.startswith('Tag') and tag != self.last_tag:
 
                 self.last_tag = tag
@@ -102,9 +101,9 @@ class RoMIExperiment(Experiment.Experiment):
             else:
                 return 'OK'
         elif command == 'L':
-            return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
+            return urllib2.urlopen("%sl" % self.server).read()
         elif command == 'R':
-            return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
+            return urllib2.urlopen("%sr" % self.server).read()
         elif command.startswith("ANSWER"):
 
             response = int(command.split()[1])
