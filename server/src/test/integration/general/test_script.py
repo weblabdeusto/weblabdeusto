@@ -40,19 +40,15 @@ class ScriptTestCase(unittest.TestCase):
             self.assertEquals(failures, 0)
             self.assertEquals(max_users, 1)
 
-    @unittest.skip("Known bug: redis queue")
     def test_multiple_cores_20_users_redis(self):
         with ServerCreator(u"--cores=1 --db-engine=mysql --db-name=WebLabIntTests1 --db-user=weblab --db-passwd=weblab --coordination-engine=redis --dummy-silent") as sc:
-
             tester = ExperimentUseTester(sc, 20, 'admin', 'password', 'dummy', 'Dummy experiments')
             failures, max_users = tester.run()
             self.assertEquals(failures, 0)
             self.assertEquals(max_users, 1)
 
-    @unittest.skip("Known bug: redis queue")
     def test_multiple_cores_20_users_redis_4_cores(self):
         with ServerCreator(u"--cores=4 --db-engine=mysql --db-name=WebLabIntTests1 --db-user=weblab --db-passwd=weblab --coordination-engine=redis --dummy-silent") as sc:
-
             tester = ExperimentUseTester(sc, 20, 'admin', 'password', 'dummy', 'Dummy experiments')
             failures, max_users = tester.run()
             self.assertEquals(failures, 0)
@@ -61,7 +57,7 @@ class ScriptTestCase(unittest.TestCase):
 
 class ExperimentUseTester(object):
 
-    def __init__(self, server_creator, concurrent_users, user, password, exp_name, cat_name, max_time = 180, fail_on_concurrency = True):
+    def __init__(self, server_creator, concurrent_users, user, password, exp_name, cat_name, max_time = 180, fail_on_concurrency = True, quiet_errors = True):
         self.users_in = 0
         self.failures = 0
         self.clients = []
@@ -76,6 +72,7 @@ class ExperimentUseTester(object):
         self.cat_name = cat_name
         self.max_time = max_time
         self.fail_on_concurrency = fail_on_concurrency
+        self.quiet_errors = quiet_errors
 
     def run(self):
         threads = []
@@ -113,7 +110,10 @@ class ExperimentUseTester(object):
         try:
             self.do_full_experiment_use(user_number)
         except:
-            traceback.print_exc()
+            if not self.quiet_errors:
+                traceback.print_exc()
+            else:
+                print "Error not shown since quiet_errors = True"
             self.failures += 1
 
     def do_full_experiment_use(self, user_number):
