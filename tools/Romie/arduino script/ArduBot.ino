@@ -15,6 +15,8 @@ char next=NULL;
 
 boolean lastTurn = 0;
 boolean centered = 1;
+boolean lastF = 0;
+unsigned long lastTime=millis();
 
 // Instantiates the Software Serial emulation used by the RFID sensor.
 SoftwareSerial swSerial=SoftwareSerial(rxPin, txPin); // RX, TX
@@ -55,128 +57,34 @@ void loop()
 {
   // Follows a line until the robot reaches an intersection.
   FollowLine();
-  if(digitalRead(MRline)==HIGH && digitalRead(MLline)==HIGH)
-  { 
-    // When an intersection is reached, the robot stops, attempts to read an RFID tag, and sends an "ACK" signal.
-    Motors.stop();
-    ReadTag();
-    Serial.print("ACK");
-    Serial.println();
-    Serial.flush();
-    
-    // Enters a loop for command reception and processing unless the command is "F": Forward.
-    do
-    {  
-      /*
-      Serial.print("Awaiting Command...");
+  if(millis()-lastTime>=1500)lastF=1;
+  if(lastF==1){
+    if(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH){ 
+      // When an intersection is reached, the robot stops, attempts to read an RFID tag, and sends an "ACK" signal.
+      if(digitalRead(MRline)==HIGH && digitalRead(MLline)==LOW){
+        while(MLline==LOW)Motors.forward(100);
+      }
+      else if(digitalRead(MRline)==LOW && digitalRead(MLline)==HIGH){
+        while(MRline==LOW)Motors.forward(100);
+      }
+      Motors.stop();
+      ReadTag();
+      lastF = 0;
+      Serial.print("ACK");
       Serial.println();
-      */
-      
-      // Waits until a new Bluetooth command is received.
-      do
-      {
-        next=ReceiveCommand(); 
-      }
-      while(next==NULL);
-
-      // Processes Bluetooth commands.
-      switch(next)
-      {
-      case 'F': // The command is "F": Forward 
-        // If a wall is in the way, the robot stops and sends an "NAK" signal.
-        if(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW) centered = 0;
-        else centered=1;
-        if(digitalRead(Wall)==LOW)
-        {
-          Serial.print("NAK");
-          Serial.println();
-          Serial.flush();
-          /*
-          Serial.print("Obstacle in the way. Cannot move Forward.");
-          Serial.println();
-          */
-          Motors.stop(); 
-          next=NULL;
-        }
-        else if(centered==0){
-          if(lastTurn==0){
-            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnRight(100);
-            Motors.stop();
-            Serial.print("NAK");
-            Serial.println();
-            Serial.flush();
-            next=NULL;
-          }
-          else{
-            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnLeft(100);
-            Motors.stop();
-            Serial.print("NAK");
-            Serial.println();
-            Serial.flush();
-            next=NULL;  
-          } 
-        }
-        // If there is no wall, the robot advances (until the next intersection).
-        else
-        {
-          //Serial.print("Command received: Move Forward");
-          //Serial.println();
-          if(digitalRead(Wall)==HIGH){
-              while(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH) Motors.forward(100);
-          }
-        }                  
-        break;
-
-      case 'R': // The command is "R": Right
-        /*
-        Serial.print("Command received: Turn Right");
-        Serial.println();
-        */
-        //The robot turns right until a new intersection is reached and sends an "ACK".
-        Motors.turnRight(100);
-        while(digitalRead(FLIline)==HIGH);
-        while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW);
-        Motors.stop();
-        Serial.print("ACK");
-        Serial.println();
-        Serial.flush();
-        lastTurn = 0;
-        break;
-
-      case 'L': // The command is "L": Left    
-        /*
-        Serial.print("Command received: Turn Left");
-        Serial.println();
-        */
-        //The robot turns left until a new intersection is reached and sends an "ACK".
-        Motors.turnLeft(100);
-        while(digitalRead(FRIline)==HIGH);
-        while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW);
-        Motors.stop();
-        Serial.print("ACK");
-        Serial.println();
-        Serial.flush();
-        lastTurn = 1;
-        break;
-        
-      case 'S': // The commmand is "S": Read Wall Sensor    
-        // Checks if there is a wall or not. If there is, it sends "True" over BT. Otherwise, it sends "False". 
-        detect=!digitalRead(Wall); //Inverts the value of the sensor because the sensor is logic-low active, but blockly expects a "True" if there is a wall.
-        Motors.stop();
-        Serial.print(detect);
-        Serial.println();
-        Serial.flush();
-        break;
-
-      default:  // If the command is not recognized, the robot stops. 
-        Motors.stop();
-        Serial.print("NAK");
-        Serial.println();
-        Serial.flush();
-        break;
-      }
+      Serial.flush();
+      ReciveProcess();
     }
-    while(next!='F');
+  }
+  else{
+    if(digitalRead(MRline)==HIGH && digitalRead(MLline)==HIGH){ 
+      Motors.stop();
+      ReadTag();
+      Serial.print("ACK");
+      Serial.println();
+      Serial.flush();
+      ReciveProcess();
+    }
   }
 }
 
@@ -206,6 +114,134 @@ char ReceiveCommand()
     BTcommand=NULL;
 
   return BTcommand;
+}
+//----------------------------------------------------------------
+//-- Receives command and process --
+//----------------------------------------------------------------
+void ReciveProcess(){
+// Enters a loop for command reception and processing unless the command is "F": Forward.
+    do
+    {  
+      /*
+      Serial.print("Awaiting Command...");
+      Serial.println();
+      */
+      
+      // Waits until a new Bluetooth command is received.
+      ReadTag();
+      do
+      {
+        next=ReceiveCommand(); 
+      }
+      while(next==NULL);
+
+      // Processes Bluetooth commands.
+      switch(next)
+      {
+      case 'F': // The command is "F": Forward 
+        // If a wall is in the way, the robot stops and sends an "NAK" signal.
+        if(digitalRead(FRIline)==LOW && digitalRead(FLIline)==LOW) centered = 0;
+        else centered=1;
+        if(digitalRead(Wall)==LOW)
+        {
+          Serial.print("NAK");
+          Serial.println();
+          Serial.flush();
+          /*
+          Serial.print("Obstacle in the way. Cannot move Forward.");
+          Serial.println();
+          */
+          Motors.stop(); 
+          next=NULL;
+        }
+        else if(centered==0){
+          if(lastTurn==0){
+            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnRight(100);
+            Motors.stop();
+            Serial.print("NAK");
+            Serial.println();
+            Serial.flush();
+            next=NULL;
+            //if(digitalRead(Wall)==HIGH){
+            //    while(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH) Motors.forward(100);
+            //}
+          }
+          else{
+            while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW)Motors.turnLeft(100);
+            Motors.stop();
+            Serial.print("NAK");
+            Serial.println();
+            Serial.flush();
+            next=NULL;
+            //if(digitalRead(Wall)==HIGH){
+            //   while(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH)Motors.forward(100);
+            //}  
+          } 
+        }
+        // If there is no wall, the robot advances (until the next intersection).
+        else
+        {
+          //Serial.print("Command received: Move Forward");
+          //Serial.println();
+          //if(digitalRead(Wall)==HIGH){
+              while(digitalRead(MRline)!=LOW || digitalRead(MLline)!=LOW) Motors.forward(100);
+          //}
+        }
+        lastTime=millis();        
+        break;
+
+      case 'R': // The command is "R": Right
+        /*
+        Serial.print("Command received: Turn Right");
+        Serial.println();
+        */
+        //The robot turns right until a new intersection is reached and sends an "ACK".
+        Motors.turnRight(100);
+        while(digitalRead(FLIline)==HIGH);
+        while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW);
+        Motors.stop();
+        Serial.print("ACK");
+        Serial.println();
+        Serial.flush();
+        lastTurn = 0;
+        lastF = 0;
+        break;
+
+      case 'L': // The command is "L": Left    
+        /*
+        Serial.print("Command received: Turn Left");
+        Serial.println();
+        */
+        //The robot turns left until a new intersection is reached and sends an "ACK".
+        Motors.turnLeft(100);
+        while(digitalRead(FRIline)==HIGH);
+        while(digitalRead(FRIline)==LOW || digitalRead(FLIline)==LOW);
+        Motors.stop();
+        Serial.print("ACK");
+        Serial.println();
+        Serial.flush();
+        lastTurn = 1;
+        lastF = 0;
+        break;
+        
+      case 'S': // The commmand is "S": Read Wall Sensor    
+        // Checks if there is a wall or not. If there is, it sends "True" over BT. Otherwise, it sends "False". 
+        detect=!digitalRead(Wall); //Inverts the value of the sensor because the sensor is logic-low active, but blockly expects a "True" if there is a wall.
+        Motors.stop();
+        Serial.print(detect);
+        Serial.println();
+        Serial.flush();
+        break;
+
+      default:  // If the command is not recognized, the robot stops. 
+        Motors.stop();
+        Serial.print("NAK");
+        Serial.println();
+        Serial.flush();
+        break;
+      }
+    }
+    while(next!='F');  
 }
 
 //-----------------------

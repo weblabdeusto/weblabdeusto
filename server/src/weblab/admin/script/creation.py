@@ -127,6 +127,7 @@ class Creation(object):
     DUMMY_NAME          = 'dummy_name'
     DUMMY_CATEGORY_NAME = 'dummy_category_name'
     DUMMY_COPIES        = 'dummy_copies'
+    DUMMY_SILENT        = 'dummy_silent'
 
     # Visir
     VISIR_SERVER             = 'visir_server'
@@ -539,6 +540,9 @@ def _build_parser():
 
     experiments.add_option("--dummy-copies",           dest = Creation.DUMMY_COPIES, type="int",    default=1,
                                                        help = "You may want to test the load balance among different copies of dummy." )
+
+    experiments.add_option("--dummy-silent",           dest = Creation.DUMMY_SILENT, action="store_true", default=False,
+                                                       help = "Not show the commands sent to the dummy experiment." )
 
     experiments.add_option("--visir", "--visir-server", dest = Creation.VISIR_SERVER, action="store_true", default=False,
                                                        help = "Add a VISIR server to the deployed system. "  )
@@ -1327,7 +1331,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 else:
                     experiment_config = current_lab_process_config['components']['experiment%s' % dummy_id]
                     experiment_config['config'] = {
-                        'dummy_verbose' : True,
+                        'dummy_verbose' : not options[Creation.DUMMY_SILENT],
                     }
 
             if len(experiments_in_lab.get('visir', [])) > 0:

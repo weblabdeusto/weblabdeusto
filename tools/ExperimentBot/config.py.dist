@@ -1,0 +1,15 @@
+
+WEBLAB_BASE_URL = "https://weblab.deusto.es/weblab/"
+
+LOGIN = "tester"
+PASSWORD = "tester"
+
+
+EXP_CATEGORY = "Dummy experiments"
+EXP_NAME = "ud-dummy"
+
+COMMAND = "SetPulse on 1"
+COMMANDS_PER_USER = 5
+NUM_USERS = 100
+TIME_BETWEEN_COMMANDS = 0.5
+

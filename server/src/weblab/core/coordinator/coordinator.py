@@ -522,6 +522,7 @@ class AbstractCoordinator(object):
             self.post_reservation_data_manager.finish(reservation_id, json.dumps(information_to_store))
             try:
                 # and we remove the resource
+                # print "AT CONFIRM_RESOURCE_DISPOSAL"
                 self._release_resource_instance(experiment_instance_id)
             finally:
                 self.finished_store.put(reservation_id, information_to_store, initial_time, end_time)

@@ -102,7 +102,7 @@ class ResourcesManager(object):
     def acquire_resource(self, current_resource):
         weblab_resource_slots = WEBLAB_RESOURCE_SLOTS % current_resource.resource_type
         client = self._redis_maker()
-
+        
         acquired = client.srem(weblab_resource_slots, current_resource.resource_instance) != 0
         return acquired
 
