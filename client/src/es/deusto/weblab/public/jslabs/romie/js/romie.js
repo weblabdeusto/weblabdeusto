@@ -9,10 +9,7 @@ Romie.prototype.forward = function(callback)
 	{
 		this.moving = true;
 		Weblab.sendCommand("F", function(response) {
-			console.log(response);
-			if (response != 'OK')
-				callback(JSON.parse(response));
-
+			if (response != 'OK') callback(JSON.parse(response));
 			this.moving = false;
 		}.bind(this), function(response) {
 			this.moving = false;

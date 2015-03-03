@@ -13,7 +13,6 @@ header
 .movements
 {
 	text-align: left;
-	font-family: digital;
 	font-weight: bold;
 }
 
@@ -24,7 +23,7 @@ header
 
 .controls
 {
-	margin-top: 9em;
+	margin-top: 5em;
 }
 
 .camera1, .camera2
@@ -45,6 +44,7 @@ header
 .camera2 p
 {
 	width: 240px;
+	height: 195px;
 	text-align: center;
 	margin: auto;
 }
@@ -66,7 +66,8 @@ header
 	font-weight: bold;
 	font-size: 1.25em;
 	color: #FFFFFF;
-	margin-top: -150px;
+	margin-top: -195px;
+	padding-top: 2em;
 }
 
 .active
@@ -79,7 +80,8 @@ header
 	font-weight: bold;
 	font-size: 1.25em;
 	color: #FFFFFF;
-	margin-top: -150px;
+	margin-top: -195px;
+	padding-top: 4em;
 }
 
 .active p.inactive

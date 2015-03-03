@@ -22,158 +22,189 @@ import urllib2
 import json
 import random
 import sqlite3
+import time
 
-DEBUG = True
+# Actually defined through the configuration.
+DEBUG = None
 ROMIE_SERVER = "http://192.168.0.190:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
 
-	def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-		super(RoMIExperiment, self).__init__(*args, **kwargs)
-		self._cfg_manager = cfg_manager
-		self.read_base_config()
+    def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+        super(RoMIExperiment, self).__init__(*args, **kwargs)
+        self._cfg_manager = cfg_manager
+        self.read_base_config()
 
-	def read_base_config(self):
-		"""
-		Reads the base config parameters from the config file.
-		"""
+    def read_base_config(self):
+        """
+        Reads the base config parameters from the config file.
+        """
 
-		self.database = self._cfg_manager.get_value('romie_sqlite')
+        self.database = self._cfg_manager.get_value('romie_sqlite')
 
-	@Override(Experiment.Experiment)
-	@logged("info")
-	def do_get_api(self):
-		return "2"
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_get_api(self):
+        return "2"
 
-	@Override(Experiment.Experiment)
-	@logged("info")
-	def do_start_experiment(self, client_initial_data, server_initial_data):
-		"""
-		Callback run when the experiment is started.
-		"""
-		if(DEBUG):
-			print "[RoMIE] do_start_experiment called"
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_start_experiment(self, client_initial_data, server_initial_data):
+        """
+        Callback run when the experiment is started.
+        """
+        if(DEBUG):
+            print "[RoMIE] do_start_experiment called"
 
-		data = json.loads(server_initial_data)
-		self.username = data['request.username']
-		self.question = {}
-		self.points = 0
-		self.last_tag = ''
-		self.questions = self._cfg_manager.get_value('questions')
+        data = json.loads(server_initial_data)
+        self.username = data['request.username']
+        self.questions = self._cfg_manager.get_value('questions')[:]
+        self.question = {}
+        self.q_difficulty = 0
+        self.points = 0
+        self.last_tag = ''
+        self.finish_time = 0
+        self.last_correct = 0
 
-		return ""
+        return ""
 
-	@Override(Experiment.Experiment)
-	@logged("info")
-	def do_send_command_to_device(self, command):
-		"""
-		Callback run when the client sends a command to the experiment
-		@param command Command sent by the client, as a string.
-		"""
-		if(DEBUG):
-			print "[RoMIE] Command received: %s" % command
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_send_command_to_device(self, command):
+        """
+        Callback run when the client sends a command to the experiment
+        @param command Command sent by the client, as a string.
+        """
+        if(DEBUG):
+            print "[RoMIE] Command received: %s" % command
 
-		global ROMIE_SERVER
+        global ROMIE_SERVER
 
-		if command == 'F':
-			tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
-			if tag.startswith('Tag') and tag != self.last_tag:
+        if command == 'F':
+            tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
+            if tag.startswith('Tag') and tag != self.last_tag:
 
-				self.last_tag = tag
+                self.last_tag = tag
 
-				questions = self.questions[int(self.points/150)];
-				question_nr = random.randint(0, len(questions)-1)
-				self.question = questions[question_nr]
+                self.q_difficulty = int(self.points/65000)
+                if self.q_difficulty > 10:
+                    self.q_difficulty = 10
 
-				response_question = {
-					'question': self.question['question'],
-					'answers': self.question['answers'],
-					'points': self.question['points'],
-					'time': self.question['time']
-				}
+                index = random.randint(0, len(self.questions[self.q_difficulty])-1)
+                self.question = self.questions[self.q_difficulty][index]
 
-				return json.dumps(response_question)
-			else:
-				return 'OK'
-		elif command == 'L':
-			return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
-		elif command == 'R':
-			return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
-		elif command.startswith("ANSWER"):
+                response_question = {
+                    'question': self.question['question'],
+                    'answers': self.question['answers']
+                }
 
-			response = int(command.split()[1])
-			correct = self.question['correct'] == response
+                return json.dumps(response_question)
+            else:
+                return 'OK'
+        elif command == 'L':
+            return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
+        elif command == 'R':
+            return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
+        elif command.startswith("ANSWER"):
 
-			if correct:
-				self.points += self.question['points']
-				self.update_points()
-				self.question = {}
+            response = int(command.split()[1])
+            correct = self.question['correct'] == response
 
-			return correct
+            if correct:
+                time_bonus = 30-(time.time()-self.last_correct)
+                bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
+                self.last_correct = time.time()
+                self.points += self.question['points']*bonus
+                self.finish_time += self.question['time']*bonus
+                self.update_points()
+                self.questions[self.q_difficulty].remove(self.question)
+                self.question = {}
 
-		elif command == 'CHECK_REGISTER':
-			conn = sqlite3.connect(self.database)
-			cur = conn.cursor()
+            return json.dumps({"correct": correct, "points": self.points, "finish_time": self.finish_time})
 
-			cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
-			count = cur.fetchone()[0]
+        elif command == 'CHECK_REGISTER':
+            conn = sqlite3.connect(self.database)
+            cur = conn.cursor()
 
-			result = ''
-			if count == 0:
-				result = 'REGISTER'
+            cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
+            count = cur.fetchone()[0]
 
-			conn.close()
+            result = ''
+            if count == 0:
+                result = 'REGISTER'
+            else:
+                self.update_points()
+                self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+                result = self.finish_time
 
-			return result
+            conn.close()
 
-		elif command.startswith('REGISTER'):
-			data = json.loads(command.split(' ', 1)[1])
+            return result
 
-			conn = sqlite3.connect(self.database)
-			conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
-				(self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
-			conn.commit()
-			conn.close()
+        elif command.startswith('REGISTER'):
+            data = json.loads(command.split(' ', 1)[1])
 
-			return 'OK'
+            if (self.email_exists(data["email"])):
+                return 'ERROR EMAIL'
 
-		elif command == 'FINISH':
+            conn = sqlite3.connect(self.database)
+            conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
+                (self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
+            conn.commit()
+            conn.close()
 
-			conn = sqlite3.connect(self.database)
-			conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (command[1], self.username,))
+            self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 
-			cur = conn.cursor()
-			cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
-			result = cur.fetchall()
-			ranking = list()
+            return self.finish_time
 
-			for user in result:
-				current = (user[0] == self.username)
-				ranking.append({"name":user[1], "surname":user[2], "school":user[3], "points":user[4], "current":current})
+        elif command == 'FINISH':
 
-			conn.commit()
-			conn.close()
+            conn = sqlite3.connect(self.database)
+            conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
 
-			return json.dumps(ranking)
+            cur = conn.cursor()
+            cur.execute("SELECT username, name, surname, school, points FROM forotech ORDER BY points DESC LIMIT 10")
+            result = cur.fetchall()
+            ranking = list()
 
-		return "OK"
+            for user in result:
+                current = (user[0] == self.username)
+                ranking.append({"name":user[1], "surname":user[2], "school":user[3], "points":user[4], "current":current})
 
-	@Override(Experiment.Experiment)
-	@logged("info")
-	def do_dispose(self):
-		"""
-		Callback to perform cleaning after the experiment ends.
-		"""
-		if(DEBUG):
-			print "[RoMIE] do_dispose called"
+            conn.commit()
+            conn.close()
+            return json.dumps(ranking)
 
-		return "OK"
+        return "ERROR"
 
-	def update_points(self):
-		"""
-		Add points in the database
-		"""
-		conn = sqlite3.connect(self.database)
-		conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
-		conn.commit()
-		conn.close()
+    @Override(Experiment.Experiment)
+    @logged("info")
+    def do_dispose(self):
+        """
+        Callback to perform cleaning after the experiment ends.
+        """
+        if(DEBUG):
+            print "[RoMIE] do_dispose called"
+
+        return "OK"
+
+    def update_points(self):
+        """
+        Update points in the database
+        """
+        conn = sqlite3.connect(self.database)
+        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+        conn.commit()
+        conn.close()
+
+    def email_exists(self, email):
+        """
+        Check if email is already registered
+        """
+        conn = sqlite3.connect(self.database)
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM forotech WHERE email = ?", (email,));
+        count = cur.fetchone()[0]
+        conn.close()
+
+        return count > 0
