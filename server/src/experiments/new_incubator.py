@@ -83,7 +83,7 @@ class NewIncubatorExperiment(Experiment.Experiment):
 
             return self.lightStatus
         elif command == 'DATA':
-            if (self.lastCheck < (time.time()-2))
+            if (self.lastCheck < (time.time()-2)):
                 self.data = json.loads(urllib2.urlopen("%sdata" % self.server).read())
             return json.dumps(self.data)
 
