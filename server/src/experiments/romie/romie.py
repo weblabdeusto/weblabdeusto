@@ -23,10 +23,10 @@ import json
 import random
 import sqlite3
 import time
+import copy
 
 # Actually defined through the configuration.
 DEBUG = None
-ROMIE_SERVER = "http://192.168.0.190:8000/"
 
 class RoMIExperiment(Experiment.Experiment):
 
@@ -58,7 +58,8 @@ class RoMIExperiment(Experiment.Experiment):
 
         data = json.loads(server_initial_data)
         self.username = data['request.username']
-        self.questions = self._cfg_manager.get_value('questions')
+        self.server = self._cfg_manager.get_value('romie_server')
+        self.questions = copy.deepcopy(self._cfg_manager.get_value('questions'))
         self.question = {}
         self.q_difficulty = 0
         self.points = 0
@@ -78,15 +79,13 @@ class RoMIExperiment(Experiment.Experiment):
         if(DEBUG):
             print "[RoMIE] Command received: %s" % command
 
-        global ROMIE_SERVER
-
         if command == 'F':
-            tag = urllib2.urlopen("%sf" % ROMIE_SERVER).read()
+            tag = urllib2.urlopen("%sf" % self.server).read()
             if tag.startswith('Tag') and tag != self.last_tag:
 
                 self.last_tag = tag
 
-                self.q_difficulty = int(self.points/85000)
+                self.q_difficulty = int(self.points/65000)
                 if self.q_difficulty > 10:
                     self.q_difficulty = 10
 
@@ -102,9 +101,9 @@ class RoMIExperiment(Experiment.Experiment):
             else:
                 return 'OK'
         elif command == 'L':
-            return urllib2.urlopen("%sl" % ROMIE_SERVER).read()
+            return urllib2.urlopen("%sl" % self.server).read()
         elif command == 'R':
-            return urllib2.urlopen("%sr" % ROMIE_SERVER).read()
+            return urllib2.urlopen("%sr" % self.server).read()
         elif command.startswith("ANSWER"):
 
             response = int(command.split()[1])
@@ -112,7 +111,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             if correct:
                 time_bonus = 30-(time.time()-self.last_correct)
-                bonus = (self.q_difficulty/10)*(time_bonus/5 if time_bonus > 5 else 1)
+                bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
                 self.last_correct = time.time()
                 self.points += self.question['points']*bonus
                 self.finish_time += self.question['time']*bonus
@@ -193,8 +192,15 @@ class RoMIExperiment(Experiment.Experiment):
         Update points in the database
         """
         conn = sqlite3.connect(self.database)
-        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
-        conn.commit()
+
+        cur = conn.cursor()
+        cur.execute('SELECT points FROM forotech WHERE username = ?', (self.username,))
+        points = cur.fetchone()[0]
+
+        if (points < self.points):
+	        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+	        conn.commit()
+
         conn.close()
 
     def email_exists(self, email):
