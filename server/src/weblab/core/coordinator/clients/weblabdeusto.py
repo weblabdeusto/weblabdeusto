@@ -31,6 +31,12 @@ class WebLabDeustoClient(object):
     CORE_SUFFIX  = 'json/'
 
     def __init__(self, baseurl):
+        """
+        Creates a WebLabDeustoClient.
+        :param baseurl: The base URL of the instance to check against. An example would be: https://weblab.deusto.es/weblab/
+        This is essentially the URL to which '/json' will be appended to carry out the actual queries.
+        :return:
+        """
         self.baseurl         = baseurl
         self.weblabsessionid = "(not set)"
 
