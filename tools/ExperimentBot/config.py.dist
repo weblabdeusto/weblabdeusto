@@ -6,10 +6,10 @@ PASSWORD = "tester"
 
 
 EXP_CATEGORY = "Dummy experiments"
-EXP_NAME = "ud-dummys"
+EXP_NAME = "ud-dummy"
 
 COMMAND = "SetPulse on 1"
-COMMANDS_PER_USER = 30
-NUM_USERS = 20
-TIME_BETWEEN_COMMANDS = 2
+COMMANDS_PER_USER = 5
+NUM_USERS = 100
+TIME_BETWEEN_COMMANDS = 0.5
 

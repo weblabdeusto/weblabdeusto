@@ -36,6 +36,8 @@ def main():
         else:
             break
 
+    print "GOING OUT."
+
 
 def do_full_experiment_use():
     """
@@ -59,11 +61,11 @@ def do_full_experiment_use():
         # print "Reservation status: %r" % status
 
         if type(status) is WaitingReservation:
-            time.sleep(1)
+            time.sleep(0.5)
         elif type(status) is ConfirmedReservation:
             break
         elif type(status) is WaitingConfirmationReservation:
-            time.sleep(1)
+            time.sleep(0.5)
         else:
             print "Unknown reservation status."
 
@@ -78,6 +80,8 @@ def do_full_experiment_use():
         # What's commandstring actually for??
         cmd = Command(config.COMMAND)
         result = wc.send_command(reservation_id, cmd)
+        if not result.commandstring.startswith("Received command"):
+            raise Exception("Unrecognized command response")
         # print "Command result: %r" % result
         time.sleep(config.TIME_BETWEEN_COMMANDS)
 
