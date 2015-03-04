@@ -34,7 +34,7 @@ def check_archimedes(experiment_url, user, password):
 
     # Initialize the driver
 
-    if True and not os.environ.get("SELENIUM_NON_HEADLESS"):
+    if False and not os.environ.get("SELENIUM_NON_HEADLESS"):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         # dcap["phantomjs.page.settings.userAgent"] = (
         #     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
@@ -43,7 +43,7 @@ def check_archimedes(experiment_url, user, password):
         # dcap["phantomjs.page.customHeaders"] = {
         #     "Accept-Language": "en-US,en;q=0.5"
         # }
-        driver = webdriver.PhantomJS("phantomjs", desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no", "--remote-debugger-port=6500"])
+        driver = webdriver.PhantomJS("phantomjs", desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=tlsv1", "--web-security=no", "--remote-debugger-port=6500"])
     else:
         profile = FirefoxProfile()
         profile.set_preference("intl.accept_languages", "en")
@@ -57,7 +57,7 @@ def check_archimedes(experiment_url, user, password):
     try:
 
         # Login
-        driver.get("""http://weblab.deusto.es/weblab/web/webclient/""")
+        driver.get("""https://weblab.deusto.es/weblab/web/webclient/""")
 
         time.sleep(1)
 
@@ -143,7 +143,7 @@ def check_archimedes(experiment_url, user, password):
 
 
 if __name__ == "__main__":
-    url = "http://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes"
+    url = "https://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes"
     import config
 
     user = config.WEBLAB_USER
