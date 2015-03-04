@@ -31,6 +31,7 @@ import sys
 import glob
 import test
 import time
+import codecs
 import getpass
 import unittest
 import urllib2
@@ -198,13 +199,13 @@ def check_unused_exceptions(exceptions_folder, source_folders):
 
     exceptions = {}
     for exc_file in exception_files:
-        for line in open(exc_file):
+        for line in codecs.open(exc_file, encoding = 'utf-8'):
             if line.startswith('class '):
                 classname = line.split(' ')[1].split('(')[0].strip()
                 exceptions[classname] = [0, exc_file]
 
     for exc_file in exception_files + source_files:
-        content = open(exc_file).read()
+        content = codecs.open(exc_file, encoding = 'utf-8').read()
 
         to_remove = []
         for exception in exceptions:

@@ -255,7 +255,7 @@ class PriorityQueueScheduler(Scheduler):
                 remaining = (before + obtained_time) - self.time_provider.get_time()
             else:
                 remaining = obtained_time
-
+            
             return WSS.LocalReservedStatus(reservation_id_with_route, lab_coord_address, SessionId.SessionId(lab_session_id), exp_info, obtained_time, initial_configuration, timestamp_before, timestamp_after, initialization_in_accounting, remaining, self.core_server_url)
 
         # else it's waiting
@@ -362,7 +362,8 @@ class PriorityQueueScheduler(Scheduler):
                         resource_instance       = Resource.parse(resource_instance_str)
                         weblab_resource_pqueue_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (resource_instance.resource_type, resource_instance.resource_instance)
                         client.srem(weblab_resource_pqueue_instance_reservations, reservation_id)
-                        self.resources_manager.release_resource(resource_instance)
+                        # print "RELEASING AT _clean_current_reservation. SHOULD NEVER HAPPEN."
+                        # self.resources_manager.release_resource(resource_instance)
                         lab_session_id          = reservation_data.get(LAB_SESSION_ID)
                         experiment_instance_str = reservation_data.get(EXPERIMENT_INSTANCE)
                         experiment_instance_id  = ExperimentInstanceId.parse(experiment_instance_str)
@@ -466,6 +467,7 @@ class PriorityQueueScheduler(Scheduler):
                     break
 
                 acquired = self.resources_manager.acquire_resource(free_instance)
+                # print "ACQUIRED", free_instance, acquired, time.time()
                 if not acquired:
                     # the instance has been acquired by someone else. unconfirm student and
                     # try again with other free_instance
