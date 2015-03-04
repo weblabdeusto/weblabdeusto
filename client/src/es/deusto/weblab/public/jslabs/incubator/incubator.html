@@ -26,8 +26,8 @@
 				updateData = function() {
 					Weblab.sendCommand("DATA", function(response) {
 						data = JSON.parse(response);
-						$('#temperature span').text(data["temperature"]+"ºC");
-						$('#humidity span').text(data["humidity"]+"%");
+						$('#temperature span').text(Math.floor(data["temperature"], 2)+"ºC");
+						$('#humidity span').text(Math.floor(data["humidity"], 2)+"%");
 
 						setTimeout(updateData, 2000);
 					});
@@ -37,6 +37,14 @@
 					d = new Date();
 					$('#camera').attr("src", "http://www.weblab.deusto.es/webcam/proxied.py/incubator1?"+d.getTime());
 				}
+
+				$('#light_on').click(function() {
+					Weblab.sendCommand('L_ON');
+				});
+
+				$('#light_off').click(function() {
+					Weblab.sendCommand('L_OFF');
+				});
 
 				$('#camera').on("load", function(){setTimeout(updateCam, 400)});
 				updateCam();
