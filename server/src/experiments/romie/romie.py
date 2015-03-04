@@ -158,9 +158,9 @@ class RoMIExperiment(Experiment.Experiment):
 
         elif command == 'FINISH':
 
-            conn = sqlite3.connect(self.database)
-            conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+            self.update_points()
 
+            conn = sqlite3.connect(self.database)
             cur = conn.cursor()
             cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech%" ORDER BY points DESC LIMIT 10')
             result = cur.fetchall()
@@ -198,8 +198,8 @@ class RoMIExperiment(Experiment.Experiment):
         points = cur.fetchone()[0]
 
         if (points < self.points):
-	        conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
-	        conn.commit()
+            conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+            conn.commit()
 
         conn.close()
 
