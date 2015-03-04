@@ -20,6 +20,15 @@ def _wait_by_css(driver, css):
             time.sleep(0.5)
 
 
+def read_weights(driver):
+    weights = []
+    weight_elements = driver.find_elements_by_xpath("//td[text()='Ball Weight']/following-sibling::td")
+    for w in weight_elements:
+        text = w.text
+        grams = float(text.split(" ")[0])
+        weights.append(grams)
+    return weights
+
 @celery_app.task(name="check.archimedes")
 def check_archimedes(experiment_url, user, password):
     """
@@ -34,7 +43,7 @@ def check_archimedes(experiment_url, user, password):
 
     # Initialize the driver
 
-    if False and not os.environ.get("SELENIUM_NON_HEADLESS"):
+    if True and not os.environ.get("SELENIUM_NON_HEADLESS"):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         # dcap["phantomjs.page.settings.userAgent"] = (
         #     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
@@ -83,12 +92,6 @@ def check_archimedes(experiment_url, user, password):
         archimedes.click()
 
         # Reserve can take a long while if there is a queue.
-        # _wait_by_css(driver, "#wlframe")
-
-        # ONLY FOR OLD WEBLAB CLIENT Switch to the iframe context.
-        # frame = driver.find_element_by_css_selector("#wlframe")
-        # driver.switch_to.frame(frame)
-
         # Wait a while for the frame to load. For now, in seconds.
         _wait_by_css(driver, "img.arch-control")
 
@@ -109,6 +112,11 @@ def check_archimedes(experiment_url, user, password):
             bn = os.path.basename(up.get_attribute("src"))
             if bn != "up.png": raise CheckException("Button is not disabled (basename: %s)" % bn)
 
+        # Read the reported weights
+        initial_weights = read_weights(driver)
+        print "INITIAL WEIGHTS: %r" % initial_weights
+
+
         # Lower each ball
         for i in range(7):
             down = buttons[2+i*4]
@@ -125,6 +133,25 @@ def check_archimedes(experiment_url, user, password):
             if os.path.basename(down.get_attribute("src")) != "down.png": raise CheckException("Down button not disabled after lowering ball (instance %d)" % i)
             up.click()
 
+        lowered_weights = read_weights(driver)
+        print "LOWERED_WEIGHTS: %r" % lowered_weights
+
+        # Check whether they were indeed lowered right.
+        evaluated_weights = []
+        for i in range(len(lowered_weights)):
+            w0 = initial_weights[i]
+            wf = lowered_weights[i]
+            r = wf/w0
+            diff = w0-wf
+            if diff > 20 or r < 0.8:
+                # Valid change
+                evaluated_weights.append(True)
+            else:
+                # Something is wrong
+                evaluated_weights.append(False)
+
+        print "EVALUATED WEIGHTS: %r" % evaluated_weights
+
         time.sleep(7)
         for i in range(7):
             down = buttons[2+i*4]
@@ -132,6 +159,29 @@ def check_archimedes(experiment_url, user, password):
             # Check that it was re-raised properly.
             if os.path.basename(up.get_attribute("src")) != "up.png": raise CheckException("Up button not disabled after raising ball again (instance %d)" % i)
             if os.path.basename(down.get_attribute("src")) != "down_green.png": raise CheckException("Down button not enabled after raising ball again (instance %d)" % i)
+
+        time.sleep(2)
+
+        # Check whether they were raised right again.
+        raised_weights = read_weights(driver)
+        print "RAISED_WEIGHTS: %r" % raised_weights
+
+        # Check whether they were indeed lowered right.
+        evaluated_weights = []
+        for i in range(len(lowered_weights)):
+            w0 = lowered_weights[i]
+            wf = raised_weights[i]
+            r = w0/wf
+            diff = wf-w0
+            if diff > 20 or r < 0.8:
+                # Valid change
+                evaluated_weights.append(True)
+            else:
+                # Something is wrong
+                evaluated_weights.append(False)
+
+        print "EVALUATED WEIGHTS (after raising): %r" % evaluated_weights
+
 
         print "[ARCHIMEDES]: Everything seems all right"
 
