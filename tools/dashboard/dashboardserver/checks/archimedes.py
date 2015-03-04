@@ -43,7 +43,7 @@ def check_archimedes(experiment_url, user, password):
         # dcap["phantomjs.page.customHeaders"] = {
         #     "Accept-Language": "en-US,en;q=0.5"
         # }
-        driver = webdriver.PhantomJS(desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no", "--remote-debugger-port=6500"])
+        driver = webdriver.PhantomJS("phantomjs", desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=any", "--web-security=no", "--remote-debugger-port=6500"])
     else:
         profile = FirefoxProfile()
         profile.set_preference("intl.accept_languages", "en")
@@ -57,7 +57,7 @@ def check_archimedes(experiment_url, user, password):
     try:
 
         # Login
-        driver.get("""https://weblab.deusto.es/weblab/web/webclient/""")
+        driver.get("""http://weblab.deusto.es/weblab/web/webclient/""")
 
         time.sleep(1)
 
@@ -69,6 +69,8 @@ def check_archimedes(experiment_url, user, password):
         loginButton = driver.find_element_by_id("login")
         if "Log in" not in loginButton.get_attribute("value"): raise CheckException("Log in button not found")
         loginButton.click()
+
+        time.sleep(2)
 
         # Go to the actual experiment
         driver.get(base_url)
@@ -141,7 +143,7 @@ def check_archimedes(experiment_url, user, password):
 
 
 if __name__ == "__main__":
-    url = "https://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes"
+    url = "http://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes"
     import config
 
     user = config.WEBLAB_USER
