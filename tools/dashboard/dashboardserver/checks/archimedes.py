@@ -1,7 +1,7 @@
 import os
 from selenium import webdriver
 from selenium.webdriver import FirefoxProfile, DesiredCapabilities
-from checks import celery_app, CheckException
+from checks import celery_app, CheckException, report, TASK_STATE
 import time
 
 
@@ -29,30 +29,38 @@ def read_weights(driver):
         weights.append(grams)
     return weights
 
+
 @celery_app.task(name="check.archimedes")
-def check_archimedes(experiment_url, user, password):
+def check_archimedes(check_id, headless, experiment_url, user, password, msg):
     """
     This is currently not working on PhantomJS due to its use of an old Qt-related JS core which
     does not have function.Prototype.bind.
     There may be some workarounds.
+    :param check_id: Identifier for the check. In this particular check, several sub-checks will be reported.
+    :param headless: If True the selenium test will use PhantomJS and thus be invisible.
     :param experiment_url:
     :param user:
     :param password:
+    :param msg: Msg to display for the full check.
     :return:
     """
 
+    report(TASK_STATE.RUNNING, "%s" % (check_id), msg, "OK")
+
     # Initialize the driver
 
-    if True and not os.environ.get("SELENIUM_NON_HEADLESS"):
+    if headless:
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         # dcap["phantomjs.page.settings.userAgent"] = (
-        #     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
+        # "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 "
         #     "(KHTML, like Gecko) Chrome/30.0.87"
         # )
         # dcap["phantomjs.page.customHeaders"] = {
         #     "Accept-Language": "en-US,en;q=0.5"
         # }
-        driver = webdriver.PhantomJS("phantomjs", desired_capabilities=dcap, service_args=["--ignore-ssl-errors=true", "--ssl-protocol=tlsv1", "--web-security=no", "--remote-debugger-port=6500"])
+        driver = webdriver.PhantomJS("phantomjs", desired_capabilities=dcap,
+                                     service_args=["--ignore-ssl-errors=true", "--ssl-protocol=tlsv1",
+                                                   "--web-security=no", "--remote-debugger-port=6500"])
     else:
         profile = FirefoxProfile()
         profile.set_preference("intl.accept_languages", "en")
@@ -86,7 +94,6 @@ def check_archimedes(experiment_url, user, password):
 
         print "[We are in the experiment reserve screen]"
 
-
         archimedes = driver.find_element_by_id("reserve-free-btn")
 
         archimedes.click()
@@ -108,7 +115,7 @@ def check_archimedes(experiment_url, user, password):
 
         # Check that the up buttons are all disabled
         for i in range(7):
-            up = buttons[0+i*4]
+            up = buttons[0 + i * 4]
             bn = os.path.basename(up.get_attribute("src"))
             if bn != "up.png": raise CheckException("Button is not disabled (basename: %s)" % bn)
 
@@ -119,18 +126,20 @@ def check_archimedes(experiment_url, user, password):
 
         # Lower each ball
         for i in range(7):
-            down = buttons[2+i*4]
-            up = buttons[0+i*4]
+            down = buttons[2 + i * 4]
+            up = buttons[0 + i * 4]
             down.click()
 
         time.sleep(7)
         for i in range(7):
-            down = buttons[2+i*4]
-            up = buttons[0+i*4]
+            down = buttons[2 + i * 4]
+            up = buttons[0 + i * 4]
 
             # Check that indeed the ball was apparently lowered and raise again.
-            if os.path.basename(up.get_attribute("src")) != "up_green.png": raise CheckException("Up button not enabled after lowering ball (instance %d)" % i)
-            if os.path.basename(down.get_attribute("src")) != "down.png": raise CheckException("Down button not disabled after lowering ball (instance %d)" % i)
+            if os.path.basename(up.get_attribute("src")) != "up_green.png": raise CheckException(
+                "Up button not enabled after lowering ball (instance %d)" % i)
+            if os.path.basename(down.get_attribute("src")) != "down.png": raise CheckException(
+                "Down button not disabled after lowering ball (instance %d)" % i)
             up.click()
 
         lowered_weights = read_weights(driver)
@@ -141,8 +150,8 @@ def check_archimedes(experiment_url, user, password):
         for i in range(len(lowered_weights)):
             w0 = initial_weights[i]
             wf = lowered_weights[i]
-            r = wf/w0
-            diff = w0-wf
+            r = wf / w0
+            diff = w0 - wf
             if diff > 20 or r < 0.8:
                 # Valid change
                 evaluated_weights.append(True)
@@ -152,13 +161,26 @@ def check_archimedes(experiment_url, user, password):
 
         print "EVALUATED WEIGHTS: %r" % evaluated_weights
 
+        i = 0
+        for eval in evaluated_weights:
+            if eval:
+                result = "OK"
+            else:
+                result = "FAIL"
+
+            report(TASK_STATE.FINISHED, "%s>lower-%d" % (check_id, i), "Instance %d: Lowering ball and measuring" % (i),
+                   result)
+            i += 1
+
         time.sleep(7)
         for i in range(7):
-            down = buttons[2+i*4]
-            up = buttons[0+i*4]
+            down = buttons[2 + i * 4]
+            up = buttons[0 + i * 4]
             # Check that it was re-raised properly.
-            if os.path.basename(up.get_attribute("src")) != "up.png": raise CheckException("Up button not disabled after raising ball again (instance %d)" % i)
-            if os.path.basename(down.get_attribute("src")) != "down_green.png": raise CheckException("Down button not enabled after raising ball again (instance %d)" % i)
+            if os.path.basename(up.get_attribute("src")) != "up.png": raise CheckException(
+                "Up button not disabled after raising ball again (instance %d)" % i)
+            if os.path.basename(down.get_attribute("src")) != "down_green.png": raise CheckException(
+                "Down button not enabled after raising ball again (instance %d)" % i)
 
         time.sleep(2)
 
@@ -171,8 +193,8 @@ def check_archimedes(experiment_url, user, password):
         for i in range(len(lowered_weights)):
             w0 = lowered_weights[i]
             wf = raised_weights[i]
-            r = w0/wf
-            diff = wf-w0
+            r = w0 / wf
+            diff = wf - w0
             if diff > 20 or r < 0.8:
                 # Valid change
                 evaluated_weights.append(True)
@@ -182,11 +204,25 @@ def check_archimedes(experiment_url, user, password):
 
         print "EVALUATED WEIGHTS (after raising): %r" % evaluated_weights
 
+        i = 0
+        for eval in evaluated_weights:
+            if eval:
+                result = "OK"
+            else:
+                result = "FAIL"
+
+            report(TASK_STATE.FINISHED, "%s>raise-%d" % (check_id, i), "Instance %d: Raising ball and measuring" % (i),
+                   result)
+            i += 1
 
         print "[ARCHIMEDES]: Everything seems all right"
 
+        report(TASK_STATE.FINISHED, "%s" % (check_id), msg, "OK")
+
     except:
         driver.save_screenshot("out.png")
+        print "[ARCHIMEDES]: Thorough archimedes test threw an exception"
+        report(TASK_STATE.FINISHED, check_id, msg, "FAIL")
         raise
 
     driver.close()
@@ -199,6 +235,8 @@ if __name__ == "__main__":
     user = config.WEBLAB_USER
     password = config.WEBLAB_PASSWORD
 
-    check_archimedes(url, user, password)
+    check_id = "arch_thorough"
+
+    check_archimedes(check_id, True, url, user, password, "Thorough archimedes test")
 
 
