@@ -52,8 +52,6 @@ class NewIncubatorExperiment(Experiment.Experiment):
         if(DEBUG):
             print "[Incubator] do_start_experiment called"
 
-        self.lightStatus = urllib2.urlopen("%slstatus" % self.server).read() == 'ON'
-        self.lightStatus = False
         self.lastCheck = time.time()
         self.lastLight = 0
         self.data = {}
@@ -81,16 +79,13 @@ class NewIncubatorExperiment(Experiment.Experiment):
             if (self.lastLight < (time.time()-10)):
                 self.lightStatus = True
                 self.lastLight = time.time()
-                urllib2.urlopen("%slon" % self.server).read()
+                urllib2.urlopen("%sloff" % self.server).read()
 
             return self.lightStatus
         elif command == 'DATA':
             if (self.lastCheck < (time.time()-2)):
                 self.data = json.loads(urllib2.urlopen("%sdata" % self.server).read())
             return json.dumps(self.data)
-
-        elif command == 'LIGHT_STATUS':
-            return self.lightStatus
 
         return "ERROR"
 
