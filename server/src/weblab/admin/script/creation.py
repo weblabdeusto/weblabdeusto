@@ -1780,9 +1780,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                'exp_host',\n"""
         """                (\n""")
         if options[Creation.SOCKET_WAIT]:
-            xml_launch_script += ("""                Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT] + 1)
+            xmlrpc_launch_script += ("""                Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT] + 1)
         else:
-            xml_launch_script += ("""                Launcher.SignalWait(signal.SIGTERM),\n"""
+            xmlrpc_launch_script += ("""                Launcher.SignalWait(signal.SIGTERM),\n"""
                               """                Launcher.SignalWait(signal.SIGINT),\n"""
                               """                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n""")
         xmlrpc_launch_script += ("""                ),\n"""

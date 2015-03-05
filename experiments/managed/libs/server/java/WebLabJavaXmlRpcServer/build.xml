@@ -24,7 +24,7 @@
     <target name="build">
         <mkdir dir="bin"/>
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac debug="true" destdir="bin" source="1.4" target="1.4">
+        <javac debug="true" destdir="bin" source="6" target="6">
             <src path="src"/>
             <classpath refid="WebLabXmlRpcServer.classpath"/>
         </javac>
