@@ -18,15 +18,15 @@ angular.module 'dashboardappApp'
       # Gets an icon class which is appropriate for the specified status.
       scope.getIconForStatus = (status) ->
         if status == 'OK'
-          return "fa fa-check"
+          return "fa fa-check icon-green"
         else if status == 'WARNING'
-          return "fa fa-warning"
+          return "fa fa-warning icon-red"
         else if status == 'ERROR'
-          return "fa fa-remove"
+          return "fa fa-remove icon-red"
         else if status == 'FAIL'
-          return "fa fa-remove"
+          return "fa fa-remove icon-red"
         else if status == undefined
-          return "fa fa-question"
+          return "fa fa-question icon-red"
 
       # Converts the given string to a Date object.
       scope.dateStrToDate = (date) ->

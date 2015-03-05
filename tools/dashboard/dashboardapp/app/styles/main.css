@@ -5,6 +5,14 @@ body {
 }
 
 
+.icon-green {
+    color: #00CC00;
+}
+
+.icon-red {
+    color: #CC0000;
+}
+
 
 .my-component-date {
     min-width: 100px;
