@@ -70,9 +70,12 @@ function register() {
 					} else {
 						time = parseFloat(response);
 						$('#register').modal('hide');
+						registering = false;
 						init(time);
 					}
 				});
+			} else {
+				registering = false;
 			}
 		}
 	});
