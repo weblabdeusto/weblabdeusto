@@ -90,7 +90,7 @@ CELERYBEAT_SCHEDULE = {
 
     # Archimedes thorough test
     'arthorough': {
-        'task': 'check.check_archimedes',
+        'task': 'check.archimedes',
         'schedule': timedelta(minutes=90),
         'args': ('archimedes.thorough', True,
                  "https://weblab.deusto.es/weblab/web/webclient/lab.html?category=Aquatic+experiments&type=js&name=archimedes",

@@ -15,7 +15,7 @@ angular.module('dashboardappApp')
       'Karma'
     ]
 
-    Components = $resource('/status')
+    Components = $resource('../status')
     $scope.components = Components.get ( (data) ->
       console.log "[/status]: Components obtained."
     ), ( ->
