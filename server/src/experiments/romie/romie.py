@@ -162,7 +162,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             conn = sqlite3.connect(self.database)
             cur = conn.cursor()
-            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech%" ORDER BY points DESC LIMIT 10')
+            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech%" AND username != "forotech.demo" ORDER BY points DESC LIMIT 10')
             result = cur.fetchall()
             ranking = list()
 

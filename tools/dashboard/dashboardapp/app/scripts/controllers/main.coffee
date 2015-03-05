@@ -15,19 +15,27 @@ angular.module('dashboardappApp')
       'Karma'
     ]
 
-    Components = $resource('/status')
+    Components = $resource('../status')
     $scope.components = Components.get ( (data) ->
       console.log "[/status]: Components obtained."
+      $scope.componentsReceived()
     ), ( ->
       console.error "[/status]: Error obtaining components: Trying test URL."
 
       Components = $resource('http://localhost:5000/status')
       $scope.components = Components.get ( (data) ->
         console.log "[/status]: Components obtained (from localhost server)"
+        $scope.componentsReceived()
       ), ( ->
         console.error "[/status]: Error obtaining components from localhost."
       )
     )
+
+
+    $scope.componentsReceived = ->
+      console.log "Components received"
+      console.log $scope.components
+
 
 #    $scope.components =
 #    archimedes1:

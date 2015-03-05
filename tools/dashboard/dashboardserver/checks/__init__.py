@@ -4,9 +4,8 @@ import requests
 import redis
 from celery import Celery
 
-celery_app = Celery('tasks', broker='redis://')
-
-r = redis.StrictRedis(host='localhost', db=0)
+celery_app = Celery('tasks', broker='redis://localhost:6379/4')
+r = redis.StrictRedis(host='localhost', db=4)
 
 
 def enum(**enums):
@@ -39,6 +38,7 @@ def report(task_state, check_id, msg, result):
         r.set("dashboard:checks:%s:msg" % (check_id), msg)
         r.set("dashboard:checks:%s:task_state" % (check_id), task_state)
     elif task_state == TASK_STATE.FINISHED:
+        r.set("dashboard:checks:%s:msg" % (check_id), msg)
         r.set("dashboard:checks:%s:task_state" % (check_id), task_state)
         r.set("dashboard:checks:%s:result" % (check_id), result)
         r.set("dashboard:checks:%s:finished_date" % (check_id), datetime.datetime.utcnow())
