@@ -39,6 +39,7 @@ def report(task_state, check_id, msg, result):
         r.set("dashboard:checks:%s:msg" % (check_id), msg)
         r.set("dashboard:checks:%s:task_state" % (check_id), task_state)
     elif task_state == TASK_STATE.FINISHED:
+        r.set("dashboard:checks:%s:msg" % (check_id), msg)
         r.set("dashboard:checks:%s:task_state" % (check_id), task_state)
         r.set("dashboard:checks:%s:result" % (check_id), result)
         r.set("dashboard:checks:%s:finished_date" % (check_id), datetime.datetime.utcnow())
