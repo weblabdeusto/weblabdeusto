@@ -4,9 +4,8 @@ import requests
 import redis
 from celery import Celery
 
-celery_app = Celery('tasks', broker='redis://')
-
-r = redis.StrictRedis(host='localhost', db=0)
+celery_app = Celery('tasks', broker='redis://localhost:6379/4')
+r = redis.StrictRedis(host='localhost', db=4)
 
 
 def enum(**enums):
