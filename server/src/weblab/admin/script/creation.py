@@ -960,6 +960,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if not options[Creation.NO_LAB] and options[Creation.XMLRPC_EXPERIMENT]:
         global_config['hosts']['exp_host'] = OrderedDict()
         global_config['hosts']['exp_host']['runner'] = 'run-xmlrpc.py'
+        global_config['hosts']['exp_host']['host'] = '127.0.0.1'
         global_config['hosts']['exp_host']['processes'] = {}
         global_config['hosts']['exp_host']['processes']['exp_instance'] = { 'components' : {}}
         global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1'] = {
