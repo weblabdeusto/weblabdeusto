@@ -4,6 +4,7 @@ from weblab.core.login.exc import InvalidCredentialsError
 from weblab.core.webclient.web.weblabweb import WeblabWeb
 
 from weblab.core.wl import weblab_api
+from weblab.core.exc import SessionNotFoundError
 
 
 @weblab_api.route_webclient("/", methods=["GET", "POST"])
@@ -72,16 +73,16 @@ def logout():
     """
     Logout will logout the current session and redirect to the main page.
     """
-    sessionid = request.cookies.get("sessionid")
-    route = request.cookies.get("route")
-    if sessionid is not None:
-        try:
-            weblabweb = WeblabWeb()
-            # weblabweb.set_target_urls(flask_app.config["LOGIN_URL"], flask_app.config["CORE_URL"])
-            weblabweb._feed_cookies({"weblabsessionid": "%s.%s" % (sessionid, route)})
-            weblabweb._logout(sessionid)
-        except:
-            flash("Could not logout", category="warning")
+    try:
+        # TODO: Take into account the somewhat unclear difference between the loginweblabsessionid and the other one.
+        cookie = request.cookies.get("weblabsessionid", None)
+        if cookie is not None:
+            # Prepare to call the weblab_api
+            weblab_api.ctx.reservation_id = cookie
+            weblab_api.api.logout()
+    except SessionNotFoundError as ex:
+        # We weren't logged in but it doesn't matter because we want to logout anyway.
+        pass
 
     return redirect(url_for(".index", _external=True, _scheme=request.scheme))
 
