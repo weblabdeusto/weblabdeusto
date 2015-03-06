@@ -80,7 +80,7 @@ class RoMIExperiment(Experiment.Experiment):
             print "[RoMIE] Command received: %s" % command
 
         if command == 'F':
-            tag = urllib2.urlopen("%sf" % self.server).read()
+            tag = urllib2.urlopen("%sf" % self.server, timeout = 60).read()
             if tag.startswith('Tag') and tag != self.last_tag:
 
                 self.last_tag = tag
@@ -101,9 +101,9 @@ class RoMIExperiment(Experiment.Experiment):
             else:
                 return 'OK'
         elif command == 'L':
-            return urllib2.urlopen("%sl" % self.server).read()
+            return urllib2.urlopen("%sl" % self.server, timeout = 60).read()
         elif command == 'R':
-            return urllib2.urlopen("%sr" % self.server).read()
+            return urllib2.urlopen("%sr" % self.server, timeout = 60).read()
         elif command.startswith("ANSWER"):
 
             response = int(command.split()[1])
