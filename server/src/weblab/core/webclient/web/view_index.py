@@ -1,7 +1,9 @@
 import traceback
 from flask import render_template, request, flash, redirect, url_for, make_response
 from weblab.core.login.exc import InvalidCredentialsError
+from weblab.core.webclient.web.helpers import safe_redirect
 from weblab.core.webclient.web.weblabweb import WeblabWeb
+import urlparse
 
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
@@ -31,6 +33,10 @@ def handle_login_POST():
     username = request.values.get("username")
     password = request.values.get("password")
 
+    # We may or may not have a 'next' field. If we do, we make sure that the URL is safe.
+    next = request.values.get("next")
+    next = safe_redirect(next)
+
     try:
         session_id = weblab_api.api.login(username, password)
     except InvalidCredentialsError:
@@ -46,7 +52,7 @@ def handle_login_POST():
         # This currently redirects to HTTP even if being called from HTTPS. Tried _external as a workaround but didn't work.
         # More info: https://github.com/mitsuhiko/flask/issues/773
         # For now we force the scheme from the request.
-        response = make_response(redirect(url_for(".labs", _external=True, _scheme=request.scheme)))
+        response = make_response(redirect(next or url_for(".labs", _external=True, _scheme=request.scheme)))
         """ @type: flask.Response """
 
         session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)

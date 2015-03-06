@@ -4,6 +4,8 @@ import json
 import os
 import re
 import urllib
+import urlparse
+from flask import url_for
 from weblab.core.wl import weblab_api
 
 
@@ -29,6 +31,23 @@ def remove_comments_from_json(string):
 
     return regex.sub(_replacer, string)
 
+
+def safe_redirect(redir):
+    """
+    Returns a safe version of the specified path. If the path is not relative to the application's index, then it
+    return None.
+
+    @param redir: Redirection path or similar. Can be unsafe. If it is not a valid path None is returned.
+    @return: A safe redirection string, or None.
+    """
+    try:
+        redirurl = urlparse.urlparse(redir)
+        if redirurl.netloc not in (None, ''):
+            return None
+        redir = redirurl.geturl()
+        return redir
+    except Exception as ex:
+        return None
 
 
 
