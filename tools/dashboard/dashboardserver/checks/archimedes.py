@@ -235,7 +235,7 @@ if __name__ == "__main__":
     user = config.WEBLAB_USER
     password = config.WEBLAB_PASSWORD
 
-    check_id = "arch_thorough"
+    check_id = "archimedes.arch_thorough"
 
     check_archimedes(check_id, True, url, user, password, "Thorough archimedes test")
 
