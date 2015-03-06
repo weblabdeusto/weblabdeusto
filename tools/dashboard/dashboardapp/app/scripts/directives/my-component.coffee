@@ -30,6 +30,8 @@ angular.module 'dashboardappApp'
 
       # Converts the given string to a Date object.
       scope.dateStrToDate = (date) ->
+        # The date is in UTC so we indicate it so that it's parsed correctly.
+        date = date + " Z";
         return new Date(date)
 
       # Counts the results of the checks.
