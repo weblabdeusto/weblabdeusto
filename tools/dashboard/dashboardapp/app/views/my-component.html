@@ -7,19 +7,42 @@
 
         <table class="table table-condensed my-component-table">
 
-            <tr ng-repeat="(elementid, element) in component | NonInternal">
-                <td>
-                    <i ng-class="getIconForStatus(element.status)"></i>
-                </td>
-                <td>
-                    {{ element.text }}
-                </td>
-                <td class="my-component-date" ng-init="element.jsdate = dateStrToDate(element.date)">
-                    {{ element.jsdate | date:'dd-MM-yy hh:mm:ss' }}
-                    <br>
-                    <span am-time-ago="element.jsdate"></span>
-                </td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>
+                    </th>
+                    <th>
+                    </th>
+                    <th>
+                        Check description
+                    </th>
+                    <th>
+                        Completed
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr ng-repeat="(elementid, element) in component | NonInternal">
+                    <td>
+                        <i ng-class="getIconForStatus(element.status)"></i>
+                    </td>
+                    <td style="min-width: 15px">
+                        <i ng-if="element.task_state == 'running'" class="fa fa-spinner fa-spin"></i>
+                    </td>
+                    <td>
+                        {{ element.text }}
+                    </td>
+                    <td class="my-component-date" ng-init="element.jsdate = dateStrToDate(element.date)">
+                        {{ element.jsdate | date:'dd-MM-yy hh:mm:ss' }}
+                        <br>
+                        <span am-time-ago="element.jsdate"></span>
+                    </td>
+                </tr>
+
+            </tbody>
 
         </table>
 
