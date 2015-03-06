@@ -960,6 +960,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if not options[Creation.NO_LAB] and options[Creation.XMLRPC_EXPERIMENT]:
         global_config['hosts']['exp_host'] = OrderedDict()
         global_config['hosts']['exp_host']['runner'] = 'run-xmlrpc.py'
+        global_config['hosts']['exp_host']['host'] = '127.0.0.1'
         global_config['hosts']['exp_host']['processes'] = {}
         global_config['hosts']['exp_host']['processes']['exp_instance'] = { 'components' : {}}
         global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1'] = {
@@ -1780,9 +1781,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """                'exp_host',\n"""
         """                (\n""")
         if options[Creation.SOCKET_WAIT]:
-            xml_launch_script += ("""                Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT] + 1)
+            xmlrpc_launch_script += ("""                Launcher.SocketWait(%s),\n""" % options[Creation.SOCKET_WAIT] + 1)
         else:
-            xml_launch_script += ("""                Launcher.SignalWait(signal.SIGTERM),\n"""
+            xmlrpc_launch_script += ("""                Launcher.SignalWait(signal.SIGTERM),\n"""
                               """                Launcher.SignalWait(signal.SIGINT),\n"""
                               """                Launcher.RawInputWait("Press <enter> or send a sigterm or a sigint to finish\\n")\n""")
         xmlrpc_launch_script += ("""                ),\n"""

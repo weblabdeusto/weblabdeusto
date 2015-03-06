@@ -33,6 +33,7 @@ def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
             yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
             data.items())
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
+    OrderedDumper.add_representer(unicode, lambda dumper, value: dumper.represent_scalar(u'tag:yaml.org,2002:str', value))
     return yaml.dump(data, stream, OrderedDumper, **kwds)
 
 def check_dir_exists(directory, parser = None):

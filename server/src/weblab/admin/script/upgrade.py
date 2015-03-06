@@ -23,8 +23,6 @@ import abc
 import json
 from collections import OrderedDict
 
-import yaml
-
 try:
     import argparse
 except ImportError:
