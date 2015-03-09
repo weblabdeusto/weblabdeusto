@@ -2,8 +2,6 @@ import traceback
 from flask import render_template, request, flash, redirect, url_for, make_response
 from weblab.core.login.exc import InvalidCredentialsError
 from weblab.core.webclient.web.helpers import safe_redirect
-from weblab.core.webclient.web.weblabweb import WeblabWeb
-import urlparse
 
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
