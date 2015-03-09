@@ -66,6 +66,8 @@ function LabController($scope, $injector) {
             .done(function (uid, time, initial_config, result) {
                 console.log("Experiment now active");
                 $scope.experiment.active = true;
+                console.log("SETTING EXPERIMENT TO ACTIVE. SCOPE: ");
+                console.log($scope.$id);
 
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
                 $scope.reserveMessage.type = 'info';
@@ -87,6 +89,9 @@ function LabController($scope, $injector) {
 
                 // For some ui changes.
                 onReserveDone();
+
+                // Otherwise changes to the $scope won't be updated. TODO: Find some way to do this in a prettier way.
+                $scope.$apply();
             });
     }
 
