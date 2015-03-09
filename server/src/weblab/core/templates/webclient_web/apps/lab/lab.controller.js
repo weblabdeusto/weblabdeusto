@@ -3,7 +3,8 @@ angular
     .controller("LabController", LabController);
 
 
-function LabController($scope) {
+function LabController($scope, $injector) {
+
     $scope.experiment = {};
     $scope.experiment.active = false;
 
@@ -63,6 +64,7 @@ function LabController($scope) {
                 onReserveFail(error);
             })
             .done(function (uid, time, initial_config, result) {
+                console.log("Experiment now active");
                 $scope.experiment.active = true;
 
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
