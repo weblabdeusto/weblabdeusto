@@ -31,6 +31,9 @@ function LabController($scope) {
         return $scope.experiment.active;
     }
 
+    /**
+     * Called to reserve the experiment in the frame.
+     */
     function reserveInFrame() {
         var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
         sessionid = sessionid.split(".", 1)[0];

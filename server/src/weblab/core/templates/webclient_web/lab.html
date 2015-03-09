@@ -12,7 +12,7 @@
 
     {{ super() }}
 
-    <div class="container" id="reserve-container" ng-app="lab" ng-controller="LabController">
+    <div class="container" id="reserve-container" ng-controller="LabController">
 
         <div class="text-center">
             <h2>{{ gettext("Reserve this experiment") }}</h2>
@@ -47,22 +47,15 @@
         </div>
     </div>
 
+
+
     <div class="container" id="file-upload-container" style="margin-top: 20px">
         {{ upload.content() }}
     </div>
 
 
+    <wl-experiment-iframe></wl-experiment-iframe>
 
-    {% if experiment["type"] == "js" %}
-        <div class="" style="padding-top: 20px">
-            <div class="">
-                <!-- We append a rawgit base URL for testing -->
-                <iframe id="exp-frame" width="100%" scrolling="no"
-                        src="{{ lab_url + experiment['config']['html.file'] }}" style="border: 0;">
-                </iframe>
-            </div>
-        </div>
-    {% endif %}
 
 {% endblock %}
 
@@ -184,7 +177,8 @@
     {# Await for the page #}
     $(document).ready(function () {
 
-        //$("#exp-frame").iFrameResize({log : false, enablePublicMethods: true, checkOrigin : false, heightCalculationMethod: "max"}, "#exp-frame");
+        // Bootstrap angular itself.
+        angular.bootstrap(document, ['lab']);
 
         // Load the iframeResizer when the frame loads.
         $("#exp-frame").on("load", function (ev) {
@@ -230,12 +224,14 @@
     {# Embedded templates #}
     {% include 'webclient_web/apps/lab/expinfo.template.html' %}
     {% include 'webclient_web/apps/lab/reserve-status.directive.html' %}
+    {% include 'webclient_web/apps/lab/experiment-iframe.template.html' %}
 
     {# Fake includes so that we can use Jinja2 directives #}
     <script type="text/javascript">
         {% include 'webclient_web/apps/lab/app.js' %}
         {% include 'webclient_web/apps/lab/lab.controller.js' %}
         {% include 'webclient_web/apps/lab/expinfo.directive.js' %}
+        {% include 'webclient_web/apps/lab/experiment-iframe.directive.js' %}
         {% include 'webclient_web/apps/lab/reserve-status.directive.js' %}
     </script>
 
