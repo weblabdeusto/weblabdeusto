@@ -1,8 +1,16 @@
+/**
+ * Defines the wl-webcam directive, which provides an automatically-refreshing webcam.
+ * It is very easy to use. It can be added to the DOM as such:
+ * <wl-webcam src="http://myimg.jpg"></wl-webcam>
+ */
+
+
 angular
     .module("ngdummy")
     .directive("wlWebcam", wlWebcam);
 
-function wlWebcam($timeout) {
+
+function wlWebcam() {
     return {
         restrict: "E",
         scope: {

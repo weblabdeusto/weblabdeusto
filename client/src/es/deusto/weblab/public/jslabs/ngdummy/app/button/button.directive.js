@@ -1,3 +1,7 @@
+/**
+ * Defines the wl-button directive, which provides some very simple weblab-oriented
+ * buttons. Whenever clicked they will send a "button {ident}" command to weblab.
+ */
 
 angular
     .module("ngdummy")
