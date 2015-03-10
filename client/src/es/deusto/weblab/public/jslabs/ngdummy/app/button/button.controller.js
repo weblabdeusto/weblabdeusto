@@ -44,12 +44,18 @@ function ButtonController($scope, $injector) {
         Weblab.dbgSetOfflineSendCommandResponse("ok");
 
         // Send the command to Weblab.
-        Weblab.sendCommand("button " + $scope.ident, onCommandSuccess, onCommandError);
+        var command = "button " + $scope.ident;
+        Weblab.sendCommand(command, onCommandSuccess, onCommandError);
+
+        // Raise an angular internal event. We could also raise nothing and handle the response
+        // and everything here.
+        $scope.$emit("commandSending", command);
 
         function onCommandSuccess(response) {
-            log.info("[BUTTON PRESSED RESPONSE]: " + response)
+            log.info("[BUTTON PRESSED RESPONSE]: " + response);
 
-            // Process the response here.
+            // Raise an event
+            $scope.$emit("commandSent", true, command, response);
 
         } // !onCommandSuccess
 
@@ -57,8 +63,8 @@ function ButtonController($scope, $injector) {
             log.error("[BUTTON PRESSED ERROR]:");
             log.error(error);
 
-            // Handle the error here.
-
+            // Raise an event
+            $scope.$emit("commandSent", false, command, error)
         } // !onCommandError
 
     } // !press

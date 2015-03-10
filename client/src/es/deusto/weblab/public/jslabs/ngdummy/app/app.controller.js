@@ -22,6 +22,16 @@ function AppController($scope, $injector) {
     var $log = $injector.get("$log");
 
     /// -----------
+    /// Scope & Events
+    /// -----------
+
+    // Register the event handlers so that we can display the commands.
+    // In a real experiment we won't actually do this, we will do whatever else.
+    $scope.$on("commandSending", handleCommandSendingEvent);
+    $scope.$on("commandSent", handleCommandSentEvent);
+
+
+    /// -----------
     /// Controller methods etc
     /// -----------
 
@@ -44,6 +54,16 @@ function AppController($scope, $injector) {
 
     function onExperimentEnd() {
         $log.info("[EXPERIMENT END]");
+    }
+
+    function handleCommandSendingEvent(event, command) {
+        $scope.ongoingCommand = command;
+    }
+
+    function handleCommandSentEvent(event, result, command, response) {
+        $scope.ongoingCommand = undefined;
+        $scope.lastCommandSent = command;
+        $scope.lastCommandResponse = response;
     }
 
 } // !AppController
