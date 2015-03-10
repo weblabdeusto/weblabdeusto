@@ -85,12 +85,13 @@ function LabController($scope, $injector) {
                     $scope.experiment.active = false;
 
                     onExperimentFinished();
+
+                    $scope.$apply();
                 });
 
                 // For some ui changes.
                 onReserveDone();
 
-                // Otherwise changes to the $scope won't be updated. TODO: Find some way to do this in a prettier way.
                 $scope.$apply();
             });
     }
