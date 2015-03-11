@@ -1,0 +1,50 @@
+{# Not pretty, but it is required due to the way Flask / Jinja2 / Angular are integrated. #}
+{% import "webclient_web/_upload.html" as upload %}
+
+
+<div ng-controller="LabController">
+
+    <div class="container" id="reserve-container">
+
+        <div class="text-center">
+            <h2>{{ gettext("Reserve this experiment") }}</h2>
+        </div>
+
+        <wl-exp-info></wl-exp-info>
+
+        <button ng-click="reserveInFrame()">Test</button>
+
+        <div class="row">
+            <div class="col-lg-2 col-lg-offset-4 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                   id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
+            </div>
+            <div class="col-lg-2 text-center">
+                <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+                   id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
+            </div>
+        </div>
+
+        <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" type="reserveMessage.type"></wl-reserve-status>
+
+    </div>
+
+
+    <div class="container" id="finish-container" style="display: none">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this
+                    experiment</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="file-upload-container" style="margin-top: 20px">
+        {{ upload.content() }}
+    </div>
+
+
+    <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
+    <wl-experiment-iframe ng-show="isExperimentActive()"></wl-experiment-iframe>
+
+</div>
