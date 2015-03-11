@@ -21,6 +21,7 @@ function LabController($scope, $injector) {
     // -------------------------
 
     var $log = $injector.get('$log');
+    var $rootScope = $injector.get('$rootScope');
 
 
     // -------------------------
@@ -43,11 +44,20 @@ function LabController($scope, $injector) {
     $scope.reserveInFrame = reserveInFrame;
     $scope.reserveInWindow = reserveInWindow;
     $scope.isExperimentActive = isExperimentActive;
+    $scope.finishExperiment = finishExperiment;
 
 
     // -------------------------
     // Implementations
     // -------------------------
+
+    /**
+     * Called when an attempt is made to finish the current experiment.
+     */
+    function finishExperiment() {
+        window.currentExperiment.finishExperiment();
+    } // !finishExperiment
+
 
     /**
      * Checks whether the experiment is active.
@@ -68,6 +78,7 @@ function LabController($scope, $injector) {
         var name = "{{ experiment['name'] }}";
         var category = "{{ experiment['category'] }}";
 
+        // TODO: Fix this.
         $(".reserve-btn").attr("disabled", "");
 
         $scope.reserveMessage.message = "{{ gettext('Reserving...') }}";
@@ -104,7 +115,7 @@ function LabController($scope, $injector) {
 
                 var frame = $("#exp-frame")[0];
                 var wexp = frame.contentWindow.weblabExp; // This value is hard-coded in the experiment's HTML. // TODO: Make it prettier.
-                currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
+                window.currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                 var url = result["url"];
                 var json_url = "{{ json_url }}";
                 wexp.setTargetURL(json_url);
@@ -114,7 +125,11 @@ function LabController($scope, $injector) {
                 wexp.onFinish().done(function (f) {
                     $scope.experiment.active = false;
 
-                    onExperimentFinished();
+                    $scope.reserveMessage.message = "";
+
+                    // Broadcast an event, in case some component needs to know.
+                    // The iframe, for example, needs to be auto-restarted when this happens.
+                    $rootScope.$broadcast("experimentFinished");
 
                     $scope.$apply();
                 });

@@ -2,6 +2,11 @@
 {% import "webclient_web/_upload.html" as upload %}
 
 
+<style>
+    [ng\:cloak], [ng-cloack], .ng-cloak {display: none; }
+</style>
+
+
 <div ng-controller="LabController">
 
     <div class="container" id="reserve-container">
@@ -15,8 +20,6 @@
         <!-- Component for the experiment information window thing -->
         <!-- Should be shown only when the experiment is NOT active -->
         <wl-exp-info ng-show="!isExperimentActive()"></wl-exp-info>
-
-        <button ng-click="reserveInFrame()">Test</button>
 
         <div ng-show="!isExperimentActive()">
             <div class="row">
@@ -36,10 +39,10 @@
     </div>
 
 
-    <div ng-show="isExperimentActive()" class="container" id="finish-container" style="display: none">
+    <div ng-cloak ng-show="isExperimentActive()" class="container">
         <div class="row">
             <div class="col-lg-12 text-center">
-                <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this
+                <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">Finish this
                     experiment</a>
             </div>
         </div>

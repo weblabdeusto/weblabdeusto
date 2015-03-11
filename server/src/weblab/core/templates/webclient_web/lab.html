@@ -52,12 +52,7 @@
      * Handle certain ui actions when the experiment finishes.
      */
     function onExperimentFinished() {
-        // Reload the frame.
-        // This is particularly important at the moment because the WeblabExp compatibility library
-        // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
-        $('#exp-frame').attr('src', function (i, val) {
-            return val;
-        });
+
     }
 
 
@@ -93,10 +88,6 @@
             }, 500);
         });
 
-        $("#finish-experiment-btn").click(function (ev) {
-            currentExperiment.finishExperiment();
-        });
-
     }); //! document.ready
 
     </script>
@@ -118,6 +109,7 @@
         {% include 'webclient_web/apps/lab/app.js' %}
         {% include 'webclient_web/apps/lab/lab.controller.js' %}
         {% include 'webclient_web/apps/lab/expinfo/expinfo.directive.js' %}
+        {% include 'webclient_web/apps/lab/iframe/experiment-iframe.controller.js' %}
         {% include 'webclient_web/apps/lab/iframe/experiment-iframe.directive.js' %}
         {% include 'webclient_web/apps/lab/reserve-status/reserve-status.directive.js' %}
     </script>
