@@ -112,8 +112,9 @@ class RoMIExperiment(Experiment.Experiment):
             if correct:
                 time_bonus = 30-(time.time()-self.last_correct)
                 bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
+                points_bonus = bonus*2 if time.time() > self._cfg_manager.get_value('double_points') else bonus
                 self.last_correct = time.time()
-                self.points += self.question['points']*bonus
+                self.points += self.question['points']*points_bonus
                 self.finish_time += self.question['time']*bonus
                 self.update_points()
                 self.questions[self.q_difficulty].remove(self.question)
@@ -162,7 +163,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             conn = sqlite3.connect(self.database)
             cur = conn.cursor()
-            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech%" AND username != "forotech.demo" ORDER BY points DESC LIMIT 10')
+            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech.%" AND username != "forotech.demo" AND email != "hodeigomezjurado@gmail.com" ORDER BY points DESC LIMIT 10;')
             result = cur.fetchall()
             ranking = list()
 
