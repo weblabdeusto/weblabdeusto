@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import os
+import time
 
 romie_sqlite = os.path.join(CURRENT_PATH, "forotech.db")
 romie_time = 194.159 # 3 minutes, 14.159 seconds
 romie_server = 'http://192.168.0.190:8000/'
+double_points = time.mktime((2015, 3, 11, 16, 0, 0, 2, 70, 0))
 questions = [
     [ # 0 difficulty
         {
