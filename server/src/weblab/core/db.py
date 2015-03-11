@@ -601,7 +601,7 @@ class DatabaseGateway(object):
             # 
             sorted_user_auths = sorted(all_user_auths, lambda x, y: cmp(x.auth.priority, y.auth.priority))
             if len(sorted_user_auths) > 0:
-                return user.role.name, [ user_auth.to_business() for user_auth in sorted_user_auths ]
+                return user.login, user.role.name, [ user_auth.to_business() for user_auth in sorted_user_auths ]
             else:
                 raise DbErrors.DbNoUserAuthNorPasswordFoundError(
                         "No UserAuth found"

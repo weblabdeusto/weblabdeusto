@@ -46,9 +46,13 @@ class LoginManager(object):
         method will only check the SimpleAuthn instances.
         """
         try:
-            role_name, user_auths  = self._db.retrieve_role_and_user_auths(username)
+            login, role_name, user_auths  = self._db.retrieve_role_and_user_auths(username)
         except DbUserNotFoundError:
             return self._process_invalid()
+
+        # login could be different to username. 
+        # For example, in MySQL, where login = 'pablo' is equivalent to where login = 'pablo '
+        # For this reason, we don't trust "username", and retrieve login from the database
 
         errors = False
 
@@ -57,10 +61,10 @@ class LoginManager(object):
             if user_auth.is_simple_authn():
                 # With each user auth, try to authenticate the user.
                 try:
-                    authenticated = user_auth.authenticate(username, credentials)
+                    authenticated = user_auth.authenticate(login, credentials)
                 except:
                     # If there is an error, the user could not be authenticated.
-                    log.log( LoginManager, log.level.Warning, "Username: %s with user_auth %s: ERROR" % (username, user_auth) )
+                    log.log( LoginManager, log.level.Warning, "Username: %s with user_auth %s: ERROR" % (login, user_auth) )
                     log.log_exc( LoginManager, log.level.Warning)
                     errors = True
                     traceback.print_exc()
@@ -68,12 +72,12 @@ class LoginManager(object):
                 
                 if authenticated:
                     # If authenticated, return that it was correctly authenticated.
-                    log.log( LoginManager, log.level.Debug, "Username: %s with user_auth %s: SUCCESS" % (username, user_auth) )
-                    return ValidDatabaseSessionId( username, role_name )
+                    log.log( LoginManager, log.level.Debug, "Username: %s with user_auth %s: SUCCESS" % (login, user_auth) )
+                    return ValidDatabaseSessionId( login, role_name )
 
                 else:
                     # If not authenticated, log it and continue with the next user_auth.
-                    log.log( LoginManager, log.level.Warning, "Username: %s with user_auth %s: FAIL" % (username, user_auth) )
+                    log.log( LoginManager, log.level.Warning, "Username: %s with user_auth %s: FAIL" % (login, user_auth) )
         
         if errors:
             # Raise error: there was a server problem and this might be the reason for not 

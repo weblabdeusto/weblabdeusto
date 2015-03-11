@@ -34,13 +34,15 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
     def test_retrieve_role_and_user_auths(self):
         # With user "admin": password 'password', role administrator
-        role, user_auths = self.auth_gateway.retrieve_role_and_user_auths('admin1')
+        login, role, user_auths = self.auth_gateway.retrieve_role_and_user_auths('admin1')
+        self.assertEquals('admin1', login)
         self.assertEquals('administrator', role)
         self.assertEquals(1, len(user_auths))
         self.assertEquals('aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474', user_auths[0].hashed_password)
 
         # With student: same password, role student
-        role, user_auths = self.auth_gateway.retrieve_role_and_user_auths('student1')
+        login, role, user_auths = self.auth_gateway.retrieve_role_and_user_auths('student1')
+        self.assertEquals('student1', login)
         self.assertEquals('student', role)
         self.assertEquals(1, len(user_auths))
         self.assertEquals('aaaa{sha}a776159c8c7ff8b73e43aa54d081979e72511474', user_auths[0].hashed_password)
