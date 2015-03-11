@@ -6,22 +6,28 @@
 
     <div class="container" id="reserve-container">
 
+        Experiment Active: <span ng-bind="isExperimentActive()"></span>
+
         <div class="text-center">
             <h2>{{ gettext("Reserve this experiment") }}</h2>
         </div>
 
-        <wl-exp-info></wl-exp-info>
+        <!-- Component for the experiment information window thing -->
+        <!-- Should be shown only when the experiment is NOT active -->
+        <wl-exp-info ng-show="!isExperimentActive()"></wl-exp-info>
 
         <button ng-click="reserveInFrame()">Test</button>
 
-        <div class="row">
-            <div class="col-lg-2 col-lg-offset-4 text-center">
-                <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                   id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
-            </div>
-            <div class="col-lg-2 text-center">
-                <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
-                   id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
+        <div ng-show="!isExperimentActive()">
+            <div class="row">
+                <div class="col-lg-2 col-lg-offset-4 text-center">
+                    <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                       id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
+                </div>
+                <div class="col-lg-2 text-center">
+                    <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+                       id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
+                </div>
             </div>
         </div>
 
@@ -30,7 +36,7 @@
     </div>
 
 
-    <div class="container" id="finish-container" style="display: none">
+    <div ng-show="isExperimentActive()" class="container" id="finish-container" style="display: none">
         <div class="row">
             <div class="col-lg-12 text-center">
                 <a href="#" class="btn btn-warning finish-experiment-btn" id="finish-experiment-btn">Finish this
@@ -39,7 +45,7 @@
         </div>
     </div>
 
-    <div class="container" id="file-upload-container" style="margin-top: 20px">
+    <div ng-show="!isExperimentActive()" class="container" id="file-upload-container" style="margin-top: 20px">
         {{ upload.content() }}
     </div>
 

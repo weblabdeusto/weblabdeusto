@@ -4,6 +4,7 @@ angular
 
 function wlExpInfo() {
     return {
+        restrict: "E",
         template: $("#expinfo-template").html()
     }
 }

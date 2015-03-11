@@ -51,79 +51,13 @@
     /**
      * Handle certain ui actions when the experiment finishes.
      */
-    function onReserveDone() {
-        // Switch the finish and reserve containers.
-        $("#reserve-container").slideUp(500);
-        $("#finish-container").slideDown(500);
-
-        // Re-enable the Reserve buttons, for when they are shown later.
-        $(".reserve-btn").removeAttr("disabled");
-
-        // In a while, remove the reserve alert.
-        // Note: As of now this isn't actually seen because the whole container is hidden.
-        $("#reserve-status-row").delay(500).fadeOut(500);
-
-        // Hide the upload container.
-        $("#file-upload-container").delay(500).fadeOut(500);
-    }
-
-
-    /**
-     * Handle certain ui actions when the experiment finishes.
-     */
     function onExperimentFinished() {
-        // We should probably show some kind of experiment-finished message.
-
-        $("#reserve-container").slideDown(500);
-        $("#finish-container").slideUp(500);
-
         // Reload the frame.
         // This is particularly important at the moment because the WeblabExp compatibility library
         // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
         $('#exp-frame').attr('src', function (i, val) {
             return val;
         });
-    }
-
-
-    /**
-     * Reserve experiment failed.
-     */
-    function onReserveFail(error) {
-
-        // We logged out.
-        if (error.code == "JSON:Client.SessionNotFound") {
-            errorStatus("{{ gettext("You are not logged in") }}");
-            setTimeout(function () {
-                window.location = "{{ url_for(".index") }}";
-            }, 1500);
-        }
-        else {
-            errorStatus("{{ gettext("Failed to reserve: ") }}" + error.message)
-        }
-    }
-
-
-    /**
-     * Displays the specified reserve info status.
-     * @param {string} info: Info message that will appear in blue.
-     */
-    function infoStatus(info) {
-        $reserveStatusRow.show();
-        $reserveStatus.text(info);
-        $reserveStatus.addClass("alert-info");
-        $reserveStatus.removeClass("alert-danger");
-    }
-
-    /**
-     * Displays the specified error info status.
-     * @param {str} error: Error message that will appear in red.
-     */
-    function errorStatus(error) {
-        $reserveStatusRow.show();
-        $reserveStatus.text(error);
-        $reserveStatus.addClass("alert-danger");
-        $reserveStatus.removeClass("alert-info");
     }
 
 
