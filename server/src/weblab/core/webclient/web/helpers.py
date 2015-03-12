@@ -50,47 +50,6 @@ def safe_redirect(redir):
         return None
 
 
-
-# # Redirection utils from Flask manual / pocoo.
-# # http://flask.pocoo.org/snippets/62/
-#
-# def is_safe_url(target):
-#     """
-#     Checks if an URL is safe for redirection via URL.
-#     # TODO: Reportedly by some comments not a safe check.
-#     :param target:
-#     :return:
-#     """
-#     ref_url = urlparse(request.host_url)
-#     test_url = urlparse(urljoin(request.host_url, target))
-#     return test_url.scheme in ('http', 'https') and \
-#            ref_url.netloc == test_url.netloc
-#
-#
-# def get_redirect_target():
-#     """
-#     Find out where we need to redirect.
-#     :return:
-#     """
-#     for target in request.values.get('next'), request.referrer:
-#         if not target:
-#             continue
-#         if is_safe_url(target):
-#             return target
-#
-# def redirect_back(endpoint, **values):
-#     target = request.form['next']
-#     if not target or not is_safe_url(target):
-#         target = url_for(endpoint, **values)
-#     return redirect(target)
-#
-#
-#
-#
-#
-#
-
-
 def _get_loggedin_info():
     """
     Returns a dictionary with several parameters to render the logged_in part of the website.

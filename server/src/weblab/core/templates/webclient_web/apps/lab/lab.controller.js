@@ -3,23 +3,84 @@ angular
     .controller("LabController", LabController);
 
 
-function LabController($scope) {
+function LabController($scope, $injector) {
+
+    // -------------------------
+    // Save self-reference
+    // -------------------------
+
+    var controller = this;
+
+
+    // -------------------------
+    // Requirements
+    // -------------------------
+
+    var $log = $injector.get('$log');
+    var $rootScope = $injector.get('$rootScope');
+
+
+    // -------------------------
+    // Scope data
+    // -------------------------
+
     $scope.experiment = {};
+    $scope.experiment.data = {{ experiment|tojson }};
+    $scope.experiment.reserving = false;
     $scope.experiment.active = false;
-
-    $scope.reserveInFrame = reserveInFrame;
-    $scope.reserveInWindow = reserveInWindow;
-
-    // To check whether the experiment is active (reserve done and has not ended).
-    $scope.isExperimentActive = isExperimentActive;
 
     $scope.reserveMessage = {
         message: '',
         type: 'info'
     };
 
+
+    // -------------------------
+    // Scope methods
+    // -------------------------
+
+    $scope.reserveInFrame = reserveInFrame;
+    $scope.reserveInWindow = reserveInWindow;
+    $scope.isExperimentActive = isExperimentActive;
+    $scope.isExperimentReserving = isExperimentReserving;
+    $scope.finishExperiment = finishExperiment;
+
+
+    // ------------------------
+    // Controller methods
+    // ------------------------
+    controller.handleReserveProgress = handleReserveProgress;
+    controller.handleReserveFail = handleReserveFail;
+
+
+    // ------------------------
+    // Initialization
+    // ------------------------
+
+    // Initialize the Weblab API.
     var json_url = "{{ json_url }}";
     WeblabWeb.setTargetURLs(json_url, json_url);
+
+
+
+
+    // -------------------------
+    // Implementations
+    // -------------------------
+
+    /**
+     * Called when an attempt is made to finish the current experiment.
+     */
+    function finishExperiment() {
+        window.currentExperiment.finishExperiment();
+    } // !finishExperiment
+
+    /**
+     * Checks whether the experiment is being reserved.
+     */
+    function isExperimentReserving() {
+        return $scope.experiment.reserving;
+    }
 
 
     /**
@@ -31,6 +92,46 @@ function LabController($scope) {
         return $scope.experiment.active;
     }
 
+    /**
+     * Handles a reserve progress update, received periodically while a reserve attempt is in progress.
+     */
+    function handleReserveProgress(status, position, result) {
+        if (position != undefined) {
+            if (position == 0) {
+                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
+                $scope.reserveMessage.type = 'info';
+            }
+            else {
+                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
+                $scope.reserveMessage.type = 'info';
+            }
+
+            $scope.$apply();
+        }
+    } // !handleReserveProgress
+
+    /**
+     * Handles a reserve failure.
+     * @param error
+     */
+    function handleReserveFail(error) {
+        // We logged out.
+        if (error.code == "JSON:Client.SessionNotFound") {
+            $scope.reserveMessage.message = '{{ gettext("You are not logged in") }}';
+            $scope.reserveMessage.type = 'error';
+            setTimeout(function () {
+                window.location = '{{ url_for(".index") }}';
+            }, 1500);
+        }
+        else {
+            $scope.reserveMessage.message = '{{ gettext("Failed to reserve: ") }}' + error.message;
+            $scope.reserveMessage.type = 'error';
+        }
+    } // !handleReserveFail
+
+    /**
+     * Called to reserve the experiment in the frame.
+     */
     function reserveInFrame() {
         var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
         sessionid = sessionid.split(".", 1)[0];
@@ -38,36 +139,27 @@ function LabController($scope) {
         var name = "{{ experiment['name'] }}";
         var category = "{{ experiment['category'] }}";
 
-        $(".reserve-btn").attr("disabled", "");
-
+        $scope.experiment.reserving = true;
         $scope.reserveMessage.message = "{{ gettext('Reserving...') }}";
         $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
-            .progress(function (status, position, result) {
-                if (position != undefined) {
-                    if (position == 0) {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                    else {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                }
-            })
-            .fail(function (error) {
-                onReserveFail(error);
-            })
+            .progress(handleReserveProgress)
+            .fail(handleReserveFail)
             .done(function (uid, time, initial_config, result) {
+
+                console.log("Experiment now active");
                 $scope.experiment.active = true;
+                $scope.experiment.reserving = false;
+                console.log("SETTING EXPERIMENT TO ACTIVE. SCOPE: ");
+                console.log($scope.$id);
 
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
                 $scope.reserveMessage.type = 'info';
 
                 var frame = $("#exp-frame")[0];
                 var wexp = frame.contentWindow.weblabExp; // This value is hard-coded in the experiment's HTML. // TODO: Make it prettier.
-                currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
+                window.currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                 var url = result["url"];
                 var json_url = "{{ json_url }}";
                 wexp.setTargetURL(json_url);
@@ -77,11 +169,16 @@ function LabController($scope) {
                 wexp.onFinish().done(function (f) {
                     $scope.experiment.active = false;
 
-                    onExperimentFinished();
+                    $scope.reserveMessage.message = "";
+
+                    // Broadcast an event, in case some component needs to know.
+                    // The iframe, for example, needs to be auto-restarted when this happens.
+                    $rootScope.$broadcast("experimentFinished");
+
+                    $scope.$apply();
                 });
 
-                // For some ui changes.
-                onReserveDone();
+                $scope.$apply();
             });
     }
 
@@ -92,31 +189,22 @@ function LabController($scope) {
         var name = "{{ experiment['name'] }}";
         var category = "{{ experiment['category'] }}";
 
-        $(".reserve-free-btn").attr("disabled", "");
-        infoStatus("{{ gettext('Reserving experiment...') }}");
+
+        $scope.experiment.reserving = true;
+        $scope.reserveMessage.message = "{{ gettext('Reserving experiment...') }}";
+        $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
-            .progress(function (status, position, result) {
-                if (position != undefined) {
-                    if (position == 0) {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                    else {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                }
-            })
-            .fail(function (error) {
-                onReserveFail(error);
-            })
+            .progress(handleReserveProgress)
+            .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {
                 console.log("RESERVATION DONE");
                 console.log(result);
 
+                $scope.experiment.reserving = false;
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
                 $scope.reserveMessage.type = 'info';
+
 
                 {# TODO: Tidy this up. #}
                 {% if experiment["type"] == "js" %}
@@ -162,7 +250,8 @@ function LabController($scope) {
                 {% endif %}
 
 
+
             });
-    }
+    } //! reserveInWindow()
 
 } //! LabController
