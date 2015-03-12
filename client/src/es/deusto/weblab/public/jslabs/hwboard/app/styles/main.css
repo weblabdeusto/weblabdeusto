@@ -1,3 +1,72 @@
+wl-webcam div {
+    width: 100%;
+    text-align: center;
+    height: 500px;
+}
+
+wl-webcam div img {
+    border: 2px solid darkgray;
+
+    /* So that the image is resized automatically to fit the container" */
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+
+
+.wl-switch-btn {
+    width: 50px;
+
+    border: 1px solid darkgray;
+    border-radius: 3px;
+    padding: 2px;
+
+    position: relative;
+    display: block;
+}
+
+.wl-switch-btn:hover{
+    border: 1px solid black;
+}
+
+.wl-switch-btn-pressed {
+    /* To be displayed only while the button is being pressed by the user. */
+    background-color: lightgray;
+}
+
+.wl-switch-btn-overlay {
+    position: absolute;
+    width: 30px;
+
+    margin-top: -40px;
+    margin-left: 10px;
+
+    opacity: 0.5;
+
+    /* Important, so that we do not catch the events meant for the actual elevator-btn. */
+    pointer-events: none;
+}
+
+.wl-switch-caption {
+    display: block;
+}
+
+.wl-switch-btn-img-wrapper {
+    vertical-align: top;
+    display: inline-block;
+    text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
 .browsehappy {
   margin: 0.2em 0;
   background: #ccc;
@@ -6,7 +75,7 @@
 }
 
 body {
-  padding: 0;
+  padding: 15px;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
