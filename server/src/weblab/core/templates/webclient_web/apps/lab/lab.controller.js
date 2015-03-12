@@ -6,14 +6,10 @@ angular
 function LabController($scope, $injector) {
 
     // -------------------------
-    // Save self-reference and do some initialization.
+    // Save self-reference
     // -------------------------
 
     var controller = this;
-
-    // Initialize the Weblab API.
-    var json_url = "{{ json_url }}";
-    WeblabWeb.setTargetURLs(json_url, json_url);
 
 
     // -------------------------
@@ -29,6 +25,8 @@ function LabController($scope, $injector) {
     // -------------------------
 
     $scope.experiment = {};
+    $scope.experiment.data = {{ experiment|tojson }};
+    $scope.experiment.reserving = false;
     $scope.experiment.active = false;
 
     $scope.reserveMessage = {
@@ -44,7 +42,26 @@ function LabController($scope, $injector) {
     $scope.reserveInFrame = reserveInFrame;
     $scope.reserveInWindow = reserveInWindow;
     $scope.isExperimentActive = isExperimentActive;
+    $scope.isExperimentReserving = isExperimentReserving;
     $scope.finishExperiment = finishExperiment;
+
+
+    // ------------------------
+    // Controller methods
+    // ------------------------
+    controller.handleReserveProgress = handleReserveProgress;
+    controller.handleReserveFail = handleReserveFail;
+
+
+    // ------------------------
+    // Initialization
+    // ------------------------
+
+    // Initialize the Weblab API.
+    var json_url = "{{ json_url }}";
+    WeblabWeb.setTargetURLs(json_url, json_url);
+
+
 
 
     // -------------------------
@@ -58,6 +75,13 @@ function LabController($scope, $injector) {
         window.currentExperiment.finishExperiment();
     } // !finishExperiment
 
+    /**
+     * Checks whether the experiment is being reserved.
+     */
+    function isExperimentReserving() {
+        return $scope.experiment.reserving;
+    }
+
 
     /**
      * Checks whether the experiment is active.
@@ -69,6 +93,43 @@ function LabController($scope, $injector) {
     }
 
     /**
+     * Handles a reserve progress update, received periodically while a reserve attempt is in progress.
+     */
+    function handleReserveProgress(status, position, result) {
+        if (position != undefined) {
+            if (position == 0) {
+                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
+                $scope.reserveMessage.type = 'info';
+            }
+            else {
+                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
+                $scope.reserveMessage.type = 'info';
+            }
+
+            $scope.$apply();
+        }
+    } // !handleReserveProgress
+
+    /**
+     * Handles a reserve failure.
+     * @param error
+     */
+    function handleReserveFail(error) {
+        // We logged out.
+        if (error.code == "JSON:Client.SessionNotFound") {
+            $scope.reserveMessage.message = '{{ gettext("You are not logged in") }}';
+            $scope.reserveMessage.type = 'error';
+            setTimeout(function () {
+                window.location = '{{ url_for(".index") }}';
+            }, 1500);
+        }
+        else {
+            $scope.reserveMessage.message = '{{ gettext("Failed to reserve: ") }}' + error.message;
+            $scope.reserveMessage.type = 'error';
+        }
+    } // !handleReserveFail
+
+    /**
      * Called to reserve the experiment in the frame.
      */
     function reserveInFrame() {
@@ -78,35 +139,18 @@ function LabController($scope, $injector) {
         var name = "{{ experiment['name'] }}";
         var category = "{{ experiment['category'] }}";
 
-        // TODO: Fix this.
-        $(".reserve-btn").attr("disabled", "");
-
+        $scope.experiment.reserving = true;
         $scope.reserveMessage.message = "{{ gettext('Reserving...') }}";
         $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
-
-            .progress(function (status, position, result) {
-                if (position != undefined) {
-                    if (position == 0) {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                    else {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
-                        $scope.reserveMessage.type = 'info';
-                    }
-
-                    $scope.$apply();
-                }
-            })
-            .fail(function (error) {
-                onReserveFail(error);
-            })
+            .progress(handleReserveProgress)
+            .fail(handleReserveFail)
             .done(function (uid, time, initial_config, result) {
 
                 console.log("Experiment now active");
                 $scope.experiment.active = true;
+                $scope.experiment.reserving = false;
                 console.log("SETTING EXPERIMENT TO ACTIVE. SCOPE: ");
                 console.log($scope.$id);
 
@@ -145,39 +189,19 @@ function LabController($scope, $injector) {
         var name = "{{ experiment['name'] }}";
         var category = "{{ experiment['category'] }}";
 
-        $(".reserve-free-btn").attr("disabled", "");
+
+        $scope.experiment.reserving = true;
         $scope.reserveMessage.message = "{{ gettext('Reserving experiment...') }}";
         $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
-            .progress(function (status, position, result) {
-                if (position != undefined) {
-                    if (position == 0) {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                    else {
-                        $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
-                        $scope.reserveMessage.type = 'info';
-                    }
-                }
-            })
-            .fail(function (error) {
-                // We logged out.
-                if (error.code == "JSON:Client.SessionNotFound") {
-                    errorStatus("{{ gettext("You are not logged in") }}");
-                    setTimeout(function () {
-                        window.location = "{{ url_for(".index") }}";
-                    }, 1500);
-                }
-                else {
-                    errorStatus("{{ gettext("Failed to reserve: ") }}" + error.message)
-                }
-            })
+            .progress(handleReserveProgress)
+            .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {
                 console.log("RESERVATION DONE");
                 console.log(result);
 
+                $scope.experiment.reserving = false;
                 $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
                 $scope.reserveMessage.type = 'info';
 

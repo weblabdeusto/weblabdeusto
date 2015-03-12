@@ -11,8 +11,6 @@
 
     <div class="container" id="reserve-container">
 
-        Experiment Active: <span ng-bind="isExperimentActive()"></span>
-
         <div class="text-center">
             <h2>{{ gettext("Reserve this experiment") }}</h2>
         </div>
@@ -24,11 +22,11 @@
         <div ng-show="!isExperimentActive()">
             <div class="row">
                 <div class="col-lg-2 col-lg-offset-4 text-center">
-                    <a href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                    <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
                        id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
                 </div>
                 <div class="col-lg-2 text-center">
-                    <a href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+                    <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
                        id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
                 </div>
             </div>

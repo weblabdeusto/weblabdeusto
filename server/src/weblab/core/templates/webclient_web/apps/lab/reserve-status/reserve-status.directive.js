@@ -14,17 +14,34 @@ function wlReserveStatus() {
 
         template: $("#reserve-status-template").html(),
 
-        link: function(scope, element, attrs) {
-            scope.getClassesForType = getClassesForType;
+        link: wlReserveStatusLink
 
-            function getClassesForType(type) {
-                console.debug("Returning classes for type: " + type);
-
-                if(type == 'danger')
-                    return "alert alert-danger";
-                else
-                    return "alert alert-info";
-            } // !getClassesForType
-        }
     }; // !return
+
+
+    // ---------
+    // Implementations
+    // ---------
+
+    function wlReserveStatusLink(scope, elem, attrs) {
+
+        // ------
+        // Scope & related
+        // ------
+
+        scope.getClassesForType = getClassesForType;
+
+        // ------
+        // Implementations
+        // ------
+
+        function getClassesForType(type) {
+            if(type == 'danger')
+                return "alert alert-danger";
+            else
+                return "alert alert-info";
+        }
+
+    } // !wlReserveStatusLink
+
 } // !function

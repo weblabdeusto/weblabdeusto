@@ -21,11 +21,15 @@ function wlExperimentIframe($injector) {
         // Dependencies
         // -------------
         var $log = $injector.get('$log');
+        var resizer = $injector.get('Resizer');
+
+        var iframe = elem.find("iframe");
 
         // -------------
-        // DOM bindings
+        // DOM bindings & initialization.
         // -------------
-        elem.find("iframe").load(handleLoadEvent);
+        iframe.load(handleLoadEvent);
+        resizer.loadFrameResizer(iframe);
 
         // -------------
         // Scope bindings & data
@@ -44,7 +48,7 @@ function wlExperimentIframe($injector) {
             // Reload the frame.
             // This is particularly important at the moment because the WeblabExp compatibility library
             // does not support any kind of reset besides re-instancing. (and it probably shouldn't support it either).
-            elem.find("iframe").attr('src', function (i, val) {
+            iframe.attr('src', function (i, val) {
                 return val;
             });
         } // !onExperimentFinished
@@ -56,7 +60,7 @@ function wlExperimentIframe($injector) {
             $log.debug("Injecting scripts");
 
             // TODO: We should maybe consider removing this and just forcing experiment developers to include the library if they want to support proper resizing.
-            InjectScriptIntoFrame("{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}"); // Automatic iframe resizing.
+            resizer.injectScriptIntoFrame(iframe, "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}"); // Automatic iframe resizing.
         }
 
     } // !wlExperimentIframeLink
