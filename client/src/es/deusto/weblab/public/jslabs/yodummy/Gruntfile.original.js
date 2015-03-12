@@ -1,4 +1,4 @@
-// Generated on 2015-01-26 using generator-angular 0.10.0
+// Generated on 2015-03-12 using generator-angular 0.11.1
 'use strict';
 
 // # Globbing
@@ -33,14 +33,17 @@ module.exports = function (grunt) {
         files: ['bower.json'],
         tasks: ['wiredep']
       },
-      //coffee: {
-      //  files: ['<%= yeoman.app %>/scripts/{,*/}*.{coffee,litcoffee,coffee.md}'],
-      //  tasks: ['newer:coffee:dist']
-      //},
-      //coffeeTest: {
-      //  files: ['test/spec/{,*/}*.{coffee,litcoffee,coffee.md}'],
-      //  tasks: ['newer:coffee:test', 'karma']
-      //},
+      js: {
+        files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
+        tasks: ['newer:jshint:all'],
+        options: {
+          livereload: '<%= connect.options.livereload %>'
+        }
+      },
+      jsTest: {
+        files: ['test/spec/{,*/}*.js'],
+        tasks: ['newer:jshint:test', 'karma']
+      },
       styles: {
         files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
         tasks: ['newer:copy:styles', 'autoprefixer']
@@ -55,7 +58,6 @@ module.exports = function (grunt) {
         files: [
           '<%= yeoman.app %>/{,*/}*.html',
           '.tmp/styles/{,*/}*.css',
-          '.tmp/scripts/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
@@ -78,6 +80,10 @@ module.exports = function (grunt) {
               connect().use(
                 '/bower_components',
                 connect.static('./bower_components')
+              ),
+              connect().use(
+                '/app/styles',
+                connect.static('./app/styles')
               ),
               connect.static(appConfig.app)
             ];
@@ -116,8 +122,15 @@ module.exports = function (grunt) {
       },
       all: {
         src: [
-          'Gruntfile.js'
+          'Gruntfile.js',
+          '<%= yeoman.app %>/scripts/{,*/}*.js'
         ]
+      },
+      test: {
+        options: {
+          jshintrc: 'test/.jshintrc'
+        },
+        src: ['test/spec/{,*/}*.js']
       }
     },
 
@@ -141,6 +154,17 @@ module.exports = function (grunt) {
       options: {
         browsers: ['last 1 version']
       },
+      server: {
+        options: {
+          map: true,
+        },
+        files: [{
+          expand: true,
+          cwd: '.tmp/styles/',
+          src: '{,*/}*.css',
+          dest: '.tmp/styles/'
+        }]
+      },
       dist: {
         files: [{
           expand: true,
@@ -156,34 +180,24 @@ module.exports = function (grunt) {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
         ignorePath:  /\.\.\//
+      },
+      test: {
+        devDependencies: true,
+        src: '<%= karma.unit.configFile %>',
+        ignorePath:  /\.\.\//,
+        fileTypes:{
+          js: {
+            block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
+              detect: {
+                js: /'(.*\.js)'/gi
+              },
+              replace: {
+                js: '\'{{filePath}}\','
+              }
+            }
+          }
       }
     },
-
-    // Compiles CoffeeScript to JavaScript
-    //coffee: {
-    //  options: {
-    //    sourceMap: true,
-    //    sourceRoot: ''
-    //  },
-    //  dist: {
-    //    files: [{
-    //      expand: true,
-    //      cwd: '<%= yeoman.app %>/scripts',
-    //       src: '{,*/}*.coffee',
-    //       dest: '.tmp/scripts',
-    //       ext: '.js'
-    //     }]
-    //   },
-    //   test: {
-    //     files: [{
-    //       expand: true,
-    //       cwd: 'test/spec',
-    //       src: '{,*/}*.coffee',
-    //       dest: '.tmp/spec',
-    //       ext: '.js'
-    //     }]
-    //   }
-    // },
 
     // Renames files for browser caching purposes
     filerev: {
@@ -191,7 +205,7 @@ module.exports = function (grunt) {
         src: [
           '<%= yeoman.dist %>/scripts/{,*/}*.js',
           '<%= yeoman.dist %>/styles/{,*/}*.css',
-          //'<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
+          '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= yeoman.dist %>/styles/fonts/*'
         ]
       }
@@ -221,7 +235,11 @@ module.exports = function (grunt) {
       html: ['<%= yeoman.dist %>/{,*/}*.html'],
       css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
       options: {
-        assetsDirs: ['<%= yeoman.dist %>'/*,'<%= yeoman.dist %>/images'*/]
+        assetsDirs: [
+          '<%= yeoman.dist %>',
+          '<%= yeoman.dist %>/images',
+          '<%= yeoman.dist %>/styles'
+        ]
       }
     },
 
@@ -285,7 +303,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '<%= yeoman.dist %>',
-          src: ['*.html', 'main/{,*/}*.html'],
+          src: ['*.html', 'views/{,*/}*.html'],
           dest: '<%= yeoman.dist %>'
         }]
       }
@@ -298,7 +316,7 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           cwd: '.tmp/concat/scripts',
-          src: ['*.js', '!oldieshim.js'],
+          src: '*.js',
           dest: '.tmp/concat/scripts'
         }]
       }
@@ -323,9 +341,9 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             '*.html',
-            'main/{,*/}*.html',
-            'images/{,*/}*.*',
-            'fonts/{,*/}*.*'
+            'views/{,*/}*.html',
+            'images/{,*/}*.{webp}',
+            'styles/fonts/{,*/}*.*'
           ]
         }, {
           expand: true,
@@ -350,17 +368,14 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
-        //'coffee:dist',
         'copy:styles'
       ],
       test: [
-        //'coffee',
         'copy:styles'
       ],
       dist: [
-        //'coffee',
         'copy:styles',
-        //'imagemin',
+        'imagemin',
         'svgmin'
       ]
     },
@@ -369,7 +384,6 @@ module.exports = function (grunt) {
     karma: {
       unit: {
         configFile: 'test/karma.conf.js',
-        //configFile: 'test/karma.conf.coffee',
         singleRun: true
       }
     }
@@ -385,7 +399,7 @@ module.exports = function (grunt) {
       'clean:server',
       'wiredep',
       'concurrent:server',
-      'autoprefixer',
+      'autoprefixer:server',
       'connect:livereload',
       'watch'
     ]);
@@ -398,6 +412,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', [
     'clean:server',
+    'wiredep',
     'concurrent:test',
     'autoprefixer',
     'connect:test',
@@ -413,8 +428,7 @@ module.exports = function (grunt) {
     'concat',
     'ngAnnotate',
     'copy:dist',
-    	// Disabled
-	//'cdnify',
+    'cdnify',
     'cssmin',
     'uglify',
     'filerev',

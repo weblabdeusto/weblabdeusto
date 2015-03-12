@@ -4,12 +4,11 @@
  * @ngdoc overview
  * @name hwboardApp
  * @description
- * # hwboardApp
  *
  * Main module of the application.
  */
 angular
-  .module('hwboardApp', [
+  .module('hwboard', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
@@ -20,12 +19,12 @@ angular
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        templateUrl: 'main/main.html',
+        controller: 'MainController'
       })
       .when('/about', {
-        templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
+        templateUrl: 'main/about.html',
+        controller: 'AboutController'
       })
       .otherwise({
         redirectTo: '/'
