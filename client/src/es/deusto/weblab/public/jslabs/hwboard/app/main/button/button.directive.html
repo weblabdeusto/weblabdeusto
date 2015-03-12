@@ -2,10 +2,10 @@
     <div style="position: relative" class="wl-switch-btn-img-wrapper">
         <!-- onmousedown, so that we don't drag&drop the button -->
         <img onmousedown="return false" ng-click="press()" ng-show="isOn" class="wl-switch-btn"
-             ng-src="images/switch_on.png"/>
+             ng-src="images/button_on.png"/>
         <img onmousedown="return false" ng-click="press()" ng-show="!isOn" class="wl-switch-btn"
              ng-class="{ 'wl-switch-btn-pressed' : isPressed }"
-             ng-src="images/switch_off.png"/>
+             ng-src="images/button_off.png"/>
 
         <div style="position: absolute">
             <img style="" class="wl-switch-btn-overlay" ng-show="overlay" ng-src="{{ overlay }}"/>
@@ -15,5 +15,4 @@
         {{ caption }}
         </span>
     </div>
-
 </div>

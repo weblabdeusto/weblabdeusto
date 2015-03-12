@@ -45,7 +45,7 @@ function SwitchController($scope, $injector) {
 
         $scope.ongoingCommand = true;
 
-        $log.debug("Button " + $scope.ident + " pressed.");
+        $log.debug("Switch " + $scope.ident + " pressed.");
 
         // Mark the button as pressed.
         $scope.isPressed = true;
@@ -87,6 +87,7 @@ function SwitchController($scope, $injector) {
         $log.error("SetPulse failed");
 
         $scope.ongoingCommand = false;
+        $scope.isPressed = false;
 
         $scope.$apply();
     }

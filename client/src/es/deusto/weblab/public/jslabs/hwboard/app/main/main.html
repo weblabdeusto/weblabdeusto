@@ -7,15 +7,19 @@
     </div>
 
     <div class="row">
-
         <div class="col-xs-1"></div>
-
         <div ng-repeat="switch in [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]" class="col-xs-1">
             <wl-switch ident="{{ switch }}" caption="{{ switch }}"></wl-switch>
         </div>
+    </div>
 
-        <div class="col-xs-1"></div>
+    <div style="padding-bottom: 30px"></div>
 
+    <div class="row">
+        <div class="col-xs-4"></div>
+        <div ng-repeat="button in [3, 2, 1, 0]" class="col-xs-1">
+            <wl-button ident="{{ button }}" caption="{{ button }}" delay="1000"></wl-button>
+        </div>
     </div>
 
 </div>
