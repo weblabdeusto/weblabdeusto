@@ -96,7 +96,7 @@ Game.prototype.answerQuestion = function() {
 								setTimeout(function(startDate) {
 									d = new Date();
 									if (startDate > (d.getTime()-15000)) {
-										$('.camera2 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+d.getTime());
+										$('.camera2 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_top?"+d.getTime());
 									} else {
 										$('.camera2').removeClass('active');
 										$('.camera2').addClass('inactive');
@@ -107,7 +107,7 @@ Game.prototype.answerQuestion = function() {
 								}, 400, event.data.startDate);
 							});
 
-							$('.camera2 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_top?"+cameraStartDate.getTime());
+							$('.camera2 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_top?"+cameraStartDate.getTime());
 						});
 					}
 				});

@@ -109,7 +109,7 @@ function init(time) {
 
 	updateCam1 = function() {
 		d = new Date();
-		$('.camera1 img').attr("src", "https://www.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
+		$('.camera1 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
 	}
 
 	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
