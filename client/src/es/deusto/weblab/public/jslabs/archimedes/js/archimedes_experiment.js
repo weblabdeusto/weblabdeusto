@@ -78,10 +78,14 @@ ArchimedesExperiment = function (registry, view) {
 //            });
 
 
+            console.log("Setting onStartInteractionCallback");
+
             // Declare onStartInteraction listener.
             // This is at times not getting called.
             // TODO: Fix this.
             Weblab.setOnStartInteractionCallback(function (initial_config) {
+
+                console.log("[OnStartInteractionCallback");
 
                 showFrame();
 
@@ -97,6 +101,8 @@ ArchimedesExperiment = function (registry, view) {
 
                     this.updateView();
                 }
+
+                console.log("Starting refreshing data");
 
                 this.startRefreshingData();
 
