@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="hwboard">
+  <body>
 
     <div ng-view=""></div>
 
@@ -66,6 +66,7 @@
         <script src="main/button/button.controller.js"></script>
         <script src="main/switch/switch.directive.js"></script>
         <script src="main/switch/switch.controller.js"></script>
+        <script src="main/status/status-updater.factory.js"></script>
 
 
   <!-- WebLab library -->
@@ -73,6 +74,14 @@
 
 <!-- For development only. TODO: Remove this -->
 <script type="text/javascript" src="//weblab.deusto.es/weblab/client/weblabclientlab/jslib/weblabjs.js"></script>
+
+
+  <script type="text/javascript">
+      angular.element(document).ready( function() {
+         angular.bootstrap(document, ["hwboard"])
+      });
+  </script>
+
 
   </body>
 </html>

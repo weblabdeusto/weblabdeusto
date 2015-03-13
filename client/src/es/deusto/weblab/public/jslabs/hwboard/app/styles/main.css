@@ -1,8 +1,35 @@
 
+.wl-status-wrapper-upper {
+    border: 4px solid dimgrey;
+
+    margin-bottom: 15px;
+}
+
 .wl-status-wrapper {
     min-height: 50px;
     width: 100%;
-    border: 2px solid blue;
+    border: 2px solid darkgreen;
+    background-color: #FFFFCC;
+}
+
+.wl-status-message {
+    padding: 10px;
+    width: 100%;
+    vertical-align: middle;
+    font-size: 1.2em;
+    font-family: monospace;
+}
+
+.wl-status-status-programming {
+
+}
+
+.wl-status-status-ready {
+
+}
+
+.wl-status-status-error {
+    background-color: indianred;
 }
 
 
@@ -10,7 +37,7 @@
 wl-webcam div {
     width: 100%;
     text-align: center;
-    height: 500px;
+    height: 450px;
 }
 
 wl-webcam div img {

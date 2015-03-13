@@ -12,9 +12,8 @@ function wlStatus($injector) {
         controller: "StatusController",
         controllerAs: "statusController",
         scope: {
-            'ident': '@ident',
-            'caption': '@caption',
-            'overlay': '@overlay'
+            'status': '=status',
+            'message': '=message'
         }
     };
 

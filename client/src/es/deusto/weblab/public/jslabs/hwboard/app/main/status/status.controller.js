@@ -23,8 +23,6 @@ function StatusController($scope, $injector) {
     // ----------
 
 
-
-
     // ----------
     // Implementations
     // ----------
