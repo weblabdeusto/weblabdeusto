@@ -1,3 +1,12 @@
+
+.wl-status-wrapper {
+    min-height: 50px;
+    width: 100%;
+    border: 2px solid blue;
+}
+
+
+
 wl-webcam div {
     width: 100%;
     text-align: center;
