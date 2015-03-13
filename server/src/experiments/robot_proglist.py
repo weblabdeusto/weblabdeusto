@@ -52,7 +52,7 @@ class RobotProglist(Experiment.Experiment):
         """
         if(DEBUG):
             print "[Robot*] do_start_experiment called"
-        return json.dumps({ "initial_configuration" : json.dumps({ "webcam" : "https://www.weblab.deusto.es/webcam/proxied.py/robot1", "mjpeg" : "https://www.weblab.deusto.es/webcam/robot0/video.mjpeg", "mjpegHeight" : 240, "mjpegWidth" : 320}), "batch" : False })
+        return json.dumps({ "initial_configuration" : json.dumps({ "webcam" : "https://cams.weblab.deusto.es/webcam/proxied.py/robot1", "mjpeg" : "https://cams.weblab.deusto.es/webcam/robot0/video.mjpeg", "mjpegHeight" : 240, "mjpegWidth" : 320}), "batch" : False })
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -64,7 +64,7 @@ class RobotProglist(Experiment.Experiment):
         if(DEBUG):
             print "[Robot*] do_send_command_to_device called"
         if command == 'WEBCAMURL':
-            return "WEBCAMURL=https://www.weblab.deusto.es/webcam/proxied/robot1"
+            return "WEBCAMURL=https://cams.weblab.deusto.es/webcam/proxied.py/robot1"
         if command == 'programs':
             return "Follow white line,Walk alone,Interactive Demo,turn left & turn right,"
         if command.startswith('program:'):

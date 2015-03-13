@@ -60,7 +60,7 @@ import es.deusto.weblab.client.ui.widgets.WlTimer.IWlTimerFinishedCallback;
 public class MobileLogicExperiment extends ExperimentBase {
 
 	public static final String LOGIC_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.logic.webcam.image.url";
-	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = "https://www.weblab.deusto.es/webcam/logic0/image.jpg?size=1";
+	public static final String DEFAULT_LOGIC_WEBCAM_IMAGE_URL = "https://cams.weblab.deusto.es/webcam/proxied.py/pld1";
 	
 	private static final String LOGIC_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.logic.webcam.refresh.millis";
 	private static final int DEFAULT_LOGIC_WEBCAM_REFRESH_TIME = 400;

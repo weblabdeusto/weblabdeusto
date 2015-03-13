@@ -19,7 +19,7 @@ import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
 public class Gpib1Board extends GpibExperiment {
 	
-	public static final String DEFAULT_GPIB1_WEBCAM_IMAGE_URL       = "https://www.weblab.deusto.es/webcam/gpib1/image.jpg";
+	public static final String DEFAULT_GPIB1_WEBCAM_IMAGE_URL       = "https://cams.weblab.deusto.es/webcam/proxied.py/pld1";
 	
 	public Gpib1Board(IConfigurationRetriever configurationRetriever, IBoardBaseController commandSender) {
 		super(configurationRetriever, commandSender);		

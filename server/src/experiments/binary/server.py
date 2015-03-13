@@ -67,7 +67,7 @@ class BinaryExperiment(UdXilinxExperiment.UdXilinxExperiment):
         webcam = self._cfg_manager.get_value('webcam', None)
         if webcam is not None:
             initial_configuration['webcam']  = webcam
-#        initial_configuration['mjpeg']       = 'https://www.weblab.deusto.es/webcam/robot0/video.mjpeg'
+#        initial_configuration['mjpeg']       = 'https://cams.weblab.deusto.es/webcam/robot0/video.mjpeg'
 #        initial_configuration['mjpegHeight'] = 240
 #        initial_configuration['mjpegWidth']  = 320
         initial_configuration['labels']      = self.current_labels

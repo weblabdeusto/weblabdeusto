@@ -24,7 +24,7 @@ import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 public class DummyExperiment extends XilinxExperiment {
 
 	public static final String DUMMY_WEBCAM_IMAGE_URL_PROPERTY = "es.deusto.weblab.dummy.webcam.image.url";
-	public static final String DEFAULT_DUMMY_WEBCAM_IMAGE_URL       = "http://fpga.weblab.deusto.es/webcam/fpga0/image.jpg";
+	public static final String DEFAULT_DUMMY_WEBCAM_IMAGE_URL       = "https://cams.weblab.deusto.es/webcam/proxied.py/fpga1";
 	
 	public static final String DUMMY_WEBCAM_REFRESH_TIME_PROPERTY = "es.deusto.weblab.pld.webcam.refresh.millis";
 	public static final int    DEFAULT_DUMMY_WEBCAM_REFRESH_TIME       = 400;
