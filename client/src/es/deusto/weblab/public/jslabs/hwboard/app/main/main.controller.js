@@ -21,6 +21,25 @@ function MainController($scope, $injector, $log) {
     // ---------------
     $log.debug("HW board experiment main controller");
 
-    statusUpdater.start();
+    Weblab.setOnStartInteractionCallback(onStartInteraction);
+    Weblab.setOnEndCallback(onEndInteraction);
+    Weblab.setOnTimeCallback(onTime);
+
+
+    // ----------------
+    // Implementations
+    // ----------------
+
+    function onStartInteraction(config) {
+        statusUpdater.start();
+    } // !onStartInteraction
+
+    function onEndInteraction() {
+        statusUpdater.stop();
+    } // !onEndInteraction
+
+    function onTime(time) {
+        $log.debug("TIME IS: " + time)
+    } // !onTime
 
 } // !MainController

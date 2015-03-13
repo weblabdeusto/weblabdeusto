@@ -20,7 +20,8 @@ function statusUpdater($injector) {
     var _updateTimeout = undefined;
 
     return {
-        start: start
+        start: start,
+        stop: stop
     }; // !return
 
 
@@ -30,7 +31,11 @@ function statusUpdater($injector) {
 
     function start() {
         _updateTimeout = $timeout(updateStatus, frequency);
-    }
+    } // !start
+
+    function stop() {
+        $timeout.cancel(_updateTimeout);
+    } // !stop
 
     function updateStatus() {
         Weblab.dbgSetOfflineSendCommandResponse("programming");
