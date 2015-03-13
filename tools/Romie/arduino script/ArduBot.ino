@@ -17,6 +17,7 @@ boolean lastTurn = 0;
 boolean centered = 1;
 boolean lastF = 0;
 unsigned long lastTime=millis();
+unsigned long lastTimeFollow=millis();
 
 // Instantiates the Software Serial emulation used by the RFID sensor.
 SoftwareSerial swSerial=SoftwareSerial(rxPin, txPin); // RX, TX
@@ -58,6 +59,12 @@ void loop()
   // Follows a line until the robot reaches an intersection.
   FollowLine();
   if(millis()-lastTime>=1500)lastF=1;
+  if(millis()-lastTimeFollow>=8000){
+    while(digitalRead(FLIline)==HIGH)Motors.turnRight(100);
+    while(digitalRead(FRIline)==LOW)Motors.turnRight(100);
+    FollowLine();
+    lastTimeFollow=millis();
+  }
   if(lastF==1){
     if(digitalRead(MRline)==HIGH || digitalRead(MLline)==HIGH){ 
       // When an intersection is reached, the robot stops, attempts to read an RFID tag, and sends an "ACK" signal.
@@ -138,7 +145,8 @@ void ReciveProcess(){
       // Processes Bluetooth commands.
       switch(next)
       {
-      case 'F': // The command is "F": Forward 
+      case 'F': // The command is "F": Forward
+        lastTimeFollow=millis(); 
         // If a wall is in the way, the robot stops and sends an "NAK" signal.
         if(digitalRead(FRIline)==LOW && digitalRead(FLIline)==LOW) centered = 0;
         else centered=1;
