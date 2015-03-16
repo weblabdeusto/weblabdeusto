@@ -13,43 +13,43 @@ CELERYBEAT_SCHEDULE = {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam1', 'Archimedes 1 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate', 200)
     },
     'ar2': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam2', 'Archimedes 2 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate', 200)
     },
     'ar3': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam3', 'Archimedes 3 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate', 200)
     },
     'ar4': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam4', 'Archimedes 4 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate', 200)
     },
     'ar5': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam5', 'Archimedes 5 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate', 200)
     },
     'ar6': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam6', 'Archimedes 6 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate', 200)
     },
     'ar7': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
         'args': ('archimedes.cam7', 'Archimedes 7 webcam works',
-                 'http://www.weblab.deusto.es/webcam/proxied.py/arquimedes7_rotate', 200)
+                 'http://cams.weblab.deusto.es/webcam/proxied.py/arquimedes7_rotate', 200)
     },
 
     'arboard1': {
@@ -101,7 +101,7 @@ CELERYBEAT_SCHEDULE = {
     'fpga1': {
         'task': 'check.http_get_code',
         'schedule': timedelta(seconds=60),
-        'args': ('fpga.cam1', 'FPGA 1 webcam works', 'http://www.weblab.deusto.es/webcam/proxied.py/fpga1', 200)
+        'args': ('fpga.cam1', 'FPGA 1 webcam works', 'http://cams.weblab.deusto.es/webcam/proxied.py/fpga1', 200)
     }
 
 
