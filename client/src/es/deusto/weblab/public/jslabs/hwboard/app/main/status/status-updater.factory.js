@@ -4,13 +4,7 @@ angular
     .factory("statusUpdater", statusUpdater);
 
 
-function statusUpdater($injector) {
-
-    // -----------
-    // Dependencies
-    // -----------
-    var $timeout = $injector.get("$timeout");
-    var $log = $injector.get("$log");
+function statusUpdater($injector, $log, $timeout) {
 
     // -----------
     // Initialization
@@ -18,16 +12,25 @@ function statusUpdater($injector) {
 
     var frequency = 2000; // How often to update.
     var _updateTimeout = undefined;
+    var onStatusUpdateCallback = undefined;
 
+    // -------------
+    // Declare the API
+    // -------------
     return {
         start: start,
-        stop: stop
+        stop: stop,
+        setOnStatusUpdate: setOnStatusUpdate
     }; // !return
 
 
     // -----------
     // Implementations
     // -----------
+
+    function setOnStatusUpdate(callback) {
+        onStatusUpdateCallback = callback;
+    }
 
     function start() {
         _updateTimeout = $timeout(updateStatus, frequency);
@@ -45,6 +48,11 @@ function statusUpdater($injector) {
 
     function onStatusSuccess(response) {
         $log.debug("SUCCESS: STATUS: " + response);
+
+        if(onStatusUpdateCallback != undefined) {
+            response.substring(7); // Remove the "STATUS=" part.
+            onStatusUpdateCallback(status)
+        }
 
         _updateTimeout = $timeout(updateStatus, frequency);
     }
