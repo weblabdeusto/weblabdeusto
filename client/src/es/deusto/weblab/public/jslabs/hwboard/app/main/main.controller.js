@@ -31,10 +31,12 @@ function MainController($scope, $injector, $log) {
     // ----------------
 
     function onStatusUpdate(status) {
+        $log.debug("Status update: " + status);
+
         if( status != $scope.status) {
             $scope.status = status;
 
-            $scope.apply();
+            $scope.$apply();
         }
     }
 

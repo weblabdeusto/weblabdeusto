@@ -41,7 +41,7 @@ function statusUpdater($injector, $log, $timeout) {
     } // !stop
 
     function updateStatus() {
-        Weblab.dbgSetOfflineSendCommandResponse("programming");
+        Weblab.dbgSetOfflineSendCommandResponse("STATE=programming");
 
         Weblab.sendCommand("STATE", onStatusSuccess, onStatusError);
     }
@@ -50,7 +50,7 @@ function statusUpdater($injector, $log, $timeout) {
         $log.debug("SUCCESS: STATUS: " + response);
 
         if(onStatusUpdateCallback != undefined) {
-            response.substring(7); // Remove the "STATUS=" part.
+            var status = response.substring(6); // Remove the "STATE=" part.
             onStatusUpdateCallback(status)
         }
 
