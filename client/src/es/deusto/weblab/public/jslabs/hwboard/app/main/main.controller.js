@@ -14,7 +14,7 @@ function MainController($scope, $injector, $log) {
     // For some reason when we include $log through the injector
     // but it is not as an argument, it fails.
     statusUpdater = $injector.get("statusUpdater");
-
+    statusUpdater.setOnStatusUpdate(onStatusUpdate);
 
     // ---------------
     // Initialization
@@ -29,6 +29,14 @@ function MainController($scope, $injector, $log) {
     // ----------------
     // Implementations
     // ----------------
+
+    function onStatusUpdate(status) {
+        if( status != $scope.status) {
+            $scope.status = status;
+
+            $scope.apply();
+        }
+    }
 
     function onStartInteraction(config) {
         statusUpdater.start();
