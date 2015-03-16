@@ -58,7 +58,7 @@ function SwitchController($scope, $injector, $log, $timeout) {
 
         var nextStatus = $scope.isOn ? "off" : "on";
 
-        Weblab.sendCommand("SetPulse " + nextStatus + " " + $scope.ident,
+        Weblab.sendCommand("ChangeSwitch " + nextStatus + " " + $scope.ident,
             onCommandSentOk, onCommandSentFail);
     }
 
@@ -69,7 +69,7 @@ function SwitchController($scope, $injector, $log, $timeout) {
      * @param response
      */
     function onCommandSentOk(response) {
-        $log.debug("SetPulse succeeded");
+        $log.debug("ChangeSwitch succeeded");
 
         $scope.isOn = !$scope.isOn;
         $scope.isPressed = false;
