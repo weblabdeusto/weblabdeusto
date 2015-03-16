@@ -15,8 +15,6 @@ function StatusController($scope, $injector) {
     // Dependencies
     // ----------
 
-    $log = $injector.get('$log');
-    $timeout = $injector.get('$timeout');
 
     // ----------
     // Scope-related

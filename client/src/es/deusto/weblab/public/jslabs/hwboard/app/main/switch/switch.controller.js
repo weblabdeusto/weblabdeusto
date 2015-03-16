@@ -4,7 +4,7 @@ angular
     .controller("SwitchController", SwitchController);
 
 
-function SwitchController($scope, $injector) {
+function SwitchController($scope, $injector, $log, $timeout) {
 
     // ----------
     // Self-reference
@@ -15,8 +15,8 @@ function SwitchController($scope, $injector) {
     // Dependencies
     // ----------
 
-    $log = $injector.get('$log');
-    $timeout = $injector.get('$timeout');
+    //$log = $injector.get('$log');
+    //$timeout = $injector.get('$timeout');
 
     // ----------
     // Scope-related
