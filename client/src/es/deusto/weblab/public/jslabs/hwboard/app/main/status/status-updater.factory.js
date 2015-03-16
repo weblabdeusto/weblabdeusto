@@ -40,7 +40,7 @@ function statusUpdater($injector) {
     function updateStatus() {
         Weblab.dbgSetOfflineSendCommandResponse("programming");
 
-        Weblab.sendCommand("STATUS", onStatusSuccess, onStatusError);
+        Weblab.sendCommand("STATE", onStatusSuccess, onStatusError);
     }
 
     function onStatusSuccess(response) {
