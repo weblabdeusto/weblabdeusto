@@ -2,12 +2,15 @@
 
     <div class="row">
         <div class="text-center col-xs-offset-3 col-xs-6">
-            <wl-webcam src="//weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
+            <wl-webcam src="//cams.weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-xs-10 col-xs-offset-1">
+        <div class="col-xs-2">
+            <wl-timer time="time"></wl-timer>
+        </div>
+        <div class="col-xs-10">
             <wl-status ng-show="status != 'ready'" status="status" message="status"></wl-status>
         </div>
     </div>

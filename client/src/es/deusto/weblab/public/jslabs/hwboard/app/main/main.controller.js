@@ -25,6 +25,11 @@ function MainController($scope, $injector, $log) {
     Weblab.setOnEndCallback(onEndInteraction);
     Weblab.setOnTimeCallback(onTime);
 
+    // ---------------
+    // Scope-related
+    // ---------------
+    $scope.time = 0;
+
 
     // ----------------
     // Implementations
@@ -46,10 +51,12 @@ function MainController($scope, $injector, $log) {
 
     function onEndInteraction() {
         statusUpdater.stop();
+        $scope.time = 0;
     } // !onEndInteraction
 
     function onTime(time) {
-        $log.debug("TIME IS: " + time)
+        $log.debug("TIME IS: " + time);
+        $scope.time = time;
     } // !onTime
 
 } // !MainController
