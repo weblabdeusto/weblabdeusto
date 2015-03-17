@@ -36,7 +36,7 @@ function StatusController($scope, $injector) {
         } else if($scope.status == 'not_ready') {
             return "You will probably want to upload your logic file before interacting with the board."
         }
-        return '[STATUS: ' + status + '] ' + message
+        return '[STATUS: ' + $scope.status + '] ' + $scope.message
     }
 
 
