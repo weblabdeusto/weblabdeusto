@@ -25,7 +25,10 @@
     <div style="padding-bottom: 0px"></div>
 
     <div class="row">
-        <div class="col-xs-4"></div>
+        <div class="col-xs-4">
+            <wl-clock-control></wl-clock-control>
+        </div>
+        <div class="col-xs-2"></div>
         <div ng-repeat="button in [3, 2, 1, 0]" class="col-xs-1">
             <slider ng-init="delay=1000" floor="0" default="1000" ceiling="10000" step="100" precision="0" ng-model="delay" translate=""></slider>
             <wl-button ident="{{ button }}" caption="{{ button }}" delay="delay"></wl-button>
