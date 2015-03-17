@@ -15,7 +15,7 @@ function wlButton($injector) {
             'ident': '@ident',
             'caption': '@caption',
             'overlay': '@overlay',
-            'delay': '@delay'
+            'delay': '=delay'
         }
     };
 
