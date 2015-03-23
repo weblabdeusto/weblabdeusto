@@ -30,6 +30,12 @@ def handle_login_POST():
     #
     username = request.values.get("username")
     password = request.values.get("password")
+    guestlogin = request.values.get("guestlogin")
+
+    # If we have a guestlogin then it is a DEMO login request.
+    if guestlogin is not None:
+        username = "demo"
+        password = "demo"
 
     # We may or may not have a 'next' field. If we do, we make sure that the URL is safe.
     next = request.values.get("next")
