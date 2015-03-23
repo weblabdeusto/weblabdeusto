@@ -8,7 +8,7 @@
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
             "name": "2nd Tube",
@@ -18,7 +18,7 @@
             "liquid_name": "water",
             "liquid_density": 1000,
             "liquid_diameter": 7, // cm
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
         },
         "archimedes3" : {
             "name": "3rd Tube",
@@ -28,7 +28,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate"
         },
         "archimedes4" : {
             "name": "4th Tube",
@@ -38,7 +38,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
         "archimedes5" : {
             "name": "5th Tube",
@@ -48,7 +48,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
         },
         "archimedes6" : {
             "name": "6th Tube",
@@ -58,7 +58,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate"
         },
         "archimedes7" : {
             "name": "7th Tube",
@@ -68,7 +68,7 @@
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
-            "webcam": "//www.weblab.deusto.es/webcam/proxied.py/arquimedes7_rotate"
+            "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes7_rotate"
         }
     };
 
@@ -81,11 +81,15 @@
         "archimedes1" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
         "archimedes2" : "ALL",
-        "archimedes3" : "ALL",
+        "archimedes3" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+            "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
         "archimedes4" : "ALL",
-        "archimedes5" : "ALL",
-        "archimedes6" : "ALL",
-        "archimedes7" : "ALL"
+        "archimedes5" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+            "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
+        "archimedes6" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+            "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
+        "archimedes7" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+            "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]
     };
 
 
