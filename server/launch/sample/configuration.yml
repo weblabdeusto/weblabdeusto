@@ -141,7 +141,7 @@ hosts:
             class: experiments.incubator.IncubatorExperiment
           experiment_new_incubator:
             config:
-              server: http://192.168.0.222:80/
+              server: http://192.168.0.100:80/
             type: experiment
             class: experiments.new_incubator.NewIncubatorExperiment
           experiment_robot_maze:
