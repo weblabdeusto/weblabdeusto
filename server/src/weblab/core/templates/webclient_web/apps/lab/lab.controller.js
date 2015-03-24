@@ -95,18 +95,37 @@ function LabController($scope, $injector) {
     /**
      * Handles a reserve progress update, received periodically while a reserve attempt is in progress.
      */
-    function handleReserveProgress(status, position, result) {
-        if (position != undefined) {
-            if (position == 0) {
-                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
-                $scope.reserveMessage.type = 'info';
-            }
-            else {
-                $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
-                $scope.reserveMessage.type = 'info';
-            }
+    function handleReserveProgress(status, position, result, broken) {
 
-            $scope.$apply();
+        if (!broken) {
+            if (position != undefined) {
+                if (position == 0) {
+                    $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
+                    $scope.reserveMessage.type = 'info';
+                }
+                else {
+                    $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
+                    $scope.reserveMessage.type = 'info';
+                }
+
+                $scope.$apply();
+            }
+        } else if(broken) {
+            if (position != undefined) {
+                if (position == 0) {
+                    $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken and no instances are available. Even though, you are first the queue.') }}";
+                    $scope.reserveMessage.type = 'danger';
+                }
+                else {
+                    $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken and no instances are available. Even though, you are waiting in the queue. Your position is: ') }}" + position + ".";
+                    $scope.reserveMessage.type = 'danger';
+                }
+
+                $scope.$apply();
+            } else {
+                $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken. We will keep trying, but for now, reserve will probably fail.') }}";
+                $scope.reserveMessage.type = 'danger';
+            }
         }
     } // !handleReserveProgress
 
@@ -118,15 +137,17 @@ function LabController($scope, $injector) {
         // We logged out.
         if (error.code == "JSON:Client.SessionNotFound") {
             $scope.reserveMessage.message = '{{ gettext("You are not logged in") }}';
-            $scope.reserveMessage.type = 'error';
+            $scope.reserveMessage.type = 'danger';
             setTimeout(function () {
                 window.location = '{{ url_for(".index") }}';
             }, 1500);
         }
         else {
             $scope.reserveMessage.message = '{{ gettext("Failed to reserve: ") }}' + error.message;
-            $scope.reserveMessage.type = 'error';
+            $scope.reserveMessage.type = 'danger';
         }
+
+        $scope.$apply();
     } // !handleReserveFail
 
     /**
@@ -159,6 +180,22 @@ function LabController($scope, $injector) {
 
                 var frame = $("#exp-frame")[0];
                 var wexp = frame.contentWindow.weblabExp; // This value is hard-coded in the experiment's HTML. // TODO: Make it prettier.
+
+                // If wexp is undefined, then it is likely that the experiment loaded in the iframe does not actually
+                // support being embedded in the weblab client. In this case, we will report a custom error.
+                if(wexp == undefined) {
+                    var error = {
+                        message: "{{ gettext('The experiment does not seem to support iframe mode') }}",
+                        code: "JSON:ClientSideError:IframeModeNotSupported"
+                    };
+                    $scope.experiment.active = false;
+                    $scope.experiment.reserving = false;
+                    handleReserveFail(error);
+                    return;
+                    // TODO: For now, we return. The experiment is actually reserved successfully, but we cannot
+                    // go on because the library does not work as expected.
+                }
+
                 window.currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
                 var url = result["url"];
                 var json_url = "{{ json_url }}";

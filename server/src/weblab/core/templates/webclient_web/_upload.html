@@ -30,6 +30,14 @@
             $('#fileupload').fileupload({
                 url: url,
                 dataType: 'json',
+
+                // Callback meant to start the upload.
+                add: function (e, data) {
+                    setTimeout(function(){
+                        console.log(data);
+                        data.submit();
+                    }, 1000)
+                },
                 done: function (e, data) {
                     $.each(data.result.files, function (index, file) {
                         $('<p/>').text(file.name).appendTo('#files');

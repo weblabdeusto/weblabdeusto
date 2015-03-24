@@ -368,7 +368,7 @@ WeblabWeb = new function () {
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
      * @returns {object} Callback. It reports through .done(id, time, initial_config, result_object)  {@link reserve_experiment~done}, through .fail(error)
-     * and through .progress(status, [queuePosition], result).
+     * and through .progress(status, [queuePosition], result, [broken]).
      * @example
      *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
@@ -397,11 +397,22 @@ WeblabWeb = new function () {
                             else {
 
                                 if (status === "Reservation::waiting") {
-                                    // The reservation is not ready yet. We report the status, but we will repeat
+                                    // The reservation is not ready yet. We are in the queue.
+                                    // We report the status, but we will repeat
                                     // the query in a couple seconds.
-                                    promise.notify(status, result["position"], result);
+                                    promise.notify(status, result["position"], result, false);
                                 }
-
+                                else if (status === "Reservation::waiting_instances") {
+                                    // The reservation is not ready because apparently there are no instances
+                                    // of the experiment. We will report our status and repeat the query in a
+                                    // couple seconds.
+                                    promise.notify(status, result["position"], result, true);
+                                }
+                                else if (status === "Reservation::waiting_confirmation") {
+                                    // We are waiting for confirmation. Soon we will receive a
+                                    // Reservation::confirmed state.
+                                    promise.notify(status, undefined, result, false);
+                                }
                                 else
                                 {
                                     promise.notify(status, undefined, result);
