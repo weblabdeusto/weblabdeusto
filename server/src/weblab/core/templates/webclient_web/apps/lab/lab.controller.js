@@ -179,11 +179,11 @@ function LabController($scope, $injector) {
                 $scope.reserveMessage.type = 'info';
 
                 var frame = $("#exp-frame")[0];
-                var wexp = frame.contentWindow.weblabExp; // This value is hard-coded in the experiment's HTML. // TODO: Make it prettier.
+                var Wexp = frame.contentWindow.WeblabExp;
 
                 // If wexp is undefined, then it is likely that the experiment loaded in the iframe does not actually
                 // support being embedded in the weblab client. In this case, we will report a custom error.
-                if(wexp == undefined) {
+                if(Wexp == undefined || Wexp.lastInstance == undefined) {
                     var error = {
                         message: "{{ gettext('The experiment does not seem to support iframe mode') }}",
                         code: "JSON:ClientSideError:IframeModeNotSupported"
@@ -196,7 +196,11 @@ function LabController($scope, $injector) {
                     // go on because the library does not work as expected.
                 }
 
-                window.currentExperiment = wexp; // Save it in a GLOBAL. // TODO: Consider tiding it up.
+                // TODO: Consider checking whether WeblabExp version is the expected one.
+
+                var wexp = Wexp.lastInstance;
+
+                window.currentExperiment = wexp; // Save it in a GLOBAL.
                 var url = result["url"];
                 var json_url = "{{ json_url }}";
                 wexp.setTargetURL(json_url);

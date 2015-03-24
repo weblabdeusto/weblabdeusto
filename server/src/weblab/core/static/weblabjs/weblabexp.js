@@ -688,28 +688,34 @@ WeblabExp = function (frameMode) {
     }
 
 
-    /////////////////////////////////////////////
-    // THE CODE THAT FOLLOWS IS COMMENTED OUT FOR NOW AND MOST LIKELY WOULDNT WORK AS EXPECTED
-    /////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    //
+    // CONSTRUCTOR
+    // The following is internal code called on object creation.
+    //
+    ///////////////////////////////////////////////////////////////
 
+    // Always keep a reference to the last WeblabExp instance. This lets us have multiple
+    // instances while at the same time granting us easy access from, for example,
+    // scripts outside of the Weblab iframe. In the future maybe we should consider whether
+    // supporting more than one instance really does make sense.
+    WeblabExp.lastInstance = this;
 
-//
-//    ///////////////////////////////////////////////////////////////
-//    //
-//    // CONSTRUCTOR
-//    // The following is internal code to create the object.
-//    //
-//    ///////////////////////////////////////////////////////////////
-//
-//    // Extract the reservation id from the hash.
-//    this._extractReservation();
-//
-//    // Extract the target URL from the hash or set a default one.
-//    this._extractTargetURL();
-//
-//    //$.cookie("weblabsessionid", "T-Go5baSwSB3SHsO.route2");
 
 }; // !WeblabExp
+
+
+
+/////////////////////////////////
+//
+// STATIC-LIKE ELEMENTS
+//
+/////////////////////////////////
+
+WeblabExp.VERSION = "1"; // Keep the version of the library in the prototype.
+
+// Each time it is instanced, a reference to the last created instance will be saved in the prototype.
+WeblabExp.lastInstance = undefined;
 
 
 
