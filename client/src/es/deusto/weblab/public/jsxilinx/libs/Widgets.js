@@ -43,7 +43,7 @@ RefreshingCameraWidget = function (targetid, imgsrc) {
     this._init = function () {
         mTargetId = targetid;
         mImgSrc = imgsrc;
-    }
+    };
 
     mImage = mImgSrc + "?" + mReload;
 
