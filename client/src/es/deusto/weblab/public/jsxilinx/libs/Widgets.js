@@ -57,6 +57,7 @@ RefreshingCameraWidget = function (targetid, imgsrc) {
             document.images[mTargetId].src = mImage.src;
             mImage = new Image();
             mReload = (new Date()).getTime();
+            mImage.crossOrigin = "";
             mImage.src = mImgSrc + "?" + mReload;
 
         }
@@ -64,11 +65,12 @@ RefreshingCameraWidget = function (targetid, imgsrc) {
             mTick = 0;
             mImage = new Image();
             mReload = (new Date()).getTime();
+            mImage.crossOrigin = "";
             mImage.src = mImgSrc + "?" + mReload;
         }
 
         setTimeout(this.startRefreshing.bind(this), 3000);
-    }
+    };
 
 
     this._init();
