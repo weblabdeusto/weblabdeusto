@@ -2,8 +2,10 @@ registering = false;
 
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
-		if (response == "REGISTER") register();
-		else init(response);
+		response = JSON.parse(response)
+		if (response['register']) register();
+		else if (response['psycho']) psyco();
+		else init(response['time']);
 
 		$(parent.document).find('iframe[name=wlframe]').show();
 		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
@@ -64,14 +66,16 @@ function register() {
 
 				command = "REGISTER " + JSON.stringify(data);
 				Weblab.sendCommand(command, function(response) {
-					if (response == "ERROR EMAIL") {
+					response = JSON.parse(response);
+					if (response['error'] == "email") {
 						$('#email-group').addClass('has-error');
 						registering = false;
 					} else {
-						time = parseFloat(response);
 						$('#register').modal('hide');
 						registering = false;
-						init(time);
+
+						// TODO show labpsico experiment
+						init(response['time']);
 					}
 				});
 			} else {

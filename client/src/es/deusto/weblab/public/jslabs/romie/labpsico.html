@@ -1,0 +1,77 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="es"> <!--<![endif]-->
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Tarea de Cartas</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+  <!--Jquery mobile-->
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <link rel="stylesheet" href="jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css" />
+
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <script src="jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  
+  <script src="js/vendor/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/experiment.js"></script>
+  <script src="js/lib.js"></script>
+  <!-- Firebase -->
+  <script src='https://cdn.firebase.com/js/client/2.0.4/firebase.js'></script>
+</head>
+<body onload="inicio()">
+<!--Contenedor principal de la web. Se puede utilizar la clase container o container-fluid-->
+  <div id="container" class="container">
+    <div class="row">
+      <header>
+        <h1 class="text-center head" id="header">Tarea de Cartas</h1>
+      </header>
+      <div id="instructions" class="col-xs-12 col-md-8 col-md-offset-2">
+        <h3 id="encabezado" class="text-left">Encabezado</h3>
+        <span id="contenido" class=""></span>
+        <div id="question" class="question">
+          <div id="slider" data-role="main" class="ui-content">
+            <input type="range" name="points" id="points" value="none" min="0" max="100" data-show-value="true" data-theme="a">
+            <br>
+            <p id="info" class="text-info text-center">Pincha sobre la barra para seleccionar un valor.</p>
+          </div>
+        </div> 
+      </div>
+      <div id="trials" class="col-xs-12 col-md-6 col-md-offset-3 clearfix">
+        <div id="part1" class="clearfix">
+          <img id="key" src="" height="300"></img>
+          <strong><p id="questionKey"><br><br></p></strong>
+          <br>
+          <button id="no" data-role="none" type="button" class="pull-right buttons" onclick="">No</button>
+          <button id="yes" data-role="none" type="button" class="pull-left buttons" onclick="">Sí</button>
+        </div>
+        <div id="part2" class="text-center">
+          <img id="outcome" src="" height="300"></img>
+          <br>
+          <button id="siguiente" data-role="none" type="button" class="buttons">Siguiente</button>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <footer id="footer" class="text-center clearfix col-xs-12 col-md-8 col-md-offset-2">
+      <button data-role="none" type="button" class="pull-left buttons"  id="button_back" onclick="">Atrás</button>
+      <button data-role="none" type="" class="pull-right buttons" id="button_next" onclick="">Continuar</button>
+      <p><img id="logo" src="img/logolab.png" width="100"  height="22" alt="logo"></p>
+    </footer>
+  </div> <!-- /container -->        
+</body>
+</html>

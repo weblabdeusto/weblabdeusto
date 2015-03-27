@@ -131,21 +131,22 @@ class RoMIExperiment(Experiment.Experiment):
 
             result = ''
             if count == 0:
-                result = 'REGISTER'
+                result = {'register': True, 'psycho': True}
             else:
+                # TODO check if psycho run
                 self.update_points()
                 self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                 result = self.finish_time
 
             conn.close()
 
-            return result
+            return json.dumps(result)
 
         elif command.startswith('REGISTER'):
             data = json.loads(command.split(' ', 1)[1])
 
             if (self.email_exists(data["email"])):
-                return 'ERROR EMAIL'
+                return json.dumps({'error': 'email'})
 
             conn = sqlite3.connect(self.database)
             conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
@@ -155,7 +156,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 
-            return self.finish_time
+            return json.dumps({'time': self.finish_time})
 
         elif command == 'FINISH':
 
