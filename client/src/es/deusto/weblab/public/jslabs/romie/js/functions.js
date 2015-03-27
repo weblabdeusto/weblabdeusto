@@ -74,7 +74,7 @@ function register() {
 						$('#register').modal('hide');
 						registering = false;
 
-						// TODO show labpsico experiment
+						// TODO show labpsico experiment && inicio()
 						init(response['time']);
 					}
 				});

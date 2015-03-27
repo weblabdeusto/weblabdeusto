@@ -1,9 +1,10 @@
-CREATE TABLE IF NOT EXISTS "forotech" (
-"username" TEXT PRIMARY KEY,
-"name" TEXT,
-"surname" TEXT,
-"school" TEXT,
-"birthday" INTEGER,
-"email" TEXT UNIQUE,
-"points" INTEGER
+CREATE TABLE IF NOT EXISTS "users" (
+	"username" TEXT PRIMARY KEY,
+	"email" TEXT UNIQUE,
+	"name" TEXT,
+	"surname" TEXT,
+	"school" TEXT,
+	"birthday" INTEGER,
+	"psycho" INTEGER DEFAULT 0,
+	"points" INTEGER DEFAULT 0
 );
