@@ -81,14 +81,14 @@
         "archimedes1" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
         "archimedes2" : "ALL",
-        "archimedes3" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes3" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
         "archimedes4" : "ALL",
-        "archimedes5" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes5" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
-        "archimedes6" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes6" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
-        "archimedes7" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes7" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]  // Fake weight
     };
 
