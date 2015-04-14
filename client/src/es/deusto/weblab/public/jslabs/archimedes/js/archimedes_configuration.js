@@ -7,7 +7,7 @@
             "ball_density": 0.5,
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 7, // cm
+            "liquid_diameter": 9.4, // cm
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
