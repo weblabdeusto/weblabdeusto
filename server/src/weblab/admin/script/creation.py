@@ -367,7 +367,7 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
                         global DB_ROOT, DB_PASSWORD
                         if DB_ROOT is None or DB_PASSWORD is None:
                             admin_username = raw_input("Enter the MySQL administrator username [default: root]: ") or 'root'
-                            admin_password = getpass.getpass("Enter the MySQL administrator password: ")
+                            admin_password = getpass.getpass("Enter the MySQL administrator password: ".encode('utf8'))
                         else:
                             admin_username = DB_ROOT
                             admin_password = DB_PASSWORD
