@@ -5,6 +5,9 @@
             "ball_mass": 155, // g
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
+            "object_density": 0.5,
+            "object_volume": 310,
+            "object_type": "Cylinder",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 9.4, // cm
@@ -17,6 +20,8 @@
             "ball_density": 0.5,
             "object_type": "cylinder",
             "object_density": 1.32,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000,
             "liquid_diameter": 7, // cm
@@ -27,6 +32,9 @@
             "ball_mass": 155,
             "ball_diameter": 6, // cm
             "ball_density": 1.17,
+            "object_density": 1.17,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -37,6 +45,9 @@
             "ball_mass": 111,
             "ball_diameter": 6, // cm
             "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -47,6 +58,9 @@
             "ball_mass": 111,
             "ball_diameter": 6.0    , // cm
             "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 900, // 900/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "oil",
@@ -56,6 +70,9 @@
             "name": "6th Tube",
             "ball_mass": 89.3,
             "ball_density": 0.79,
+            "object_density": 0.79,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "ball_diameter": 6, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
@@ -66,6 +83,9 @@
             "name": "7th Tube",
             "ball_mass": 50.9,
             "ball_density": 0.78,
+            "object_density": 0.78,
+            "object_volume": 65.45,
+            "object_type": "Ball",
             "ball_diameter": 5, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
