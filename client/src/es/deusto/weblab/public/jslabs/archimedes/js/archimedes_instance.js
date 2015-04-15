@@ -200,18 +200,14 @@ ArchimedesInstance = function (instanceid) {
         });
 
         $(getidselect("table-ball")).datatable({
-            header: $.i18n._("ball"),
+            header: $.i18n._(Registry[instanceid]["object_type"]),
             vars: {
                 "mass": Registry[instanceid]["ball_mass"] + " " + $.i18n._("grams"),
 
                 "diameter": Registry[instanceid]["ball_diameter"] + " " + $.i18n._("cm"),
 
-                "density": function() {
-                        var r = this["ball_diameter"] / (2 * 100); //  Radius: cm to m
-                        var vol = (4/3) * Math.PI * r * r * r * 1000000; // m3 to cm3
-                        var den = this["ball_mass"] / vol; // Density: g / cm3
-                        return den.toFixed(2) + " " + $.i18n._("gcm3");
-                }.bind(Registry[instanceid]),
+                // Tune this up!.
+                "density": Registry[instanceid]["object_density"] + " " + $.i18n._("grams"),
 
                 "volume": function() {
                     var r = this["ball_diameter"] / (2 * 100); //  To meters

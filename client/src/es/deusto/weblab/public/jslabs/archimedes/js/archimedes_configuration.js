@@ -12,9 +12,11 @@
         },
         "archimedes2" : {
             "name": "2nd Tube",
+            "object_type": "cylinder",
             "ball_mass": 41,
             "ball_diameter": 3.9, // cm
             "ball_density": 1.32,
+            "object_density": 1.32,
             "liquid_name": "water",
             "liquid_density": 1000,
             "liquid_diameter": 7, // cm
