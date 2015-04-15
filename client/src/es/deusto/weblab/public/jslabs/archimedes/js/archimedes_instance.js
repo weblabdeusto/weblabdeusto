@@ -191,7 +191,7 @@ ArchimedesInstance = function (instanceid) {
         tooltip.popover({html: true, placement: "bottom", trigger: "", title: $.i18n._("sensorsHelpTitle"), content: $.i18n._("sensorsHelpContent")})
 
         $(getidselect("table-liquid")).datatable({
-            header: $.i18n._("Liquid"),
+            header: $.i18n._("Liquid/Tube"),
             vars: {
                 "density": Registry[instanceid]["liquid_density"] / 1000.0 + " " + $.i18n._("gcm3"),
                 "internal.diameter": Registry[instanceid]["liquid_diameter"] + " " + $.i18n._("cm")
@@ -209,11 +209,7 @@ ArchimedesInstance = function (instanceid) {
                 // Tune this up!.
                 "density": Registry[instanceid]["object_density"] + " " + $.i18n._("grams"),
 
-                "volume": function() {
-                    var r = this["ball_diameter"] / (2 * 100); //  To meters
-                    var vol = (4/3) * Math.PI * r * r * r * 1000000; // m3 to cm3
-                    return vol.toFixed(2) + " " + $.i18n._("cm3");
-                }.bind(Registry[instanceid])
+                "volume": Registry[instanceid]["object_volume"] + " " + $.i18n._("gcm3"),
             },
             translator: $.i18n._.bind($.i18n)
         });
