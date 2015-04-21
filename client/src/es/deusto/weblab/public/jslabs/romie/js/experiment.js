@@ -220,14 +220,14 @@ var experiment = {
       question2 = '¿Crees que hay un sol al otro lado?';
       this.screens[3].contenido = instrucciones1;
       this.screens[7].contenido = instrucciones2;
-      key1 = 'imagenes/CueBaraja1.png';
-      key2 = 'imagenes/CueBaraja2.png';
-      nokey1 = 'imagenes/noCueBaraja1.png';
-      nokey2 = 'imagenes/noCueBaraja2.png';
-      outcome1 = 'imagenes/OutcomeBaraja1.png';
-      outcome2 = 'imagenes/OutcomeBaraja2.png';
-      nootcome1 = 'imagenes/noOutcomeBaraja1.png';
-      nooutcome2 = 'imagenes/noOutcomeBaraja2.png';
+      key1 = 'img/CueBaraja1.png';
+      key2 = 'img/CueBaraja2.png';
+      nokey1 = 'img/noCueBaraja1.png';
+      nokey2 = 'img/noCueBaraja2.png';
+      outcome1 = 'img/OutcomeBaraja1.png';
+      outcome2 = 'img/OutcomeBaraja2.png';
+      nootcome1 = 'img/noOutcomeBaraja1.png';
+      nooutcome2 = 'img/noOutcomeBaraja2.png';
     }else{
       this.juicios[0].question = juicio2;
       this.juicios[1].question = juicio1;
@@ -235,14 +235,14 @@ var experiment = {
       question1 = '¿Crees que hay un sol al otro lado?';
       this.screens[7].contenido = instrucciones1;
       this.screens[3].contenido = instrucciones2;
-      key1 = 'imagenes/CueBaraja2.png';
-      key2 = 'imagenes/CueBaraja1.png';
-      nokey1 = 'imagenes/noCueBaraja2.png';
-      nokey2 = 'imagenes/noCueBaraja1.png';
-      outcome1 = 'imagenes/OutcomeBaraja2.png';
-      outcome2 = 'imagenes/OutcomeBaraja1.png';
-      nootcome1 = 'imagenes/noOutcomeBaraja2.png';
-      nooutcome2 = 'imagenes/noOutcomeBaraja1.png';
+      key1 = 'img/CueBaraja2.png';
+      key2 = 'img/CueBaraja1.png';
+      nokey1 = 'img/noCueBaraja2.png';
+      nokey2 = 'img/noCueBaraja1.png';
+      outcome1 = 'img/OutcomeBaraja2.png';
+      outcome2 = 'img/OutcomeBaraja1.png';
+      nootcome1 = 'img/noOutcomeBaraja2.png';
+      nooutcome2 = 'img/noOutcomeBaraja1.png';
     }
     //insertar ensayos tipo a y c
     for(i=0;i<15;i++){
@@ -260,7 +260,7 @@ var experiment = {
       this.phases[0].push({type : 'd',key : nokey1,outcome : nootcome1,response : 0,question : question1});
       //Fase2
       this.phases[1].push({type : 'b',key : key2,outcome : nooutcome2,response : 0,question : question2});
-      this.phases[1].push({type : 'd',key : nokey2,outcome : nooutcome2,response : 0,question : question2}); 
+      this.phases[1].push({type : 'd',key : nokey2,outcome : nooutcome2,response : 0,question : question2});
     }
     //aleatorizar secuencias
     fisherYates(this.phases[0]);

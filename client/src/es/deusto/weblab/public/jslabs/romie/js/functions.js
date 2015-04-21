@@ -74,8 +74,10 @@ function register() {
 						$('#register').modal('hide');
 						registering = false;
 
-						// TODO show labpsico experiment && inicio()
-						init(response['time']);
+						$('#labpsico').modal('show');
+						$('#labpsicoExperiment').contentWindow.inicio(function(points) {
+							// TODO callback + init(response['time']);
+						});
 					}
 				});
 			} else {
