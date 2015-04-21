@@ -2,19 +2,26 @@
     var Registry = {
         "archimedes1" : {
             "name": "1st Tube",
-            "ball_mass": 32.7, // g
-            "ball_diameter": 3.9, // cm
-            "ball_density": 1.05,
+            "ball_mass": 155, // g
+            "ball_diameter": 6.0, // cm
+            "ball_density": 0.5,
+            "object_density": 0.5,
+            "object_volume": 310,
+            "object_type": "Cylinder",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
-            "liquid_diameter": 7, // cm
+            "liquid_diameter": 9.4, // cm
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
             "name": "2nd Tube",
-            "ball_mass": 41,
-            "ball_diameter": 3.9, // cm
-            "ball_density": 1.32,
+            "ball_mass": 56,
+            "ball_diameter": 6.0, // cm
+            "ball_density": 0.5,
+            "object_type": "cylinder",
+            "object_density": 1.32,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000,
             "liquid_diameter": 7, // cm
@@ -22,9 +29,12 @@
         },
         "archimedes3" : {
             "name": "3rd Tube",
-            "ball_mass": 2.8,
-            "ball_diameter": 3.9, // cm
-            "ball_density": 0.09,
+            "ball_mass": 155,
+            "ball_diameter": 6, // cm
+            "ball_density": 1.17,
+            "object_density": 1.17,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -32,9 +42,12 @@
         },
         "archimedes4" : {
             "name": "4th Tube",
-            "ball_mass": 30,
-            "ball_diameter": 3.9, // cm
-            "ball_density": 0.96,
+            "ball_mass": 111,
+            "ball_diameter": 6, // cm
+            "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -42,18 +55,24 @@
         },
         "archimedes5" : {
             "name": "5th Tube",
-            "ball_mass": 620,
-            "ball_diameter": 5.0    , // cm
-            "ball_density": 9.47,
-            "liquid_density": 1000, // 1000/m3
+            "ball_mass": 111,
+            "ball_diameter": 6.0    , // cm
+            "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
+            "liquid_density": 900, // 900/m3
             "liquid_diameter": 7, // cm
-            "liquid_name": "water",
+            "liquid_name": "oil",
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
         },
         "archimedes6" : {
             "name": "6th Tube",
-            "ball_mass": 89.1,
+            "ball_mass": 89.3,
             "ball_density": 0.79,
+            "object_density": 0.79,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "ball_diameter": 6, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
@@ -62,8 +81,11 @@
         },
         "archimedes7" : {
             "name": "7th Tube",
-            "ball_mass": 43.3,
-            "ball_density": 0.66,
+            "ball_mass": 50.9,
+            "ball_density": 0.78,
+            "object_density": 0.78,
+            "object_volume": 65.45,
+            "object_type": "Ball",
             "ball_diameter": 5, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
@@ -81,14 +103,14 @@
         "archimedes1" : ["controls", "sensor_weight",  "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"],
         "archimedes2" : "ALL",
-        "archimedes3" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes3" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
         "archimedes4" : "ALL",
-        "archimedes5" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes5" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
-        "archimedes6" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes6" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"], // Fake weight
-        "archimedes7" : ["controls", "sensor_level", "webcam", "hdcam", "plot", "ball_mass",
+        "archimedes7" : ["controls", "sensor_level", "sensor_weight", "webcam", "hdcam", "plot", "ball_mass",
             "ball_volume", "ball_diameter", "ball_density", "liquid_density", "liquid_diameter"]  // Fake weight
     };
 

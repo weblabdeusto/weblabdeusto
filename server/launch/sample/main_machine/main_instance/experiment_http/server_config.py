@@ -6,7 +6,7 @@
 
 # PHP
 # http_experiment_url = 'http://localhost/phplab/weblab.php'
-http_experiment_url = "http://localhost:5000/sample"
+http_experiment_url = "http://localhost:5000/foo"
 http_experiment_username = 'admin'
 http_experiment_password = 'password'
 

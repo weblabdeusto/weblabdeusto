@@ -82,6 +82,8 @@ def start_experiment():
     client_initial_data = json.loads(request_data['client_initial_data'])
     server_initial_data = json.loads(request_data['server_initial_data'])
 
+    print server_initial_data
+
     # Parse the initial date + assigned time to know the maximum time
     start_date_str = server_initial_data['priority.queue.slot.start']
     start_date_str, microseconds = start_date_str.split('.')
@@ -115,6 +117,10 @@ def status(session_id):
     if data is not None:
         print "Did not poll in", datetime.datetime.now() - data['last_poll'], "seconds"
         print "User %s still has %s seconds" % (data['username'], (data['max_date'] - datetime.datetime.now()).seconds)
+        if (datetime.datetime.now() - data['last_poll']).seconds > 30:
+            print "Kick out the user, please"
+            return json.dumps({'should_finish' : -1})
+            
     print "Ask in 10 seconds..."
     # 
     # If the user is considered expired here, we can return -1 instead of 10. 
@@ -145,4 +151,4 @@ def dispose_experiment(session_id):
     return 'unknown op'
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host = '0.0.0.0')
