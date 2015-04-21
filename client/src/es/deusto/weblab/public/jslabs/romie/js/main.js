@@ -1,4 +1,7 @@
 jQuery(document).ready(function() {
+
+  callback = null;
+
   //Button back
   jQuery("#button_back").click(function() {
     this.blur();
@@ -31,11 +34,11 @@ jQuery(document).ready(function() {
     postResponse();
   });
   jQuery('#no').click(function() {
-    experiment.phases[experiment.currentPhase][experiment.currentIndex].response = 0;    
+    experiment.phases[experiment.currentPhase][experiment.currentIndex].response = 0;
     this.blur();
     postResponse();
   });
-  jQuery('#siguiente').click(function() {    
+  jQuery('#siguiente').click(function() {
     this.blur();
     jQuery('#part2').hide();
     lastTrial();
@@ -69,7 +72,8 @@ function postResponse(){
   jQuery('#outcome').attr('src',experiment.phases[experiment.currentPhase][experiment.currentIndex].outcome);
   jQuery('#part2').show();
 }
-function inicio(){
+function inicio(cb){
+  callback = cb;
   experiment.loadPhases();
   flowState();
 }
@@ -152,7 +156,7 @@ function prepararFase(){
   jQuery('#key').attr('src',experiment.phases[experiment.currentPhase][experiment.currentIndex].key);
   jQuery('#questionKey').text(experiment.phases[experiment.currentPhase][experiment.currentIndex].question);
   jQuery('header,footer,hr').hide();
-  jQuery('#instructions').hide();  
+  jQuery('#instructions').hide();
   jQuery('#trials,#part1').show();
 }
 function prepararJuicio(){
