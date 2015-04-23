@@ -148,7 +148,7 @@ function flowState(){
     break;
     case 12:
       //Fin del experimento
-      showScreen();
+      callback(calculatePoints())
     break;
   }
 }
@@ -228,6 +228,6 @@ function saveData(){
   firebase.push(participante);
 }
 //Función siguiente experimento
-function siguienteExperimento(){
-  var puntos = 100 - experiment.juicios[0].response;
+function calculatePoints(){
+  return 100 - experiment.juicios[0].response;
 }

@@ -76,6 +76,7 @@ function register() {
 
 						$('#labpsico').modal('show');
 						$('#labpsicoExperiment').contentWindow.inicio(function(points) {
+							console.log('FINISHED');
 							// TODO callback + init(response['time']);
 						});
 					}

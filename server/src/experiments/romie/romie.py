@@ -148,8 +148,8 @@ class RoMIExperiment(Experiment.Experiment):
                 return json.dumps({'error': 'email'})
 
             conn = sqlite3.connect(self.database)
-            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?)',
-                (self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0))
+            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?)',
+                (self.username, data["email"], data["name"], data["surname"], data["school"], data["bdate"], False, 0))
             conn.commit()
             conn.close()
 
@@ -163,7 +163,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             conn = sqlite3.connect(self.database)
             cur = conn.cursor()
-            cur.execute('SELECT username, name, surname, school, points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username LIKE "forotech.%" AND username != "forotech.demo" ORDER BY points DESC LIMIT 10;')
+            cur.execute('SELECT username, name, surname, school, points FROM '+self._cfg_manager.get_value('romie_table')+' ORDER BY points DESC LIMIT 10;')
             result = cur.fetchall()
             ranking = list()
 
