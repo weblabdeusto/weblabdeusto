@@ -19,6 +19,7 @@
 
         "sensors": "Sensors",
         "liquid": "Liquid",
+        "liquid/tube": "Liquid/Tube",
         "ball": "Ball",
         "liquid.level": "Liquid Level",
         "ball.weight": "Ball Weight",
@@ -27,13 +28,12 @@
         "internal.diameter": "Internal Diameter",
         "density": "Density",
         "mass": "Mass",
-        "grams": "g",
+        "grams": "gr",
         "cm": "cm",
         "kgm3": "kg/m³",
-        "gcm3": "g/cm³",
+        "gcm3": "gr/cm³",
         "m3": "m³",
         "cm3": "cm³",
-
 
         // For the Weight/Time plot
         "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
@@ -63,6 +63,9 @@
             "ball_mass": 155, // g
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
+            "object_density": 0.5,
+            "object_volume": 310,
+            "object_type": "Cylinder",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 9.4, // cm
@@ -75,6 +78,8 @@
             "ball_density": 0.5,
             "object_type": "cylinder",
             "object_density": 1.32,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000,
             "liquid_diameter": 7, // cm
@@ -85,6 +90,9 @@
             "ball_mass": 155,
             "ball_diameter": 6, // cm
             "ball_density": 1.17,
+            "object_density": 1.17,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -95,6 +103,9 @@
             "ball_mass": 111,
             "ball_diameter": 6, // cm
             "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "water",
@@ -105,6 +116,9 @@
             "ball_mass": 111,
             "ball_diameter": 6.0    , // cm
             "ball_density": 0.98,
+            "object_density": 0.98,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "liquid_density": 900, // 900/m3
             "liquid_diameter": 7, // cm
             "liquid_name": "oil",
@@ -114,6 +128,9 @@
             "name": $.i18n._("instance6"),
             "ball_mass": 89.3,
             "ball_density": 0.79,
+            "object_density": 0.79,
+            "object_volume": 113.10,
+            "object_type": "Ball",
             "ball_diameter": 6, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm
@@ -124,6 +141,9 @@
             "name": $.i18n._("instance7"),
             "ball_mass": 50.9,
             "ball_density": 0.78,
+            "object_density": 0.78,
+            "object_volume": 65.45,
+            "object_type": "Ball",
             "ball_diameter": 5, // cm
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 7, // cm

@@ -37,6 +37,7 @@
     <script type="text/javascript" src="js/timeweight_plot.js"></script>
     <script type="text/javascript" src="js/widgets.js"></script>
     <script type="text/javascript" src="js/archimedes_design.js"></script>
+    
 
 </head>
 
@@ -52,6 +53,51 @@
 
 
 <script type="text/javascript">
+
+    var i18n = {
+        "archimedes.experiment": "Archimedes Experiment",
+        "time.remaining": "Time remaining",
+        "ball.weight.liquid.level" : "Ball weight & Liquid level",
+        "close": "Close",
+        "hd.picture" : "HD Picture",
+
+        "show": "Show",
+        "hide": "Hide",
+
+        "showInstancesHelpTitle": "Show or hide a particular tube",
+        "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.",
+
+        "sensorsHelpTitle": "Sensor information",
+        "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.",
+
+        "sensors": "Sensors",
+        "liquid": "Liquid",
+        "liquid/tube": "Liquid/Tube",
+        "ball": "Ball",
+        "liquid.level": "Liquid Level",
+        "ball.weight": "Ball Weight",
+        "volume": "Volume",
+        "diameter": "Diameter",
+        "internal.diameter": "Internal Diameter",
+        "density": "Density",
+        "mass": "Mass",
+        "grams": "gr",
+        "cm": "cm",
+        "kgm3": "kg/m³",
+        "gcm3": "gr/cm³",
+        "m3": "m³",
+        "cm3": "cm³",
+
+
+        // For the Weight/Time plot
+        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+        "time.weight.plot" : "Time / Weight Plot",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)"
+    };
+
+    $.i18n.load(i18n);
+
 
     // TODO: Add some kind of resistence to individual failures of the instances.
 
@@ -69,6 +115,7 @@
 
         // Initialize the shownpanel, to show or hide instances.
         initializeShownPanel();
+
     });
 
     //! Initializes the ShownPanel. This can be reinitialized when the View changes with no issues.
