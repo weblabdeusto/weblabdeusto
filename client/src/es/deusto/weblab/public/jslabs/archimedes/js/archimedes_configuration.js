@@ -1,7 +1,65 @@
 
+
+
+    var i18n = {
+        "archimedes.experiment": "Archimedes Experiment",
+        "time.remaining": "Time remaining",
+        "ball.weight.liquid.level" : "Ball weight & Liquid level",
+        "close": "Close",
+        "hd.picture" : "HD Picture",
+
+        "show": "Show",
+        "hide": "Hide",
+
+        "showInstancesHelpTitle": "Show or hide a particular tube",
+        "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.",
+
+        "sensorsHelpTitle": "Sensor information",
+        "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.",
+
+        "sensors": "Sensors",
+        "liquid": "Liquid",
+        "ball": "Ball",
+        "liquid.level": "Liquid Level",
+        "ball.weight": "Ball Weight",
+        "volume": "Volume",
+        "diameter": "Diameter",
+        "internal.diameter": "Internal Diameter",
+        "density": "Density",
+        "mass": "Mass",
+        "grams": "g",
+        "cm": "cm",
+        "kgm3": "kg/m³",
+        "gcm3": "g/cm³",
+        "m3": "m³",
+        "cm3": "cm³",
+
+
+        // For the Weight/Time plot
+        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+        "time.weight.plot" : "Time / Weight Plot",
+        "weight.g" : "Weight (g)",
+        "seconds.s" : "Seconds (s)",
+
+        // For the instance names.
+        "instance1": "1st Tube",
+        "instance2": "2nd Tube",
+        "instance3": "3rd Tube",
+        "instance4": "4th Tube",
+        "instance5": "5th Tube",
+        "instance6": "6th Tube",
+        "instance7": "7th Tube",
+        "instance8": "8th Tube",
+
+        "toggle-show-hide": 'Toggle to <strong style="color: green">show</strong> or <strong style="color: slategray">hide</strong> each tube</div>'
+    };
+
+    $.i18n.load(i18n);
+
+
     var Registry = {
         "archimedes1" : {
-            "name": "1st Tube",
+            "name": $.i18n._("instance1"),
             "ball_mass": 155, // g
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
@@ -11,7 +69,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes1_rotate"
         },
         "archimedes2" : {
-            "name": "2nd Tube",
+            "name": $.i18n._("instance2"),
             "ball_mass": 56,
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
@@ -23,7 +81,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
         },
         "archimedes3" : {
-            "name": "3rd Tube",
+            "name": $.i18n._("instance3"),
             "ball_mass": 155,
             "ball_diameter": 6, // cm
             "ball_density": 1.17,
@@ -33,7 +91,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes3_rotate"
         },
         "archimedes4" : {
-            "name": "4th Tube",
+            "name": $.i18n._("instance4"),
             "ball_mass": 111,
             "ball_diameter": 6, // cm
             "ball_density": 0.98,
@@ -43,7 +101,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
         "archimedes5" : {
-            "name": "5th Tube",
+            "name": $.i18n._("instance5"),
             "ball_mass": 111,
             "ball_diameter": 6.0    , // cm
             "ball_density": 0.98,
@@ -53,7 +111,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes5_rotate"
         },
         "archimedes6" : {
-            "name": "6th Tube",
+            "name": $.i18n._("instance6"),
             "ball_mass": 89.3,
             "ball_density": 0.79,
             "ball_diameter": 6, // cm
@@ -63,7 +121,7 @@
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes6_rotate"
         },
         "archimedes7" : {
-            "name": "7th Tube",
+            "name": $.i18n._("instance7"),
             "ball_mass": 50.9,
             "ball_density": 0.78,
             "ball_diameter": 5, // cm
