@@ -171,7 +171,7 @@ var experiment = {
       backState: 12,
       nextState: 12,
       cabecera : 'Gracias',
-      contenido : 'Gracias por participar en el experimento.<br><button id="siguiente" data-role="none" type="button" class="buttons" onclick="siguienteExperimento()">Siguiente</button>',
+      contenido : 'Gracias por participar en el experimento.<br><button id="siguiente" data-role="none" type="button" class="buttons" onclick="nextExperiment()">Siguiente</button>',
       btnBack : 'Cancelar',
       btnNext : 'Enviar',
       showBtnBack : false,
