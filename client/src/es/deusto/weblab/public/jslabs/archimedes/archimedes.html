@@ -98,6 +98,7 @@
 
     $.i18n.load(i18n);
 
+
     // TODO: Add some kind of resistence to individual failures of the instances.
 
 
@@ -257,7 +258,8 @@
     <!-- To show or hide instances in standard mode -->
     <div class="row">
         <div class="col-lg-12 well">
-            <legend class="legend">Toggle to <strong style="color: green">show</strong> or <strong style="color: slategray">hide</strong> each tube
+            <legend class="legend">
+                <div style="display: inline-block" id="toggle-show-hide"></div>
                 <a id="show-hide-tooltip" tabindex="0" class="glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="bottom" data-trigger="focus"
                    title=""
                    data-content="">
@@ -325,6 +327,11 @@
         var s = document.getElementsByTagName('script')[0]; 
         s.parentNode.insertBefore(new_script, s);
     }
+
+
+    // Internationalize things in this page.
+    $("#toggle-show-hide").html($.i18n._("toggle-show-hide"));
+
 </script>
 
 
