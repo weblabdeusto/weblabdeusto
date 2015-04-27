@@ -80,7 +80,7 @@ class RoMIExperiment(Experiment.Experiment):
             print "[RoMIE] Command received: %s" % command
 
         if command == 'F':
-            tag = urllib2.urlopen("%sf" % self.server, timeout = 60).read()
+            tag = urllib2.urlopen(self.server+'f', timeout = 60).read()
             if tag.startswith('Tag') and tag != self.last_tag:
 
                 self.last_tag = tag
@@ -101,10 +101,10 @@ class RoMIExperiment(Experiment.Experiment):
             else:
                 return 'OK'
         elif command == 'L':
-            return urllib2.urlopen("%sl" % self.server, timeout = 60).read()
+            return urllib2.urlopen(self.server+'l', timeout = 60).read()
         elif command == 'R':
-            return urllib2.urlopen("%sr" % self.server, timeout = 60).read()
-        elif command.startswith("ANSWER"):
+            return urllib2.urlopen(self.server+'r', timeout = 60).read()
+        elif command.startswith('ANSWER'):
 
             response = int(command.split()[1])
             correct = self.question['correct'] == response
@@ -112,7 +112,6 @@ class RoMIExperiment(Experiment.Experiment):
             if correct:
                 time_bonus = 30-(time.time()-self.last_correct)
                 bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
-                points_bonus = bonus*2 if time.time() > self._cfg_manager.get_value('double_points') else bonus
                 self.last_correct = time.time()
                 self.points += self.question['points']*points_bonus
                 self.finish_time += self.question['time']*bonus
@@ -126,44 +125,54 @@ class RoMIExperiment(Experiment.Experiment):
             conn = sqlite3.connect(self.database)
             cur = conn.cursor()
 
-            cur.execute("SELECT COUNT(*) FROM forotech WHERE username = ?", (self.username,));
+            cur.execute('SELECT COUNT(*) FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,));
             count = cur.fetchone()[0]
 
             result = ''
             if count == 0:
-                result = 'REGISTER'
+                result = {'register': True, 'psycho': True}
             else:
-                self.update_points()
-                self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
-                result = self.finish_time
+                if (self.get_psycho_points() > 0):
+                    self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+                    result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
+                else:
+                    result = {'register': False, 'psycho': True}
 
             conn.close()
 
-            return result
+            return json.dumps(result)
 
         elif command.startswith('REGISTER'):
             data = json.loads(command.split(' ', 1)[1])
 
             if (self.email_exists(data["email"])):
-                return 'ERROR EMAIL'
+                return json.dumps({'error': 'email'})
 
             conn = sqlite3.connect(self.database)
-            conn.execute("INSERT INTO forotech values (?,?,?,?,?,?,?)",
-                (self.username, data["name"], data["surname"], data["school"], data["bdate"], data["email"], 0,))
+            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?)',
+                (self.username, data["email"], data["name"], data["surname"], data["school"], data["bdate"], False, 0))
             conn.commit()
             conn.close()
 
             self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 
-            return self.finish_time
+            return json.dumps({'points': 0, 'time': self.finish_time})
 
+        elif command.startswith('PSYCO'):
+            psychopoints = (int) (command.split(' ')[1])
+            self.points = psychopoints * 1000
+            self.update_points()
+            self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+            self.set_psycho_points(psychopoints)
+
+            return json.dumps({'points': self.points, 'time': self.finish_time})
         elif command == 'FINISH':
 
             self.update_points()
 
             conn = sqlite3.connect(self.database)
             cur = conn.cursor()
-            cur.execute('SELECT username, name, surname, school, points FROM forotech WHERE username LIKE "forotech.%" AND username != "forotech.demo" AND email != "hodeigomezjurado@gmail.com" ORDER BY points DESC LIMIT 10;')
+            cur.execute('SELECT username, name, surname, school, points FROM '+self._cfg_manager.get_value('romie_table')+' ORDER BY points DESC LIMIT 10;')
             result = cur.fetchall()
             ranking = list()
 
@@ -188,6 +197,22 @@ class RoMIExperiment(Experiment.Experiment):
 
         return "OK"
 
+    def get_psycho_points(self):
+        conn = sqlite3.connect(self.database)
+
+        cur = conn.cursor()
+        cur.execute('SELECT psycho FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+        psychopoints = (int) (cur.fetchone()[0])
+
+        conn.close()
+        return psychopoints
+
+    def set_psycho_points(self, points):
+        conn = sqlite3.connect(self.database)
+        conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET psycho = ? WHERE username = ?', (points, self.username))
+        conn.commit()
+        conn.close()
+
     def update_points(self):
         """
         Update points in the database
@@ -195,11 +220,11 @@ class RoMIExperiment(Experiment.Experiment):
         conn = sqlite3.connect(self.database)
 
         cur = conn.cursor()
-        cur.execute('SELECT points FROM forotech WHERE username = ?', (self.username,))
+        cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
         points = cur.fetchone()[0]
 
         if (points < self.points):
-            conn.execute("UPDATE forotech SET points = ? WHERE username = ?", (self.points, self.username,))
+            conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
             conn.commit()
 
         conn.close()
@@ -210,7 +235,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         conn = sqlite3.connect(self.database)
         cur = conn.cursor()
-        cur.execute("SELECT COUNT(*) FROM forotech WHERE email = ?", (email,));
+        cur.execute('SELECT COUNT(*) FROM '+self._cfg_manager.get_value('romie_table')+' WHERE email = ?', (email,));
         count = cur.fetchone()[0]
         conn.close()
 

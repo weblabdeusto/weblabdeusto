@@ -1,9 +1,3 @@
-@font-face
-{
-	font-family: digital;
-	src: url(../fonts/digital-7.ttf);
-}
-
 header
 {
 	font-size: 2.5em;
@@ -107,4 +101,11 @@ header
 	padding-left: 0.5em;
 	font-weight: normal;
 	vertical-align: middle;
+}
+
+#labpsicoExperiment
+{
+	width: 100%;
+	height: 500px;
+	border: none;
 }

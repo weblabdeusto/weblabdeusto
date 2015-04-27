@@ -4,13 +4,12 @@ function pad(n, width, z) {
 	return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
-Game = function(time, topCamUpdater) {
-	this.points = 0;
+Game = function(time, points) {
+	this.points = points;
 	this.endTime = new Date(time*1000);
 	this.topCamTimmer = null;
 	this.timer = null;
 	this.cameraStartTime = null;
-	this.topCamUpdater = topCamUpdater;
 
 	this.startGame();
 }
@@ -18,13 +17,13 @@ Game = function(time, topCamUpdater) {
 Game.prototype.startGame = function() {
 	this.timer = setInterval(function() {
 		time = (this.endTime.getTime()-(new Date()).getTime())/1000;
-
-		$('.time span').html(Math.floor(time/60) + ":" + pad(Math.floor(time%60), 2) + "," + Math.floor((time%60) * 100-Math.floor(time%60)*100));
+		updateTime(time);
 		if (time <= 0) {
-			$('.time span').html("0:00.00");
+			updateTime(0);
 			this.endGame();
 		}
 	}.bind(this), 10);
+	updatePoints(this.points);
 }
 
 Game.prototype.endGame = function() {
@@ -81,7 +80,7 @@ Game.prototype.answerQuestion = function() {
 				this.points = response["points"];
 				this.endTime = new Date(response["finish_time"]*1000);
 
-				$('.points span').html(this.points);
+				updatePoints(this.points);
 				$('#response_ok').modal('show');
 				$('#response_ok').on('hidden.bs.modal', function() {
 					if ($('.camera2').hasClass('inactive')) {
