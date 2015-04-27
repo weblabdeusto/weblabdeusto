@@ -132,10 +132,11 @@ class RoMIExperiment(Experiment.Experiment):
             if count == 0:
                 result = {'register': True, 'psycho': True}
             else:
-                # TODO check if psycho run
-                self.update_points()
-                self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
-                result = {'time': self.finish_time}
+                if (self.get_psycho_points() > 0):
+                    self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+                    result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
+                else:
+                    result = {'register': False, 'psycho': True}
 
             conn.close()
 
@@ -155,8 +156,16 @@ class RoMIExperiment(Experiment.Experiment):
 
             self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 
-            return json.dumps({'time': self.finish_time})
+            return json.dumps({'points': 0, 'time': self.finish_time})
 
+        elif command.startswith('PSYCO'):
+            psychopoints = (int) (command.split(' ')[1])
+            self.points = psychopoints * 1000
+            self.update_points()
+            self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+            self.set_psycho_points(psychopoints)
+
+            return json.dumps({'points': self.points, 'time': self.finish_time})
         elif command == 'FINISH':
 
             self.update_points()
@@ -187,6 +196,22 @@ class RoMIExperiment(Experiment.Experiment):
             print "[RoMIE] do_dispose called"
 
         return "OK"
+
+    def get_psycho_points(self):
+        conn = sqlite3.connect(self.database)
+
+        cur = conn.cursor()
+        cur.execute('SELECT psycho FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+        psychopoints = (int) (cur.fetchone()[0])
+
+        conn.close()
+        return psychopoints
+
+    def set_psycho_points(self, points):
+        conn = sqlite3.connect(self.database)
+        conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET psycho = ? WHERE username = ?', (points, self.username))
+        conn.commit()
+        conn.close()
 
     def update_points(self):
         """

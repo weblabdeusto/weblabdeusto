@@ -2,13 +2,25 @@ registering = false;
 
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
+		console.log(response);
 		response = JSON.parse(response)
 		if (response['register']) register();
-		else if (response['psycho']) psyco();
-		else init(response['time']);
+		else if (response['psycho']) psycho();
+		else init(response['time'], response['points']);
 
 		$(parent.document).find('iframe[name=wlframe]').show();
 		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
+	});
+}
+
+function psycho() {
+	$('#labpsico').modal('show');
+	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
+		Weblab.sendCommand("PSYCO "+points, function(response) {
+			response = JSON.parse(response);
+			init(response['time'], response['points']);
+		});
+		$('#labpsico').modal('hide');
 	});
 }
 
@@ -73,13 +85,7 @@ function register() {
 					} else {
 						$('#register').modal('hide');
 						registering = false;
-
-						$('#labpsico').modal('show');
-						$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
-							console.log('FINISHED');
-							console.log(points);
-							// TODO callback + init(response['time']);
-						});
+						psycho();
 					}
 				});
 			} else {
@@ -100,9 +106,9 @@ function register() {
 	setTimeout(function(){if ($('#register').is(':visible')) Weblab.clean();}, 120000); // 2*60*1000
 }
 
-function init(time) {
+function init(time, points) {
 	romie = new Romie();
-	game = new Game(time);
+	game = new Game(time, points);
 
 	$('button.forward').click(function(){if( ! romie.isMoving()) romie.forward(function(question){game.showQuestion(question);})});
 	$('button.left').click(function(){if ( ! romie.isMoving()) romie.left();});
@@ -122,4 +128,12 @@ function init(time) {
 
 	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
 	updateCam1();
+}
+
+function updateTime(timeLeft) {
+	$('.time span').html(Math.floor(timeLeft/60) + ":" + pad(Math.floor(timeLeft%60), 2) + "," + Math.floor((timeLeft%60) * 100-Math.floor(timeLeft%60)*100));
+}
+
+function updatePoints(points) {
+	$('.points span').html(points);
 }
