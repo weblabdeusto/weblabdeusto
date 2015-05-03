@@ -24,8 +24,16 @@ public class ExperimentID {
 		this.experimentName = experimentName;
 	}
 	
+	public ExperimentID(String category, String experimentName){
+		this.category = new Category(category);
+		this.experimentName = experimentName;
+	}
+	
 	public Category getCategory() {
 		return this.category;
+	}
+	public String getCategoryName() {
+		return this.category.getCategory();
 	}
 	public void setCategory(Category category) {
 		this.category = category;

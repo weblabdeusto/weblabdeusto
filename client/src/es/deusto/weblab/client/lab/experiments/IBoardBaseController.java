@@ -16,6 +16,7 @@ package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
@@ -41,6 +42,11 @@ public interface IBoardBaseController{
 	 * What is the reservation id of the user? 
 	 */
 	public SessionID getReservationId();
+	
+	/**
+	 * What is the experiment id of this experiment?
+	 */
+	public ExperimentID getExperimentId();
 	
 	////////////////////////////////////
 	// 
