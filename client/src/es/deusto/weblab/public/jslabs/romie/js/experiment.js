@@ -37,7 +37,7 @@ var experiment = {
       id : 'etica',
       State : 1,
       backState : 0,
-      nextState : 2,
+      nextState : 3,
       cabecera : 'Tu Participación es Anónima y Voluntaria',
       contenido : 'Antes de nada queremos agradecer tu participación en este experimento, ya que sin la colaboración de personas como tú no sería posible esta investigación.<br>Debes saber que en esta tarea no hay respuestas buenas ni malas. Lo que queremos estudiar son los mecanismos psicológicos básicos que se dan en todas las personas. Para ello, necesitamos que, si deseas participar, lo hagas con el mayor interés. No tienes que identificarte, y los datos que nos aportes se unirán a los del total del grupo y serán analizados estadísticamente. Tú participación es voluntaria y anónima.<br>Si tras haber leído el mensaje deseas continuar, pulsa en el botón \'Continuar\'.',
       btnBack : 'Atrás',
@@ -60,7 +60,7 @@ var experiment = {
     {
       id : 'instrucciones1',
       state : 3,
-      backState: 2,
+      backState: 1,
       nextState: 4,
       cabecera : 'Instrucciones',
       contenido : '',
