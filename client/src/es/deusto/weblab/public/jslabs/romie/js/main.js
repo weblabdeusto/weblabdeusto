@@ -74,6 +74,12 @@ function postResponse(){
 }
 function inicio(cb){
   callback = cb;
+  //Guardar variables, ahora están a null hay que asignar las variables
+  experiment.sex = null;
+  experiment.age = null;
+  experiment.course = null; //curso
+  experiment.user = null; //usuario weblab
+  //fin cambios
   experiment.loadPhases();
   flowState();
 }
