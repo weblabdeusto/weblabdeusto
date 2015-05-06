@@ -138,7 +138,7 @@ class RoMIExperiment(Experiment.Experiment):
                 else:
                     conn = sqlite3.connect(self.database)
                     cur = conn.cursor()
-                    cur.execute('SELECT sex, bday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
+                    cur.execute('SELECT sex, birthday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
                     result = cur.fetchone()
                     conn.close()
 

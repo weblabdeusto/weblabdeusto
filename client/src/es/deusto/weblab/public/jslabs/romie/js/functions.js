@@ -13,7 +13,6 @@ function getAge(milliseconds) {
 
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
-		console.log(response);
 		response = JSON.parse(response)
 		if (response['register']) register();
 		else if (response['psycho']) psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
