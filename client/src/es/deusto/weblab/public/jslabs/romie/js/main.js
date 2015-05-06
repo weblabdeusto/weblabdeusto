@@ -72,14 +72,14 @@ function postResponse(){
   jQuery('#outcome').attr('src',experiment.phases[experiment.currentPhase][experiment.currentIndex].outcome);
   jQuery('#part2').show();
 }
-function inicio(cb){
+function inicio(cb, sex, age, course, user){
   callback = cb;
-  //Guardar variables, ahora están a null hay que asignar las variables
-  experiment.sex = null;
-  experiment.age = null;
-  experiment.course = null; //curso
-  experiment.user = null; //usuario weblab
-  //fin cambios
+
+  experiment.sex = sex;
+  experiment.age = age;
+  experiment.course = course; //curso
+  experiment.user = user; //usuario weblab
+
   experiment.loadPhases();
   flowState();
 }

@@ -136,7 +136,13 @@ class RoMIExperiment(Experiment.Experiment):
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                     result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
                 else:
-                    result = {'register': False, 'psycho': True}
+                    conn = sqlite3.connect(self.database)
+                    cur = conn.cursor()
+                    cur.execute('SELECT sex, bday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
+                    result = cur.fetchone()
+                    conn.close()
+
+                    result = {'register': False, 'psycho': True, 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
 
@@ -149,14 +155,12 @@ class RoMIExperiment(Experiment.Experiment):
                 return json.dumps({'error': 'email'})
 
             conn = sqlite3.connect(self.database)
-            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?)',
-                (self.username, data["email"], data["name"], data["surname"], data["school"], data["bdate"], False, 0))
+            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?,?,?)',
+                (self.username, data["email"], data["name"], data["surname"], data["school"], data["bdate"], data['grade'], data['sex'], False, 0))
             conn.commit()
             conn.close()
 
-            self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
-
-            return json.dumps({'points': 0, 'time': self.finish_time})
+            return json.dumps({'error': None, 'sex': data['sex'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username})
 
         elif command.startswith('PSYCO'):
             psychopoints = (int) (command.split(' ')[1])

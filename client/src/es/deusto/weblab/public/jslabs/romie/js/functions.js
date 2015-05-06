@@ -1,11 +1,22 @@
 registering = false;
 
+function getAge(milliseconds) {
+    var today = new Date();
+    var birthDate = new Date(milliseconds);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
 		console.log(response);
 		response = JSON.parse(response)
 		if (response['register']) register();
-		else if (response['psycho']) psycho();
+		else if (response['psycho']) psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
 		else init(response['time'], response['points']);
 
 		$(parent.document).find('iframe[name=wlframe]').show();
@@ -13,7 +24,7 @@ function start() {
 	});
 }
 
-function psycho() {
+function psycho(sex, birthday, grade, user) {
 	$('#labpsico').modal('show');
 	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
 		Weblab.sendCommand("PSYCO "+points, function(response) {
@@ -21,7 +32,7 @@ function psycho() {
 			init(response['time'], response['points']);
 		});
 		$('#labpsico').modal('hide');
-	});
+	}, (sex ? "H" : "M"), getAge(birthday), grade, user);
 }
 
 function register() {
@@ -38,6 +49,8 @@ function register() {
 			bmon = parseInt($('[name=bmon]').val())-1;
 			byear = parseInt($('[name=byear]').val());
 			email = $('#email').val();
+			sex = parseInt($('#sex').val());
+			grade = $('#grade').val();
 
 			if (name.length < 3 || surname.length < 3) {
 				register_ok = false;
@@ -56,7 +69,7 @@ function register() {
 				$('#email-group').addClass('has-error');
 			}
 
-			if (byear < 1950 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
+			if (byear < 1995 || byear > 2010 || bday < 1 || bmon < 0 || bmon > 11) {
 				register_ok = false;
 				$('#bday-group').addClass('has-error');
 			} else {
@@ -74,7 +87,7 @@ function register() {
 				bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
 				unix = Math.floor(bdate.getTime()/1000);
 
-				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email};
+				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email, "sex": sex, "grade": grade};
 
 				command = "REGISTER " + JSON.stringify(data);
 				Weblab.sendCommand(command, function(response) {
@@ -85,7 +98,7 @@ function register() {
 					} else {
 						$('#register').modal('hide');
 						registering = false;
-						psycho();
+						psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
 					}
 				});
 			} else {
