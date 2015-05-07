@@ -113,7 +113,7 @@ class RoMIExperiment(Experiment.Experiment):
                 time_bonus = 30-(time.time()-self.last_correct)
                 bonus = (self.q_difficulty/10+1)*(time_bonus/5 if time_bonus > 5 else 1)
                 self.last_correct = time.time()
-                self.points += self.question['points']*points_bonus
+                self.points += self.question['points']*bonus
                 self.finish_time += self.question['time']*bonus
                 self.update_points()
                 self.questions[self.q_difficulty].remove(self.question)
