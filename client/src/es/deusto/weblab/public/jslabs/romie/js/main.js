@@ -72,8 +72,14 @@ function postResponse(){
   jQuery('#outcome').attr('src',experiment.phases[experiment.currentPhase][experiment.currentIndex].outcome);
   jQuery('#part2').show();
 }
-function inicio(cb){
+function inicio(cb, sex, age, course, user){
   callback = cb;
+
+  experiment.sex = sex;
+  experiment.age = age;
+  experiment.course = course; //curso
+  experiment.user = user; //usuario weblab
+
   experiment.loadPhases();
   flowState();
 }

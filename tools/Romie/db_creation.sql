@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS "users" (
 	"surname" TEXT,
 	"school" TEXT,
 	"birthday" INTEGER,
+	"grade" TEXT,
+	"sex" INTEGER,
 	"psycho" INTEGER DEFAULT 0,
 	"points" INTEGER DEFAULT 0
 );
