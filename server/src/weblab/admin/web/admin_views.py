@@ -1577,6 +1577,7 @@ class GenericPermissionPanel(AdministratorModelView):
     column_sortable_list = ( 'permission', 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
     form_overrides = dict(permanent_id=DisabledTextField, permission_type=DisabledTextField)
+    form_excluded_columns = ('uses',)
 
     def __init__(self, model, session, **kwargs):
         super(GenericPermissionPanel, self).__init__(model, session, **kwargs)
