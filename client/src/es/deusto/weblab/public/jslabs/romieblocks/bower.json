@@ -1,0 +1,26 @@
+{
+  "name": "romieblocks",
+  "version": "0.0.1",
+  "homepage": "http://weblab.deusto.es/website/",
+  "authors": [
+    "Iban Eguia <iban.eguia@opendeusto.es>"
+  ],
+  "description": "Romie Blockly interface",
+  "main": "index.html",
+  "keywords": [
+    "Romie"
+  ],
+  "license": "BSD 2-CLAUSE LICENSE",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.4",
+    "google-blockly": "https://github.com/google/blockly.git#master",
+    "jquery": "~2.1.4"
+  }
+}
