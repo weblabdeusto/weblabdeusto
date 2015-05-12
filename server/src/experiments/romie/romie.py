@@ -130,7 +130,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             result = ''
             if count == 0:
-                result = {'register': True, 'psycho': True}
+                result = {'register': True, 'psycho': self._cfg_manager.get_value('romie_labpsico')}
             else:
                 if (self.get_psycho_points() > 0):
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
@@ -142,7 +142,7 @@ class RoMIExperiment(Experiment.Experiment):
                     result = cur.fetchone()
                     conn.close()
 
-                    result = {'register': False, 'psycho': True, 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
+                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_table'), 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
 
@@ -160,7 +160,13 @@ class RoMIExperiment(Experiment.Experiment):
             conn.commit()
             conn.close()
 
-            return json.dumps({'error': None, 'sex': data['sex'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username})
+            if not self._cfg_manager.get_value('romie_labpsico'):
+                self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+                result = {'error': None, 'time' = self.finish_time, 'points' = self.points}
+            else:
+                result = {'error': None, 'sex': data['sex'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username}
+
+            return json.dumps(result)
 
         elif command.startswith('PSYCO'):
             psychopoints = (int) (command.split(' ')[1])
