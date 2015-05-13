@@ -162,7 +162,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             if not self._cfg_manager.get_value('romie_labpsico'):
                 self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
-                result = {'error': None, 'time' = self.finish_time, 'points' = self.points}
+                result = {'error': None, 'time': self.finish_time, 'points': self.points}
             else:
                 result = {'error': None, 'sex': data['sex'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username}
 
