@@ -106,6 +106,7 @@ public class LabController implements ILabController {
 	
 	private class SessionVariables {
 		private ExperimentBase currentExperimentBase;
+		private ExperimentID experimentId;
 		private boolean experimentVisible = false;
 		private SessionID reservationId = new NullSessionID();
 		
@@ -139,6 +140,14 @@ public class LabController implements ILabController {
 		
 		public SessionID getReservationId(){
 			return this.reservationId;
+		}
+
+		public ExperimentID getExperimentId() {
+			return this.experimentId;
+		}
+
+		public void setExperimentId(ExperimentID experimentId) {
+			this.experimentId = experimentId;
 		}
 	}
 	
@@ -340,6 +349,7 @@ public class LabController implements ILabController {
 						public void onExperimentLoaded(ExperimentBase experimentBase) {
 							// Show the experiment
 							LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+							LabController.this.sessionVariables.setExperimentId(experimentId);
 							final ExperimentAllowed defaultExperimentAllowed = new ExperimentAllowed(new Experiment(0, experimentId.getExperimentName(), experimentId.getCategory(), new Date(), new Date()), 100);
 							LabController.this.uimanager.onExperimentChosen(defaultExperimentAllowed, experimentBase, true);
 							experimentBase.initializeReserved();
@@ -712,6 +722,7 @@ public class LabController implements ILabController {
 			@Override
 			public void onExperimentLoaded(ExperimentBase experimentBase) {
 				LabController.this.sessionVariables.setCurrentExperimentBase(experimentBase);
+				LabController.this.sessionVariables.setExperimentId(experimentAllowed.getExperiment().getExperimentUniqueName());
 				LabController.this.uimanager.onExperimentChosen(experimentAllowed, experimentBase, false);
 				experimentBase.initialize();
 				LabController.this.sessionVariables.showExperiment();
@@ -723,5 +734,9 @@ public class LabController implements ILabController {
 	@Override
 	public void stopPolling() {
 		this.pollingHandler.stop();
+	}
+
+	public ExperimentID getExperimentId() {
+		return this.sessionVariables.getExperimentId();
 	}
 }
