@@ -66,6 +66,21 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    @logged()
+    def get_client_id(self, experiment_name, category_name):
+        """Lists the ExperimentClients """
+        session = self.Session()
+        try:
+            category = session.query(model.DbExperimentCategory).filter_by(name = category_name).first()
+            if category is None:
+                return None
+            experiment = session.query(model.DbExperiment).filter_by(name = experiment_name, category = category).first()
+            if experiment is None:
+                return None
+            return experiment.client
+        finally:
+            session.close()
+
     # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()
     def list_experiments(self, user_login, exp_name = None, cat_name = None):
