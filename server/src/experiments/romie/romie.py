@@ -142,7 +142,7 @@ class RoMIExperiment(Experiment.Experiment):
                     result = cur.fetchone()
                     conn.close()
 
-                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_table'), 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
+                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
 
