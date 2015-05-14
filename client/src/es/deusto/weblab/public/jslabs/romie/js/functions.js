@@ -14,7 +14,8 @@ function getAge(milliseconds) {
 function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
 		response = JSON.parse(response)
-		if (response['register']) register(response['psyco']);
+		console.log(response);
+		if (response['register']) register(response['psycho']);
 		else if (response['psycho']) psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
 		else init(response['time'], response['points']);
 
@@ -26,7 +27,7 @@ function start() {
 function psycho(sex, birthday, grade, user) {
 	$('#labpsico').modal('show');
 	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
-		Weblab.sendCommand("PSYCO "+points, function(response) {
+		Weblab.sendCommand("PSYCHO "+points, function(response) {
 			response = JSON.parse(response);
 			init(response['time'], response['points']);
 		});
@@ -34,8 +35,7 @@ function psycho(sex, birthday, grade, user) {
 	}, (sex ? "H" : "M"), getAge(birthday), grade, user);
 }
 
-function register(psyco) {
-
+function register(do_psycho) {
 	$('#register .modal-footer button').click(function() {
 		if ( ! registering) {
 			register_ok = true;
@@ -97,7 +97,7 @@ function register(psyco) {
 					} else {
 						$('#register').modal('hide');
 						registering = false;
-						if (psyco) {
+						if (do_psycho) {
 							psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
 						} else {
 							init(response['time'], response['points']);

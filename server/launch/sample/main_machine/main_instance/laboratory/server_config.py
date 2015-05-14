@@ -178,6 +178,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_romie:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:romie_labpsico@Robot experiments':
+            {
+                 'coord_address': 'experiment_romie_labpsico:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:unr-physics@Physics experiments':
             {
                  'coord_address': 'experiment_unr:main_instance@main_machine',

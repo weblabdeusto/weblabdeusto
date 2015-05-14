@@ -168,7 +168,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             return json.dumps(result)
 
-        elif command.startswith('PSYCO'):
+        elif command.startswith('PSYCHO'):
             psychopoints = (int) (command.split(' ')[1])
             self.points = psychopoints * 1000
             self.update_points()
