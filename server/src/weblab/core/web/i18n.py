@@ -55,6 +55,11 @@ def i18n(category_name, experiment_name):
             }
 
     client_id = weblab_api.db.get_client_id(experiment_name, category_name)
+    if client_id == 'js':
+        # TODO: we need something like metadata for the parameters and so on
+        if 'archimedes' in experiment_name or 'arquimedes' in experiment_name:
+            client_id = 'archimedes'
+
     if client_id is not None and client_id in I18N['experiments']:
         for lang in I18N['experiments'][client_id]:
             if lang not in response:
