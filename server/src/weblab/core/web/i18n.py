@@ -36,20 +36,24 @@ except:
 
 @weblab_api.route_web('/i18n/<category_name>/<experiment_name>/')
 def i18n(category_name, experiment_name):
+    mails = [ mail.strip() for mail in weblab_api.config.get('server_admin', '').split(',') if mail.strip() ]
     response = {
+        'translations' : {
         # lang : {
         #    key : {
         #        value: value,
         #        namespace: namespace
         #    }
         # }
+        },
+        'mails' : mails
     }
 
     generic_experiments = I18N['generic_experiments']
     for lang in generic_experiments:
-        response[lang] = {}
+        response['translations'][lang] = {}
         for key, value in generic_experiments[lang].iteritems():
-            response[lang][key] = {
+            response['translations'][lang][key] = {
                 'value' : value,
                 'namespace' : 'http://weblab.deusto.es/weblab/#'
             }
@@ -62,10 +66,10 @@ def i18n(category_name, experiment_name):
 
     if client_id is not None and client_id in I18N['experiments']:
         for lang in I18N['experiments'][client_id]:
-            if lang not in response:
-                response[lang] = {}
+            if lang not in response['translations']:
+                response['translations'][lang] = {}
             for key, value in I18N['experiments'][client_id][lang].iteritems():
-                response[lang][key] = {
+                response['translations'][lang][key] = {
                     'value' : value,
                     'namespace' : 'http://weblab.deusto.es/weblab/experiments/%s/#' % client_id,
                 }
