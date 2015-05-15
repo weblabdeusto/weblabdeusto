@@ -63,11 +63,11 @@
         "archimedes1" : {
             "name": $.i18n._("instance1"),
             "ball_mass": 155, // g
-            "ball_diameter": 6.0, // cm
-            "ball_density": 0.5,
+            "ball_diameter": 8.0, // cm
+            "ball_density": 0.57,
             "object_density": 0.5,
-            "object_volume": 310,
-            "object_type": "Cylinder",
+            "object_volume": 268,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 9.4, // cm
