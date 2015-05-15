@@ -111,10 +111,7 @@ ArchimedesExperiment = function (registry, view) {
                     var data = Registry[instanceid];
                     instance.cameraRefresher.start(data.webcam);
                 }.bind(this));
-                //WARNING!!!! WARNING!!!!!!!!!!!!!!!!!!!!!!!!
                 //debugger;
-                $("#archimedes1-table-ball > table > tbody > tr:nth-child(2) > td:nth-child(1)").text("Diam / Height")
-                $("#archimedes1-table-ball > table > tbody > tr:nth-child(2) > td:nth-child(2)").text("6 cm / 11 cm")
 
 
             }.bind(this));
