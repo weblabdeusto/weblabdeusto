@@ -137,6 +137,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			public SessionID getReservationId() {
 				return new SessionID("");
 			}
+
+			@Override
+			public ExperimentID getExperimentId() {
+				return new ExperimentID("whatever", "whatever");
+			}
 		});
 		
 		final ExperimentLoadedCallback callback = new ExperimentLoadedCallback();
@@ -227,6 +232,11 @@ public class ExperimentFactoryTest extends GWTTestCase {
 			@Override
 			public SessionID getReservationId() {
 				return new SessionID("");
+			}
+
+			@Override
+			public ExperimentID getExperimentId() {
+				return new ExperimentID("PLD experiments", "ud-pld");
 			}
 		});
 		

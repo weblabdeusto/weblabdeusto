@@ -17,6 +17,7 @@ package es.deusto.weblab.client.lab.controller;
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -159,5 +160,10 @@ final class BoardBaseController implements IBoardBaseController {
 	@Override
 	public void stopPolling() {
 		this.controller.stopPolling();
+	}
+
+	@Override
+	public ExperimentID getExperimentId() {
+		return this.controller.getExperimentId();
 	}
 }

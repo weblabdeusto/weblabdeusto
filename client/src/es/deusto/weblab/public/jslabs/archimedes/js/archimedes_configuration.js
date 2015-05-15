@@ -2,70 +2,72 @@
 
 
     var i18n = {
-        "archimedes.experiment": "Archimedes Experiment",
-        "time.remaining": "Time remaining",
-        "ball.weight.liquid.level" : "Ball weight & Liquid level",
-        "close": "Close",
-        "hd.picture" : "HD Picture",
+        "en" : {
+            "archimedes.experiment": "Archimedes Experiment",
+            "time.remaining": "Time remaining",
+            "ball.weight.liquid.level" : "Ball weight & Liquid level",
+            "close": "Close",
+            "hd.picture" : "HD Picture",
 
-        "show": "Show",
-        "hide": "Hide",
+            "show": "Show",
+            "hide": "Hide",
 
-        "showInstancesHelpTitle": "Show or hide a particular tube",
-        "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.",
+            "showInstancesHelpTitle": "Show or hide a particular tube",
+            "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.",
 
-        "sensorsHelpTitle": "Sensor information",
-        "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.",
+            "sensorsHelpTitle": "Sensor information",
+            "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.",
 
-        "sensors": "Sensors",
-        "liquid": "Liquid",
-        "liquid/tube": "Liquid/Tube",
-        "ball": "Ball",
-        "liquid.level": "Liquid Level",
-        "ball.weight": "Ball Weight",
-        "volume": "Volume",
-        "diameter": "Diameter",
-        "internal.diameter": "Internal Diameter",
-        "density": "Density",
-        "mass": "Mass",
-        "grams": "gr",
-        "cm": "cm",
-        "kgm3": "kg/m³",
-        "gcm3": "gr/cm³",
-        "m3": "m³",
-        "cm3": "cm³",
+            "sensors": "Sensors",
+            "liquid": "Liquid",
+            "liquid/tube": "Liquid/Tube",
+            "ball": "Ball",
+            "liquid.level": "Liquid Level",
+            "ball.weight": "Ball Weight",
+            "volume": "Volume",
+            "diameter": "Diameter",
+            "internal.diameter": "Internal Diameter",
+            "density": "Density",
+            "mass": "Mass",
+            "grams": "gr",
+            "cm": "cm",
+            "kgm3": "kg/m³",
+            "gcm3": "gr/cm³",
+            "m3": "m³",
+            "cm3": "cm³",
 
-        // For the Weight/Time plot
-        "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
-        "time.weight.plot" : "Time / Weight Plot",
-        "weight.g" : "Weight (g)",
-        "seconds.s" : "Seconds (s)",
+            // For the Weight/Time plot
+            "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
+            "time.weight.plot" : "Time / Weight Plot",
+            "weight.g" : "Weight (g)",
+            "seconds.s" : "Seconds (s)",
 
-        // For the instance names.
-        "instance1": "1st Tube",
-        "instance2": "2nd Tube",
-        "instance3": "3rd Tube",
-        "instance4": "4th Tube",
-        "instance5": "5th Tube",
-        "instance6": "6th Tube",
-        "instance7": "7th Tube",
-        "instance8": "8th Tube",
+            // For the instance names.
+            "instance1": "1st Tube",
+            "instance2": "2nd Tube",
+            "instance3": "3rd Tube",
+            "instance4": "4th Tube",
+            "instance5": "5th Tube",
+            "instance6": "6th Tube",
+            "instance7": "7th Tube",
+            "instance8": "8th Tube",
 
-        "toggle-show-hide": 'Toggle to <strong style="color: green">show</strong> or <strong style="color: slategray">hide</strong> each tube</div>'
+            "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>"
+        }
     };
 
-    $.i18n.load(i18n);
+    $.i18n.load(i18n["en"]);
 
 
     var Registry = {
         "archimedes1" : {
             "name": $.i18n._("instance1"),
-            "ball_mass": 155, // g
-            "ball_diameter": 6.0, // cm
+            "ball_mass": 134, // g
+            "ball_diameter": 8.0, // cm
             "ball_density": 0.5,
             "object_density": 0.5,
-            "object_volume": 310,
-            "object_type": "Cylinder",
+            "object_volume": 268,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 9.4, // cm
@@ -76,7 +78,6 @@
             "ball_mass": 56,
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
-            "object_type": "cylinder",
             "object_density": 1.32,
             "object_volume": 113.10,
             "object_type": "Ball",
@@ -87,10 +88,10 @@
         },
         "archimedes3" : {
             "name": $.i18n._("instance3"),
-            "ball_mass": 155,
+            "ball_mass": 134,
             "ball_diameter": 6, // cm
-            "ball_density": 1.17,
-            "object_density": 1.17,
+            "ball_density": 1.18,
+            "object_density": 1.18,
             "object_volume": 113.10,
             "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3

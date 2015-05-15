@@ -468,7 +468,7 @@ class WebLabAPI(object):
         :return: The flask response with the added cookies.
         :rtype: flask.wrappers.Response
         """
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
         response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
         return response
