@@ -62,12 +62,12 @@
     var Registry = {
         "archimedes1" : {
             "name": $.i18n._("instance1"),
-            "ball_mass": 155, // g
-            "ball_diameter": 6.0, // cm
+            "ball_mass": 134, // g
+            "ball_diameter": 8.0, // cm
             "ball_density": 0.5,
             "object_density": 0.5,
-            "object_volume": 310,
-            "object_type": "Cylinder",
+            "object_volume": 268,
+            "object_type": "Ball",
             "liquid_name": "water",
             "liquid_density": 1000, // 1000/m3
             "liquid_diameter": 9.4, // cm
@@ -78,7 +78,6 @@
             "ball_mass": 56,
             "ball_diameter": 6.0, // cm
             "ball_density": 0.5,
-            "object_type": "cylinder",
             "object_density": 1.32,
             "object_volume": 113.10,
             "object_type": "Ball",
@@ -89,10 +88,10 @@
         },
         "archimedes3" : {
             "name": $.i18n._("instance3"),
-            "ball_mass": 155,
+            "ball_mass": 134,
             "ball_diameter": 6, // cm
-            "ball_density": 1.17,
-            "object_density": 1.17,
+            "ball_density": 1.18,
+            "object_density": 1.18,
             "object_volume": 113.10,
             "object_type": "Ball",
             "liquid_density": 1000, // 1000/m3
