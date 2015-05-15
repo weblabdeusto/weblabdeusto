@@ -6,6 +6,7 @@ romie_sqlite = os.path.join(CURRENT_PATH, "romie.db")
 romie_table = 'users'
 romie_time = 194.159 # 3 minutes, 14.159 seconds
 romie_server = 'http://192.168.0.190:8000/'
+romie_labpsico = False
 questions = [
     [ # 0 difficulty
         {

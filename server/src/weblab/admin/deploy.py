@@ -240,6 +240,13 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"
     },
+    "romie_labpsico@Robot experiments" : {
+        "cssWidth": "1250",
+        "cssHeight": "700",
+        "provide.file.upload": False,
+        "experiment.picture": "/img/experiments/romie.png",
+        "html.file": "jslabs/romie/romie.html"
+    },
     "submarine@Aquatic experiments": {
         "experiment.info.description": "description",
         "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
@@ -696,6 +703,7 @@ def populate_weblab_tests(engine, tests):
         ('robot-standard',          'Robot experiments')     : 'robot-standard',
         ('robotarm',                'Robot experiments')     : 'robotarm',
         ('romie',                   'Robot experiments')     : 'js',
+        ('romie_labpsico',          'Robot experiments')     : 'js',
         ('submarine',               'Submarine experiments') : 'submarine',
         ('submarinejs',             'Aquatic experiments')   : 'js',
         ('ud-demo-fpga',            'FPGA experiments')      : 'xilinx',
@@ -772,6 +780,7 @@ def populate_weblab_tests(engine, tests):
         ('any',        'robot-standard',          'Robot experiments',      200),
         ('any',        'robotarm',                'Robot experiments',      200),
         ('any',        'romie',                   'Robot experiments',      1200),
+        ('any',        'romie_labpsico',          'Robot experiments',      1800),
         ('any',        'submarine',               'Submarine experiments',  200),
         ('any',        'submarinejs',             'Aquatic experiments',    200),
         ('any',        'ud-demo-fpga',            'FPGA experiments',       200),
