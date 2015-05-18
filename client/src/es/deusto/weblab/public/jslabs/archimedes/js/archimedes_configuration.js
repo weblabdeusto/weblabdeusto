@@ -144,9 +144,15 @@
 
     var currentLanguage = "en";
     try {
-        if (top.window.location.href.search("locale=eu") > 0) {
+        var href = "";
+        if (parent === window) {
+            href = window.location.href;
+        } else {
+            href = parent.window.location.href;
+        }
+        if (href.search("locale=eu") > 0) {
             currentLanguage = "eu";
-        } else if(top.window.location.href.search("locale=es") > 0) {
+        } else if(href.search("locale=es") > 0) {
             currentLanguage = "es";
         }  // Other languages
     } catch (Er) {
