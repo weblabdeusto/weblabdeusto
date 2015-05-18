@@ -54,6 +54,49 @@
 
             "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>"
         },
+        "es" : {
+            "instance4": "4\u00ba tubo", 
+            "cm": "cm", 
+            "instance5": "5\u00ba tubo", 
+            "close": "Cerrar", 
+            "showInstancesHelpContent": "A veces querr\u00e1s solamente mostrar algunos de los tubos disponibles. <br>De esta manera, la pantalla puede hacerse menos desordenada cuando no todos los tubos son necesarios. <br>a elegir que instancias para mostrar u ocultar, simplemente haga clic en su bot\u00f3n para cambiar su estado.", 
+            "plot.explanation": "Mide el peso de la bola percibido seg\u00fan lo informado por el sensor. El plazo representado es el \u00faltimo movimiento de la bola.", 
+            "hide": "Ocultar", 
+            "hd.picture": "Imagen HD", 
+            "density": "Densidad", 
+            "sensors": "Sensores", 
+            "show": "Mostrar", 
+            "diameter": "Di\u00e1metro", 
+            "seconds.s": "Segundos (s)", 
+            "liquid.level": "Nivel de l\u00edquido", 
+            "m3": "m?", 
+            "showInstancesHelpTitle": "Mostrar u ocultar un tubo especial", 
+            "sensorsHelpContent": "La ficha de sensores muestra los datos que se divulgan por los sensores de nivel y el peso f\u00edsicos. <br>Estos datos son autom\u00e1ticamente renovados. <br><br>Debido a la naturaleza de los sensores f\u00edsicos, necesariamente no debe esperar estos datos para ser totalmente exactos. <br> En particular, deber\u00eda notar que, por ejemplo, cuando el bal\u00f3n est\u00e1 en el agua, el sensor de peso a menudo reportar\u00e1 un n\u00famero cercano a cero cuando la bola est\u00e1 flotando. <br><br>Del mismo modo, porque estos sensores son reales, si los datos estaban equivocados, es probable que sea debido a alg\u00fan tipo de error de hardware.", 
+            "cm3": "\u00bfcm?", 
+            "archimedes.experiment": "Experimento de Arqu\u00edmedes", 
+            "ball": "Bola", 
+            "ball.weight.liquid.level": "Peso de la bola y nivel de l\u00edquido", 
+            "volume": "Volumen", 
+            "instance3": "3\u00ba tubo", 
+            "instance7": "7\u00ba tubo", 
+            "sensorsHelpTitle": "Informaci\u00f3n del sensor", 
+            "internal.diameter": "Di\u00e1metro interno", 
+            "instance8": "8\u00ba tubo", 
+            "ball.weight": "Peso de la bola", 
+            "weight.g": "Peso (g)", 
+            "instance2": "2\u00ba tubo", 
+            "grams": "gr", 
+            "liquid": "L\u00edquido", 
+            "time.weight.plot": "Dibujar Tiempo / peso", 
+            "kgm3": "kg/m?", 
+            "liquid/tube": "L\u00edquido/tubo", 
+            "instance1": "1\u00ba tubo", 
+            "mass": "Masa", 
+            "instance6": "6\u00ba tubo", 
+            "gcm3": "gr/cm?", 
+            "toggle-show-hide": "Alternar entre <strong style=\"color: green\"> Mostrar</strong> u <strong style=\"color: slategray\"> ocultar</strong> cada tubo</div>", 
+            "time.remaining": "Tiempo restante"
+        },
         "eu" : {
             "cm": "cm", 
             "instance5": "5. Hodia", 
@@ -103,7 +146,9 @@
     var currentLanguage = "en";
     if (top.window.location.href.search("locale=eu") > 0) {
         currentLanguage = "eu";
-    } // Other languages
+    } else if(top.window.location.href.search("locale=es") > 0) {
+        currentLanguage = "es";
+    }  // Other languages
     $.i18n.load(i18n[currentLanguage]);
 
 
