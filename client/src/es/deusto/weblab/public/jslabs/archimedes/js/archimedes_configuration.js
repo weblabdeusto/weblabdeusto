@@ -53,10 +53,103 @@
             "instance8": "8th Tube",
 
             "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>"
+        },
+        "es" : {
+            "instance4": "4\u00ba tubo", 
+            "cm": "cm", 
+            "instance5": "5\u00ba tubo", 
+            "close": "Cerrar", 
+            "showInstancesHelpContent": "A veces querr\u00e1s solamente mostrar algunos de los tubos disponibles. <br>De esta manera, la pantalla puede hacerse menos desordenada cuando no todos los tubos son necesarios. <br>a elegir que instancias para mostrar u ocultar, simplemente haga clic en su bot\u00f3n para cambiar su estado.", 
+            "plot.explanation": "Mide el peso de la bola percibido seg\u00fan lo informado por el sensor. El plazo representado es el \u00faltimo movimiento de la bola.", 
+            "hide": "Ocultar", 
+            "hd.picture": "Imagen HD", 
+            "density": "Densidad", 
+            "sensors": "Sensores", 
+            "show": "Mostrar", 
+            "diameter": "Di\u00e1metro", 
+            "seconds.s": "Segundos (s)", 
+            "liquid.level": "Nivel de l\u00edquido", 
+            "m3": "m?", 
+            "showInstancesHelpTitle": "Mostrar u ocultar un tubo especial", 
+            "sensorsHelpContent": "La ficha de sensores muestra los datos que se divulgan por los sensores de nivel y el peso f\u00edsicos. <br>Estos datos son autom\u00e1ticamente renovados. <br><br>Debido a la naturaleza de los sensores f\u00edsicos, necesariamente no debe esperar estos datos para ser totalmente exactos. <br> En particular, deber\u00eda notar que, por ejemplo, cuando el bal\u00f3n est\u00e1 en el agua, el sensor de peso a menudo reportar\u00e1 un n\u00famero cercano a cero cuando la bola est\u00e1 flotando. <br><br>Del mismo modo, porque estos sensores son reales, si los datos estaban equivocados, es probable que sea debido a alg\u00fan tipo de error de hardware.", 
+            "cm3": "\u00bfcm?", 
+            "archimedes.experiment": "Experimento de Arqu\u00edmedes", 
+            "ball": "Bola", 
+            "ball.weight.liquid.level": "Peso de la bola y nivel de l\u00edquido", 
+            "volume": "Volumen", 
+            "instance3": "3\u00ba tubo", 
+            "instance7": "7\u00ba tubo", 
+            "sensorsHelpTitle": "Informaci\u00f3n del sensor", 
+            "internal.diameter": "Di\u00e1metro interno", 
+            "instance8": "8\u00ba tubo", 
+            "ball.weight": "Peso de la bola", 
+            "weight.g": "Peso (g)", 
+            "instance2": "2\u00ba tubo", 
+            "grams": "gr", 
+            "liquid": "L\u00edquido", 
+            "time.weight.plot": "Dibujar Tiempo / peso", 
+            "kgm3": "kg/m?", 
+            "liquid/tube": "L\u00edquido/tubo", 
+            "instance1": "1\u00ba tubo", 
+            "mass": "Masa", 
+            "instance6": "6\u00ba tubo", 
+            "gcm3": "gr/cm?", 
+            "toggle-show-hide": "Alternar entre <strong style=\"color: green\"> Mostrar</strong> u <strong style=\"color: slategray\"> ocultar</strong> cada tubo</div>", 
+            "time.remaining": "Tiempo restante"
+        },
+        "eu" : {
+            "cm": "cm", 
+            "instance5": "5. Hodia", 
+            "close": "Itxi", 
+            "showInstancesHelpContent": "Batzuetan erabilgarri dauden hodiak bakarrik erakutsi nahi izango dituzu.<br>Modu horretan, hodi guztiak beharrezkoak ez direnean pantaila argiago agertuko da.<br> Ze instantzia erkutsi edo ezkutatuko den aukeratzeko, bere egoera aldatzeko botoia soilik klikatu behar duzu.", 
+            "plot.explanation": "Bolaren hautemandako balioa sensorearen informazioaren arabera neurtzen du. Deskribatutako denbora tartea bolaren azken mugimenduarena da.", 
+            "hide": "Ezkutatu", 
+            "hd.picture": "HD Irudia", 
+            "density": "Dentsitatea", 
+            "sensors": "Sentsoreak", 
+            "show": "Erakutsi", 
+            "diameter": "Diametroa", 
+            "seconds.s": "Segunduak (s)", 
+            "liquid.level": "Likidoaren Maila", 
+            "m3": "m?", 
+            "showInstancesHelpTitle": "Hodi jakin bat erakutsi edo ezkutatu", 
+            "sensorsHelpContent": "Sensorearen fitxak maila fisikoaren eta pisuaren sentsoreak emandako datuak agertzen ditu. <br> Datu hauek automatikoki eguneratzen dira.<br><br>Sentsoreen izaera fisikoa dela eta, ez zenuke espero behar datu hauek guztiz zehatzak izatea.<br>Bereziki, konturatu beharko zinateke, adibidez, bola uretan dagoenean, pisuaren sentsorea sarritan zerotik gertu egongo dela bola flotatzen baldin badago.<br><br>Era berean, sensoreak erralak direlako, datuak gaizki egongo baziren, seguruenik hardwarearen akatsen bategatik izango zen.", 
+            "cm3": "cm?", 
+            "archimedes.experiment": "Archimedes Esperimentua", 
+            "ball": "Bola", 
+            "ball.weight.liquid.level": "Bola pisua eta eta likidoaren maila", 
+            "volume": "Bolumena", 
+            "instance3": "3. Hodia", 
+            "instance4": "4. Hodia", 
+            "instance7": "7. Hodia", 
+            "sensorsHelpTitle": "Sentsorearen informazioa", 
+            "internal.diameter": "Barne Diametroa", 
+            "instance8": "8. Hodia", 
+            "ball.weight": "Bola pisua", 
+            "weight.g": "Pisua (g)", 
+            "instance2": "2. Hodia", 
+            "grams": "gr", 
+            "liquid": "Likidoa", 
+            "time.weight.plot": "Denbora / Pisua Grafikoa", 
+            "kgm3": "kg/m?", 
+            "liquid/tube": "Likidoa/ Hodia", 
+            "instance1": "1. Hodia", 
+            "mass": "Masa", 
+            "instance6": "6. Hodia", 
+            "gcm3": "gr / cm?", 
+            "toggle-show-hide": "Aldatu <strong style=\"color: green\">-ra erakutsi</strong> edo <strong style=\"color: slategray\">ezkutatu</strong> hodi bakoitza</div>", 
+            "time.remaining": "Geratzen den denbora"
         }
     };
 
-    $.i18n.load(i18n["en"]);
+    // TODO: Improve this mechanism using the WebLab API
+    var currentLanguage = "en";
+    if (top.window.location.href.search("locale=eu") > 0) {
+        currentLanguage = "eu";
+    } else if(top.window.location.href.search("locale=es") > 0) {
+        currentLanguage = "es";
+    }  // Other languages
+    $.i18n.load(i18n[currentLanguage]);
 
 
     var Registry = {
