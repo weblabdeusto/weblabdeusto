@@ -142,13 +142,16 @@
         }
     };
 
-    // TODO: Improve this mechanism using the WebLab API
     var currentLanguage = "en";
-    if (top.window.location.href.search("locale=eu") > 0) {
-        currentLanguage = "eu";
-    } else if(top.window.location.href.search("locale=es") > 0) {
-        currentLanguage = "es";
-    }  // Other languages
+    try {
+        if (top.window.location.href.search("locale=eu") > 0) {
+            currentLanguage = "eu";
+        } else if(top.window.location.href.search("locale=es") > 0) {
+            currentLanguage = "es";
+        }  // Other languages
+    } catch (Er) {
+        // Error, default to English
+    }
     $.i18n.load(i18n[currentLanguage]);
 
 
