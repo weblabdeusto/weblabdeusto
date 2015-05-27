@@ -6,9 +6,12 @@ import calendar
 
 from configuration import _USERNAME, _PASSWORD, DB_NAME, _FILES_PATH
 
-LIMIT   = 150
+LIMIT_INDEX   = 200
+LIMIT_COMMANDS   = 2000
 
 def utc2local_str(utc_datetime, format="%Y-%m-%d %H:%M:%S"):
+    if utc_datetime is None:
+       return "<b>Not finished yet</b>"
     return time.strftime(format, time.localtime(calendar.timegm(utc_datetime.timetuple())))
 
 def file(req, **kwargs):
@@ -131,7 +134,7 @@ padding:15px;
             SENTENCE = "SELECT uc.command, uc.response, uc.timestamp_before, uc.timestamp_before_micro, uc.timestamp_after, uc.timestamp_after_micro " + \
                         "FROM UserCommand as uc " + \
                         "WHERE uc.experiment_use_id = %s "+ \
-                        "ORDER BY uc.timestamp_before DESC LIMIT %s" % LIMIT
+                        "ORDER BY uc.timestamp_before DESC LIMIT %s" % LIMIT_COMMANDS
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
             command_results = ""
@@ -169,7 +172,7 @@ padding:15px;
             SENTENCE = "SELECT uf.id, uf.file_info, uf.file_hash, uf.response, uf.timestamp_before, uf.timestamp_before_micro, uf.timestamp_after, uf.timestamp_after_micro " + \
                         "FROM UserFile as uf " + \
                         "WHERE uf.experiment_use_id = %s "+ \
-                        "ORDER BY uf.timestamp_before DESC LIMIT %s" % LIMIT
+                        "ORDER BY uf.timestamp_before DESC LIMIT %s" % LIMIT_COMMANDS
             cursor.execute(SENTENCE, (use_id,))
             elements = cursor.fetchall()
             for file_id, file_info, file_hash, response, timestamp_before, timestamp_before_micro, timestamp_after, timestamp_after_micro in elements:
@@ -196,7 +199,7 @@ padding:15px;
         connection.close()
     return result + """</table></body></html>"""
 
-def user(req, login):
+def user(req, login, limit = LIMIT_INDEX):
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
         cursor = connection.cursor()
@@ -204,7 +207,7 @@ def user(req, login):
             SENTENCE = "SELECT uue.id, u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin " + \
                         "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
                         "WHERE u.login = %s AND u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
-                        "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
+                        "ORDER BY uue.start_date DESC LIMIT %s" % limit
             cursor.execute(SENTENCE, (login,) )
             elements = [ list(row) for row in cursor.fetchall()]
             for row in elements:
@@ -224,14 +227,14 @@ def user(req, login):
                         <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
             for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
-                result += "\t<tr> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+                result += "\t<tr> <td> %s </td> <td> %s </td> <td> <a href='exp?exp_name=%s&cat_name=%s'>%s</a> </td> <td> %s </td> <td> %s </td> <td> <a href=\"use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_full_name, experiment_name, category_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
         finally: 
             cursor.close()
     finally:
         connection.close()
     return result + """</table></body></html>"""
 
-def index(req):
+def exp(req, exp_name, cat_name, limit = LIMIT_INDEX):
     connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
     try:
         cursor = connection.cursor()
@@ -239,7 +242,45 @@ def index(req):
             SENTENCE = "SELECT uue.id, u.login, u.full_name, e.name, c.name, uue.start_date, uue.origin " + \
                         "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
                         "WHERE u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
-                        "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT
+                        "AND c.name = %s AND e.name = %s " + \
+                        "ORDER BY uue.start_date DESC LIMIT %s" % limit
+            cursor.execute(SENTENCE, (cat_name, exp_name) )
+            elements = [ list(row) for row in cursor.fetchall()]
+            for row in elements:
+                uue_id = row[0]
+                origin = row[-1]
+                SENTENCE = "SELECT uuepv.value " + \
+                            "FROM UserUsedExperimentPropertyValue as uuepv, UserUsedExperimentProperty as uuep " + \
+                            "WHERE uuepv.experiment_use_id = %s AND uuepv.property_name_id = uuep.id AND uuep.name = 'from_direct_ip'"
+                cursor.execute(SENTENCE, uue_id)
+                direct_ips = list(cursor.fetchall())
+                if len(direct_ips) > 0:
+                    direct_ip = direct_ips[0][0]
+                    if direct_ip != origin:
+                        row[-1] = '%s@%s' % (cgi.escape(origin), cgi.escape(direct_ip))
+
+            result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
+                        <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
+                        """
+            for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
+                result += "\t<tr> <td> <a href='user?login=%s'>%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+        finally: 
+            cursor.close()
+    finally:
+        connection.close()
+    return result + """</table></body></html>"""
+
+
+
+def index(req):
+    connection = dbi.connect(host="localhost",user=_USERNAME, passwd=_PASSWORD, db=DB_NAME)
+    try:
+        cursor = connection.cursor()
+        try:
+            SENTENCE = "SELECT uue.id, u.login, u.full_name, e.name, c.name, uue.start_date, uue.end_date, uue.origin " + \
+                        "FROM UserUsedExperiment as uue, User as u, Experiment as e, ExperimentCategory as c " + \
+                        "WHERE u.id = uue.user_id AND e.id = uue.experiment_id AND e.category_id = c.id " + \
+                        "ORDER BY uue.start_date DESC LIMIT %s" % LIMIT_INDEX
             cursor.execute(SENTENCE)
             elements = [ list(row) for row in cursor.fetchall()]
             for row in elements:
@@ -265,10 +306,10 @@ def index(req):
 
 
             result = """<html><head><title>Latest uses</title></head><body><table cellspacing="10">
-                        <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
+                        <tr> <td><b>User</b></td> <td><b>Name</b></td> <td><b>Experiment</b></td> <td><b>Date</b></td> <td><b>End date</b></td> <td><b>From </b> </td> <td><b>Use</b></td></tr>
                         """
-            for use_id, user_login, user_full_name, experiment_name, category_name, start_date, uue_from in elements:
-                result += "\t<tr> <td> <a href=\"uses.py/user?login=%s\">%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login.split('@')[1] if '@' in user_login else user_login, user_login, user_full_name, experiment_name + '@' + category_name, utc2local_str(start_date), uue_from, use_id )
+            for use_id, user_login, user_full_name, experiment_name, category_name, start_date, end_date, uue_from in elements:
+                result += "\t<tr> <td> <a href=\"uses.py/user?login=%s\">%s</a> </td> <td> %s </td> <td><a href='uses.py/exp?exp_name=%s&cat_name=%s'>%s</a> </td> <td> %s </td> <td> %s </td> <td> %s </td> <td> <a href=\"uses.py/use?use_id=%s\">use</a> </td> </tr>\n" % ( user_login.split('@')[1] if '@' in user_login else user_login, user_login, user_full_name, experiment_name, category_name, experiment_name + '@' + category_name, utc2local_str(start_date), utc2local_str(end_date), uue_from, use_id )
         finally: 
             cursor.close()
     finally:

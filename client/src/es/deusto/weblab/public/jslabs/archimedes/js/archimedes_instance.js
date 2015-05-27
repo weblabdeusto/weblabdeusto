@@ -207,9 +207,9 @@ ArchimedesInstance = function (instanceid) {
                 "diameter": Registry[instanceid]["ball_diameter"] + " " + $.i18n._("cm"),
 
                 // Tune this up!.
-                "density": Registry[instanceid]["object_density"] + " " + $.i18n._("grams"),
+                "density": Registry[instanceid]["object_density"] + " " + $.i18n._("gcm3"),
 
-                "volume": Registry[instanceid]["object_volume"] + " " + $.i18n._("gcm3"),
+                "volume": Registry[instanceid]["object_volume"] + " " + $.i18n._("cm3"),
             },
             translator: $.i18n._.bind($.i18n)
         });
