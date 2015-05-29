@@ -17,6 +17,12 @@ angular
         'ngTouch',
         'ui.slider'
     ])
+    .constant(
+        "VIRTUALMODEL", "watertank"
+    )
+    .run( function($rootScope, VIRTUALMODEL) {
+        $rootScope.VIRTUALMODEL = VIRTUALMODEL;
+    })
     .config(function ($routeProvider) {
         $routeProvider
             .when('/', {

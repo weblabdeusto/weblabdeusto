@@ -5,7 +5,7 @@ angular
     .controller('MainController', MainController);
 
 
-function MainController($scope, $injector, $log) {
+function MainController($scope, $rootScope, $injector, $log) {
     var controller = this;
 
     // ---------------
