@@ -15,7 +15,8 @@ angular
         'ngRoute',
         'ngSanitize',
         'ngTouch',
-        'ui.slider'
+        'ui.slider',
+        'angular.vertilize'
     ])
     .constant(
         "VIRTUALMODEL", "watertank"

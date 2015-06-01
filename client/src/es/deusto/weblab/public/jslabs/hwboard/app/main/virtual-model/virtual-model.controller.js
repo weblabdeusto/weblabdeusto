@@ -1,3 +1,9 @@
 angular
     .module("hwboard")
-    .controller("VirtualModelController");
+    .controller("VirtualModelController", VirtualModelController);
+
+
+
+function VirtualModelController($scope) {
+
+} // !VirtualModelController
