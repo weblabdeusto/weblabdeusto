@@ -1,0 +1,818 @@
+{
+    "generic": {
+        "ru": {
+            "username": "\u0418\u043c\u044f \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f (\u041b\u043e\u0433\u0438\u043d)", 
+            "information": "\u0418\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f", 
+            "search": "\u041f\u043e\u0438\u0441\u043a", 
+            "group": "\u0413\u0440\u0443\u043f\u043f\u0430", 
+            "users": "\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438", 
+            "mobile": "\u041c\u043e\u0431\u0438\u043b\u044c\u043d\u0430\u044f \u0432\u0435\u0440\u0441\u0438\u044f", 
+            "demo": "\u0414\u0435\u043c\u043e", 
+            "support": "\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u0430\u044f \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u043a\u0430", 
+            "welcome": "\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c", 
+            "accesses": "\u0414\u043e\u0441\u0442\u0443\u043f", 
+            "filter": "\u0424\u0438\u043b\u044c\u0442\u0440", 
+            "to": "\u0414o", 
+            "experiment": "\u042d\u043a\u0441\u043f\u0435\u0440\u0438\u043c\u0435\u043d\u0442", 
+            "choose": "\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435:", 
+            "reserving": "\u0420\u0435\u0437\u0435\u0440\u0432\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435", 
+            "from": "\u041e\u0442", 
+            "password": "\u041f\u0430\u0440\u043e\u043b\u044c", 
+            "reserve": "\u0420\u0435\u0437\u0435\u0440\u0432\u0438\u0440\u043e\u0432\u0430\u0442\u044c"
+        }, 
+        "fr": {
+            "username": "Nom d''utilisateur", 
+            "information": "Information", 
+            "search": "Chercher", 
+            "group": "Groupe", 
+            "users": "Utilisateurs", 
+            "mobile": "Mobile", 
+            "demo": "Versions d\u00e9mo", 
+            "support": "Support", 
+            "welcome": "Bienvenue", 
+            "accesses": "Acc\u00e8s", 
+            "filter": "Filtrer", 
+            "to": "\u00c0", 
+            "experiment": "Exp\u00e9rience", 
+            "choose": "Choisissez", 
+            "reserving": "R\u00e9servation", 
+            "from": "De", 
+            "password": "Mot de passe", 
+            "reserve": "Revers"
+        }, 
+        "en": {
+            "from": "From", 
+            "reservethisexperiment": "Reserve this experiment", 
+            "demo": "Demo", 
+            "weblabisopensourceavailable": "WebLab-Deusto is Open Source Software, and it is available in {0}", 
+            "notallowedtoaccessadminpanel": "Your user account is not allowed to access the Administration Panel", 
+            "experiment": "Experiment", 
+            "clickhere": "Click here", 
+            "loginasguest": "Login as guest", 
+            "demologindetails": "If you do not have a user account, you can try our demo experiments with the username <strong>{0}</strong> and the password <strong>{1}</strong>.", 
+            "weblabdeustoisaremote_long": "WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the university, having the same experience as if in traditional hands-on-lab sessions. There is more information regarding the project in the <a href=\"http://www.weblab.deusto.es/\" target=\"_blank\">WebLab-Deusto Research Group</a> site.", 
+            "information": "Information", 
+            "chooseavalue": "Choose a value", 
+            "usemobileversionclicking": "Perform your experiments in the mobile version by clicking <a href=\"{0}\">here</a>", 
+            "support": "Support", 
+            "someexperimentsareavailablefordemo": "Some experiments allow guest access", 
+            "directlink": "Direct link", 
+            "administrationpanel": "Administration Panel", 
+            "experimentpicture": "Picture", 
+            "to": "To", 
+            "ifyouhavetechnicalproblems": "For any technical issue you may find, please contact us at {0}", 
+            "opensource": "Open Source", 
+            "thisfieldcantbeempty": "The {0} field can not be empty", 
+            "morelanguages": "More languages", 
+            "showexperiments": "Show experiments", 
+            "choose": "Choose", 
+            "username": "Username", 
+            "users": "Users", 
+            "welcome": "Welcome", 
+            "donthaveanaccountfacebook": "Don''t have an account? Create one through Facebook", 
+            "welcometoweblabdeusto": "Welcome to the WebLab-DEUSTO", 
+            "fieldcantbeempty": "This field can not be empty", 
+            "invalidusernameorpassword": "Invalid username or password", 
+            "clearfilter": "Clear filter", 
+            "group": "Group", 
+            "password": "Password", 
+            "search": "Search", 
+            "loggingin": "Logging in", 
+            "mobile": "Mobile", 
+            "createanaccount": "Create an account", 
+            "accesses": "Accesses", 
+            "filter": "Filter", 
+            "reserving": "Reserving", 
+            "login": "Log in", 
+            "passwordsdonotmatch": "Passwords do not match", 
+            "reserve": "Reserve"
+        }, 
+        "nl": {
+            "username": "Gebruikersnaam", 
+            "information": "Informatie", 
+            "search": "Zoeken", 
+            "group": "Groep", 
+            "users": "Gebruikers", 
+            "mobile": "Mobiel", 
+            "demo": "Demo", 
+            "support": "Ondersteuning", 
+            "welcome": "Welkom", 
+            "accesses": "Geeft toegang tot", 
+            "filter": "Filter", 
+            "to": "Tot", 
+            "experiment": "Experiment", 
+            "choose": "Kiezen", 
+            "reserving": "Reserveren", 
+            "from": "Van", 
+            "password": "Wachtwoord", 
+            "reserve": "Reserveer"
+        }, 
+        "pt": {
+            "username": "Nome de Usu\u00e1rio", 
+            "information": "Informa\u00e7\u00e3o", 
+            "search": "Procurar", 
+            "group": "Grupo", 
+            "users": "Usu\u00e1rios", 
+            "mobile": "Mobile", 
+            "demo": "Demo", 
+            "support": "Suporte", 
+            "welcome": "Bem-vindo", 
+            "accesses": "Acessos", 
+            "filter": "Filtrar", 
+            "to": "At\u00e9", 
+            "experiment": "Experimento", 
+            "choose": "Escolher", 
+            "reserving": "Reservando", 
+            "from": "A partir de", 
+            "password": "Senha", 
+            "reserve": "Reservar"
+        }, 
+        "de": {
+            "username": "Benutzername", 
+            "information": "Information", 
+            "search": "Suchen", 
+            "group": "Gruppe", 
+            "users": "Benutzer", 
+            "mobile": "Mobil", 
+            "demo": "Demo", 
+            "support": "Support", 
+            "welcome": "Willkommen", 
+            "accesses": "Zugriffe", 
+            "filter": "Filter", 
+            "to": "An", 
+            "experiment": "Experiment", 
+            "choose": "W\u00e4hlen", 
+            "reserving": "Reservieren...", 
+            "from": "Von", 
+            "password": "Passwort", 
+            "reserve": "Reservieren"
+        }, 
+        "hu": {
+            "username": "Felhaszn\u00e1l\u00f3 n\u00e9v", 
+            "information": "Inform\u00e1ci\u00f3", 
+            "search": "Keres\u00e9s", 
+            "group": "Csoport", 
+            "users": "Felhaszn\u00e1l\u00f3k", 
+            "mobile": "Mobil", 
+            "demo": "Dem\u00f3", 
+            "support": "T\u00e1mogat\u00e1s", 
+            "welcome": "\u00dcdv\u00f6zl\u00f6lj\u00fck", 
+            "accesses": "Hozz\u00e1f\u00e9r\u00e9sek", 
+            "filter": "Sz\u0171r\u0151", 
+            "to": "Meddig", 
+            "experiment": "K\u00eds\u00e9rlet", 
+            "choose": "V\u00e1laszt", 
+            "reserving": "Foglal", 
+            "from": "Mikort\u00f3l", 
+            "password": "Jelsz\u00f3", 
+            "reserve": "Foglal\u00e1s"
+        }, 
+        "sk": {
+            "username": "U\u017e\u00edvate\u013esk\u00e9 meno", 
+            "information": "Inform\u00e1cie", 
+            "search": "H\u013eada\u0165", 
+            "group": "Skupina", 
+            "users": "U\u017e\u00edvatelia", 
+            "mobile": "Mobil", 
+            "demo": "Demo", 
+            "support": "Podpora", 
+            "welcome": "Vitajte", 
+            "accesses": "Pr\u00edstupy", 
+            "filter": "Filtrova\u0165", 
+            "to": "Do", 
+            "experiment": "Experiment", 
+            "choose": "Vybra\u0165", 
+            "reserving": "Rezervujem", 
+            "from": "Od", 
+            "password": "Heslo", 
+            "reserve": "Rezervova\u0165"
+        }, 
+        "cs": {
+            "username": "U\u017eivatelsk\u00e9 jm\u00e9no", 
+            "information": "Informace", 
+            "search": "Vyhled\u00e1v\u00e1n\u00ed", 
+            "group": "Skupina", 
+            "users": "U\u017eivatel\u00e9", 
+            "mobile": "Mobil", 
+            "demo": "Demo", 
+            "support": "Podpora", 
+            "welcome": "V\u00edtejte", 
+            "accesses": "P\u0159\u00edstupy", 
+            "filter": "Filtr", 
+            "to": "Do", 
+            "experiment": "Experiment", 
+            "choose": "Vybrat", 
+            "reserving": "Rezervuji", 
+            "from": "Od", 
+            "password": "Heslo", 
+            "reserve": "Rezervovat"
+        }, 
+        "ar": {
+            "username": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645", 
+            "information": "\u0645\u0639\u0644\u0648\u0645\u0627\u062a", 
+            "search": "\u0628\u062d\u062b", 
+            "group": "\u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0629", 
+            "users": "\u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645\u064a\u0646", 
+            "mobile": "\u0627\u0644\u0645\u0648\u0628\u0627\u064a\u0644", 
+            "demo": "\u0627\u0644\u0639\u0631\u0636 \u062a\u062c\u0631\u064a\u0628\u064a Demo:", 
+            "support": "\u0627\u0644\u062f\u0639\u0645", 
+            "welcome": "\u0645\u0631\u062d\u0628\u0627  \u0628\u0643\u0645", 
+            "accesses": "\u0627\u0644\u0648\u0635\u0648\u0644", 
+            "filter": "\u0627\u0644\u062a\u0635\u0641\u064a\u0629", 
+            "to": "\u0625\u0644\u0649", 
+            "experiment": "\u0627\u0644\u062a\u062c\u0631\u0628\u0629", 
+            "choose": "\u0627\u0644\u0627\u062e\u062a\u064a\u0627\u0631", 
+            "reserving": "\u064a\u062d\u062c\u0632", 
+            "from": "\u0645\u0646", 
+            "password": "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", 
+            "reserve": "\u062d\u062c\u0632"
+        }, 
+        "eu": {
+            "username": "Erabiltzailea", 
+            "information": "Informazioa", 
+            "search": "Bilatu", 
+            "group": "Talde", 
+            "users": "Lankideak", 
+            "mobile": "Mugikorra", 
+            "demo": "Demo", 
+            "support": "Laguntza", 
+            "welcome": "Ongi etorri", 
+            "accesses": "Erabiltzeak", 
+            "filter": "Irazki", 
+            "to": "Amaitu", 
+            "experiment": "Esperimentu", 
+            "choose": "Aukeratu", 
+            "reserving": "Erreserbatzen", 
+            "from": "Hasi", 
+            "password": "Pasahitza", 
+            "reserve": "Erreserbatu"
+        }, 
+        "ro": {
+            "username": "Nume utilizator", 
+            "information": "Informa\u0163ii.", 
+            "search": "Caut\u0103", 
+            "group": "Grup", 
+            "users": "Utilizatori", 
+            "mobile": "Mobil", 
+            "demo": "Demo", 
+            "support": "Suport", 
+            "welcome": "Bine a\u021bi venit", 
+            "accesses": "Accese", 
+            "filter": "Filtru", 
+            "to": "P\u00e2n\u0103", 
+            "experiment": "Experiment", 
+            "choose": "Selecteaz\u0103", 
+            "reserving": "Rezerv\u0103", 
+            "from": "Din data", 
+            "password": "Parol\u0103", 
+            "reserve": "Rezervare"
+        }, 
+        "es": {
+            "username": "Usuario", 
+            "information": "Informaci\u00f3n", 
+            "search": "Consultar", 
+            "group": "Grupo", 
+            "users": "Usuarios", 
+            "mobile": "M\u00f3viles", 
+            "demo": "Demo", 
+            "support": "Soporte", 
+            "welcome": "Bienvenido", 
+            "accesses": "Accesos", 
+            "filter": "Filtro", 
+            "to": "A", 
+            "experiment": "Experimento", 
+            "choose": "Seleccionar", 
+            "reserving": "Reservando", 
+            "from": "Desde", 
+            "password": "Contrase\u00f1a", 
+            "reserve": "Reservar"
+        }
+    }, 
+    "generic_experiments": {
+        "ru": {
+            "finish": "\u0417\u0430\u0432\u0435\u0440\u0448\u0435\u043d\u0438\u0435", 
+            "back": "\u041d\u0430\u0437\u0430\u0434"
+        }, 
+        "fr": {
+            "finish": "Terminer", 
+            "back": "Retour"
+        }, 
+        "en": {
+            "myexperiments": "My Experiments", 
+            "experimenthostedby": "Experiment hosted by", 
+            "finish": "Finish", 
+            "waitingforconfirmation": "Contacting the laboratory", 
+            "waitingforaninstanceposition": "That experiment is broken. Please contact the administrator {0}. Anyway, you are in the queue (position: {1}), so as soon as the admin fixes it you will be able to use the experiment. If you prefer, you can also log in later, because usually this takes a long time.", 
+            "back": "Go back", 
+            "timeallowed": "Assigned time", 
+            "selectedexperiment": "Selected experiment", 
+            "backtomyexperiments": "Back to My experiments", 
+            "logout": "Log out", 
+            "experimentinteractionfinishedgoback": "Experiment finished", 
+            "poweredby": "Powered by", 
+            "experimentcategory": "Category", 
+            "waitinginqueueposition": "Waiting in the queue, position {0}", 
+            "experimentname": "Experiment"
+        }, 
+        "nl": {
+            "finish": "Voltooien", 
+            "back": "Ga terug"
+        }, 
+        "pt": {
+            "finish": "Terminar", 
+            "back": "Voltar"
+        }, 
+        "de": {
+            "finish": "Beenden", 
+            "back": "Zur\u00fcck"
+        }, 
+        "hu": {
+            "finish": "Befejez", 
+            "back": "Vissza"
+        }, 
+        "sk": {
+            "finish": "Koniec", 
+            "back": "N\u00e1vrat"
+        }, 
+        "cs": {
+            "finish": "Konec", 
+            "back": "Jdi zp\u011bt!"
+        }, 
+        "ar": {
+            "finish": "\u0646\u0647\u0627\u064a\u0629", 
+            "back": "\u0627\u0644\u0631\u062c\u0648\u0639 \u0644\u0644\u062e\u0644\u0641"
+        }, 
+        "eu": {
+            "finish": "Bukatu", 
+            "back": "Atzera"
+        }, 
+        "ro": {
+            "finish": "Terminare", 
+            "back": "\u00cenapoi"
+        }, 
+        "es": {
+            "finish": "Finalizar", 
+            "back": "Volver"
+        }
+    }, 
+    "experiments": {
+        "binary": {
+            "ru": {
+                "loading": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430 {0}"
+            }, 
+            "fr": {
+                "loading": "Chargement en cours {0}"
+            }, 
+            "en": {
+                "selectothercode": "Select other code", 
+                "loading": "Loading {0}", 
+                "otherbcds": "Other BCDs", 
+                "purebcd": "Pure BCD", 
+                "selectacode": "Select a code:"
+            }, 
+            "nl": {
+                "loading": "Laden {0}"
+            }, 
+            "pt": {
+                "loading": "Carregando {0}"
+            }, 
+            "de": {
+                "loading": "Lade {0}"
+            }, 
+            "hu": {
+                "loading": "T\u0151lt\u00e9s {0}"
+            }, 
+            "sk": {
+                "loading": "Na\u010d\u00edtanie {0}"
+            }, 
+            "cs": {
+                "loading": "Na\u010d\u00edt\u00e1n\u00ed {0}"
+            }, 
+            "ar": {
+                "loading": "\u062a\u062d\u0645\u064a\u0644 {0}"
+            }, 
+            "eu": {
+                "loading": "Lanean {0}"
+            }, 
+            "ro": {
+                "loading": "Se \u00eencarc\u0103 {0}"
+            }, 
+            "es": {
+                "loading": "Cargando {0}"
+            }
+        }, 
+        "unr-physics": {
+            "en": {
+                "remotesystem": "remote system", 
+                "redirectingto": "Redirecting to"
+            }
+        }, 
+        "ilab-batch": {
+            "en": {
+                "thislaboratoryismanagedbyjavaappletilab": "This laboratory is managed by a Java applet that should pop up. If nothing happens, check you have Java properly configured."
+            }
+        }, 
+        "robot-standard": {
+            "ru": {
+                "failed": "\u041e\u0448\u0438\u0431\u043a\u0430: {0}"
+            }, 
+            "fr": {
+                "failed": "\u00c9chec: {0}"
+            }, 
+            "en": {
+                "therewasanerror": "There was an error: {0}", 
+                "theprogramisbeingexecutedinthebot": "The program is being executed in the bot", 
+                "programminginteractivedemo": "Programming interactive demo", 
+                "failed": "Failed: {0}", 
+                "youcancontrolthebot": "You can now control the bot", 
+                "selectwhatprogramshouldbesent": "Select what program should be sent to the device"
+            }, 
+            "nl": {
+                "failed": "Mislukt: {0}"
+            }, 
+            "pt": {
+                "failed": "Falhou: {0}"
+            }, 
+            "de": {
+                "failed": "Fehler: {0}"
+            }, 
+            "hu": {
+                "failed": "Sikertelen: {0}"
+            }, 
+            "sk": {
+                "failed": "Zlyhanie: {0}"
+            }, 
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
+            }, 
+            "ar": {
+                "failed": "\u0641\u0634\u0644: {0}"
+            }, 
+            "eu": {
+                "failed": "Huts egin du: {0}"
+            }, 
+            "ro": {
+                "failed": "E\u0219uat: {0}"
+            }, 
+            "es": {
+                "failed": "Ha habido un fallo: {0}"
+            }
+        }, 
+        "visir": {
+            "en": {
+                "circuitsavailable": "Circuits available", 
+                "visirexperiment": "VISIR experiment", 
+                "footermessage": "Powered by the wonderful <a href=''http://openlabs.bth.se/index.php?page=ElectroLab''>VISIR</a> <a href=''http://svn.openlabs.bth.se/''>Open Source</a> project developed at the <a href=''http://www.bth.se/''>BTH</a>", 
+                "flashtimeout": "Your web browser did not find VISIR code. If it''s the first time you run it, this might be normal: it just means that it took too long to download VISIR; try to refresh WebLab and it will work. If this problem persists, contact the administrator. Error: {0}"
+            }
+        }, 
+        "robot-proglist": {
+            "ru": {
+                "failed": "\u041e\u0448\u0438\u0431\u043a\u0430: {0}"
+            }, 
+            "fr": {
+                "failed": "\u00c9chec: {0}"
+            }, 
+            "en": {
+                "therewasanerror": "There was an error: {0}", 
+                "theprogramisbeingexecutedinthebot": "The program is being executed in the bot", 
+                "programminginteractivedemo": "Programming interactive demo", 
+                "failed": "Failed: {0}", 
+                "youcancontrolthebot": "You can now control the bot", 
+                "selectwhatprogramshouldbesent": "Select what program should be sent to the device"
+            }, 
+            "nl": {
+                "failed": "Mislukt: {0}"
+            }, 
+            "pt": {
+                "failed": "Falhou: {0}"
+            }, 
+            "de": {
+                "failed": "Fehler: {0}"
+            }, 
+            "hu": {
+                "failed": "Sikertelen: {0}"
+            }, 
+            "sk": {
+                "failed": "Zlyhanie: {0}"
+            }, 
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
+            }, 
+            "ar": {
+                "failed": "\u0641\u0634\u0644: {0}"
+            }, 
+            "eu": {
+                "failed": "Huts egin du: {0}"
+            }, 
+            "ro": {
+                "failed": "E\u0219uat: {0}"
+            }, 
+            "es": {
+                "failed": "Ha habido un fallo: {0}"
+            }
+        }, 
+        "robot-movement": {
+            "ru": {
+                "failed": "\u041e\u0448\u0438\u0431\u043a\u0430: {0}"
+            }, 
+            "fr": {
+                "failed": "\u00c9chec: {0}"
+            }, 
+            "en": {
+                "therewasanerror": "There was an error: {0}", 
+                "theprogramisbeingexecutedinthebot": "The program is being executed in the bot", 
+                "programminginteractivedemo": "Programming interactive demo", 
+                "failed": "Failed: {0}", 
+                "youcancontrolthebot": "You can now control the bot", 
+                "selectwhatprogramshouldbesent": "Select what program should be sent to the device"
+            }, 
+            "nl": {
+                "failed": "Mislukt: {0}"
+            }, 
+            "pt": {
+                "failed": "Falhou: {0}"
+            }, 
+            "de": {
+                "failed": "Fehler: {0}"
+            }, 
+            "hu": {
+                "failed": "Sikertelen: {0}"
+            }, 
+            "sk": {
+                "failed": "Zlyhanie: {0}"
+            }, 
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
+            }, 
+            "ar": {
+                "failed": "\u0641\u0634\u0644: {0}"
+            }, 
+            "eu": {
+                "failed": "Huts egin du: {0}"
+            }, 
+            "ro": {
+                "failed": "E\u0219uat: {0}"
+            }, 
+            "es": {
+                "failed": "Ha habido un fallo: {0}"
+            }
+        }, 
+        "vm": {
+            "ru": {
+                "finishing": "\u0417\u0430\u043a\u043e\u043d\u0447\u0438\u0442\u044c"
+            }, 
+            "fr": {
+                "finishing": "Finition en cours"
+            }, 
+            "en": {
+                "yourvirtualmachineisnowready": "Your Virtual Machine is now ready!", 
+                "vmaddress": "VM address:", 
+                "loadjavavncapplet": "Load Java applet VNC Client", 
+                "donevmisready": "Done. VM is ready", 
+                "loadingpleasewait": "Loading, please wait ({0}%)", 
+                "yourvirtualmachineisnotyetready": "Your Virtual Machine is not yet ready. Please, wait. It often takes around {0} seconds.", 
+                "finishing": "Finishing"
+            }, 
+            "nl": {
+                "finishing": "Voltooiing"
+            }, 
+            "pt": {
+                "finishing": "Terminando"
+            }, 
+            "de": {
+                "finishing": "Fertigstellung"
+            }, 
+            "hu": {
+                "finishing": "Befejez\u00e9s"
+            }, 
+            "sk": {
+                "finishing": "Dokon\u010duje sa"
+            }, 
+            "cs": {
+                "finishing": "Dokon\u010duje se"
+            }, 
+            "ar": {
+                "finishing": "\u0627\u0644\u0627\u0646\u0647\u0627\u0621"
+            }, 
+            "eu": {
+                "finishing": "Amaitzen"
+            }, 
+            "ro": {
+                "finishing": "Terminare"
+            }, 
+            "es": {
+                "finishing": "Finalizando"
+            }
+        }, 
+        "submarine": {
+            "en": {
+                "fishfed": "Fish fed!", 
+                "activatesubmarinecontrolpanel": "Activate the submarine control panel", 
+                "fishalreadyfed": "Fish already fed recently. Try again in {0} hours", 
+                "submarineisprobablyoutofbattery": "The submarine is probably out of battery! Don''t you want to feed the fish or play with the lights?", 
+                "fishnotfed": "Fish not fed: {0}", 
+                "youcannowcontroltheaquarium": "You can now control the aquarium", 
+                "submarineisonlyavailablefewtimes": "The submarine is only available few times, since the battery is usually empty. If you''re lucky, you''ll see the submarine and the green light of the submarine on, so you can play with it. Otherwise you''ll only be able to feed the fish (you can see the food in the top left side of the first camera) and turn on and off the lights.", 
+                "yesactivatesubmarinecontrolpanel": "Yes, activate the submarine panel"
+            }
+        }, 
+        "archimedes": {
+            "eu": {
+                "diameter": "Diametroa", 
+                "sensorsHelpTitle": "Sentsorearen informazioa", 
+                "cm": "cm", 
+                "show": "Erakutsi", 
+                "internal.diameter": "Barne Diametroa", 
+                "close": "Itxi", 
+                "showInstancesHelpContent": "Batzuetan erabilgarri dauden hodiak bakarrik erakutsi nahi izango dituzu.<br>Modu horretan, hodi guztiak beharrezkoak ez direnean pantaila argiago agertuko da.<br> Ze instantzia erkutsi edo ezkutatuko den aukeratzeko, bere egoera aldatzeko botoia soilik klikatu behar duzu.", 
+                "sensors": "Sentsoreak", 
+                "hide": "Ezkutatu", 
+                "hd.picture": "HD Irudia", 
+                "density": "Dentsitatea", 
+                "instance8": "8. Hodia", 
+                "seconds.s": "Segunduak (s)", 
+                "liquid.level": "Likidoaren Maila", 
+                "m3": "m\u00b3", 
+                "showInstancesHelpTitle": "Hodi jakin bat erakutsi edo ezkutatu", 
+                "sensorsHelpContent": "Sensorearen fitxak maila fisikoaren eta pisuaren sentsoreak emandako datuak agertzen ditu. <br> Datu hauek automatikoki eguneratzen dira.<br><br>Sentsoreen izaera fisikoa dela eta, ez zenuke espero behar datu hauek guztiz zehatzak izatea.<br>Bereziki, konturatu beharko zinateke, adibidez, bola uretan dagoenean, pisuaren sentsorea sarritan zerotik gertu egongo dela bola flotatzen baldin badago.<br><br>Era berean, sensoreak erralak direlako, datuak gaizki egongo baziren, seguruenik hardwarearen akatsen bategatik izango zen.", 
+                "cm3": "cm\u00b3", 
+                "archimedes.experiment": "Archimedes Esperimentua", 
+                "ball": "Bola", 
+                "ball.weight.liquid.level": "Bola pisua eta likidoaren maila", 
+                "volume": "Bolumena", 
+                "instance3": "3. Hodia", 
+                "instance1": "1. Hodia", 
+                "instance6": "6. Hodia", 
+                "instance7": "7. Hodia", 
+                "instance4": "4. Hodia", 
+                "instance5": "5. Hodia", 
+                "plot.explanation": "Bolaren hautemandako balioa sensorearen informazioaren arabera neurtzen du. Deskribatutako denbora tartea bolaren azken mugimenduarena da.", 
+                "ball.weight": "Bola pisua", 
+                "grams": "g", 
+                "instance2": "2. Hodia", 
+                "weight.g": "Pisua (g)", 
+                "liquid": "Likidoa", 
+                "time.weight.plot": "Denbora / Pisua Grafikoa", 
+                "kgm3": "kg/m\u00b3", 
+                "liquid/tube": "Likidoa/ Hodia", 
+                "mass": "Masa", 
+                "gcm3": "g / cm\u00b3", 
+                "toggle-show-hide": "Aldatu <strong style=\"color: green\">-ra erakutsi</strong> edo <strong style=\"color: slategray\">ezkutatu</strong> hodi bakoitza</div>", 
+                "time.remaining": "Geratzen den denbora"
+            }, 
+            "en": {
+                "diameter": "Diameter", 
+                "instance4": "4th Tube", 
+                "cm": "cm", 
+                "show": "Show", 
+                "instance5": "5th Tube", 
+                "close": "Close", 
+                "showInstancesHelpContent": "Sometimes you may want to only display some of the available tubes.<br>This way, the screen can be made less cluttered when not all tubes are needed.<br>To choose which instances to show or hide, simply click on their button to toggle their state.", 
+                "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.", 
+                "hide": "Hide", 
+                "hd.picture": "HD Picture", 
+                "density": "Density", 
+                "instance8": "8th Tube", 
+                "seconds.s": "Seconds (s)", 
+                "liquid.level": "Liquid Level", 
+                "m3": "m\u00b3", 
+                "showInstancesHelpTitle": "Show or hide a particular tube", 
+                "sensorsHelpContent": "The sensors tab displays the data that is reported by the physical level and weight sensors.<br>This data is automatically refreshed.<br><br>Due to the nature of physical sensors, you should not necessarily expect this data to be fully accurate.<br>Particularly, you should notice that, for instance, when the ball is in the water, the weight sensor will often report a number close to zero when the ball is floating. <br><br>Likewise, because these sensors are real, if the data were wrong, it would likely be due to some kind of hardware error.", 
+                "cm3": "cm\u00b3", 
+                "archimedes.experiment": "Archimedes Experiment", 
+                "ball": "Ball", 
+                "ball.weight.liquid.level": "Ball weight & Liquid level", 
+                "volume": "Volume", 
+                "instance3": "3rd Tube", 
+                "weight.g": "Weight (g)", 
+                "instance6": "6th Tube", 
+                "instance7": "7th Tube", 
+                "sensorsHelpTitle": "Sensor information", 
+                "internal.diameter": "Internal Diameter", 
+                "sensors": "Sensors", 
+                "ball.weight": "Ball Weight", 
+                "grams": "g", 
+                "instance2": "2nd Tube", 
+                "liquid/tube": "Liquid/Tube", 
+                "liquid": "Liquid", 
+                "time.weight.plot": "Time / Weight Plot", 
+                "kgm3": "kg/m\u00b3", 
+                "instance1": "1st Tube", 
+                "mass": "Mass", 
+                "gcm3": "g/cm\u00b3", 
+                "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>", 
+                "time.remaining": "Time remaining"
+            }, 
+            "es": {
+                "diameter": "Di\u00e1metro", 
+                "sensorsHelpTitle": "Informaci\u00f3n del sensor", 
+                "cm": "cm", 
+                "show": "Mostrar", 
+                "internal.diameter": "Di\u00e1metro interno", 
+                "close": "Cerrar", 
+                "showInstancesHelpContent": "A veces querr\u00e1s solamente mostrar algunos de los tubos disponibles. <br>De esta manera, la pantalla puede hacerse menos desordenada cuando no todos los tubos son necesarios. <br>a elegir que instancias para mostrar u ocultar, simplemente haga clic en su bot\u00f3n para cambiar su estado.", 
+                "sensors": "Sensores", 
+                "hide": "Ocultar", 
+                "hd.picture": "Imagen HD", 
+                "density": "Densidad", 
+                "instance8": "8\u00ba tubo", 
+                "seconds.s": "Segundos (s)", 
+                "liquid.level": "Nivel de l\u00edquido", 
+                "m3": "m\u00b3", 
+                "showInstancesHelpTitle": "Mostrar u ocultar un tubo especial", 
+                "sensorsHelpContent": "La ficha de sensores muestra los datos que se divulgan por los sensores de nivel y el peso f\u00edsicos. <br>Estos datos son autom\u00e1ticamente renovados. <br><br>Debido a la naturaleza de los sensores f\u00edsicos, necesariamente no debe esperar estos datos para ser totalmente exactos. <br> En particular, deber\u00eda notar que, por ejemplo, cuando el bal\u00f3n est\u00e1 en el agua, el sensor de peso a menudo reportar\u00e1 un n\u00famero cercano a cero cuando la bola est\u00e1 flotando. <br><br>Del mismo modo, porque estos sensores son reales, si los datos estaban equivocados, es probable que sea debido a alg\u00fan tipo de error de hardware.", 
+                "cm3": "cm\u00b3", 
+                "archimedes.experiment": "Experimento de Arqu\u00edmedes", 
+                "ball": "Bola", 
+                "ball.weight.liquid.level": "Peso de la bola y nivel de l\u00edquido", 
+                "volume": "Volumen", 
+                "instance3": "3\u00ba tubo", 
+                "instance1": "1\u00ba tubo", 
+                "instance6": "6\u00ba tubo", 
+                "instance7": "7\u00ba tubo", 
+                "instance4": "4\u00ba tubo", 
+                "instance5": "5\u00ba tubo", 
+                "plot.explanation": "Mide el peso de la bola percibido seg\u00fan lo informado por el sensor. El plazo representado es el \u00faltimo movimiento de la bola.", 
+                "ball.weight": "Peso de la bola", 
+                "grams": "g", 
+                "instance2": "2\u00ba tubo", 
+                "weight.g": "Peso (g)", 
+                "liquid": "L\u00edquido", 
+                "time.weight.plot": "Dibujar Tiempo / peso", 
+                "kgm3": "kg/m\u00b3", 
+                "liquid/tube": "L\u00edquido/tubo", 
+                "mass": "Masa", 
+                "gcm3": "g/cm\u00b3", 
+                "toggle-show-hide": "Alternar entre <strong style=\"color: green\"> Mostrar</strong> u <strong style=\"color: slategray\"> ocultar</strong> cada tubo</div>", 
+                "time.remaining": "Tiempo restante"
+            }
+        }, 
+        "logic": {
+            "en": {
+                "sendsolution": "Send solution", 
+                "wrongonegameover": "Wrong one! Game over. Total points: {0}", 
+                "finishedwaitingpunctuation": "Finished. Waiting for your score", 
+                "replacetheunknowngate": "Replace the unknown gate with the correct one so the LED turns on.", 
+                "choosecorrectgate": "Choose the correct gate:", 
+                "finishedyourpunctuation": "Finished. Your score: {0}", 
+                "solveasmanycircuitsaspossible": "Solve as many circuits as possible to get more points and become the winner!", 
+                "welcometoweblabdeustologic": "Welcome to the WebLab-Deusto Logic Game!", 
+                "checktherankinghere": "Check the ranking <a href=''{0}''>here</a>", 
+                "sendingsolution": "Sending solution", 
+                "youcancheckyourscoreat": "You can check your score at <a href=''/weblab/admin/winners.py''>the winners page</a>", 
+                "welldone1point": "Well done! 1 point. Let''s see the next one!"
+            }
+        }, 
+        "xilinx": {
+            "ru": {
+                "upload": "\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c"
+            }, 
+            "fr": {
+                "upload": "T\u00e9l\u00e9charger"
+            }, 
+            "en": {
+                "deviceready": "Device ready", 
+                "thisdemodoesnotallowupload": "If this wasn''t a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file.", 
+                "finishingprogramming": "Finishing programming", 
+                "filesent": "File sent.", 
+                "upload": "Upload", 
+                "selectprogramtosend": "Select the program to send:", 
+                "deviceprogrammingfailed": "Device programming failed", 
+                "sendingfile": "Sending file", 
+                "filenotallowed": "This file type is not allowed", 
+                "thisdemodemonstratesmultiresourcexilinx": "This demo demonstrates the multiresource queues of WebLab-Deusto. WebLab-Deusto supports that a single resource type can be used by different laboratories (therefore many laboratories share the same queue), and a laboratory can be built on top of different types of resources (and therefore, the laboratory internally uses more than one queue at the same time, which is probably shared with other laboratories). In this demo, you will use a CPLD or a FPGA depending on which one is available, but you can test that ud-demo-pld and ud-demo-fpga have their own queues. For instance, if you use one web browser to use the FPGA, you''ll see that using this demo you will not be assigned the FPGA. If this wasn''t a demo, you would select here the program that would be sent to the device. Since it could be harmful, in the demo we always send the same demonstration file."
+            }, 
+            "nl": {
+                "upload": "Upload"
+            }, 
+            "pt": {
+                "upload": "Carregar"
+            }, 
+            "de": {
+                "upload": "Upload"
+            }, 
+            "hu": {
+                "upload": "Felt\u00f6lt\u00e9s"
+            }, 
+            "sk": {
+                "upload": "Nahra\u0165"
+            }, 
+            "cs": {
+                "upload": "Odes\u00edl\u00e1n\u00ed"
+            }, 
+            "ar": {
+                "upload": "\u0627\u0631\u0633\u0627\u0644 (Upload)"
+            }, 
+            "eu": {
+                "upload": "Kargatu"
+            }, 
+            "ro": {
+                "upload": "\u00cenc\u0103rcare"
+            }, 
+            "es": {
+                "upload": "Subir"
+            }
+        }
+    }
+}

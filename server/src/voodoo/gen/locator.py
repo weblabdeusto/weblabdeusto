@@ -95,8 +95,8 @@ class Locator(object):
             except:
                 if DEBUG:
                     traceback.print_exc()
-                exc_type, _, _ = sys.exc_info()
-                raise FailingConnectionError("The server at %s is raising an exception when trying to be connected: %s" % (coord_address, exc_type))
+                exc_type, exc_inst, _ = sys.exc_info()
+                raise FailingConnectionError("The server at %s is raising an exception when trying to be connected: %s: %r" % (coord_address, exc_type, exc_inst))
             if result != random_number:
                 raise FailingConnectionError("The server at %s is not returning what it should on test_me" % coord_address)
         else:

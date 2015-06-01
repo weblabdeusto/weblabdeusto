@@ -63,7 +63,7 @@ class DirectClient(AbstractClient):
             if not isinstance(remote_exc_args, list) and not isinstance(remote_exc_args, tuple):
                 remote_exc_args = [remote_exc_args]
             
-            raise InternalCapturedServerCommunicationError(remote_exc_type, *remote_exc_args)
+            raise InternalCapturedServerCommunicationError(remote_exc_type, remote_exc_args)
 
 class HttpClient(AbstractClient):
 
@@ -109,7 +109,7 @@ class HttpClient(AbstractClient):
                 raise exc_type(*error_args)
             else:
                 # Otherwise wrap it
-                raise InternalCapturedServerCommunicationError(error_type, *error_args)
+                raise InternalCapturedServerCommunicationError(error_type, error_args)
         # No error? return the result
         return result['result']
 

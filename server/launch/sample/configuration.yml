@@ -163,3 +163,11 @@ hosts:
             config_file: main_machine/main_instance/experiment_romie/server_config.py
             type: experiment
             class: experiments.romie.romie.RoMIExperiment
+          experiment_romie_labpsico:
+            config_file: main_machine/main_instance/experiment_romie_labpsico/server_config.py
+            type: experiment
+            class: experiments.romie.romie.RoMIExperiment
+          experiment_romie_demo:
+            config_file: main_machine/main_instance/experiment_romie_demo/server_config.py
+            type: experiment
+            class: experiments.romie.romie.RoMIExperiment

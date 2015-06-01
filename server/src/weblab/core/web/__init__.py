@@ -49,3 +49,6 @@ assert visir is not None # avoid warnings
 import configuration
 assert configuration is not None # avoid warnings
 
+import i18n
+assert i18n is not None # avoid warnings
+
