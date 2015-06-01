@@ -43,11 +43,23 @@ function MainController($scope, $rootScope, $injector, $log) {
 
             $scope.$apply();
         }
-    }
+    } // !onStatusUpdate
 
     function onStartInteraction(config) {
         statusUpdater.start();
+
+        // Initialize the Virtual Model
+        var command = sprintf("VIRTUALMODEL %s", $rootScope.VIRTUALMODEL);
+        Weblab.sendCommand(command, onVirtualModelSetSuccess, onVirtualModelSetFailure);
     } // !onStartInteraction
+
+    function onVirtualModelSetSuccess(response) {
+        $log.debug("VirtualModel set: " + response);
+    } // !onVirtualModelSetSuccess
+
+    function onVirtualModelSetFailure(response) {
+        $log.debug("VirtualModel set failure: " + response);
+    } // !onVirtualModelSetFailure
 
     function onEndInteraction() {
         statusUpdater.stop();
