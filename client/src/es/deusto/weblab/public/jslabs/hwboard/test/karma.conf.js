@@ -19,8 +19,32 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       // bower:js
+      'bower_components/jquery/dist/jquery.js',
+      'bower_components/angular/angular.js',
+      'bower_components/bootstrap/dist/js/bootstrap.js',
+      'bower_components/angular-animate/angular-animate.js',
+      'bower_components/angular-cookies/angular-cookies.js',
+      'bower_components/angular-resource/angular-resource.js',
+      'bower_components/angular-route/angular-route.js',
+      'bower_components/angular-sanitize/angular-sanitize.js',
+      'bower_components/angular-touch/angular-touch.js',
+      'bower_components/uri.js/src/URI.js',
+      'bower_components/uri.js/src/IPv6.js',
+      'bower_components/uri.js/src/SecondLevelDomains.js',
+      'bower_components/uri.js/src/punycode.js',
+      'bower_components/uri.js/src/URITemplate.js',
+      'bower_components/uri.js/src/jquery.URI.js',
+      'bower_components/uri.js/src/URI.min.js',
+      'bower_components/uri.js/src/jquery.URI.min.js',
+      'bower_components/uri.js/src/URI.fragmentQuery.js',
+      'bower_components/uri.js/src/URI.fragmentURI.js',
+      'bower_components/angular-slider/slider.js',
+      'bower_components/angular-vertilize/angular-vertilize.js',
+      'bower_components/sprintf/src/sprintf.js',
+      'bower_components/angular-mocks/angular-mocks.js',
       // endbower
-      'app/scripts/**/*.js',
+      'app/main/*.js',
+      'app/main/**/*.js',
       'test/mock/**/*.js',
       'test/spec/**/*.js'
     ],
