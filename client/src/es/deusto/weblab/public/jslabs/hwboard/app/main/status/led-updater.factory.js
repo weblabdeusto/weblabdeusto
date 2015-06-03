@@ -29,7 +29,7 @@ function ledUpdater($injector, $log, $timeout) {
     // -----------
 
     function setOnLedUpdate(callback) {
-        setOnLedUpdateCallback = callback;
+        onLedUpdateCallback = callback;
     } // !setOnLedUpdate
 
     function start() {
@@ -50,11 +50,11 @@ function ledUpdater($injector, $log, $timeout) {
         $log.debug("SUCCESS: READ_LEDS: " + response);
 
         if(onLedUpdateCallback != undefined) {
-            var leds = response; // TODO: Parse 01010101 etc.
+            var leds = response; // String containing the status for the 8 leds.
             onLedUpdateCallback(leds)
         }
 
-        _updateTimeout = $timeout(updateStatus, frequency);
+        _updateTimeout = $timeout(updateLedStatus, frequency);
     } // !onLedStatusSuccess
 
     function onLedStatusError(error) {

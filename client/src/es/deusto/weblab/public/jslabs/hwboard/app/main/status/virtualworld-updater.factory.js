@@ -48,7 +48,7 @@ function virtualmodelUpdater($injector, $log, $timeout) {
 
 
     function onStateSuccess(response) {
-        $log.debug("SUCCESS: STATUS: " + response);
+        $log.debug("SUCCESS: VM STATUS: " + response);
 
         if(onVirtualmodelUpdateCallback != undefined) {
             var status = response; // TODO: Parse the actual response
