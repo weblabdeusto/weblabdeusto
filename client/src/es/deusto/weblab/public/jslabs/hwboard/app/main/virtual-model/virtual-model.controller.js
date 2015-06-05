@@ -18,7 +18,7 @@ function VirtualModelController($scope) {
         var rawelem = jqelem[0];
 
         // Send a message to the iframe
-        rawelem.contentWindow.postMessage({message: "virtualmodel-status", data: status});
+        rawelem.contentWindow.postMessage({message: "virtualmodel-status", data: status}, "*");
     } // !onVirtualModelStatusReport
 
 } // !VirtualModelController
