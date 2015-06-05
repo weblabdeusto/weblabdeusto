@@ -67,6 +67,8 @@ function MainController($scope, $rootScope, $injector, $log) {
      */
     function onVirtualmodelUpdate(vmStatus) {
         $log.debug("Virtualmodel update: " + vmStatus);
+
+        $scope.$broadcast("virtualmodel-status-report", vmStatus);
     } // !onVirtualmodelUpdate
 
     /**
