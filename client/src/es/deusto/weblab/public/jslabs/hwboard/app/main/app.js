@@ -15,8 +15,15 @@ angular
         'ngRoute',
         'ngSanitize',
         'ngTouch',
-        'ui.slider'
+        'ui.slider',
+        'angular.vertilize'
     ])
+    .constant(
+        "VIRTUALMODEL", "watertank"
+    )
+    .run( function($rootScope, VIRTUALMODEL) {
+        $rootScope.VIRTUALMODEL = VIRTUALMODEL;
+    })
     .config(function ($routeProvider) {
         $routeProvider
             .when('/', {

@@ -154,6 +154,13 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/labview.jpg"
     },
     "http@HTTP experiments": {},
+    "hwboard@FPGA experiments": {
+        "html.file": "jslabs/hwboard/dist/index.html",
+        "provide.file.upload": True,
+        "height": "600",
+        "width": "800",
+        "experiment.picture": "/img/experiments/xilinx.jpg"
+    },
     "incubator@Farm experiments": {
         "html": "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results.",
         "experiment.reserve.button.shown": False,
@@ -698,6 +705,7 @@ def populate_weblab_tests(engine, tests):
         ('external-robot-movement', 'Robot experiments')     : 'blank',
         ('flashdummy',              'Dummy experiments')     : 'flash',
         ('http',                    'HTTP experiments')      : 'redirect',
+        ('hwboard',                 'FPGA experiments')      : 'js',
         ('incubator',               'Farm experiments')      : 'incubator',
         ('new_incubator',           'Farm experiments')      : 'js',
         ('javadummy',               'Dummy experiments')     : 'java',
@@ -778,6 +786,7 @@ def populate_weblab_tests(engine, tests):
         ('any',        'elevator',                'FPGA experiments',      1400),
         ('any',        'external-robot-movement', 'Robot experiments',      200),
         ('any',        'http',                    'HTTP experiments',       200),
+        ('any',        'hwboard',                 'FPGA experiments',      1400),
         ('any',        'new_incubator',           'Farm experiments',       300),
         ('any',        'jsdummy',                 'Dummy experiments',     1400),
         ('any',        'jsfpga',                  'FPGA experiments',      1400),

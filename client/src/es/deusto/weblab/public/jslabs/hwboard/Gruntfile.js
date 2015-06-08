@@ -54,7 +54,8 @@ module.exports = function (grunt) {
         },
         files: [
           '<%= yeoman.app %>/**/*.html',
-            '<%= yeoman.app %>/main/{,*/}*.js',
+          '<%= yeoman.app %>/main.html',
+          '<%= yeoman.app %>/main/{,*/}*.js',
           '.tmp/styles/{,*/}*.css',
           '.tmp/scripts/{,*/}*.js',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
@@ -157,6 +158,22 @@ module.exports = function (grunt) {
       app: {
         src: ['<%= yeoman.app %>/index.html'],
         ignorePath:  /\.\.\//
+      },
+      test: {
+        devDependencies: true,
+        src: 'test/karma.conf.js',
+        ignorePath:  /\.\.\//,
+        fileTypes: {
+          js: {
+            block: /(([\s\t]*)\/\/\s*bower:*(\S*))(\n|\r|.)*?(\/\/\s*endbower)/gi,
+            detect: {
+              js: /'(.*\.js)'/gi
+            },
+            replace: {
+              js: '\'{{filePath}}\','
+            }
+          }
+        }
       }
     },
 
@@ -371,7 +388,7 @@ module.exports = function (grunt) {
       unit: {
         configFile: 'test/karma.conf.js',
         //configFile: 'test/karma.conf.coffee',
-        singleRun: true
+        singleRun: false
       }
     }
   });
