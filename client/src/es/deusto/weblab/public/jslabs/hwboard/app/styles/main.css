@@ -138,6 +138,24 @@ wl-webcam div img {
 
 
 
+.wl-display-col {
+    height: 600px;
+}
+
+
+wl-virtual-model div {
+    height: 100%;
+    width: 100%;
+    border: 1px solid gold;
+}
+
+wl-virtual-model div iframe {
+    height: 100%;
+    width: 100%;
+}
+
+
+
 
 
 
