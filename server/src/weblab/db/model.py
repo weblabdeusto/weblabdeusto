@@ -74,7 +74,7 @@ class DbServerProperties(Base):
 
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False, index = True, unique = True)
-    _value = Column(UnicodeText) # pickle object, in base64
+    _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
 
     def __init__(name, value):
         super(DbServerProperties, self).__init__()
@@ -111,7 +111,7 @@ class DbClientProperties(Base):
 
     id = Column(Integer, primary_key = True)
     name = Column(Unicode(50), nullable = False, index = True, unique = True)
-    _value = Column(UnicodeText) # pickle object, in base64
+    _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
 
     def __init__(name, value):
         super(DbServerProperties, self).__init__()
