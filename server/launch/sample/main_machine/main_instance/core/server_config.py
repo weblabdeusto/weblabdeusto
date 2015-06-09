@@ -71,6 +71,7 @@ core_coordinator_laboratory_servers = {
             "exp1|romie|Robot experiments"           : "romie@romie",
             "exp1|romie_labpsico|Robot experiments"  : "romie@romie",
             "exp1|romie_demo|Robot experiments"      : "romie@romie",
+            "exp1|romie_blockly|Robot experiments"   : "romie@romie",
             "exp1|archimedes|Aquatic experiments"    : "archimedes@archimedes",
             "exp1|elevator|FPGA experiments"         : "elevator@elevator",
             "exp1|unr-physics|Physics experiments"   : "unr@unr",

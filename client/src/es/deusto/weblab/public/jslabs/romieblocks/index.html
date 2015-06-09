@@ -4,10 +4,20 @@
 	<title>Romie Blockly</title>
 	<meta charset="UTF-8">
 	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="../../jslib/weblabjs.js"></script>
 	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="bower_components/google-blockly/blockly_compressed.js"></script>
 	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
 	<script src="bower_components/google-blockly/msg/js/es.js"></script>
+	<script>
+		$(parent.document).find('iframe[name=wlframe]').hide();
+
+		start = function() {
+			$(parent.document).find('iframe[name=wlframe]').show();
+		}
+
+		Weblab.setOnStartInteractionCallback(start);
+	</script>
 </head>
 <body>
 
