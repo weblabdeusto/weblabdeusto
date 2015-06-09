@@ -106,7 +106,15 @@ class HttpClient(AbstractClient):
             # If it's acceptable, raise the exception (e.g., don't raise a KeyboardInterrupt, a MemoryError, or a library error)
             if error_type.startswith(ACCEPTABLE_EXC_TYPES):
                 exc_type = _load_type(error_type)
-                raise exc_type(*error_args)
+                try:
+                    exc_instance = exc_type(*error_args)
+                except TypeError:
+                    # If we can't create it
+                    log.error(__name__, 'Error on instantiating an exception %s(%r)' % (exc_type, error_args))
+                    log.error_exc(__name__)
+                    raise InternalCapturedServerCommunicationError(error_type, error_args)
+                else:
+                    raise exc_instance
             else:
                 # Otherwise wrap it
                 raise InternalCapturedServerCommunicationError(error_type, error_args)

@@ -78,6 +78,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_jsfpga:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:hwboard-fpga@FPGA experiments':
+            {
+                 'coord_address': 'experiment_hwboard:main_instance@main_machine',
+                 'checkers': ()
+            },
         'exp1:visirtest@Dummy experiments':
             {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',
@@ -181,6 +186,11 @@ laboratory_assigned_experiments = {
         'exp1:romie_labpsico@Robot experiments':
             {
                  'coord_address': 'experiment_romie_labpsico:main_instance@main_machine',
+                 'checkers': ()
+            },
+        'exp1:romie_demo@Robot experiments':
+            {
+                 'coord_address': 'experiment_romie_demo:main_instance@main_machine',
                  'checkers': ()
             },
         'exp1:unr-physics@Physics experiments':

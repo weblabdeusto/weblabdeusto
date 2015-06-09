@@ -129,10 +129,12 @@ class RoMIExperiment(Experiment.Experiment):
             count = cur.fetchone()[0]
 
             result = ''
-            if count == 0:
+            if count == 0 and not self._cfg_manager.get_value('romie_demo'):
                 result = {'register': True, 'psycho': self._cfg_manager.get_value('romie_labpsico')}
             else:
-                if (self.get_psycho_points() > 0):
+                if self._cfg_manager.get_value('romie_demo') or self.get_psycho_points() > 0:
+                    if self._cfg_manager.get_value('romie_demo'):
+                        self.register(self.username+"@weblab-demo.deusto.es", "Usuario", "Demo", "Escuela demo", 958305600, "Curso demo", 2)
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                     result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
                 else:
@@ -154,11 +156,7 @@ class RoMIExperiment(Experiment.Experiment):
             if (self.email_exists(data["email"])):
                 return json.dumps({'error': 'email'})
 
-            conn = sqlite3.connect(self.database)
-            conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?,?,?)',
-                (self.username, data["email"], data["name"], data["surname"], data["school"], data["bdate"], data['grade'], data['sex'], False, 0))
-            conn.commit()
-            conn.close()
+            self.register(data["email"], data["name"], data["surname"], data["school"], data["bdate"], data['grade'], data['sex'])
 
             if not self._cfg_manager.get_value('romie_labpsico'):
                 self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
@@ -192,6 +190,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             conn.commit()
             conn.close()
+
             return json.dumps(ranking)
 
         return "ERROR"
@@ -227,17 +226,18 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Update points in the database
         """
-        conn = sqlite3.connect(self.database)
+        if not self._cfg_manager.get_value('romie_demo'):
+            conn = sqlite3.connect(self.database)
 
-        cur = conn.cursor()
-        cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
-        points = cur.fetchone()[0]
+            cur = conn.cursor()
+            cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+            points = cur.fetchone()[0]
 
-        if (points < self.points):
-            conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
-            conn.commit()
+            if (points < self.points):
+                conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
+                conn.commit()
 
-        conn.close()
+            conn.close()
 
     def email_exists(self, email):
         """
@@ -250,3 +250,10 @@ class RoMIExperiment(Experiment.Experiment):
         conn.close()
 
         return count > 0
+
+    def register(self, email, name, surname, school, bdate, grade, sex):
+        conn = sqlite3.connect(self.database)
+        conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?,?,?)',
+            (self.username, email, name, surname, school, bdate, grade, sex, False, 0))
+        conn.commit()
+        conn.close()

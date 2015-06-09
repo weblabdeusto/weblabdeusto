@@ -2,12 +2,12 @@
 
 import os
 
-romie_sqlite = os.path.join(CURRENT_PATH, "romie_labpsico.db")
+romie_sqlite = os.path.join(CURRENT_PATH, "romie_demo.db")
 romie_table = 'users'
 romie_time = 194.159 # 3 minutes, 14.159 seconds
 romie_server = 'http://192.168.0.190:8000/'
-romie_labpsico = True
-romie_demo = False
+romie_labpsico = False
+romie_demo = True
 questions = [
     [ # 0 difficulty
         {
