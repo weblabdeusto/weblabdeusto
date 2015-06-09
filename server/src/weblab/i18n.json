@@ -187,25 +187,25 @@
             "password": "Heslo", 
             "reserve": "Rezervova\u0165"
         }, 
-        "cs": {
-            "username": "U\u017eivatelsk\u00e9 jm\u00e9no", 
-            "information": "Informace", 
-            "search": "Vyhled\u00e1v\u00e1n\u00ed", 
-            "group": "Skupina", 
-            "users": "U\u017eivatel\u00e9", 
-            "mobile": "Mobil", 
+        "eu": {
+            "username": "Erabiltzailea", 
+            "information": "Informazioa", 
+            "search": "Bilatu", 
+            "group": "Talde", 
+            "users": "Lankideak", 
+            "mobile": "Mugikorra", 
             "demo": "Demo", 
-            "support": "Podpora", 
-            "welcome": "V\u00edtejte", 
-            "accesses": "P\u0159\u00edstupy", 
-            "filter": "Filtr", 
-            "to": "Do", 
-            "experiment": "Experiment", 
-            "choose": "Vybrat", 
-            "reserving": "Rezervuji", 
-            "from": "Od", 
-            "password": "Heslo", 
-            "reserve": "Rezervovat"
+            "support": "Laguntza", 
+            "welcome": "Ongi etorri", 
+            "accesses": "Erabiltzeak", 
+            "filter": "Irazki", 
+            "to": "Amaitu", 
+            "experiment": "Esperimentu", 
+            "choose": "Aukeratu", 
+            "reserving": "Erreserbatzen", 
+            "from": "Hasi", 
+            "password": "Pasahitza", 
+            "reserve": "Erreserbatu"
         }, 
         "ar": {
             "username": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062a\u062e\u062f\u0645", 
@@ -227,25 +227,25 @@
             "password": "\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631", 
             "reserve": "\u062d\u062c\u0632"
         }, 
-        "eu": {
-            "username": "Erabiltzailea", 
-            "information": "Informazioa", 
-            "search": "Bilatu", 
-            "group": "Talde", 
-            "users": "Lankideak", 
-            "mobile": "Mugikorra", 
+        "cs": {
+            "username": "U\u017eivatelsk\u00e9 jm\u00e9no", 
+            "information": "Informace", 
+            "search": "Vyhled\u00e1v\u00e1n\u00ed", 
+            "group": "Skupina", 
+            "users": "U\u017eivatel\u00e9", 
+            "mobile": "Mobil", 
             "demo": "Demo", 
-            "support": "Laguntza", 
-            "welcome": "Ongi etorri", 
-            "accesses": "Erabiltzeak", 
-            "filter": "Irazki", 
-            "to": "Amaitu", 
-            "experiment": "Esperimentu", 
-            "choose": "Aukeratu", 
-            "reserving": "Erreserbatzen", 
-            "from": "Hasi", 
-            "password": "Pasahitza", 
-            "reserve": "Erreserbatu"
+            "support": "Podpora", 
+            "welcome": "V\u00edtejte", 
+            "accesses": "P\u0159\u00edstupy", 
+            "filter": "Filtr", 
+            "to": "Do", 
+            "experiment": "Experiment", 
+            "choose": "Vybrat", 
+            "reserving": "Rezervuji", 
+            "from": "Od", 
+            "password": "Heslo", 
+            "reserve": "Rezervovat"
         }, 
         "ro": {
             "username": "Nume utilizator", 
@@ -334,17 +334,17 @@
             "finish": "Koniec", 
             "back": "N\u00e1vrat"
         }, 
-        "cs": {
-            "finish": "Konec", 
-            "back": "Jdi zp\u011bt!"
+        "eu": {
+            "finish": "Bukatu", 
+            "back": "Atzera"
         }, 
         "ar": {
             "finish": "\u0646\u0647\u0627\u064a\u0629", 
             "back": "\u0627\u0644\u0631\u062c\u0648\u0639 \u0644\u0644\u062e\u0644\u0641"
         }, 
-        "eu": {
-            "finish": "Bukatu", 
-            "back": "Atzera"
+        "cs": {
+            "finish": "Konec", 
+            "back": "Jdi zp\u011bt!"
         }, 
         "ro": {
             "finish": "Terminare", 
@@ -385,14 +385,14 @@
             "sk": {
                 "loading": "Na\u010d\u00edtanie {0}"
             }, 
-            "cs": {
-                "loading": "Na\u010d\u00edt\u00e1n\u00ed {0}"
+            "eu": {
+                "loading": "Lanean {0}"
             }, 
             "ar": {
                 "loading": "\u062a\u062d\u0645\u064a\u0644 {0}"
             }, 
-            "eu": {
-                "loading": "Lanean {0}"
+            "cs": {
+                "loading": "Na\u010d\u00edt\u00e1n\u00ed {0}"
             }, 
             "ro": {
                 "loading": "Se \u00eencarc\u0103 {0}"
@@ -442,14 +442,14 @@
             "sk": {
                 "failed": "Zlyhanie: {0}"
             }, 
-            "cs": {
-                "failed": "Selh\u00e1n\u00ed: {0}"
+            "eu": {
+                "failed": "Huts egin du: {0}"
             }, 
             "ar": {
                 "failed": "\u0641\u0634\u0644: {0}"
             }, 
-            "eu": {
-                "failed": "Huts egin du: {0}"
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
             }, 
             "ro": {
                 "failed": "E\u0219uat: {0}"
@@ -496,14 +496,14 @@
             "sk": {
                 "failed": "Zlyhanie: {0}"
             }, 
-            "cs": {
-                "failed": "Selh\u00e1n\u00ed: {0}"
+            "eu": {
+                "failed": "Huts egin du: {0}"
             }, 
             "ar": {
                 "failed": "\u0641\u0634\u0644: {0}"
             }, 
-            "eu": {
-                "failed": "Huts egin du: {0}"
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
             }, 
             "ro": {
                 "failed": "E\u0219uat: {0}"
@@ -542,14 +542,14 @@
             "sk": {
                 "failed": "Zlyhanie: {0}"
             }, 
-            "cs": {
-                "failed": "Selh\u00e1n\u00ed: {0}"
+            "eu": {
+                "failed": "Huts egin du: {0}"
             }, 
             "ar": {
                 "failed": "\u0641\u0634\u0644: {0}"
             }, 
-            "eu": {
-                "failed": "Huts egin du: {0}"
+            "cs": {
+                "failed": "Selh\u00e1n\u00ed: {0}"
             }, 
             "ro": {
                 "failed": "E\u0219uat: {0}"
@@ -589,14 +589,14 @@
             "sk": {
                 "finishing": "Dokon\u010duje sa"
             }, 
-            "cs": {
-                "finishing": "Dokon\u010duje se"
+            "eu": {
+                "finishing": "Amaitzen"
             }, 
             "ar": {
                 "finishing": "\u0627\u0644\u0627\u0646\u0647\u0627\u0621"
             }, 
-            "eu": {
-                "finishing": "Amaitzen"
+            "cs": {
+                "finishing": "Dokon\u010duje se"
             }, 
             "ro": {
                 "finishing": "Terminare"
@@ -798,14 +798,14 @@
             "sk": {
                 "upload": "Nahra\u0165"
             }, 
-            "cs": {
-                "upload": "Odes\u00edl\u00e1n\u00ed"
+            "eu": {
+                "upload": "Kargatu"
             }, 
             "ar": {
                 "upload": "\u0627\u0631\u0633\u0627\u0644 (Upload)"
             }, 
-            "eu": {
-                "upload": "Kargatu"
+            "cs": {
+                "upload": "Odes\u00edl\u00e1n\u00ed"
             }, 
             "ro": {
                 "upload": "\u00cenc\u0103rcare"

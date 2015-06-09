@@ -8,7 +8,9 @@
   "description": "Romie Blockly interface",
   "main": "index.html",
   "keywords": [
-    "Romie"
+    "Romie",
+    "Remote laboratory",
+    "Robot"
   ],
   "license": "BSD 2-CLAUSE LICENSE",
   "ignore": [

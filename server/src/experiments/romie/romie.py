@@ -25,9 +25,6 @@ import sqlite3
 import time
 import copy
 
-# Actually defined through the configuration.
-DEBUG = None
-
 class RoMIExperiment(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -53,7 +50,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback run when the experiment is started.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_start_experiment called"
 
         data = json.loads(server_initial_data)
@@ -76,7 +73,7 @@ class RoMIExperiment(Experiment.Experiment):
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] Command received: %s" % command
 
         if command == 'F':
@@ -201,7 +198,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_dispose called"
 
         return "OK"

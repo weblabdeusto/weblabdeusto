@@ -175,3 +175,8 @@ hosts:
             config_file: main_machine/main_instance/experiment_romie_demo/server_config.py
             type: experiment
             class: experiments.romie.romie.RoMIExperiment
+          experiment_romie_blockly:
+            config:
+              debug: true
+            type: experiment
+            class: experiments.romie.romie_blocks.RoMIEBlocklyExperiment
