@@ -45,6 +45,7 @@ Weblab = new function () {
     var mOnTimeCallback;
     var mOnEndCallback;
     var mOnStartInteractionCallback;
+    var mOnGetInitialDataCallback;
     var mInitialConfig; // Store the initial config in case we missed the call.
     var mInitialTime; // Same thing, but for the setTime callback.
 
@@ -126,6 +127,15 @@ Weblab = new function () {
             mFilesSentMap[id][0](msg);
             delete mFilesSentMap[id];
         }
+    };
+
+    parent_wl_inst.getInitialData = function() {
+        if(mOnGetInitialDataCallback != undefined)
+            return mOnGetInitialDataCallback();
+    };
+
+    parent_wl_inst.expectsPostEnd = function() {
+        return mExpectsPostEnd;
     };
 
 
@@ -242,6 +252,18 @@ Weblab = new function () {
     };
 
 
+    //! Sets the remainAfterExperimentFinished flag. Internally in WebLab this is known as the expectsPostEnd flag.
+    //! If set to true, the experiment will not exit straightaway but it will be able to display a result.
+    //! By default, unless this function is called, the system won't remain after the experiment finishes.
+    //!
+    //! @param remain: Whether to remain or not. This is optional and true by default.
+    this.remainAfterExperimentFinished = function(remain) {
+        if(remain === undefined)
+            remain = true;
+        mExpectsPostEnd = remain;
+    };
+
+
 
     //! Sends a command to the experiment server and prints the result to console.
     //! If the command was successful it is printed to the stdout and otherwise to stderr.
@@ -292,6 +314,28 @@ Weblab = new function () {
         if(mIsExperimentActive)
         {
             mOnStartInteractionCallback(mInitialConfig);
+        }
+    };
+
+    //! Sets the getInitialDataCallback. This is the callback that will be invoked
+    //! when the reserve process is started, so the client can provide to the server
+    //! whatever data it expects from the 'lobby' stage of the experiment.
+    //!
+    //! If the experiment is active when we call this method then the callback will be invoked, but the
+    //! returned data will have no effect because other data will have been provided to the server
+    //! already. Calling it is thus mostly for consistency and in case the user is interested
+    //! in the event itself and not so much on returning specific data.
+    //!
+    //! @param onGetInitialDataCallback: This callback takes no parameters but should
+    //! return the data, either as a JSON-encoded string or as an Object.
+    this.setOnGetInitialDataCallback = function (onGetInitialDataCallback) {
+        mOnGetInitialDataCallback = onGetInitialDataCallback;
+
+        if(mIsExperimentActive)
+        {
+            // Data is purposedly ignored. The experiment is already active so no initial
+            // data can be sent anymore.
+            mOnGetInitialDataCallback();
         }
     };
 

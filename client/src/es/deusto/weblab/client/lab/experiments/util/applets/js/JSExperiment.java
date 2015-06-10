@@ -19,6 +19,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.JSONParser;
 
 import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
@@ -28,6 +30,7 @@ import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.util.applets.AbstractExternalAppBasedBoard;
+
 
 
 
@@ -130,6 +133,22 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 		final String realCssHeight = this.cssHeight.equals("auto")?"300px":this.cssHeight;
 		JSExperiment.createJavaScriptCode(this.html.getElement(), this.file, this.isJSFile, this.cssWidth, realCssHeight);
 	}
+
+
+	/**
+	 * This is invoked when reserve is requested to provide the initial data to the client.
+	 */
+	public JSONValue getInitialData(){
+		String valToRet = getInitialDataImpl();
+		return JSONParser.parse(valToRet);
+	}
+
+	/**
+	 * To indicate whether we require a post-end or not.
+	 */
+	public boolean expectsPostEnd(){
+		return expectsPostEndImpl();
+	}
 	
 	
 
@@ -161,6 +180,39 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			staticSelf.startRequested = false;
 		}
 	}
+
+
+	/**
+	 * Provides the JavaScript implementation for the function to call the JS-client-defined callback to
+	 * provide the initial data for the experiment.
+	 */
+	protected static native String getInitialDataImpl() /*-{
+		var getInitialData = $wnd.wl_inst.getInitialData;
+
+		if(getInitialData !== undefined)
+        	var retval = getInitialData();
+        	if(typeof(retval) !== 'string')
+        		retval = JSON.stringify(retval);
+        	return retval;
+
+        return "";
+	}-*/;
+
+	/**
+	 * In this case it provides the JS implementation that returns true if it expects a PostEnd and
+	 * false otherwise. The WeblabJS library itself will handle this more transparently. Returns false
+	 * if the callback is not defined in the JS side.
+	 */
+	protected static native boolean expectsPostEndImpl() /*-{
+		var expectsPostEnd = $wnd.wl_inst.expectsPostEnd;
+
+		if(expectsPostEnd !== undefined)
+			return expectsPostEnd();
+
+		return false;
+	}-*/;
+
+
 	
 	
 	/**
