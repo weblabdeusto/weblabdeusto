@@ -18,6 +18,8 @@ import weblab.experiment.experiment as Experiment
 from voodoo.override import Override
 from voodoo.log import logged
 
+import json
+
 class RoMIEBlocklyExperiment(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):

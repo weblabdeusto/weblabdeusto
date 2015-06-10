@@ -13,43 +13,31 @@
 	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
 	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
 	<script src="bower_components/google-blockly/msg/js/es.js"></script>
-	<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>
-	<script>
-		$(parent.document).find('iframe[name=wlframe]').hide();
-
-		start = function() {
-			$(parent.document).find('iframe[name=wlframe]').show();
-		}
-
-		Weblab.setOnStartInteractionCallback(start);
-	</script>
+	<!--<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>-->
+	<script src="bower_components/js-interpreter/acorn.js"></script>
+	<script src="bower_components/js-interpreter/interpreter.js"></script>
+	<script src="js/functions.js"></script>
+	<script src="js/blocks.js"></script>
 </head>
 <body>
-
-<div class="container">
 	<p class="tooltip" style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
 
-	<button class="col-md-2 col-md-offset-5" onclick="test();">Probar</button>
+	<button style="text-align: center;" onclick="test();">Probar</button>
 
-	<div class="row">
-		<div id="blocklyDiv" class="col-md-6" style="margin-top: 4em; height: 480px;"></div>
+	<div id="blocklyDiv" style="margin: auto; height: 500px; width: 90%;"></div>
 
-		<div class="col-md-5 col-md-offset-1">
-			<h3>Código</h3>
-			<textarea id="textarea" style="width: 100%; height: 480px;"></textarea>
-		</div>
-	</div>
-</div>
+	<h3>Código</h3>
+	<textarea id="textarea" style="margin: auto; width: 75%; height: 400px;"></textarea>
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
 		<block type="logic_compare"></block>
 		<block type="controls_repeat_ext"></block>
 		<block type="math_number"></block>
-<!-- 		<block type="move_forward"></block>
-		<block type="move_left"></block>
-		<block type="move_right"></block>
-		<block type="check_wall"></block> -->
+		<block type="romie_move_forward"></block>
+		<block type="romie_turn_left"></block>
+		<block type="romie_turn_right"></block>
+		<!-- <block type="check_wall"></block> -->
 	</xml>
 
 	<script>
@@ -57,12 +45,42 @@
 			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
 
-		function myUpdateFunction() {
+	//	var romie = new Romie();
+
+		function updateTextarea() {
 			document.getElementById('textarea').value = Blockly.JavaScript.workspaceToCode(workspace);
 		}
-		workspace.addChangeListener(myUpdateFunction);
+		workspace.addChangeListener(updateTextarea);
 
 		function test() {
+			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+			Blockly.JavaScript.addReservedWords('highlightBlock');
+
+			function initApi(interpreter, scope) {
+				romie = new Romie();
+
+				// Add an API function for highlighting blocks.
+				var wrapper = function(id) {
+					id = id ? id.toString() : '';
+					return interpreter.createPrimitive(workspace.highlightBlock(id));
+				};
+				interpreter.setProperty(scope, 'highlightBlock',
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the forward() block.
+				wrapper = function(text) {
+					romie.forward();
+					while(true) {
+						if ( ! romie.isMoving())
+							break;
+					}
+				};
+				interpreter.setProperty(scope, 'forward',
+				interpreter.createNativeFunction(wrapper));
+			}
+
+			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
+
 			function nextStep() {
 			if (myInterpreter.step()) {
 					window.setTimeout(nextStep, 10);
@@ -70,6 +88,9 @@
 			}
 			nextStep();
 		}
+
+		$(parent.document).find('iframe[name=wlframe]').hide();
+		Weblab.setOnStartInteractionCallback(start_experiment);
 	</script>
 </body>
 </html>
