@@ -3,10 +3,14 @@
 <head>
 	<title>Romie Blockly</title>
 	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+
 	<script src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="../../jslib/weblabjs.js"></script>
 	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="bower_components/google-blockly/blockly_compressed.js"></script>
+	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
 	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
 	<script src="bower_components/google-blockly/msg/js/es.js"></script>
 	<script>
@@ -21,22 +25,49 @@
 </head>
 <body>
 
-<div id="blocklyDiv" style="height: 480px; width: 600px;"></div>
+<div class="container">
+	<p class="tooltip" style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
+
+	<button class="col-md-2 col-md-offset-5" onclick="test();">Probar</button>
+
+	<div class="row">
+		<div id="blocklyDiv" class="col-md-6" style="margin-top: 4em; height: 480px;"></div>
+
+		<div class="col-md-5 col-md-offset-1">
+			<h3>Código</h3>
+			<textarea id="textarea" style="width: 100%; height: 480px;"></textarea>
+		</div>
+	</div>
+</div>
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
 		<block type="logic_compare"></block>
 		<block type="controls_repeat_ext"></block>
 		<block type="math_number"></block>
-		<block type="math_arithmetic"></block>
-		<block type="text"></block>
-		<block type="text_print"></block>
+<!-- 		<block type="move_forward"></block>
+		<block type="move_left"></block>
+		<block type="move_right"></block>
+		<block type="check_wall"></block> -->
 	</xml>
 
 	<script>
 		var workspace = Blockly.inject('blocklyDiv',
-			{media: '../../media/',
+			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
+
+		function myUpdateFunction() {
+			document.getElementById('textarea').value = Blockly.JavaScript.workspaceToCode(workspace);
+		}
+		workspace.addChangeListener(myUpdateFunction);
+
+		function test() {
+			try {
+				eval(Blockly.JavaScript.workspaceToCode(workspace));
+			} catch (e) {
+				alert(e);
+			}
+		}
 	</script>
 </body>
 </html>
