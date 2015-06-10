@@ -130,7 +130,7 @@ class RoMIExperiment(Experiment.Experiment):
                 result = {'register': True, 'psycho': self._cfg_manager.get_value('romie_labpsico')}
             else:
                 if self._cfg_manager.get_value('romie_demo') or self.get_psycho_points() > 0:
-                    if self._cfg_manager.get_value('romie_demo'):
+                    if self._cfg_manager.get_value('romie_demo') and count == 0:
                         self.register(self.username+"@weblab-demo.deusto.es", "Usuario", "Demo", "Escuela demo", 958305600, "Curso demo", 2)
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                     result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
