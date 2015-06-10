@@ -13,6 +13,7 @@
 	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
 	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
 	<script src="bower_components/google-blockly/msg/js/es.js"></script>
+	<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>
 	<script>
 		$(parent.document).find('iframe[name=wlframe]').hide();
 
@@ -62,11 +63,12 @@
 		workspace.addChangeListener(myUpdateFunction);
 
 		function test() {
-			try {
-				eval(Blockly.JavaScript.workspaceToCode(workspace));
-			} catch (e) {
-				alert(e);
+			function nextStep() {
+			if (myInterpreter.step()) {
+					window.setTimeout(nextStep, 10);
+				}
 			}
+			nextStep();
 		}
 	</script>
 </body>

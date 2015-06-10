@@ -12,7 +12,7 @@
     "Remote laboratory",
     "Robot"
   ],
-  "license": "BSD 2-CLAUSE LICENSE",
+  "license": "BSD 3-CLAUSE LICENSE",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -23,6 +23,7 @@
   "dependencies": {
     "bootstrap": "~3.3.4",
     "google-blockly": "https://github.com/google/blockly.git#master",
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "js-interpreter": "https://github.com/NeilFraser/JS-Interpreter.git#master"
   }
 }
