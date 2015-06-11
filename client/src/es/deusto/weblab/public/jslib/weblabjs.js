@@ -44,6 +44,7 @@ Weblab = new function () {
 
     var mOnTimeCallback;
     var mOnEndCallback;
+    var mOnFinishedCallback;
     var mOnStartInteractionCallback;
     var mOnGetInitialDataCallback;
     var mInitialConfig; // Store the initial config in case we missed the call.
@@ -99,6 +100,8 @@ Weblab = new function () {
             mOnEndCallback();
     };
 
+
+
     parent_wl_inst.handleCommandResponse = function (msg, id) {
         if (id in mCommandsSentMap) {
             if( mCommandsSentMap[id][0] != undefined )
@@ -134,9 +137,18 @@ Weblab = new function () {
             return mOnGetInitialDataCallback();
     };
 
+    /**
+     * Internally this is known as the postEnd stage. Only called sometimes.
+     */
+    parent_wl_inst.finished = function(finishedData) {
+        if(mOnFinishedCallback != undefined)
+            return mOnFinishedCallback(finishedData);
+    };
+
     parent_wl_inst.expectsPostEnd = function() {
         return mExpectsPostEnd;
     };
+
 
 
 
@@ -252,19 +264,6 @@ Weblab = new function () {
     };
 
 
-    //! Sets the remainAfterExperimentFinished flag. Internally in WebLab this is known as the expectsPostEnd flag.
-    //! If set to true, the experiment will not exit straightaway but it will be able to display a result.
-    //! By default, unless this function is called, the system won't remain after the experiment finishes.
-    //!
-    //! @param remain: Whether to remain or not. This is optional and true by default.
-    this.remainAfterExperimentFinished = function(remain) {
-        if(remain === undefined)
-            remain = true;
-        mExpectsPostEnd = remain;
-    };
-
-
-
     //! Sends a command to the experiment server and prints the result to console.
     //! If the command was successful it is printed to the stdout and otherwise to stderr.
     //!
@@ -281,6 +280,23 @@ Weblab = new function () {
     //!
     this.setOnEndCallback = function (onEndCallback) {
         mOnEndCallback = onEndCallback;
+    };
+
+    //! Sets the onfinished callback, which is invoked *after* the experiment end callback is called,
+    //! and which tells us that everything has been cleaned and the experiment is really over.
+    //!
+    //! Remarks:
+    //! If the callback is never set or if the callback is set to false or undefined, then
+    //! internally less polling will need to be done, and is thus slightly more efficient.
+    //! (Internally the expectsPostEnd pseudo-flag would be false).
+    this.setOnFinishedCallback = function (onFinishedCallback) {
+        if(onFinishedCallback !== undefined && onFinishedCallback !== false) {
+            remain = true;
+        } else {
+            remain = false;
+        }
+
+        mOnFinishedCallback = onFinishedCallback;
     };
 
     //! Sets the callbacks that will be invoked by default when a sendfile request

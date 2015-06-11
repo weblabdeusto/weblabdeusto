@@ -139,7 +139,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * This is invoked when reserve is requested to provide the initial data to the client.
 	 */
 	public JSONValue getInitialData(){
-		String valToRet = getInitialDataImpl();
+		final String valToRet = getInitialDataImpl();
 		return JSONParser.parse(valToRet);
 	}
 
@@ -200,8 +200,8 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 
 	/**
 	 * In this case it provides the JS implementation that returns true if it expects a PostEnd and
-	 * false otherwise. The WeblabJS library itself will handle this more transparently. Returns false
-	 * if the callback is not defined in the JS side.
+	 * false otherwise. The WeblabJS library itself will handle this transparently. If a postEnd callback
+	 * (known in JS as onFinished) exists, then this will be true.
 	 */
 	protected static native boolean expectsPostEndImpl() /*-{
 		var expectsPostEnd = $wnd.wl_inst.expectsPostEnd;
@@ -211,6 +211,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 
 		return false;
 	}-*/;
+
 
 
 	
@@ -316,6 +317,11 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
     public void end() {
     	AbstractExternalAppBasedBoard.endImpl();
     }
+
+    @Override
+    public void postEnd(String initialData, String endData) {
+    	postEndImpl(endData);
+    }
 	
 	@Override
 	/**
@@ -402,6 +408,10 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 			    console.log( "[GDBG]:" + message );
 		} catch (e) {
 		}
+	}-*/;
+
+	protected static native void postEndImpl( String endData ) /*-{
+		$wnd.wl_inst.finished(endData);
 	}-*/;
 	
 	
