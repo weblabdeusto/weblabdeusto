@@ -20,7 +20,7 @@
 	<script src="js/blocks.js"></script>
 </head>
 <body>
-	<p class="tooltip" style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
+	<p style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
 
 	<button style="text-align: center;" onclick="test();">Probar</button>
 
@@ -45,44 +45,46 @@
 			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
 
-	//	var romie = new Romie();
-
 		function updateTextarea() {
 			document.getElementById('textarea').value = Blockly.JavaScript.workspaceToCode(workspace);
 		}
 		workspace.addChangeListener(updateTextarea);
 
 		function test() {
-			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
-			Blockly.JavaScript.addReservedWords('highlightBlock');
-
 			function initApi(interpreter, scope) {
-				romie = new Romie();
-
-				// Add an API function for highlighting blocks.
-				var wrapper = function(id) {
-					id = id ? id.toString() : '';
-					return interpreter.createPrimitive(workspace.highlightBlock(id));
+				// Add Romie to the context
+				var wrapper = function() {
+					return interpreter.createPrimitive(romie.isMoving());
 				};
-				interpreter.setProperty(scope, 'highlightBlock',
-					interpreter.createNativeFunction(wrapper));
+				this.setProperty(scope, 'isMoving',
+					this.createNativeFunction(wrapper));
 
 				// Add an API function for the forward() block.
-				wrapper = function(text) {
+				wrapper = function() {
 					romie.forward();
-					while(true) {
-						if ( ! romie.isMoving())
-							break;
-					}
 				};
 				interpreter.setProperty(scope, 'forward',
+				interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the left() block.
+				wrapper = function() {
+					romie.left();
+				};
+				interpreter.setProperty(scope, 'left',
+				interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the right() block.
+				wrapper = function() {
+					romie.right();
+				};
+				interpreter.setProperty(scope, 'right',
 				interpreter.createNativeFunction(wrapper));
 			}
 
 			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
 
 			function nextStep() {
-			if (myInterpreter.step()) {
+				if (myInterpreter.step()) {
 					window.setTimeout(nextStep, 10);
 				}
 			}

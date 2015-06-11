@@ -35,13 +35,19 @@ Blockly.Blocks['romie_turn_right'] = {
 };
 
 Blockly.JavaScript['romie_move_forward'] = function(block) {
-	return 'forward();\n';
+	code = 'forward();\n'+
+			'while(isMoving());\n';
+	return code;
 };
 
 Blockly.JavaScript['romie_turn_left'] = function(block) {
-	return 'left();\n';
+	code = 'left();\n'+
+			'while(isMoving());\n';
+	return code;
 };
 
 Blockly.JavaScript['romie_turn_right'] = function(block) {
-	return 'right();\n';
+	code = 'right();\n'+
+			'while(isMoving());\n';
+	return code;
 };

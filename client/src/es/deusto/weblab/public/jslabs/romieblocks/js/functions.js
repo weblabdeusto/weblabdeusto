@@ -2,31 +2,25 @@ start_experiment = function() {
 	$(parent.document).find('iframe[name=wlframe]').show();
 }
 
-Romie = function()
-{
+Romie = function() {
 	this.moving = false;
 }
 
 Romie.prototype.forward = function() {
-	console.log("FORWARD!! :D ^^")
 	this.moving = true;
 	Weblab.sendCommand('{"command":"F"}', function(response) {
 		this.moving = false;
 	}.bind(this));
 }
 
-Romie.prototype.left = function()
-{
-	console.log("LEFT!! :D ^^")
+Romie.prototype.left = function() {
 	this.moving = true;
 	Weblab.sendCommand('{"command":"L"}', function(response) {
 		this.moving = false;
 	}.bind(this));
 }
 
-Romie.prototype.right = function()
-{
-	console.log("RIGHT!! :D ^^")
+Romie.prototype.right = function() {
 	this.moving = true;
 	Weblab.sendCommand('{"command":"R"}', function(response) {
 		this.moving = false;
@@ -36,3 +30,5 @@ Romie.prototype.right = function()
 Romie.prototype.isMoving = function() {
 	return this.moving;
 }
+
+var romie = new Romie();
