@@ -146,7 +146,7 @@ Weblab = new function () {
     };
 
     parent_wl_inst.expectsPostEnd = function() {
-        return mExpectsPostEnd;
+        return mOnFinishedCallback == undefined;
     };
 
 
