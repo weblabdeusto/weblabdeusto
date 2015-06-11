@@ -178,5 +178,6 @@ hosts:
           experiment_romie_blockly:
             config:
               debug: true
+              romie_server: http://192.168.0.190:8000/
             type: experiment
             class: experiments.romie.romie_blocks.RoMIEBlocklyExperiment

@@ -19,6 +19,7 @@ from voodoo.override import Override
 from voodoo.log import logged
 
 import json
+import urllib2
 
 class RoMIEBlocklyExperiment(Experiment.Experiment):
 
@@ -59,7 +60,15 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
             print "[RoMIE-Blockly] Command received: %s" % command
 
         command = json.loads(command)
-        return "OK"
+        print command
+
+        if command['command'] == 'F':
+            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
+        elif command['command'] == 'L':
+            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'l', timeout = 60).read()
+        elif command['command'] == 'R':
+            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
+        return "ERR"
 
     @Override(Experiment.Experiment)
     @logged("info")
