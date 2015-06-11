@@ -138,16 +138,16 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	/**
 	 * This is invoked when reserve is requested to provide the initial data to the client.
 	 */
-	public JSONValue getInitialData(){
-		final String valToRet = getInitialDataImpl();
-		return JSONParser.parse(valToRet);
+	public JSONValue getInitialData() {	
+            final String valToRet = getInitialDataImpl();
+	    return JSONParser.parse(valToRet);
 	}
 
 	/**
 	 * To indicate whether we require a post-end or not.
 	 */
-	public boolean expectsPostEnd(){
-		return expectsPostEndImpl();
+	public boolean expectsPostEnd() {
+	    return expectsPostEndImpl();
 	}
 	
 	
@@ -187,12 +187,17 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	 * provide the initial data for the experiment.
 	 */
 	protected static native String getInitialDataImpl() /*-{
+                console.log("IN: getInitialDataImpl");
 		var getInitialData = $wnd.wl_inst.getInitialData;
 
 		if(getInitialData !== undefined)
-        	var retval = getInitialData();
+        	    var retval = getInitialData();
+                if(retval === undefined)
+                    return "{}";
         	if(typeof(retval) !== 'string')
-        		retval = JSON.stringify(retval);
+        	    retval = JSON.stringify(retval);
+                console.log("RETURNING: getInitialDataImpl");
+                console.log(retval);
         	return retval;
 
         return "";
