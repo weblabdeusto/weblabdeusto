@@ -9,13 +9,11 @@
 	<script src="bower_components/jquery/dist/jquery.min.js"></script>
 	<script src="../../jslib/weblabjs.js"></script>
 	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>
 	<script src="bower_components/google-blockly/blockly_compressed.js"></script>
-	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
 	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
+	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
 	<script src="bower_components/google-blockly/msg/js/es.js"></script>
-	<!--<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>-->
-	<script src="bower_components/js-interpreter/acorn.js"></script>
-	<script src="bower_components/js-interpreter/interpreter.js"></script>
 	<script src="js/functions.js"></script>
 	<script src="js/blocks.js"></script>
 </head>
@@ -64,30 +62,43 @@
 					romie.forward();
 				};
 				interpreter.setProperty(scope, 'forward',
-				interpreter.createNativeFunction(wrapper));
+					interpreter.createNativeFunction(wrapper));
 
 				// Add an API function for the left() block.
 				wrapper = function() {
 					romie.left();
 				};
 				interpreter.setProperty(scope, 'left',
-				interpreter.createNativeFunction(wrapper));
+					interpreter.createNativeFunction(wrapper));
 
 				// Add an API function for the right() block.
 				wrapper = function() {
 					romie.right();
 				};
 				interpreter.setProperty(scope, 'right',
-				interpreter.createNativeFunction(wrapper));
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for highlighting blocks.
+				wrapper = function(id) {
+					id = id ? id.toString() : '';
+					return interpreter.createPrimitive(workspace.highlightBlock(id));
+				};
+				interpreter.setProperty(scope, 'highlightBlock',
+					interpreter.createNativeFunction(wrapper));
 			}
 
+			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+			Blockly.JavaScript.addReservedWords('highlightBlock');
 			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
 
 			function nextStep() {
 				if (myInterpreter.step()) {
-					window.setTimeout(nextStep, 10);
+					window.setTimeout(nextStep, 40);
 				}
 			}
+
+			workspace.traceOn(true);
+			workspace.highlightBlock(null);
 			nextStep();
 		}
 
