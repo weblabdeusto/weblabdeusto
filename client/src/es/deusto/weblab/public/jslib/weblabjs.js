@@ -146,7 +146,7 @@ Weblab = new function () {
     };
 
     parent_wl_inst.expectsPostEnd = function() {
-        return mOnFinishedCallback == undefined;
+        return mOnFinishedCallback != undefined;
     };
 
 
@@ -285,17 +285,7 @@ Weblab = new function () {
     //! Sets the onfinished callback, which is invoked *after* the experiment end callback is called,
     //! and which tells us that everything has been cleaned and the experiment is really over.
     //!
-    //! Remarks:
-    //! If the callback is never set or if the callback is set to false or undefined, then
-    //! internally less polling will need to be done, and is thus slightly more efficient.
-    //! (Internally the expectsPostEnd pseudo-flag would be false).
     this.setOnFinishedCallback = function (onFinishedCallback) {
-        if(onFinishedCallback !== undefined && onFinishedCallback !== false) {
-            remain = true;
-        } else {
-            remain = false;
-        }
-
         mOnFinishedCallback = onFinishedCallback;
     };
 
