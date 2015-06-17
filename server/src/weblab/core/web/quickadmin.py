@@ -1,5 +1,5 @@
-from flask import render_template, request, send_file
-from functools import wraps
+from flask import render_template, request, send_file, Response, url_for
+from functools import wraps, partial
 from weblab.core.web import weblab_api, get_argument
 
 
@@ -20,10 +20,15 @@ def check_credentials(func):
 
     return wrapper
 
+def get_url_for():
+    if 'token' in request.args:
+        return partial(url_for, token = request.args['token'])
+    return url_for
+
 @weblab_api.route_web('/quickadmin/')
 @check_credentials
 def index():
-    return render_template("quickadmin/index.html")
+    return render_template("quickadmin/index.html", url_for = get_url_for())
 
 LIMIT = 200
 
@@ -34,13 +39,14 @@ def uses():
     for potential_arg in 'login', 'experiment_name', 'category_name':
         if potential_arg in request.args:
             kwargs[potential_arg] = request.args[potential_arg]
-
-    return render_template("quickadmin/uses.html", uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs)
+    url_for = get_url_for()
+    url_for = partial(url_for, **request.args)
+    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs, url_for = url_for)
 
 @weblab_api.route_web('/quickadmin/use/<int:use_id>')
 @check_credentials
 def use(use_id):
-    return render_template("quickadmin/use.html", **weblab_api.db.quickadmin_use(use_id = use_id))
+    return render_template("quickadmin/use.html", url_for = get_url_for(), **weblab_api.db.quickadmin_use(use_id = use_id))
 
 @weblab_api.route_web('/quickadmin/file/<int:file_id>')
 @check_credentials
