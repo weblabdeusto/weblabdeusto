@@ -52,3 +52,6 @@ assert configuration is not None # avoid warnings
 import i18n
 assert i18n is not None # avoid warnings
 
+import quickadmin
+assert quickadmin is not None # avoid warnings
+

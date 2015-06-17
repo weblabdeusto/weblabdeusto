@@ -1,9 +1,9 @@
 #####################################
 # Core Server General configuration #
 #####################################
-
-core_store_students_programs      = False
-core_store_students_programs_path = 'files_stored'
+import os
+core_store_students_programs      = True
+core_store_students_programs_path = os.path.abspath('files_stored')
 core_experiment_poll_time         = 30 # seconds
 
 ####################################

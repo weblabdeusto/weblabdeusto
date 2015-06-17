@@ -14,8 +14,13 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
 import numbers
-
+import threading
+from functools import wraps
+from collections import OrderedDict
+import sqlalchemy
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import voodoo.log as log
@@ -25,6 +30,7 @@ from voodoo.typechecker import typecheck
 from weblab.db import db
 import weblab.db.model as model
 
+import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
 from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
@@ -34,6 +40,22 @@ import weblab.core.exc as DbErrors
 import weblab.permissions as permissions
 
 DEFAULT_VALUE = object()
+
+_current = threading.local()
+
+def with_session(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        _current.session = self.Session()
+        try:
+            return func(self, *args, **kwargs)
+        except sqlalchemy.exc.SQLAlchemyError:
+            _current.session.rollback()
+            raise
+        finally:
+            _current.session.close()
+
+    return wrapper
 
 class DatabaseGateway(object):
 
@@ -714,6 +736,148 @@ class DatabaseGateway(object):
                 raise DbErrors.DatabaseError("Couldn't create user! Contact administrator")
         finally:
             session.close()
+
+    # Quickadmin
+    @with_session
+    def quickadmin_uses(self, limit, login = None, experiment_name = None, category_name = None):
+        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment)
+        if login:
+            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.login == login)
+
+        if experiment_name:
+            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == experiment_name)
+
+        if category_name:
+            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).join(model.DbExperiment.category).filter(model.DbExperimentCategory.name == category_name)
+
+        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.id.desc())[-limit:]
+
+        external_user = _current.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
+        latest_uses = []
+        for use in db_latest_uses:
+            login = use.user.login
+            display_name = login
+            for prop in use.properties:
+                if prop.property_name == external_user:
+                    display_name = prop.value + u'@' + login
+
+            latest_uses.append({
+                'id' : use.id,
+                'login' : login,
+                'display_name' : display_name,
+                'full_name' : use.user.full_name,
+                'experiment_name' : use.experiment.name,
+                'category_name' : use.experiment.category.name,
+                'start_date' : use.start_date,
+                'end_date' : use.end_date,
+                'from' : use.origin,
+            })
+        return latest_uses
+
+    @with_session
+    def quickadmin_use(self, use_id):
+        use = _current.session.query(model.DbUserUsedExperiment).filter_by(id = use_id).options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).first()
+        if not use:
+            return {'found' : False}
+        
+        def get_prop(prop_name, default):
+            return ([ prop.value for prop in use.properties if prop.property_name.name == prop_name ] or [ default ])[0]
+            
+        experiment = use.experiment.name + u'@' + use.experiment.category.name
+
+        properties = OrderedDict()
+        properties['Login'] = use.user.login
+        properties['Name'] = use.user.full_name
+        properties['In the name of'] = get_prop('external_user', 'Himself')
+        properties['Experiment'] = experiment
+        properties['Date'] = use.start_date
+        properties['Origin'] = use.origin
+        properties['Device used'] = use.coord_address
+        properties['Server IP (if federated)'] = get_prop('from_direct_ip', use.origin)
+        properties['Use ID'] = use.id
+        properties['Reservation ID'] = use.reservation_id
+        properties['Mobile'] = get_prop('mobile', "Don't know")
+        properties['Facebook'] = get_prop('facebook', "Don't know")
+        properties['Referer'] = get_prop('referer', "Don't know")
+        properties['Web Browser'] = get_prop('user_agent', "Don't know")
+        properties['Route'] = get_prop('route', "Don't know")
+        properties['Locale'] = get_prop('locale', "Don't know")
+
+        commands = []
+        longest_length = 0
+        for command in use.commands:
+            timestamp_after = command.timestamp_after
+            timestamp_before = command.timestamp_before
+            if timestamp_after is not None and command.timestamp_after_micro is not None:
+                timestamp_after = timestamp_after.replace(microsecond = command.timestamp_after_micro)
+
+            if timestamp_before is not None and command.timestamp_before_micro is not None:
+                timestamp_before = timestamp_before.replace(microsecond = command.timestamp_before_micro)
+
+            if timestamp_after and timestamp_before:
+                length = (timestamp_after - timestamp_before).total_seconds()
+                if length > longest_length:
+                    longest_length = length
+            else:
+                length = 'N/A'
+            
+            commands.append({
+                'length' : length,
+                'before' : timestamp_before,
+                'after' : timestamp_after,
+                'command' : command.command,
+                'response' : command.response,
+            })
+               
+        properties['Longest command'] = longest_length
+
+        files = []
+        for f in use.files:
+            timestamp_after = f.timestamp_after
+            timestamp_before = f.timestamp_before
+            if timestamp_after is not None and f.timestamp_after_micro is not None:
+                timestamp_after = timestamp_after.replace(microsecond = f.timestamp_after_micro)
+
+            if timestamp_before is not None and f.timestamp_before_micro is not None:
+                timestamp_before = timestamp_before.replace(microsecond = f.timestamp_before_micro)
+
+            if timestamp_after and timestamp_before:
+                length = (timestamp_after - timestamp_before).total_seconds()
+                if length > longest_length:
+                    longest_length = length
+            else:
+                length = 'N/A'
+
+            files.append({
+                'file_id' : f.id,
+                'length' : length,
+                'before' : timestamp_before,
+                'after' : timestamp_after,
+                'file_info' : f.file_info,
+                'file_hash' : f.file_hash,
+                'response' : command.response,
+            })
+
+        return {
+            'found' : True,
+            'properties' : properties,
+            'commands' : commands,
+            'files' : files,
+        }
+
+    @with_session
+    def quickadmin_filepath(self, file_id):
+        use = _current.session.query(model.DbUserFile).filter_by(id = file_id).first()
+        if use is None:
+            return None
+        initial_path = self.cfg_manager.get(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+        if not initial_path:
+            return None
+        full_path = os.path.join(initial_path, use.file_sent)
+        if not os.path.exists(full_path):
+            return None
+
+        return full_path
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

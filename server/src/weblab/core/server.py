@@ -24,6 +24,7 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape
+from flask_debugtoolbar import DebugToolbarExtension
 
 from functools import wraps
 
@@ -474,7 +475,8 @@ class WebLabFlaskServer(WebLabWsgiServer):
         weblab_api.apply_routes_login_web(authn_web, server)
         self.app.register_blueprint(authn_web, url_prefix = '/weblab/login/web')
 
-        core_web = Blueprint('core_web', __name__)
+        static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
+        core_web = Blueprint('core_web', __name__, static_folder=static_folder)
         weblab_api.apply_routes_web(core_web, server)
         self.app.register_blueprint(core_web, url_prefix = '/weblab/web')
 
@@ -482,12 +484,17 @@ class WebLabFlaskServer(WebLabWsgiServer):
         # The .apply_routes_webclient method is dynamically generated, the name matches
         # that in the wl.py module.
         # Attempt at setting the right static folder.
-        static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
         core_webclient = Blueprint('core_webclient', __name__, static_folder=static_folder)
         weblab_api.apply_routes_webclient(core_webclient, server)
         self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
+
+        if flask_debug:
+            toolbar = DebugToolbarExtension()
+            toolbar.init_app(self.app)
+            self.app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 
 class UserProcessingServer(object):
     """

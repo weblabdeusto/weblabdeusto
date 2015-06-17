@@ -1,0 +1,53 @@
+from flask import render_template, request, send_file
+from functools import wraps
+from weblab.core.web import weblab_api, get_argument
+
+
+def check_credentials(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        expected_token = weblab_api.config.get('quickadmin_token', None)
+
+        if expected_token:
+            token = request.args.get('token')
+            if not token:
+                return Response("You must provide a token like ?token=something")
+
+            if token != expected_token:
+                return Response("Invalid token")
+
+        return func(*args, **kwargs)
+
+    return wrapper
+
+@weblab_api.route_web('/quickadmin/')
+@check_credentials
+def index():
+    return render_template("quickadmin/index.html")
+
+LIMIT = 200
+
+@weblab_api.route_web('/quickadmin/uses')
+@check_credentials
+def uses():
+    kwargs = {}
+    for potential_arg in 'login', 'experiment_name', 'category_name':
+        if potential_arg in request.args:
+            kwargs[potential_arg] = request.args[potential_arg]
+
+    return render_template("quickadmin/uses.html", uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs)
+
+@weblab_api.route_web('/quickadmin/use/<int:use_id>')
+@check_credentials
+def use(use_id):
+    return render_template("quickadmin/use.html", **weblab_api.db.quickadmin_use(use_id = use_id))
+
+@weblab_api.route_web('/quickadmin/file/<int:file_id>')
+@check_credentials
+def file(file_id):
+    file_path = weblab_api.db.quickadmin_filepath(file_id = file_id)
+    if file_path is None:
+        return "File not found", 404
+
+    return send_file(file_path, as_attachment = True)
+

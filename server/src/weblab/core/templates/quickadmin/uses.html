@@ -1,0 +1,46 @@
+{% set title = "Uses" %}
+{% extends "quickadmin/_base.html" %}
+
+{% block body %}
+    <div class="row">
+        <div class="container">
+            <h2>Uses</h2>
+
+            {% if arguments %}
+                {% for arg in arguments %}
+                    <a href="{{ url_for('.uses', **{ arg : arguments[arg] }) }}" class="btn btn-default">{{ arg }}: {{ arguments[arg] }}</a>
+                {% endfor %}
+                &nbsp;
+                <a href="{{ url_for('.uses') }}" class="btn btn-primary">Clear</a>
+            {% endif %}
+            </h2>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Name</th>
+                        <th>Experiment</th>
+                        <th>Date</th>
+                        <th>End date</th>
+                        <th>From</th>
+                        <th>Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for use in uses %}
+                        <tr>
+                            <td><a href="{{ url_for('.uses', login = use['login']) }}">{{ use['display_name'] }}</a></td>
+                            <td>{{ use['full_name'] }}</td>
+                            <td><a href="{{ url_for('.uses', experiment_name = use['experiment_name'], category_name = use['category_name']) }}"><li class="glyphicon glyphicon-link"></li></a> <a href="{{ url_for('.uses', experiment_name = use['experiment_name']) }}">{{ use['experiment_name'] }}</a>@<a href="{{ url_for('.uses', category_name = use['category_name']) }}">{{ use['category_name'] }}</a></td>
+                            <td>{{ use['start_date'] }}</td>
+                            <td>{{ use['end_date'] or '<b>Not yet finished</b>'|safe }}</td>
+                            <td>{{ use['from'] }}</td>
+                            <td><a href="{{ url_for('.use', use_id = use['id']) }}">use</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
