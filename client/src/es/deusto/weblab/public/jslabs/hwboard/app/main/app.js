@@ -18,11 +18,13 @@ angular
         'ui.slider',
         'angular.vertilize'
     ])
-    .constant(
-        "VIRTUALMODEL", "watertank"
-    )
-    .run( function($rootScope, VIRTUALMODEL) {
-        $rootScope.VIRTUALMODEL = VIRTUALMODEL;
+    .run( function($rootScope) {
+        try {
+            $rootScope.VIRTUALMODEL = Weblab.getProperty("virtualmodel");
+        } catch(ex) {
+            console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
+            $rootScope.VIRTUALMODEL = "";
+        }
     })
     .config(function ($routeProvider) {
         $routeProvider

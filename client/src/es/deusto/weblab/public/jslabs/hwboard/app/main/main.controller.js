@@ -67,6 +67,8 @@ function MainController($scope, $rootScope, $injector, $log) {
      */
     function onVirtualmodelUpdate(vmStatus) {
         $log.debug("Virtualmodel update: " + vmStatus);
+
+        $scope.$broadcast("virtualmodel-status-report", vmStatus);
     } // !onVirtualmodelUpdate
 
     /**
@@ -79,7 +81,7 @@ function MainController($scope, $rootScope, $injector, $log) {
         virtualmodelUpdater.start();
 
         // Initialize the Virtual Model
-        var command = sprintf("VIRTUALMODEL %s", $rootScope.VIRTUALMODEL);
+        var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
         Weblab.sendCommand(command, onVirtualModelSetSuccess, onVirtualModelSetFailure);
     } // !onStartInteraction
 

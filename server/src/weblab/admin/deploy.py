@@ -154,7 +154,7 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/labview.jpg"
     },
     "http@HTTP experiments": {},
-    "hwboard@FPGA experiments": {
+    "hwboard-fpga@FPGA experiments": {
         "html.file": "jslabs/hwboard/dist/index.html",
         "provide.file.upload": True,
         "height": "600",
@@ -705,7 +705,7 @@ def populate_weblab_tests(engine, tests):
         ('external-robot-movement', 'Robot experiments')     : 'blank',
         ('flashdummy',              'Dummy experiments')     : 'flash',
         ('http',                    'HTTP experiments')      : 'redirect',
-        ('hwboard',                 'FPGA experiments')      : 'js',
+        ('hwboard-fpga',                 'FPGA experiments')      : 'js',
         ('incubator',               'Farm experiments')      : 'incubator',
         ('new_incubator',           'Farm experiments')      : 'js',
         ('javadummy',               'Dummy experiments')     : 'java',
@@ -786,7 +786,7 @@ def populate_weblab_tests(engine, tests):
         ('any',        'elevator',                'FPGA experiments',      1400),
         ('any',        'external-robot-movement', 'Robot experiments',      200),
         ('any',        'http',                    'HTTP experiments',       200),
-        ('any',        'hwboard',                 'FPGA experiments',      1400),
+        ('any',        'hwboard-fpga',                 'FPGA experiments',      1400),
         ('any',        'new_incubator',           'Farm experiments',       300),
         ('any',        'jsdummy',                 'Dummy experiments',     1400),
         ('any',        'jsfpga',                  'FPGA experiments',      1400),

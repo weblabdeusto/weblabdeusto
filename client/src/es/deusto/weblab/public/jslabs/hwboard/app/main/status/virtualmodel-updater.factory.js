@@ -41,7 +41,12 @@ function virtualmodelUpdater($injector, $log, $timeout) {
     } // !stop
 
     function updateVirtualmodelStatus() {
-        Weblab.dbgSetOfflineSendCommandResponse("{}");
+        var testResponse = {
+            water: 0.6,
+            inputs: [1, 1],
+            outputs: [0.5]
+        };
+        Weblab.dbgSetOfflineSendCommandResponse(JSON.stringify(testResponse));
 
         Weblab.sendCommand("VIRTUALWORLD_STATE", onStateSuccess, onStateError);
     } // !updateVirtualmodelStatus
@@ -51,8 +56,8 @@ function virtualmodelUpdater($injector, $log, $timeout) {
         $log.debug("SUCCESS: VM STATUS: " + response);
 
         if(onVirtualmodelUpdateCallback != undefined) {
-            var status = response; // TODO: Parse the actual response
-            onVirtualmodelUpdateCallback(status)
+            var status = JSON.parse(response); // TODO: Parse the actual response
+            onVirtualmodelUpdateCallback(status);
         }
 
         _updateTimeout = $timeout(updateVirtualmodelStatus, frequency);
