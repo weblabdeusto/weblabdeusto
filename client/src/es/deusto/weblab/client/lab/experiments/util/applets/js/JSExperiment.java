@@ -412,8 +412,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	public static native void consoleLog( String message) /*-{
 		try {
-		    if(DEBUGGWT == true)
-			    console.log( "[GDBG]:" + message );
+			console.log( "[GDBG]:" + message );
 		} catch (e) {
 		}
 	}-*/;
