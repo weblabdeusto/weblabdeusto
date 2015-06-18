@@ -81,7 +81,7 @@ function MainController($scope, $rootScope, $injector, $log) {
         virtualmodelUpdater.start();
 
         // Initialize the Virtual Model
-        var command = sprintf("VIRTUALWORLD %s", $rootScope.VIRTUALMODEL);
+        var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
         Weblab.sendCommand(command, onVirtualModelSetSuccess, onVirtualModelSetFailure);
     } // !onStartInteraction
 
