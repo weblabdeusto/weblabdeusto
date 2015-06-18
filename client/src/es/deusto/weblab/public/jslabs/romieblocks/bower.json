@@ -21,7 +21,7 @@
     "tests"
   ],
   "dependencies": {
-    "bootstrap": "~3.3.4",
+    "bootstrap": "~3.3.5",
     "google-blockly": "https://github.com/google/blockly.git#master",
     "jquery": "~2.1.4",
     "js-interpreter": "https://github.com/NeilFraser/JS-Interpreter.git#master"
