@@ -38,34 +38,33 @@ class RoMIE:
 		while 'ACK' not in received and 'NAK' not in received:
 			received += BT_socket.recv(1024)
 		if 'NAK' in received:
-			# TODO finish experiment
 			pass
 
 		return received
 
 	def forward(self):
-		if not BT_available: return 'forward'
+		if not BT_available: return 'Bluetooth error'
 
 		BT_socket.send('F')
 		response = self._wait_ack()
 		return response
 
 	def turn_left(self):
-		if not BT_available: return 'left'
+		if not BT_available: return 'Bluetooth error'
 
 		BT_socket.send('L')
 		response = self._wait_ack()
 		return response
 
 	def turn_right(self):
-		if not BT_available: return 'right'
+		if not BT_available: return 'Bluetooth error'
 
 		BT_socket.send('R')
 		response = self._wait_ack()
 		return response
 
 	def check_wall(self):
-		if not BT_available: return 'wall'
+		if not BT_available: return 'Bluetooth error'
 
 		BT_socket.send('S')
 		response = self._wait_ack()
