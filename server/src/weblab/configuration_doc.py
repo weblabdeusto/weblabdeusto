@@ -170,7 +170,8 @@ CORE_STORE_STUDENTS_PROGRAMS        = 'core_store_students_programs'
 CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
 CORE_UNIVERSAL_IDENTIFIER           = 'core_universal_identifier'
 CORE_UNIVERSAL_IDENTIFIER_HUMAN     = 'core_universal_identifier_human'
-
+CORE_GEOIP2_CITY_FILEPATH           = 'core_geoip2_city_filepath'
+CORE_GEOIP2_COUNTRY_FILEPATH        = 'core_geoip2_country_filepath'
 
 _sorted_variables.extend([
     # URL, identifiers
@@ -184,6 +185,8 @@ _sorted_variables.extend([
 
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
     (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
+    (CORE_GEOIP2_CITY_FILEPATH,          _Argument(CORE, basestring, "GeoLite2-City.mmdb", "If the maxminds city database is downloaded, use it")),
+    (CORE_GEOIP2_COUNTRY_FILEPATH,       _Argument(CORE, basestring, "GeoLite2-Country.mmdb", "If the maxminds country database is downloaded, use it")),
 ])
 
 # 

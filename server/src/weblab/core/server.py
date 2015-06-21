@@ -48,6 +48,7 @@ import weblab.core.alive_users as AliveUsersCollection
 from weblab.core.coordinator.gateway import create as coordinator_create
 import weblab.core.coordinator.store as TemporalInformationStore
 from weblab.core.db import DatabaseGateway
+from weblab.core.location_retriever import LocationRetriever
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
@@ -561,6 +562,8 @@ class UserProcessingServer(object):
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(cfg_manager, self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._coordinator.completed_store, self._db_manager)
         self._temporal_information_retriever.start()
 
+        self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
+        self._location_retriever.start()
         #
         # Alive users
         #
@@ -603,6 +606,7 @@ class UserProcessingServer(object):
 
         self._temporal_information_retriever.stop()
         self._coordinator.stop()
+        self._location_retriever.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()

@@ -16,9 +16,12 @@
 
 import os
 import numbers
+import datetime
 import threading
+import traceback
 from functools import wraps
 from collections import OrderedDict
+
 import sqlalchemy
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -736,6 +739,76 @@ class DatabaseGateway(object):
                 raise DbErrors.DatabaseError("Couldn't create user! Contact administrator")
         finally:
             session.close()
+
+    # Location updater
+    @with_session
+    def update_locations(self, location_func):
+        """update_locations(location_func) -> number_of_updated
+        
+        update_locations receives a location_func which receives an IP address and
+        returns the location in the following format:
+        {
+            'hostname': 'foo.fr', # or None
+            'city': 'Bilbao', # or None
+            'country': 'Spain', # or None
+            'most_specific_subdivision': 'Bizkaia' # or None
+        }
+
+        If there is an error checking the data, it will simply return None.
+        If the IP address is local, it will simply fill the hostname URL.
+
+        update_locations will return the number of successfully changed registries.
+        So if there were 10 IP addresses to be changed, and it failed in 5 of them,
+        it will return 5. This way, the loop calling this function can sleep only if
+        the number is zero.
+        """
+        counter = 0
+        uses_without_location = list(_current.session.query(model.DbUserUsedExperiment).filter_by(hostname = None)[:1024]) # Do it iterativelly, never process more than 1024 uses
+        origins = set()
+        for use in uses_without_location:
+            origins.add(use.origin)
+
+        if origins:
+            cached_origins = {
+                # origin: result
+            }
+            last_month = datetime.datetime.utcnow() - datetime.timedelta(days = 31)
+            for cached_origin in  _current.session.query(model.DbLocationCache).filter(model.DbLocationCache.ip.in_(origins), model.DbLocationCache.lookup_time > last_month).all():
+                cached_origins[cached_origin.ip] = {
+                    'city' : cached_origin.city,
+                    'hostname': cached_origin.hostname,
+                    'country': cached_origin.country,
+                    'most_specific_subdivision' : cached_origin.most_specific_subdivision,
+                }
+
+            for use in uses_without_location:
+                if use.origin in cached_origins:
+                    use.city = cached_origins[use.origin]['city']
+                    use.hostname = cached_origins[use.origin]['hostname']
+                    use.country = cached_origins[use.origin]['country']
+                    use.most_specific_subdivision = cached_origins[use.origin]['most_specific_subdivision']
+                    counter += 1
+                else:
+                    try:
+                        result = location_func(use.origin)
+                    except Exception as e:
+                        traceback.print_exc()
+                        continue
+                    use.city = result['city']
+                    use.hostname = result['hostname']
+                    use.country = result['country']
+                    use.most_specific_subdivision = result['most_specific_subdivision']
+                    cached_origins[use.origin] = result
+                    new_cached_result = model.DbLocationCache(ip = use.origin, lookup_time = datetime.datetime.utcnow(), hostname = result['hostname'], city = result['city'], country = result['country'], most_specific_subdivision = result['most_specific_subdivision'])
+                    _current.session.add(new_cached_result)
+                    counter += 1
+
+            try:
+                _current.session.commit()
+            except Exception as e:
+                traceback.print_exc()
+
+        return counter
 
     # Quickadmin
     @with_session
