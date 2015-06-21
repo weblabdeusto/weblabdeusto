@@ -85,7 +85,6 @@ DEFAULT_CHECKING_TIME = 3 # seconds
 
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
-WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 # This could be refactored so the first time it's called weblab_api.user_processor, it is generated, and if it's been generated in the context, it is also removed (update_latest_timestamp) on the wrap_func()
 # Alternatively, we could remove the user_processors (which indeed makes more sense)
@@ -562,8 +561,12 @@ class UserProcessingServer(object):
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(cfg_manager, self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._coordinator.completed_store, self._db_manager)
         self._temporal_information_retriever.start()
 
-        self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
-        self._location_retriever.start()
+        clean = cfg_manager[configuration_doc.COORDINATOR_CLEAN]
+        if clean:
+            self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
+            self._location_retriever.start()
+        else:
+            self._location_retriever = None
         #
         # Alive users
         #
@@ -606,7 +609,8 @@ class UserProcessingServer(object):
 
         self._temporal_information_retriever.stop()
         self._coordinator.stop()
-        self._location_retriever.stop()
+        if self._location_retriever is not None:
+            self._location_retriever.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()
