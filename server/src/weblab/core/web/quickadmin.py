@@ -66,5 +66,6 @@ def demos():
             kwargs[potential_arg] = request.args[potential_arg]
     url_for = get_url_for()
     url_for = partial(url_for, **request.args)
-    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, group_name = 'Demos', **kwargs), arguments = kwargs, url_for = url_for, title = 'Demo uses', endpoint = '.demos')
+    group_names = weblab_api.config.get_value('login_default_groups_for_external_users', [])
+    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, group_names = group_names, **kwargs), arguments = kwargs, url_for = url_for, title = 'Demo uses', endpoint = '.demos')
 
