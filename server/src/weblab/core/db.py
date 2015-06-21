@@ -847,6 +847,9 @@ class DatabaseGateway(object):
                 'start_date' : use.start_date,
                 'end_date' : use.end_date,
                 'from' : use.origin,
+                'city' : use.city,
+                'country' : use.country,
+                'hostname' : use.hostname,
             })
         return latest_uses
 
@@ -878,6 +881,9 @@ class DatabaseGateway(object):
         properties['Web Browser'] = get_prop('user_agent', "Don't know")
         properties['Route'] = get_prop('route', "Don't know")
         properties['Locale'] = get_prop('locale', "Don't know")
+        properties['City'] = use.city or 'Unknown'
+        properties['Country'] = use.country or 'Unknown'
+        properties['Hostname'] = use.hostname or 'Unknown'
 
         commands = []
         longest_length = 0
