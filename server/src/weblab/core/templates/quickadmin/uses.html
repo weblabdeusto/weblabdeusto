@@ -1,17 +1,16 @@
-{% set title = "Uses" %}
 {% extends "quickadmin/_base.html" %}
 
 {% block body %}
     <div class="row">
         <div class="container">
-            <h2>Uses</h2>
+            <h2>{{ title }}</h2>
 
             {% if arguments %}
                 {% for arg in arguments %}
-                    <a href="{{ url_for('.uses', **{ arg : arguments[arg] }) }}" class="btn btn-default">{{ arg }}: {{ arguments[arg] }}</a>
+                    <a href="{{ url_for(endpoint, **{ arg : arguments[arg] }) }}" class="btn btn-default">{{ arg }}: {{ arguments[arg] }}</a>
                 {% endfor %}
                 &nbsp;
-                <a href="{{ url_for('.uses') }}" class="btn btn-primary">Clear</a>
+                <a href="{{ url_for(endpoint) }}" class="btn btn-primary">Clear</a>
             {% endif %}
             </h2>
 
@@ -30,9 +29,9 @@
                 <tbody>
                     {% for use in uses %}
                         <tr>
-                            <td><a href="{{ url_for('.uses', login = use['login']) }}">{{ use['display_name'] }}</a></td>
+                            <td><a href="{{ url_for(endpoint, login = use['login']) }}">{{ use['display_name'] }}</a></td>
                             <td>{{ use['full_name'] }}</td>
-                            <td><a href="{{ url_for('.uses', experiment_name = use['experiment_name'], category_name = use['category_name']) }}"><li class="glyphicon glyphicon-link"></li></a> <a href="{{ url_for('.uses', experiment_name = use['experiment_name']) }}">{{ use['experiment_name'] }}</a>@<a href="{{ url_for('.uses', category_name = use['category_name']) }}">{{ use['category_name'] }}</a></td>
+                            <td><a href="{{ url_for(endpoint, experiment_name = use['experiment_name'], category_name = use['category_name']) }}"><li class="glyphicon glyphicon-link"></li></a> <a href="{{ url_for(endpoint, experiment_name = use['experiment_name']) }}">{{ use['experiment_name'] }}</a>@<a href="{{ url_for(endpoint, category_name = use['category_name']) }}">{{ use['category_name'] }}</a></td>
                             <td>{{ use['start_date'] }}</td>
                             <td>{{ use['end_date'] or '<b>Not yet finished</b>'|safe }}</td>
                             <td>{{ use['from'] }}</td>

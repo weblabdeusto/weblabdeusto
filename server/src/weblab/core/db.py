@@ -739,13 +739,16 @@ class DatabaseGateway(object):
 
     # Quickadmin
     @with_session
-    def quickadmin_uses(self, limit, login = None, experiment_name = None, category_name = None):
+    def quickadmin_uses(self, limit, login = None, experiment_name = None, category_name = None, group_name = None):
         db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment)
         if login:
             db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.login == login)
 
         if experiment_name:
             db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == experiment_name)
+
+        if group_name:
+            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name == group_name))
 
         if category_name:
             db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).join(model.DbExperiment.category).filter(model.DbExperimentCategory.name == category_name)

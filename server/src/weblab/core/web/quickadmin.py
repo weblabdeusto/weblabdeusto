@@ -41,7 +41,7 @@ def uses():
             kwargs[potential_arg] = request.args[potential_arg]
     url_for = get_url_for()
     url_for = partial(url_for, **request.args)
-    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs, url_for = url_for)
+    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs, url_for = url_for, title = 'Uses', endpoint = '.uses')
 
 @weblab_api.route_web('/quickadmin/use/<int:use_id>')
 @check_credentials
@@ -56,4 +56,15 @@ def file(file_id):
         return "File not found", 404
 
     return send_file(file_path, as_attachment = True)
+
+@weblab_api.route_web('/quickadmin/demos')
+@check_credentials
+def demos():
+    kwargs = {}
+    for potential_arg in 'login', 'experiment_name', 'category_name':
+        if potential_arg in request.args:
+            kwargs[potential_arg] = request.args[potential_arg]
+    url_for = get_url_for()
+    url_for = partial(url_for, **request.args)
+    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, group_name = 'Demos', **kwargs), arguments = kwargs, url_for = url_for, title = 'Demo uses', endpoint = '.demos')
 
