@@ -138,14 +138,17 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	/**
 	 * This is invoked when reserve is requested to provide the initial data to the client.
 	 */
+	@Override
 	public JSONValue getInitialData() {	
-            final String valToRet = getInitialDataImpl();
+        printLine("[DBG]: getInitialData called");
+        final String valToRet = getInitialDataImpl();
 	    return JSONParser.parse(valToRet);
 	}
 
 	/**
 	 * To indicate whether we require a post-end or not.
 	 */
+	@Override
 	public boolean expectsPostEnd() {
 	    return expectsPostEndImpl();
 	}
@@ -409,8 +412,7 @@ public class JSExperiment extends AbstractExternalAppBasedBoard {
 	
 	public static native void consoleLog( String message) /*-{
 		try {
-		    if(DEBUGGWT == true)
-			    console.log( "[GDBG]:" + message );
+			console.log( "[GDBG]:" + message );
 		} catch (e) {
 		}
 	}-*/;
