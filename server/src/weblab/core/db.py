@@ -821,6 +821,9 @@ class DatabaseGateway(object):
             db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == experiment_name)
 
         if group_names is not None:
+            if len(group_names) == 0:
+                return []
+
             db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name.in_(group_names)))
 
         if category_name:

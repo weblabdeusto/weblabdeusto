@@ -16,6 +16,7 @@
 import os
 import time
 import socket
+import requests
 import threading
 import traceback
 
@@ -25,9 +26,22 @@ from geoip2.database import Reader as GeoIP2Reader
 from voodoo.resources_manager import is_testing
 import weblab.configuration_doc as configuration_doc
 
+def is_private(ip_address):
+    if ip_address.startswith('127.'):
+        return True
+    if ip_address.startswith('192.168.'):
+        return True
+    if ip_address.startswith('10.'):
+        return True
+    if ip_address.startswith(('172.16','172.17','172.18','172.19','172.2','172.30','172.31')):
+        return True
+    return False
+
 class AddressLocator(object):
-    def __init__(self, config):
+    def __init__(self, config, local_city, local_country):
         self.config = config
+        self.local_city = local_city
+        self.local_country = local_country
 
     def locate(self, ip_address):
         if ip_address.startswith("<unknown client. retrieved from ") and ip_address.endswith(">"):
@@ -45,29 +59,33 @@ class AddressLocator(object):
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
         except Exception as e:
-            if ip_address.startswith("127.") or ip_address.startswith("192.168") or ip_address.startswith('172.16.99'):
+            if is_private(ip_address):
                 resolved = "local"
             else:
                 resolved = ip_address
 
         city = country = most_specific_subdivision = None
+        if is_private(ip_address):
+            country = self.local_country
+            city = self.local_city
 
-        geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
-        if geoip2_city_filepath and os.path.exists(geoip2_city_filepath):
-            try:
-                reader = GeoIP2Reader(geoip2_city_filepath)
-                city_results = reader.city(ip_address)
-                if city_results:
-                    if city_results.country and city_results.country.iso_code:
-                        country = city_results.country.iso_code
+        if country is None:
+            geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
+            if geoip2_city_filepath and os.path.exists(geoip2_city_filepath):
+                try:
+                    reader = GeoIP2Reader(geoip2_city_filepath)
+                    city_results = reader.city(ip_address)
+                    if city_results:
+                        if city_results.country and city_results.country.iso_code:
+                            country = city_results.country.iso_code
 
-                    if city_results.city and city_results.city.name:
-                        city = city_results.city.name
+                        if city_results.city and city_results.city.name:
+                            city = city_results.city.name
 
-                    if city_results.subdivisions and city_results.subdivisions.most_specific and city_results.subdivisions.most_specific.name:
-                        most_specific_subdivision = city_results.subdivisions.most_specific.name
-            except GeoIP2Error:
-                pass
+                        if city_results.subdivisions and city_results.subdivisions.most_specific and city_results.subdivisions.most_specific.name:
+                            most_specific_subdivision = city_results.subdivisions.most_specific.name
+                except GeoIP2Error:
+                    pass
 
         if country is None:
             geoip2_country_filepath = self.config[configuration_doc.CORE_GEOIP2_COUNTRY_FILEPATH]
@@ -99,11 +117,36 @@ class LocationRetriever(threading.Thread):
         self.db = db
         self.setDaemon(True)
         self.stopping = False
-        self.locator = AddressLocator(config)
+        self.local_country = None
+        self.local_city = None
+
         geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
         if not os.path.exists(geoip2_city_filepath or 'not_found_file'):
             if not is_testing():
                 print "%s not found. Run weblab-admin update-locations" % geoip2_city_filepath
+        else:
+            try:
+                local_public_ip_address = requests.get("http://ipinfo.io/json").json()['ip']
+            except Exception as e:
+                local_public_ip_address = None
+
+            if local_public_ip_address is None:
+                try:
+                    local_public_ip_address = requests.get("https://api.ipify.org/?format=json").json()['ip']
+                except Exception as e:
+                    local_public_ip_address = None
+
+            if local_public_ip_address is not None:
+                try:
+                    reader = GeoIP2Reader(geoip2_city_filepath)
+                    self.local_country = reader.city(local_public_ip_address).country.iso_code
+                    self.local_city = reader.city(local_public_ip_address).city.name
+                except Exception as e:
+                    print "Error trying to obtain city for IP: %s" % local_public_ip_address
+                    traceback.print_exc()
+
+        self.locator = AddressLocator(config, local_country = self.local_country, local_city = self.local_city)
+            
 
     def stop(self):
         self.stopping = True
