@@ -525,7 +525,11 @@ def generate_info(panel, session, condition, experiments, results):
     for session_time_seconds, count_cases in session.execute(sql.select([model.DbUserUsedExperiment.session_time_seconds, sa_func.count(model.DbUserUsedExperiment.session_time_seconds)], condition)
                                                                   .group_by(model.DbUserUsedExperiment.session_time_seconds)):
         if session_time_seconds is not None:
-            per_block_size[ int(session_time_seconds / block_size) ] += count_cases
+            if block_size > 0:
+                block_number = int(session_time_seconds / block_size)
+            else:
+                block_number = 0
+            per_block_size[ block_number ] += count_cases
 
 
     for start_date_date, session_time_micro, session_number in session.execute(
