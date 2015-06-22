@@ -1,7 +1,3 @@
-start_experiment = function() {
-	$(parent.document).find('iframe[name=wlframe]').show();
-}
-
 Romie = function() {
 	this.moving = false;
 }

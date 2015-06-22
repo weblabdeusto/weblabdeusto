@@ -20,12 +20,7 @@
 <body>
 	<p style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
 
-	<button style="text-align: center;" onclick="test();">Probar</button>
-
 	<div id="blocklyDiv" style="margin: auto; height: 500px; width: 90%;"></div>
-
-	<h3>Código</h3>
-	<textarea id="textarea" style="margin: auto; width: 75%; height: 400px;"></textarea>
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
@@ -43,12 +38,7 @@
 			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
 
-		function updateTextarea() {
-			document.getElementById('textarea').value = Blockly.JavaScript.workspaceToCode(workspace);
-		}
-		workspace.addChangeListener(updateTextarea);
-
-		function test() {
+		function test(response) {
 			function initApi(interpreter, scope) {
 				// Add Romie to the context
 				var wrapper = function() {
@@ -102,8 +92,12 @@
 			nextStep();
 		}
 
-		$(parent.document).find('iframe[name=wlframe]').hide();
-		Weblab.setOnStartInteractionCallback(start_experiment);
+		Weblab.setOnGetInitialDataCallback(function() {
+			console.log("callback chachi");
+			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
+		});
+
+		Weblab.setOnStartInteractionCallback(test);
 	</script>
 </body>
 </html>
