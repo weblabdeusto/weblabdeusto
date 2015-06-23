@@ -193,7 +193,7 @@ class AbstractCoordinator(object):
 
             self.aggregators[experiment_id_str] = aggregator
 
-        clean = cfg_manager[configuration_doc.COORDINATOR_CLEAN]
+        clean = cfg_manager.get('core_number') == 0
         post_reservation_expiration_time = cfg_manager.get_value(POST_RESERVATION_EXPIRATION_TIME, DEFAULT_POST_RESERVATION_EXPIRATION_TIME)
         self.expiration_delta = datetime.timedelta(seconds=post_reservation_expiration_time)
 

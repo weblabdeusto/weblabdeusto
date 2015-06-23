@@ -419,7 +419,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         # Initialize internationalization code.
         if Babel is None:
-            print "Not using Babel. Everything will be in English"
+            print("Not using Babel. Everything will be in English")
         else:
             babel = Babel(self.app)
 
@@ -561,7 +561,7 @@ class UserProcessingServer(object):
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(cfg_manager, self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._coordinator.completed_store, self._db_manager)
         self._temporal_information_retriever.start()
 
-        clean = cfg_manager[configuration_doc.COORDINATOR_CLEAN]
+        clean = cfg_manager.get('core_number') == 0
         if clean:
             self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
             self._location_retriever.start()

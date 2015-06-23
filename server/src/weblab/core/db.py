@@ -23,6 +23,7 @@ from functools import wraps
 from collections import OrderedDict, namedtuple
 
 import sqlalchemy
+import sqlalchemy.sql as sql
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -45,7 +46,7 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
-class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names'])):
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date'])):
     PRIVATE_FIELDS = ('group_names',)
     def pubdict(self):
         result = {}
@@ -753,6 +754,17 @@ class DatabaseGateway(object):
 
     # Location updater
     @with_session
+    def reset_locations_database(self):
+        update_stmt = sql.update(model.DbUserUsedExperiment).values(hostname = None, city = None, most_specific_subdivision = None, country = None)
+        _current.session.execute(update_stmt)
+        _current.session.commit()
+
+    @with_session
+    def reset_locations_cache(self):
+        _current.session.query(model.DbLocationCache).delete()
+        _current.session.commit()
+
+    @with_session
     def update_locations(self, location_func):
         """update_locations(location_func) -> number_of_updated
         
@@ -838,6 +850,12 @@ class DatabaseGateway(object):
                 return query.filter(model.DbUser.login == None, model.DbUser.login != None)
 
             query = query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name.in_(query_params.group_names)))
+
+        if query_params.start_date:
+            query = query.filter(model.DbUserUsedExperiment.start_date >= query_params.start_date)
+
+        if query_params.end_date:
+            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date)
 
         return query
        

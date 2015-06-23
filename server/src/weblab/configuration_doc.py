@@ -222,7 +222,6 @@ COORDINATOR_DB_USERNAME        = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD        = 'core_coordinator_db_password'
 COORDINATOR_DB_ENGINE          = 'core_coordinator_db_engine'
 COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
-COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
     (COORDINATOR_IMPL,               _Argument(COORDINATOR, basestring, "sqlalchemy", "Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'.")),
@@ -233,7 +232,6 @@ _sorted_variables.extend([
     (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Password to access the coordination database.""")), 
     (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, basestring, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
     (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "lab1:inst@mach;exp1|ud-fpga|FPGA experiments", for the "lab1" in the instance "inst" at the machine "mach", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
-    (COORDINATOR_CLEAN,              _Argument(COORDINATOR, bool, False, """Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.""")), 
 ])
 
 
