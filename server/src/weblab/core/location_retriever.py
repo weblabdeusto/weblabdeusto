@@ -47,7 +47,7 @@ class AddressLocator(object):
         if ip_address.startswith("<unknown client. retrieved from ") and ip_address.endswith(">"):
             ip_address = ip_address[len("<unknown client. retrieved from "):-1]
 
-        if ip_address == '<address not found>':
+        if ip_address == '<address not found>' or ip_address == 'unknown':
             return {
                 'hostname' : ip_address,
                 'city': None,

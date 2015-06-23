@@ -865,7 +865,7 @@ class DatabaseGateway(object):
 
         db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
 
-        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.id)[-limit:][::-1]
+        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.start_date.desc()).limit(limit)
 
         external_user = _current.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
         latest_uses = []
