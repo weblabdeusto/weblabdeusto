@@ -4,6 +4,7 @@ import StringIO
 import six
 import yaml
 import traceback
+from collections import defaultdict
 
 from voodoo.configuration import ConfigurationManager
 
@@ -232,6 +233,8 @@ def _load_contents(contents, directory):
     config_files, config_values = _process_config(global_value, directory)
     global_config = GlobalConfig(config_files, config_values, directory)
 
+    type_counter = defaultdict(int)
+
     for host_name, host_value in global_value.get('hosts', {}).iteritems():
         config_files, config_values = _process_config(host_value, directory)
         host = host_value.get('host')
@@ -260,6 +263,9 @@ def _load_contents(contents, directory):
                     component_class = component_value.get('class')
                     if not component_class:
                         raise GeneratorError("Missing component class on %s:%s@%s" % (component_name, process_name, host_name))
+
+                config_values['%s_number' % component_type] = type_counter[component_class]
+                type_counter[component_class] += 1
 
                 # Protocols
                 protocols = component_value.get('protocols', None)

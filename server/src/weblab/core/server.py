@@ -24,6 +24,7 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape
+from flask_debugtoolbar import DebugToolbarExtension
 
 from functools import wraps
 
@@ -47,6 +48,7 @@ import weblab.core.alive_users as AliveUsersCollection
 from weblab.core.coordinator.gateway import create as coordinator_create
 import weblab.core.coordinator.store as TemporalInformationStore
 from weblab.core.db import DatabaseGateway
+from weblab.core.location_retriever import LocationRetriever
 import weblab.core.coordinator.status as WebLabSchedulingStatus
 
 import weblab.core.exc as coreExc
@@ -83,7 +85,6 @@ DEFAULT_CHECKING_TIME = 3 # seconds
 
 WEBLAB_CORE_SERVER_SESSION_POOL_ID              = "core_session_pool_id"
 WEBLAB_CORE_SERVER_RESERVATIONS_SESSION_POOL_ID = "core_session_pool_id"
-WEBLAB_CORE_SERVER_CLEAN_COORDINATOR            = "core_coordinator_clean"
 
 # This could be refactored so the first time it's called weblab_api.user_processor, it is generated, and if it's been generated in the context, it is also removed (update_latest_timestamp) on the wrap_func()
 # Alternatively, we could remove the user_processors (which indeed makes more sense)
@@ -418,7 +419,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         # Initialize internationalization code.
         if Babel is None:
-            print "Not using Babel. Everything will be in English"
+            print("Not using Babel. Everything will be in English")
         else:
             babel = Babel(self.app)
 
@@ -474,7 +475,8 @@ class WebLabFlaskServer(WebLabWsgiServer):
         weblab_api.apply_routes_login_web(authn_web, server)
         self.app.register_blueprint(authn_web, url_prefix = '/weblab/login/web')
 
-        core_web = Blueprint('core_web', __name__)
+        static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
+        core_web = Blueprint('core_web', __name__, static_folder=static_folder)
         weblab_api.apply_routes_web(core_web, server)
         self.app.register_blueprint(core_web, url_prefix = '/weblab/web')
 
@@ -482,12 +484,17 @@ class WebLabFlaskServer(WebLabWsgiServer):
         # The .apply_routes_webclient method is dynamically generated, the name matches
         # that in the wl.py module.
         # Attempt at setting the right static folder.
-        static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), 'static'))
         core_webclient = Blueprint('core_webclient', __name__, static_folder=static_folder)
         weblab_api.apply_routes_webclient(core_webclient, server)
         self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
+
+        if flask_debug:
+            toolbar = DebugToolbarExtension()
+            toolbar.init_app(self.app)
+            self.app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
 
 class UserProcessingServer(object):
     """
@@ -554,6 +561,12 @@ class UserProcessingServer(object):
         self._temporal_information_retriever = TemporalInformationRetriever.TemporalInformationRetriever(cfg_manager, self._coordinator.initial_store, self._coordinator.finished_store, self._commands_store, self._coordinator.completed_store, self._db_manager)
         self._temporal_information_retriever.start()
 
+        clean = cfg_manager.get('core_number') == 0
+        if clean:
+            self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
+            self._location_retriever.start()
+        else:
+            self._location_retriever = None
         #
         # Alive users
         #
@@ -596,6 +609,8 @@ class UserProcessingServer(object):
 
         self._temporal_information_retriever.stop()
         self._coordinator.stop()
+        if self._location_retriever is not None:
+            self._location_retriever.stop()
 
         if hasattr(super(UserProcessingServer, self), 'stop'):
             super(UserProcessingServer, self).stop()

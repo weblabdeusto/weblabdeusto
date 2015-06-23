@@ -1066,7 +1066,7 @@ class ExperimentPanel(AdministratorModelView):
 
                 if parameter.parameter_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
                     field = getattr(form, parameter.parameter_name.replace('.','_'))
-                    field.data = parameter.value
+                    field.data = param_obj['value']
                 elif parameter.parameter_name in existing_client_parameters:
                     static_parameters.append(param_obj)
                 else:
@@ -1086,7 +1086,7 @@ class ExperimentPanel(AdministratorModelView):
                     for param_name in ALREADY_PROVIDED_CLIENT_PARAMETERS:
                         field = getattr(form, param_name.replace('.', '_'))
                         if field.data or field.data == False:
-                            dtype = 'bool' if type(field.data) == 'bool' else 'string'
+                            dtype = 'bool' if isinstance(field.data, bool) else 'string'
                             already_provided_parameters.append({ 'name' : param_name, 'type' : dtype, 'value' : field.data })
 
                     all_parameters = already_provided_parameters + static_parameters + dynamic_parameters

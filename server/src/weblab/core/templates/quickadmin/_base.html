@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+
+    <link href="{{ url_for('.static', filename='bootstrap3/css/bootstrap.min.css') }}" rel="stylesheet">
+
+  </head>
+  <body>
+    {% block body %}
+    {% endblock %}
+
+    <script src="{{ url_for('.static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('.static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>

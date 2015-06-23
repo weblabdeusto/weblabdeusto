@@ -24,6 +24,7 @@ from weblab.admin.script.run import weblab_start, weblab_stop
 from weblab.admin.script.monitor import weblab_monitor
 from weblab.admin.script.admin import weblab_admin
 from weblab.admin.script.upgrade import weblab_upgrade
+from weblab.admin.script.locations import weblab_locations
 
 # 
 # TODO
@@ -44,6 +45,7 @@ SORTED_COMMANDS.append(('stop',       'Stop an existing weblab instance')),
 SORTED_COMMANDS.append(('admin',      'Adminstrate a weblab instance')),
 SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab instance')),
 SORTED_COMMANDS.append(('upgrade',    'Upgrade the current setting')), 
+SORTED_COMMANDS.append(('locations',  'Manage the locations database')), 
 
 COMMANDS = dict(SORTED_COMMANDS)
 HIDDEN_COMMANDS = ('-version', '--version', '-V')
@@ -79,6 +81,8 @@ def weblab():
         weblab_admin(sys.argv[2])
     elif main_command == 'upgrade':
         weblab_upgrade(sys.argv[2])
+    elif main_command == 'locations':
+        weblab_locations(sys.argv[2])
     elif main_command == '--version':
         print weblab_version
     else:

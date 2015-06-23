@@ -1,0 +1,90 @@
+{% set title = "Use" %}
+{% extends "quickadmin/_base.html" %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="container">
+            {% if found %}
+                <h3>General</h3>
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, value in properties.iteritems() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if commands %}
+                <h3>Commands</h3>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Length</th>
+                            <th>Time before</th>
+                            <th>Time after</th>
+                            <th>Command</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for command in commands %}
+                        <tr>
+                            <td>{{ command['length'] }}</td>
+                            <td>{{ command['before'] }}</td>
+                            <td>{{ command['after'] }}</td>
+                            <td>{{ command['command'] }}</td>
+                            <td>{{ command['response'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+
+                {% if files %}
+                <h3>Files</h3>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Length</th>
+                            <th>Time before</th>
+                            <th>Time after</th>
+                            <th>File hash</th>
+                            <th>File info</th>
+                            <th>Response</th>
+                            <th>Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                        <tr>
+                            <td>{{ file['length'] }}</td>
+                            <td>{{ file['before'] }}</td>
+                            <td>{{ file['after'] }}</td>
+                            <td>{{ file['hash'] }}</td>
+                            <td>{{ file['info'] }}</td>
+                            <td>{{ file['response'] }}</td>
+                            <td><a href="{{ param_url_for('.file', file_id = file['file_id']) }}" class="btn btn-primary">Download</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-error">
+                    <h1>Use not found</h1>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -14,8 +14,17 @@
 #         Pablo Orduña <pablo@ordunya.com>
 #
 
+import os
 import numbers
+import datetime
+import threading
+import traceback
+from functools import wraps
+from collections import OrderedDict, namedtuple
 
+import sqlalchemy
+import sqlalchemy.sql as sql
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 import voodoo.log as log
@@ -25,6 +34,7 @@ from voodoo.typechecker import typecheck
 from weblab.db import db
 import weblab.db.model as model
 
+import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
 from weblab.data.command import Command
 import weblab.data.dto.experiments as ExperimentAllowed
@@ -34,6 +44,33 @@ import weblab.core.exc as DbErrors
 import weblab.permissions as permissions
 
 DEFAULT_VALUE = object()
+
+_current = threading.local()
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date'])):
+    PRIVATE_FIELDS = ('group_names',)
+    def pubdict(self):
+        result = {}
+        for field in UsesQueryParams._fields:
+            if field not in self.PRIVATE_FIELDS and getattr(self, field) is not None:
+                result[field] = getattr(self, field)
+        return result
+
+# Support None as default params
+UsesQueryParams.__new__.__defaults__ = (None,) * len(UsesQueryParams._fields)
+
+def with_session(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        _current.session = self.Session()
+        try:
+            return func(self, *args, **kwargs)
+        except sqlalchemy.exc.SQLAlchemyError:
+            _current.session.rollback()
+            raise
+        finally:
+            _current.session.close()
+
+    return wrapper
 
 class DatabaseGateway(object):
 
@@ -714,6 +751,262 @@ class DatabaseGateway(object):
                 raise DbErrors.DatabaseError("Couldn't create user! Contact administrator")
         finally:
             session.close()
+
+    # Location updater
+    @with_session
+    def reset_locations_database(self):
+        update_stmt = sql.update(model.DbUserUsedExperiment).values(hostname = None, city = None, most_specific_subdivision = None, country = None)
+        _current.session.execute(update_stmt)
+        _current.session.commit()
+
+    @with_session
+    def reset_locations_cache(self):
+        _current.session.query(model.DbLocationCache).delete()
+        _current.session.commit()
+
+    @with_session
+    def update_locations(self, location_func):
+        """update_locations(location_func) -> number_of_updated
+        
+        update_locations receives a location_func which receives an IP address and
+        returns the location in the following format:
+        {
+            'hostname': 'foo.fr', # or None
+            'city': 'Bilbao', # or None
+            'country': 'Spain', # or None
+            'most_specific_subdivision': 'Bizkaia' # or None
+        }
+
+        If there is an error checking the data, it will simply return None.
+        If the IP address is local, it will simply fill the hostname URL.
+
+        update_locations will return the number of successfully changed registries.
+        So if there were 10 IP addresses to be changed, and it failed in 5 of them,
+        it will return 5. This way, the loop calling this function can sleep only if
+        the number is zero.
+        """
+        counter = 0
+        uses_without_location = list(_current.session.query(model.DbUserUsedExperiment).filter_by(hostname = None)[:1024]) # Do it iterativelly, never process more than 1024 uses
+        origins = set()
+        for use in uses_without_location:
+            origins.add(use.origin)
+
+        if origins:
+            cached_origins = {
+                # origin: result
+            }
+            last_month = datetime.datetime.utcnow() - datetime.timedelta(days = 31)
+            for cached_origin in  _current.session.query(model.DbLocationCache).filter(model.DbLocationCache.ip.in_(origins), model.DbLocationCache.lookup_time > last_month).all():
+                cached_origins[cached_origin.ip] = {
+                    'city' : cached_origin.city,
+                    'hostname': cached_origin.hostname,
+                    'country': cached_origin.country,
+                    'most_specific_subdivision' : cached_origin.most_specific_subdivision,
+                }
+
+            for use in uses_without_location:
+                if use.origin in cached_origins:
+                    use.city = cached_origins[use.origin]['city']
+                    use.hostname = cached_origins[use.origin]['hostname']
+                    use.country = cached_origins[use.origin]['country']
+                    use.most_specific_subdivision = cached_origins[use.origin]['most_specific_subdivision']
+                    counter += 1
+                else:
+                    try:
+                        result = location_func(use.origin)
+                    except Exception as e:
+                        traceback.print_exc()
+                        continue
+                    use.city = result['city']
+                    use.hostname = result['hostname']
+                    use.country = result['country']
+                    use.most_specific_subdivision = result['most_specific_subdivision']
+                    cached_origins[use.origin] = result
+                    new_cached_result = model.DbLocationCache(ip = use.origin, lookup_time = datetime.datetime.utcnow(), hostname = result['hostname'], city = result['city'], country = result['country'], most_specific_subdivision = result['most_specific_subdivision'])
+                    _current.session.add(new_cached_result)
+                    counter += 1
+
+            try:
+                _current.session.commit()
+            except Exception as e:
+                traceback.print_exc()
+
+        return counter
+
+    # Quickadmin
+    def _apply_filters(self, query, query_params):
+        if query_params.login:
+            query = query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.login == query_params.login)
+
+        if query_params.experiment_name:
+            query = query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == query_params.experiment_name)
+
+        if query_params.category_name:
+            query = query.join(model.DbUserUsedExperiment.experiment).join(model.DbExperiment.category).filter(model.DbExperimentCategory.name == query_params.category_name)
+
+        if query_params.group_names is not None:
+            if len(query_params.group_names) == 0:
+                # Automatically filter that there is no
+                return query.filter(model.DbUser.login == None, model.DbUser.login != None)
+
+            query = query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name.in_(query_params.group_names)))
+
+        if query_params.start_date:
+            query = query.filter(model.DbUserUsedExperiment.start_date >= query_params.start_date)
+
+        if query_params.end_date:
+            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date)
+
+        return query
+       
+    @with_session
+    def quickadmin_uses(self, limit, query_params):
+        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment)
+
+        db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
+
+        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.id.desc())[-limit:]
+
+        external_user = _current.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
+        latest_uses = []
+        for use in db_latest_uses:
+            login = use.user.login
+            display_name = login
+            for prop in use.properties:
+                if prop.property_name == external_user:
+                    display_name = prop.value + u'@' + login
+
+            latest_uses.append({
+                'id' : use.id,
+                'login' : login,
+                'display_name' : display_name,
+                'full_name' : use.user.full_name,
+                'experiment_name' : use.experiment.name,
+                'category_name' : use.experiment.category.name,
+                'start_date' : use.start_date,
+                'end_date' : use.end_date,
+                'from' : use.origin,
+                'city' : use.city,
+                'country' : use.country,
+                'hostname' : use.hostname,
+            })
+        return latest_uses
+
+    @with_session
+    def quickadmin_uses_per_country(self, query_params):
+        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id))
+        db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
+        per_country = dict(db_latest_uses_query.group_by(model.DbUserUsedExperiment.country).all())
+        per_country.pop(None, None)
+        return per_country
+
+    @with_session
+    def quickadmin_use(self, use_id):
+        use = _current.session.query(model.DbUserUsedExperiment).filter_by(id = use_id).options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).first()
+        if not use:
+            return {'found' : False}
+        
+        def get_prop(prop_name, default):
+            return ([ prop.value for prop in use.properties if prop.property_name.name == prop_name ] or [ default ])[0]
+            
+        experiment = use.experiment.name + u'@' + use.experiment.category.name
+
+        properties = OrderedDict()
+        properties['Login'] = use.user.login
+        properties['Name'] = use.user.full_name
+        properties['In the name of'] = get_prop('external_user', 'Himself')
+        properties['Experiment'] = experiment
+        properties['Date'] = use.start_date
+        properties['Origin'] = use.origin
+        properties['Device used'] = use.coord_address
+        properties['Server IP (if federated)'] = get_prop('from_direct_ip', use.origin)
+        properties['Use ID'] = use.id
+        properties['Reservation ID'] = use.reservation_id
+        properties['Mobile'] = get_prop('mobile', "Don't know")
+        properties['Facebook'] = get_prop('facebook', "Don't know")
+        properties['Referer'] = get_prop('referer', "Don't know")
+        properties['Web Browser'] = get_prop('user_agent', "Don't know")
+        properties['Route'] = get_prop('route', "Don't know")
+        properties['Locale'] = get_prop('locale', "Don't know")
+        properties['City'] = use.city or 'Unknown'
+        properties['Country'] = use.country or 'Unknown'
+        properties['Hostname'] = use.hostname or 'Unknown'
+
+        commands = []
+        longest_length = 0
+        for command in use.commands:
+            timestamp_after = command.timestamp_after
+            timestamp_before = command.timestamp_before
+            if timestamp_after is not None and command.timestamp_after_micro is not None:
+                timestamp_after = timestamp_after.replace(microsecond = command.timestamp_after_micro)
+
+            if timestamp_before is not None and command.timestamp_before_micro is not None:
+                timestamp_before = timestamp_before.replace(microsecond = command.timestamp_before_micro)
+
+            if timestamp_after and timestamp_before:
+                length = (timestamp_after - timestamp_before).total_seconds()
+                if length > longest_length:
+                    longest_length = length
+            else:
+                length = 'N/A'
+            
+            commands.append({
+                'length' : length,
+                'before' : timestamp_before,
+                'after' : timestamp_after,
+                'command' : command.command,
+                'response' : command.response,
+            })
+               
+        properties['Longest command'] = longest_length
+
+        files = []
+        for f in use.files:
+            timestamp_after = f.timestamp_after
+            timestamp_before = f.timestamp_before
+            if timestamp_after is not None and f.timestamp_after_micro is not None:
+                timestamp_after = timestamp_after.replace(microsecond = f.timestamp_after_micro)
+
+            if timestamp_before is not None and f.timestamp_before_micro is not None:
+                timestamp_before = timestamp_before.replace(microsecond = f.timestamp_before_micro)
+
+            if timestamp_after and timestamp_before:
+                length = (timestamp_after - timestamp_before).total_seconds()
+                if length > longest_length:
+                    longest_length = length
+            else:
+                length = 'N/A'
+
+            files.append({
+                'file_id' : f.id,
+                'length' : length,
+                'before' : timestamp_before,
+                'after' : timestamp_after,
+                'file_info' : f.file_info,
+                'file_hash' : f.file_hash,
+                'response' : command.response,
+            })
+
+        return {
+            'found' : True,
+            'properties' : properties,
+            'commands' : commands,
+            'files' : files,
+        }
+
+    @with_session
+    def quickadmin_filepath(self, file_id):
+        use = _current.session.query(model.DbUserFile).filter_by(id = file_id).first()
+        if use is None:
+            return None
+        initial_path = self.cfg_manager.get(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+        if not initial_path:
+            return None
+        full_path = os.path.join(initial_path, use.file_sent)
+        if not os.path.exists(full_path):
+            return None
+
+        return full_path
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

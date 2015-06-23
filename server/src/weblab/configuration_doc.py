@@ -170,7 +170,8 @@ CORE_STORE_STUDENTS_PROGRAMS        = 'core_store_students_programs'
 CORE_STORE_STUDENTS_PROGRAMS_PATH   = 'core_store_students_programs_path'
 CORE_UNIVERSAL_IDENTIFIER           = 'core_universal_identifier'
 CORE_UNIVERSAL_IDENTIFIER_HUMAN     = 'core_universal_identifier_human'
-
+CORE_GEOIP2_CITY_FILEPATH           = 'core_geoip2_city_filepath'
+CORE_GEOIP2_COUNTRY_FILEPATH        = 'core_geoip2_country_filepath'
 
 _sorted_variables.extend([
     # URL, identifiers
@@ -184,6 +185,8 @@ _sorted_variables.extend([
 
     (CORE_STORE_STUDENTS_PROGRAMS,       _Argument(CORE, bool, False, "Whether files submitted by users should be stored or not. ")),
     (CORE_STORE_STUDENTS_PROGRAMS_PATH,  _Argument(CORE, basestring, None, "If files are stored, in which local directory should be stored.")),
+    (CORE_GEOIP2_CITY_FILEPATH,          _Argument(CORE, basestring, "GeoLite2-City.mmdb", "If the maxminds city database is downloaded, use it")),
+    (CORE_GEOIP2_COUNTRY_FILEPATH,       _Argument(CORE, basestring, "GeoLite2-Country.mmdb", "If the maxminds country database is downloaded, use it")),
 ])
 
 # 
@@ -219,7 +222,6 @@ COORDINATOR_DB_USERNAME        = 'core_coordinator_db_username'
 COORDINATOR_DB_PASSWORD        = 'core_coordinator_db_password'
 COORDINATOR_DB_ENGINE          = 'core_coordinator_db_engine'
 COORDINATOR_LABORATORY_SERVERS = 'core_coordinator_laboratory_servers'
-COORDINATOR_CLEAN              = 'core_coordinator_clean'
 
 _sorted_variables.extend([
     (COORDINATOR_IMPL,               _Argument(COORDINATOR, basestring, "sqlalchemy", "Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'.")),
@@ -230,7 +232,6 @@ _sorted_variables.extend([
     (COORDINATOR_DB_PASSWORD,        _Argument(COORDINATOR, basestring, NO_DEFAULT, """Password to access the coordination database.""")), 
     (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, basestring, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
     (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "lab1:inst@mach;exp1|ud-fpga|FPGA experiments", for the "lab1" in the instance "inst" at the machine "mach", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
-    (COORDINATOR_CLEAN,              _Argument(COORDINATOR, bool, True, """Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.""")), 
 ])
 
 

@@ -17,10 +17,11 @@
 import datetime
 import calendar
 import traceback
+import pickle
 
 from voodoo.dbutil import get_table_kwargs
 
-from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index, Unicode
+from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index, Unicode, UnicodeText
 from sqlalchemy.orm import relation, backref
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -63,6 +64,99 @@ t_user_is_member_of = Table('UserIsMemberOf', Base.metadata,
     Column('group_id', Integer, ForeignKey('Group.id'), primary_key=True)
     )
 
+##############################################################################
+# 
+# SERVER PROPERTIES
+# 
+
+class DbServerProperties(Base):
+    __tablename__ = 'ServerProperties'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(Unicode(50), nullable = False, index = True, unique = True)
+    _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
+
+    def __init__(name, value):
+        super(DbServerProperties, self).__init__()
+        self.name = name
+        self.value = value
+
+    @property
+    def value(self):
+        if self._value is None:
+            return None
+        return pickle.loads(self._value.decode('base64'))
+
+    @value.setter
+    def value(self, value):
+        if value is None:
+            self._value = None
+        else:
+            serialized = pickle.dumps(value)
+            self._value = serialized.encode('base64')
+
+    def __unicode__(self):
+        return u"%s = %r" % (self.name, self.value)
+
+    def __repr__(self):
+        return "DbServerProperties(%r, %r)" % (self.name, self. value)
+
+##############################################################################
+# 
+# CLIENT PROPERTIES
+# 
+
+class DbClientProperties(Base):
+    __tablename__ = 'ClientProperties'
+
+    id = Column(Integer, primary_key = True)
+    name = Column(Unicode(50), nullable = False, index = True, unique = True)
+    _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
+
+    def __init__(name, value):
+        super(DbServerProperties, self).__init__()
+        self.name = name
+        self.value = value
+
+    @property
+    def value(self):
+        if self._value is None:
+            return None
+        return pickle.loads(self._value.decode('base64'))
+
+    @value.setter
+    def value(self, value):
+        if value is None:
+            self._value = None
+        else:
+            serialized = pickle.dumps(value)
+            self._value = serialized.encode('base64')
+
+    def __unicode__(self):
+        return u"%s = %r" % (self.name, self.value)
+
+    def __repr__(self):
+        return "DbClientProperties(%r, %r)" % (self.name, self. value)
+
+
+class DbLocationCache(Base):
+    __tablename__  = 'LocationCache'
+    
+    id = Column(Integer, primary_key = True)
+    ip = Column(Unicode(64), index = True, nullable = False)
+    lookup_time = Column(DateTime, index = True, nullable = False)
+    hostname = Column(Unicode(255), index = True)
+    city = Column(Unicode(255), index = True)
+    country = Column(Unicode(255), index = True)
+    most_specific_subdivision = Column(Unicode(255), index = True)
+
+    def __init__(self, ip, lookup_time, hostname, city = None, country = None, most_specific_subdivision = None):
+        self.ip = ip
+        self.lookup_time = lookup_time
+        self.hostname = hostname
+        self.city = city
+        self.country = country
+        self.most_specific_subdivision = most_specific_subdivision
 
 ##############################################################################
 # USER AND GROUP DEFINITION
@@ -541,7 +635,12 @@ class DbUserUsedExperiment(Base):
     user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
     role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
 
-    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None, session_time_micro = None):
+    hostname                  = Column(Unicode(255), index = True)
+    city                      = Column(Unicode(255), index = True)
+    country                   = Column(Unicode(255), index = True)
+    most_specific_subdivision = Column(Unicode(255), index = True)
+
+    def __init__(self, user = None, experiment = None, start_date = None, origin = None, coord_address = None, reservation_id = None, end_date = None, max_error_in_millis = None, finish_reason = None, permission_permanent_id = None, group_permission = None, user_permission = None, role_permission = None, session_time_micro = None, hostname = None, city = None, country = None, most_specific_subdivision = None):
         super(DbUserUsedExperiment, self).__init__()
         self.user = user
         self.experiment = experiment
@@ -559,6 +658,11 @@ class DbUserUsedExperiment(Base):
         self.group_permission = group_permission
         self.user_permission = user_permission
         self.role_permission = role_permission
+        self.hostname = hostname
+        self.city = city
+        self.country = country
+        self.most_specific_subdivision = most_specific_subdivision
+
         if end_date is not None:
             self.session_time_micro = (self.end_date - self.start_date).seconds * 1e6 + (self.end_date - self.start_date).microseconds
             self.session_time_seconds = self.session_time_micro / 1000000

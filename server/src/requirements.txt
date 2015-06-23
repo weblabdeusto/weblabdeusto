@@ -42,7 +42,7 @@ Flask-Admin==1.0.7
 # 
 # alembic is used for upgrading the database from version to version
 # 
-alembic<0.6
+alembic==0.7.6
 
 # 
 # networkx is used for generating communities and plagiarism detection
@@ -74,3 +74,9 @@ six==1.9.0
 # celery is right now used in wcloud. In the near future, it will be a core
 # component in WebLab-Deusto
 celery==3.1.17
+
+# geoip2 is used for retrieving information about the user IP address
+geoip2==2.1.0
+
+# Flask-DebugToolbar helps the development
+Flask-DebugToolbar==0.10.0
