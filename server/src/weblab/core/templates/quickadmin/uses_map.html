@@ -1,0 +1,34 @@
+{% extends "quickadmin/_base.html" %}
+
+{% block body %}
+    <div class="row">
+        <div class="container">
+            <h2>{{ title }}</h2>
+            <div id="regions_div" style="width: 900px; height: 500px;"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["geochart"]});
+      google.setOnLoadCallback(drawRegionsMap);
+
+      function drawRegionsMap() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Country', 'Popularity'],
+          {% for country, number in per_country.iteritems() %}
+          ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]);
+
+        var options = {};
+
+        var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+        chart.draw(data, options);
+      }
+    </script>
+{% endblock %}

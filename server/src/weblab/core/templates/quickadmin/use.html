@@ -74,7 +74,7 @@
                             <td>{{ file['hash'] }}</td>
                             <td>{{ file['info'] }}</td>
                             <td>{{ file['response'] }}</td>
-                            <td><a href="{{ url_for('.file', file_id = file['file_id']) }}" class="btn btn-primary">Download</a></td>
+                            <td><a href="{{ param_url_for('.file', file_id = file['file_id']) }}" class="btn btn-primary">Download</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

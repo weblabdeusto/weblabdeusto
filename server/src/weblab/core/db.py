@@ -20,7 +20,7 @@ import datetime
 import threading
 import traceback
 from functools import wraps
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import sqlalchemy
 from sqlalchemy.orm import joinedload
@@ -45,6 +45,17 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names'])):
+    PRIVATE_FIELDS = ('group_names',)
+    def pubdict(self):
+        result = {}
+        for field in UsesQueryParams._fields:
+            if field not in self.PRIVATE_FIELDS and getattr(self, field) is not None:
+                result[field] = getattr(self, field)
+        return result
+
+# Support None as default params
+UsesQueryParams.__new__.__defaults__ = (None,) * len(UsesQueryParams._fields)
 
 def with_session(func):
     @wraps(func)
@@ -811,23 +822,30 @@ class DatabaseGateway(object):
         return counter
 
     # Quickadmin
+    def _apply_filters(self, query, query_params):
+        if query_params.login:
+            query = query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.login == query_params.login)
+
+        if query_params.experiment_name:
+            query = query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == query_params.experiment_name)
+
+        if query_params.category_name:
+            query = query.join(model.DbUserUsedExperiment.experiment).join(model.DbExperiment.category).filter(model.DbExperimentCategory.name == query_params.category_name)
+
+        if query_params.group_names is not None:
+            if len(query_params.group_names) == 0:
+                # Automatically filter that there is no
+                return query.filter(model.DbUser.login == None, model.DbUser.login != None)
+
+            query = query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name.in_(query_params.group_names)))
+
+        return query
+       
     @with_session
-    def quickadmin_uses(self, limit, login = None, experiment_name = None, category_name = None, group_names = None):
+    def quickadmin_uses(self, limit, query_params):
         db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment)
-        if login:
-            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.login == login)
 
-        if experiment_name:
-            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).filter(model.DbExperiment.name == experiment_name)
-
-        if group_names is not None:
-            if len(group_names) == 0:
-                return []
-
-            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.user).filter(model.DbUser.groups.any(model.DbGroup.name.in_(group_names)))
-
-        if category_name:
-            db_latest_uses_query = db_latest_uses_query.join(model.DbUserUsedExperiment.experiment).join(model.DbExperiment.category).filter(model.DbExperimentCategory.name == category_name)
+        db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
 
         db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.id.desc())[-limit:]
 
@@ -855,6 +873,14 @@ class DatabaseGateway(object):
                 'hostname' : use.hostname,
             })
         return latest_uses
+
+    @with_session
+    def quickadmin_uses_per_country(self, query_params):
+        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id))
+        db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
+        per_country = dict(db_latest_uses_query.group_by(model.DbUserUsedExperiment.country).all())
+        per_country.pop(None, None)
+        return per_country
 
     @with_session
     def quickadmin_use(self, use_id):

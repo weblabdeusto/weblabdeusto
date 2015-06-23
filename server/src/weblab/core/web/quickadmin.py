@@ -1,7 +1,7 @@
 from flask import render_template, request, send_file, Response, url_for
 from functools import wraps, partial
 from weblab.core.web import weblab_api, get_argument
-
+from weblab.core.db import UsesQueryParams
 
 def check_credentials(func):
     @wraps(func)
@@ -21,9 +21,19 @@ def check_credentials(func):
     return wrapper
 
 def get_url_for():
+    my_url_for = partial(url_for, **request.args)
+
     if 'token' in request.args:
-        return partial(url_for, token = request.args['token'])
-    return url_for
+        return partial(my_url_for, token = request.args['token'])
+    return my_url_for
+
+def create_query_params(**kwargs):
+    params = {}
+    for potential_arg in 'login', 'experiment_name', 'category_name':
+        if potential_arg in request.args:
+            params[potential_arg] = request.args[potential_arg]
+    params.update(kwargs)
+    return UsesQueryParams(**params)
 
 @weblab_api.route_web('/quickadmin/')
 @check_credentials
@@ -35,18 +45,14 @@ LIMIT = 200
 @weblab_api.route_web('/quickadmin/uses')
 @check_credentials
 def uses():
-    kwargs = {}
-    for potential_arg in 'login', 'experiment_name', 'category_name':
-        if potential_arg in request.args:
-            kwargs[potential_arg] = request.args[potential_arg]
-    url_for = get_url_for()
-    url_for = partial(url_for, **request.args)
-    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, **kwargs), arguments = kwargs, url_for = url_for, title = 'Uses', endpoint = '.uses')
+    query_params = create_query_params()
+    uses = weblab_api.db.quickadmin_uses(LIMIT, query_params)
+    return render_template("quickadmin/uses.html",  uses = uses, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses', endpoint = '.uses')
 
 @weblab_api.route_web('/quickadmin/use/<int:use_id>')
 @check_credentials
 def use(use_id):
-    return render_template("quickadmin/use.html", url_for = get_url_for(), **weblab_api.db.quickadmin_use(use_id = use_id))
+    return render_template("quickadmin/use.html", param_url_for = get_url_for(), **weblab_api.db.quickadmin_use(use_id = use_id))
 
 @weblab_api.route_web('/quickadmin/file/<int:file_id>')
 @check_credentials
@@ -55,17 +61,21 @@ def file(file_id):
     if file_path is None:
         return "File not found", 404
 
-    return send_file(file_path, as_attachment = True)
+    return send_file(file_path, as_attachment = True)   
 
 @weblab_api.route_web('/quickadmin/demos')
 @check_credentials
 def demos():
-    kwargs = {}
-    for potential_arg in 'login', 'experiment_name', 'category_name':
-        if potential_arg in request.args:
-            kwargs[potential_arg] = request.args[potential_arg]
-    url_for = get_url_for()
-    url_for = partial(url_for, **request.args)
     group_names = weblab_api.config.get_value('login_default_groups_for_external_users', [])
-    return render_template("quickadmin/uses.html",  uses = weblab_api.db.quickadmin_uses(LIMIT, group_names = group_names, **kwargs), arguments = kwargs, url_for = url_for, title = 'Demo uses', endpoint = '.demos')
+    query_params = create_query_params(group_names = group_names)
+    uses = weblab_api.db.quickadmin_uses(LIMIT, query_params)
+    return render_template("quickadmin/uses.html",  uses = uses, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Demo uses', endpoint = '.demos')
+
+@weblab_api.route_web('/quickadmin/demos/map')
+@check_credentials
+def demos_map():
+    group_names = weblab_api.config.get_value('login_default_groups_for_external_users', [])
+    query_params = create_query_params(group_names = group_names)
+    per_country = weblab_api.db.quickadmin_uses_per_country(query_params)
+    return render_template("quickadmin/uses_map.html", per_country = per_country, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Demo map', endpoint = '.demos_map')
 
