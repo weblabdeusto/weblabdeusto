@@ -1,8 +1,16 @@
 {% extends "quickadmin/_base.html" %}
 
+{% block header %}
+    <style>
+      body {
+        padding: 20px;
+      }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="row">
-        <div class="container">
+        <div class="container-fluid">
             <h2>{{ title }}</h2>
 
             {% if arguments %}
@@ -30,7 +38,7 @@
                 <tbody>
                     {% for use in uses %}
                         <tr>
-                            <td><a href="{{ param_url_for(endpoint, login = use['login']) }}">{{ use['display_name'] }}</a></td>
+                            <td class="longname"><a href="{{ param_url_for(endpoint, login = use['login']) }}">{{ use['display_name'] }}</a></td>
                             <td>{{ use['full_name'] }}</td>
                             <td><a href="{{ param_url_for(endpoint, experiment_name = use['experiment_name'], category_name = use['category_name']) }}"><li class="glyphicon glyphicon-link"></li></a> <a href="{{ param_url_for(endpoint, experiment_name = use['experiment_name']) }}">{{ use['experiment_name'] }}</a>@<a href="{{ param_url_for(endpoint, category_name = use['category_name']) }}">{{ use['category_name'] }}</a></td>
                             <td data-date="{{ use['start_date'] }}Z"></td>
@@ -71,6 +79,15 @@
             var datestring = $(value).data("date");
             var d = new Date(datestring.replace(/ /, 'T'));
             $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+
+        $("td.longname>a").each(function(pos, val) { 
+            $(val).attr("title", $(val).text()); 
+            var MAX_SIZE = 20;
+            if($(val).text().length > MAX_SIZE) {
+                var newTitle = $(val).text().substr(0, MAX_SIZE) + "..."; 
+                $(val).text(newTitle); 
+            } 
         });
     </script>
 {% endblock %}

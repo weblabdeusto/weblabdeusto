@@ -1,10 +1,18 @@
 {% set title = "Use" %}
 {% extends "quickadmin/_base.html" %}
 
+{% block header %}
+    <style>
+      body {
+        padding: 20px;
+      }
+    </style>
+{% endblock %}
+
 {% block body %}
 
     <div class="row">
-        <div class="container">
+        <div class="container-fluid">
             {% if found %}
                 <h3>General</h3>
 
@@ -22,7 +30,7 @@
                             {% if 'date' in name.lower() and value is not string %}
                             <td data-date="{{ value }}Z"></td>
                             {% else %}
-                            <td>{{ value }}</td>
+                            <td class="longname">{{ value }}</td>
                             {% endif %}
                         </tr>
                         {% endfor %}
@@ -113,6 +121,15 @@
             var datestring = $(value).data("date");
             var d = new Date(datestring.replace(/ /, 'T'));
             $(value).text(d.getFullYear() + "-" + zfill(d.getMonth()) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+
+        $("td.longname").each(function(pos, val) { 
+            $(val).attr("title", $(val).text());
+            var MAX_SIZE = 140;
+            if($(val).text().length > MAX_SIZE) {
+                var newTitle = $(val).text().substr(0, MAX_SIZE) + "..."; 
+                $(val).text(newTitle); 
+            } 
         });
     </script>
 {% endblock %}
