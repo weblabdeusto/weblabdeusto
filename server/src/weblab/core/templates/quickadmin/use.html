@@ -110,7 +110,8 @@
         }
 
         $("td[data-date]").each(function (pos, value) {
-            var d = new Date($(value).data("date"));
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
             $(value).text(d.getFullYear() + "-" + zfill(d.getMonth()) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
         });
     </script>
