@@ -42,9 +42,6 @@ def create_query_params(**kwargs):
     params.update(kwargs)
     return UsesQueryParams(**params)
 
-def apply_map_exclusions(per_country):
-    pass
-
 @weblab_api.route_web('/quickadmin/')
 @check_credentials
 def index():
@@ -78,7 +75,6 @@ def file(file_id):
 def uses_map():
     query_params = create_query_params()
     per_country = weblab_api.db.quickadmin_uses_per_country(query_params)
-    apply_map_exclusions(per_country)
     return render_template("quickadmin/uses_map.html", per_country = per_country, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses map', endpoint = '.uses_map')
 
 
@@ -96,6 +92,5 @@ def demos_map():
     group_names = weblab_api.config.get_value('login_default_groups_for_external_users', [])
     query_params = create_query_params(group_names = group_names)
     per_country = weblab_api.db.quickadmin_uses_per_country(query_params)
-    apply_map_exclusions(per_country)
     return render_template("quickadmin/uses_map.html", per_country = per_country, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Demo uses map', endpoint = '.demos_map')
 
