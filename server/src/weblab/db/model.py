@@ -612,6 +612,10 @@ class DbUserUsedExperiment(Base):
     start_date_date         = Column(Date, index = True)
     start_date_weekday      = Column(Integer, index = True) # 0..6, as in datetime.datetime.weekday()
     start_date_hour         = Column(Integer, index = True) # 0..23
+    start_date_year         = Column(Integer, index = True) # e.g., 2015
+    start_date_month        = Column(Integer, index = True) # 1..12, as in datetime.date.month
+    start_date_week_monday  = Column(Integer, index = True) # number of weeks since January 5, 1970 (first Monday after epoc)
+    start_date_week_sunday  = Column(Integer, index = True) # number of weeks since January 4, 1970 (first Monday after epoc)
 
     session_time_micro      = Column(BigInteger, index = True) # This should take into account finish_reason
     session_time_seconds    = Column(Integer, index = True) # This should take into account finish_reason
@@ -648,6 +652,10 @@ class DbUserUsedExperiment(Base):
         self.start_date_date = self.start_date.date()
         self.start_date_hour = self.start_date.hour
         self.start_date_weekday = self.start_date.weekday()
+        self.start_date_year = self.start_date.year
+        self.start_date_month = self.start_date.month
+        self.start_date_week_sunday = (self.start_date_date - datetime.date(1970, 1, 4)).days / 7
+        self.start_date_week_monday = (self.start_date_date - datetime.date(1970, 1, 5)).days / 7
         self.set_end_date(end_date)
         self.origin = origin
         self.coord_address = coord_address
