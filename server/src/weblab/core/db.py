@@ -876,6 +876,17 @@ class DatabaseGateway(object):
                 if prop.property_name == external_user:
                     display_name = prop.value + u'@' + login
 
+            if use.start_date:
+                if use.end_date is None:
+                    duration = datetime.datetime.utcnow() - use.start_date
+                else:
+                    duration = use.end_date - use.start_date
+            else:
+                duration = datetime.timedelta(seconds = 0)
+
+            # Avoid microseconds
+            duration_without_microseconds = datetime.timedelta(seconds = int(duration.total_seconds()))
+
             latest_uses.append({
                 'id' : use.id,
                 'login' : login,
@@ -889,6 +900,7 @@ class DatabaseGateway(object):
                 'city' : use.city,
                 'country' : use.country,
                 'hostname' : use.hostname,
+                'duration' : duration_without_microseconds,
             })
         return latest_uses
 

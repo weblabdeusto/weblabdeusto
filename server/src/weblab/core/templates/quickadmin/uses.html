@@ -22,6 +22,7 @@
                         <th>Experiment</th>
                         <th>Date</th>
                         <th>End date</th>
+                        <th>Duration</th>
                         <th>From</th>
                         <th>Use</th>
                     </tr>
@@ -38,6 +39,7 @@
                             {% else %}
                             <td><b>Not yet finished</b></td>
                             {% endif %}
+                            <td>{{ use['duration'] }}</td>
                             <td>{{ use['from'] }}
                             {% 
                                 if use['hostname'] and 'local' not in use['hostname'] and use['hostname'] != use['from'] 
@@ -67,7 +69,7 @@
 
         $("td[data-date]").each(function (pos, value) {
             var d = new Date($(value).data("date"));
-            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth()) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
         });
     </script>
 {% endblock %}
