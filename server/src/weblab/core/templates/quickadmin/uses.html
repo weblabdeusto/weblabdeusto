@@ -11,11 +11,14 @@
 {% block body %}
     <div class="row">
         <div class="container-fluid">
-            <h2>{{ title }}</h2>
+            <div class="row">
+                <h2>{{ title }}</h2>
+                <h5>Date: <input name="daterange"></input> {{ arguments.count }} uses. </h5>
+            </div>
 
-            {% if arguments %}
-                {% for arg in arguments %}
-                    <a href="{{ param_url_for(endpoint, **{ arg : arguments[arg] }) }}" class="btn btn-default">{{ arg }}: {{ arguments[arg] }}</a>
+            {% if filters %}
+                {% for arg in filters %}
+                    <a href="{{ param_url_for(endpoint, **{ arg : filters[arg] }) }}" class="btn btn-default">{{ arg }}: {{ filters[arg] }}</a>
                 {% endfor %}
                 &nbsp;
                 <a href="{{ url_for(endpoint) }}" class="btn btn-primary">Clear</a>

@@ -33,6 +33,7 @@ def create_query_params(**kwargs):
     for potential_arg in 'login', 'experiment_name', 'category_name':
         if potential_arg in request.args:
             params[potential_arg] = request.args[potential_arg]
+
     for potential_arg in 'start_date', 'end_date':
         if potential_arg in request.args:
             try:
@@ -40,6 +41,20 @@ def create_query_params(**kwargs):
             except ValueError:
                 pass
     params.update(kwargs)
+    query_params = UsesQueryParams(**params)
+    metadata = weblab_api.db.quickadmin_uses_metadata(query_params)
+    params['count'] = metadata['count']
+
+    if 'start_date' in params:
+        params['min_date'] = params['start_date']
+    else:
+        params['min_date'] = metadata['min_date']
+
+    if 'end_date' in params:
+        params['max_date'] = params['end_date']
+    else:
+        params['max_date'] = metadata['max_date']
+
     return UsesQueryParams(**params)
 
 @weblab_api.route_web('/quickadmin/')
@@ -54,7 +69,7 @@ LIMIT = 200
 def uses():
     query_params = create_query_params()
     uses = weblab_api.db.quickadmin_uses(LIMIT, query_params)
-    return render_template("quickadmin/uses.html",  uses = uses, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses', endpoint = '.uses')
+    return render_template("quickadmin/uses.html",  uses = uses, filters = query_params.filterdict(), arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses', endpoint = '.uses')
 
 @weblab_api.route_web('/quickadmin/use/<int:use_id>')
 @check_credentials

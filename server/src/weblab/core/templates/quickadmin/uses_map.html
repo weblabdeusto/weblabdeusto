@@ -16,32 +16,38 @@
 {% block body %}
     <div class="row">
         <div class="container">
-            <h2>{{ title }}</h2>
-            <div class="col-sm-9">
-                <div id="regions_div" style="width: 100%; height: 600px;"></div>
+            <div class="row">
+                <h2>{{ title }}</h2>
+                <h5>Date: <input name="daterange"></input></h5>
             </div>
-            <div class="col-sm-3">
-                <h4>Top 10 countries by number of uses</h4>
-                <table class="table table-hover table-bordered text-center">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Country</th>
-                            <th class="text-center">Uses</th>
-                            <th class="text-center">Exclude</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for country, number in (per_country|dictsort(false, 'value'))[-10:]|reverse %}
-                        <tr class="enabled-row">
-                            <td>{{ country }}</td>
-                            <td>{{ number }}</td>
-                            <td>
-                                <button class="country-button" data-country="{{ country }}" data-number="{{ number }}" class="btn btn-default"><li class="glyphicon glyphicon-eye-close"></li></button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="row">
+                <div class="col-sm-9">
+                    <div id="regions_div" style="width: 100%; height: 600px;"></div>
+                </div>
+                <div class="col-sm-3">
+                    <h4>Date</h4>
+                    <h4>Top 10 countries by number of uses</h4>
+                    <table class="table table-hover table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Country</th>
+                                <th class="text-center">Uses</th>
+                                <th class="text-center">Exclude</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for country, number in (per_country|dictsort(false, 'value'))[-10:]|reverse %}
+                            <tr class="enabled-row">
+                                <td>{{ country }}</td>
+                                <td>{{ number }}</td>
+                                <td>
+                                    <button class="country-button" data-country="{{ country }}" data-number="{{ number }}" class="btn btn-default"><li class="glyphicon glyphicon-eye-close"></li></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

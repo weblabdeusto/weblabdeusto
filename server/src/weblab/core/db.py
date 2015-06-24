@@ -46,12 +46,21 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
-class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date'])):
-    PRIVATE_FIELDS = ('group_names',)
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count'])):
+    PRIVATE_FIELDS = ('group_names')
+    NON_FILTER_FIELDS = ('count', 'min_date', 'max_date')
+
     def pubdict(self):
         result = {}
         for field in UsesQueryParams._fields:
             if field not in self.PRIVATE_FIELDS and getattr(self, field) is not None:
+                result[field] = getattr(self, field)
+        return result
+
+    def filterdict(self):
+        result = {}
+        for field in UsesQueryParams._fields:
+            if field not in self.PRIVATE_FIELDS and field not in self.NON_FILTER_FIELDS and getattr(self, field) is not None:
                 result[field] = getattr(self, field)
         return result
 
@@ -911,6 +920,18 @@ class DatabaseGateway(object):
         per_country = dict(db_latest_uses_query.group_by(model.DbUserUsedExperiment.country).all())
         per_country.pop(None, None)
         return per_country
+
+    @with_session
+    def quickadmin_uses_metadata(self, query_params):
+        db_metadata_query = _current.session.query(sqlalchemy.func.min(model.DbUserUsedExperiment.start_date), sqlalchemy.func.max(model.DbUserUsedExperiment.start_date), sqlalchemy.func.count(model.DbUserUsedExperiment.id))
+        db_metadata_query = self._apply_filters(db_metadata_query, query_params)
+        first_element = db_metadata_query.first()
+        if first_element:
+            min_date, max_date, count = first_element
+            return dict(min_date = min_date, max_date = max_date, count = count)
+
+        return dict(min_date = datetime.datetime.utcnow(), max_date = datetime.datetime.now(), count = 0)
+
 
     @with_session
     def quickadmin_use(self, use_id):
