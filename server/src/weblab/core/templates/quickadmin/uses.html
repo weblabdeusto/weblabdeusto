@@ -32,8 +32,12 @@
                             <td><a href="{{ param_url_for(endpoint, login = use['login']) }}">{{ use['display_name'] }}</a></td>
                             <td>{{ use['full_name'] }}</td>
                             <td><a href="{{ param_url_for(endpoint, experiment_name = use['experiment_name'], category_name = use['category_name']) }}"><li class="glyphicon glyphicon-link"></li></a> <a href="{{ param_url_for(endpoint, experiment_name = use['experiment_name']) }}">{{ use['experiment_name'] }}</a>@<a href="{{ param_url_for(endpoint, category_name = use['category_name']) }}">{{ use['category_name'] }}</a></td>
-                            <td>{{ use['start_date'] }}</td>
-                            <td>{{ use['end_date'] or '<b>Not yet finished</b>'|safe }}</td>
+                            <td data-date="{{ use['start_date'] }}Z"></td>
+                            {% if use['end_date'] %}
+                            <td data-date="{{ use['end_date'] }}Z"></td>
+                            {% else %}
+                            <td><b>Not yet finished</b></td>
+                            {% endif %}
                             <td>{{ use['from'] }}
                             {% 
                                 if use['hostname'] and 'local' not in use['hostname'] and use['hostname'] != use['from'] 
@@ -51,4 +55,19 @@
             </table>
         </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("td[data-date]").each(function (pos, value) {
+            var d = new Date($(value).data("date"));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth()) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+    </script>
 {% endblock %}
