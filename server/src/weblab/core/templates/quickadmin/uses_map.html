@@ -18,7 +18,7 @@
       function drawRegionsMap() {
 
         var data = google.visualization.arrayToDataTable([
-          ['Country', 'Popularity'],
+          ['Country', 'Uses'],
           {% for country, number in per_country.iteritems() %}
           ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
           {% endfor %}

@@ -7,6 +7,13 @@
         <p>The quickadmin is a tool for being able to easily track the usage of WebLab without dealing with authentication.</p>
         <p>Provide a <b>quickadmin_token</b> configuration variable with a secret, and you will only be able to see these pages by providing ?token=secret</p>
         <p>This way, you can bookmark this page in your mobile phone, screens and so on to know what's going on. Of course, you will never be able to perform admin tasks such as adding or removing users or so with this token. It's only intended for visualization tasks</p>
+
+        <ul>
+            <li><a href="{{ url_for('.uses') }}">Uses</a></li>
+            <li><a href="{{ url_for('.uses_map') }}">Uses map</a></li>
+            <li><a href="{{ url_for('.demos') }}">Demo uses</a></li>
+            <li><a href="{{ url_for('.demos_map') }}">Demo uses map</a></li>
+        </ul>
     </div>
 </div>
 {% endblock %}
