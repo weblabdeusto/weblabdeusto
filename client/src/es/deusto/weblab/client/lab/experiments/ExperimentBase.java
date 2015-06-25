@@ -13,7 +13,6 @@
 */ 
 package es.deusto.weblab.client.lab.experiments;
 
-import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Cookies;
@@ -104,8 +103,8 @@ public abstract class ExperimentBase implements IWlWidget{
 	
 	private boolean endCalled = false;
 	
-	public final void endWrapper(){
-		if(!this.endCalled){
+	public final boolean endWrapper(){
+		if (!this.endCalled) {
 			this.endCalled = true;
 			this.end();
 			final String experimentSurveyUrl = this.configurationRetriever.getProperty("experiment.survey.url", null);
@@ -137,6 +136,9 @@ public abstract class ExperimentBase implements IWlWidget{
 					// TODO: show poll
 				}
 			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 	

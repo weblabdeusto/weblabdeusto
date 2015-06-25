@@ -54,7 +54,6 @@ final class BoardBaseController implements IBoardBaseController {
 	@Override
 	public void clean(){
 		this.controller.cleanExperiment();
-		this.controller.removeReservationId();
 	}
 	
 	@Override
