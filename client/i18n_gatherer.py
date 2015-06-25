@@ -136,7 +136,7 @@ class Archimedes(Plugin):
                 contents += line.strip()
 
         contents = contents.strip()
-        self.add_experiment("archimedes", json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(contents))
+        self.add_experiment("archimedes", json.JSONDecoder(object_pairs_hook=OrderedDict).decode(contents))
 
 register(Archimedes)
 
