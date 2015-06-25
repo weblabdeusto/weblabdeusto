@@ -250,7 +250,7 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
         // the initialConfig.
         var startInteraction = $wnd.wl_inst.startInteraction;
 
-        if(initialConfig.hasOwnProperty("length") && initialConfig.length == 1)
+        if(initialConfig.hasOwnProperty("length"))
             $wnd.wl_inst.startInteraction(initialConfig);
         else
 		    $wnd.wl_inst.startInteraction();
