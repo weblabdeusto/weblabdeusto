@@ -48,9 +48,7 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
         if(self._cfg_manager.get_value('debug')):
             print "[RoMIE-Blockly] do_start_experiment called"
 
-        print client_initial_data
-        print server_initial_data
-        return {"initial_configuration": client_initial_data['blocks']}
+        return json.dumps({"initial_configuration": client_initial_data})
 
     @Override(Experiment.Experiment)
     @logged("info")

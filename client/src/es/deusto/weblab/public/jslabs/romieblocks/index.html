@@ -49,8 +49,7 @@
 			toolbox: document.getElementById('toolbox')});
 
 		function test(response) {
-			console.log("RESPONSE:")
-			console.log(response);
+			response = JSON.parse(response);
 
 			$('#blocklyDiv').empty();
 			$('#toolbox').remove();
@@ -59,7 +58,7 @@
 
 			var workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/', readOnly: true});
-			//Blockly.Xml.domToWorkspace(workspace, xml);
+			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
 			function initApi(interpreter, scope) {
