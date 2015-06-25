@@ -41,10 +41,21 @@ def create_query_params(**kwargs):
             except ValueError:
                 pass
 
+    for potential_arg in 'page',:
+        if potential_arg in request.args:
+            try:
+                params[potential_arg] = int(request.args[potential_arg])
+            except ValueError:
+                pass
+
+    if 'page' not in params or params['page'] <= 0:
+        params['page'] = 1
+
     for potential_arg in 'date_precision',:
         if potential_arg in request.args:
             if request.args[potential_arg] in ('month', 'year', 'week'):
                 params[potential_arg] = request.args[potential_arg]
+
     if 'date_precision' not in params:
         params['date_precision'] = 'month'
                 
@@ -70,14 +81,14 @@ def create_query_params(**kwargs):
 def index():
     return render_template("quickadmin/index.html", url_for = get_url_for())
 
-LIMIT = 200
+LIMIT = 20
 
 @weblab_api.route_web('/quickadmin/uses')
 @check_credentials
 def uses():
     query_params = create_query_params()
     uses = weblab_api.db.quickadmin_uses(LIMIT, query_params)
-    return render_template("quickadmin/uses.html",  uses = uses, filters = query_params.filterdict(), arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses', endpoint = '.uses')
+    return render_template("quickadmin/uses.html", limit = LIMIT, uses = uses, filters = query_params.filterdict(), arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Uses', endpoint = '.uses')
 
 @weblab_api.route_web('/quickadmin/use/<int:use_id>')
 @check_credentials
@@ -108,7 +119,7 @@ def demos():
     group_names = weblab_api.config.get_value('login_default_groups_for_external_users', [])
     query_params = create_query_params(group_names = group_names)
     uses = weblab_api.db.quickadmin_uses(LIMIT, query_params)
-    return render_template("quickadmin/uses.html",  uses = uses, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Demo uses', endpoint = '.demos')
+    return render_template("quickadmin/uses.html", limit = LIMIT, uses = uses, arguments = query_params.pubdict(), param_url_for = get_url_for(), title = 'Demo uses', endpoint = '.demos')
 
 @weblab_api.route_web('/quickadmin/demos/map')
 @check_credentials

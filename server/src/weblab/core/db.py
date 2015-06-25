@@ -46,9 +46,9 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
-class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'date_precision', 'ip'])):
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'date_precision', 'ip', 'page'])):
     PRIVATE_FIELDS = ('group_names')
-    NON_FILTER_FIELDS = ('count', 'min_date', 'max_date', 'date_precision')
+    NON_FILTER_FIELDS = ('count', 'min_date', 'max_date', 'date_precision', 'page')
 
     def pubdict(self):
         result = {}
@@ -880,7 +880,7 @@ class DatabaseGateway(object):
 
         db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
 
-        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.start_date.desc()).limit(limit)
+        db_latest_uses = db_latest_uses_query.options(joinedload("user"), joinedload("experiment"), joinedload("experiment", "category"), joinedload("properties")).order_by(model.DbUserUsedExperiment.start_date.desc()).limit(limit).offset((query_params.page - 1) * limit)
 
         external_user = _current.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
         latest_uses = []
