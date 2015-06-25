@@ -46,9 +46,9 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
-class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'ip'])):
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'date_precision', 'ip'])):
     PRIVATE_FIELDS = ('group_names')
-    NON_FILTER_FIELDS = ('count', 'min_date', 'max_date')
+    NON_FILTER_FIELDS = ('count', 'min_date', 'max_date', 'date_precision')
 
     def pubdict(self):
         result = {}
@@ -921,11 +921,49 @@ class DatabaseGateway(object):
 
     @with_session
     def quickadmin_uses_per_country(self, query_params):
-        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id))
+        db_latest_uses_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.country != None)
         db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
-        per_country = dict(db_latest_uses_query.group_by(model.DbUserUsedExperiment.country).all())
-        per_country.pop(None, None)
-        return per_country
+        return dict(db_latest_uses_query.group_by(model.DbUserUsedExperiment.country).all())
+
+    def quickadmin_uses_per_country_by(self, query_params):
+        if query_params.date_precision == 'year':
+            return self.quickadmin_uses_per_country_by_year(query_params)
+        if query_params.date_precision == 'month':
+            return self.quickadmin_uses_per_country_by_month(query_params)
+        return {} 
+
+    @with_session
+    def quickadmin_uses_per_country_by_month(self, query_params):
+        # country, count, year, month
+        initial_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbUserUsedExperiment.start_date_year, model.DbUserUsedExperiment.start_date_month)
+        group_by = (model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.start_date_year, model.DbUserUsedExperiment.start_date_month)
+        return self._quickadmin_uses_per_country_by_date(query_params, initial_query, group_by)
+
+    @with_session
+    def quickadmin_uses_per_country_by_year(self, query_params):
+        # country, count, year
+        initial_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbUserUsedExperiment.start_date_year)
+        group_by = (model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.start_date_year)
+        return self._quickadmin_uses_per_country_by_date(query_params, initial_query, group_by)
+
+    def _quickadmin_uses_per_country_by_date(self, query_params, initial_query, group_by):
+        db_latest_uses_query = initial_query.filter(model.DbUserUsedExperiment.country != None)
+        db_latest_uses_query = self._apply_filters(db_latest_uses_query, query_params)
+        countries = {
+            # country : [
+            #     [ (year, month), count ]
+            # ]
+        }
+        for row in db_latest_uses_query.group_by(*group_by).all():
+            country = row[0]
+            count = row[1]
+            key = tuple(row[2:])
+            if country not in countries:
+                countries[country] = []
+            countries[country].append((key, count))
+            # Sort by the union of the keys
+            countries[country].sort(lambda x, y: cmp('-'.join([ unicode(v).zfill(8) for v in x[0]]), '-'.join([ unicode(v).zfill(8) for v in y[0]])))
+        return countries
 
     @with_session
     def quickadmin_uses_metadata(self, query_params):
