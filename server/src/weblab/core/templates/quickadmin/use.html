@@ -120,7 +120,7 @@
         $("td[data-date]").each(function (pos, value) {
             var datestring = $(value).data("date");
             var d = new Date(datestring.replace(/ /, 'T'));
-            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth()) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
         });
 
         $("td.longname").each(function(pos, val) { 
