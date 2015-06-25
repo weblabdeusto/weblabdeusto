@@ -34,12 +34,12 @@
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
-	<section id="cams" class="col-md-5 container" style="display: none">
+	<section id="cams" class="col-md-5 container">
 		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
 		</section>
 
-		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="margin-top: 2em; text-align: center">
+		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="display: none; margin-top: 2em; text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard" alt="Cámara del robot">
 		</section>
 	</section>
@@ -49,17 +49,31 @@
 			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
 
+		var url = window.location.href.split('#')[0];
+		if ('localStorage' in window && window.localStorage[url]) {
+			var xml = Blockly.Xml.textToDom(window.localStorage[url]);
+			Blockly.Xml.domToWorkspace(workspace, xml);
+		}
+
 		function test(response) {
+			if ('localStorage' in window) {
+				console.log('Workspace:')
+				console.log(workspace);
+				var xml = Blockly.Xml.workspaceToDom(workspace);
+				// Gets the current URL, not including the hash.
+				var url = window.location.href.split('#')[0];
+				window.localStorage.setItem(url, Blockly.Xml.domToText(xml));
+			}
 			response = JSON.parse(response);
 
 			$('#blocklyDiv').empty();
 			$('#toolbox').remove();
-			$('#blocklyDiv').removeClass('col-md-10');
+			$('#blocklyDiv').removeClass('col-md-');
 			$('#blocklyDiv').addClass('col-md-6');
 
-			var workspace = Blockly.inject('blocklyDiv',
+			var newWorkspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/', readOnly: true});
-			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
+			Blockly.Xml.domToWorkspace(newWorkspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
 			// Interpreter
@@ -105,29 +119,23 @@
 
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 			Blockly.JavaScript.addReservedWords('highlightBlock');
-			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
+			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(newWorkspace), initApi);
 
 			function nextStep() {
 				if (myInterpreter.step()) {
 					window.setTimeout(nextStep, 40);
 				} else {
-					console.log("HELLO");
 					Weblab.clean();
 				}
 			}
 
-			workspace.traceOn(true);
-			workspace.highlightBlock(null);
+			newWorkspace.traceOn(true);
+			newWorkspace.highlightBlock(null);
 			nextStep();
 		}
 
 		Weblab.setOnGetInitialDataCallback(function() {
 			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
-		});
-
-		Weblab.setOnFinishedCallback(function(data) {
-			console.log("Experiment finished with:");
-			console.log(data);
 		});
 
 		Weblab.setOnStartInteractionCallback(test);
