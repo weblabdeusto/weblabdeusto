@@ -139,7 +139,7 @@ def _per_country_by_to_d3(per_time):
 
     total_per_country.sort(lambda x, y: cmp(x[1], y[1]), reverse = True)
     top_countries = [ country for country, value in total_per_country[:10] ]
-    max_value = max([value for country, value in total_per_country[:10] ])
+    max_value = max([value for country, value in total_per_country[:10] ] or [0])
     key_used = 'month'
     times_in_millis = {
         # millis : datetime
