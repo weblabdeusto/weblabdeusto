@@ -31,6 +31,7 @@
 		<block type="romie_turn_left"></block>
 		<block type="romie_turn_right"></block>
 		<!-- <block type="check_wall"></block> -->
+		<!-- <block type="get_tag"></block> -->
 	</xml>
 
 	<section id="cams" class="col-md-5 container" style="display: none">
@@ -61,7 +62,10 @@
 			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
+			// Interpreter
 			function initApi(interpreter, scope) {
+				var romie = new Romie();
+
 				// Add Romie movement checker to the context
 				var wrapper = function() {
 					return interpreter.createPrimitive(romie.isMoving());
@@ -106,6 +110,9 @@
 			function nextStep() {
 				if (myInterpreter.step()) {
 					window.setTimeout(nextStep, 40);
+				} else {
+					console.log("HELLO");
+					Weblab.clean();
 				}
 			}
 
@@ -116,6 +123,11 @@
 
 		Weblab.setOnGetInitialDataCallback(function() {
 			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
+		});
+
+		Weblab.setOnFinishedCallback(function(data) {
+			console.log("Experiment finished with:");
+			console.log(data);
 		});
 
 		Weblab.setOnStartInteractionCallback(test);

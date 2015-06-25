@@ -27,8 +27,6 @@ Romie.prototype.isMoving = function() {
 	return this.moving;
 }
 
-var romie = new Romie();
-
 // Cameras
 updateTop = function() {
 	d = new Date();
