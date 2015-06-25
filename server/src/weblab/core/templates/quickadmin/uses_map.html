@@ -1,6 +1,7 @@
 {% extends "quickadmin/_base.html" %}
 
 {% block header %}
+    <link href="{{ url_for('.static', filename='nvd3/nv.d3.css') }}" rel="stylesheet">
     <style>
         .enabled-row {
             background-color: #E8F1D4;
@@ -49,6 +50,11 @@
                     </table>
                 </div>
             </div>
+            
+            <div class="row">
+                <svg id="chart" style="height:500px"></svg>
+            </div>
+
         </div>
     </div>
 {% endblock %}
@@ -105,5 +111,47 @@
            
            $(this).parent().parent().toggleClass("disabled-row");
       });
+    </script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/d3.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename='nvd3/nv.d3.min.js') }}"></script>
+    <script type="text/javascript">
+        nv.addGraph(function() {
+            var raw_data = {{ per_time|tojson }};
+            var data = raw_data['per_time'];
+                /*
+                {
+                    key : 'Country 1',
+                    values : [
+                        [
+                            date-in-milliseconds,
+                            value
+                        ],
+                    ]
+                }
+                */
+            var chart = nv.models.lineChart()
+                          .x(function(d) { return d[0] })
+                          .y(function(d) { return d[1] }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                          .color(d3.scale.category10().range())
+                          .useInteractiveGuideline(true)
+                          ;
+
+             chart.xAxis
+//                .tickValues([1078030800000,1122782400000,1167541200000,1251691200000])
+                .tickFormat(function(d) {
+                    return d3.time.format('%x')(new Date(d))
+                  });
+
+            chart.yAxis
+                .tickFormat(d3.format('x'));
+
+            d3.select('#chart')
+                .datum(data)
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+
+            return chart;
+          });
     </script>
 {% endblock %}
