@@ -596,13 +596,20 @@ public class LabController implements ILabController {
 		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
 			@Override
 			public void onSuccess(){
-				LabController.this.sessionVariables.hideExperiment();
-				LabController.this.uimanager.onCleanReservation();
+				if(LabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd()
+						&& LabController.this.sessionVariables.isExperimentVisible()){
+					pollForPostReservationData();
+				} else {
+					LabController.this.sessionVariables.hideExperiment();
+					LabController.this.uimanager.onCleanReservation();
+				}
 			}
 			@Override
 			public void onFailure(CommException e) {
 				LabController.this.sessionVariables.hideExperiment();
 				LabController.this.uimanager.onCleanReservation();
+				LabController.this.uimanager.onError(e.getMessage());
+				e.printStackTrace();
 			}
 		});
 	}
