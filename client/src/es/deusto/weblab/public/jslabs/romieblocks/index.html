@@ -18,9 +18,9 @@
 	<script src="js/blocks.js"></script>
 </head>
 <body>
-	<p style="text-align: center;">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver </p>
+	<p style="text-align: center; margin: 0 2em 1em 1em">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver  cómo hace lo que le has programado hacer.</p>
 
-	<div id="blocklyDiv" style="margin: auto; height: 500px; width: 90%;"></div>
+	<div id="blocklyDiv" class="col-md-offset-1 col-md-10" style="height: 34em;"></div>
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
@@ -33,14 +33,37 @@
 		<!-- <block type="check_wall"></block> -->
 	</xml>
 
+	<section id="cams" class="col-md-5 container" style="display: none">
+		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
+			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
+		</section>
+
+		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="margin-top: 2em; text-align: center">
+			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard" alt="Cámara del robot">
+		</section>
+	</section>
+
 	<script>
 		var workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/',
 			toolbox: document.getElementById('toolbox')});
 
 		function test(response) {
+			console.log("RESPONSE:")
+			console.log(response);
+
+			$('#blocklyDiv').empty();
+			$('#toolbox').remove();
+			$('#blocklyDiv').removeClass('col-md-10');
+			$('#blocklyDiv').addClass('col-md-6');
+
+			var workspace = Blockly.inject('blocklyDiv',
+			{media: 'bower_components/google-blockly/media/', readOnly: true});
+			//Blockly.Xml.domToWorkspace(workspace, xml);
+			showCameras();
+
 			function initApi(interpreter, scope) {
-				// Add Romie to the context
+				// Add Romie movement checker to the context
 				var wrapper = function() {
 					return interpreter.createPrimitive(romie.isMoving());
 				};
@@ -93,7 +116,6 @@
 		}
 
 		Weblab.setOnGetInitialDataCallback(function() {
-			console.log("callback chachi");
 			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
 		});
 

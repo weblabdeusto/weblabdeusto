@@ -50,7 +50,7 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
 
         print client_initial_data
         print server_initial_data
-        return "OK"
+        return {"initial_configuration": client_initial_data['blocks']}
 
     @Override(Experiment.Experiment)
     @logged("info")
@@ -66,11 +66,23 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
         print command
 
         if command['command'] == 'F':
-            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
+            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
+            if 'Tag' in response:
+                tag = response[5:18]
+                print tag
         elif command['command'] == 'L':
-            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'l', timeout = 60).read()
+            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'l', timeout = 60).read()
         elif command['command'] == 'R':
-            return urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
+            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
+        elif command['command'] == 'S':
+            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
+            if 'ACK' in response and '0' in response:
+                response = False
+            if 'ACK' in response and '1' in response:
+                response = True
+            else:
+                return "ERR"
+
         return "ERR"
 
     @Override(Experiment.Experiment)

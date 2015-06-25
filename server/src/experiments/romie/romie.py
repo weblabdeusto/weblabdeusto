@@ -223,18 +223,17 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Update points in the database
         """
-        if not self._cfg_manager.get_value('romie_demo'):
-            conn = sqlite3.connect(self.database)
+        conn = sqlite3.connect(self.database)
 
-            cur = conn.cursor()
-            cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
-            points = cur.fetchone()[0]
+        cur = conn.cursor()
+        cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+        points = cur.fetchone()[0]
 
-            if (points < self.points):
-                conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
-                conn.commit()
+        if (points < self.points):
+            conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
+            conn.commit()
 
-            conn.close()
+        conn.close()
 
     def email_exists(self, email):
         """
