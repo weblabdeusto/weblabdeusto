@@ -22,7 +22,9 @@ def check_credentials(func):
     return wrapper
 
 def get_url_for():
-    my_url_for = partial(url_for, **request.args)
+    existing_args = dict(request.args)
+    existing_args.pop('page', None)
+    my_url_for = partial(url_for, **existing_args)
 
     if 'token' in request.args:
         return partial(my_url_for, token = request.args['token'])
