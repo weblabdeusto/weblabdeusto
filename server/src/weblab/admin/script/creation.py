@@ -1228,8 +1228,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             configuration_doc.CORE_FACADE_PORT : current_port,
             configuration_doc.CORE_FACADE_SERVER_ROUTE : 'route%s' % core_number,
         }
-        if core_number == 1:
-            current_core['components']['core']['config'][configuration_doc.COORDINATOR_CLEAN] = True
         current_port += 1
 
     if not options[Creation.NO_LAB]:

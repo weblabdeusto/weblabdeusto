@@ -113,7 +113,7 @@ def _get_logger(logger_name):
 # This code defers the logging requests to a thread pool
 # It's experimental code, so by default it's not enabled
 
-def logged(level='debug', except_for=None, max_size = 250, is_class_method = True):
+def logged(level='debug', except_for=None, max_size = 250, is_class_method = True, ctxt_retriever = None):
     """
     logged([except_for]) -> function
 
@@ -276,6 +276,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                 strtime = self.entry.initial_strtime
 
                 repr_args = []
+
                 for arg in self.fake_args:
                     result_repr = repr(arg)
                     if len(result_repr) > max_size:
@@ -290,10 +291,15 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                         result_repr = result_repr[:max_size-3] + '...'
                     repr_kwargs[karg] = result_repr
 
-                return '++++%(call_id)s++++ %(thread_id)s Calling %(func_name)s with parameters %(args)s and kargs: %(kargs)s at %(time)s' % {
-                            'call_id'   : self.entry.call_id, 'thread_id' : self.entry.current_thread,
-                            'func_name' : func_name,          'args'      : repr_args,
-                            'kargs'     : repr_kwargs,        'time'      : strtime }
+                if ctxt_retriever is not None:
+                    ctxt = 'with ctxt %s and' % ctxt_retriever()
+                else:
+                    ctxt = 'with'
+
+                return '++++{call_id}++++ {thread_id} Calling {func_name} {ctxt} parameters {args} and kargs: {kargs} at {time}'.format(
+                            call_id   = self.entry.call_id, thread_id = self.entry.current_thread,
+                            func_name = func_name,          args      = repr_args, ctxt = ctxt,
+                            kargs     = repr_kwargs,        time      =  strtime )
 
         class FooterExcLine(object):
             def __init__(self, entry, log_writer):
@@ -311,14 +317,14 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                 millis     = call_time - math.floor(call_time)
                 strtime    = '<' + time.strftime("%Y-%m-%d %H:%M:%S", local_time) + ',' + ('%0.3f' % millis)[2:] + '>'
 
-                return '----%(call_id)s---- %(func_name)s started at %(time)s finished at %(finish_time)s finished with an exception: %(exception_type)s, %(exception_args)s' % {
-                            'call_id'       : self.entry.call_id,
-                            'func_name'     : func_name,
-                            'time'          : self.entry.initial_strtime,
-                            'exception_type': exc_type,
-                            'exception_args': exc,
-                            'finish_time'   : strtime
-                        }
+                if ctxt_retriever is not None:
+                    ctxt = 'with ctxt %s ' % ctxt_retriever()
+                else:
+                    ctxt = ''
+
+                return '----{call_id}---- {func_name} started at {time} {ctxt} finished at {finish_time} finished with an exception: {exception_type}, {exception_args}'.format(
+                        call_id = self.entry.call_id, func_name = func_name, time = self.entry.initial_strtime, 
+                        exception_type= exc_type, exception_args = exc, finish_time = strtime, ctxt = ctxt)
 
         class FooterReturnLine(object):
             def __init__(self, entry, log_writer):
@@ -343,8 +349,14 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                 if len(result_repr) > max_size:
                     result_repr = result_repr[:max_size-3] + '...'
 
-                return '----%(call_id)s---- %(func_name)s started at %(time)s finished at %(finish_time)s finished with value <%(result)s>' % {
+                if ctxt_retriever is not None:
+                    ctxt = 'with ctxt %s ' % ctxt_retriever()
+                else:
+                    ctxt = ''
+
+                return '----%(call_id)s---- %(func_name)s %(ctxt)s started at %(time)s finished at %(finish_time)s finished with value <%(result)s>' % {
                             'call_id'       : self.entry.call_id,
+                            'ctxt'          : ctxt,
                             'func_name'     : func_name,
                             'time'          : self.entry.initial_strtime,
                             'result'        : result_repr,

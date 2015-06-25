@@ -154,7 +154,7 @@
         }
 
         function createNamedParameter(parameter) {
-            var id = "parameters_" + parameter['name'].replace(".","_").replace(" ","_");
+            var id = "parameters_" + parameter['name'].replace(/\./g,"_").replace(/ /g,"_");
             return createParameter(id, parameter['name'], parameter['description'], parameter['type'], false, '', parameter['error']);
         }
 
@@ -174,14 +174,15 @@
 
         var static_parameters = {{ static_parameters|safe }};
         $(static_parameters).each(function(index, value) {
-            var selector = $("#value_parameters_" + value['name'].replace('.','_').replace(' ','_'));
+            var selector_id = "#value_parameters_" + value['name'].replace(/\./g,'_').replace(/ /g,'_');
+            var selector = $(selector_id);
             if (value['type'] == 'bool') {
                 if (value['value'])
                     selector.attr('checked', 'checked');
             } else {
                 selector.attr('value', value['value']);
             }
-            var id = "parameters_" + value['name'].replace(".","_").replace(" ","_");
+            var id = "parameters_" + value['name'].replace(/\./g,"_").replace(/ /g,"_");
             manageError(id, value['error']);
         });
         var dynamic_parameters = {{ dynamic_parameters|safe }};

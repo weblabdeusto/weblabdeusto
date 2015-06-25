@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+
+    <link href="{{ url_for('.static', filename='bootstrap3/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('.static', filename="bootstrap-daterangepicker/daterangepicker-bs3.css") }}" rel="stylesheet">
+
+    {% block header %}
+    {% endblock %}
+
+  </head>
+  <body>
+    {% block body %}
+    {% endblock %}
+
+    <script src="{{ url_for('.static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('.static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename="js/moment-2.8.4.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename="bootstrap-daterangepicker/daterangepicker.js") }}"></script>
+    {% if arguments and arguments.min_date and arguments.max_date %}
+    <script type="text/javascript">
+    $('input[name="daterange"]').daterangepicker(
+      { 
+        format: 'YYYY-MM-DD',
+        startDate: '{{ arguments.min_date }}',
+        endDate: '{{ arguments.max_date }}'
+      },
+      function(start, end, label) {
+         var start = start.format('YYYY-MM-DD');
+         var end = end.format('YYYY-MM-DD');
+         var url = location.toString();
+         var firstChar = "&"
+         if (url.indexOf("?") < 0)
+             firstChar = "?";
+         if (url.indexOf("start_date=") >= 0) {
+            url = url.replace(/start_date=([^#&]*)/g, 'start_date=' + start);
+         } else {
+            url = url + firstChar + "start_date=" + start;
+            firstChar = "&";
+         }
+         if (url.indexOf("end_date=") >= 0) {
+            url = url.replace(/end_date=([^#&]*)/g, 'end_date=' + end);
+         } else {
+            url = url + firstChar + "end_date=" + end;
+         }
+         location.replace(url);
+      }
+    );
+    </script>
+    {% endif %}
+    {% block scripts %}
+    {% endblock %}
+  </body>
+</html>

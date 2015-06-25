@@ -421,6 +421,17 @@ class WebLabAPI(object):
                     logged_kwargs['except_for'] = dont_log
                 if max_log_size is not None:
                     logged_kwargs['max_size'] = max_log_size
+
+                def context_retriever():
+                    ctxt_info = []
+                    if self.reservation_id:
+                        ctxt_info.append("reservation_id={0}".format((self.reservation_id or '').split(';')[0]))
+                    if self.session_id:
+                        ctxt_info.append("session_id={0}".format(self.session_id))
+                    if ctxt_info:
+                        return ';'.join(ctxt_info)
+                    return ''
+                logged_kwargs['ctxt_retriever'] = context_retriever
                 logged_decorator = logged(log_level, **logged_kwargs)
                 wrapped_func = logged_decorator(wrapped_func)
 
@@ -435,7 +446,6 @@ class WebLabAPI(object):
             self.methods[web_context][func.__name__] = exc_func
             if path in self.routes[web_context]:
                 log(WebLabAPI, level.Error, "Overriding %s" % path)
-            self.routes[web_context][path] = (exc_func, path, methods)
             self.routes[web_context][path] = (exc_func, path, methods)
             self.raw_methods[web_context][func.__name__] = wrapped_func
             return wrapped_func
@@ -481,6 +491,7 @@ class WebLabAPI(object):
 
         if web_context in self.apis:
             flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(web_context, flask_app, instance_args) )
+
         for path in self.routes[web_context]:
             self._create_wrapper(base_path, path, flask_app, web_context, instance_args)
 
@@ -490,7 +501,7 @@ class WebLabAPI(object):
         @wraps(func)
         def weblab_wrapper(*args, **kwargs):
             for name, value in instance_args.iteritems():
-                setattr(self.context, name, value) 
+                setattr(self.context, name, value)
             with self:
                 result = func(*args, **kwargs)
                 if web_context in self.apis:

@@ -4,19 +4,20 @@ import json
 import glob
 import codecs
 import ConfigParser
+from collections import OrderedDict
 
 english = "src/es/deusto/weblab/client/i18n/IWebLabI18N.properties"
 languages = glob.glob("src/es/deusto/weblab/client/i18n/IWebLabI18N_*.properties")
 
-messages = {
+messages = OrderedDict() # {
 #    lang : {
 #      key : value
 #    }
-}
+# }
 
-for lang_file in languages:
+for lang_file in sorted(languages):
     lang = lang_file.rsplit('_', 1)[1].split('.')[0]
-    lang_messages = {}
+    lang_messages = OrderedDict()
     for line in codecs.open(lang_file, encoding = 'utf-8'):
         line = line.strip()
         if not line:
@@ -35,33 +36,34 @@ for lang_file in languages:
 parser = ConfigParser.ConfigParser()
 parser.read(english)
 
-translation_data = {
-    'experiments' : {
+translation_data = OrderedDict()
+translation_data['experiments'] = OrderedDict() # {
         # 'experiment_id' : {
         #     'lang_code' : {
         #         'key' : 'value'
         #     }
         # }
-    },
-    'generic_experiments' : {
+    # },
+translation_data['generic_experiments'] = OrderedDict() # {
         # lang_code : {
         #     key : value
         # }
-    },
-    'generic' : {
+    # },
+
+translation_data['generic'] = OrderedDict() # {
         # lang_code : {
         #     key : value
         # }
-    }
-}
+    # }
 
 for section in parser.sections():
     if section.startswith('experiment_'):
         experiment_id = section[len('experiment_'):]
-        translation_data['experiments'][experiment_id] = { 'en' : {}}
+        translation_data['experiments'][experiment_id] = OrderedDict()
+        translation_data['experiments'][experiment_id]['en'] = OrderedDict()
         where = translation_data['experiments'][experiment_id]
     elif section == 'generic_experiments' or section == 'generic':
-        translation_data[section]['en'] = {}
+        translation_data[section]['en'] = OrderedDict()
         where = translation_data[section]
     else:
         print "Unknown section: %s" % section
@@ -72,7 +74,7 @@ for section in parser.sections():
         for lang in messages:
             if key in messages[lang]:
                 if lang not in where:
-                    where[lang] = {}
+                    where[lang] = OrderedDict()
                 where[lang][key] = messages[lang][key]
 
 #########################################
@@ -134,7 +136,7 @@ class Archimedes(Plugin):
                 contents += line.strip()
 
         contents = contents.strip()
-        self.add_experiment("archimedes", json.loads(contents))
+        self.add_experiment("archimedes", json.JSONDecoder(object_pairs_hook=collections.OrderedDict).decode(contents))
 
 register(Archimedes)
 
