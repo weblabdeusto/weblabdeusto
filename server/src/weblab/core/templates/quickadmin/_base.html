@@ -21,6 +21,7 @@
     <script src="{{ url_for('.static', filename='bootstrap3/js/bootstrap.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename="js/moment-2.8.4.min.js") }}"></script>
     <script type="text/javascript" src="{{ url_for('.static', filename="bootstrap-daterangepicker/daterangepicker.js") }}"></script>
+    {% if arguments and arguments.min_date and arguments.max_date %}
     <script type="text/javascript">
     $('input[name="daterange"]').daterangepicker(
       { 
@@ -50,6 +51,7 @@
       }
     );
     </script>
+    {% endif %}
     {% block scripts %}
     {% endblock %}
   </body>
