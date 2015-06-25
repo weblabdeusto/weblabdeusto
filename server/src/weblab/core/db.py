@@ -46,7 +46,7 @@ import weblab.permissions as permissions
 DEFAULT_VALUE = object()
 
 _current = threading.local()
-class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count'])):
+class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'ip'])):
     PRIVATE_FIELDS = ('group_names')
     NON_FILTER_FIELDS = ('count', 'min_date', 'max_date')
 
@@ -865,6 +865,12 @@ class DatabaseGateway(object):
 
         if query_params.end_date:
             query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date)
+
+        if query_params.ip:
+            query = query.filter(model.DbUserUsedExperiment.origin == query_params.ip)
+
+        if query_params.country:
+            query = query.filter(model.DbUserUsedExperiment.country == query_params.country)
 
         return query
        

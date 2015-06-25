@@ -30,7 +30,7 @@ def get_url_for():
 
 def create_query_params(**kwargs):
     params = {}
-    for potential_arg in 'login', 'experiment_name', 'category_name':
+    for potential_arg in 'login', 'experiment_name', 'category_name', 'ip', 'country':
         if potential_arg in request.args:
             params[potential_arg] = request.args[potential_arg]
 

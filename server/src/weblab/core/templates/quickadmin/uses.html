@@ -51,14 +51,14 @@
                             <td><b>Not yet finished</b></td>
                             {% endif %}
                             <td>{{ use['duration'] }}</td>
-                            <td>{{ use['from'] }}
+                            <td><a href="{{ param_url_for(endpoint, ip = use['from']) }}">{{ use['from'] }}</a>
                             {% 
                                 if use['hostname'] and 'local' not in use['hostname'] and use['hostname'] != use['from'] 
                             %} ({{ use['hostname'] }}){% endif %}{% if use['city'] %} - {{ use['city'] }}{% 
                                 endif 
                             %}{%
                                 if use['country'] 
-                            %} ({{ use['country'] }}){% 
+                            %} (<a href="{{ param_url_for(endpoint, country = use['country']) }}">{{ use['country'] }}</a>){% 
                                 endif 
                             %}</td>
                             <td><a href="{{ param_url_for('.use', use_id = use['id']) }}">use</a></td>
