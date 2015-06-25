@@ -957,7 +957,7 @@ class DatabaseGateway(object):
         for row in db_latest_uses_query.group_by(*group_by).all():
             country = row[0]
             count = row[1]
-            key = row[2:]
+            key = tuple(row[2:])
             if country not in countries:
                 countries[country] = []
             countries[country].append((key, count))

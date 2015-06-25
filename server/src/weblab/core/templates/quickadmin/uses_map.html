@@ -137,13 +137,18 @@
                           ;
 
              chart.xAxis
-//                .tickValues([1078030800000,1122782400000,1167541200000,1251691200000])
                 .tickFormat(function(d) {
+                    var d2 = new Date(d);
+                    if(raw_data['key_used'] == 'month') {
+                        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        return months[d2.getMonth()] + " " + d2.getFullYear();
+                    } else if (raw_data['key_used'] == 'year'){
+                        return d2.getFullYear();
+                    }
                     return d3.time.format('%x')(new Date(d))
                   });
 
-            chart.yAxis
-                .tickFormat(d3.format('x'));
+            chart.forceY([0,raw_data['max_value']])
 
             d3.select('#chart')
                 .datum(data)

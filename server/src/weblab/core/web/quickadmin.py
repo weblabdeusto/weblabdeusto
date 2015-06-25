@@ -45,6 +45,8 @@ def create_query_params(**kwargs):
         if potential_arg in request.args:
             if request.args[potential_arg] in ('month', 'year', 'week'):
                 params[potential_arg] = request.args[potential_arg]
+    if 'date_precision' not in params:
+        params['date_precision'] = 'month'
                 
     params.update(kwargs)
     query_params = UsesQueryParams(**params)
@@ -129,10 +131,21 @@ def _per_country_by_to_d3(per_time):
         #     ]
         # }
     ]
-    key_used = 'month'
+    total_per_country = [
+        # (country, number)
+    ]
     for country in per_time:
-        country_data = {'key' : country, 'values' : []}
-        for key, value in per_time[country]:
+        total_per_country.append( (country, sum([ value for key, value in per_time[country] ]) ))
+
+    total_per_country.sort(lambda x, y: cmp(x[1], y[1]), reverse = True)
+    top_countries = [ country for country, value in total_per_country[:10] ]
+    max_value = max([value for country, value in total_per_country[:10] ])
+    key_used = 'month'
+    times_in_millis = {
+        # millis : datetime
+    }
+    for country in top_countries:
+        for key in [ key for key, value in per_time[country] ]:
             if len(key) == 1:
                 key_used = 'year'
                 date_key = datetime.date(year = key[0], month = 1, day = 1)
@@ -141,7 +154,19 @@ def _per_country_by_to_d3(per_time):
                 date_key = datetime.date(year = key[0], month = key[1], day = 1)
             else:
                 continue
-            country_data['values'].append([int(date_key.strftime("%s")) * 1000, value])
+            time_in_millis = int(date_key.strftime("%s")) * 1000
+            times_in_millis[time_in_millis] = key
+
+    for country in per_time:
+        if country not in top_countries:
+            continue
+
+        country_data = {'key' : country, 'values' : []}
+        country_time_data = dict(per_time[country])
+        for time_in_millis in sorted(times_in_millis):
+            key = times_in_millis[time_in_millis]
+            value = country_time_data.get(key, 0)
+            country_data['values'].append([time_in_millis, value])
         new_per_time.append(country_data)
-    return { 'key_used' : key_used, 'per_time' : new_per_time }
+    return { 'key_used' : key_used, 'per_time' : new_per_time, 'max_value' : max_value}
 
