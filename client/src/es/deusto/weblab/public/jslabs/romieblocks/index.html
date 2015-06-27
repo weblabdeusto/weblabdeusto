@@ -30,16 +30,17 @@
 		<block type="romie_move_forward"></block>
 		<block type="romie_turn_left"></block>
 		<block type="romie_turn_right"></block>
-		<!-- <block type="check_wall"></block> -->
+		<block type="romie_wall"></block>
+		<!-- <block type="romie_no_wall"></block> -->
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
-	<section id="cams" class="col-md-5 container">
+	<section id="cams" class="col-md-5 container" style="display: none;">
 		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
 		</section>
 
-		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="display: none; margin-top: 2em; text-align: center">
+		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="margin-top: 2em; text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard" alt="Cámara del robot">
 		</section>
 	</section>
@@ -57,8 +58,6 @@
 
 		function test(response) {
 			if ('localStorage' in window) {
-				console.log('Workspace:')
-				console.log(workspace);
 				var xml = Blockly.Xml.workspaceToDom(workspace);
 				// Gets the current URL, not including the hash.
 				var url = window.location.href.split('#')[0];
@@ -68,7 +67,7 @@
 
 			$('#blocklyDiv').empty();
 			$('#toolbox').remove();
-			$('#blocklyDiv').removeClass('col-md-');
+			$('#blocklyDiv').removeClass('col-md-10');
 			$('#blocklyDiv').addClass('col-md-6');
 
 			var newWorkspace = Blockly.inject('blocklyDiv',
@@ -108,6 +107,25 @@
 				interpreter.setProperty(scope, 'right',
 					interpreter.createNativeFunction(wrapper));
 
+				// Add an API function for the checkWall() block.
+				wrapper = function() {
+					romie.checkWall();
+				};
+				interpreter.setProperty(scope, 'checkWall',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					console.log("Last wall check:");
+					console.log(romie.lastWallCheck());
+					return interpreter.createPrimitive(romie.lastWallCheck());
+				};
+				interpreter.setProperty(scope, 'lastWallCheck',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					return interpreter.createPrimitive(romie.isCheckingWall());
+				};
+				interpreter.setProperty(scope, 'isCheckingWall',
+					interpreter.createNativeFunction(wrapper));
+
 				// Add an API function for highlighting blocks.
 				wrapper = function(id) {
 					id = id ? id.toString() : '';
@@ -116,7 +134,7 @@
 				interpreter.setProperty(scope, 'highlightBlock',
 					interpreter.createNativeFunction(wrapper));
 			}
-
+console.log(Blockly.JavaScript.workspaceToCode(newWorkspace));
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 			Blockly.JavaScript.addReservedWords('highlightBlock');
 			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(newWorkspace), initApi);
