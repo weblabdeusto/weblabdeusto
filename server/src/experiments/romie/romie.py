@@ -25,9 +25,6 @@ import sqlite3
 import time
 import copy
 
-# Actually defined through the configuration.
-DEBUG = None
-
 class RoMIExperiment(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -53,7 +50,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback run when the experiment is started.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_start_experiment called"
 
         data = json.loads(server_initial_data)
@@ -76,7 +73,7 @@ class RoMIExperiment(Experiment.Experiment):
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] Command received: %s" % command
 
         if command == 'F':
@@ -201,7 +198,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_dispose called"
 
         return "OK"
@@ -226,18 +223,17 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Update points in the database
         """
-        if not self._cfg_manager.get_value('romie_demo'):
-            conn = sqlite3.connect(self.database)
+        conn = sqlite3.connect(self.database)
 
-            cur = conn.cursor()
-            cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
-            points = cur.fetchone()[0]
+        cur = conn.cursor()
+        cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+        points = cur.fetchone()[0]
 
-            if (points < self.points):
-                conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
-                conn.commit()
+        if (points < self.points):
+            conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
+            conn.commit()
 
-            conn.close()
+        conn.close()
 
     def email_exists(self, email):
         """
