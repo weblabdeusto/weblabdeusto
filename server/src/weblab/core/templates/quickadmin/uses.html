@@ -21,10 +21,15 @@
                     <a href="{{ param_url_for(endpoint, **{ arg : filters[arg] }) }}" class="btn btn-default">{{ arg }}: {{ filters[arg] }}</a>
                 {% endfor %}
                 &nbsp;
+                {% if 'token' in request.args %}
+                <a href="{{ url_for(endpoint, token = request.args['token']) }}" class="btn btn-primary">Clear</a>
+                {% else %}
                 <a href="{{ url_for(endpoint) }}" class="btn btn-primary">Clear</a>
+                {% endif %}
             {% endif %}
             </h2>
 
+            {% if uses|length %}
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -66,6 +71,55 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
+            <nav>
+              <ul class="pagination">
+                {% if arguments.page > 1 %}
+                <li>
+                  <a href="{{ param_url_for(endpoint, page = arguments.page - 1) }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                {% else %}
+                <li class="disabled">
+                  <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                {% endif %}
+                {% for page in range(arguments.page - 2, arguments.page) %}
+                    {% if page >= 1 %}
+                    <li><a href="{{ param_url_for(endpoint, page = page)  }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="disabled"><a href="#">{{ arguments.page }}</a></li>
+                {% set max_page = arguments.page + 3 %}
+                {% if arguments.page < 3 %}
+                    {% set max_page = arguments.page + 3 + (3 - arguments.page) %}
+                {% endif %}
+                {% for page in range(arguments.page + 1, max_page) %}
+                    {% if arguments.count >= (page - 1) * limit %}
+                    <li><a href="{{ param_url_for(endpoint, page = page)  }}">{{ page }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if arguments.count >= (arguments.page + 1 - 1) * limit %}
+                <li>
+                  <a href="{{ param_url_for(endpoint, page = arguments.page + 1) }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+                {% else %}
+                <li class="disabled">
+                  <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+                {% endif %}
+              </ul>
+            </nav>
+            {% endif %}
+
         </div>
     </div>
 {% endblock %}
