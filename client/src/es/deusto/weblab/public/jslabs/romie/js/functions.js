@@ -15,7 +15,7 @@ function start() {
 	Weblab.sendCommand("CHECK_REGISTER", function(response) {
 		response = JSON.parse(response)
 		if (response['register']) register(response['psycho']);
-		else if (response['psycho']) psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
+		else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
 		else init(response['time'], response['points']);
 
 		$(parent.document).find('iframe[name=wlframe]').show();
@@ -23,7 +23,7 @@ function start() {
 	});
 }
 
-function psycho(sex, birthday, grade, user) {
+function psycho(gender, birthday, grade, user) {
 	$('#labpsico').modal('show');
 	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
 		Weblab.sendCommand("PSYCHO "+points, function(response) {
@@ -31,7 +31,7 @@ function psycho(sex, birthday, grade, user) {
 			init(response['time'], response['points']);
 		});
 		$('#labpsico').modal('hide');
-	}, (sex ? "H" : "M"), getAge(birthday), grade, user);
+	}, (gender ? "H" : "M"), getAge(birthday), grade, user);
 }
 
 function register(do_psycho) {
@@ -47,7 +47,7 @@ function register(do_psycho) {
 			bmon = parseInt($('[name=bmon]').val())-1;
 			byear = parseInt($('[name=byear]').val());
 			email = $('#email').val();
-			sex = parseInt($('#sex').val());
+			gender = parseInt($('#gender').val());
 			grade = $('#grade').val();
 
 			if (name.length < 3 || surname.length < 3) {
@@ -85,7 +85,7 @@ function register(do_psycho) {
 				bdate = new Date(byear, bmon, bday, 12, 0, 0, 0);
 				unix = Math.floor(bdate.getTime()/1000);
 
-				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email, "sex": sex, "grade": grade};
+				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email, "gender": gender, "grade": grade};
 
 				command = "REGISTER " + JSON.stringify(data);
 				Weblab.sendCommand(command, function(response) {
@@ -97,7 +97,7 @@ function register(do_psycho) {
 						$('#register').modal('hide');
 						registering = false;
 						if (do_psycho) {
-							psycho(response['sex'], response['birthday']*1000, response['grade'], response['user']);
+							psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
 						} else {
 							init(response['time'], response['points']);
 						}

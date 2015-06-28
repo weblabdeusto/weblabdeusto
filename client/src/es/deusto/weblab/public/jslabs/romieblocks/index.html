@@ -34,12 +34,12 @@
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
-	<section id="cams" class="col-md-5 container">
+	<section id="cams" class="col-md-5 container" style="display: none">
 		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
 		</section>
 
-		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="display: none; margin-top: 2em; text-align: center">
+		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="margin-top: 2em; text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard" alt="Cámara del robot">
 		</section>
 	</section>
@@ -68,7 +68,7 @@
 
 			$('#blocklyDiv').empty();
 			$('#toolbox').remove();
-			$('#blocklyDiv').removeClass('col-md-');
+			$('#blocklyDiv').removeClass('col-md-10');
 			$('#blocklyDiv').addClass('col-md-6');
 
 			var newWorkspace = Blockly.inject('blocklyDiv',
