@@ -81,6 +81,3 @@ geoip2==2.1.0
 # Flask-DebugToolbar helps the development
 Flask-DebugToolbar==0.10.0
 
-# The new web requires this
-Flask-BabelEx==0.9.1
-babel
