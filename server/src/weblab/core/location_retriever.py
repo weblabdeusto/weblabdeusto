@@ -125,7 +125,10 @@ class LocationRetriever(threading.Thread):
         geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
         if not os.path.exists(geoip2_city_filepath or 'not_found_file'):
             if not is_testing():
-                print("{0} not found. Run weblab-admin locations <DIRECTORY> --reset-database --reset-cache".format(geoip2_city_filepath))
+                local_directory = os.path.abspath(".")
+                if " " in local_directory:
+                    local_directory = '"{0}"'.format(local_directory)
+                print("{filepath} not found. Run:  weblab-admin.py locations {directory} --reset-database --reset-cache".format(filepath=geoip2_city_filepath, directory=local_directory))
         else:
             if self.local_country is None or self.local_city is None:
                 try:
