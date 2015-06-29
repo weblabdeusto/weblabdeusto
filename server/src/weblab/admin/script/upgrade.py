@@ -697,3 +697,30 @@ class ClientConfiguration2db(Upgrader):
 
         os.remove(self.config_js)
 
+        simple_server_config_filename = os.path.join('httpd','simple_server_config.py')
+        lines = []
+        for line in open(simple_server_config_filename):
+            if 'weblabclientadmin' not in line and 'configuration.js' not in line:
+                lines.append(line)
+
+        open(simple_server_config_filename, 'w').write(''.join(lines))
+
+        apache_weblab_generic_conf_filename = os.path.join('httpd', 'apache_weblab_generic.conf')
+        lines = []
+        bad_pos = -1
+        for pos, line in enumerate(open(apache_weblab_generic_conf_filename)):
+            if bad_pos >= 0:
+                bad_pos -= 1
+                continue
+            
+            if 'LocationMatch (.*)configuration\.js' in line:
+                bad_pos = 2
+                continue
+
+            if 'configuration.js' in line or 'weblabclientadmin' in line:
+                continue
+
+            lines.append(line)
+
+        open(apache_weblab_generic_conf_filename, 'w').write(''.join(lines))
+

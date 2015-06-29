@@ -1047,3 +1047,13 @@ def _password2sha(password, randomstuff = None):
             randomstuff += c
     password = password if password is not None else ''
     return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()
+
+def add_client_config(sessionmaker, configuration_js):
+    session = sessionmaker()
+
+    for key, value in configuration_js.items():
+        new_properties = Model.DbClientProperties(key, value)
+        session.add(new_properties)
+
+    session.commit()
+    session.close()

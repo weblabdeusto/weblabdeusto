@@ -1841,11 +1841,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
         ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
 
-        ('%(root)s/weblab/client/weblabclientlab/configuration.js',      'file:%(directory)s/client/configuration.js'),
-        ('%(root)s/weblab/client/weblabclientadmin/configuration.js',    'file:%(directory)s/client/configuration.js'),
-
         ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%s' % images_dir),
-        ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%s' % images_dir),
 
         ('%(root)s/weblab/client',      'file:%(war_path)s'),
     ]
@@ -1856,9 +1852,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """   Header Set Cache-Control "max-age=0, no-store"\n"""
         """</LocationMatch>\n"""
         """\n"""
-        """<LocationMatch (.*)configuration\.js$>\n"""
-        """   Header Set Cache-Control "max-age=0, no-store"\n"""
-        """</LocationMatch>\n"""
         """<Files *.cache.*>\n"""
         """   Header Set Cache-Control "max-age=2592000"\n"""
         """</Files>\n"""
@@ -1869,11 +1862,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
         """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
         """\n"""
-        """Alias %(root)s/weblab/client/weblabclientlab/configuration.js      %(directory)s/client/configuration.js\n"""
-        """Alias %(root)s/weblab/client/weblabclientadmin/configuration.js %(directory)s/client/configuration.js\n"""
-        """\n"""
         """Alias %(root)s/weblab/client/weblabclientlab//img%(root-img)s/         %(directory)s/client/images/\n"""
-        """Alias %(root)s/weblab/client/weblabclientadmin//img%(root-img)s/    %(directory)s/client/images/\n"""
         """\n"""
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
         """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
@@ -2135,7 +2124,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
     configuration_js['facebook.like.box.visible']      = False
     configuration_js['create.account.visible']         = False
-    json.dump(configuration_js, open(os.path.join(client_dir, 'configuration.js'), 'w'), indent = True)
+
+    deploy.add_client_config(Session, configuration_js)
 
     print >> stdout, ""
     print >> stdout, "Congratulations!"
