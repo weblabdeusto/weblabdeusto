@@ -244,11 +244,11 @@ public abstract class AbstractExternalAppBasedBoard extends ExperimentBase {
 	}-*/;
 	
 	protected static void startInteractionImpl(String initialConfig) {
-        startInteractionImpl(initialConfig, true);
+        startInteractionImpl(initialConfig, false);
     }
 
 	protected static void startInteractionImpl() {
-        startInteractionImpl("", false);
+        startInteractionImpl("", true);
     }
 
 	private static native void startInteractionImpl(String initialConfig, boolean forceNoConfig) /*-{
