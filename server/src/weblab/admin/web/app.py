@@ -268,6 +268,7 @@ if __name__ == '__main__':
     @admin_app.app.route('/')
     def index():
         return redirect('/weblab/administration/admin')
-
-    admin_app.app.run(debug=True, host = '0.0.0.0')
+    
+    print "Open: http://localhost:5000/weblab/administration/admin/"
+    admin_app.app.run(debug=True, host='0.0.0.0')
 
