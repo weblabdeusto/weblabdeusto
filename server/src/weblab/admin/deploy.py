@@ -242,21 +242,21 @@ CONFIG_JS = {
     },
     "romie@Robot experiments": {
         "cssWidth": "1200",
-        "cssHeight": "675",
+        "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"
     },
     "romie_labpsico@Robot experiments": {
         "cssWidth": "1200",
-        "cssHeight": "675",
+        "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"
     },
     "romie_demo@Robot experiments": {
         "cssWidth": "1200",
-        "cssHeight": "675",
+        "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
         "html.file": "jslabs/romie/romie.html"

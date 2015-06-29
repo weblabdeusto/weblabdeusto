@@ -35,7 +35,7 @@
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
-	<section id="cams" class="col-md-5 container" style="display: none;">
+	<section id="cams" class="col-md-5 container" style="display: none">
 		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
 			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
 		</section>
@@ -70,9 +70,9 @@
 			$('#blocklyDiv').removeClass('col-md-10');
 			$('#blocklyDiv').addClass('col-md-6');
 
-			var newWorkspace = Blockly.inject('blocklyDiv',
+			workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/', readOnly: true});
-			Blockly.Xml.domToWorkspace(newWorkspace, Blockly.Xml.textToDom(response['blocks']));
+			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
 			// Interpreter
@@ -134,10 +134,9 @@
 				interpreter.setProperty(scope, 'highlightBlock',
 					interpreter.createNativeFunction(wrapper));
 			}
-console.log(Blockly.JavaScript.workspaceToCode(newWorkspace));
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 			Blockly.JavaScript.addReservedWords('highlightBlock');
-			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(newWorkspace), initApi);
+			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
 
 			function nextStep() {
 				if (myInterpreter.step()) {
@@ -147,8 +146,8 @@ console.log(Blockly.JavaScript.workspaceToCode(newWorkspace));
 				}
 			}
 
-			newWorkspace.traceOn(true);
-			newWorkspace.highlightBlock(null);
+			workspace.traceOn(true);
+			workspace.highlightBlock(null);
 			nextStep();
 		}
 

@@ -109,3 +109,8 @@ header
 	height: 500px;
 	border: none;
 }
+
+#gender
+{
+	margin-left: 1em;
+}
