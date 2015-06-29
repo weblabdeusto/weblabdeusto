@@ -14,7 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import re
@@ -714,7 +714,7 @@ class ClientConfiguration2db(Upgrader):
                 continue
             
             if 'LocationMatch (.*)configuration\.js' in line:
-                bad_pos = 2
+                bad_pos = 1
                 continue
 
             if 'configuration.js' in line or 'weblabclientadmin' in line:

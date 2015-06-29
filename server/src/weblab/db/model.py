@@ -130,7 +130,7 @@ class DbClientProperties(Base):
             self._value = None
         else:
             serialized = pickle.dumps(value)
-            self._value = serialized.encode('base64')
+            self._value = serialized.encode('base64').decode('utf-8')
 
     def __unicode__(self):
         return u"%s = %r" % (self.name, self.value)
