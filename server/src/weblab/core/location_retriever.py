@@ -47,7 +47,7 @@ class AddressLocator(object):
         if ip_address.startswith("<unknown client. retrieved from ") and ip_address.endswith(">"):
             ip_address = ip_address[len("<unknown client. retrieved from "):-1]
 
-        if ip_address == '<address not found>' or ip_address == 'unknown':
+        if ip_address == '<address not found>' or ip_address == 'unknown' or '(unknown host)' in ip_address:
             return {
                 'hostname' : ip_address,
                 'city': None,
@@ -55,6 +55,8 @@ class AddressLocator(object):
                 'most_specific_subdivision' : None
             }
 
+        if ', ' in ip_address:
+            ip_address = [ x.strip() for x in ip_address.split(',') ][-1]
 
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
