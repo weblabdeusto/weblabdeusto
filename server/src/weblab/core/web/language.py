@@ -14,14 +14,17 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
-from flask import request
+from flask import request, make_response
 from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/language/')
 def language():
     accept_language = request.headers.get('Accept-Language')
     if accept_language is None:
-        return 'var acceptLanguageHeader = null;'
+        contents = 'var acceptLanguageHeader = null;'
     else:
-        return 'var acceptLanguageHeader = "%s";' % accept_language
-
+        contents = 'var acceptLanguageHeader = "%s";' % accept_language
+    
+    response = make_response(contents)
+    response.content_type = 'text/javascript';
+    return response
