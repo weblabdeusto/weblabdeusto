@@ -655,3 +655,45 @@ class RemoveXmlsAndAddYaml(Upgrader):
             for dir_to_delete in directories_to_delete:
                 if len(os.listdir(dir_to_delete)) == 0:
                     os.rmdir(dir_to_delete)
+
+
+class ClientConfiguration2db(Upgrader):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(ClientConfiguration2db, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
+        self.db_conf = DbConfiguration(configuration_files, configuration_values)
+        self.config_js = os.path.join(directory, 'client', 'configuration.js')
+        if os.path.exists(self.config_js):
+            self.config = json.load(open(self.config_js))
+        else:
+            self.config = {}
+
+    @classmethod
+    def get_priority(self):
+        """ After database """
+        return 4
+      
+    def check_updated(self):
+        # In the future, this file will not exist.
+        if not os.path.exists(self.config_js):
+            return True
+
+        print(" - There is a client/configuration.js file, which contains the generic configuration. Now that configuration is managed by the administration panel, and stored in the database. So all those values that you are using will be migrated to the database.")
+        return False
+
+    def upgrade(self):
+        connection_url = self.db_conf.build_url()
+        engine = create_engine(connection_url, echo=False, convert_unicode=True)
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        try:
+            for key, value in self.config.iteritems():
+                new_property = model.DbClientProperties(key, value)
+                session.add(new_property)
+            
+            session.commit()
+        finally:
+            session.close()
+
+        os.remove(self.config_js)
+
