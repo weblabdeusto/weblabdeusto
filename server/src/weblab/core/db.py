@@ -1085,6 +1085,10 @@ class DatabaseGateway(object):
 
         return full_path
 
+    @with_session
+    def client_configuration(self):
+        return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbClientProperties).all() ])
+
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)
 

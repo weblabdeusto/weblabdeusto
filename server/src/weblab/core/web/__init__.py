@@ -58,3 +58,6 @@ assert quickadmin is not None # avoid warnings
 import version
 assert version is not None # avoid warnings
 
+import client_config
+assert client_config is not None # avoid warnings
+
