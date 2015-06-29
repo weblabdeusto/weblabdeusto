@@ -93,7 +93,8 @@
                             {{ gettext("Support") }}
                         </h3>
 
-                        <p>{{ gettext("For any technical issue you may find, please contact us at weblab@deusto.es") }}</p>
+                        {# TODO: weblab@deusto.es should not be hardcoded #}
+                        <p>{{ gettext("For any technical issue you may find, please contact us at {mail}".format(mail = '<a href="mailto:weblab@deusto.es">weblab@deusto.es</a>')) }}</p>
                     </div>
                 </div>
                 <div class="row">
@@ -106,13 +107,9 @@
                         <h3>
                             {{ gettext("Demo") }}
                         </h3>
-
-                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username demo
-                            and
-                            the
-                            password
-                            demo.
-                        ") }}</p>
+                        
+                        {# TODO: demo should not be hardcoded #}
+                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username {username} and the password {password}.".format(username = "<b>demo</b>", password = "<b>demo</b>")) }}</p>
                     </div>
                 </div>
 
@@ -126,8 +123,7 @@
                             {{ gettext("                            Open Source") }}
                         </h3>
 
-                        <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in
-                            https://github.com/weblabdeusto/weblabdeusto/") }}</p>
+                        <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in {link}".format(link = '<a href="https://github.com/weblabdeusto/weblabdeusto/">https://github.com/weblabdeusto/weblabdeusto/</a>')) }}</p>
                     </div>
                 </div>
                 <!-- !row-->
