@@ -449,10 +449,12 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
 
         flask_debug = cfg_manager.get_value('flask_debug', False)
+        core_facade_port = cfg_manager.get_value(configuration_doc.CORE_FACADE_PORT, 'unknown')
         if flask_debug:
             print >> sys.stderr, "*" * 50
             print >> sys.stderr, "WARNING " * 5
             print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
+            print >> sys.stderr, "If you want to see the debug toolbar in Flask pages, also use http://localhost:{0}/weblab/".format(core_facade_port)
             print >> sys.stderr, "WARNING " * 5
             print >> sys.stderr, "*" * 50
         self.app.config['DEBUG'] = flask_debug
