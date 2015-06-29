@@ -15,8 +15,8 @@
 
 import sys
 import os
-import SocketServer
-import BaseHTTPServer
+from six.moves import socketserver
+from six.moves import BaseHTTPServer
 import shutil
 import urllib2
 import mimetypes
@@ -216,7 +216,7 @@ def generate_proxy_handler(paths):
 
     return ProxyHandler
 
-class ProxyServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
+class ProxyServer(socketserver.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     daemon_threads      = True
     request_queue_size  = 50
     allow_reuse_address = True
