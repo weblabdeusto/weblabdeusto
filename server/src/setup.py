@@ -21,7 +21,9 @@ recommended to use virtualenv first to create a user-level environment.
 """
 
 import os
+import shlex
 import shutil
+import subprocess
 from setuptools import setup, find_packages
 from setuptools.command.build_py import build_py as _build_py
 
@@ -108,6 +110,25 @@ def load_requires(dest, filename):
             package_name = line
         if package_name.strip() != '':
             dest.append(package_name)
+
+def generate_version():
+    try:
+        check_output(shlex.split('git --help'))
+    except:
+        try:
+            check_output(shlex.split('git.cmd --help'))
+        except:
+            print >> sys.stderr, "git command could not be run! Check your PATH"
+            git_command = None
+        else:
+            git_command = 'git.cmd'
+    else:
+        git_command = 'git'
+
+    if git_command is not None:
+        output = check_output([git_command,'--no-pager','show'])
+        version = output.split('\n')[0].split()[1].strip()
+
 
 install_requires = []
 tests_require    = []
