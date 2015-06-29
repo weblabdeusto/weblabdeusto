@@ -21,6 +21,8 @@ recommended to use virtualenv first to create a user-level environment.
 """
 
 import os
+import json
+import time
 import shlex
 import shutil
 import subprocess
@@ -29,6 +31,8 @@ from setuptools.command.build_py import build_py as _build_py
 
 
 def _build_requirements():
+    generate_version()
+
     ##########################################################
     #
     # 
@@ -113,10 +117,10 @@ def load_requires(dest, filename):
 
 def generate_version():
     try:
-        check_output(shlex.split('git --help'))
+        subprocess.check_output(shlex.split('git --help'))
     except:
         try:
-            check_output(shlex.split('git.cmd --help'))
+            subprocess.check_output(shlex.split('git.cmd --help'))
         except:
             print >> sys.stderr, "git command could not be run! Check your PATH"
             git_command = None
@@ -125,10 +129,29 @@ def generate_version():
     else:
         git_command = 'git'
 
-    if git_command is not None:
-        output = check_output([git_command,'--no-pager','show'])
-        version = output.split('\n')[0].split()[1].strip()
+    json_contents = {}
 
+    if git_command is not None:
+        try:
+            output = subprocess.check_output([git_command,'--no-pager','show'])
+            version = output.split('\n')[0].split()[1].strip()
+
+            cmd = shlex.split('%s --no-pager log %s --format="%%at"' % (git_command, version))
+            output = subprocess.check_output(cmd)
+            lines = [ line for line in output.split('\n') ]
+            timestamp = int(lines[0].strip().replace('"','').replace("'",''))
+            date_str = time.strftime('%A, %B %d, %Y', time.localtime(timestamp))
+            number_of_versions = len(lines)
+            json_contents = {
+                'version' : version,
+                'version_number' : number_of_versions,
+                'date' : date_str,
+            }
+        except:
+            pass
+            raise # TODO
+    
+    open('weblab/version.json','w').write(json.dumps(json_contents, indent = 4))
 
 install_requires = []
 tests_require    = []
