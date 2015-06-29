@@ -149,7 +149,6 @@ def generate_version():
             }
         except:
             pass
-            raise # TODO
     
     open('weblab/version.json','w').write(json.dumps(json_contents, indent = 4))
 
