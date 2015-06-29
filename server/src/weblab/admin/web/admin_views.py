@@ -11,6 +11,7 @@ import traceback
 import threading
 import collections
 
+from weblab.core.babel import gettext, lazy_gettext
 from weblab.util import data_filename
 
 try:
@@ -176,10 +177,10 @@ class UsersPanel(AdministratorModelView):
     form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
 
-    column_descriptions = dict(login='Username (all letters, dots and numbers)',
-                               full_name='First and Last name',
-                               email='Valid e-mail address',
-                               avatar='Not implemented yet, it should be a public URL for a user picture.')
+    column_descriptions = dict(login=lazy_gettext('Username (all letters, dots and numbers)'),
+                               full_name=lazy_gettext('First and Last name'),
+                               email=lazy_gettext('Valid e-mail address'),
+                               avatar=lazy_gettext('Not implemented yet, it should be a public URL for a user picture.'))
 
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
@@ -248,16 +249,16 @@ class UsersPanel(AdministratorModelView):
 class UsersBatchForm(Form):
     """This form enables adding multiple users in a single action."""
 
-    users = TextAreaField(u"Users:", description="Add the user list using the detailed format")
-    new_group = TextField(u"New group:")
-    existing_group = Select2Field(u"Existing group:")
+    users = TextAreaField(lazy_gettext(u"Users:"), description=lazy_gettext(u"Add the user list using the detailed format"))
+    new_group = TextField(lazy_gettext(u"New group:"))
+    existing_group = Select2Field(lazy_gettext(u"Existing group:"))
 
 
 class LdapUsersBatchForm(UsersBatchForm):
-    ldap_user = TextField(u"Your LDAP username:")
-    ldap_password = PasswordField(u"Your LDAP password:")
-    ldap_domain = TextField(u"Your domain:")
-    ldap_system = SelectField(u"LDAP gateway:")
+    ldap_user = TextField(lazy_gettext(u"Your LDAP username:"))
+    ldap_password = PasswordField(lazy_gettext(u"Your LDAP password:"))
+    ldap_domain = TextField(lazy_gettext(u"Your domain:"))
+    ldap_system = SelectField(lazy_gettext(u"LDAP gateway:"))
 
 
 class FormException(Exception):
@@ -436,7 +437,7 @@ class UsersAddingView(AdministratorView):
     @expose('/db/', methods=['GET', 'POST'])
     def add_db(self):
         form = self._get_form()
-        description = "In this case, you need to provide the user's login, full_name, e-mail address, and password, in this order and separated by commas."
+        description = gettext("In this case, you need to provide the user's login, full_name, e-mail address, and password, in this order and separated by commas.")
         example = ("j.doe, John Doe, john@institution.edu, appl3_1980\n" +
                    "j.smith, Jack Smith, jack@institution.edu, h4m_1980\n")
         if form.validate_on_submit():
@@ -467,7 +468,7 @@ class UsersAddingView(AdministratorView):
             return "LDAP not registered as an Auth Type"
 
         form.ldap_system.choices = [(auth.name, auth.name) for auth in ldap_auth_type.auths]
-        description = "In this case, you only need to provide the username of the users, separated by spaces or new lines. WebLab-Deusto will retrieve the rest of the information from the LDAP system."
+        description = gettext("In this case, you only need to provide the username of the users, separated by spaces or new lines. WebLab-Deusto will retrieve the rest of the information from the LDAP system.")
         example = "user1\nuser2\nuser3"
         if form.validate_on_submit():
             try:
@@ -491,7 +492,7 @@ class UsersAddingView(AdministratorView):
     @expose('/openid/', methods=['GET', 'POST'])
     def add_openid(self):
         form = self._get_form()
-        description = "In this case, you only need to provide the username of the user, the full name, e-mail address and OpenID, in this order and separated by commas."
+        description = gettext("In this case, you only need to provide the username of the user, the full name, e-mail address and OpenID, in this order and separated by commas.")
         example = ( "j.doe,   John Doe,   john@institution.edu, institution.edu/users/john\n" +
                     "j.smith, Jack Smith, jack@institution.edu, institution.edu/users/jack\n" )
         if form.validate_on_submit():
@@ -540,8 +541,8 @@ class GroupsPanel(AdministratorModelView):
         GroupsPanel.INSTANCE = self
 
 class DefaultAuthenticationForm(Form):
-    name     = TextField(u"Name:", description="Authentication name", validators = [ Required() ])
-    priority = Select2Field(u"Priority:", description="Order followed by the authentication system. Authentication mechanism with priority 1 will be checked before the one with priority 2.", validators = [ Required() ])
+    name     = TextField(lazy_gettext(u"Name:"), description=lazy_gettext("Authentication name"), validators = [ Required() ])
+    priority = Select2Field(lazy_gettext(u"Priority:"), description=lazy_gettext("Order followed by the authentication system. Authentication mechanism with priority 1 will be checked before the one with priority 2."), validators = [ Required() ])
 
 def generate_generic_config(form):
     return ''
@@ -550,9 +551,9 @@ def fill_generic_config(form, config):
     pass
 
 class LdapForm(DefaultAuthenticationForm):
-    ldap_uri = TextField(u'LDAP server', description="LDAP server URL", validators = [ URL(), Required() ])
-    domain = TextField(u"Domain", description="Domain", validators = [ Required() ])
-    base = TextField(u"Base", description="Base, e.g.: dc=deusto,dc=es", validators = [ Required() ])
+    ldap_uri = TextField(lazy_gettext(u'LDAP server'), description=lazy_gettext("LDAP server URL"), validators = [ URL(), Required() ])
+    domain = TextField(lazy_gettext(u"Domain"), description=lazy_gettext("Domain"), validators = [ Required() ])
+    base = TextField(lazy_gettext(u"Base"), description=lazy_gettext("Base, e.g.: dc=deusto,dc=es"), validators = [ Required() ])
 
     def validate_ldap_uri(form, ldap_uri):
         if ';' in ldap_uri.data:
@@ -574,7 +575,7 @@ def fill_ldap_config(form, config):
     form.base.data     = base[len('base='):]
 
 class TrustedIpForm(DefaultAuthenticationForm):
-    ip_addresses = TextField(u'IP addresses', description="Put an IP address or set of IP addresses separated by commas", validators = [ Required() ])
+    ip_addresses = TextField(lazy_gettext(u'IP addresses'), description=lazy_gettext("Put an IP address or set of IP addresses separated by commas"), validators = [ Required() ])
 
 def generate_trusted_ip_config(form):
     return form.ip_addresses.data
