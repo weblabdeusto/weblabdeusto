@@ -57,8 +57,6 @@
 
 		function test(response) {
 			if ('localStorage' in window) {
-				console.log('Workspace:')
-				console.log(workspace);
 				var xml = Blockly.Xml.workspaceToDom(workspace);
 				// Gets the current URL, not including the hash.
 				var url = window.location.href.split('#')[0];
@@ -71,9 +69,9 @@
 			$('#blocklyDiv').removeClass('col-md-10');
 			$('#blocklyDiv').addClass('col-md-6');
 
-			var newWorkspace = Blockly.inject('blocklyDiv',
+			workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/', readOnly: true});
-			Blockly.Xml.domToWorkspace(newWorkspace, Blockly.Xml.textToDom(response['blocks']));
+			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
 			// Interpreter
@@ -119,7 +117,7 @@
 
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 			Blockly.JavaScript.addReservedWords('highlightBlock');
-			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(newWorkspace), initApi);
+			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
 
 			function nextStep() {
 				if (myInterpreter.step()) {
@@ -129,8 +127,8 @@
 				}
 			}
 
-			newWorkspace.traceOn(true);
-			newWorkspace.highlightBlock(null);
+			workspace.traceOn(true);
+			workspace.highlightBlock(null);
 			nextStep();
 		}
 
