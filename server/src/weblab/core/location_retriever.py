@@ -140,8 +140,10 @@ class LocationRetriever(threading.Thread):
                 if local_public_ip_address is not None:
                     try:
                         reader = GeoIP2Reader(geoip2_city_filepath)
-                        self.local_country = reader.city(local_public_ip_address).country.iso_code
-                        self.local_city = reader.city(local_public_ip_address).city.name
+                        if self.local_country is None:
+                            self.local_country = reader.city(local_public_ip_address).country.iso_code
+                        if self.local_city is None:
+                            self.local_city = reader.city(local_public_ip_address).city.name
                     except Exception as e:
                         print("Error trying to obtain city for IP: {0}".format(local_public_ip_address))
                         traceback.print_exc()
