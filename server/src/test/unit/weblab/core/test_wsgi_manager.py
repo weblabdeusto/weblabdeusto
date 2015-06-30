@@ -1,5 +1,5 @@
 import unittest
-import urllib2
+import requests
 
 from voodoo.configuration import ConfigurationManager
 
@@ -31,10 +31,10 @@ class WsgiManagerTest(unittest.TestCase):
 
 
     @uses_module(wsgi_manager)
-    def test_mofa(self):
+    def test_server(self):
         self.server.start()
         try:
-            text = urllib2.urlopen('http://127.0.0.1:%s/' % self.current_port).read()
+            text = requests.get('http://127.0.0.1:%s/' % self.current_port, timeout = 10).text
             self.assertEquals("Hello World\n", text)
         finally:
             self.server.stop()

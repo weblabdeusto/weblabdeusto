@@ -33,6 +33,7 @@ import weblab.configuration_doc as configuration_doc
 import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
+from voodoo.resources_manager import is_testing
 from weblab.core.babel import Babel
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
@@ -450,7 +451,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         flask_debug = cfg_manager.get_value('flask_debug', False)
         core_facade_port = cfg_manager.get_value(configuration_doc.CORE_FACADE_PORT, 'unknown')
-        if flask_debug:
+        if flask_debug and not is_testing():
             print >> sys.stderr, "*" * 50
             print >> sys.stderr, "WARNING " * 5
             print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
