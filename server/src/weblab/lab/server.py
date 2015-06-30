@@ -423,17 +423,21 @@ class LaboratoryServer(object):
 
             # Try to call the WebLab service
             experiment_coord_address = self._assigned_experiments.get_coord_address(experiment_instance_id)
+            self._checking_component = experiment_coord_address
             try:
                 self._locator.check_component(experiment_coord_address)
             except Exception as e:
                 failing_experiment_instance_ids[experiment_instance_id] = str(e)
                 self.log_error(experiment_instance_id, str(e))
+            self._checking_component = None
 
         # In VISIR, for instance, there might be 60 or 80 handlers pointing to the same server. There
         # is no need to contact that server so many times. So we collect all the checkers and run only
         # once each unique checker.
         for checker, experiment_instance_ids in all_handlers.values():
+            self._checking_handlers = (checker, experiment_instance_ids)
             handler_messages = checker.run_times()
+            self._checking_handlers = None
 
             if len(handler_messages) > 0:
                 error_message = '; '.join(handler_messages)

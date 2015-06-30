@@ -33,6 +33,7 @@ class ResourcesCheckerThread(threading.Thread):
         self.frequency   = None # Seconds
         self.coordinator = None
         self.stopping    = False
+        self.current_checker = None
 
     def run(self):
         while not self.stopping:
@@ -53,8 +54,8 @@ class ResourcesCheckerThread(threading.Thread):
                 coordinator = self.coordinator()
                 if coordinator is None or coordinator.locator is None:
                     continue # coordinator not configured yet
-                checker = self.Checker(coordinator)
-                checker.check()
+                self.current_checker = self.Checker(coordinator)
+                self.current_checker.check()
             except Exception as e:
                 log.log(ResourcesCheckerThread, log.level.Critical,
                     "Exception checking resources: %s" % e )
