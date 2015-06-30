@@ -61,13 +61,16 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
             print "[RoMIE-Blockly] Command received: %s" % command
 
         command = json.loads(command)
-        print command
+        response = None
+        tag = None
+
 
         if command['command'] == 'F':
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
             if 'Tag' in response:
                 tag = response[5:18]
-                print tag
+                if(self._cfg_manager.get_value('debug')):
+                    print tag
         elif command['command'] == 'L':
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'l', timeout = 60).read()
         elif command['command'] == 'R':
@@ -80,6 +83,9 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
                 response = True
             else:
                 return "ERR"
+
+        if response is not None:
+            return json.dumps("response": response, "tag": tag)
 
         return "ERR"
 
