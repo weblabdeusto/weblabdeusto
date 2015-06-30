@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import datetime
 from flask import render_template, request, send_file, Response, url_for
 from functools import wraps, partial

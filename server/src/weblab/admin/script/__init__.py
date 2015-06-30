@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
+from __future__ import print_function, unicode_literals
 
 import sys
 
@@ -51,10 +52,10 @@ HIDDEN_COMMANDS = ('-version', '--version', '-V')
 def weblab():
     if len(sys.argv) == 2 and sys.argv[1] in HIDDEN_COMMANDS:
         if sys.argv[1] in ('--version', '-version', '-V'):
-            print weblab_version
+            print(weblab_version)
             sys.exit(2)
         else:
-            print >> sys.stderr, "Command %s not implemented" % sys.argv[1]
+            print("Command %s not implemented" % sys.argv[1], file = sys.stderr)
             sys.exit(0)
     if len(sys.argv) in (1, 2) or sys.argv[1] not in COMMANDS:
         command_list = ""
@@ -62,7 +63,7 @@ def weblab():
         for command, help_text in SORTED_COMMANDS:
             filled_command = command + ' ' * (max_size - len(command))
             command_list += "\t%s\t%s\n" % (filled_command, help_text)
-        print >> sys.stderr, "Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list)
+        print("Usage: %s option DIR [option arguments]\n\n%s\n" % (sys.argv[0], command_list), file = sys.stderr)
         sys.exit(2)
     main_command = sys.argv[1]
     if main_command == 'create':
@@ -80,9 +81,9 @@ def weblab():
     elif main_command == 'locations':
         weblab_locations(sys.argv[2])
     elif main_command == '--version':
-        print weblab_version
+        print(weblab_version)
     else:
-        print >>sys.stderr, "Command %s not yet implemented" % sys.argv[1]
+        print("Command %s not yet implemented" % sys.argv[1], file = sys.stderr)
         exit(2)
 
 

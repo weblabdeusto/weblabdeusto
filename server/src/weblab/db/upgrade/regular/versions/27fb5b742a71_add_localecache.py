@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add LocaleCache
 
 Revision ID: 27fb5b742a71

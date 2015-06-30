@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import os
@@ -52,11 +53,11 @@ def main():
     options, args = parser.parse_args()
 
     if not os.path.exists(options.configuration_file):
-        print >> sys.stderr, "Configuration file %s does not exist. Provide an existing one with the -c option " % options.configuration_file
+        print("Configuration file %s does not exist. Provide an existing one with the -c option " % options.configuration_file, file=sys.stderr)
         sys.exit(-1)
 
     if len(os.environ.get('http_proxy','')) > 0 and not options.dont_disable_proxies:
-        print "WARNING: HTTP proxies are usually a problem when running the bot. They will be disable at process level. If you don't want to disable it, pass the --dont-disable-proxies option."
+        print("WARNING: HTTP proxies are usually a problem when running the bot. They will be disable at process level. If you don't want to disable it, pass the --dont-disable-proxies option.")
         os.environ.pop('http_proxy', None)
         os.environ.pop('https_proxy', None)
         opener = urllib2.build_opener(urllib2.ProxyHandler({}))
@@ -98,12 +99,12 @@ def main():
                     ('%s' % now.minute).zfill(2),
                     ('%s' % now.second).zfill(2)
                 )
-        print 
-        print "*" * 20
-        print "CONFIGURATION %s" % str(configuration)
-        print "Unique id: %s" % execution_unique_id
-        print "*" * 20
-        print 
+        print()
+        print("*" * 20)
+        print("CONFIGURATION %s" % str(configuration))
+        print("Unique id: %s" % execution_unique_id)
+        print("*" * 20)
+        print()
 
         execution_results = {}
 
@@ -132,13 +133,13 @@ def main():
                 
             botlauncher.start()
             
-            print "   -> Scenario: %s" % scenario
-            print "   -> Results stored in %s" % pickle_filename
-            print "   -> Serializing results..."
+            print("   -> Scenario: %s" % scenario)
+            print("   -> Results stored in %s" % pickle_filename)
+            print("   -> Serializing results...")
             result = botlauncher.get_results()
             del botlauncher
             execution_results[scenario.category][scenario.identifier] = result
-            print "   -> Done"
+            print("   -> Done")
             scenario.dispose()
 
         raw_information = {}
@@ -151,21 +152,21 @@ def main():
 
         try:
             results_filename = "raw_information_%s.dump" % execution_unique_id
-            print "Writing results to file %s... %s" % (results_filename, datetime.datetime.now())
+            print("Writing results to file %s... %s" % (results_filename, datetime.datetime.now()))
             results_file = open(results_filename, 'w')
             pickle.dump(raw_information, results_file)
         except:
-            print "There was an error writing results to file"
+            print("There was an error writing results to file")
             import traceback
             traceback.print_stack()
 
         if cfg.GENERATE_GRAPHICS:
-            print "Generating graphics..."
+            print("Generating graphics...")
             print_results(raw_information, configuration, execution_unique_id, cfg, True)
         else:
-            print "Not generating graphics"
+            print("Not generating graphics")
 
-        print "Done", datetime.datetime.now()
+        print("Done", datetime.datetime.now())
         del raw_information
         time.sleep(5)
 

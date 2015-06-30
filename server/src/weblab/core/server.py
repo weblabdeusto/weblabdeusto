@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import sys
@@ -452,12 +453,12 @@ class WebLabFlaskServer(WebLabWsgiServer):
         flask_debug = cfg_manager.get_value('flask_debug', False)
         core_facade_port = cfg_manager.get_value(configuration_doc.CORE_FACADE_PORT, 'unknown')
         if flask_debug and not is_testing():
-            print >> sys.stderr, "*" * 50
-            print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
-            print >> sys.stderr, "If you want to see the debug toolbar in Flask pages, also use http://localhost:{0}/weblab/".format(core_facade_port)
-            print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "*" * 50
+            print("*" * 50, file=sys.stderr)
+            print("WARNING " * 5, file=sys.stderr)
+            print("flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!", file=sys.stderr)
+            print("If you want to see the debug toolbar in Flask pages, also use http://localhost:{0}/weblab/".format(core_facade_port), file=sys.stderr)
+            print("WARNING " * 5, file=sys.stderr)
+            print("*" * 50, file=sys.stderr)
         self.app.config['DEBUG'] = flask_debug
         if os.path.exists('logs'):
             f = os.path.join('logs','admin_app.log')
@@ -524,8 +525,8 @@ class UserProcessingServer(object):
                 'property_human' : configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN,
                 'uuid'           : generated
             }
-            print msg
-            print >> sys.stderr, msg
+            print(msg)
+            print(msg, file = sys.stderr)
             log.log( UserProcessingServer, log.level.Error, msg)
 
         self.core_server_universal_id       = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)

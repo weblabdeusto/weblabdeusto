@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 ALL = 'All servers'
 
 def caller_check(servers = ALL):

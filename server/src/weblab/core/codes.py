@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 WEBLAB_GENERAL_EXCEPTION_CODE = 'Server.WebLab'
 VOODOO_GENERAL_EXCEPTION_CODE = 'Server.Voodoo'

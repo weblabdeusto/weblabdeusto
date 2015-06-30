@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 from wtforms import TextField, PasswordField
 from wtforms.widgets import PasswordInput
 

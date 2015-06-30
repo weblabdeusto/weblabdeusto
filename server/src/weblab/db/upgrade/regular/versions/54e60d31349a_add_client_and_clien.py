@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add client and client parameter
 
 Revision ID: 54e60d31349a

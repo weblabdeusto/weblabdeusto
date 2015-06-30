@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 
 import time
@@ -158,7 +159,7 @@ class MainRunner(object):
 
             for threads in threads_configurations:
                 if DEBUGGING:
-                    print "    running %s threads..." % threads
+                    print("    running %s threads..." % threads)
                 runner = ThreadedRunner(self.func, threads, iterations, self.name)
                 times = runner.run()
                 max_time = max(times)
@@ -183,7 +184,7 @@ class MainRunner(object):
 
             for iterations in iterations_configurations:
                 if DEBUGGING:
-                    print "    running %s iterations..." % iterations
+                    print("    running %s iterations..." % iterations)
                 runner = SequentialRunner(self.func, iterations, self.name)
                 times = runner.run()
                 max_time = max(times)

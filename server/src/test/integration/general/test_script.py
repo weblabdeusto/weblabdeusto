@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguezgil@deusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import threading
 import traceback
@@ -113,7 +114,7 @@ class ExperimentUseTester(object):
             if not self.quiet_errors:
                 traceback.print_exc()
             else:
-                print "Error not shown since quiet_errors = True"
+                print("Error not shown since quiet_errors = True")
             self.failures += 1
 
     def do_full_experiment_use(self, user_number):

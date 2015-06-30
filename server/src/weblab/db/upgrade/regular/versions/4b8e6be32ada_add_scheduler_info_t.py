@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add Scheduler info to the database
 
 Revision ID: 4b8e6be32ada

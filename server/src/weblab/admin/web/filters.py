@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 
 from flask.ext.admin.contrib.sqla import tools
 import flask.ext.admin.contrib.sqla.filters as filters

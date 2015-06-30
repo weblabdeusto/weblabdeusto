@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import os
@@ -41,14 +42,14 @@ def generate_proxy_handler(paths):
     for pos, (_path, _) in enumerate(paths):
 
         if '$' in _path and (_path.count('$') > 1 or not _path.endswith('$')):
-            print >> sys.stderr, "The $ char is a special character meaning the end of the path. It can appear only once and at the end. Expect errors with %s!" % _path
+            print("The $ char is a special character meaning the end of the path. It can appear only once and at the end. Expect errors with %s!" % _path, file=sys.stderr)
 
         for _previous_path in previous_paths:
             if _path.startswith(_previous_path.replace('$','')):
                 if '$' in _previous_path and _path != _previous_path:
                     # This previous_path has a $ and it is not the same as _path, so forget it
                     continue
-                print >> sys.stderr, "ProxyHandler: Path %s (number %s) will not be managed since a previous one manages %s!" % (_path, pos, _previous_path)
+                print("ProxyHandler: Path %s (number %s) will not be managed since a previous one manages %s!" % (_path, pos, _previous_path), file=sys.stderr)
                 break
         previous_paths.append(_path)
 

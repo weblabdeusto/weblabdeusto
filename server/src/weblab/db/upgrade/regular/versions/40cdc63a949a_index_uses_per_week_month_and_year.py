@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Index uses per week, month and year
 
 Revision ID: 40cdc63a949a

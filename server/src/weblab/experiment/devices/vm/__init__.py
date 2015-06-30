@@ -12,12 +12,13 @@
 #
 # Author: Luis Rodr�guez <luis.rodriguez@opendeusto.es>
 # 
+from __future__ import print_function, unicode_literals
 
 import manager as VirtualMachineManager
 import dummy as VirtualMachineDummy
 import virtualbox as VirtualBox
 
 def _():
-    print VirtualMachineManager, VirtualMachineDummy, VirtualBox
+    print(VirtualMachineManager, VirtualMachineDummy, VirtualBox)
 
 __all__ = ["VirtualMachineManager", "VirtualMachineDummy", "VirtualBox"]

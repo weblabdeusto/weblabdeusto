@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 WEBLAB_EXPERIMENT_TYPES              = 'weblab:experiment_types'
 WEBLAB_EXPERIMENT_RESOURCES          = 'weblab:experiment_types:%s:resource_types'

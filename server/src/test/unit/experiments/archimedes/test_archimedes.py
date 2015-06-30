@@ -12,6 +12,7 @@
 #
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
+from __future__ import print_function, unicode_literals
 import base64
 import json
 import unittest

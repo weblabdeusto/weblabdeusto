@@ -12,13 +12,14 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 if __name__ == '__main__':
     import sys
     received = sys.argv[1]
     if received.find("show error") >= 0:
-        print "ERROR: bla bla bla"
+        print("ERROR: bla bla bla")
     elif received.find("show stderr") >= 0:
-        print >> sys.stderr, "bla bla bla"
+        print("bla bla bla", file=sys.stderr)
     elif received.find("return -1") >= 0:
         sys.exit(-1)

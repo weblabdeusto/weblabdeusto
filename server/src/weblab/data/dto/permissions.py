@@ -14,6 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 class Permission(object):
     """

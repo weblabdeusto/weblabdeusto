@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import time as time_module
 import json
@@ -226,7 +227,7 @@ class UserProcessor(object):
         return results
 
 
-    @typecheck((ExperimentUsage, str, typecheck.NONE), SessionId)
+    @typecheck((ExperimentUsage, basestring, typecheck.NONE), SessionId)
     def _process_use(self, use, reservation_id):
         """Given a reservation_id not present in the usage db, check if it is still running or waiting, or it did never enter the system"""
         if use is not None:

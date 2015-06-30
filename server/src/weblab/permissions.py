@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """
 This module includes all the possible permissions. Whenever the application is upgraded,
 it can include new permissions, and no change in the database is required (except for granting

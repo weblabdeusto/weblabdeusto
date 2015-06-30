@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 core_universal_identifier       = '05e2775d-ccf1-4880-95ed-81ba55a6e62f'
 core_universal_identifier_human = "Case 01 test"
 

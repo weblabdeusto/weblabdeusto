@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 import voodoo.sessions.session_type as SessionType
 import voodoo.sessions.exc as SessionErrors
 

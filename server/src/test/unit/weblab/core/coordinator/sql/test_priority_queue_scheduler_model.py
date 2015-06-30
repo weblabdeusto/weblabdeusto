@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import unittest
 import weblab.core.coordinator.sql.priority_queue_scheduler_model as PQSM

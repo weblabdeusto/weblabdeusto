@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
+from __future__ import print_function
 import unittest
 
 from voodoo.gen import load_dir

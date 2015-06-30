@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add locale cache indexes
 
 Revision ID: 4dd49c571575

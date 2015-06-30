@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #         Pablo Orduña <pablo@ordunya.com>
 # 
+from __future__ import print_function, unicode_literals
 
 import sys
 import subprocess
@@ -110,5 +111,5 @@ class VirtualBox(VirtualMachineManager):
     def _print(self, msg):
         log.log( VirtualBox, log.level.Info, msg)
         if DEBUG:
-            print "WebLabVirtualBox::%s" % msg
+            print("WebLabVirtualBox::%s" % msg)
             sys.stdout.flush()

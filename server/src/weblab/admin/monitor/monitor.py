@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import telnetlib
 import traceback
@@ -182,14 +183,14 @@ class WebLabMonitor(object):
         try:
             reservation_id = self._shell.get_reservation_id(ups_session_id)
         except Exception as e:
-            print "Error retrieving wlc_session_id; skipping... %s" % e
+            print("Error retrieving wlc_session_id; skipping... %s" % e)
             return
 
         try:
             self._shell.kickout_from_ups(ups_session_id)
         except Exception as e:
             if not str(e).startswith("invalid syntax"):
-                print e
+                print(e)
             # It's normal that the server generates some kind of
             # "print" which is redirected here and gets a SyntaxError
 
@@ -198,7 +199,7 @@ class WebLabMonitor(object):
                 self._shell.kickout_from_coordinator(reservation_id)
             except Exception as e:
                 if not str(e).startswith("invalid syntax"):
-                    print e
+                    print(e)
                 # It's normal that the server generates some kind of
                 # "print" which is redirected here and gets a SyntaxError
 

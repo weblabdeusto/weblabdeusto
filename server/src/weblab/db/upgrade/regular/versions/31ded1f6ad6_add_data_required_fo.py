@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add data required for analytics
 
 Revision ID: 31ded1f6ad6

@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 weblab_db_force_engine_creation = True
 
 core_universal_identifier       = 'c7ab5d9e-ea14-11e0-bd1d-00216a5807c8'

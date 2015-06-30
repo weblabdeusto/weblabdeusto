@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
+from __future__ import print_function, unicode_literals
 
 import os
 import time
@@ -45,7 +46,7 @@ def weblab_monitor(directory):
     def list_users(experiment):
         information, ups_orphans, coordinator_orphans = wl.list_users(experiment)
 
-        print "%15s\t%25s\t%11s\t%11s" % ("LOGIN","STATUS","UPS_SESSID","RESERV_ID")
+        print("%15s\t%25s\t%11s\t%11s" % ("LOGIN","STATUS","UPS_SESSID","RESERV_ID"))
         for login, status, ups_session_id, reservation_id in information:
             if isinstance(status, WebLabQueueStatus.WaitingQueueStatus) or isinstance(status, WebLabQueueStatus.WaitingInstancesQueueStatus):
                 status_str = "%s: %s" % (status.status, status.position)
@@ -53,26 +54,26 @@ def weblab_monitor(directory):
                 status_str = status.status
 
             if options.full_info:
-                    print "%15s\t%25s\t%8s\t%8s" % (login, status_str, ups_session_id, reservation_id)
+                    print("%15s\t%25s\t%8s\t%8s" % (login, status_str, ups_session_id, reservation_id))
             else:
-                    print "%15s\t%25s\t%8s...\t%8s..." % (login, status_str, ups_session_id[:8], reservation_id)
+                    print("%15s\t%25s\t%8s...\t%8s..." % (login, status_str, ups_session_id[:8], reservation_id))
 
         if len(ups_orphans) > 0:
-            print 
-            print "UPS ORPHANS"
+            print()
+            print("UPS ORPHANS")
             for ups_info in ups_orphans:
-                print ups_info
+                print(ups_info)
 
         if len(coordinator_orphans) > 0:
-            print 
-            print "COORDINATOR ORPHANS"
+            print()
+            print("COORDINATOR ORPHANS")
             for coordinator_info in coordinator_orphans:
-                print coordinator_info
+                print(coordinator_info)
 
     def show_server(number):
         if number > 0:
-            print 
-        print "Server %s" % (number + 1)
+            print()
+        print("Server %s" % (number + 1))
 
     option_parser = OptionParser()
 
@@ -123,16 +124,16 @@ def weblab_monitor(directory):
         wl = WebLabMonitor(server)
 
         if options.list_experiments:
-            print wl.list_experiments(),
+            print(wl.list_experiments(), end='')
 
         elif options.list_experiment_users:
             show_server(num)
             experiments = wl.list_experiments()
             if experiments != '':
                 for experiment in experiments.split('\n')[:-1]:
-                    print 
-                    print "%s..." % experiment
-                    print 
+                    print()
+                    print("%s..." % experiment)
+                    print()
                     list_users(experiment)
             
         elif options.list_users != None:
@@ -143,17 +144,17 @@ def weblab_monitor(directory):
             show_server(num)
             all_users = wl.list_all_users()
 
-            print "%15s\t%11s\t%17s\t%24s" % ("LOGIN","UPS_SESSID","FULL_NAME","LATEST TIMESTAMP")
+            print("%15s\t%11s\t%17s\t%24s" % ("LOGIN","UPS_SESSID","FULL_NAME","LATEST TIMESTAMP"))
 
             for ups_session_id, user_information, latest_timestamp in all_users:
                 latest = time.asctime(time.localtime(latest_timestamp))
                 if options.full_info:
-                    print "%15s\t%11s\t%17s\t%24s" % (user_information.login, ups_session_id.id, user_information.full_name, latest)
+                    print("%15s\t%11s\t%17s\t%24s" % (user_information.login, ups_session_id.id, user_information.full_name, latest))
                 else:
                     if len(user_information.full_name) <= 14:
-                        print "%15s\t%8s...\t%s\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name, latest)
+                        print("%15s\t%8s...\t%s\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name, latest))
                     else:
-                        print "%15s\t%8s...\t%14s...\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name[:14], latest)
+                        print("%15s\t%8s...\t%14s...\t%24s" % (user_information.login, ups_session_id.id[:8], user_information.full_name[:14], latest))
             
         elif options.kick_session != None:
             show_server(num)

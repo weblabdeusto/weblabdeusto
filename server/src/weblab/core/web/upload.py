@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import StringIO
 from flask import request
@@ -82,7 +83,7 @@ def upload():
         else:
             resultstr = result
 
-        print "[DBG] Returning result from file upload: " + resultstr
+        print("[DBG] Returning result from file upload:", resultstr)
 
         return SUCCESS_HTML_TEMPLATE % {
                         'RESULT' : resultstr

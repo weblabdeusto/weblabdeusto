@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import sys
 import threading
 import wsgiref.simple_server
@@ -8,7 +9,7 @@ from six.moves import socketserver
 import voodoo.log as log
 import voodoo.counter as counter
 import weblab.configuration_doc as configuration_doc
-from voodoo.resources_manager import CancelAndJoinResourceManager
+from voodoo.resources_manager import CancelAndJoinResourceManager, is_testing
 
 _resource_manager = CancelAndJoinResourceManager("RemoteFacadeServer")
 
@@ -97,12 +98,13 @@ class WebLabWsgiServer(object):
         listen  = config[configuration_doc.CORE_FACADE_BIND]
         port    = config[configuration_doc.CORE_FACADE_PORT]
 
+        self.core_server = None
         if config.get_value('flask_debug', False):
-            print >> sys.stderr, "Using a different server (relying on Flask rather than on Python's WsgiHttpServer)"
-            self.core_server = None
+            if not is_testing():
+                print("Using a different server (relying on Flask rather than on Python's WsgiHttpServer)", file=sys.stderr)
+
             self.core_server_thread = threading.Thread(target = application.run, kwargs = { 'port' : port, 'debug' : True, 'use_reloader' : False })
         else:
-            self.core_server = None
             server_creator = lambda : WsgiHttpServer(script_name, (listen, port), NewWsgiHttpHandler, application, timeout)
             self.core_server_thread = ServerThread(server_creator, timeout, self)
 

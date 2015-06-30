@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import os
 import sys
 import urlparse
@@ -269,6 +270,6 @@ if __name__ == '__main__':
     def index():
         return redirect('/weblab/administration/admin')
     
-    print "Open: http://localhost:5000/weblab/administration/admin/"
+    print("Open: http://localhost:5000/weblab/administration/admin/")
     admin_app.app.run(debug=True, host='0.0.0.0')
 

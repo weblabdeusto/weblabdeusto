@@ -11,6 +11,7 @@
 # listed below:
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
+from __future__ import print_function, unicode_literals
 
 
 import sys
@@ -59,9 +60,9 @@ class LdapGateway(object):
                                 ["givenName","sn","mail"]           # retrieved attributes (is this ok?)
                          )
             if len(result_set) < 1:
-                print >> sys.stderr, "User '%s' not found" % user_login
+                print("User '%s' not found" % user_login, file=sys.stderr)
             elif len(result_set) > 1:
-                print >> sys.stderr, "Invalid state: too many users found for username %s" % user_login
+                print("Invalid state: too many users found for username %s" % user_login, file=sys.stderr)
                 users.append(self._parse_result_set(result_set, user_login))
             else:
                 users.append(self._parse_result_set(result_set, user_login))

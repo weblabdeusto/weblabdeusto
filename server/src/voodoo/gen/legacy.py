@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import os
 from xml.etree import ElementTree
 
@@ -37,11 +38,11 @@ class LegacyParser(object):
 
 if __name__ == '__main__':
     files = LegacyParser().get_config_files('.')
-    print files
+    print(files)
     any_not_existing = False
     for f in files:
         if not os.path.exists(f):
-            print "NOT EXISTING", f
+            print("NOT EXISTING", f)
             any_not_existing = True
     if not any_not_existing:
-        print "All files exist"
+        print("All files exist")

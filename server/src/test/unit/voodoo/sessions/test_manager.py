@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import unittest
@@ -56,7 +57,7 @@ class SessionManagerTestCase(unittest.TestCase):
         else:
             global ERROR_MESSAGE_SHOWN
             if not ERROR_MESSAGE_SHOWN:
-                print >> sys.stderr, "redis not available. Skipping redis sessions related tests"
+                print("redis not available. Skipping redis sessions related tests", file=sys.stderr)
                 ERROR_MESSAGE_SHOWN = True
 
         self.memory_server1.clear()

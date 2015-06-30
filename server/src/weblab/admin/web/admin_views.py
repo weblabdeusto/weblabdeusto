@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import os
 import re
 import sha
@@ -16,7 +17,7 @@ from weblab.util import data_filename
 try:
     CLIENTS = json.load(open(data_filename(os.path.join('weblab', 'clients.json'))))
 except:
-    print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
+    print("Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file")
     raise
 
 from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError

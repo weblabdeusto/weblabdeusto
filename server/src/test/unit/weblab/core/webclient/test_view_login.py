@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
+from __future__ import print_function
 import unittest
 from flask import request
 from voodoo.gen import load_dir
@@ -71,7 +72,7 @@ class TestViewLogin(unittest.TestCase):
         rv = self.app.post('/weblab/web/webclient/', data=dict(username='any', password='password'))
         """ :type: flask.wrappers.Response """
 
-        print rv.location
+        print(rv.location)
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
         self.assertTrue(rv.location.endswith("/web/webclient/labs.html"), "Redirection does not lead to the labs page")
 

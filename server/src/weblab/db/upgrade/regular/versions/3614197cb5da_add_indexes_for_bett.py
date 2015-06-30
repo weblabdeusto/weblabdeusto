@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add indexes for better admin panel performance
 
 Revision ID: 3614197cb5da

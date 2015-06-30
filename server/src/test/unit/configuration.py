@@ -14,6 +14,7 @@
 #
 # This is a configuration sample
 # This module will be loaded and reloaded by the ConfigurationManager
+from __future__ import print_function, unicode_literals
 
 import os
 import sys

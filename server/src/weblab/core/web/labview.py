@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from weblab.core.web import get_argument
 from weblab.core.wl import weblab_api
@@ -48,7 +49,7 @@ def labview():
                 }
     else:
         resultstr = result.commandstring
-        print "[DBG] Returning result from labview: " + resultstr
+        print("[DBG] Returning result from labview: " + resultstr)
         return HTML_TEMPLATE % {
                     'MESSAGE' : resultstr
                 }

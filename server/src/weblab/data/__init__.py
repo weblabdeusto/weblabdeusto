@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 class ValidDatabaseSessionId(object):
     def __init__(self, username = None, role = ''):
         super(ValidDatabaseSessionId,self).__init__()

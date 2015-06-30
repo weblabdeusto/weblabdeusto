@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """professor => instructor
 
 Revision ID: 3fab9480c190

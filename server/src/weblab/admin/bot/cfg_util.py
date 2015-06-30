@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import socket
@@ -85,7 +86,7 @@ def generate_revision():
         p.wait()
         return p.stdout.read().split('\n')[0].split()[1]
     except Exception, e:
-        print "Could not gather revision:",e
+        print("Could not gather revision:",e)
         traceback.print_exc()
         return "(unknown)"
 
@@ -93,13 +94,13 @@ def retrieve_system(SYSTEMS):
     try:
         hostname = socket.gethostname()
     except:
-        print >> sys.stderr, "Couldn't retrieve host name"
+        print("Couldn't retrieve host name", file=sys.stderr)
         return "Unknown system"
     else:
         if hostname in SYSTEMS:
             return SYSTEMS[hostname]
         else:
-            print >> sys.stderr, "Couldn't retrieve machine information in SYSTEMS dictionary for hostname %s" % hostname
+            print("Couldn't retrieve machine information in SYSTEMS dictionary for hostname %s" % hostname, file=sys.stderr)
             return "Unknown system"
 
 def create_new_scenario():

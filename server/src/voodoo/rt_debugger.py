@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 """
 This code has been adapted from the simplebtconsole.py of Nokia Python for S60.
 
@@ -92,7 +93,7 @@ def get_server(server = None):
         return local_servers
 
     if server not in local_servers:
-        print "Error: %s not in %s" % (server, local_servers)
+        print("Error: %s not in %s" % (server, local_servers))
         return local_servers
 
     from voodoo.gen.registry import GLOBAL_REGISTRY
@@ -118,7 +119,7 @@ class Debugger(threading.Thread):
 
         while True:
             s, address = self.sock.accept()
-            print "Conection from %s" % str(address)
+            print("Conection from %s" % str(address))
 
             realio = sys.stdout, sys.stdin, sys.stderr
             socketio = RtDebugger(s, realio)
@@ -132,9 +133,9 @@ class Debugger(threading.Thread):
                 finally:
                     sys.stdout, sys.stdin, sys.stderr = realio
             except Exception as e:
-                print e
+                print(e)
             except SystemExit as e:
-                print e
+                print(e)
 
             try:
                 s.close()
@@ -171,5 +172,5 @@ def stop_debugger():
         try:
             _dbg.close()
         except Exception as e:
-            print e
+            print(e)
 

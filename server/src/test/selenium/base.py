@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 from selenium import webdriver
 from selenium.webdriver import FirefoxProfile
 from selenium.webdriver.common.by import By

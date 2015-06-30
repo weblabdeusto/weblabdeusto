@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """
 Launches a local Weblab instance which makes use of the launch_sample configuration, and runs
 on it the WeblabWeb tests using PhantomJS. Once the tests are run, the instance is automatically

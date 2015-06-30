@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import time
@@ -1211,7 +1212,7 @@ def suite():
                 unittest.makeSuite(RedisCoordinatorWithSlowConfirmerTestCase),
             ])
     else:
-        print >> sys.stderr, "redis not available. Skipping redis coordination tests"
+        print("redis not available. Skipping redis coordination tests", file=sys.stderr)
 
     return unittest.TestSuite(suites)
 

@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import random
@@ -125,7 +126,7 @@ class ILabBatchScheduler(Scheduler):
              })
              return WSS.PostReservationStatus(reservation_id, True, response, '')
         else:
-            print >> sys.stderr, "Unknown iLab batch code: %s" % code
+            print("Unknown iLab batch code: %s" % code, file=sys.stderr)
             return WSS.PostReservationStatus(reservation_id, True, "ERROR: WebLab-Deusto can't handle status code %s at this point" % code, '')
 
 

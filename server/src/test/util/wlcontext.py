@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import threading
 from weblab.core.wl import weblab_api
 

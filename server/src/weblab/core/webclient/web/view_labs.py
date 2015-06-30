@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import urllib
 
 from flask import render_template, url_for, request, flash, redirect

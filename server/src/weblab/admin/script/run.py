@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
+from __future__ import print_function, unicode_literals
 
 from __future__ import unicode_literals
 
@@ -67,7 +68,7 @@ def weblab_start(directory):
     check_dir_exists(directory, parser)
 
     if not run_with_config(directory, check_updated):
-        print >> sys.stderr, "Error: WebLab-Deusto instance outdated! You may have updated WebLab-Deusto recently. Run: weblab-admin.py upgrade %s" % directory
+        print("Error: WebLab-Deusto instance outdated! You may have updated WebLab-Deusto recently. Run: weblab-admin.py upgrade %s" % directory, file=sys.stderr)
         sys.exit(-1)
 
 
@@ -82,7 +83,7 @@ def weblab_start(directory):
             if not running:
                 os.remove("weblab.pid")
             else:
-                print >> sys.stderr, "Error: WebLab-Deusto instance seems to be running already!"
+                print("Error: WebLab-Deusto instance seems to be running already!", file=sys.stderr)
                 sys.exit(-1)
 
     try:
@@ -92,13 +93,13 @@ def weblab_start(directory):
             elif os.path.exists(os.path.join(old_cwd, options.script)):
                 execfile(os.path.join(old_cwd, options.script))
             else:
-                print >> sys.stderr, "Provided script %s does not exist" % options.script
+                print("Provided script %s does not exist" % options.script, file=sys.stderr)
                 sys.exit(-1)
         else:
             global_configuration = load_dir('.')
             if options.list_hosts:
                 for host in global_configuration:
-                    print ' - %s' % host
+                    print(' - %s' % host)
                 sys.exit(0)
 
             host_name = options.host
@@ -106,11 +107,11 @@ def weblab_start(directory):
                 if len(global_configuration) == 1:
                     host_name = global_configuration.keys()[0]
                 else:
-                    print >> sys.stderr, "System has more than one host (see -l). Please detail which host you want to start with the --host option."
+                    print("System has more than one host (see -l). Please detail which host you want to start with the --host option.", file=sys.stderr)
                     sys.exit(-1)
 
             if not host_name in global_configuration:
-                print >> sys.stderr, "Error: %s host does not exist. Use -l to see the list of existing hosts." % host_name
+                print("Error: %s host does not exist. Use -l to see the list of existing hosts." % host_name, file=sys.stderr)
                 sys.exit(-1)
 
             host_config = global_configuration[host_name]
@@ -118,13 +119,13 @@ def weblab_start(directory):
                 if os.path.exists('run.py'):
                     execfile('run.py')
                 else:
-                    print >> sys.stderr, "No runner was specified, and run.py was not available. Please the -s argument to specify the script or add the <runner file='run.py'/> option in %s." % host_name
+                    print("No runner was specified, and run.py was not available. Please the -s argument to specify the script or add the <runner file='run.py'/> option in %s." % host_name, file=sys.stderr)
                     sys.exit(-1)
             else:
                 if os.path.exists(host_config.runner):
                     execfile(host_config.runner)
                 else:
-                    print >> sys.stderr, "Misconfigured system. Machine %s points to %s which does not exist." % (host_name, os.path.abspath(host_config.runner))
+                    print("Misconfigured system. Machine %s points to %s which does not exist." % (host_name, os.path.abspath(host_config.runner)), file=sys.stderr)
                     sys.exit(-1)
     finally:
         os.chdir(old_cwd)
@@ -134,7 +135,7 @@ def weblab_stop(directory):
 
     check_dir_exists(directory, parser)
     if sys.platform.lower().startswith('win'):
-        print >> sys.stderr, "Stopping not yet supported. Try killing the process from the Task Manager or simply press enter"
+        print("Stopping not yet supported. Try killing the process from the Task Manager or simply press enter", file=sys.stderr)
         sys.exit(-1)
     os.kill(int(open(os.path.join(directory, 'weblab.pid')).read()), signal.SIGTERM)
 

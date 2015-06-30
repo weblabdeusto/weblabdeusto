@@ -12,6 +12,7 @@
 #
 # Author: Luis Rodriguez <luis.rodriguezgil@deusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 #
 # Note: The purpose of creating a new file (test_server_logic.py) rather than using the existing

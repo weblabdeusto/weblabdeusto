@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool

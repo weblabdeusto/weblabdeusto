@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from voodoo.log import logged
 from weblab.core.user_processor import SERVER_UUIDS
@@ -170,7 +171,7 @@ class IndependentSchedulerAggregator(Scheduler):
             else:
                 tabs = ''
 
-            print tabs, "<", url, self.schedulers.values(), ">"
+            print(tabs, "<", url, self.schedulers.values(), ">")
 
         assigned_resource_type_name = None
 
@@ -180,7 +181,7 @@ class IndependentSchedulerAggregator(Scheduler):
             scheduler = self.schedulers[resource_type_name]
             reservation_status = scheduler.get_reservation_status(reservation_id)
             if DEBUG:
-                print tabs, scheduler, reservation_status
+                print(tabs, scheduler, reservation_status)
             all_reservation_status[resource_type_name] = reservation_status
 
             if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
@@ -201,7 +202,7 @@ class IndependentSchedulerAggregator(Scheduler):
         best_reservation = self.select_best_reservation_status(all_reservation_status.values())
 
         if DEBUG:
-            print tabs, "</", url, best_reservation, "/>"
+            print(tabs, "</", url, best_reservation, "/>")
             print
         return best_reservation
 

@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 
@@ -85,7 +86,7 @@ def get_sqlite_dbname(dbname, dirname = None):
     upper_upper_dir = os.sep.join(('..', upper_dir))
     if os.path.exists(upper_upper_dir):
         return upper_upper_dir
-    print os.path.abspath(os.path.join('db', '%s.db' % dbname))
+    print(os.path.abspath(os.path.join('db', '%s.db' % dbname)))
     raise Exception("Could not find database %s. It does not exist at this moment." % dbname)
 
 def get_table_kwargs():

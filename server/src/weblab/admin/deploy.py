@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from __future__ import unicode_literals
 
@@ -912,9 +913,9 @@ def generate_create_database(engine_str):
                     connection = dbi.connect(**kwargs)
                 except dbi.OperationalError:
                     traceback.print_exc()
-                    print >> sys.stderr, ""
-                    print >> sys.stderr, "    %s" % error_message
-                    print >> sys.stderr, ""
+                    print("", file=sys.stderr)
+                    print("    %s" % error_message, file=sys.stderr)
+                    print("", file=sys.stderr)
                     sys.exit(-1)
                 else:
                     cursor = connection.cursor()

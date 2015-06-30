@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import unittest
 
 import test.util.stress as stress_util

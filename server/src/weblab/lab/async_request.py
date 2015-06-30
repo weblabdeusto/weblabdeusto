@@ -12,6 +12,7 @@
 #
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 STATUS_RUNNING  = "running"
 STATUS_OK       = "ok"

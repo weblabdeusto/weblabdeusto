@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import os
 import sys
 
@@ -16,7 +17,7 @@ class DbConfiguration(object):
 
         for configuration_file in configuration_files:
             if not os.path.exists(configuration_file):
-                print >> sys.stderr, "Could not find configuration file", configuration_file
+                print("Could not find configuration file", configuration_file, file=sys.stderr)
                 sys.exit(1)
 
             globals()['CURRENT_PATH'] = configuration_file

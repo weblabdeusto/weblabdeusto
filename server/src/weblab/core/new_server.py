@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import sys
 import json
 import types
@@ -126,7 +127,7 @@ def get_json():
         return rv
     
     data = request.data
-    print >> sys.stderr, "Error: could not deserialize:", data
+    print("Error: could not deserialize:", data, file=sys.stderr)
     sys.stderr.flush()
     log(__name__, level.Warning, "Error retrieving JSON contents")
     log(__name__, level.Warning, data)

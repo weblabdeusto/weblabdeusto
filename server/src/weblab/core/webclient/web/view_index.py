@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import traceback
 from flask import render_template, request, flash, redirect, url_for, make_response
 from weblab.core.login.exc import InvalidCredentialsError

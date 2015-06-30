@@ -12,7 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
+import six
 import unittest
 import threading
 import thread
@@ -173,7 +175,7 @@ class MapperTestCase(unittest.TestCase):
 
         dto = mapper.dto_generator(my_class)
         my_class2 = mapper.load_from_dto(dto)
-        self.assertTrue(isinstance(my_class2.native_obj,str))
+        self.assertTrue(isinstance(my_class2.native_obj,six.string_types))
 
     def test_dto_not_comparable_instances(self):
         dt = xmlrpclib.DateTime()
