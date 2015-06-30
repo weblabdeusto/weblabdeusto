@@ -86,7 +86,7 @@ def logout():
             # Prepare to call the weblab_api
             weblab_api.ctx.reservation_id = cookie
             weblab_api.api.logout()
-    except SessionNotFoundError as ex:
+    except SessionNotFoundError:
         # We weren't logged in but it doesn't matter because we want to logout anyway.
         pass
 

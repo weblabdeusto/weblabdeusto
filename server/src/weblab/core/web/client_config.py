@@ -14,7 +14,7 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
-from flask import request, jsonify
+from flask import jsonify
 from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/client_config.json')

@@ -15,7 +15,7 @@
 #
 
 import json
-from flask import request, make_response
+from flask import make_response
 from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/experiments.js')

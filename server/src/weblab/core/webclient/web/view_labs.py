@@ -27,7 +27,7 @@ def labs():
 
         experiments, experiments_by_category = _get_experiment_info(experiments_raw)
         loggedin_info = _get_loggedin_info()
-    except SessionNotFoundError as ex:
+    except SessionNotFoundError:
         flash("You are not logged in", category="error")
         next = request.full_path
         return redirect(url_for(".index", _external=True, _scheme=request.scheme, next=next))

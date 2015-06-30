@@ -31,7 +31,6 @@ import uuid
 import traceback
 import sqlite3
 import urlparse
-import json
 import StringIO
 from collections import OrderedDict
 from optparse import OptionParser, OptionGroup
@@ -49,7 +48,6 @@ from weblab.db.upgrade import DbSchedulingUpgrader
 import weblab.admin.deploy as deploy
 from .utils import ordered_dump
 
-from voodoo.resources_manager import is_testing
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
@@ -1200,7 +1198,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     current_port = options[Creation.START_PORTS]
     creation_results[CreationResult.START_PORT] = current_port
 
-    latest_core_server_directory = None
     for core_number in range(1, options[Creation.CORES] + 1):
         current_core = core_host['processes']['core_process%s' % core_number]
         current_core['components']['core'] = { 'type' : 'core' }
@@ -2068,13 +2065,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     #     Generate configuration.js files
     #
     configuration_js = {}
-
-    if is_testing():
-        lines = ["{}"]
-    else:
-        lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
-    new_lines = uncomment_json(lines)
-    configuration_js_data = json.loads(''.join(new_lines))
 
     configuration_js['development']                    = False
     configuration_js['demo.available']                 = False

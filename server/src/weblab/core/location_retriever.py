@@ -60,7 +60,7 @@ class AddressLocator(object):
 
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
-        except Exception as e:
+        except Exception:
             if is_private(ip_address):
                 resolved = "local"
             else:
@@ -149,7 +149,7 @@ class LocationRetriever(threading.Thread):
                             self.local_country = reader.city(local_public_ip_address).country.iso_code
                         if self.local_city is None:
                             self.local_city = reader.city(local_public_ip_address).city.name
-                    except Exception as e:
+                    except Exception:
                         print("Error trying to obtain city for IP: {0}".format(local_public_ip_address))
                         traceback.print_exc()
 
@@ -172,7 +172,7 @@ class LocationRetriever(threading.Thread):
         while not self.stopping:
             try:
                 changes = self.db.update_locations(self.locator.locate)
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
                 changes = 0
 

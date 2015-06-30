@@ -823,7 +823,7 @@ class DatabaseGateway(object):
                 else:
                     try:
                         result = location_func(use.origin)
-                    except Exception as e:
+                    except Exception:
                         traceback.print_exc()
                         continue
                     use.city = result['city']
@@ -837,7 +837,7 @@ class DatabaseGateway(object):
 
             try:
                 _current.session.commit()
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
 
         return counter

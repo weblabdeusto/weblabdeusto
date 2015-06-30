@@ -21,7 +21,6 @@ import voodoo.log as log
 
 import weblab.configuration_doc as configuration_doc
 
-import weblab.data.server_type as ServerType
 import weblab.data.command as Command
 
 import weblab.core.exc as core_exc

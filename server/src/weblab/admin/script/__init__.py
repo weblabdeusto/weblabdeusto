@@ -22,7 +22,6 @@ from weblab.admin.script.creation import weblab_create, Creation
 assert Creation != None # Avoid pyflakes warning, wcloud still uses "from weblab.admin.script import Creation"
 from weblab.admin.script.run import weblab_start, weblab_stop
 from weblab.admin.script.monitor import weblab_monitor
-from weblab.admin.script.admin import weblab_admin
 from weblab.admin.script.upgrade import weblab_upgrade
 from weblab.admin.script.locations import weblab_locations
 
@@ -42,7 +41,6 @@ SORTED_COMMANDS = []
 SORTED_COMMANDS.append(('create',     'Create a new weblab instance')), 
 SORTED_COMMANDS.append(('start',      'Start an existing weblab instance')), 
 SORTED_COMMANDS.append(('stop',       'Stop an existing weblab instance')),
-SORTED_COMMANDS.append(('admin',      'Adminstrate a weblab instance')),
 SORTED_COMMANDS.append(('monitor',    'Monitor the current use of a weblab instance')),
 SORTED_COMMANDS.append(('upgrade',    'Upgrade the current setting')), 
 SORTED_COMMANDS.append(('locations',  'Manage the locations database')), 
@@ -77,8 +75,6 @@ def weblab():
         weblab_stop(sys.argv[2])
     elif main_command == 'monitor':
         weblab_monitor(sys.argv[2])
-    elif main_command == 'admin':
-        weblab_admin(sys.argv[2])
     elif main_command == 'upgrade':
         weblab_upgrade(sys.argv[2])
     elif main_command == 'locations':

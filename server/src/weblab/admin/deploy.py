@@ -625,8 +625,6 @@ def populate_weblab_tests(engine, tests):
     facebook = session.query(model.DbAuthType).filter_by(name="FACEBOOK").one()
 
     # Auths
-    weblab_db = session.query(model.DbAuth).filter_by(name = "WebLab DB").one()
-
     cdk_ldap = model.DbAuth(ldap, "Configuration of CDK at Deusto", 2, "ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es")
     session.add(cdk_ldap)
 

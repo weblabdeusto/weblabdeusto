@@ -1,7 +1,7 @@
 import datetime
 from flask import render_template, request, send_file, Response, url_for
 from functools import wraps, partial
-from weblab.core.web import weblab_api, get_argument
+from weblab.core.web import weblab_api
 from weblab.core.db import UsesQueryParams
 
 def check_credentials(func):

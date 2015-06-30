@@ -18,8 +18,6 @@ import traceback
 import voodoo.log as log
 from voodoo.gen import CoordAddress
 
-import weblab.data.server_type as ServerType
-
 class ResourcesChecker(object):
     def __init__(self, coordinator):
         self.coordinator = coordinator

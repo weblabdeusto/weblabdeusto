@@ -5,7 +5,6 @@ import os
 import re
 import urllib
 import urlparse
-from flask import url_for
 from weblab.core.wl import weblab_api
 
 
@@ -46,7 +45,7 @@ def safe_redirect(redir):
             return None
         redir = redirurl.geturl()
         return redir
-    except Exception as ex:
+    except Exception:
         return None
 
 

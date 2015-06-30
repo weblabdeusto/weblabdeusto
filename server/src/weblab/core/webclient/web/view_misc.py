@@ -1,8 +1,4 @@
-import json
-import logging
-
-from flask import render_template, Response, request
-import requests
+from flask import render_template, Response
 
 from weblab.webclient.web.helpers import _retrieve_configuration_js
 from weblab.core.wl import weblab_api

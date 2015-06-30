@@ -371,7 +371,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
 
         if is_class_method:
             @wraps(f)
-            def wrapped(self,*args, **kargs):
+            def wrapped_class_method(self,*args, **kargs):
                 logger_name = _get_full_class_name(self.__class__, f)
                 logger = _get_logger(logger_name)
                 if not logger.isEnabledFor(logging_level):
@@ -393,9 +393,10 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                     footer_return.log(result)
 
                 return result
+            wrapped = wrapped_class_method
         else: # For functions
             @wraps(f)
-            def wrapped(*args, **kargs):
+            def wrapped_function(*args, **kargs):
                 logger_name = f.__module__
                 logger = _get_logger(logger_name)
                 if not logger.isEnabledFor(logging_level):
@@ -417,6 +418,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                     footer_return.log(result)
 
                 return result
+            wrapped = wrapped_function
         return wrapped
     return real_logger
 

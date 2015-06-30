@@ -1,6 +1,5 @@
 import os
 import re
-import sys
 import sha
 import time
 import json

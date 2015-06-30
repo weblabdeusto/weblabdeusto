@@ -33,7 +33,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import weblab.db.model as model
-from weblab.admin.cli.controller import DbConfiguration
+from weblab.admin.script.dbutils import DbConfiguration
 from weblab.admin.script.utils import run_with_config, ordered_dump
 
 import xml.dom.minidom as minidom

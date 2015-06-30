@@ -24,8 +24,6 @@ import voodoo.resources_manager as ResourceManager
 from voodoo.gen import CoordAddress
 import voodoo.sessions.session_id as SessionId
 
-import weblab.data.server_type as ServerType
-
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("Coordinator")
 
 DEBUG = False
