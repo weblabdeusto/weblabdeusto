@@ -43,7 +43,7 @@ import sqlalchemy
 import weblab.configuration_doc as configuration_doc
 from weblab.util import data_filename
 
-import weblab.db.model as Model
+import weblab.db.model as model
 from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
@@ -904,7 +904,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
 
     if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
     deploy.insert_required_initial_data(engine)

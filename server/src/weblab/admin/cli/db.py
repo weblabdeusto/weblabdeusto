@@ -21,7 +21,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from voodoo.dbutil import generate_getconn, get_sqlite_dbname
-import weblab.db.model as Model
+import weblab.db.model as model
 import weblab.permissions as permissions
 
 
@@ -49,59 +49,59 @@ class DbGateway(object):
 
     def get_experiment_category(self, experiment_category_name):
         try:
-            return self.session.query(Model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
+            return self.session.query(model.DbExperimentCategory).filter_by(name=experiment_category_name).one()
         except NoResultFound:
             return None
 
     def get_group(self, group_name):
         try:
-            return self.session.query(Model.DbGroup).filter_by(name=group_name).one()
+            return self.session.query(model.DbGroup).filter_by(name=group_name).one()
         except NoResultFound:
             return None
 
     def get_groups(self):
         try:
-            return self.session.query(Model.DbGroup).order_by('id').all()
+            return self.session.query(model.DbGroup).order_by('id').all()
         except NoResultFound:
             return []
 
     def get_users(self, users_logins=None):
         try:
             if users_logins is None:
-                return self.session.query(Model.DbUser).order_by('id').all()
+                return self.session.query(model.DbUser).order_by('id').all()
             else:
-                return self.session.query(Model.DbUser).filter(Model.DbUser.login.in_(users_logins)).all()
+                return self.session.query(model.DbUser).filter(model.DbUser.login.in_(users_logins)).all()
         except NoResultFound:
             return []
 
     def get_experiment_categories(self):
         try:
-            return self.session.query(Model.DbExperimentCategory).order_by('id').all()
+            return self.session.query(model.DbExperimentCategory).order_by('id').all()
         except NoResultFound:
             return []
 
     def get_experiments(self):
         try:
-            return self.session.query(Model.DbExperiment).order_by('id').all()
+            return self.session.query(model.DbExperiment).order_by('id').all()
         except NoResultFound:
             return []
 
     def get_roles(self):
         try:
-            return self.session.query(Model.DbRole).order_by('id').all()
+            return self.session.query(model.DbRole).order_by('id').all()
         except NoResultFound:
             return []
 
     def get_auths(self, authtype_name):
-        auth_type = self.session.query(Model.DbAuthType).filter_by(name=authtype_name).order_by('id').one()
+        auth_type = self.session.query(model.DbAuthType).filter_by(name=authtype_name).order_by('id').one()
         try:
-            return self.session.query(Model.DbAuth).filter_by(auth_type=auth_type).order_by('id').all()
+            return self.session.query(model.DbAuth).filter_by(auth_type=auth_type).order_by('id').all()
         except NoResultFound:
             return []
 
     def insert_group(self, group_name, parent_group):
         try:
-            group = Model.DbGroup(group_name, parent_group)
+            group = model.DbGroup(group_name, parent_group)
             self.session.add(group)
             self.session.commit()
             return group
@@ -110,7 +110,7 @@ class DbGateway(object):
 
     def insert_experiment_category(self, experiment_category_name):
         try:
-            experiment_category = Model.DbExperimentCategory(name=experiment_category_name)
+            experiment_category = model.DbExperimentCategory(name=experiment_category_name)
             self.session.add(experiment_category)
             self.session.commit()
             return experiment_category
@@ -119,7 +119,7 @@ class DbGateway(object):
 
     def insert_experiment(self, experiment_name, experiment_category, start_date, end_date):
         try:
-            experiment = Model.DbExperiment(experiment_name, experiment_category, start_date, end_date)
+            experiment = model.DbExperiment(experiment_name, experiment_category, start_date, end_date)
             self.session.add(experiment)
             self.session.commit()
             return experiment
@@ -128,7 +128,7 @@ class DbGateway(object):
 
     def insert_user(self, login, full_name, email, avatar, role):
         try:
-            user = Model.DbUser(login, full_name, email, avatar, role)
+            user = model.DbUser(login, full_name, email, avatar, role)
             self.session.add(user)
             self.session.commit()
             return user
@@ -137,7 +137,7 @@ class DbGateway(object):
 
     def insert_user_auth(self, user, auth, configuration):
         try:
-            user_auth = Model.DbUserAuth(user, auth, configuration)
+            user_auth = model.DbUserAuth(user, auth, configuration)
             self.session.add(user_auth)
             self.session.commit()
             return user_auth
@@ -154,7 +154,7 @@ class DbGateway(object):
 
     def grant_on_experiment_to_group(self, group, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
-            group_permission = Model.DbGroupPermission(
+            group_permission = model.DbGroupPermission(
                                     group,
                                     permission_type,
                                     permanent_id,
@@ -162,31 +162,31 @@ class DbGateway(object):
                                     comments
                                 )
             self.session.add(group_permission)
-            group_permission_p1 = Model.DbGroupPermissionParameter(
+            group_permission_p1 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.EXPERIMENT_PERMANENT_ID,
                                         experiment.name
                                   )
             self.session.add(group_permission_p1)
-            group_permission_p2 = Model.DbGroupPermissionParameter(
+            group_permission_p2 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.EXPERIMENT_CATEGORY_ID,
                                         experiment.category.name
                                   )
             self.session.add(group_permission_p2)
-            group_permission_p3 = Model.DbGroupPermissionParameter(
+            group_permission_p3 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.TIME_ALLOWED,
                                         time_allowed
                                   )
             self.session.add(group_permission_p3)
-            group_permission_p4 = Model.DbGroupPermissionParameter(
+            group_permission_p4 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.PRIORITY,
                                         priority
                                   )
             self.session.add(group_permission_p4)
-            group_permission_p5 = Model.DbGroupPermissionParameter(
+            group_permission_p5 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.INITIALIZATION_IN_ACCOUNTING,
                                         initialization_in_accounting
@@ -200,7 +200,7 @@ class DbGateway(object):
 
     def grant_on_experiment_to_user(self, user, permission_type, permanent_id, date, comments, experiment, time_allowed, priority, initialization_in_accounting):
         try:
-            user_permission = Model.DbUserPermission(
+            user_permission = model.DbUserPermission(
                                     user,
                                     permission_type,
                                     permanent_id,
@@ -208,31 +208,31 @@ class DbGateway(object):
                                     comments
                                 )
             self.session.add(user_permission)
-            user_permission_p1 = Model.DbUserPermissionParameter(
+            user_permission_p1 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.EXPERIMENT_PERMANENT_ID,
                                         experiment.name
                                   )
             self.session.add(user_permission_p1)
-            user_permission_p2 = Model.DbUserPermissionParameter(
+            user_permission_p2 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.EXPERIMENT_CATEGORY_ID,
                                         experiment.category.name
                                   )
             self.session.add(user_permission_p2)
-            user_permission_p3 = Model.DbUserPermissionParameter(
+            user_permission_p3 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.TIME_ALLOWED,
                                         time_allowed
                                   )
             self.session.add(user_permission_p3)
-            user_permission_p4 = Model.DbUserPermissionParameter(
+            user_permission_p4 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.PRIORITY,
                                         priority
                                   )
             self.session.add(user_permission_p4)
-            user_permission_p5 = Model.DbUserPermissionParameter(
+            user_permission_p5 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.INITIALIZATION_IN_ACCOUNTING,
                                         initialization_in_accounting
@@ -246,7 +246,7 @@ class DbGateway(object):
 
     def grant_on_admin_panel_to_group(self, group, permission_type, permanent_id, date, comments):
         try:
-            group_permission = Model.DbGroupPermission(
+            group_permission = model.DbGroupPermission(
                                     group,
                                     permission_type,
                                     permanent_id,
@@ -254,7 +254,7 @@ class DbGateway(object):
                                     comments
                                 )
             self.session.add(group_permission)
-            group_permission_p1 = Model.DbGroupPermissionParameter(
+            group_permission_p1 = model.DbGroupPermissionParameter(
                                         group_permission,
                                         permissions.FULL_PRIVILEGES,
                                         True
@@ -267,7 +267,7 @@ class DbGateway(object):
 
     def grant_on_admin_panel_to_user(self, user, permission_type, permanent_id, date, comments):
         try:
-            user_permission = Model.DbUserPermission(
+            user_permission = model.DbUserPermission(
                                     user,
                                     permission_type,
                                     permanent_id,
@@ -275,7 +275,7 @@ class DbGateway(object):
                                     comments
                                 )
             self.session.add(user_permission)
-            user_permission_p1 = Model.DbUserPermissionParameter(
+            user_permission_p1 = model.DbUserPermissionParameter(
                                         user_permission,
                                         permissions.FULL_PRIVILEGES,
                                         True
@@ -288,7 +288,7 @@ class DbGateway(object):
 
     def grant_on_access_forward_to_group(self, group, permission_type, permanent_id, date, comments):
         try:
-            group_permission = Model.DbGroupPermission(
+            group_permission = model.DbGroupPermission(
                                     group,
                                     permission_type,
                                     permanent_id,
@@ -303,7 +303,7 @@ class DbGateway(object):
 
     def grant_on_access_forward_to_user(self, user, permission_type, permanent_id, date, comments):
         try:
-            user_permission = Model.DbUserPermission(
+            user_permission = model.DbUserPermission(
                                     user,
                                     permission_type,
                                     permanent_id,
