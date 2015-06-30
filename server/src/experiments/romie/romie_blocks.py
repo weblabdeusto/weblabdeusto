@@ -85,7 +85,7 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
                 return "ERR"
 
         if response is not None:
-            return json.dumps("response": response, "tag": tag)
+            return json.dumps({"response": response, "tag": tag})
 
         return "ERR"
 
