@@ -1,4 +1,4 @@
-{% macro render_field(field, required = False) %}
+{% macro render_field(field, required = False, no_form_control = False) %}
 
     <div class="form-group {% if field.errors %}error{% endif %}">
         {% if required %}
@@ -9,10 +9,10 @@
         {{ field.label(the_label, class="control-label col-sm-3") }}
         
         <div class="col-sm-7">
-            {{ field(id=field.name, class="form-control", **kwargs)|safe }}
+            {{ field(id=field.name, class="" if no_form_control else "form-control", **kwargs)|safe }}
             <p class="help-block">{{ field.description }}</p>
             {% for error in field.errors %}
-            <span class="help-inline">{{ error }}</span>
+            <span class="help-block">{{ error }}</span>
             {% endfor %}
         </div>
     </div>

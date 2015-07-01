@@ -1,16 +1,11 @@
 {% extends 'weblab-master.html' %}
 
-{% block head %}
-<link href="{{ url_for('admin.static', filename='select2/select2.css') }}" rel="stylesheet">
-{% endblock %}
-
-
 {% block body %}
 
 {% from "_form_helpers.html" import render_field, render_simple_field %}
 
 <div class="row">
-    <div class="span4 offset2">
+    <div class="col-sm-4 col-sm-offset-2">
         <h3>General</h3>
         <form method="POST" action="{{ request.url }}" class="form-horizontal">
             {{ form.hidden_tag() }}
@@ -33,7 +28,7 @@
 
 {% if experiments %}
 <div class="row">
-    <div class="span7 offset2">
+    <div class="col-sm-7 col-sm-offset-2">
         <h3>Associations</h3>
 
         <table class="table table-hover table-bordered">
@@ -112,6 +107,6 @@
 {% endblock %}
 
 {% block tail %}
-    <script src="{{ url_for('admin.static', filename='admin/js/form.js') }}"></script>
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
 {% endblock %}
 

@@ -2,6 +2,12 @@
 
 {% block head_css %}
 {{ super() }}
+
+<link href="{{ url_for('admin.static', filename='vendor/select2/select2.css') }}" rel="stylesheet">
+<link href="{{ url_for('admin.static', filename='vendor/select2/select2-bootstrap3.css') }}" rel="stylesheet">
+<link href="{{ url_for('admin.static', filename='vendor/bootstrap-daterangepicker/daterangepicker-bs3.css') }}" rel="stylesheet">
+
+
 <script>
     function flipInputVisibility(nextInput) {
         var show = nextInput.checked;

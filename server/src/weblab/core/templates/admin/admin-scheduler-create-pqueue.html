@@ -1,14 +1,9 @@
 {% extends 'weblab-master.html' %}
 
-{% block head %}
-<link href="{{ url_for('admin.static', filename='select2/select2.css') }}" rel="stylesheet">
-{% endblock %}
-
-
 {% block body %}
 
 <div class="row">
-    <div class="span7 offset2">
+    <div class="col-sm-7 col-sm-offset-2">
         {% from "_form_helpers.html" import render_field %}
         <form method="POST" action="{{ request.url }}" class="form-horizontal">
             {{ form.hidden_tag() }}
@@ -17,7 +12,7 @@
                 {{ render_field(form.name) }}
                 {{ render_field(form.randomize_instances) }}
 
-                <div class="form-actions">
+                <div class="form-actions text-center">
                     <a class="btn" href="{{ back }}">Back</a>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
@@ -30,6 +25,6 @@
 {% endblock %}
 
 {% block tail %}
-    <script src="{{ url_for('admin.static', filename='admin/js/form.js') }}"></script>
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
 {% endblock %}
 
