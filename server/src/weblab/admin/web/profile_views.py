@@ -13,6 +13,7 @@ from wtforms.validators import NumberRange
 from flask.ext.wtf import Form
 from weblab.admin.web.fields import DisabledTextField
 
+from weblab.core.babel import gettext, lazy_gettext
 import weblab.permissions as permissions
 
 
@@ -21,11 +22,11 @@ def get_app_instance():
     return admin_app.GLOBAL_APP_INSTANCE
 
 class ProfileEditForm(Form):
-    full_name   = DisabledTextField(u"Full name:")
-    login       = DisabledTextField(u"Login:")
-    email       = TextField(u"E-mail:")
-    facebook    = TextField(u"Facebook id:", description="Facebook identifier (number).", validators = [NumberRange(min=1000) ])
-    password    = PasswordField(u"Password:", description="Password.")
+    full_name   = DisabledTextField(lazy_gettext("Full name:"))
+    login       = DisabledTextField(lazy_gettext(u"Login:"))
+    email       = TextField(lazy_gettext(u"E-mail:"))
+    facebook    = TextField(lazy_gettext(u"Facebook id:"), description=lazy_gettext("Facebook identifier (number)."), validators = [NumberRange(min=1000) ])
+    password    = PasswordField(lazy_gettext(u"Password:"), description=lazy_gettext("Password."))
 
 class ProfileEditView(BaseView):
 
@@ -78,7 +79,7 @@ class ProfileEditView(BaseView):
 
             if change_password and password_auth is not None and form.password.data:
                 if len(form.password.data) < 6:
-                    errors.append("Error: too short password")
+                    errors.append(gettext("Error: too short password"))
                 else:
                     password_auth.configuration = self._password2sha(form.password.data)
 
@@ -101,7 +102,7 @@ class ProfileEditView(BaseView):
                 for error in errors:
                     flash(error)
             else:
-                flash("Saved")
+                flash(gettext("Saved"))
 
         return self.render("profile/profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
 
@@ -125,6 +126,8 @@ class ProfileEditView(BaseView):
 class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
     column_list    = ( 'experiment', 'start_date', 'end_date', 'origin', 'details' )
     column_filters = ( 'start_date', 'end_date', 'experiment', 'origin')
+    # TODO: not working due to some flask magic
+    # column_labels  = dict(experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), origin=lazy_gettext("Origin"), details=lazy_gettext("Details"))
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None

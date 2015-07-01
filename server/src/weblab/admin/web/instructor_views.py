@@ -16,6 +16,7 @@ from flask.ext.admin.contrib.sqla import ModelView
 
 from sqlalchemy import sql, func as sa_func, distinct, not_, outerjoin
 
+from weblab.core.babel import gettext, lazy_gettext
 import weblab.permissions as permissions
 import weblab.db.model as model
 from .community import best_partition
@@ -385,7 +386,7 @@ def generate_links(session, condition):
 def gefx(session, condition):
     links, _ = generate_links(session, condition)
     if not links:
-        return "This groups does not have any detected plagiarism"
+        return gettext("This groups does not have any detected plagiarism")
 
     G = nx.DiGraph()
     
@@ -425,13 +426,13 @@ def gefx(session, condition):
 
 def to_human(seconds):
     if seconds < 60:
-        return "%.2f sec" % seconds
+        return gettext("%(num)s sec", num="%.2f" % seconds)
     elif seconds < 3600:
-        return "%s min %s sec" % (int(seconds) / 60, int(seconds) % 60)
+        return gettext("%(min)s min %(sec)s sec", min=(int(seconds) / 60), sec=(int(seconds) % 60))
     elif seconds < 24 * 3600:
-        return "%s hour %s min" % (int(seconds) / 3600, int(seconds) % 3600 / 60)
+        return gettext("%(hours)s hour %(min)s min", hours=(int(seconds) / 3600), min=(int(seconds) % 3600 / 60))
     else:
-        return "%s days" % (int(seconds) / (3600 * 24))
+        return gettext("%(days)s days", days = (int(seconds) / (3600 * 24)))
     
 def to_nvd3(timeline):
     # Get timeline in the form of:

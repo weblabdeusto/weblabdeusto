@@ -48,7 +48,7 @@ class AdministrationApplication(object):
         super(AdministrationApplication, self).__init__()
         import weblab.admin.web.app as app_module
         app_module.GLOBAL_APP_INSTANCE = self
-
+        
         self.cfg_manager = cfg_manager
         db.initialize(cfg_manager)
 
