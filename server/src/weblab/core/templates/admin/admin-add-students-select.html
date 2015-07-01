@@ -5,34 +5,34 @@
 <div class="row">
     <div class="col-sm-7 col-sm-offset-2">
         <br/>
-        <h1>Add users</h1>
+        <h1>{{ gettext("Add users") }}</h1>
         <br/>
         <br/>
-        <p>You can add multiple users in a single operation. So as to do this, you must select first an authentication type from the following. Then, you will need to fill a text in a particular format, which depends on each authentication type.</p>
+        <p>{{ gettext("You can add multiple users in a single operation. So as to do this, you must select first an authentication type from the following. Then, you will need to fill a text in a particular format, which depends on each authentication type.") }}</p>
 
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <td><strong>Type</strong></td>
-                    <td><strong>Description</strong></td>
-                    <td><strong>Action</strong></td>
+                    <td><strong>{{ gettext("Type") }}</strong></td>
+                    <td><strong>{{ gettext("Description") }}</strong></td>
+                    <td><strong>{{ gettext("Action") }}</strong></td>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Database</td>
-                    <td>Simplest method: a passwords is stored in WebLab-Deusto</td>
-                    <td><a class="btn btn-primary" href="{{ url_for('.add_db') }}">Add users</a></td>
+                    <td>{{ gettext("Database") }}</td>
+                    <td>{{ gettext("Simplest method: a passwords is stored in WebLab-Deusto") }}</td>
+                    <td><a class="btn btn-primary" href="{{ url_for('.add_db') }}">{{ gettext("Add users") }}</a></td>
                 </tr>
                 <tr>
-                    <td>OpenID</td>
-                    <td>Rely on an external system for authentication</td>
-                    <td><a class="btn btn-primary"  href="{{ url_for('.add_openid') }}">Add users</a></td>
+                    <td>{{ gettext("OpenID") }}</td>
+                    <td>{{ gettext("Rely on an external system for authentication") }}</td>
+                    <td><a class="btn btn-primary"  href="{{ url_for('.add_openid') }}">{{ gettext("Add users") }}</a></td>
                 </tr>
                 <tr>
-                    <td>LDAP</td>
-                    <td>Rely on a local authentication system, if available</td>
-                    <td><a class="btn btn-primary" href="{{ url_for('.add_ldap') }}">Add users</a></td>
+                    <td>{{ gettext("LDAP") }}</td>
+                    <td>{{ gettext("Rely on a local authentication system, if available") }}</td>
+                    <td><a class="btn btn-primary" href="{{ url_for('.add_ldap') }}">{{ gettext("Add users") }}</a></td>
                 </tr>
             </tbody>
         </table>

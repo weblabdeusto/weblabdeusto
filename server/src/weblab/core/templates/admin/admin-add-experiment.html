@@ -23,7 +23,7 @@
     <div class="col-sm-9 col-offset-1">
         <br/>
         <div class="text-center">
-            <h1>Add experiment</h1>
+            <h1>{{ gettext("Add experiment") }}</h1>
         </div>
         <br/>
         <br/>
@@ -65,8 +65,8 @@
 
             <fieldset>
                 <div class="form-actions text-center">
-                    <a href="{{ url_for('.index_view') }}" =type="submit" class="btn btn-danger">Back</a>
-                    <button type="submit" name="action" value="save" class="btn btn-primary">Save</button>
+                    <a href="{{ url_for('.index_view') }}" class="btn btn-danger">{{ gettext("Back") }}</a>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">{{ gettext("Save") }}</button>
                 </div>
             </fieldset>
         </form>
@@ -96,7 +96,7 @@
             var name_id = "name_" + id;
             if (dynamic) {
                 var type_id = "type_" + id;
-                labelBlock = $("<div class='control-label col-sm-3'><input id='" + name_id + "' name='" + name_id + "' placeholder='Parameter name...' width='4' type='text' class='input-large' value='" + label + "'></input><input type='hidden' name='" + type_id + "' id='" + type_id + "' value='" + type + "'></div>");
+                labelBlock = $("<div class='control-label col-sm-3'><input id='" + name_id + "' name='" + name_id + "' placeholder='{{ gettext("Parameter name...") }}' width='4' type='text' class='input-large' value='" + label + "'></input><input type='hidden' name='" + type_id + "' id='" + type_id + "' value='" + type + "'></div>");
             } else {
                 labelBlock = $("<label class='control-label col-sm-3'></label>");
                 labelBlock.text(label);

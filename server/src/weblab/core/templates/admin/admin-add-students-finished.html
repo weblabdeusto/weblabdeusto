@@ -5,17 +5,21 @@
 <div class="row">
     <div class="col-sm-7 col-sm-offset-2">
         <br/>
-        <h1>Users added successfully</h1>
+        <h1>{{ gettext("Users added successfully") }}</h1>
         <br/>
         <br/>
-
-        <p>The following users has been successfully added{% if group_name %} and added to the group <strong>{{ group_name }}</strong>{% endif %}:</p>
+        
+        {% if group_name %}
+        <p>{{ gettext("The following users has been successfully added and added to the group %(group_name)s:", group_name="<strong>%s</strong>" % group_name) }}</p>
+        {% else %}
+        <p>{{ gettext("The following users has been successfully added:") }}</p>
+        {% endif %}
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Login</th>
-                    <th>Full name</th>
-                    <th>E-mail address</th>
+                    <th>{{ gettext("Login") }}</th>
+                    <th>{{ gettext("Full name") }}</th>
+                    <th>{{ gettext("E-mail address") }}</th>
                 </th>
             </thead>
             <tbody>

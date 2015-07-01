@@ -16,8 +16,8 @@
                 {{ render_field(form.passkey) }}
 
                 <div class="text-center">
-                    <a class="btn" href="{{ back }}">Back</a>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a class="btn" href="{{ back }}">{{ gettext("Back") }}</a>
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
                 </div>
             </fieldset>
         </form>
@@ -31,8 +31,8 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Experiment</th>
-                    <th>Action</th>
+                    <th>{{ gettext("Experiment") }}</th>
+                    <th>{{ gettext("Action") }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,7 +59,7 @@
                     </tr>
                 {% endif %}
                 <tr>
-                    <td><a href="{{ url_for('experiments/experiments.create_view') }}" class="btn">Create a new experiment</a></td>
+                    <td><a href="{{ url_for('experiments/experiments.create_view') }}" class="btn">{{ gettext("Create a new experiment") }}</a></td>
                     <td></td>
                 </tr>
             </tbody>

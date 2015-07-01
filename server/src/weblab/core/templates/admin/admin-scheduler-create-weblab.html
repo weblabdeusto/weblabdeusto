@@ -6,7 +6,7 @@
 
 <div class="row">
     <div class="col-sm-4 col-sm-offset-2">
-        <h3>General</h3>
+        <h3>{{ gettext("General") }}</h3>
         <form method="POST" action="{{ request.url }}" class="form-horizontal">
             {{ form.hidden_tag() }}
             <input type="hidden" name="action" value="weblab-create" />
@@ -18,8 +18,8 @@
                 {{ render_field(form.password) }}
 
                 <div class="text-center">
-                    <a class="btn" href="{{ back }}">Back</a>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a class="btn" href="{{ back }}">{{ gettext("Back") }}</a>
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
                 </div>
             </fieldset>
         </form>
@@ -29,14 +29,14 @@
 {% if experiments %}
 <div class="row">
     <div class="col-sm-7 col-sm-offset-2">
-        <h3>Associations</h3>
+        <h3>{{ gettext("Associations") }}</h3>
 
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th>Remote system</th>
-                    <th>Local mapping</th>
-                    <th>Action</th>
+                    <th>{{ gettext("Remote system") }}</th>
+                    <th>{{ gettext("Local mapping") }}</th>
+                    <th>{{ gettext("Action") }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,15 +69,15 @@
         </table>
 
         {% if misconfigured_experiments %}
-        <h3>Misconfigured associations</h3>
-        <p>The following associations were once added and now the remote system does not provide them anymore</p>
+        <h3>{{ gettext("Misconfigured associations") }}</h3>
+        <p>{{ gettext("The following associations were once added and now the remote system does not provide them anymore") }}</p>
 
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th>Old remote name</th>
-                    <th>Local mapping</th>
-                    <th>Action</th>
+                    <th>{{ gettext("Old remote name") }}</th>
+                    <th>{{ gettext("Local mapping") }}</th>
+                    <th>{{ gettext("Action") }}</th>
                 </tr>
             </thead>
             <tbody>

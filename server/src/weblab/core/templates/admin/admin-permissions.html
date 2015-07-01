@@ -4,10 +4,10 @@
 
 <div class="row">
     <div class="col-sm-7 col-sm-offset-2">
-        <h1>Grant permissions</h1>
+        <h1>{{ gettext("Grant permissions") }}</h1>
 
         <br/>
-        <p>Select what kind of permission you are going to grant, and to who (a group, a role, a particular user):</p>
+        <p>{{ gettext("Select what kind of permission you are going to grant, and to who (a group, a role, a particular user):") }}</p>
         <br/>
 
         {% from "_form_helpers.html" import render_field %}
@@ -25,7 +25,7 @@
                 </ul>
 
                 <div class="form-actions text-center">
-                    <button type="submit" class="btn btn-primary">Continue</button>
+                    <button type="submit" class="btn btn-primary">{{ gettext("Continue") }}</button>
                 </div>
             </fieldset>
         </form>
