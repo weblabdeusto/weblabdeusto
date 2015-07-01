@@ -273,6 +273,14 @@ public class LabController implements ILabController {
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
 			@Override
 			public void onSuccess(final User userInformation) {
+                // If logged in and redirect is valid, redirect there
+                final String redirectTo = HistoryProperties.getValue(HistoryProperties.REDIRECT);
+                if (redirectTo != null) {
+                    if (redirectTo.startsWith(Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/") ){
+                        Window.Location.replace(redirectTo);
+                    }
+                }
+
 				LabController.this.uimanager.onLoggedIn(userInformation);
 			}
 			

@@ -27,6 +27,7 @@ public class HistoryProperties {
 	public static final String EXPERIMENT_NAME     = "exp.name";
 	public static final String EXPERIMENT_CATEGORY = "exp.category";
 	public static final String PAGE                = "page"; 
+	public static final String REDIRECT            = "redirect"; 
 	
 	public static final String HOME                = "home";
 	public static final String EXPERIMENT          = "experiment";
