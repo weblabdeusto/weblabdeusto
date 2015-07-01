@@ -19,13 +19,13 @@
         <thead>
             <tr>
                 <th></th>
-                <th class="text-center">{% if first_letter %}M{% else %}Monday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}T{% else %}Tuesday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}W{% else %}Wednesday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}T{% else %}Thursday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}F{% else %}Friday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}S{% else %}Saturday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}S{% else %}Sunday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}M{% else %}{{ gettext("Monday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}{{ gettext("Tuesday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}W{% else %}{{ gettext("Wednesday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}{{ gettext("Thursday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}F{% else %}{{ gettext("Friday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}{{ gettext("Saturday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}{{ gettext("Sunday") }}{% endif %}</th>
             </tr>
         </thead>
         <tbody>
@@ -53,8 +53,8 @@
 {% macro timeline(headers, data, table_id, format = '%.2f') %}
     {% if data|length == 0 %}
         <div class="alert alert-danger text-center">
-            <h1>No data available</h1>
-            <p>The timeline is empty</p>
+            <h1>{{ gettext("No data available") }}</h1>
+            <p>{{ gettext("The timeline is empty") }}</p>
         </div>
     {% endif %}
     <table id="{{ table_id }}">
@@ -386,7 +386,7 @@
 
 {% macro sna(id = '') %}
 
-    <button class="btn" id="stop-layout_{{ id }}">Stop Layout</button>
+    <button class="btn" id="stop-layout_{{ id }}">{{ gettext("Stop Layout") }}</button>
 
     <div class="col-sm-12 sigma-parent" id="sigma-example-parent_{{ id }}">
         <div class="sigma-expand" id="sigma-example_{{ id }}">
