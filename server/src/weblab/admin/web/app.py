@@ -259,6 +259,7 @@ class AdministrationApplication(object):
 if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from weblab.core.server import UserProcessingServer
+    from weblab.core.babel import initialize_i18n
     cfg_manager = ConfigurationManager()
     cfg_manager.append_path('test/unit/configuration.py')
 
@@ -283,6 +284,7 @@ if __name__ == '__main__':
     def index():
         return redirect('/weblab/administration/admin')
     
+    initialize_i18n(app)
     print("Open: http://localhost:5000/weblab/administration/admin/")
     admin_app.app.run(debug=True, host='0.0.0.0')
 

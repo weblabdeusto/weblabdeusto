@@ -5,13 +5,13 @@
     <div class="col-sm-7 col-sm-offset-2">
 
         <br/>
-        <h1>Welcome, {{ user_information.full_name }}!</h1>
+        <h1>{{ gettext("Welcome, %(user)s!", user=user_information.full_name) }}</h1>
         <br/>
 
-        <p>Here you will the accesses you did in the past, retrieve files you submitted, and edit your personal data.</p>
+        <p>{{ gettext("Here you will the accesses you did in the past, retrieve files you submitted, and edit your personal data.") }}</p>
 
         {% if is_admin %}
-        <p>Additionally, since you're an administrator, you can go the <a href="{{ admin_url }}">the administration panel</a>.</p>
+        {{ gettext("Additionally, since you're an administrator, you can go to %(start_link)sthe administration panel%(end_link)s"|safe, start_link=("<a href='%s'>" % admin_url)|safe, end_link="</a>"|safe)|safe }}.
         {% endif %}
 
     </div>

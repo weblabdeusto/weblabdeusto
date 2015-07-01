@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals
+from flask import request, session
 import traceback
 
 try:
@@ -37,3 +38,26 @@ except ImportError:
 
     def lazy_gettext(string, **variables):
         return gettext(string, **variables)
+
+
+def initialize_i18n(app):
+    if Babel is None:
+        print("Not using Babel. Everything will be in English")
+    else:
+        babel = Babel(app)
+
+        supported_languages = ['en']
+        supported_languages.extend([translation.language for translation in babel.list_translations()])
+
+        @babel.localeselector
+        def get_locale():
+            locale = request.args.get('locale', None)
+            if locale is None:
+                locale = session.get('locale', None)
+            if locale is None:
+                locale = request.accept_languages.best_match(supported_languages)
+            if locale is None:
+                locale = 'en'
+            session['locale'] = locale
+            return locale
+

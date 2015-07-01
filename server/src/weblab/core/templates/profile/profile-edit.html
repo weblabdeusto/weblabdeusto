@@ -6,7 +6,7 @@
     <div>
         <br/>
         <div class="text-center">
-           <h1>My profile</h1>
+           <h1>{{ gettext("My profile") }}</h1>
         </div>
         <br/>
         <br/>
@@ -27,9 +27,9 @@
                 <div class="text-center">
                     <div class="form-actions">
                         {% if change_profile %}
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
                         {% else %}
-                            <button type="submit" class="btn btn-primary disabled">Save</button>
+                            <button type="submit" class="btn btn-primary disabled">{{ gettext("Save") }}</button>
                         {% endif %}
                     </div>
                 </div>
