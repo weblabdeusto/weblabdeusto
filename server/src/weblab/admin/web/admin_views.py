@@ -726,7 +726,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
     column_searchable_list = ('origin',)
     column_sortable_list = (
-        'UserUsedExperiment.id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
+        'id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
         'end_date', 'origin', 'coord_address')
     column_list = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
@@ -1575,7 +1575,7 @@ class GenericPermissionPanel(AdministratorModelView):
     column_searchable_list = ('permanent_id', 'comments')
     column_formatters = dict(permission=display_parameters)
     column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
-    column_sortable_list = ( 'permission', 'permanent_id', 'date', 'comments')
+    column_sortable_list = ( 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
     form_overrides = dict(permanent_id=DisabledTextField, permission_type=DisabledTextField)
     form_excluded_columns = ('uses',)

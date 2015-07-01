@@ -11,7 +11,7 @@ def version():
     filename = data_filename(os.path.join('weblab','version.json'))
     contents = None
 
-    if filename is not None:
+    if filename is not None and os.path.exists(filename):
         version_contents = open(filename).read()
         try:
             version_contents_value = json.loads(version_contents)
