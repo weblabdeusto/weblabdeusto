@@ -8,7 +8,7 @@ if version_filename:
     try:
         git_version = json.loads(open(version_filename).read())
     except:
-        git_version is None
+        git_version = None
     if git_version and 'version' in git_version:
         __version__ = "{0} - {1}".format(base_version, git_version.get('version'))
 __ALL__ = []
