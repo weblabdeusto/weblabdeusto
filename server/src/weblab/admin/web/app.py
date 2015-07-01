@@ -64,6 +64,11 @@ class AdministrationApplication(object):
 
         static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
+        # Not allowed
+        @app.route('/weblab/administration/not_allowed')
+        def not_allowed():
+            return "You are logged in, but not allowed to see this content. Please log in with a proper account"
+    
         ################################################
         # 
         #  Administration panel for administrators
@@ -161,6 +166,9 @@ class AdministrationApplication(object):
 
         try:
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
+            if not session_id:
+                return False
+
             with weblab_api(self.ups, session_id = session_id):
                 try:
                     permissions = weblab.core.server.get_user_permissions()
