@@ -64,7 +64,7 @@ class AdministratorView(BaseView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(AdministratorView, self)._handle_view(name, **kwargs)
 
@@ -80,7 +80,7 @@ class AdministratorModelView(ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(AdministratorModelView, self)._handle_view(name, **kwargs)
 
@@ -1955,7 +1955,7 @@ class HomeView(AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(HomeView, self)._handle_view(name, **kwargs)
 

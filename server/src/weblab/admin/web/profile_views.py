@@ -118,7 +118,7 @@ class ProfileEditView(BaseView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(ProfileEditView, self)._handle_view(name, **kwargs)
 
@@ -129,9 +129,7 @@ class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None
 
-    def get_query(self):
-        query = super(MyAccessesPanel, self).get_query()
-
+    def _apply_filters(self, query):
         permissions = get_app_instance().get_permissions()
 
         # TODO: take permissions and if it says "do not use other logs", only show those logs
@@ -141,6 +139,14 @@ class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
         user = self.session.query(model.DbUser).filter_by(login = user_information.login).one()
 
         return query.filter_by(user = user)
+
+    def get_query(self):
+        query = super(MyAccessesPanel, self).get_query()
+        return self._apply_filters(query)
+
+    def get_count_query(self):
+        query = super(MyAccessesPanel, self).get_count_query()
+        return self._apply_filters(query)
 
     def get_files_query(self, id):
         uf = super(MyAccessesPanel, self).get_file(id)
@@ -170,7 +176,7 @@ class ProfileHomeView(AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(ProfileHomeView, self)._handle_view(name, **kwargs)
 

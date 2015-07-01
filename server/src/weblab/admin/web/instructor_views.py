@@ -38,7 +38,7 @@ class InstructorView(BaseView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/instructor')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/instructor')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(InstructorView, self)._handle_view(name, **kwargs)
 
@@ -48,7 +48,7 @@ class InstructorModelView(ModelView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/instructor')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/instructor')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(InstructorModelView, self)._handle_view(name, **kwargs)
 
@@ -98,7 +98,7 @@ class InstructorHomeView(AdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(InstructorHomeView, self)._handle_view(name, **kwargs)
 

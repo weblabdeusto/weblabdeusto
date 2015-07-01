@@ -71,7 +71,7 @@ class AdministrationApplication(object):
         # 
 
         admin_url = '/weblab/administration/admin'
-        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = 'WebLab-Deusto Admin', url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html')
+        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = 'WebLab-Deusto Admin', url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = 'General', name = 'Add multiple users',  endpoint = 'general/multiple/users'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
@@ -106,7 +106,7 @@ class AdministrationApplication(object):
         # 
 
         profile_url = '/weblab/administration/profile'
-        self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html')
+        self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
 
         self.profile.add_view(profile_views.ProfileEditView(db_session, name = 'Edit', endpoint = 'edit'))
 
@@ -137,7 +137,7 @@ class AdministrationApplication(object):
         instructor_url = '/weblab/administration/instructor'
         instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
         instructor_home.static_folder = static_folder
-        self.instructor = Admin(index_view = instructor_home, name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html')
+        self.instructor = Admin(index_view = instructor_home, name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
         
         self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
         self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
@@ -186,15 +186,16 @@ class AdministrationApplication(object):
 
         try:
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
-            try:
-                with weblab_api(self.ups, session_id = session_id):
-                    user_info = weblab.core.server.get_user_information()
-            except SessionNotFoundError:
-                # Gotcha
-                traceback.print_exc()
-                return None
-            else:
-                return user_info.role.name
+            if session_id:
+                try:
+                    with weblab_api(self.ups, session_id = session_id):
+                        user_info = weblab.core.server.get_user_information()
+                except SessionNotFoundError:
+                    # Gotcha
+                    traceback.print_exc()
+                else:
+                    return user_info.role.name
+            return None
         except:
             traceback.print_exc()
             return None
@@ -218,12 +219,13 @@ class AdministrationApplication(object):
                 return weblab.core.server.get_user_permissions()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
-        try:
-            with weblab_api(self.ups, session_id = session_id):
-                return weblab.core.server.get_user_permissions()
-        except:
-            traceback.print_exc()
-            return None
+        if session_id:
+            try:
+                with weblab_api(self.ups, session_id = session_id):
+                    return weblab.core.server.get_user_permissions()
+            except:
+                traceback.print_exc()
+        return None
 
     def get_user_information(self):
         if self.bypass_authz:
@@ -232,11 +234,15 @@ class AdministrationApplication(object):
                 return weblab.core.server.get_user_information()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
-        try:
-            with weblab_api(self.ups, session_id = session_id):
-                return weblab.core.server.get_user_information()
-        except SessionNotFoundError:
-            return None
+        if session_id:
+            try:
+                with weblab_api(self.ups, session_id = session_id):
+                    print("NOT BYPASSING. session_id={0}".format(session_id))
+                    return weblab.core.server.get_user_information()
+            except SessionNotFoundError:
+                pass
+        return None
+
 
 #############################################
 # 

@@ -247,7 +247,12 @@ class WebLabAPI(object):
             self.context.session_id = session_id
     
     def __exit__(self, *args, **kwargs):
-        pass
+        for key in dir(self.context):
+            if not key.startswith('__'):
+                try:
+                    delattr(self.context, key)
+                except AttributeError:
+                    pass
 
     @property
     def user_agent(self):
