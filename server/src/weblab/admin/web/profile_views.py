@@ -126,8 +126,7 @@ class ProfileEditView(BaseView):
 class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
     column_list    = ( 'experiment', 'start_date', 'end_date', 'origin', 'details' )
     column_filters = ( 'start_date', 'end_date', 'experiment', 'origin')
-    # TODO: not working due to some flask magic
-    # column_labels  = dict(experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), origin=lazy_gettext("Origin"), details=lazy_gettext("Details"))
+    column_labels  = dict(experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), origin=lazy_gettext("Origin"), details=lazy_gettext("Details"))
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None

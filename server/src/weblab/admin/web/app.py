@@ -1,8 +1,10 @@
 from __future__ import print_function, unicode_literals
 import os
 import sys
+import six
 import urlparse
 import traceback
+from functools import wraps
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -42,12 +44,47 @@ class RedirectView(BaseView):
 
 GLOBAL_APP_INSTANCE = None
 
+from flask.json import JSONEncoder
+from speaklater import is_lazy_string
+
+class CustomJSONEncoder(JSONEncoder):
+    """ Use a JSON encoder that allows you to use lazy_gettext as key in dictionaries.
+
+    Based on http://blog.miguelgrinberg.com/post/using-flask-babel-with-flask-010
+
+    But applying also the same pattern to the encode() method. Reason: as of Flask-Admin 1.2.0 (and earlier
+    versions), when applying lazy_strings to column_labels, it uses them as key in a dictionary, and using 
+    default() is not enough, so it fails. With this encoder, it recreates the dictionary (using OrderedDict
+    or whatever required) when encoding.
+    """
+    def default(self, obj):
+        if is_lazy_string(obj):
+            try:
+                return unicode(obj)  # python 2
+            except NameError:
+                return str(obj)  # python 3
+        return super(CustomJSONEncoder, self).default(obj)
+
+    def encode(self, obj, *args, **kwargs):
+        if isinstance(obj, dict):
+            new_obj = type(obj)()
+            for key, value in six.iteritems(obj):
+                if is_lazy_string(key):
+                    try:
+                        key = unicode(key)
+                    except NameError:
+                        key = str(key)
+                new_obj[key] = value
+            obj = new_obj 
+        return super(JSONEncoder, self).encode(obj, *args, **kwargs)
+
 class AdministrationApplication(object):
 
     def __init__(self, app, cfg_manager, ups, bypass_authz = False):
         super(AdministrationApplication, self).__init__()
         import weblab.admin.web.app as app_module
         app_module.GLOBAL_APP_INSTANCE = self
+        app.json_encoder = CustomJSONEncoder
         
         self.cfg_manager = cfg_manager
         db.initialize(cfg_manager)
@@ -260,6 +297,7 @@ if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from weblab.core.server import UserProcessingServer
     from weblab.core.babel import initialize_i18n
+
     cfg_manager = ConfigurationManager()
     cfg_manager.append_path('test/unit/configuration.py')
 
