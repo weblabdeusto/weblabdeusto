@@ -4,7 +4,7 @@
 {% from "_widgets.html" import timeline, timetable, sna, calendar_day, timeline_bars %}
 
 <div class="row">
-    <div class="span12">
+    <div class="col-sm-12">
         <a name="top"></a>
         {% if results['mode'] == 'group' %}
         <h1>{{ group.name }}</h1>
@@ -174,7 +174,7 @@
         {% endif %}
         {% endif %}
         {% else %}
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
             <h3>Sorry, there has been no activity in this group</h3>
         </div>
         {% endif %}

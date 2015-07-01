@@ -2,7 +2,7 @@
 {% block body %}
 
 <div class="row">
-    <div class="span7 offset2">
+    <div class="col-sm-7 col-sm-offset-2">
 
         <br/>
         <h1>Welcome, {{ user_information.full_name }}!</h1>
@@ -20,7 +20,7 @@
         {% from "_widgets.html" import show_groups %}
         {{ show_groups(tree_groups, groups) }}
         {% else %}
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
             <p>You don't have permission of teacher on any group (or there is no group in the system)</p>
         </div>
         {% endif %}

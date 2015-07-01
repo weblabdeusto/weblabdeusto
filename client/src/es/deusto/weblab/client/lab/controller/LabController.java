@@ -242,8 +242,8 @@ public class LabController implements ILabController {
 			
 			@Override
 			public void onSuccess(User userInformation) {
-                processRedirect();
-				callback.sessionConfirmed();
+                if (!processRedirect())
+				    callback.sessionConfirmed();
 			}
 		});
 	}
@@ -268,14 +268,17 @@ public class LabController implements ILabController {
 		return !this.sessionVariables.getReservationId().isNull();
 	}
 
-    static void processRedirect() {
+    static boolean processRedirect() {
         // If logged in and redirect is valid, redirect there
+        HistoryProperties.reloadHistory();
         final String redirectTo = HistoryProperties.getValue(HistoryProperties.REDIRECT);
         if (redirectTo != null) {
             if (redirectTo.startsWith(Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/") ){
                 Window.Location.replace(redirectTo);
+                return true;
             }
         }
+        return false;
     }
 
 	private void startSession(SessionID sessionID){
@@ -284,8 +287,8 @@ public class LabController implements ILabController {
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
 			@Override
 			public void onSuccess(final User userInformation) {
-                processRedirect();
-				LabController.this.uimanager.onLoggedIn(userInformation);
+                if (!processRedirect())
+				    LabController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
 			@Override

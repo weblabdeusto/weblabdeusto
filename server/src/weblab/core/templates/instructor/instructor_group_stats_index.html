@@ -2,7 +2,7 @@
 {% block body %}
 
 <div class="row">
-    <div class="span7 offset2">
+    <div class="col-sm-7 col-sm-offset-2">
 
         {% if groups|length > 0 %}
         <p>Select a group:</p>
@@ -12,7 +12,7 @@
             {% endfor %}
         </ul>
         {% else %}
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
         <p>It seems that you don't have permission of teacher on any group (or there is no group in the system)</p>
         </div>
         {% endif %}
