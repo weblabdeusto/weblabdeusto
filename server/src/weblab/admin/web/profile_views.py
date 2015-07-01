@@ -103,7 +103,7 @@ class ProfileEditView(BaseView):
             else:
                 flash("Saved")
 
-        return self.render("profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
+        return self.render("profile/profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
 
     def _password2sha(self, password):
         randomstuff = ""
@@ -163,7 +163,7 @@ class ProfileHomeView(AdminIndexView):
     @expose()
     def index(self):
         user_information = get_app_instance().get_user_information()
-        return self.render("profile-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information)
+        return self.render("profile/profile-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information)
 
     def is_accessible(self):
         return get_app_instance().get_user_information() is not None

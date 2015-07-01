@@ -212,7 +212,7 @@ class UsersPanel(AdministratorModelView):
                     auth_instance.auth.name, auth_instance.configuration)
         return form
 
-    def on_model_change(self, form, user_model):
+    def on_model_change(self, form, user_model, is_created):
         auths = set()
         for auth_instance in user_model.auths:
             auths.add(auth_instance.auth)
@@ -273,7 +273,7 @@ class UsersAddingView(AdministratorView):
     @expose()
     def index(self):
         # TODO: enable / disable OpenID and LDAP depending on if it is available
-        return self.render("admin-add-students-select.html")
+        return self.render("admin/admin-add-students-select.html")
 
     def _get_form(self, klass=UsersBatchForm):
         form = klass()
@@ -454,10 +454,10 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
     @expose('/ldap/', methods=['GET', 'POST'])
     def add_ldap(self):
@@ -484,10 +484,10 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
     @expose('/openid/', methods=['GET', 'POST'])
     def add_openid(self):
@@ -509,10 +509,10 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
 
 class GroupsPanel(AdministratorModelView):
@@ -625,7 +625,7 @@ class AuthsPanel(AdministratorModelView):
                     auth_type_pack[1] = False
                     auth_type_pack[2] = u"Already created"
         
-        return self.render("admin-auths-create.html", auth_types = possible_auth_types)
+        return self.render("admin/admin-auths-create.html", auth_types = possible_auth_types)
 
     @expose('/create/<auth_type_name>/', methods = ['GET', 'POST'])
     def create_auth_view(self, auth_type_name):
@@ -663,7 +663,7 @@ class AuthsPanel(AdministratorModelView):
                 return redirect(url_for('.index_view'))
 
         form.name.data = auth_type_name
-        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.create_view'))
+        return self.render("admin/admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.create_view'))
 
     @expose('/edit/', methods = ['GET','POST'])
     def edit_view(self, *args, **kwargs):
@@ -710,7 +710,7 @@ class AuthsPanel(AdministratorModelView):
         form.priority.data = str(auth.priority)
         fill_func(form, auth.configuration)
 
-        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.index_view'))
+        return self.render("admin/admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.index_view'))
 
     def on_model_delete(self, auth):
         if auth.auth_type.name == 'DB':
@@ -1036,7 +1036,7 @@ class ExperimentPanel(AdministratorModelView):
             static_parameters = []
             dynamic_parameters = []
 
-        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
+        return self.render("admin/admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
                                 static_parameters = json.dumps(static_parameters, indent = 4), 
                                 dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
@@ -1130,7 +1130,7 @@ class ExperimentPanel(AdministratorModelView):
                 else:
                     flash("Category not found", "error")
         
-        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
+        return self.render("admin/admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
                 static_parameters = json.dumps(static_parameters, indent = 4), 
                 dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
@@ -1168,7 +1168,7 @@ class SchedulerPanel(AdministratorModelView):
 
     @expose('/create/')
     def create_view(self):
-        return self.render("admin-scheduler-create.html")
+        return self.render("admin/admin-scheduler-create.html")
 
     @expose('/create/pqueue/', ['GET', 'POST'])
     def create_pqueue_view(self):
@@ -1205,7 +1205,7 @@ class SchedulerPanel(AdministratorModelView):
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
-        return self.render("admin-scheduler-create-pqueue.html", form = form, back = back)
+        return self.render("admin/admin-scheduler-create-pqueue.html", form = form, back = back)
         
 
     @expose('/create/weblab/', ['GET', 'POST'])
@@ -1407,7 +1407,7 @@ class SchedulerPanel(AdministratorModelView):
         else:
             all_experiments = []
             all_misconfigured_experiments = []
-        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
+        return self.render("admin/admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
 
     @expose('/create/ilab/', ['GET', 'POST'])
     def create_ilab_view(self):    
@@ -1522,7 +1522,7 @@ class SchedulerPanel(AdministratorModelView):
             add_form = None
             registered_experiments = []
 
-        return self.render("admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
+        return self.render("admin/admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
 
 
     @expose('/edit/', ['GET', 'POST'])
@@ -1593,7 +1593,7 @@ class GenericPermissionPanel(AdministratorModelView):
                                                             **kwargs)
 
 
-    def on_model_change(self, form, permission):
+    def on_model_change(self, form, permission, is_created):
         # TODO: use weblab.permissions directly
         req_arguments = {
             'experiment_allowed': ('experiment_permanent_id', 'experiment_category_id', 'time_allowed'),
@@ -1726,7 +1726,7 @@ class PermissionsAddingView(AdministratorView):
             elif form.recipients.data == 'group':
                 return redirect(url_for('.groups', permission_type=form.permission_types.data))
 
-        return self.render("admin-permissions.html", form=form, permission_types = permissions.permission_types)
+        return self.render("admin/admin-permissions.html", form=form, permission_types = permissions.permission_types)
 
     def _get_permission_form(self, permission_type, recipient_type, recipient_resolver, DbPermissionClass,
                              DbPermissionParameterClass):
@@ -1895,11 +1895,11 @@ class PermissionsAddingView(AdministratorView):
                 form.self_register()
             except:
                 flash("Error saving data. May the permission be duplicated?")
-                return self.render("admin-permission-create.html", form=form, fields=form.parameter_list,
+                return self.render("admin/admin-permission-create.html", form=form, fields=form.parameter_list,
                                    description=current_permission_type.description, permission_type=permission_type)
             return redirect(back_url)
 
-        return self.render("admin-permission-create.html", form=form, fields=form.parameter_list,
+        return self.render("admin/admin-permission-create.html", form=form, fields=form.parameter_list,
                            description=current_permission_type.description, permission_type=permission_type)
 
     @expose('/users/<permission_type>/', methods=['GET', 'POST'])
@@ -1948,7 +1948,7 @@ class HomeView(AdminIndexView):
 
     @expose()
     def index(self):
-        return self.render("admin-index.html")
+        return self.render("admin/admin-index.html")
 
     def is_accessible(self):
         return get_app_instance().is_admin()

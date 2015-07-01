@@ -91,7 +91,7 @@ class InstructorHomeView(AdminIndexView):
         groups = convert_groups_to_immutable(groups)
         set_uses_number_in_name(self._db_session, groups)
         tree_groups = get_tree_groups(groups)
-        return self.render("instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
+        return self.render("instructor/instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
 
     def is_accessible(self):
         return is_instructor()
@@ -716,7 +716,7 @@ def generate_group_info(panel, session, group, condition, experiments):
 
     generate_info(panel, session, condition, experiments, results)
 
-    return panel.render('instructor_group_stats.html', results = results, group = group, group_id = group.id, statistics = results['statistics'])
+    return panel.render('instructor/instructor_group_stats.html', results = results, group = group, group_id = group.id, statistics = results['statistics'])
 
 def generate_user_in_group_info(panel, session, user, group, condition, experiments):
     results = dict(
@@ -728,7 +728,7 @@ def generate_user_in_group_info(panel, session, user, group, condition, experime
 
     generate_info(panel, session, condition, experiments, results)
 
-    return panel.render('instructor_group_stats.html', results = results, user = user, group = group, group_id = group.id, statistics = results['statistics'])
+    return panel.render('instructor/instructor_group_stats.html', results = results, user = user, group = group, group_id = group.id, statistics = results['statistics'])
 
 def generate_user_in_total_info(panel, session, user, condition, experiments):
     results = dict(
@@ -740,7 +740,7 @@ def generate_user_in_total_info(panel, session, user, condition, experiments):
 
     generate_info(panel, session, condition, experiments, results)
 
-    return panel.render('instructor_group_stats.html', results = results, user = user, statistics = results['statistics'])
+    return panel.render('instructor/instructor_group_stats.html', results = results, user = user, statistics = results['statistics'])
 
 
 def generate_total_info(panel, session, experiments):
@@ -754,7 +754,7 @@ def generate_total_info(panel, session, experiments):
 
     generate_info(panel, session, True, experiments, results)
 
-    return panel.render('instructor_group_stats.html', results = results, group_id = 'total', statistics = results['statistics'])
+    return panel.render('instructor/instructor_group_stats.html', results = results, group_id = 'total', statistics = results['statistics'])
 
 
 class GroupStats(InstructorView):
@@ -765,7 +765,7 @@ class GroupStats(InstructorView):
     @expose('/')
     def index(self):
         groups = get_assigned_groups(self.session)
-        return self.render('instructor_group_stats_index.html', groups = groups)
+        return self.render('instructor/instructor_group_stats_index.html', groups = groups)
 
     @expose('/groups/<group_id>/plagiarism.gefx')
     def gefx(self, group_id):
