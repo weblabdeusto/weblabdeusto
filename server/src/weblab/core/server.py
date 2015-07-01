@@ -94,6 +94,9 @@ def load_user_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab_api.ctx.server_instance
+        if weblab_api.ctx.session_id is None:
+            raise coreExc.SessionNotFoundError("Core Users session not found")
+
         session_id = SessionId(weblab_api.ctx.session_id)
         try:
             session = server._session_manager.get_session_locking(session_id)
@@ -117,6 +120,9 @@ def load_reservation_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab_api.ctx.server_instance
+        if weblab_api.ctx.reservation_id is None:
+            raise coreExc.SessionNotFoundError("Core Reservations session not found")
+
         reservation_id = SessionId(weblab_api.ctx.reservation_id.split(';')[0])
         try:
             session = server._reservations_session_manager.get_session_locking(reservation_id)
