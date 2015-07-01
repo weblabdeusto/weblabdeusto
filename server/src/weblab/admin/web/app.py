@@ -237,7 +237,6 @@ class AdministrationApplication(object):
         if session_id:
             try:
                 with weblab_api(self.ups, session_id = session_id):
-                    print("NOT BYPASSING. session_id={0}".format(session_id))
                     return weblab.core.server.get_user_information()
             except SessionNotFoundError:
                 pass
