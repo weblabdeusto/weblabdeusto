@@ -33,6 +33,7 @@ from flask import Markup, request, redirect, abort, url_for, flash, Response
 from flask.ext.wtf import Form
 
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.admin.contrib.sqla.filters import FilterEqual
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
@@ -53,37 +54,29 @@ except ImportError:
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
-def get_app_instance():
-    import weblab.admin.web.app as admin_app
-    return admin_app.GLOBAL_APP_INSTANCE
-
+def get_app_instance(view):
+    return view.admin.weblab_admin_app
 
 class AdministratorView(BaseView):
     def is_accessible(self):
-        return get_app_instance().is_admin()
+        return get_app_instance(self).is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
 
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(AdministratorView, self)._handle_view(name, **kwargs)
 
-class MyProfileView(AdministratorView):
-    @expose()
-    def index(self):
-        return redirect(request.url.split('/weblab/administration')[0] + '/weblab/administration/profile')
-
-
 class AdministratorModelView(ModelView):
     def is_accessible(self):
-        return get_app_instance().is_admin()
+        return get_app_instance(self).is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
@@ -106,15 +99,35 @@ class AdministratorModelView(ModelView):
 
 SAME_DATA = object()
 
+def _get_instance(cur_view, klass):
+    # TODO: find a better way to find the klass on admin
+    for view in cur_view.admin._views:
+        if isinstance(view, klass):
+            return view
 
-def get_full_url(url):
-    script_name = get_app_instance().script_name
-    return script_name + url
+    raise Exception("INSTANCE NOT FOUND")
 
 
-def show_link(klass, filter_name, field, name, view=lazy_gettext('View')):
-    instance = klass.INSTANCE
-    url = get_full_url(instance.url)
+def show_link2(cur_view, klass, field_name, data, view_name=lazy_gettext('View')):
+    instance = _get_instance(cur_view, klass)
+    
+    cur_filter = None
+    for pos, flt in enumerate(instance.get_filters()):
+        if isinstance(flt, FilterEqual) and flt.column.name == field_name and flt.column.table.name == cur_view.model.__tablename__:
+            cur_filter = pos
+
+    if cur_filter is None:
+        return ""
+    
+    kwargs = {}
+    kwargs['flt0_%s' % cur_filter] = getattr(data, field_name)
+    link = url_for(instance.endpoint + '.index_view', **kwargs)
+    return Markup("<a href='{0}'>{1}</a>".format(link, view_name))
+
+
+def show_link(cur_view, klass, filter_name, field, name, view_name=lazy_gettext('View')):
+    instance = _get_instance(cur_view, klass)
+    url = url_for(instance.endpoint + '.index_view')
 
     link = u'<a href="%s?' % url
 
@@ -144,10 +157,10 @@ def show_link(klass, filter_name, field, name, view=lazy_gettext('View')):
                 data = current
         link += u'flt%s_%s=%s&' % (pos + 1, filter_number, data)
 
-    if view == SAME_DATA:
-        view = data
+    if view_name == SAME_DATA:
+        view_name = data
 
-    link = link[:-1] + u'">%s</a>' % view
+    link = link[:-1] + u'">%s</a>' % view_name
 
     return Markup(link)
 
@@ -191,13 +204,11 @@ class UsersPanel(AdministratorModelView):
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-        role=lambda v, c, u, p: show_link(UsersPanel, 'role', u, 'role.name', SAME_DATA),
-        groups=lambda v, c, u, p: show_link(GroupsPanel, 'user', u, 'login'),
-        logs=lambda v, c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
-        permissions=lambda v, c, u, p: show_link(UserPermissionPanel, 'user', u, 'login'),
+        role=lambda v, c, u, p: show_link(v, UsersPanel, 'role', u, 'role.name', SAME_DATA),
+        groups=lambda v, c, u, p: show_link(v, GroupsPanel, 'user', u, 'login'),
+        logs=lambda v, c, u, p: show_link(v, UserUsedExperimentPanel, 'user', u, 'login'),
+        permissions=lambda v, c, u, p: show_link(v, UserPermissionPanel, 'user', u, 'login'),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
@@ -206,8 +217,6 @@ class UsersPanel(AdministratorModelView):
         self.role_filter_number = get_filter_number(self, u'Role.name')
 
         self.local_data = threading.local()
-
-        UsersPanel.INSTANCE = self
 
     def edit_form(self, obj=None):
         form = super(UsersPanel, self).edit_form(obj)
@@ -533,18 +542,14 @@ class GroupsPanel(AdministratorModelView):
     )
 
     column_formatters = dict(
-        users=lambda v, c, g, p: show_link(UsersPanel, 'group', g, 'name'),
-        permissions=lambda v, c, g, p: show_link(GroupPermissionPanel, 'group', g, 'name'),
+        users=lambda v, c, g, p: show_link2(v, UsersPanel, 'name', g),
+        permissions=lambda v, c, g, p: show_link2(v, GroupPermissionPanel, 'Group.name', g.name),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
         self.user_filter_number = get_filter_number(self, u'User.login')
-
-        GroupsPanel.INSTANCE = self
 
 class DefaultAuthenticationForm(Form):
     name     = TextField(lazy_gettext(u"Name:"), description=lazy_gettext("Authentication name"), validators = [ Required() ])
@@ -595,7 +600,6 @@ class AuthsPanel(AdministratorModelView):
     action_disallowed_list = ['delete']
     column_labels = dict(name=lazy_gettext("Name"), configuration=lazy_gettext("Configuration"), priority=lazy_gettext("Priority"))
     
-    INSTANCE = None
     CONFIGURABLES = {
         'LDAP' : {
             'form' : LdapForm,
@@ -612,7 +616,6 @@ class AuthsPanel(AdministratorModelView):
 
     def __init__(self, session, **kwargs):
         super(AuthsPanel, self).__init__(model.DbAuth, session, **kwargs)
-        AuthsPanel.INSTANCE = self
 
     @expose('/create/')
     def create_view(self, *args, **kwargs):
@@ -741,15 +744,13 @@ class UserUsedExperimentPanel(AdministratorModelView):
                         origin=lazy_gettext("Origin"), coord_address=lazy_gettext("Coord address"), details=lazy_gettext("Details"))
 
     column_formatters = dict(
-        user=lambda v, c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
-        experiment=lambda v, c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue,
+        user=lambda v, c, uue, p: show_link(v, UsersPanel, 'login', uue, 'user.login', SAME_DATA),
+        experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, ('name', 'category'), uue,
                                                ('experiment.name', 'experiment.category.name'), uue.experiment),
         details=lambda v, c, uue, p: Markup('<a href="%s">%s</a>' % (url_for('.detail', id=uue.id), gettext("Details"))),
     )
 
     action_disallowed_list = ['create', 'edit', 'delete']
-
-    INSTANCE = None
 
     def __init__(self, files_directory, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
@@ -759,9 +760,6 @@ class UserUsedExperimentPanel(AdministratorModelView):
             self.user_filter_number = get_filter_number(self, u'User.login')
         self.experiment_filter_number = get_filter_number(self, u'Experiment.name')
         # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
-
-        if type(self) == UserUsedExperimentPanel:
-            UserUsedExperimentPanel.INSTANCE = self
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
@@ -853,17 +851,13 @@ class ExperimentCategoryPanel(AdministratorModelView):
     form_excluded_columns = ('experiments',)
 
     column_formatters = dict(
-        experiments=lambda v, co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
+        experiments=lambda v, co, c, p: show_link(v, ExperimentPanel, 'category', c, 'name')
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
 
         self.category_filter_number = get_filter_number(self, u'Category.name')
-
-        ExperimentCategoryPanel.INSTANCE = self
 
 class ExperimentCreationForm(Form):
     category = Select2Field(lazy_gettext(u"Category"), validators = [ Required() ])
@@ -906,18 +900,15 @@ class ExperimentPanel(AdministratorModelView):
     form_overrides = dict( client = Select2Field )
 
     column_formatters = dict(
-        category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
-        uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
+        category=lambda v, c, e, p: show_link(v, ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
+        uses=lambda v, c, e, p: show_link(v, UserUsedExperimentPanel, 'experiment', e, 'name'),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
 
         self.name_filter_number = get_filter_number(self, u'Experiment.name')
         self.category_filter_number = get_filter_number(self, u'Category.name')
-        ExperimentPanel.INSTANCE = self
 
     def _create_form(self, obj):
         form = ExperimentCreationForm(formdata = request.form, obj = obj)
@@ -1672,12 +1663,9 @@ class UserPermissionPanel(GenericPermissionPanel):
 
     inline_models = (PermissionEditForm(model.DbUserPermissionParameter),)
 
-    INSTANCE = None
-
     def __init__(self, session, **kwargs):
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
         self.user_filter_number = get_filter_number(self, u'User.login')
-        UserPermissionPanel.INSTANCE = self
 
 
 class GroupPermissionPanel(GenericPermissionPanel):
@@ -1689,14 +1677,9 @@ class GroupPermissionPanel(GenericPermissionPanel):
 
     inline_models = (PermissionEditForm(model.DbGroupPermissionParameter),)
 
-    INSTANCE = None
-
     def __init__(self, session, **kwargs):
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
-
         self.group_filter_number = get_filter_number(self, u'Group.name')
-
-        GroupPermissionPanel.INSTANCE = self
 
 
 class RolePermissionPanel(GenericPermissionPanel):
@@ -1708,14 +1691,9 @@ class RolePermissionPanel(GenericPermissionPanel):
 
     inline_models = (PermissionEditForm(model.DbRolePermissionParameter),)
 
-    INSTANCE = None
-
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
-
         self.role_filter_number = get_filter_number(self, u'Role.name')
-
-        RolePermissionPanel.INSTANCE = self
 
 
 class PermissionsForm(Form):
@@ -1931,7 +1909,7 @@ class PermissionsAddingView(AdministratorView):
 
         return self._show_form(permission_type, gettext('Users'), users, recipient_resolver,
                                model.DbUserPermission, model.DbUserPermissionParameter,
-                               get_full_url(UserPermissionPanel.INSTANCE.url))
+                               url_for('permissions/user.index_view'))
 
     @expose('/groups/<permission_type>/', methods=['GET', 'POST'])
     def groups(self, permission_type):
@@ -1943,7 +1921,7 @@ class PermissionsAddingView(AdministratorView):
 
         return self._show_form(permission_type, gettext('Groups'), groups, recipient_resolver,
                                model.DbGroupPermission, model.DbGroupPermissionParameter,
-                               get_full_url(GroupPermissionPanel.INSTANCE.url))
+                               url_for('permissions/group.index_view'))
 
 
     @expose('/roles/<permission_type>/', methods=['GET', 'POST'])
@@ -1956,7 +1934,7 @@ class PermissionsAddingView(AdministratorView):
 
         return self._show_form(permission_type, gettext('Roles'), roles, recipient_resolver,
                                model.DbRolePermission, model.DbRolePermissionParameter,
-                               get_full_url(RolePermissionPanel.INSTANCE.url))
+                               url_for('permissions/role.index_view'))
 
 
 class HomeView(AdminIndexView):
@@ -1966,14 +1944,15 @@ class HomeView(AdminIndexView):
 
     @expose()
     def index(self):
+        print(get_app_instance(self).get_db().frontend_admin_uses_last_week())
         return self.render("admin/admin-index.html")
 
     def is_accessible(self):
-        return get_app_instance().is_admin()
+        return get_app_instance(self).is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 

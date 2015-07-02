@@ -21,25 +21,24 @@ import weblab.permissions as permissions
 import weblab.db.model as model
 from .community import best_partition
 
-def get_app_instance():
-    import weblab.admin.web.app as admin_app
-    return admin_app.GLOBAL_APP_INSTANCE
+def get_app_instance(view):
+    return view.admin.weblab_admin_app
 
-def is_instructor():
-    is_admin = get_app_instance().is_admin()
+def is_instructor(view):
+    is_admin = get_app_instance(view).is_admin()
     if is_admin:
         return True
     
-    role = get_app_instance().get_user_role()
+    role = get_app_instance(view).get_user_role()
     return role in ('administrator', 'professor', 'instructor', 'admin')
 
 class InstructorView(BaseView):
     def is_accessible(self):
-        return is_instructor()
+        return is_instructor(self)
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
@@ -47,11 +46,11 @@ class InstructorView(BaseView):
 
 class InstructorModelView(ModelView):
     def is_accessible(self):
-        return is_instructor()
+        return is_instructor(self)
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
 
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
@@ -92,35 +91,35 @@ class InstructorHomeView(AdminIndexView):
 
     @expose()
     def index(self):
-        user_information = get_app_instance().get_user_information()
-        groups = get_assigned_groups(self._db_session)
+        user_information = get_app_instance(self).get_user_information()
+        groups = get_assigned_groups(self, self._db_session)
         groups = convert_groups_to_immutable(groups)
         set_uses_number_in_name(self._db_session, groups)
         tree_groups = get_tree_groups(groups)
-        return self.render("instructor/instructor-index.html", is_admin = get_app_instance().is_admin(), admin_url = get_app_instance().full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
+        return self.render("instructor/instructor-index.html", is_admin = get_app_instance(self).is_admin(), admin_url = get_app_instance(self).full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
 
     def is_accessible(self):
-        return is_instructor()
+        return is_instructor(self)
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance().get_user_information() is not None:
+            if get_app_instance(self).get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
         return super(InstructorHomeView, self)._handle_view(name, **kwargs)
 
-def get_assigned_group_ids(session):
+def get_assigned_group_ids(view, session):
     # If the user is an administrator, permissions are not relevant.
-    if get_app_instance().is_admin():
+    if get_app_instance(view).is_admin():
         return [ group.id for group in session.query(model.DbGroup).all() ]
 
     # Otherwise, check the permissions and only return those groups
     # where the user has a specific permission
     group_ids = set()
 
-    for permission in get_app_instance().get_permissions():
+    for permission in get_app_instance(view).get_permissions():
         if permission.name == permissions.INSTRUCTOR_OF_GROUP:
             group_id = permission.get_parameter_value(permissions.TARGET_GROUP)
             if group_id is not None:
@@ -128,12 +127,12 @@ def get_assigned_group_ids(session):
 
     return group_ids
 
-def get_assigned_groups_query(session):
-    group_ids = get_assigned_group_ids(session)
+def get_assigned_groups_query(view, session):
+    group_ids = get_assigned_group_ids(view, session)
     return session.query(model.DbGroup).filter(model.DbGroup.id.in_(group_ids))
 
-def get_assigned_groups(session):
-    return get_assigned_groups_query(session).all()
+def get_assigned_groups(view, session):
+    return get_assigned_groups_query(view, session).all()
 
 def set_uses_number_in_name(session, group_list):
     for group in group_list:
@@ -168,11 +167,11 @@ def get_tree_groups(group_list):
             
         
 
-def apply_instructor_filters_to_logs(session, logs_query):
+def apply_instructor_filters_to_logs(view, session, logs_query):
     """ logs_query is a sqlalchemy query. Here we filter that 
     the teacher only sees those permissions for a group.
     """
-    group_ids = get_assigned_group_ids(session)
+    group_ids = get_assigned_group_ids(view, session)
 
     permission_ids = set()
 
@@ -193,13 +192,13 @@ class UsersPanel(InstructorModelView):
 
     def get_query(self):
         query = super(UsersPanel, self).get_query()
-        groups = get_assigned_groups_query(self.session).subquery()
+        groups = get_assigned_groups_query(self, self.session).subquery()
         query = query.join(groups, model.DbUser.groups)
         return query
 
     def get_count_query(self):
         query = super(UsersPanel, self).get_count_query()
-        groups = get_assigned_groups_query(self.session).subquery()
+        groups = get_assigned_groups_query(self, self.session).subquery()
         query = query.join(groups, model.DbUser.groups)
         return query
 
@@ -213,12 +212,12 @@ class GroupsPanel(InstructorModelView):
 
     def get_query(self):
         query = super(GroupsPanel, self).get_query()
-        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self.session)))
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self, self.session)))
         return query
 
     def get_count_query(self):
         query = super(GroupsPanel, self).get_count_query()
-        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self.session)))
+        query = query.filter(model.DbGroup.id.in_(get_assigned_group_ids(self, self.session)))
         return query
 
 
@@ -237,13 +236,13 @@ class UserUsedExperimentPanel(InstructorModelView):
 
     def get_query(self):
         query = super(UserUsedExperimentPanel, self).get_query()
-        query = apply_instructor_filters_to_logs(self.session, query)
+        query = apply_instructor_filters_to_logs(self, self.session, query)
         return query
 
 
     def get_count_query(self):
         query = super(UserUsedExperimentPanel, self).get_count_query()
-        query = apply_instructor_filters_to_logs(self.session, query)
+        query = apply_instructor_filters_to_logs(self, self.session, query)
         return query
 
 def generate_color_code(value, max_value):
@@ -775,19 +774,19 @@ class GroupStats(InstructorView):
 
     @expose('/')
     def index(self):
-        groups = get_assigned_groups(self.session)
+        groups = get_assigned_groups(self, self.session)
         return self.render('instructor/instructor_group_stats_index.html', groups = groups)
 
     @expose('/groups/<group_id>/plagiarism.gefx')
     def gefx(self, group_id):
-        if group_id == 'total' and get_app_instance().is_admin():
+        if group_id == 'total' and get_app_instance(self).is_admin():
             condition = True
         else:
             try:
                 group_id = int(group_id)
             except:
                 return "Invalid group identifier"
-            if group_id not in get_assigned_group_ids(self.session):
+            if group_id not in get_assigned_group_ids(self, self.session):
                 return "You don't have permissions for that group"
 
             permission_ids = set()
@@ -799,7 +798,7 @@ class GroupStats(InstructorView):
 
     @expose('/groups/<int:group_id>/')
     def group_stats(self, group_id):
-        if group_id in get_assigned_group_ids(self.session):
+        if group_id in get_assigned_group_ids(self, self.session):
             
             group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
 
@@ -827,7 +826,7 @@ class GroupStats(InstructorView):
 
     @expose('/total/')
     def groups_total_stats(self):
-        if not get_app_instance().is_admin():
+        if not get_app_instance(self).is_admin():
             return "Error: you are not an admin" # TODO
 
         experiments = defaultdict(list)
@@ -859,7 +858,7 @@ class GroupStats(InstructorView):
 
     @expose('/users/<login>/in_group/<int:group_id>')
     def user_in_group_stats(self, login, group_id):
-        if group_id in get_assigned_group_ids(self.session):
+        if group_id in get_assigned_group_ids(self, self.session):
             
             group = self.session.query(model.DbGroup).filter_by(id = group_id).first()
 
@@ -893,7 +892,7 @@ class GroupStats(InstructorView):
 
     @expose('/users/<login>/total/')
     def user_in_total_stats(self, login):
-        if get_app_instance().is_admin():
+        if get_app_instance(self).is_admin():
             experiments = defaultdict(list)
             # {
             #     'foo@Category' : [

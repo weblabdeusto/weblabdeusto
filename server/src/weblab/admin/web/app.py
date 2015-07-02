@@ -10,6 +10,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from flask import Flask, request, redirect, url_for, escape
 from flask.ext.admin import Admin, BaseView, expose
+from flask.ext.admin.menu import MenuLink
 
 if __name__ == '__main__':
     sys.path.insert(0, '.')
@@ -28,20 +29,6 @@ import weblab.admin.web.profile_views as profile_views
 import weblab.admin.web.instructor_views as instructor_views
 
 from weblab.core.wl import weblab_api
-
-class BackView(BaseView):
-    @expose()
-    def index(self):
-        return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
-
-class RedirectView(BaseView):
-    def __init__(self, url_token, *args, **kwargs):
-        self.url_token = url_token
-        super(RedirectView, self).__init__(*args, **kwargs)
-
-    @expose()
-    def index(self):
-        return redirect(url_for(self.url_token))
 
 GLOBAL_APP_INSTANCE = None
 
@@ -81,7 +68,7 @@ class CustomJSONEncoder(JSONEncoder):
 
 class AdministrationApplication(object):
 
-    def __init__(self, app, cfg_manager, ups, bypass_authz = False):
+    def __init__(self, app, cfg_manager, core_server, bypass_authz = False):
         super(AdministrationApplication, self).__init__()
         import weblab.admin.web.app as app_module
         app_module.GLOBAL_APP_INSTANCE = self
@@ -90,7 +77,7 @@ class AdministrationApplication(object):
         self.cfg_manager = cfg_manager
         db.initialize(cfg_manager)
 
-        self.ups = ups
+        self.core_server = core_server
 
         db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=db.engine))
 
@@ -106,7 +93,12 @@ class AdministrationApplication(object):
         @app.route('/weblab/administration/not_allowed')
         def not_allowed():
             return "You are logged in, but not allowed to see this content. Please log in with a proper account"
-    
+
+        # Back
+        @app.route('/weblab/administration/back')
+        def back_to_client(): # TODO: in the future this will be the client endpoint
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+   
         ################################################
         # 
         #  Administration panel for administrators
@@ -119,6 +111,7 @@ class AdministrationApplication(object):
         category_experiments = lazy_gettext("Experiments")
         category_permissions = lazy_gettext("Permissions")
         self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = lazy_gettext('WebLab-Deusto Admin'), url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
+        self.admin.weblab_admin_app = self
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_general, name = lazy_gettext('Add multiple users'),  endpoint = 'general/multiple/users'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_general, name = lazy_gettext('Users'),  endpoint = 'general/users'))
@@ -137,11 +130,10 @@ class AdministrationApplication(object):
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = category_permissions, name = lazy_gettext('Group'),  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('Roles'),  endpoint = 'permissions/role'))
 
-        self.admin.add_view(RedirectView('instructor.index', url = 'instructor', name = lazy_gettext('Instructor panel'),  endpoint = 'instructor/admin'))
-        self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = lazy_gettext('My profile'),  endpoint = 'myprofile/admin'))
-
-
-        self.admin.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/admin'))
+        # TODO: find the proper glyphicons
+        self.admin.add_link(MenuLink(endpoint='instructor.index', name = lazy_gettext('Instructor panel')))
+        self.admin.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile')))
+        self.admin.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back'), icon_type='glyph', icon_value='glyphicon-home'))
 
         self.admin.init_app(self.app)
 
@@ -154,12 +146,12 @@ class AdministrationApplication(object):
 
         profile_url = '/weblab/administration/profile'
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = lazy_gettext('WebLab-Deusto profile'), url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
+        self.profile.weblab_admin_app = self
 
         self.profile.add_view(profile_views.ProfileEditView(db_session, name = lazy_gettext('Edit'), endpoint = 'edit'))
 
         self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = lazy_gettext('My accesses'), endpoint = 'accesses'))
-
-        self.profile.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/profile'))
+        self.profile.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back')))
 
         self.profile.init_app(self.app)
 
@@ -185,6 +177,7 @@ class AdministrationApplication(object):
         instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
         instructor_home.static_folder = static_folder
         self.instructor = Admin(index_view = instructor_home, name = lazy_gettext("Weblab-Deusto instructor"), url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
+        self.instructor.weblab_admin_app = self
         
         category_general = lazy_gettext("General")
         category_stats = lazy_gettext("Stats")
@@ -193,8 +186,8 @@ class AdministrationApplication(object):
         self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = category_general, name = lazy_gettext('Raw accesses'), endpoint = 'logs'))
 
         self.instructor.add_view(instructor_views.GroupStats(db_session, category = category_stats, name = lazy_gettext('Group'), endpoint = 'stats/groups'))
-
-        self.instructor.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/instructor'))
+        self.instructor.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile')))
+        self.instructor.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back')))
 
         self.instructor.init_app(self.app)
 
@@ -203,6 +196,9 @@ class AdministrationApplication(object):
         #  Other
         # 
         self.bypass_authz = bypass_authz
+
+    def get_db(self):
+        return self.core_server.db
 
     def is_admin(self):
         if self.bypass_authz:
@@ -213,7 +209,7 @@ class AdministrationApplication(object):
             if not session_id:
                 return False
 
-            with weblab_api(self.ups, session_id = session_id):
+            with weblab_api(self.core_server, session_id = session_id):
                 try:
                     permissions = weblab.core.server.get_user_permissions()
                 except SessionNotFoundError:
@@ -240,7 +236,7 @@ class AdministrationApplication(object):
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
             if session_id:
                 try:
-                    with weblab_api(self.ups, session_id = session_id):
+                    with weblab_api(self.core_server, session_id = session_id):
                         user_info = weblab.core.server.get_user_information()
                 except SessionNotFoundError:
                     # Gotcha
@@ -257,7 +253,7 @@ class AdministrationApplication(object):
         exc = None
         for fake_name in fake_names:
             try:
-                session_id, route = self.ups._reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
+                session_id, route = self.core_server._reserve_session(ValidDatabaseSessionId(fake_name, 'administrator'))
             except Exception as exc:
                 pass
             else:
@@ -267,13 +263,13 @@ class AdministrationApplication(object):
     def get_permissions(self):
         if self.bypass_authz:
             session_id, _ = self._reserve_fake_session()
-            with weblab_api(self.ups, session_id = session_id.id):
+            with weblab_api(self.core_server, session_id = session_id.id):
                 return weblab.core.server.get_user_permissions()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         if session_id:
             try:
-                with weblab_api(self.ups, session_id = session_id):
+                with weblab_api(self.core_server, session_id = session_id):
                     return weblab.core.server.get_user_permissions()
             except:
                 traceback.print_exc()
@@ -282,13 +278,13 @@ class AdministrationApplication(object):
     def get_user_information(self):
         if self.bypass_authz:
             session_id, _ = self._reserve_fake_session()
-            with weblab_api(self.ups, session_id = session_id.id):
+            with weblab_api(self.core_server, session_id = session_id.id):
                 return weblab.core.server.get_user_information()
 
         session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
         if session_id:
             try:
-                with weblab_api(self.ups, session_id = session_id):
+                with weblab_api(self.core_server, session_id = session_id):
                     return weblab.core.server.get_user_information()
             except SessionNotFoundError:
                 pass

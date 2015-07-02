@@ -550,6 +550,7 @@ class UserProcessingServer(object):
         #
 
         self._db_manager     = DatabaseGateway(cfg_manager)
+        self.db = self._db_manager
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 

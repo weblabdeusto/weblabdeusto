@@ -843,6 +843,34 @@ class DatabaseGateway(object):
 
         return counter
 
+    # Admin default
+
+    @with_session
+    def frontend_admin_uses_last_week(self):
+        now = datetime.date.today() # Not UTC
+        earliest_day = (now - datetime.timedelta(days=7))
+        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        group = (model.DbUserUsedExperiment.start_date_date,)
+        return self._frontend_admin_uses_last_something(since, group)
+
+    @with_session
+    def frontend_admin_uses_last_year(self):
+        now = datetime.date.today() # Not UTC
+        earliest_day = now.replace(year=now.year-1,day=1)
+        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        group = (model.DbUserUsedExperiment.start_date_year,model.DbUserUsedExperiment.start_date_month)
+        return self._frontend_admin_uses_last_something(since, group)
+
+    def _frontend_admin_uses_last_something(self, since, group):
+        results = []
+        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), *group).filter(model.DbUserUsedExperiment.start_date >= since).group_by(*group).all():
+            results.append({
+                'when' : row[1:],
+                'count' : row[0],
+            })
+        return results
+        
+
     # Quickadmin
     def _apply_filters(self, query, query_params):
         if query_params.login:
