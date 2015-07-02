@@ -8,5 +8,5 @@ install:
     - npm install -g mocha
     - cd experiments/unmanaged/http/nodejs; npm install; cd ../../../../;
 script:
-    - cd server/src; python develop.py; cd ../..;
-    - cd experiments/unmanaged/http/nodejs/; mocha; cd ../../../../;
+    - cd server/src; python develop.py
+    - cd ../../experiments/unmanaged/http/nodejs/; mocha
