@@ -46,7 +46,7 @@ Romie.prototype.isCheckingWall = function() {
 	return this.checking;
 }
 
-Romie.prototype.lastWallCheck = function() {
+Romie.prototype.isLastWallCheck = function() {
 	return this.lastWallCheck;
 }
 

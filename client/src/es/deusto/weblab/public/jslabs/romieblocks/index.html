@@ -24,14 +24,14 @@
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
-		<block type="logic_compare"></block>
+		<!-- <block type="logic_compare"></block> -->
 		<block type="controls_repeat_ext"></block>
+		<block type="controls_whileUntil"></block>
 		<block type="math_number"></block>
 		<block type="romie_move_forward"></block>
 		<block type="romie_turn_left"></block>
 		<block type="romie_turn_right"></block>
 		<block type="romie_wall"></block>
-		<!-- <block type="romie_no_wall"></block> -->
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
@@ -114,9 +114,7 @@
 				interpreter.setProperty(scope, 'checkWall',
 					interpreter.createNativeFunction(wrapper));
 				wrapper = function() {
-					console.log("Last wall check:");
-					console.log(romie.lastWallCheck());
-					return interpreter.createPrimitive(romie.lastWallCheck());
+					return interpreter.createPrimitive(romie.isLastWallCheck());
 				};
 				interpreter.setProperty(scope, 'lastWallCheck',
 					interpreter.createNativeFunction(wrapper));

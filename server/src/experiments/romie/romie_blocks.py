@@ -79,7 +79,7 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'s', timeout = 60).read()
             if 'ACK' in response and '0' in response:
                 response = False
-            if 'ACK' in response and '1' in response:
+            elif 'ACK' in response and '1' in response:
                 response = True
             else:
                 return "ERR"

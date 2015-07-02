@@ -42,15 +42,6 @@ Blockly.Blocks['romie_wall'] = {
   }
 };
 
-// Blockly.Blocks['romie_no_wall'] = {
-//   init: function() {
-//     this.appendDummyInput()
-//         .appendField("no hay una pared");
-//     this.setOutput(true, "Boolean");
-//     this.setColour(260);
-//   }
-// };
-
 Blockly.JavaScript['romie_move_forward'] = function(block) {
 	code = 'forward();\n'+
 			'while(isMoving());\n';
@@ -70,21 +61,10 @@ Blockly.JavaScript['romie_turn_right'] = function(block) {
 };
 
 Blockly.JavaScript['romie_wall'] = function(block) {
-	// TODO: Assemble JavaScript into code variable.
 	var code = '(function() {\n'+
 				'    checkWall();\n'+
 				'    while(isCheckingWall());\n'+
 				'    return lastWallCheck();\n'+
 				'})()';
-	// TODO: Change ORDER_NONE to the correct strength.
 	return [code, Blockly.JavaScript.ORDER_NONE];
 };
-
-// Blockly.JavaScript['romie_no_wall'] = function(block) {
-// 	// TODO: Assemble JavaScript into code variable.
-// 	var code = 'checkWall();'+
-// 				'while(isRomieChecking());'+
-// 				'lastWallCheck();';
-// 	// TODO: Change ORDER_NONE to the correct strength.
-// 	return [code, Blockly.JavaScript.ORDER_NONE];
-// };
