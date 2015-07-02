@@ -227,7 +227,9 @@ class UserUsedExperimentPanel(InstructorModelView):
     can_edit = can_delete = can_create = False
 
     column_searchable_list = ('origin',)
-    column_list = ['user', 'experiment', 'start_date', 'end_date', 'origin']
+    column_list = ['user', 'experiment', 'start_date', 'end_date', 'origin', 'city', 'country']
+    column_labels = dict(user=lazy_gettext("User"), experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), 
+                        origin=lazy_gettext("Origin"), city=lazy_gettext("City"), country=lazy_gettext("Country"))
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
 
     def __init__(self, session, **kwargs):

@@ -112,7 +112,7 @@ def get_full_url(url):
     return script_name + url
 
 
-def show_link(klass, filter_name, field, name, view='View'):
+def show_link(klass, filter_name, field, name, view=lazy_gettext('View')):
     instance = klass.INSTANCE
     url = get_full_url(instance.url)
 
@@ -156,7 +156,7 @@ class UserAuthForm(InlineFormAdmin):
     def postprocess_form(self, form_class):
         form_class.auth.field_class = RecordingQuerySelectField
         form_class.configuration = UnboundField(VisiblePasswordField,
-                                                description='Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
+                                                description=lazy_gettext('Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.'))
         return form_class
 
 
@@ -175,9 +175,10 @@ def _password2sha(password):
 
 class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
-    column_searchable_list = ('full_name', 'login')
     column_filters = ( 'full_name', 'login', 'role', 'email', 
                      ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
+    column_searchable_list = ('full_name', 'login')
+    column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"))
 
     form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
@@ -241,13 +242,13 @@ class UsersPanel(AdministratorModelView):
         if auth_instance.auth.auth_type.name.lower() == 'db':
             password = auth_instance.configuration
             if len(password) < 6:
-                raise Exception("Password too short")
+                raise Exception(gettext("Password too short"))
             auth_instance.configuration = _password2sha(password)
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
             except:
-                raise Exception("Use a numeric ID for Facebook")
+                raise Exception(gettext("Use a numeric ID for Facebook"))
                 # Other validations would be here
 
 
@@ -293,8 +294,7 @@ class UsersAddingView(AdministratorView):
             if line.strip():
                 cur_columns = [col.strip() for col in line.split(',')]
                 if len(cur_columns) != len(columns):
-                    flash(
-                        u"Line %s (%s) does not have %s columns (%s found)" % (n, line, len(columns), len(cur_columns)))
+                    flash(gettext("Line %(n)s (%(line)s) does not have %(columns)s columns (%(cur_columns)s found)", n=n, line=line, columns=len(columns), cur_columns=len(cur_columns)))
                     errors = True
                     continue
 
@@ -303,11 +303,11 @@ class UsersAddingView(AdministratorView):
                     if fmt == 'login':
                         regex = re.compile(LOGIN_REGEX)
                         if not regex.match(column):
-                            flash(u"Login %s contains invalid characters" % column)
+                            flash(gettext("Login %(column)s contains invalid characters", column=column))
                             cur_error = True
                         existing_user = self.session.query(model.DbUser).filter_by(login=column).first()
                         if existing_user is not None:
-                            flash(u"User %s already exists" % column)
+                            flash(gettext("User %(column)s already exists", column=column))
                             # The user exists already. However, we do not consider this an error.
                             # That way we can add groups for which some users exist already.
                             # cur_error = True
@@ -315,7 +315,7 @@ class UsersAddingView(AdministratorView):
                         # Not exhaustive
                         regex = re.compile('^.*@.*\..*')
                         if not regex.match(column):
-                            flash("Invalid e-mail address: %s" % column)
+                            flash(gettext("Invalid e-mail address: %(column)s", column=column))
                             cur_error = True
                 if cur_error:
                     errors = True
@@ -323,11 +323,11 @@ class UsersAddingView(AdministratorView):
                     rows.append(cur_columns)
 
         if not errors and len(rows) == 0:
-            flash("No user provided")
+            flash(gettext("No user provided"))
             raise FormException()
 
         if errors:
-            flash("No user added due to errors detailed", 'error')
+            flash(gettext("No user added due to errors detailed"), 'error')
             raise FormException()
         return rows
 
@@ -366,7 +366,7 @@ class UsersAddingView(AdministratorView):
 
     def _process_ldap(self, text, form):
         if LdapGatewayClass is None:
-            flash("Error: ldap libraries not installed")
+            flash(gettext("Error: ldap libraries not installed"))
             return []
 
         role = self.session.query(model.DbRole).filter_by(name='student').one()
@@ -384,7 +384,7 @@ class UsersAddingView(AdministratorView):
             users_data = ldap.get_users(rows)
         except:
             traceback.print_exc()
-            flash("Error retrieving users from the LDAP server. Contact your administrator.")
+            flash(gettext("Error retrieving users from the LDAP server. Contact your administrator."))
             raise FormException()
 
         if len(users_data) != len(rows):
@@ -394,11 +394,11 @@ class UsersAddingView(AdministratorView):
                 if login not in retrieved_logins:
                     missing_logins.append(login)
             all_missing_logins = ', '.join(missing_logins)
-            flash("Error: could not find the following users: %s" % all_missing_logins)
+            flash(gettext("Error: could not find the following users: %(users)s", users=all_missing_logins))
             raise FormException()
 
         if len(users_data) == 0:
-            flash("No user processed")
+            flash(gettext("No user processed"))
             raise FormException()
 
         for user_data in users_data:
@@ -470,7 +470,7 @@ class UsersAddingView(AdministratorView):
 
         ldap_auth_type = self.session.query(model.DbAuthType).filter_by(name='LDAP').first()
         if ldap_auth_type is None:
-            return "LDAP not registered as an Auth Type"
+            return gettext("LDAP not registered as an Auth Type")
 
         form.ldap_system.choices = [(auth.name, auth.name) for auth in ldap_auth_type.auths]
         description = gettext("In this case, you only need to provide the username of the users, separated by spaces or new lines. WebLab-Deusto will retrieve the rest of the information from the LDAP system.")
@@ -523,11 +523,12 @@ class UsersAddingView(AdministratorView):
 class GroupsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'parent', 'users', 'permissions')
+    column_labels = dict(name=lazy_gettext("Name"), parent=lazy_gettext("Parent"), users=lazy_gettext("Users"), permissions=lazy_gettext("Permissions"))
     form_columns = ('name', 'parent', 'users')
 
     column_filters = ( ('name',)
-                       + generate_filter_any(model.DbUser.login.property.columns[0], 'User login', model.DbGroup.users)
-                       + generate_filter_any(model.DbUser.full_name.property.columns[0], 'User name',
+                       + generate_filter_any(model.DbUser.login.property.columns[0], lazy_gettext('User login'), model.DbGroup.users)
+                       + generate_filter_any(model.DbUser.full_name.property.columns[0], lazy_gettext('User name'),
                                              model.DbGroup.users)
     )
 
@@ -562,7 +563,7 @@ class LdapForm(DefaultAuthenticationForm):
 
     def validate_ldap_uri(form, ldap_uri):
         if ';' in ldap_uri.data:
-            raise ValidationError("Character ; not supported")
+            raise ValidationError(gettext("Character ; not supported"))
 
     validate_domain = validate_base = validate_ldap_uri
 
@@ -592,6 +593,7 @@ class AuthsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_filters = ( ('name', 'configuration', 'priority') )
     action_disallowed_list = ['delete']
+    column_labels = dict(name=lazy_gettext("Name"), configuration=lazy_gettext("Configuration"), priority=lazy_gettext("Priority"))
     
     INSTANCE = None
     CONFIGURABLES = {
@@ -628,7 +630,7 @@ class AuthsPanel(AdministratorModelView):
             else:
                 if len(auth_type.auths) > 0:
                     auth_type_pack[1] = False
-                    auth_type_pack[2] = u"Already created"
+                    auth_type_pack[2] = gettext("Already created")
         
         return self.render("admin/admin-auths-create.html", auth_types = possible_auth_types)
 
@@ -637,10 +639,10 @@ class AuthsPanel(AdministratorModelView):
         auth_type = self.session.query(model.DbAuthType).filter_by(name = auth_type_name).options(joinedload('auths')).first()
 
         if not auth_type:
-            return "Auth type not found"
+            return gettext("Auth type not found")
 
         if len(auth_type.auths) > 0 and auth_type_name not in self.CONFIGURABLES:
-            return "Existing auth type"
+            return gettext("Existing auth type")
 
         priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
         priority_choices = [ (str(priority), str(priority)) for priority in range(1, 20) if priority not in priorities ]
@@ -660,7 +662,7 @@ class AuthsPanel(AdministratorModelView):
         if form.validate_on_submit():
             configuration = generate_func(form)
             if self.session.query(model.DbAuth).filter_by(name = form.name.data).first():
-                form.name.errors = ['Name already taken']
+                form.name.errors = [gettext('Name already taken')]
             else:
                 auth = model.DbAuth(auth_type = auth_type, name = form.name.data, priority = int(form.priority.data), configuration = configuration)
                 self.session.add(auth)
@@ -674,10 +676,10 @@ class AuthsPanel(AdministratorModelView):
     def edit_view(self, *args, **kwargs):
         auth = self.session.query(model.DbAuth).filter_by(id = request.args.get('id', -1)).first()
         if auth is None:
-            return "Element not found"
+            return gettext("Element not found")
 
         if auth.auth_type.name == 'DB':
-            flash("Can't modify the DB authentication mechanism")
+            flash(gettext("Can't modify the DB authentication mechanism"))
             return redirect(url_for('.index_view'))
 
         priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
@@ -702,7 +704,7 @@ class AuthsPanel(AdministratorModelView):
             configuration = generate_func(form)
             existing_auth_name = self.session.query(model.DbAuth).filter_by(name = form.name.data).first()
             if existing_auth_name.id != auth.id:
-                form.name.errors = ['Name already taken']
+                form.name.errors = [gettext('Name already taken')]
             else:
                 auth.name = form.name.data
                 auth.priority = int(form.priority.data)
@@ -719,7 +721,7 @@ class AuthsPanel(AdministratorModelView):
 
     def on_model_delete(self, auth):
         if auth.auth_type.name == 'DB':
-            raise Exception("Can't delete this authentication system")
+            raise Exception(gettext("Can't delete this authentication system"))
 
 
 class UserUsedExperimentPanel(AdministratorModelView):
@@ -735,12 +737,14 @@ class UserUsedExperimentPanel(AdministratorModelView):
         'end_date', 'origin', 'coord_address')
     column_list = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
     column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
+    column_labels = dict(user=lazy_gettext("User"), experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), 
+                        origin=lazy_gettext("Origin"), coord_address=lazy_gettext("Coord address"), details=lazy_gettext("Details"))
 
     column_formatters = dict(
         user=lambda v, c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
         experiment=lambda v, c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue,
                                                ('experiment.name', 'experiment.category.name'), uue.experiment),
-        details=lambda v, c, uue, p: Markup('<a href="%s">Details</a>' % (url_for('.detail', id=uue.id))),
+        details=lambda v, c, uue, p: Markup('<a href="%s">%s</a>' % (url_for('.detail', id=uue.id), gettext("Details"))),
     )
 
     action_disallowed_list = ['create', 'edit', 'delete']
@@ -821,9 +825,9 @@ class UserUsedExperimentPanel(AdministratorModelView):
             return abort(404)
 
         if 'not stored' in uf.file_sent:
-            flash("File not stored")
+            flash(gettext("File not stored"))
             return self.render("error.html",
-                               message="The file has not been stored. Check the %s configuration value." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS)
+                               message=gettext("The file has not been stored. Check the %(config)s configuration value.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS))
 
         file_path = os.path.join(self.files_directory, uf.file_sent)
         if os.path.exists(file_path):
@@ -832,18 +836,19 @@ class UserUsedExperimentPanel(AdministratorModelView):
                                               'Content-Disposition': 'attachment; filename=file_%s.bin' % id})
         else:
             if os.path.exists(self.files_directory):
-                flash("Wrong configuration or file deleted")
+                flash(gettext("Wrong configuration or file deleted"))
                 return self.render("error.html",
-                                   message="The file was stored, but now it is not reachable. Check the %s property." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+                                   message=gettext("The file was stored, but now it is not reachable. Check the %(config)s property.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH))
             else:
-                flash("Wrong configuration")
+                flash(gettext("Wrong configuration"))
                 return self.render("error.html",
-                                   message="The file was stored, but now it is not reachable. The %s directory does not exist." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+                                   message=gettext("The file was stored, but now it is not reachable. The %(config)s directory does not exist.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH))
 
 
 class ExperimentCategoryPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'experiments')
+    column_labels = dict(name=lazy_gettext("Name"), experiments=lazy_gettext("Experiments"))
     column_filters = ( 'name', )
     form_excluded_columns = ('experiments',)
 
@@ -861,18 +866,18 @@ class ExperimentCategoryPanel(AdministratorModelView):
         ExperimentCategoryPanel.INSTANCE = self
 
 class ExperimentCreationForm(Form):
-    category = Select2Field(u"Category", validators = [ Required() ])
-    name = TextField("Name", description = "Name for this experiment", validators = [Required()])
-    client = Select2Field(u"Client", description = "Client to be used", default = 'blank', validators = [ Required() ])
-    start_date = DateField("Start date", description = "When the laboratory is going to start being used")
-    end_date = DateField("End date", description = "When the laboratory is not going to be used anymore")
+    category = Select2Field(lazy_gettext(u"Category"), validators = [ Required() ])
+    name = TextField(lazy_gettext("Name"), description = lazy_gettext("Name for this experiment"), validators = [Required()])
+    client = Select2Field(lazy_gettext("Client"), description = lazy_gettext("Client to be used"), default = 'blank', validators = [ Required() ])
+    start_date = DateField(lazy_gettext("Start date"), description = lazy_gettext("When the laboratory is going to start being used"))
+    end_date = DateField(lazy_gettext("End date"), description = lazy_gettext("When the laboratory is not going to be used anymore"))
 
     # Client parameters
-    experiment_info_description = TextField("experiment.info.description", description = "Experiment description")
-    html = TextField("html", description = "HTML to be displayed under the experiment")
-    experiment_info_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
-    experiment_picture = TextField("experiment.picture", description = "Address to a logo of the laboratory")
-    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+    experiment_info_description = TextField("experiment.info.description", description=lazy_gettext("Experiment description"))
+    html = TextField("html", description = lazy_gettext("HTML to be displayed under the experiment"))
+    experiment_info_link = URLField("experiment.info.link", description = lazy_gettext("Link to be provided next to the lab (e.g., docs)"))
+    experiment_picture = TextField("experiment.picture", description = lazy_gettext("Address to a logo of the laboratory"))
+    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = lazy_gettext("Whether it should show the reserve button (unless you're sure, leave this set)"), default = True)
 
 ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
 
@@ -895,6 +900,7 @@ class ExperimentPanel(AdministratorModelView):
 
     column_searchable_list = ('name',)
     column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
+    column_labels = dict(category=lazy_gettext("Category"), name=lazy_gettext("Name"), client=lazy_gettext("Client"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), uses=lazy_gettext("Uses"))
     form_excluded_columns = 'user_uses',
     column_filters = ('name', 'category')
     form_overrides = dict( client = Select2Field )
@@ -963,7 +969,7 @@ class ExperimentPanel(AdministratorModelView):
         # And that there must be a name
         for parameter in all_parameters:
             if not parameter['name']:
-                parameter['error'] = "Emptry property name"
+                parameter['error'] = gettext("Empty property name")
                 errors = True
 
             if parameter['value']:
@@ -973,19 +979,19 @@ class ExperimentPanel(AdministratorModelView):
                     elif parameter['type'] == 'floating':
                         float(parameter['value'])
                 except ValueError:
-                    parameter['error'] = "Invalid %s" % parameter['type']
+                    parameter['error'] = gettext("Invalid %(type_name)s", type_name=parameter['type'])
                     errors = True
         
         # Check that you don't use an existing name
         for pos, parameter in enumerate(all_parameters):
             if parameter['name'] in ALREADY_PROVIDED_CLIENT_PARAMETERS:
-                parameter['error'] = "Repeated name!"
+                parameter['error'] = lazy_gettext("Repeated name!")
                 errors = True
 
             for parameter2 in all_parameters[pos + 1:]:
                 if parameter['name'] == parameter2['name']:
-                    parameter['error'] = "Repeated name!"
-                    parameter2['error'] = "Repeated name!"
+                    parameter['error'] = gettext("Repeated name!")
+                    parameter2['error'] = gettext("Repeated name!")
                     errors = True
 
         return static_parameters, dynamic_parameters, errors
@@ -999,11 +1005,11 @@ class ExperimentPanel(AdministratorModelView):
             if form.validate_on_submit() and not errors:
                 db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
                 if db_cat is None:
-                    form.category.errors = ["Category doesn't exist"]
+                    form.category.errors = [gettext("Category doesn't exist")]
                 else:
                     existing_exp = self.session.query(model.DbExperiment).filter_by(name = form.name.data, category = db_cat).first()
                     if existing_exp:
-                        form.name.errors = ['Name already taken']
+                        form.name.errors = [gettext("Name already taken")]
                     else:
                         # Everything correct
                         db_exp = model.DbExperiment(name = form.name.data, category = db_cat,start_date = form.start_date.data, end_date = form.end_date.data, client = form.client.data)
@@ -1028,7 +1034,7 @@ class ExperimentPanel(AdministratorModelView):
                         except:
                             self.session.rollback()
                             traceback.print_exc()
-                            flash("Error commiting data", "error")
+                            flash(gettext("Error storing data in the database"), "error")
                         else:
                             return redirect(url_for('.index_view'))
         else:
@@ -1050,7 +1056,7 @@ class ExperimentPanel(AdministratorModelView):
         exp_id = request.args.get('id', -1)
         db_exp = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
         if not db_exp:
-            return "Experiment not found"
+            return gettext("Experiment not found")
 
         form = self._create_form(obj = db_exp)
 
@@ -1129,11 +1135,11 @@ class ExperimentPanel(AdministratorModelView):
                     except:
                         self.session.rollback()
                         traceback.print_exc()
-                        flash("Error commiting changes. Contact admin.", "error")
+                        flash(gettext("Error commiting changes. Contact admin."), "error")
                     else:
-                        flash("Changes saved")
+                        flash(gettext("Changes saved"))
                 else:
-                    flash("Category not found", "error")
+                    flash(gettext("Category not found"), "error")
         
         return self.render("admin/admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
                 static_parameters = json.dumps(static_parameters, indent = 4), 
@@ -1141,28 +1147,28 @@ class ExperimentPanel(AdministratorModelView):
 
 
 class SchedulerForm(Form):
-    name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])
+    name = TextField(lazy_gettext("Scheduler name"), description = lazy_gettext("Unique name for this scheduler"), validators = [Required()])
 
 class PQueueForm(SchedulerForm):
-    randomize_instances = BooleanField("Randomize experiments", description = "First available slot is always the same or there is an internal random process")
+    randomize_instances = BooleanField(lazy_gettext("Randomize experiments"), description = lazy_gettext("First available slot is always the same or there is an internal random process"))
 
 PQueueObject = collections.namedtuple('PQueueObject', ['name', 'randomize_instances'])
 
 class ExternalWebLabForm(SchedulerForm):
-    base_url = URLField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
-    username = TextField("Username", description = "Username of the remote system", validators = [Required()])
-    password = PasswordField("Password", description = "Password of the remote system", validators = [])
+    base_url = URLField(lazy_gettext("Base URL"), description = lazy_gettext("Example: https://www.weblab.deusto.es/weblab/"), validators = [Required(), URL()])
+    username = TextField(lazy_gettext("Username"), description = lazy_gettext("Username of the remote system"), validators = [Required()])
+    password = PasswordField(lazy_gettext("Password"), description = lazy_gettext("Password of the remote system"), validators = [])
 
 class ILabBatchForm(SchedulerForm):
-    lab_server_url = URLField("Web service URL", description = "Example: http://weblab2.mit.edu/services/WebLabService.asmx", validators = [Required(), URL()])
-    identifier     = TextField("Identifier", description = "Fake Service Broker identifier", validators = [Required()])
-    passkey        = TextField("Passkey", description = "Remote Service broker passkey", validators = [Required()])
+    lab_server_url = URLField(lazy_gettext("Web service URL"), description = lazy_gettext("Example: http://weblab2.mit.edu/services/WebLabService.asmx"), validators = [Required(), URL()])
+    identifier     = TextField(lazy_gettext("Identifier"), description = lazy_gettext("Fake Service Broker identifier"), validators = [Required()])
+    passkey        = TextField(lazy_gettext("Passkey"), description = lazy_gettext("Remote Service broker passkey"), validators = [Required()])
 
 class RemoveForm(Form):
     identifier = HiddenField()
 
 class AddExperimentForm(Form):
-    experiment_identifier = Select2Field("Experiment to add")
+    experiment_identifier = Select2Field(lazy_gettext("Experiment to add"))
 
 class SchedulerPanel(AdministratorModelView):
     
