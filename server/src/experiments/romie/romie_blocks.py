@@ -61,9 +61,9 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
             print "[RoMIE-Blockly] Command received: %s" % command
 
         command = json.loads(command)
+
         response = None
         tag = None
-
 
         if command['command'] == 'F':
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
@@ -76,10 +76,10 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
         elif command['command'] == 'R':
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
         elif command['command'] == 'S':
-            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'r', timeout = 60).read()
+            response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'s', timeout = 60).read()
             if 'ACK' in response and '0' in response:
                 response = False
-            if 'ACK' in response and '1' in response:
+            elif 'ACK' in response and '1' in response:
                 response = True
             else:
                 return "ERR"
