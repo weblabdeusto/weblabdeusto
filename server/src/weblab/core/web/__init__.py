@@ -55,3 +55,6 @@ assert i18n is not None # avoid warnings
 import quickadmin
 assert quickadmin is not None # avoid warnings
 
+import version
+assert version is not None # avoid warnings
+

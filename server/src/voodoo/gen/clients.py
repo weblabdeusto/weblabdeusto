@@ -1,7 +1,9 @@
+import time
 import sys
 import pickle
 import xmlrpclib
 import requests
+import httplib
 
 from abc import ABCMeta, abstractmethod
 
@@ -85,13 +87,19 @@ class HttpClient(AbstractClient):
             raise InternalClientCommunicationError("Unknown client error contacting %s: %r" % (self.url, exc_instance))
         
         # Then, perform the request and deserialize the results
+        t0 = time.time()
         try:
-
-            content = requests.post(self.url + '/' + name, data = request_data).content
+            kwargs = {}
+            if name == 'test_me':
+                kwargs['timeout'] = (10, 60)
+            else:
+                kwargs['timeout'] = (60, 600)
+            content = requests.post(self.url + '/' + name, data = request_data, **kwargs).content
             result = pickle.loads(content)
         except:
+            tf = time.time()
             _, exc_instance, _ = sys.exc_info()
-            raise InternalServerCommunicationError("Unknown server error contacting %s with HTTP: %r" % (self.url, exc_instance))
+            raise InternalServerCommunicationError("Unknown server error contacting %s with HTTP after %s seconds: %r" % (self.url, tf - t0, exc_instance))
 
         # result must be a dictionary which contains either 'result' 
         # with the resulting object or 'is_error' and some data about 
@@ -121,6 +129,16 @@ class HttpClient(AbstractClient):
         # No error? return the result
         return result['result']
 
+class TimeoutTransport(xmlrpclib.Transport):
+
+    timeout = 10.0
+
+    def set_timeout(self, timeout):
+        self.timeout = timeout
+    def make_connection(self, host):
+        h = httplib.HTTPConnection(host, timeout=self.timeout)
+        return h
+
 class XmlRpcClient(AbstractClient):
 
     def __init__(self, component_type, server_config):
@@ -129,11 +147,22 @@ class XmlRpcClient(AbstractClient):
         host = server_config.get('host')
         port = server_config.get('port')
         self.url = "http://%s:%s%s" % (host, port, path)
-        self.server = xmlrpclib.Server(self.url)
+
+        long_transport = TimeoutTransport()
+        long_transport.set_timeout(600.0)
+        self.server = xmlrpclib.Server(self.url, transport = long_transport)
+
+        short_transport = TimeoutTransport()
+        short_transport.set_timeout(60.0)
+        self.short_server = xmlrpclib.Server(self.url, transport = short_transport)
 
     def _call(self, name, *args):
+        if name == 'test_me':
+            server = self.short_server
+        else:
+            server = self.server
         try:
-            return getattr(self.server, 'Util.%s' % name)(*args)
+            return getattr(server, 'Util.%s' % name)(*args)
         except xmlrpclib.Fault as ft:
             raise InternalCapturedServerCommunicationError(ft.faultCode, [ ft.faultString ])
         except:

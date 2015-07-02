@@ -47,7 +47,7 @@ class AddressLocator(object):
         if ip_address.startswith("<unknown client. retrieved from ") and ip_address.endswith(">"):
             ip_address = ip_address[len("<unknown client. retrieved from "):-1]
 
-        if ip_address == '<address not found>' or ip_address == 'unknown':
+        if ip_address == '<address not found>' or ip_address == 'unknown' or '(unknown host)' in ip_address:
             return {
                 'hostname' : ip_address,
                 'city': None,
@@ -55,6 +55,8 @@ class AddressLocator(object):
                 'most_specific_subdivision' : None
             }
 
+        if ', ' in ip_address:
+            ip_address = [ x.strip() for x in ip_address.split(',') ][-1]
 
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
@@ -117,33 +119,36 @@ class LocationRetriever(threading.Thread):
         self.db = db
         self.setDaemon(True)
         self.stopping = False
-        self.local_country = None
-        self.local_city = None
+        self.local_country = config[configuration_doc.CORE_LOCAL_COUNTRY]
+        self.local_city = config[configuration_doc.CORE_LOCAL_CITY]
 
         geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
         if not os.path.exists(geoip2_city_filepath or 'not_found_file'):
             if not is_testing():
                 print("{0} not found. Run weblab-admin locations <DIRECTORY> --reset-database --reset-cache".format(geoip2_city_filepath))
         else:
-            try:
-                local_public_ip_address = requests.get("http://ipinfo.io/json").json()['ip']
-            except Exception as e:
-                local_public_ip_address = None
-
-            if local_public_ip_address is None:
+            if self.local_country is None or self.local_city is None:
                 try:
-                    local_public_ip_address = requests.get("https://api.ipify.org/?format=json").json()['ip']
+                    local_public_ip_address = requests.get("http://ipinfo.io/json").json()['ip']
                 except Exception as e:
                     local_public_ip_address = None
 
-            if local_public_ip_address is not None:
-                try:
-                    reader = GeoIP2Reader(geoip2_city_filepath)
-                    self.local_country = reader.city(local_public_ip_address).country.iso_code
-                    self.local_city = reader.city(local_public_ip_address).city.name
-                except Exception as e:
-                    print("Error trying to obtain city for IP: {0}".format(local_public_ip_address))
-                    traceback.print_exc()
+                if local_public_ip_address is None:
+                    try:
+                        local_public_ip_address = requests.get("https://api.ipify.org/?format=json").json()['ip']
+                    except Exception as e:
+                        local_public_ip_address = None
+
+                if local_public_ip_address is not None:
+                    try:
+                        reader = GeoIP2Reader(geoip2_city_filepath)
+                        if self.local_country is None:
+                            self.local_country = reader.city(local_public_ip_address).country.iso_code
+                        if self.local_city is None:
+                            self.local_city = reader.city(local_public_ip_address).city.name
+                    except Exception as e:
+                        print("Error trying to obtain city for IP: {0}".format(local_public_ip_address))
+                        traceback.print_exc()
 
         self.locator = AddressLocator(config, local_country = self.local_country, local_city = self.local_city)
             

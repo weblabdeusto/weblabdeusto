@@ -71,7 +71,7 @@
     <div class="footer">
         <div class="container footer-text">
             <div class="text-center">
-                <p>WebLab-Deusto r<a href="">3384</a> | Last update: Monday, June 30, 2014</p>
+                <p id="weblab_version"></p>
                 <p>
                 {% for lang in "العربية", "Čeština", "English", "Español", "Euskara", "Deutsch", "Français", "Magyar", "Nederlands", "Português", "Română", "Русский", "Slovenčina" %}
                     <a href="">{{ lang }}</a>
@@ -110,6 +110,13 @@
         pageTracker._trackPageview();
     } catch(err) {}
 </script> 
+
+<script src="{{ url_for("core_web.version") }}"></script>
+<script type="text/javascript">
+    if (wlVersionMessage != null) {
+        $("#weblab_version").html(wlVersionMessage);
+    }
+</script>
 
 {% block scripts %}
 

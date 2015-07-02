@@ -278,7 +278,13 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                 repr_args = []
 
                 for arg in self.fake_args:
-                    result_repr = repr(arg)
+                    try:
+                        result_repr = repr(arg)
+                    except:
+                        try:
+                            result_repr = unicode(arg)
+                        except:
+                            result_repr = "ERROR: COULD NOT SERIALIZE OBJECT OF TYPE %s" % repr(type(arg))
                     if len(result_repr) > max_size:
                         result_repr = result_repr[:max_size-3] + '...'
                     repr_args.append(result_repr)
