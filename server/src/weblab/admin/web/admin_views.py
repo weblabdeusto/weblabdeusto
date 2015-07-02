@@ -1189,7 +1189,7 @@ class SchedulerPanel(AdministratorModelView):
         form = PQueueForm(formdata = request.form, obj = obj)
         if form.validate_on_submit():
             if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
-                form.name.errors = ["Repeated name"]
+                form.name.errors = [gettext("Repeated name")]
             else:
                 # Populate config
                 if scheduler is None:
@@ -1197,7 +1197,7 @@ class SchedulerPanel(AdministratorModelView):
                 else:
                     config = json.loads(scheduler.config)
                 config['randomize_instances'] = form.randomize_instances.data
-                summary = "Queue for %s" % form.name.data
+                summary = gettext("Queue for %(name)s", name=form.name.data)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'PRIORITY_QUEUE', config = json.dumps(config), is_external = False)
@@ -1246,7 +1246,7 @@ class SchedulerPanel(AdministratorModelView):
                     config['password'] = form.password.data
 
                 parsed = urlparse.urlparse(form.base_url.data)
-                summary = "WebLab-Deusto at %s" % parsed.hostname
+                summary = gettext("WebLab-Deusto at %(where)s", where=parsed.hostname)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
@@ -1259,10 +1259,10 @@ class SchedulerPanel(AdministratorModelView):
                     self.session.commit()
                 except:
                     traceback.print_exc()
-                    flash("Error adding resource", "error")
+                    flash(gettext("Error adding resource"), "error")
                     self.session.rollback()
                 else:
-                    flash("Scheduler saved", "success")
+                    flash(gettext("Scheduler saved"), "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
@@ -1272,7 +1272,7 @@ class SchedulerPanel(AdministratorModelView):
                 session_id = client.login(config['username'], config['password'])
                 experiments_allowed = client.list_experiments(session_id)
             except:
-                flash("Invalid configuration (or server down)", "error")
+                flash(gettext("Invalid configuration (or server down)"), "error")
                 traceback.print_exc()
                 experiments_allowed = []
             
@@ -1329,7 +1329,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error removing experiment", "error")
+                            flash(gettext("Error removing experiment"), "error")
                             self.session.rollback()
                             break
                         else:
@@ -1365,7 +1365,7 @@ class SchedulerPanel(AdministratorModelView):
                                     self.session.commit()
                                 except:
                                     traceback.print_exc()
-                                    flash("Error registering weblab experiment", "error")
+                                    flash(gettext("Error registering weblab experiment"), "error")
                                     self.session.rollback()
                                     break
                                 else:
@@ -1445,7 +1445,7 @@ class SchedulerPanel(AdministratorModelView):
         
         if self.is_action('form-add') and form.validate_on_submit():
             if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
-                form.name.errors = ["Repeated name"]
+                form.name.errors = [gettext("Repeated name")]
             else:
                 # Populate config
                 if scheduler is None:
@@ -1457,7 +1457,7 @@ class SchedulerPanel(AdministratorModelView):
                 config['passkey'] = form.passkey.data
 
                 parsed = urlparse.urlparse(form.lab_server_url.data)
-                summary = "iLab batch at %s" % parsed.hostname
+                summary = gettext("iLab batch at %(where)s", where=parsed.hostname)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'ILAB_BATCH_QUEUE', config = json.dumps(config), is_external = True)
@@ -1470,10 +1470,10 @@ class SchedulerPanel(AdministratorModelView):
                     self.session.commit()
                 except:
                     traceback.print_exc()
-                    flash("Error adding resource", "error")
+                    flash(gettext("Error adding resource"), "error")
                     self.session.rollback()
                 else:
-                    flash("Scheduler saved", "success")
+                    flash(gettext("Scheduler saved"), "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
@@ -1496,7 +1496,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error registering ilab experiment", "error")
+                            flash(gettext("Error registering ilab experiment"), "error")
                             self.session.rollback()
                             break
                         choices.remove(unicode(experiment))
@@ -1520,7 +1520,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error removing experiment", "error")
+                            flash(gettext("Error removing experiment"), "error")
                             self.session.rollback()
                             break
                     else:
@@ -1540,11 +1540,11 @@ class SchedulerPanel(AdministratorModelView):
     def edit_view(self):
         id = request.args.get('id')
         if id is None:
-            flash("No id provided", "error")
+            flash(gettext("No id provided"), "error")
             return redirect(url_for('.index_view'))
         scheduler = self.session.query(model.DbScheduler).filter_by(id = id).first()
         if scheduler is None:
-            flash("Id provided does not exist", "error")
+            flash(gettext("Id provided does not exist"), "error")
             return redirect(url_for('.index_view'))
 
         back = url_for('.index_view')
@@ -1582,12 +1582,13 @@ class GenericPermissionPanel(AdministratorModelView):
 
     can_create = False
 
-    column_descriptions = dict(permanent_id='A unique permanent identifier for a particular permission', )
+    column_descriptions = dict(permanent_id=lazy_gettext('A unique permanent identifier for a particular permission'))
     column_searchable_list = ('permanent_id', 'comments')
     column_formatters = dict(permission=display_parameters)
-    column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
+    column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments')
     column_sortable_list = ( 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
+    column_labels = dict(permission=lazy_gettext("Permission"), permanent_id=lazy_gettext("Permanent ID"), date=lazy_gettext("Date"), comments=lazy_gettext("Comments"))
     form_overrides = dict(permanent_id=DisabledTextField, permission_type=DisabledTextField)
     form_excluded_columns = ('uses',)
 
@@ -1625,11 +1626,11 @@ class GenericPermissionPanel(AdministratorModelView):
 
         message = ""
         if missing_arguments:
-            message = "Missing arguments: %s" % ', '.join(missing_arguments)
+            message = gettext("Missing arguments: %(arguments)s", arguments=', '.join(missing_arguments))
             if exceeded_arguments:
                 message += "; "
         if exceeded_arguments:
-            message += "Exceeded arguments: %s" % ', '.join(exceeded_arguments)
+            message += gettext("Exceeded arguments: %(arguments)s", arguments=', '.join(exceeded_arguments))
         if message:
             raise Exception(message)
 
@@ -1648,12 +1649,12 @@ class GenericPermissionPanel(AdministratorModelView):
                     found = True
                     break
             if not found:
-                raise Exception(u"Experiment not found: %s@%s" % (exp_name, cat_name))
+                raise Exception(gettext("Experiment not found: %(experiment)s%", experiment='%s@%s' % (exp_name, cat_name)))
 
             try:
                 int(time_allowed)
             except:
-                raise Exception("Time allowed must be a number (in seconds)")
+                raise Exception(gettext("Time allowed must be a number (in seconds)"))
 
 
 class PermissionEditForm(InlineFormAdmin):
@@ -1666,6 +1667,8 @@ class UserPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('user',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user', model.DbUser.login),)
     column_list = ('user', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['user'] = lazy_gettext("User")
 
     inline_models = (PermissionEditForm(model.DbUserPermissionParameter),)
 
@@ -1681,6 +1684,8 @@ class GroupPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('group',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group', model.DbGroup.name),)
     column_list = ('group', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['group'] = lazy_gettext("Group")
 
     inline_models = (PermissionEditForm(model.DbGroupPermissionParameter),)
 
@@ -1698,6 +1703,8 @@ class RolePermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('role',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role', model.DbRole.name),)
     column_list = ('role', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['role'] = lazy_gettext("Role")
 
     inline_models = (PermissionEditForm(model.DbRolePermissionParameter),)
 
@@ -1712,10 +1719,10 @@ class RolePermissionPanel(GenericPermissionPanel):
 
 
 class PermissionsForm(Form):
-    permission_types = Select2Field(u"Permission type:",
+    permission_types = Select2Field(lazy_gettext("Permission type:"),
                                     choices=[(permission_type, permission_type) for permission_type in
                                              permissions.permission_types], default=permissions.EXPERIMENT_ALLOWED)
-    recipients = Select2Field(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')],
+    recipients = Select2Field(lazy_gettext("Type of recipient:"), choices=[('user', lazy_gettext('User')), ('group', lazy_gettext('Group')), ('role', lazy_gettext('Role'))],
                               default='group')
 
 
@@ -1752,8 +1759,8 @@ class PermissionsAddingView(AdministratorView):
 
         class ParentPermissionForm(Form):
 
-            comments = TextField("Comments")
-            recipients = Select2Field(recipient_type, description="Recipients of the permission")
+            comments = TextField(lazy_gettext("Comments"))
+            recipients = Select2Field(recipient_type, description=lazy_gettext("Recipients of the permission"))
 
             def get_permanent_id(self):
                 recipient = recipient_resolver(self.recipients.data)
@@ -1788,15 +1795,15 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['experiment', 'time_allowed', 'priority', 'initialization_in_accounting']
 
-                experiment = Select2Field(u'Experiment', description="Experiment")
+                experiment = Select2Field(lazy_gettext('Experiment'), description=lazy_gettext("Experiment"))
 
-                time_allowed = TextField(u'Time assigned', description="Measured in seconds",
+                time_allowed = TextField(lazy_gettext('Time assigned'), description=lazy_gettext("Measured in seconds"),
                                          validators=[Required(), NumberRange(min=1)], default=100)
-                priority = TextField(u'Priority', description="Priority of the user",
+                priority = TextField(lazy_gettext('Priority'), description=lazy_gettext("Priority of the user"),
                                      validators=[Required(), NumberRange(min=0)], default=5)
-                initialization_in_accounting = SelectField(u'Initialization',
-                                                           description="Take initialization into account",
-                                                           choices=[('1', 'Yes'), ('0', 'No')], default='1')
+                initialization_in_accounting = SelectField(lazy_gettext('Initialization'),
+                                                           description=lazy_gettext("Take initialization into account"),
+                                                           choices=[('1', lazy_gettext('Yes')), ('0', lazy_gettext('No'))], default='1')
 
 
                 def __init__(self, *args, **kwargs):
@@ -1844,7 +1851,7 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['target_group']
 
-                target_group = Select2Field(u'Target group', description="Group to be instructed")
+                target_group = Select2Field(lazy_gettext('Target group'), description=lazy_gettext("Group to be instructed"))
 
                 def __init__(self, *args, **kwargs):
                     super(ParticularPermissionForm, self).__init__(*args, **kwargs)
@@ -1905,7 +1912,7 @@ class PermissionsAddingView(AdministratorView):
             try:
                 form.self_register()
             except:
-                flash("Error saving data. May the permission be duplicated?")
+                flash(gettext("Error saving data. May the permission be duplicated?"))
                 return self.render("admin/admin-permission-create.html", form=form, fields=form.parameter_list,
                                    description=current_permission_type.description, permission_type=permission_type)
             return redirect(back_url)
@@ -1922,7 +1929,7 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda login: self.session.query(model.DbUser).filter_by(login=login).one()
 
-        return self._show_form(permission_type, 'Users', users, recipient_resolver,
+        return self._show_form(permission_type, gettext('Users'), users, recipient_resolver,
                                model.DbUserPermission, model.DbUserPermissionParameter,
                                get_full_url(UserPermissionPanel.INSTANCE.url))
 
@@ -1934,7 +1941,7 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda group_name: self.session.query(model.DbGroup).filter_by(name=group_name).one()
 
-        return self._show_form(permission_type, 'Groups', groups, recipient_resolver,
+        return self._show_form(permission_type, gettext('Groups'), groups, recipient_resolver,
                                model.DbGroupPermission, model.DbGroupPermissionParameter,
                                get_full_url(GroupPermissionPanel.INSTANCE.url))
 
@@ -1947,7 +1954,7 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda role_name: self.session.query(model.DbRole).filter_by(name=role_name).one()
 
-        return self._show_form(permission_type, 'Roles', roles, recipient_resolver,
+        return self._show_form(permission_type, gettext('Roles'), roles, recipient_resolver,
                                model.DbRolePermission, model.DbRolePermissionParameter,
                                get_full_url(RolePermissionPanel.INSTANCE.url))
 
