@@ -17,6 +17,7 @@ if __name__ == '__main__':
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.core.server 
+from weblab.core.babel import gettext, lazy_gettext
 import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
 from weblab.db import db
@@ -113,30 +114,34 @@ class AdministrationApplication(object):
         # 
 
         admin_url = '/weblab/administration/admin'
-        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = 'WebLab-Deusto Admin', url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
+        category_general = lazy_gettext("General")
+        category_logs = lazy_gettext("Logs")
+        category_experiments = lazy_gettext("Experiments")
+        category_permissions = lazy_gettext("Permissions")
+        self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = lazy_gettext('WebLab-Deusto Admin'), url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
 
-        self.admin.add_view(admin_views.UsersAddingView(db_session,  category = 'General', name = 'Add multiple users',  endpoint = 'general/multiple/users'))
-        self.admin.add_view(admin_views.UsersPanel(db_session,  category = 'General', name = 'Users',  endpoint = 'general/users'))
-        self.admin.add_view(admin_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'general/groups'))
-        self.admin.add_view(admin_views.AuthsPanel(db_session, category = 'General', name = 'Authentication', endpoint = 'general/auth'))
+        self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_general, name = lazy_gettext('Add multiple users'),  endpoint = 'general/multiple/users'))
+        self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_general, name = lazy_gettext('Users'),  endpoint = 'general/users'))
+        self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_general, name = lazy_gettext('Groups'), endpoint = 'general/groups'))
+        self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_general, name = lazy_gettext('Authentication'), endpoint = 'general/auth'))
 
-        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = 'Logs', name = 'User logs', endpoint = 'logs/users'))
+        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users'))
 
-        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = 'Experiments', name = 'Categories',  endpoint = 'experiments/categories'))
-        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = 'Experiments', name = 'Experiments', endpoint = 'experiments/experiments'))
+        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = category_experiments, name = lazy_gettext('Categories'),  endpoint = 'experiments/categories'))
+        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = category_experiments, name = lazy_gettext('Experiments'), endpoint = 'experiments/experiments'))
         # TODO: Until finished, do not display
-        # self.admin.add_view(admin_views.SchedulerPanel(db_session,         category = 'Experiments', name = 'Schedulers', endpoint = 'experiments/schedulers'))
+        # self.admin.add_view(admin_views.SchedulerPanel(db_session,         category = category_experiments, name = lazy_gettext('Schedulers'), endpoint = 'experiments/schedulers'))
 
-        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = 'Permissions', name = 'Create', endpoint = 'permissions/create'))
-        self.admin.add_view(admin_views.UserPermissionPanel(db_session,  category = 'Permissions', name = 'User',   endpoint = 'permissions/user'))
-        self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = 'Permissions', name = 'Group',  endpoint = 'permissions/group'))
-        self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = 'Permissions', name = 'Roles',  endpoint = 'permissions/role'))
+        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = category_permissions, name = lazy_gettext('Create'), endpoint = 'permissions/create'))
+        self.admin.add_view(admin_views.UserPermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('User'),   endpoint = 'permissions/user'))
+        self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = category_permissions, name = lazy_gettext('Group'),  endpoint = 'permissions/group'))
+        self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('Roles'),  endpoint = 'permissions/role'))
 
-        self.admin.add_view(RedirectView('instructor.index', url = 'instructor', name = 'Instructor panel',  endpoint = 'instructor/admin'))
-        self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = 'My profile',  endpoint = 'myprofile/admin'))
+        self.admin.add_view(RedirectView('instructor.index', url = 'instructor', name = lazy_gettext('Instructor panel'),  endpoint = 'instructor/admin'))
+        self.admin.add_view(admin_views.MyProfileView(url = 'myprofile', name = lazy_gettext('My profile'),  endpoint = 'myprofile/admin'))
 
 
-        self.admin.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/admin'))
+        self.admin.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/admin'))
 
         self.admin.init_app(self.app)
 
@@ -148,13 +153,13 @@ class AdministrationApplication(object):
         # 
 
         profile_url = '/weblab/administration/profile'
-        self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = 'WebLab-Deusto profile', url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
+        self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = lazy_gettext('WebLab-Deusto profile'), url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
 
-        self.profile.add_view(profile_views.ProfileEditView(db_session, name = 'Edit', endpoint = 'edit'))
+        self.profile.add_view(profile_views.ProfileEditView(db_session, name = lazy_gettext('Edit'), endpoint = 'edit'))
 
-        self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = 'My accesses', endpoint = 'accesses'))
+        self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = lazy_gettext('My accesses'), endpoint = 'accesses'))
 
-        self.profile.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/profile'))
+        self.profile.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/profile'))
 
         self.profile.init_app(self.app)
 
@@ -179,15 +184,17 @@ class AdministrationApplication(object):
         instructor_url = '/weblab/administration/instructor'
         instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
         instructor_home.static_folder = static_folder
-        self.instructor = Admin(index_view = instructor_home, name = "Weblab-Deusto instructor", url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
+        self.instructor = Admin(index_view = instructor_home, name = lazy_gettext("Weblab-Deusto instructor"), url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
         
-        self.instructor.add_view(instructor_views.UsersPanel(db_session, category = 'General', name = 'Users', endpoint = 'users'))
-        self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = 'General', name = 'Groups', endpoint = 'groups'))
-        self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = 'General', name = 'Raw accesses', endpoint = 'logs'))
+        category_general = lazy_gettext("General")
+        category_stats = lazy_gettext("Stats")
+        self.instructor.add_view(instructor_views.UsersPanel(db_session, category = category_general, name = lazy_gettext('Users'), endpoint = 'users'))
+        self.instructor.add_view(instructor_views.GroupsPanel(db_session, category = category_general, name = lazy_gettext('Groups'), endpoint = 'groups'))
+        self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = category_general, name = lazy_gettext('Raw accesses'), endpoint = 'logs'))
 
-        self.instructor.add_view(instructor_views.GroupStats(db_session, category = 'Stats', name = 'Group', endpoint = 'stats/groups'))
+        self.instructor.add_view(instructor_views.GroupStats(db_session, category = category_stats, name = lazy_gettext('Group'), endpoint = 'stats/groups'))
 
-        self.instructor.add_view(BackView(url = 'back', name = 'Back',  endpoint = 'back/instructor'))
+        self.instructor.add_view(BackView(url = 'back', name = lazy_gettext('Back'),  endpoint = 'back/instructor'))
 
         self.instructor.init_app(self.app)
 
