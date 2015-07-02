@@ -69,8 +69,6 @@ class RoMIEBlocklyExperiment(Experiment.Experiment):
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'f', timeout = 60).read()
             if 'Tag' in response:
                 tag = response[5:19].replace(' ', ':')
-                if(self._cfg_manager.get_value('debug')):
-                    print tag
         elif command['command'] == 'L':
             response = urllib2.urlopen(self._cfg_manager.get_value('romie_server')+'l', timeout = 60).read()
         elif command['command'] == 'R':
