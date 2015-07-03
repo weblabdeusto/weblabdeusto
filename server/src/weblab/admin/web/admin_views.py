@@ -14,6 +14,7 @@ import collections
 
 import six
 from weblab.core.babel import gettext, lazy_gettext
+from weblab.admin.util import password2sha
 from weblab.util import data_filename
 
 try:
@@ -95,6 +96,14 @@ def _get_instance(cur_view, klass):
 
 
 def show_link(cur_view, klass, filter_info, view_name=lazy_gettext('View')):
+    """ Given the current view, a class (e.g. UsersPanel) and a set of filters (in the form of dictionary), provide a link with the name provided.
+
+    Examples: 
+        show_link(self, UsersPanel, { 'login' : 'student1' }) -> link to UsersPanel filtering by login = 'student1'
+        show_link(self, UsersPanel, { ('Role', 'name') : 'administrator' }) -> link to UsersPanel filtering by Role.name = 'administrator'
+        show_link(self, ExperimentPanel, { 'name : 'ud-pld', ('ExperimentCategory', 'name') : 'PLD experiments' }) -> link to UsersPanel with two filters
+        show_link(self, UsersPanel, { 'login' : 'student1' }, SAME_DATA) -> link to UsersPanel filtering by login = 'student1', using 'student1' as visible data
+    """
     if view_name == SAME_DATA:
         view_name = filter_info.values()[0]
 
@@ -136,14 +145,6 @@ class UserAuthForm(InlineFormAdmin):
 LOGIN_REGEX = '^[A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-]*$'
 
 
-def _password2sha(password):
-    # TODO: Avoid replicating
-    randomstuff = ""
-    for _ in range(4):
-        c = chr(ord('a') + random.randint(0, 25))
-        randomstuff += c
-    password = password if password is not None else ''
-    return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
 
 
 class UsersPanel(AdministratorModelView):
@@ -216,7 +217,7 @@ class UsersPanel(AdministratorModelView):
             password = auth_instance.configuration
             if len(password) < 6:
                 raise Exception(gettext("Password too short"))
-            auth_instance.configuration = _password2sha(password)
+            auth_instance.configuration = password2sha(password)
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
@@ -314,7 +315,7 @@ class UsersAddingView(AdministratorView):
         for login, full_name, mail, password in rows:
             user = model.DbUser(login=login, full_name=full_name, email=mail, role=role)
             self.session.add(user)
-            user_auth = model.DbUserAuth(user=user, auth=auth, configuration=_password2sha(password))
+            user_auth = model.DbUserAuth(user=user, auth=auth, configuration=password2sha(password))
             self.session.add(user_auth)
             users.append(user)
 
@@ -1895,7 +1896,8 @@ class HomeView(AdminIndexView):
 
     @expose()
     def index(self):
-        print(get_app_instance(self).get_db().frontend_admin_uses_last_week())
+        last_week_uses = get_app_instance(self).get_db().frontend_admin_uses_last_week()
+        last_year_uses = get_app_instance(self).get_db().frontend_admin_uses_last_year()
         return self.render("admin/admin-index.html")
 
     def is_accessible(self):

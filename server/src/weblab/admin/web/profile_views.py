@@ -6,6 +6,7 @@ from flask import redirect, request, flash
 from flask.ext.admin import expose, AdminIndexView, BaseView
 
 import weblab.db.model as model
+from weblab.admin.util import password2sha
 import weblab.admin.web.admin_views as admin_views
 
 from wtforms import TextField, PasswordField
@@ -80,7 +81,7 @@ class ProfileEditView(BaseView):
                 if len(form.password.data) < 6:
                     errors.append(gettext("Error: too short password"))
                 else:
-                    password_auth.configuration = self._password2sha(form.password.data)
+                    password_auth.configuration = password2sha(form.password.data)
 
             user.email = form.email.data
             
@@ -104,14 +105,6 @@ class ProfileEditView(BaseView):
                 flash(gettext("Saved"))
 
         return self.render("profile/profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
-
-    def _password2sha(self, password):
-        randomstuff = ""
-        for _ in range(4):
-            c = chr(ord('a') + random.randint(0,25))
-            randomstuff += c
-        password = password if password is not None else ''
-        return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
 
     def is_accessible(self):
         return get_app_instance(self).get_user_information() is not None

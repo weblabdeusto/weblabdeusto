@@ -27,6 +27,7 @@ import six
 from sqlalchemy.orm import sessionmaker
 
 from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
+from weblab.admin.util import password2sha
 import weblab.db.model as model
 import weblab.permissions as permissions
 
@@ -513,7 +514,7 @@ def _create_user(session, login, role, full_name, email, password = 'password', 
     session.add(user)
     weblab_db = session.query(model.DbAuth).filter_by(name = "WebLab DB").one()
     if not invalid_password:
-        session.add(model.DbUserAuth(user, weblab_db, _password2sha(password, 'aaaa')))
+        session.add(model.DbUserAuth(user, weblab_db, password2sha(password, 'aaaa')))
     else:
         session.add(model.DbUserAuth(user, weblab_db, invalid_password))
     for (auth_type, value) in (other_auths or ()):
@@ -937,7 +938,7 @@ def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None,
     user    = model.DbUser(login, user_name, mail, None, role)
     session.add(user)
 
-    user_auth = model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
+    user_auth = model.DbUserAuth(user, weblab_db, password2sha(password, randomstuff))
     session.add(user_auth)
 
     session.commit()
@@ -1037,15 +1038,6 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
 def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, client, group_name, time_allowed):
     add_experiment(sessionmaker, category_name, experiment_name, client)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
-
-def _password2sha(password, randomstuff = None):
-    if randomstuff is None:
-        randomstuff = ""
-        for _ in range(4):
-            c = chr(ord('a') + random.randint(0,25))
-            randomstuff += c
-    password = password if password is not None else ''
-    return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()
 
 def add_client_config(sessionmaker, configuration_js):
     session = sessionmaker()
