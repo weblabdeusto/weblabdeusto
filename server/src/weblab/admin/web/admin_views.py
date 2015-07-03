@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals
+
 import os
 import re
 import sha
@@ -11,6 +12,7 @@ import traceback
 import threading
 import collections
 
+import six
 from weblab.core.babel import gettext, lazy_gettext
 from weblab.util import data_filename
 
@@ -82,21 +84,6 @@ class AdministratorModelView(ModelView):
 
         return super(AdministratorModelView, self)._handle_view(name, **kwargs)
 
-
-    # 
-    # TODO XXX FIXME: This may be a bug. However, whenever this is commented,
-    # Flask-Admin does this:
-    #
-    #       # Auto join
-    #       for j in self._auto_joins:
-    #                   query = query.options(subqueryload(j))
-    # 
-    # And some (weird) results in UserUsedExperiment are not shown, while other yes
-    # 
-    def scaffold_auto_joins(self):
-        return []
-
-
 SAME_DATA = object()
 
 def _get_instance(cur_view, klass):
@@ -108,61 +95,35 @@ def _get_instance(cur_view, klass):
     raise Exception("INSTANCE NOT FOUND")
 
 
-def show_link2(cur_view, klass, field_name, data, view_name=lazy_gettext('View')):
+def show_link(cur_view, klass, filter_info, view_name=lazy_gettext('View')):
+    if view_name == SAME_DATA:
+        view_name = filter_info.values()[0]
+
     instance = _get_instance(cur_view, klass)
     
-    cur_filter = None
+    filters = {
+        # filter_key : filter_id
+    }
     for pos, flt in enumerate(instance.get_filters()):
-        if isinstance(flt, FilterEqual) and flt.column.name == field_name and flt.column.table.name == cur_view.model.__tablename__:
-            cur_filter = pos
+        if isinstance(flt, FilterEqual):
+            for filter_key in filter_info:
+                if isinstance(filter_key, unicode):
+                    filter_table = cur_view.model.__tablename__
+                    filter_column = filter_key
+                else:
+                    filter_table, filter_column = filter_key
+                if flt.column.name in filter_column and flt.column.table.name == filter_table:
+                    filters[filter_key] = pos
 
-    if cur_filter is None:
-        return ""
+    if not filters:
+        return "Error; filter not found"
     
     kwargs = {}
-    kwargs['flt0_%s' % cur_filter] = getattr(data, field_name)
+    for pos, (filter_key, filter_id) in enumerate(six.iteritems(filters)):
+        kwargs['flt{0}_{1}'.format(pos, filter_id)] = filter_info[filter_key]
+
     link = url_for(instance.endpoint + '.index_view', **kwargs)
     return Markup("<a href='{0}'>{1}</a>".format(link, view_name))
-
-
-def show_link(cur_view, klass, filter_name, field, name, view_name=lazy_gettext('View')):
-    instance = _get_instance(cur_view, klass)
-    url = url_for(instance.endpoint + '.index_view')
-
-    link = u'<a href="%s?' % url
-
-    if isinstance(filter_name, basestring):
-        filter_numbers = [getattr(instance, u'%s_filter_number' % filter_name)]
-    else:
-        filter_numbers = [getattr(instance, u'%s_filter_number' % fname) for fname in filter_name]
-
-    if isinstance(name, basestring):
-        names = [name]
-    else:
-        names = name
-
-    for pos, (filter_number, name) in enumerate(zip(filter_numbers, names)):
-        if '.' not in name:
-            data = getattr(field, name)
-        else:
-            variables = name.split('.')
-            current = field
-            data = None
-            for variable in variables:
-                current = getattr(current, variable)
-                if current is None:
-                    data = ''
-                    break
-            if data is None:
-                data = current
-        link += u'flt%s_%s=%s&' % (pos + 1, filter_number, data)
-
-    if view_name == SAME_DATA:
-        view_name = data
-
-    link = link[:-1] + u'">%s</a>' % view_name
-
-    return Markup(link)
 
 
 class UserAuthForm(InlineFormAdmin):
@@ -204,10 +165,10 @@ class UsersPanel(AdministratorModelView):
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-        role=lambda v, c, u, p: show_link(v, UsersPanel, 'role', u, 'role.name', SAME_DATA),
-        groups=lambda v, c, u, p: show_link(v, GroupsPanel, 'user', u, 'login'),
-        logs=lambda v, c, u, p: show_link(v, UserUsedExperimentPanel, 'user', u, 'login'),
-        permissions=lambda v, c, u, p: show_link(v, UserPermissionPanel, 'user', u, 'login'),
+        role=lambda v, c, u, p: show_link(v, UsersPanel, { ('Role', 'name'): u.role.name }, SAME_DATA),
+        groups=lambda v, c, u, p: show_link(v, GroupsPanel, { 'login': u.login }),
+        logs=lambda v, c, u, p: show_link(v, UserUsedExperimentPanel, { 'login': u.login }),
+        permissions=lambda v, c, u, p: show_link(v, UserPermissionPanel, { 'login': u.login }),
     )
 
     def __init__(self, session, **kwargs):
@@ -542,14 +503,19 @@ class GroupsPanel(AdministratorModelView):
     )
 
     column_formatters = dict(
-        users=lambda v, c, g, p: show_link2(v, UsersPanel, 'name', g),
-        permissions=lambda v, c, g, p: show_link2(v, GroupPermissionPanel, 'Group.name', g.name),
+        users=lambda v, c, g, p: show_link(v, UsersPanel, {'name': g.name}),
+        permissions=lambda v, c, g, p: show_link(v, GroupPermissionPanel, {'name': g.name}),
     )
 
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
         self.user_filter_number = get_filter_number(self, u'User.login')
+
+    def scaffold_auto_joins(self):
+        joined = list(super(GroupsPanel, self).scaffold_auto_joins())
+        joined.append(model.DbGroup.users)
+        return joined
 
 class DefaultAuthenticationForm(Form):
     name     = TextField(lazy_gettext(u"Name:"), description=lazy_gettext("Authentication name"), validators = [ Required() ])
@@ -728,8 +694,6 @@ class AuthsPanel(AdministratorModelView):
 
 
 class UserUsedExperimentPanel(AdministratorModelView):
-    column_auto_select_related = True
-    column_select_related_list = ('user',)
     can_delete = False
     can_edit = False
     can_create = False
@@ -739,14 +703,13 @@ class UserUsedExperimentPanel(AdministratorModelView):
         'id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
         'end_date', 'origin', 'coord_address')
     column_list = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
-    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
+    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address', 'experiment.category')
     column_labels = dict(user=lazy_gettext("User"), experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), 
                         origin=lazy_gettext("Origin"), coord_address=lazy_gettext("Coord address"), details=lazy_gettext("Details"))
 
     column_formatters = dict(
-        user=lambda v, c, uue, p: show_link(v, UsersPanel, 'login', uue, 'user.login', SAME_DATA),
-        experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, ('name', 'category'), uue,
-                                               ('experiment.name', 'experiment.category.name'), uue.experiment),
+        user=lambda v, c, uue, p: show_link(v, UsersPanel, {('User', 'login'): uue.user.login}, SAME_DATA),
+        experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, { ('Experiment', 'name') : uue.experiment.name, ('ExperimentCategory', 'name') : uue.experiment.category.name }, uue.experiment),
         details=lambda v, c, uue, p: Markup('<a href="%s">%s</a>' % (url_for('.detail', id=uue.id), gettext("Details"))),
     )
 
@@ -851,7 +814,7 @@ class ExperimentCategoryPanel(AdministratorModelView):
     form_excluded_columns = ('experiments',)
 
     column_formatters = dict(
-        experiments=lambda v, co, c, p: show_link(v, ExperimentPanel, 'category', c, 'name')
+        experiments=lambda v, co, c, p: show_link(v, ExperimentPanel, { 'name' : c.name })
     )
 
     def __init__(self, session, **kwargs):
@@ -900,8 +863,8 @@ class ExperimentPanel(AdministratorModelView):
     form_overrides = dict( client = Select2Field )
 
     column_formatters = dict(
-        category=lambda v, c, e, p: show_link(v, ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
-        uses=lambda v, c, e, p: show_link(v, UserUsedExperimentPanel, 'experiment', e, 'name'),
+        category=lambda v, c, e, p: show_link(v, ExperimentCategoryPanel, { ('ExperimentCategory', 'name'): e.category.name }, SAME_DATA),
+        uses=lambda v, c, e, p: show_link(v, UserUsedExperimentPanel, { 'name' : e.name, ('ExperimentCategory', 'name') : e.category.name }),
     )
 
     def __init__(self, session, **kwargs):
