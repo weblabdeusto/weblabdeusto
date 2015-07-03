@@ -4,12 +4,11 @@ import sys
 import six
 import urlparse
 import traceback
-from functools import wraps
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from flask import Flask, request, redirect, url_for, escape
-from flask.ext.admin import Admin, BaseView, expose
+from flask import Flask, request, redirect, escape
+from flask.ext.admin import Admin
 from flask.ext.admin.menu import MenuLink
 
 if __name__ == '__main__':
@@ -18,7 +17,7 @@ if __name__ == '__main__':
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.core.server 
-from weblab.core.babel import gettext, lazy_gettext
+from weblab.core.babel import lazy_gettext
 import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
 from weblab.db import db
@@ -68,7 +67,6 @@ class AdministrationApplication(object):
 
     def __init__(self, app, cfg_manager, core_server, bypass_authz = False):
         super(AdministrationApplication, self).__init__()
-        import weblab.admin.web.app as app_module
         app.json_encoder = CustomJSONEncoder
         
         self.cfg_manager = cfg_manager

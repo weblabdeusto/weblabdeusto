@@ -48,7 +48,7 @@ def compile_client(war_location, client_location):
                 print("be used. If you have not recently compiled it and you have upgraded or", file=sys.stderr)
                 print("modified anything in the client, you should compile it before doing", file=sys.stderr)
                 print("this. So as to compile it, run:", file=sys.stderr)
-                print(, file=sys.stderr)
+                print("", file=sys.stderr)
                 curpath = os.path.abspath('.')
                 if sys.platform.find('win') == 0:
                     print("   %s> cd %s" % (curpath, client_location), file=sys.stderr)
