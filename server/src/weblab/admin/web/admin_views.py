@@ -44,7 +44,6 @@ import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
 import weblab.permissions as permissions
 
-from weblab.admin.web.filters import get_filter_number, generate_filter_any
 from weblab.admin.web.fields import DisabledTextField, VisiblePasswordField, RecordingQuerySelectField
 
 try:
@@ -149,8 +148,7 @@ def _password2sha(password):
 
 class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
-    column_filters = ( 'full_name', 'login', 'role', 'email', 
-                     ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
+    column_filters = ( 'full_name', 'login', 'role', 'email', model.DbGroup.name ) 
     column_searchable_list = ('full_name', 'login')
     column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"))
 
@@ -173,11 +171,16 @@ class UsersPanel(AdministratorModelView):
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
-        self.login_filter_number = get_filter_number(self, u'User.login')
-        self.group_filter_number = get_filter_number(self, u'Group.name')
-        self.role_filter_number = get_filter_number(self, u'Role.name')
-
         self.local_data = threading.local()
+
+    def scaffold_filters(self, name):
+        filters = super(UsersPanel, self).scaffold_filters(name)
+
+        if "DbGroup" in unicode(name):
+            for key in self._filter_joins:
+                self._filter_joins[key].insert(0, model.t_user_is_member_of)
+
+        return filters
 
     def edit_form(self, obj=None):
         form = super(UsersPanel, self).edit_form(obj)
@@ -496,11 +499,7 @@ class GroupsPanel(AdministratorModelView):
     column_labels = dict(name=lazy_gettext("Name"), parent=lazy_gettext("Parent"), users=lazy_gettext("Users"), permissions=lazy_gettext("Permissions"))
     form_columns = ('name', 'parent', 'users')
 
-    column_filters = ( ('name',)
-                       + generate_filter_any(model.DbUser.login.property.columns[0], lazy_gettext('User login'), model.DbGroup.users)
-                       + generate_filter_any(model.DbUser.full_name.property.columns[0], lazy_gettext('User name'),
-                                             model.DbGroup.users)
-    )
+    column_filters = ( 'name', model.DbUser.login, model.DbUser.full_name )
 
     column_formatters = dict(
         users=lambda v, c, g, p: show_link(v, UsersPanel, {'name': g.name}),
@@ -510,12 +509,14 @@ class GroupsPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
-        self.user_filter_number = get_filter_number(self, u'User.login')
+    def scaffold_filters(self, name):
+        filters = super(GroupsPanel, self).scaffold_filters(name)
 
-    def scaffold_auto_joins(self):
-        joined = list(super(GroupsPanel, self).scaffold_auto_joins())
-        joined.append(model.DbGroup.users)
-        return joined
+        if "DbUser" in unicode(name):
+            for key in self._filter_joins:
+                self._filter_joins[key].insert(0, model.t_user_is_member_of)
+
+        return filters
 
 class DefaultAuthenticationForm(Form):
     name     = TextField(lazy_gettext(u"Name:"), description=lazy_gettext("Authentication name"), validators = [ Required() ])
@@ -719,10 +720,6 @@ class UserUsedExperimentPanel(AdministratorModelView):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.files_directory = files_directory
-        if type(self) == UserUsedExperimentPanel:
-            self.user_filter_number = get_filter_number(self, u'User.login')
-        self.experiment_filter_number = get_filter_number(self, u'Experiment.name')
-        # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
@@ -820,8 +817,6 @@ class ExperimentCategoryPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
 
-        self.category_filter_number = get_filter_number(self, u'Category.name')
-
 class ExperimentCreationForm(Form):
     category = Select2Field(lazy_gettext(u"Category"), validators = [ Required() ])
     name = TextField(lazy_gettext("Name"), description = lazy_gettext("Name for this experiment"), validators = [Required()])
@@ -869,9 +864,6 @@ class ExperimentPanel(AdministratorModelView):
 
     def __init__(self, session, **kwargs):
         super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
-
-        self.name_filter_number = get_filter_number(self, u'Experiment.name')
-        self.category_filter_number = get_filter_number(self, u'Category.name')
 
     def _create_form(self, obj):
         form = ExperimentCreationForm(formdata = request.form, obj = obj)
@@ -1628,7 +1620,6 @@ class UserPermissionPanel(GenericPermissionPanel):
 
     def __init__(self, session, **kwargs):
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
-        self.user_filter_number = get_filter_number(self, u'User.login')
 
 
 class GroupPermissionPanel(GenericPermissionPanel):
@@ -1642,7 +1633,6 @@ class GroupPermissionPanel(GenericPermissionPanel):
 
     def __init__(self, session, **kwargs):
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
-        self.group_filter_number = get_filter_number(self, u'Group.name')
 
 
 class RolePermissionPanel(GenericPermissionPanel):
@@ -1656,8 +1646,6 @@ class RolePermissionPanel(GenericPermissionPanel):
 
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
-        self.role_filter_number = get_filter_number(self, u'Role.name')
-
 
 class PermissionsForm(Form):
     permission_types = Select2Field(lazy_gettext("Permission type:"),

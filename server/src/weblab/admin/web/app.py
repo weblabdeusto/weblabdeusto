@@ -30,8 +30,6 @@ import weblab.admin.web.instructor_views as instructor_views
 
 from weblab.core.wl import weblab_api
 
-GLOBAL_APP_INSTANCE = None
-
 from flask.json import JSONEncoder
 from speaklater import is_lazy_string
 
@@ -71,7 +69,6 @@ class AdministrationApplication(object):
     def __init__(self, app, cfg_manager, core_server, bypass_authz = False):
         super(AdministrationApplication, self).__init__()
         import weblab.admin.web.app as app_module
-        app_module.GLOBAL_APP_INSTANCE = self
         app.json_encoder = CustomJSONEncoder
         
         self.cfg_manager = cfg_manager
