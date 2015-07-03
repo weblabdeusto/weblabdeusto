@@ -51,6 +51,12 @@ class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name'
     PRIVATE_FIELDS = ('group_names')
     NON_FILTER_FIELDS = ('count', 'min_date', 'max_date', 'date_precision', 'page')
 
+    @staticmethod
+    def create(page=None, **kwargs):
+        if page is None:
+            page = 1
+        return UsesQueryParams(page=page, **kwargs)
+
     def pubdict(self):
         result = {}
         for field in UsesQueryParams._fields:
@@ -869,7 +875,22 @@ class DatabaseGateway(object):
                 'count' : row[0],
             })
         return results
-        
+
+    @with_session
+    def frontend_admin_uses_geographical_month(self):
+        # This is really in the last literal month
+        now = datetime.datetime.utcnow()
+        if now.month == 1:
+            since = now.replace(month = 12, year = now.year - 1)
+        else:
+            since = now.replace(month = now.month - 1)
+
+        return self.quickadmin_uses_per_country(UsesQueryParams.create(start_date=since))
+
+    @with_session
+    def frontend_admin_latest_uses(self):
+        return self.quickadmin_uses(limit = 20, query_params=UsesQueryParams.create())
+      
 
     # Quickadmin
     def _apply_filters(self, query, query_params):

@@ -1896,9 +1896,13 @@ class HomeView(AdminIndexView):
 
     @expose()
     def index(self):
-        last_week_uses = get_app_instance(self).get_db().frontend_admin_uses_last_week()
-        last_year_uses = get_app_instance(self).get_db().frontend_admin_uses_last_year()
-        return self.render("admin/admin-index.html")
+        db = get_app_instance(self).get_db()
+        last_week_uses = db.frontend_admin_uses_last_week()
+        last_year_uses = db.frontend_admin_uses_last_year()
+        geo_month = db.frontend_admin_uses_geographical_month()
+        latest_uses = db.frontend_admin_latest_uses()
+        return self.render("admin/admin-index.html",
+                latest_uses=latest_uses, geo_month=geo_month)
 
     def is_accessible(self):
         return get_app_instance(self).is_admin()
