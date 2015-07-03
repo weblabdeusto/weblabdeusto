@@ -24,13 +24,14 @@
 
 	<xml id="toolbox" style="display: none">
 		<block type="controls_if"></block>
-		<block type="logic_compare"></block>
+		<!-- <block type="logic_compare"></block> -->
 		<block type="controls_repeat_ext"></block>
+		<block type="controls_whileUntil"></block>
 		<block type="math_number"></block>
 		<block type="romie_move_forward"></block>
 		<block type="romie_turn_left"></block>
 		<block type="romie_turn_right"></block>
-		<!-- <block type="check_wall"></block> -->
+		<block type="romie_wall"></block>
 		<!-- <block type="get_tag"></block> -->
 	</xml>
 
@@ -47,7 +48,8 @@
 	<script>
 		var workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/',
-			toolbox: document.getElementById('toolbox')});
+			toolbox: document.getElementById('toolbox'),
+			scrollbars: true});
 
 		var url = window.location.href.split('#')[0];
 		if ('localStorage' in window && window.localStorage[url]) {
@@ -70,7 +72,7 @@
 			$('#blocklyDiv').addClass('col-md-6');
 
 			workspace = Blockly.inject('blocklyDiv',
-			{media: 'bower_components/google-blockly/media/', readOnly: true});
+			{media: 'bower_components/google-blockly/media/', readOnly: true, scrollbars: true});
 			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
@@ -106,6 +108,23 @@
 				interpreter.setProperty(scope, 'right',
 					interpreter.createNativeFunction(wrapper));
 
+				// Add an API function for the checkWall() block.
+				wrapper = function() {
+					romie.checkWall();
+				};
+				interpreter.setProperty(scope, 'checkWall',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					return interpreter.createPrimitive(romie.isLastWallCheck());
+				};
+				interpreter.setProperty(scope, 'lastWallCheck',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					return interpreter.createPrimitive(romie.isCheckingWall());
+				};
+				interpreter.setProperty(scope, 'isCheckingWall',
+					interpreter.createNativeFunction(wrapper));
+
 				// Add an API function for highlighting blocks.
 				wrapper = function(id) {
 					id = id ? id.toString() : '';
@@ -114,7 +133,6 @@
 				interpreter.setProperty(scope, 'highlightBlock',
 					interpreter.createNativeFunction(wrapper));
 			}
-
 			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 			Blockly.JavaScript.addReservedWords('highlightBlock');
 			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
