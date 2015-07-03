@@ -48,7 +48,8 @@
 	<script>
 		var workspace = Blockly.inject('blocklyDiv',
 			{media: 'bower_components/google-blockly/media/',
-			toolbox: document.getElementById('toolbox')});
+			toolbox: document.getElementById('toolbox'),
+			scrollbars: true});
 
 		var url = window.location.href.split('#')[0];
 		if ('localStorage' in window && window.localStorage[url]) {
@@ -71,7 +72,7 @@
 			$('#blocklyDiv').addClass('col-md-6');
 
 			workspace = Blockly.inject('blocklyDiv',
-			{media: 'bower_components/google-blockly/media/', readOnly: true});
+			{media: 'bower_components/google-blockly/media/', readOnly: true, scrollbars: true});
 			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
 			showCameras();
 
