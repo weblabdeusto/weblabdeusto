@@ -127,10 +127,9 @@ class AdministrationApplication(object):
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = category_permissions, name = lazy_gettext('Group'),  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('Roles'),  endpoint = 'permissions/role'))
 
-        # TODO: find the proper glyphicons
-        self.admin.add_link(MenuLink(endpoint='instructor.index', name = lazy_gettext('Instructor panel')))
-        self.admin.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile')))
-        self.admin.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back'), icon_type='glyph', icon_value='glyphicon-home'))
+        self.admin.add_link(MenuLink(endpoint='instructor.index', name = lazy_gettext('Instructor panel'), icon_type='glyph', icon_value='glyphicon-stats'))
+        self.admin.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile'), icon_type='glyph', icon_value='glyphicon-user'))
+        self.admin.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back'), icon_type='glyph', icon_value='glyphicon-log-out'))
 
         self.admin.init_app(self.app)
 
@@ -148,7 +147,7 @@ class AdministrationApplication(object):
         self.profile.add_view(profile_views.ProfileEditView(db_session, name = lazy_gettext('Edit'), endpoint = 'edit'))
 
         self.profile.add_view(profile_views.MyAccessesPanel(files_directory, db_session,  name = lazy_gettext('My accesses'), endpoint = 'accesses'))
-        self.profile.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back')))
+        self.profile.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back'), icon_type='glyph', icon_value='glyphicon-log-out'))
 
         self.profile.init_app(self.app)
 
@@ -183,8 +182,8 @@ class AdministrationApplication(object):
         self.instructor.add_view(instructor_views.UserUsedExperimentPanel(db_session, category = category_general, name = lazy_gettext('Raw accesses'), endpoint = 'logs'))
 
         self.instructor.add_view(instructor_views.GroupStats(db_session, category = category_stats, name = lazy_gettext('Group'), endpoint = 'stats/groups'))
-        self.instructor.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile')))
-        self.instructor.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back')))
+        self.instructor.add_link(MenuLink(endpoint='profile.index', name = lazy_gettext('My profile'), icon_type='glyph', icon_value='glyphicon-user'))
+        self.instructor.add_link(MenuLink(endpoint = 'back_to_client', name = lazy_gettext('Back'), icon_type='glyph', icon_value='glyphicon-log-out'))
 
         self.instructor.init_app(self.app)
 
