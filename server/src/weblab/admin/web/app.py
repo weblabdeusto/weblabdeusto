@@ -294,6 +294,7 @@ if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from weblab.core.server import UserProcessingServer
     from weblab.core.babel import initialize_i18n
+    from flask_debugtoolbar import DebugToolbarExtension
 
     cfg_manager = ConfigurationManager()
     cfg_manager.append_path('test/unit/configuration.py')
@@ -302,6 +303,9 @@ if __name__ == '__main__':
 
     app = Flask('weblab.core.server')
     app.config['SECRET_KEY'] = os.urandom(32)
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    app.config['DEBUG'] = True
+
     @app.route("/site-map")
     def site_map():
         lines = []
@@ -312,7 +316,6 @@ if __name__ == '__main__':
         ret = "<br>".join(lines)
         return ret
 
-    DEBUG = True
     admin_app = AdministrationApplication(app, cfg_manager, ups, bypass_authz = True)
 
     @admin_app.app.route('/')
@@ -320,6 +323,10 @@ if __name__ == '__main__':
         return redirect('/weblab/administration/admin')
     
     initialize_i18n(app)
+
+    toolbar = DebugToolbarExtension()
+    toolbar.init_app(app)
+
     print("Open: http://localhost:5000/weblab/administration/admin/")
-    admin_app.app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
 

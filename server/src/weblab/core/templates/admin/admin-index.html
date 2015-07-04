@@ -7,7 +7,50 @@
 <div class="row">
     <div class="col-sm-6 text-center">
         <h3>{{ gettext("Latest uses") }}</h3>
+
+        {% if latest_uses|length %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Experiment</th>
+                    <th>Date</th>
+                    <th>End date</th>
+                    <th>Use</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for use in latest_uses %}
+                    <tr>
+                        <td class="longname">{{ use['display_name'] }}</td>
+                        <td>{{ use['experiment_name'] }}</td>
+                        <td data-date="{{ use['start_date'] }}Z"></td>
+                        {% if use['end_date'] %}
+                        <td data-date="{{ use['end_date'] }}Z"></td>
+                        {% else %}
+                        <td><b>{{ gettext("Not yet finished") }}</b></td>
+                        {% endif %}
+                        <td><a href="{{ url_for('logs/users.detail', id=use['id']) }}">{{ gettext("View") }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-error">
+            <h2>{{ gettext("No use registered") }}</h2>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-sm-6 text-center">
+        <h3>{{ gettext("Last month - locations") }}</h3>
         
+        {% if not geo_month and latest_uses %}
+            <div class="alert alert-warning">
+                {{ gettext("Make sure you have enabled locations storage by running weblab-admin locations DIRECTORY") }} 
+            </div>
+        {% endif %}
+        <div id="regions_div" style="width: 100%; height: 400px;"></div>
     </div>
 
     <div class="col-sm-6 text-center">
@@ -16,15 +59,59 @@
     </div>
 
     <div class="col-sm-6 text-center">
-        <h3>{{ gettext("Yearly evolution") }}</h3>
+        <h3>{{ gettext("Last year") }}</h3>
         
     </div>
-
-    <div class="col-sm-6 text-center">
-        <h3>{{ gettext("Last month - geographical") }}</h3>
-        
-    </div>
-
 </div>
+
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+
+    <script>
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("td[data-date]").each(function (pos, value) {
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+
+        $("td.longname").each(function(pos, val) { 
+            $(val).attr("title", $(val).text()); 
+            var MAX_SIZE = 8;
+            if($(val).text().length > MAX_SIZE) {
+                var newTitle = $(val).text().substr(0, MAX_SIZE) + "..."; 
+                $(val).text(newTitle); 
+            } 
+        });
+    </script>
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["geochart"]});
+      google.setOnLoadCallback(drawRegionsMap);
+
+      var useData = [
+          ['Country', 'Uses'],
+          {% for country, number in geo_month.iteritems() %}
+          ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ];
+
+      function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable(useData);
+        var options = {};
+
+        var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+        chart.draw(data, options);
+      }
+    </script>
 
 {% endblock %}

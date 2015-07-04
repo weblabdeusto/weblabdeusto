@@ -25,7 +25,6 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape
-from flask_debugtoolbar import DebugToolbarExtension
 
 from functools import wraps
 
@@ -486,6 +485,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
         if flask_debug:
+            from flask_debugtoolbar import DebugToolbarExtension
             toolbar = DebugToolbarExtension()
             toolbar.init_app(self.app)
             self.app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False

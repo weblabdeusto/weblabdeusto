@@ -869,10 +869,11 @@ class DatabaseGateway(object):
 
     def _frontend_admin_uses_last_something(self, since, group):
         results = []
-        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), *group).filter(model.DbUserUsedExperiment.start_date >= since).group_by(*group).all():
+        # TODO: experiment_id also in the query() and result
+        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), *group).filter(model.DbUserUsedExperiment.start_date >= since).group_by(model.DbUserUsedExperiment.experiment_id, *group).all():
             results.append({
-                'when' : row[1:],
                 'count' : row[0],
+                'when' : row[1:],
             })
         return results
 
@@ -889,7 +890,7 @@ class DatabaseGateway(object):
 
     @with_session
     def frontend_admin_latest_uses(self):
-        return self.quickadmin_uses(limit = 20, query_params=UsesQueryParams.create())
+        return self.quickadmin_uses(limit = 10, query_params=UsesQueryParams.create())
       
 
     # Quickadmin
