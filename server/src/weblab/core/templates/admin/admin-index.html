@@ -1,5 +1,7 @@
 {% extends 'weblab-master.html' %}
 {% block body %}
+
+{% from "_widgets.html" import multitimeline %}
 <h1>{{ gettext("Welcome to the administrator!") }}</h1>
 
 {{ gettext("You can use this tool to add or remove users, check what they did, or manage permissions.") }}
@@ -47,7 +49,7 @@
         
         {% if not geo_month and latest_uses %}
             <div class="alert alert-warning">
-                {{ gettext("Make sure you have enabled locations storage by running weblab-admin locations DIRECTORY") }} 
+                {{ gettext("Make sure you have enabled locations storage by running weblab-admin locations DIRECTORY") }}
             </div>
         {% endif %}
         <div id="regions_div" style="width: 100%; height: 400px;"></div>
@@ -55,12 +57,12 @@
 
     <div class="col-sm-6 text-center">
         <h3>{{ gettext("Last week") }}</h3>
-        
+        {{ multitimeline("last_week") }}
     </div>
 
     <div class="col-sm-6 text-center">
         <h3>{{ gettext("Last year") }}</h3>
-        
+        {{ multitimeline("last_year") }}
     </div>
 </div>
 
@@ -92,26 +94,14 @@
         });
     </script>
 
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load("visualization", "1", {packages:["geochart"]});
-      google.setOnLoadCallback(drawRegionsMap);
+    {% from "_widgets.html" import google_map, google_map_scripts, multitimeline_scripts, multitimeline_load %}
 
-      var useData = [
-          ['Country', 'Uses'],
-          {% for country, number in geo_month.iteritems() %}
-          ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
-          {% endfor %}
-        ];
+    {{ google_map_scripts() }}
+    {{ google_map("regions_div", geo_month) }}
 
-      function drawRegionsMap() {
-        var data = google.visualization.arrayToDataTable(useData);
-        var options = {};
+    {{ multitimeline_scripts() }}
+    {{ multitimeline_load("last_week", last_week_uses|safe) }}
+    {{ multitimeline_load("last_year", last_year_uses|safe) }}
 
-        var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
-
-        chart.draw(data, options);
-      }
-    </script>
 
 {% endblock %}

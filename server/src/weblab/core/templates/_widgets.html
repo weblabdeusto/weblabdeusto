@@ -536,3 +536,31 @@ if (document.addEventListener) {
         });
     </script>
 {% endmacro %}
+
+{% macro google_map_scripts() %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% endmacro %}
+
+{% macro google_map(element_id, geo_month) %}
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["geochart"]});
+      google.setOnLoadCallback(drawRegionsMap);
+
+      var useData = [
+          ['Country', 'Uses'],
+          {% for country, number in geo_month.iteritems() %}
+          ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ];
+
+      function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable(useData);
+        var options = {};
+
+        var chart = new google.visualization.GeoChart(document.getElementById("{{ element_id }}"));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+{% endmacro %}

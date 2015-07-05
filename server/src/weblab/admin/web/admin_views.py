@@ -1903,7 +1903,51 @@ class HomeView(AdminIndexView):
         latest_uses = db.frontend_admin_latest_uses()
         return self.render("admin/admin-index.html",
                 latest_uses=latest_uses, geo_month=geo_month,
-                last_week_uses=last_week_uses, last_year_uses=last_year_uses)
+                last_week_uses=self._to_nvd3(last_week_uses), 
+                last_year_uses=self._to_nvd3(last_year_uses))
+
+    def _to_nvd3(self, data):
+        formatted = [
+            # {
+            #   'key' : 'Experiment name', // or 'Total'
+            #   'values' : [
+            #       [
+            #           milliseconds_since_epoch,
+            #           value
+            #       ]
+            #   ]
+            # }
+        ]
+
+        total_values = collections.defaultdict(int)
+            # date : value
+
+        total_experiments_value = collections.defaultdict(int)
+            # experiment : total_value
+
+        for experiment_name, experiment_data in six.iteritems(data):
+            for date, value in six.iteritems(experiment_data):
+                total_experiments_value[experiment_name] += value
+                total_values[date] += value
+
+        for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(10):
+            experiment_data = {
+                'key' : experiment_name,
+                'values' : []
+            }
+            for date in sorted(data[experiment_name].keys()):
+                experiment_data['values'].append([date.strftime('%s'), data[experiment_name][date]])
+            formatted.append(experiment_data)
+
+        total_data = {
+            'key' : gettext('Total'),
+            'values' : []
+        }
+        for date in sorted(total_values.keys()):
+            total_data['values'].append([date.strftime('%s'), total_values[date]])
+        formatted.append(total_data)
+        return json.dumps(formatted, indent = 4)
+                
 
     def is_accessible(self):
         return get_app_instance(self).is_admin()

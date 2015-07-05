@@ -857,7 +857,9 @@ class DatabaseGateway(object):
         earliest_day = (now - datetime.timedelta(days=7))
         since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
         group = (model.DbUserUsedExperiment.start_date_date,)
-        return self._frontend_admin_uses_last_something(since, group)
+        converter = lambda args: args[0]
+        date_generator = self._frontend_sequence_day_generator
+        return self._frontend_admin_uses_last_something(since, group, converter, date_generator)
 
     @with_session
     def frontend_admin_uses_last_year(self):
@@ -865,16 +867,52 @@ class DatabaseGateway(object):
         earliest_day = now.replace(year=now.year-1,day=1)
         since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
         group = (model.DbUserUsedExperiment.start_date_year,model.DbUserUsedExperiment.start_date_month)
-        return self._frontend_admin_uses_last_something(since, group)
+        converter = lambda args: datetime.date(args[0], args[1], 1)
+        date_generator = self._frontend_sequence_month_generator
+        return self._frontend_admin_uses_last_something(since, group, converter, date_generator)
 
-    def _frontend_admin_uses_last_something(self, since, group):
-        results = []
-        # TODO: experiment_id also in the query() and result
-        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), *group).filter(model.DbUserUsedExperiment.start_date >= since).group_by(model.DbUserUsedExperiment.experiment_id, *group).all():
-            results.append({
-                'count' : row[0],
-                'when' : row[1:],
-            })
+    def _frontend_sequence_month_generator(self, since):
+        now = datetime.date.today() # Not UTC
+        cur_year = since.year
+        cur_month = since.month
+        cur_date = datetime.date(cur_year, cur_month, 1)
+        dates = []
+        while cur_date <= now:
+            dates.append(cur_date)
+            if cur_month == 12:
+                cur_month = 1
+                cur_year += 1
+            else:
+                cur_month += 1
+            cur_date = datetime.date(cur_year, cur_month, 1)
+        return dates
+
+    def _frontend_sequence_day_generator(self, since):
+        now = datetime.datetime.today() # Not UTC
+        cur_date = since
+        dates = []
+        while cur_date <= now:
+            dates.append(cur_date.date())
+            cur_date = cur_date + datetime.timedelta(days = 1)
+        return dates
+
+    def _frontend_admin_uses_last_something(self, since, group, converter, date_generator):
+        results = {
+            # experiment_data : {
+            #     datetime.date() : count
+            # }
+        }
+        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbExperiment.name, model.DbExperimentCategory.name, *group).filter(model.DbUserUsedExperiment.start_date >= since, model.DbUserUsedExperiment.experiment_id == model.DbExperiment.id, model.DbExperiment.category_id == model.DbExperimentCategory.id).group_by(model.DbUserUsedExperiment.experiment_id, *group).all():
+            count = row[0]
+            experiment = '@'.join((row[1], row[2]))
+            if experiment not in results:
+                results[experiment] = {}
+            results[experiment][converter(row[3:])] = count
+
+        for date in date_generator(since):
+            for experiment_id in results:
+                results[experiment_id].setdefault(date, 0)
+
         return results
 
     @with_session
