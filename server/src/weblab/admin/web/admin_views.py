@@ -1936,7 +1936,7 @@ class HomeView(AdminIndexView):
                 'values' : []
             }
             for date in sorted(data[experiment_name].keys()):
-                experiment_data['values'].append([date.strftime('%s'), data[experiment_name][date]])
+                experiment_data['values'].append([date.strftime('%s') + '000', data[experiment_name][date]])
             formatted.append(experiment_data)
 
         total_data = {
@@ -1944,7 +1944,7 @@ class HomeView(AdminIndexView):
             'values' : []
         }
         for date in sorted(total_values.keys()):
-            total_data['values'].append([date.strftime('%s'), total_values[date]])
+            total_data['values'].append([date.strftime('%s') + '000', total_values[date]])
         formatted.append(total_data)
         return json.dumps(formatted, indent = 4)
                 
