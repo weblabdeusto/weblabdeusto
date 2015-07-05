@@ -1938,7 +1938,7 @@ class HomeView(AdminIndexView):
             total_data['values'].append([int(date.strftime('%s') + '000'), total_values[date]])
         formatted.append(total_data)
 
-        for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(10):
+        for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(9):
             experiment_data = {
                 'key' : experiment_name,
                 'values' : []
