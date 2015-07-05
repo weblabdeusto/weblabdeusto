@@ -59,20 +59,8 @@ from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 def get_app_instance(view):
     return view.admin.weblab_admin_app
 
-class AdministratorView(BaseView):
-    def is_accessible(self):
-        return get_app_instance(self).is_admin()
 
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
-                return redirect(url_for('not_allowed'))
-
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
-
-        return super(AdministratorView, self)._handle_view(name, **kwargs)
-
-class AdministratorModelView(ModelView):
+class AdminAuthnMixIn(object):
     def is_accessible(self):
         return get_app_instance(self).is_admin()
 
@@ -82,7 +70,14 @@ class AdministratorModelView(ModelView):
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
-        return super(AdministratorModelView, self)._handle_view(name, **kwargs)
+        return super(AdminAuthnMixIn, self)._handle_view(name, **kwargs)
+
+class AdministratorView(AdminAuthnMixIn, BaseView):
+    pass
+
+
+class AdministratorModelView(AdminAuthnMixIn, ModelView):
+    pass
 
 SAME_DATA = object()
 
@@ -1888,8 +1883,21 @@ class PermissionsAddingView(AdministratorView):
                                model.DbRolePermission, model.DbRolePermissionParameter,
                                url_for('permissions/role.index_view'))
 
+class SystemPropertiesForm(Form):
+    users = TextAreaField(lazy_gettext(u"Users:"), description=lazy_gettext(u"Add the user list using the detailed format"))
 
-class HomeView(AdminIndexView):
+class SystemProperties(AdministratorView):
+    def __init__(self, db_session, **kwargs):
+        self._db_session = db_session
+        super(SystemProperties, self).__init__(**kwargs)
+
+    @expose('/')
+    def index(self):
+        form = SystemPropertiesForm()
+        return self.render("admin/admin-system-properties.html", form = form)
+
+
+class HomeView(AdminAuthnMixIn, AdminIndexView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
         super(HomeView, self).__init__(**kwargs)
@@ -1949,16 +1957,3 @@ class HomeView(AdminIndexView):
 
         return formatted
                 
-
-    def is_accessible(self):
-        return get_app_instance(self).is_admin()
-
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
-                return redirect(url_for('not_allowed'))
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
-
-        return super(HomeView, self)._handle_view(name, **kwargs)
-
-

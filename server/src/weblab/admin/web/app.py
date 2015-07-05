@@ -112,6 +112,7 @@ class AdministrationApplication(object):
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_general, name = lazy_gettext('Users'),  endpoint = 'general/users'))
         self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_general, name = lazy_gettext('Groups'), endpoint = 'general/groups'))
         self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_general, name = lazy_gettext('Authentication'), endpoint = 'general/auth'))
+        self.admin.add_view(admin_views.SystemProperties(db_session, category = category_general, name = lazy_gettext('System properties'), endpoint = 'general/system-properties'))
 
         self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users'))
 
