@@ -478,8 +478,8 @@ if (document.addEventListener) {
 </style>
 {% endmacro %}
 
-{% macro multitimeline(name) %}
-    <div id="multitimeline_{{ name }}" style="height: 500px">
+{% macro multitimeline(name, height = '500px') %}
+    <div id="multitimeline_{{ name }}" style="height: {{ height }}">
         <svg></svg>
     </div>
 {% endmacro %}
