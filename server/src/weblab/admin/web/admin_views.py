@@ -1930,23 +1930,24 @@ class HomeView(AdminIndexView):
                 total_experiments_value[experiment_name] += value
                 total_values[date] += value
 
+        total_data = {
+            'key' : gettext('Total'),
+            'values' : []
+        }
+        for date in sorted(total_values.keys()):
+            total_data['values'].append([int(date.strftime('%s') + '000'), total_values[date]])
+        formatted.append(total_data)
+
         for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(10):
             experiment_data = {
                 'key' : experiment_name,
                 'values' : []
             }
             for date in sorted(data[experiment_name].keys()):
-                experiment_data['values'].append([date.strftime('%s') + '000', data[experiment_name][date]])
+                experiment_data['values'].append([int(date.strftime('%s') + '000'), data[experiment_name][date]])
             formatted.append(experiment_data)
 
-        total_data = {
-            'key' : gettext('Total'),
-            'values' : []
-        }
-        for date in sorted(total_values.keys()):
-            total_data['values'].append([date.strftime('%s') + '000', total_values[date]])
-        formatted.append(total_data)
-        return json.dumps(formatted, indent = 4)
+        return formatted
                 
 
     def is_accessible(self):

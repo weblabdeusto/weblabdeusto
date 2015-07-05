@@ -512,7 +512,8 @@ if (document.addEventListener) {
         nv.addGraph(function() {
           var chart = nv.models.lineChart()
                         .x(function(d) { return d[0] })
-                        .y(function(d) { return d[1] }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                        .y(function(d) { return d[1] })
+                        .useInteractiveGuideline(true)
                         .color(d3.scale.category10().range());
 
           chart.xAxis
@@ -521,7 +522,9 @@ if (document.addEventListener) {
               });
 
           chart.yAxis
-              .tickFormat(d3.format('.1'));
+              .tickFormat(function(x) {
+                return x;
+              });
 
           var data = {{ data|safe }};
 

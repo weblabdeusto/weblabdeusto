@@ -100,8 +100,8 @@
     {{ google_map("regions_div", geo_month) }}
 
     {{ multitimeline_scripts() }}
-    {{ multitimeline_load("last_week", last_week_uses|safe) }}
-    {{ multitimeline_load("last_year", last_year_uses|safe) }}
+    {{ multitimeline_load("last_week", last_week_uses|tojson|safe) }}
+    {{ multitimeline_load("last_year", last_year_uses|tojson|safe) }}
 
 
 {% endblock %}
