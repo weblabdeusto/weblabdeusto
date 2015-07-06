@@ -20,6 +20,14 @@ import weblab.lab.experiment_handler as ExperimentHandler
 import weblab.lab.exc as LaboratoryErrors
 
 class AssignedExperiments(object):
+    """
+    [?
+    Registry of every Experiment that has been assigned to a specific Laboratory Server.
+    Through it, it is possible to execute certain operations on Experiments through their
+    experiment id, such as Reserve.
+    ]
+    """
+
     def __init__(self):
         super(AssignedExperiments, self).__init__()
         self._clear()
@@ -35,6 +43,11 @@ class AssignedExperiments(object):
             }
 
     def add_server(self, exp_inst_id, experiment_coord_address, experiment_info):
+        """
+        Registers an Experiment server into this registry. They are organized in a dictionary
+        by categories, and within the category by experiment.
+        """
+
         by_category = self._experiments.get( exp_inst_id.cat_name )
         if by_category == None:
             by_category = {}
