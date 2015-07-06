@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 import sys
+import time
 import random
 import hashlib
 import threading
@@ -11,7 +12,6 @@ import six
 import requests
 
 from flask import Flask, Response, stream_with_context, abort, send_file, redirect, request, escape
-from werkzeug.routing import Rule
 
 PROXY_SESSION   = 'proxy-sessions:'
 REDIRECT        = 'redirect:'
@@ -42,67 +42,25 @@ def _validate_protocols(paths):
         previous_paths.append(_path)
     return previous_paths
 
-def _add_rules(app, current_path, value):
-    hash_value = hashlib.new("md5", value).hexdigest()
-    # If it ends in <path:url>, use also without it
-    app.url_map.add(Rule(current_path, endpoint=hash_value))
-    if '<path' in current_path:
-        app.url_map.add(Rule(current_path.split('<')[0], endpoint=hash_value))
-        if '/<' not in current_path:
-            app.url_map.add(Rule(current_path.replace('<','/<'), endpoint=hash_value))
-    return hash_value
-
-def _generate_file(app, current_path, value):
-    """
-    FILE
-    
-    Example: { '/foo' : 'file:/var/www/' }
-    
-    If  /foo/index.html => returns /var/www/index.html
-    """
+def _generate_file(current_path, value):
     where = value.split(':', 1)[1]
-    endpoint = _add_rules(app, current_path, value)
 
-    @app.endpoint(endpoint)
-    def handle_file(url = None):
-        if '..' in url:
-            abort(404)
-        fname = os.path.join(where, url)
-        if os.path.exists(fname):
-            return send_file(fname, as_attachment = False, conditional = True)
-        else:
-            return abort(404)
+    if '..' in current_path:
+        return abort(404)
 
-def _generate_redirect(app, current_path, value):
-    """
-    REDIRECT
-    
-    Example: { '/foo' : 'redirect:http://www.google.com' }
-    
-    If /foo => redirect to http://www.google.com
-    """
+    if current_path.startswith('/'):
+        current_path = current_path[1:]
+    fname = os.path.join(where, current_path)
+    if os.path.exists(fname):
+        return send_file(fname, as_attachment = False, conditional = True)
+    else:
+        return abort(404)
+
+def _generate_redirect(current_path, value):
     where = value.split(':', 1)[1]
-    endpoint = _add_rules(app, current_path, value)
+    return redirect(where)
 
-    @app.endpoint(endpoint)
-    def handle_file(url = None):
-        return redirect(where)
-
-def _generate_proxy(app, current_path, value):
-    """ 
-    PROXY_SESSION
-    
-    Example: { u'/weblab/json/', u'proxy-sessions:weblabsessionid:route1=http://localhost:10000/weblab/json/,route2=http://localhost:10001/weblab/json/,route3=http://localhost:10002/weblab/json/,' }
-    
-    If /weblab/json/
-       if route1 present in weblabsessionid, proxy to http://localhost:10000/weblab/json/
-       if route2 present in weblabsessionid, proxy to http://localhost:10001/weblab/json/
-       if route3 present in weblabsessionid, proxy to http://localhost:10002/weblab/json/
-       else, randomly to any of them.
-    """
-    
-    endpoint = _add_rules(app, current_path, value)
-
+def _generate_proxy(current_path, value):
     where = value.split(':', 1)[1]
     cookie_name, routes = where.split(':', 1)
     routes = dict([ route.strip().split('=', 1) for route in routes.split(',') if route.strip() ])
@@ -114,31 +72,57 @@ def _generate_proxy(app, current_path, value):
     #    'route3' : 'http://localhost:10002/weblab/json/',
     # }
 
-    routes_list = list(routes.values())
+    current_cookie_value = request.cookies.get(cookie_name, '')
 
-    @app.endpoint(endpoint)
-    def handle_proxy(url = None):
-        current_cookie_value = request.cookies.get(cookie_name, '')
+    chosen_url = None
+    for route in routes:
+        if current_cookie_value.endswith(route):
+            chosen_url = routes[route]
+            break
 
-        where = None
-        for route in routes:
-            if current_cookie_value.endswith(route):
-                where = routes[route]
-                break
+    if chosen_url is None:
+        chosen_url = random.choice(list(routes.values()))
 
-        if where is None:
-            where = random.choice(routes_list)
+    headers = dict(request.headers)
+    headers['X-Forwarded-For'] = request.remote_addr
+    headers.pop('Host', None)
+    headers.pop('host', None)
 
-        headers = dict(request.headers)
-        headers['X-Forwarded-For'] = request.remote_addr
-        headers.pop('Host', None)
-        headers.pop('host', None)
-        if request.method == 'GET':
-            req = requests.get(where + (url or ''), headers = headers, cookies = dict(request.cookies))
-        elif request.method == 'POST':
-            req = requests.post(where + (url or ''),  data = request.data, headers = headers, cookies = dict(request.cookies))
+    kwargs = dict(headers = headers, cookies = dict(request.cookies))
 
-        return Response(req.content, headers = dict(req.headers), content_type = req.headers['content-type'])
+    if request.method == 'GET':
+        method = requests.get
+    elif request.method == 'POST':
+        kwargs['data'] = request.data
+
+        if request.files:
+            kwargs['files'] = {}
+            for f, f_contents in six.iteritems(request.files):
+                kwargs['files'][f] = [f_contents.filename, f_contents.stream, f_contents.content_type, f_contents.headers]
+
+        if request.form:
+            headers.pop('Content-Type', None)
+            kwargs['data'] = request.form
+
+        method = requests.post
+    else:
+        raise Exception("Method not supported")
+
+    MAX_RETRIES = 5
+    retry = 0
+    while True:
+        try:
+            req = method(chosen_url + current_path, **kwargs)
+            break
+        except requests.ConnectionError:
+            if request.method != 'GET':
+                raise
+            retry += 1
+            if retry >= MAX_RETRIES:
+                raise
+            time.sleep(0.5)
+
+    return Response(req.content, headers = dict(req.headers), content_type = req.headers['content-type'])
 
 
 def generate_proxy_handler(paths):
@@ -146,44 +130,41 @@ def generate_proxy_handler(paths):
 
     app = Flask(__name__)
 
-    for path, value in paths:
-        # $ is supported, otherwise anything after will be considered url
-        if path.endswith('$'):
-            current_path = path[:-1]
-            if current_path == '':
-                current_path = '/'
-        else:
-            if path == '':
-                current_path = '/<path:url>'
-                continue #TODO
+    @app.route('/')
+    @app.route('/<path:url>', methods = ['GET', 'POST'])
+    def index(url = ''):
+        url = '/' + url
+        current_path = None
+        current_value = None
+        selected_path = None
+
+        for path, value in paths:
+            if path.endswith('$'):
+                if url == path[:-1]:
+                    selected_path = path
+                    current_path = path[:-1]
+                    current_value = value
+                    break
             else:
-                current_path = path + '<path:url>'
-            if current_path == '/weblab/<path:url>':
-                continue
-                
+                if url.startswith(path):
+                    selected_path = path
+                    current_path = url[len(path):]
+                    current_value = value
+                    break
 
+        if current_path is None:
+            return abort(404)
+        
         if value.startswith(FILE):
-            _generate_file(app, current_path, value)
+            return _generate_file(current_path, value)
         elif value.startswith(REDIRECT):
-            _generate_redirect(app, current_path, value)
+            return _generate_redirect(current_path, value)
         elif value.startswith(PROXY_SESSION):
-            _generate_proxy(app, current_path, value)
-        else:
-            print("Unknown starting path: %s" % value)
+            return _generate_proxy(current_path, value)
 
-    if DEBUG:
-        @app.route("/site-map")
-        def site_map():
-            lines = []
-            for rule in app.url_map.iter_rules():
-                line = str(escape(repr(rule)))
-                lines.append(line)
-
-            ret = "<br>".join(lines)
-            return ret
     return app
 
-DEBUG = True # TODO
+DEBUG = False
 
 def start(port, paths):
     app = generate_proxy_handler(paths)
