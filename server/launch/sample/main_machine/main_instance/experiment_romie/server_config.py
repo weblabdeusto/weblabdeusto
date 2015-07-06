@@ -8,6 +8,7 @@ romie_time = 194.159 # 3 minutes, 14.159 seconds
 romie_server = 'http://192.168.0.190:8000/'
 romie_labpsico = False
 romie_demo = False
+debug = False
 questions = [
     [ # 0 difficulty
         {

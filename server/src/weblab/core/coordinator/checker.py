@@ -24,6 +24,7 @@ class ResourcesChecker(object):
     def __init__(self, coordinator):
         self.coordinator = coordinator
         self.locator     = coordinator.locator
+        self.current_lab = None
 
     def check(self):
         try:
@@ -34,6 +35,7 @@ class ResourcesChecker(object):
             # other might state that it doesn't).
             broken_resources = {}
             for laboratory_address_str in experiments_per_laboratory:
+                self.current_lab = laboratory_address_str
                 new_broken_resources = self.check_laboratory(laboratory_address_str, experiments_per_laboratory[laboratory_address_str])
                 for broken_resource in new_broken_resources:
                     if broken_resource in broken_resources:

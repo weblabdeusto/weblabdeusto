@@ -25,6 +25,7 @@ from voodoo.lock import locked
 from voodoo.log import logged
 from voodoo.override import Override
 from weblab.experiment.experiment import Experiment
+import weblab.core.coordinator.coordinator as Coordinator
 
 #module_directory = os.path.join(*__name__.split('.')[:-1])
 
@@ -296,6 +297,6 @@ class Archimedes(Experiment):
         if self.DEBUG:
             print "[Archimedes] do_dispose called"
 
-        return "ok"
+        return json.dumps({ Coordinator.FINISH_FINISHED_MESSAGE : True, Coordinator.FINISH_DATA_MESSAGE : "You're kicked out"})
 
 

@@ -30,6 +30,8 @@ class ConsoleUI(object):
         return raw_input(prompt).decode('utf8')
 
     def _getpass(self, prompt):
+        if isinstance(prompt, unicode):
+            prompt = prompt.encode('utf8')
         return getpass.getpass(prompt)
 
     def _print(self, text=""):

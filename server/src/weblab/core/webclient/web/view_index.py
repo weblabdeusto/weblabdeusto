@@ -64,10 +64,6 @@ def handle_login_POST():
         # Inserts the weblabsessionid and loginsessionid cookies into the response.
         # (What is the purpose of having both? Why the different expire dates?)
         weblab_api.fill_session_cookie(response, session_id_cookie)
-
-
-        print "LOGGED IN WITH: (%s)" % (session_id_cookie)
-
         return response
 
 def handle_login_GET():

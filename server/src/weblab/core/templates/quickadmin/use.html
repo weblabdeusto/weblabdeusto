@@ -1,0 +1,135 @@
+{% set title = "Use" %}
+{% extends "quickadmin/_base.html" %}
+
+{% block header %}
+    <style>
+      body {
+        padding: 20px;
+      }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="container-fluid">
+            {% if found %}
+                <h3>General</h3>
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for name, value in properties.iteritems() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            {% if 'date' in name.lower() and value is not string %}
+                            <td data-date="{{ value }}Z"></td>
+                            {% else %}
+                            <td class="longname">{{ value }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if commands %}
+                <h3>Commands</h3>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Length</th>
+                            <th>Time before</th>
+                            <th>Time after</th>
+                            <th>Command</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for command in commands %}
+                        <tr>
+                            <td>{{ command['length'] }}</td>
+                            <td data-date="{{ command['before'] }}Z"></td>
+                            {% if command['after'] is not string %}
+                            <td data-date="{{ command['after'] }}Z"></td>
+                            {% else %}
+                            <td>{{ command['after'] }}</td>
+                            {% endif %}
+                            <td>{{ command['command'] }}</td>
+                            <td>{{ command['response'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+
+                {% if files %}
+                <h3>Files</h3>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Length</th>
+                            <th>Time before</th>
+                            <th>Time after</th>
+                            <th>File hash</th>
+                            <th>File info</th>
+                            <th>Response</th>
+                            <th>Download</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                        <tr>
+                            <td>{{ file['length'] }}</td>
+                            <td data-date="{{ file['before'] }}Z"></td>
+                            {% if file['after'] is not string %}
+                            <td data-date="{{ file['after'] }}Z"></td>
+                            {% else %}
+                            <td>{{ file['after'] }}</td>
+                            {% endif %}
+                            <td>{{ file['hash'] }}</td>
+                            <td>{{ file['info'] }}</td>
+                            <td>{{ file['response'] }}</td>
+                            <td><a href="{{ param_url_for('.file', file_id = file['file_id']) }}" class="btn btn-primary">Download</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-error">
+                    <h1>Use not found</h1>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("td[data-date]").each(function (pos, value) {
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+
+        $("td.longname").each(function(pos, val) { 
+            $(val).attr("title", $(val).text());
+            var MAX_SIZE = 140;
+            if($(val).text().length > MAX_SIZE) {
+                var newTitle = $(val).text().substr(0, MAX_SIZE) + "..."; 
+                $(val).text(newTitle); 
+            } 
+        });
+    </script>
+{% endblock %}

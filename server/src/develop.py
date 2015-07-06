@@ -283,7 +283,7 @@ def deploy_testdb(options):
     weblab_db_password       = options.testdb_passwd
     weblab_admin_db_username = options.testdb_admin_user
     if options.testdb_ask_admin_passwd:
-        weblab_admin_db_password = getpass.getpass("Database password:")
+        weblab_admin_db_password = getpass.getpass("Database password:".encode('utf8'))
     else:
         weblab_admin_db_password = options.testdb_admin_passwd
 

@@ -101,6 +101,14 @@ class ConfigurationManager(object):
         else:
             self._modules_lock = NullLock()
 
+    @staticmethod
+    def create(directory, configuration_files, configuration_values):
+        config = ConfigurationManager()
+        config.append_paths([ os.path.abspath(os.path.join(directory, configuration_file)) for configuration_file in configuration_files ])
+        for key, value in dict(configuration_values).iteritems():
+            config.append_value(key, value)
+        return config
+
     def _set_value(self, key, value):
         self._values_writelock.acquire()
         try:
@@ -124,6 +132,7 @@ class ConfigurationManager(object):
 
     def append_value(self, name, value):
         self._set_value(name, value)
+        return self
 
     def append_module(self, module):
         self._modules_lock.acquire()
@@ -133,6 +142,7 @@ class ConfigurationManager(object):
             self._append_holder_values(configuration_module.holder)
         finally:
             self._modules_lock.release()
+        return self
 
     def append_path(self, path):
         self._modules_lock.acquire()
@@ -142,14 +152,17 @@ class ConfigurationManager(object):
             self._append_holder_values(configuration_path.holder)
         finally:
             self._modules_lock.release()
+        return self
 
     def append_modules(self, modules):
         for i in modules:
             self.append_module(i)
+        return self
 
     def append_paths(self, paths):
         for i in paths:
             self.append_path(i)
+        return self
 
     def reload(self):
         self._modules_lock.acquire()
@@ -170,6 +183,7 @@ class ConfigurationManager(object):
         finally:
             self._values_writelock.release()
             self._modules_lock.release()
+        return self
 
     def get_value(self, key, default_value = _not_a_default_value):
         self._values_readlock.acquire()

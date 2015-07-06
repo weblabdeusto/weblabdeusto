@@ -25,9 +25,6 @@ import sqlite3
 import time
 import copy
 
-# Actually defined through the configuration.
-DEBUG = None
-
 class RoMIExperiment(Experiment.Experiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
@@ -53,7 +50,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback run when the experiment is started.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_start_experiment called"
 
         data = json.loads(server_initial_data)
@@ -76,7 +73,7 @@ class RoMIExperiment(Experiment.Experiment):
         Callback run when the client sends a command to the experiment
         @param command Command sent by the client, as a string.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] Command received: %s" % command
 
         if command == 'F':
@@ -140,11 +137,11 @@ class RoMIExperiment(Experiment.Experiment):
                 else:
                     conn = sqlite3.connect(self.database)
                     cur = conn.cursor()
-                    cur.execute('SELECT sex, birthday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
+                    cur.execute('SELECT gender, birthday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
                     result = cur.fetchone()
                     conn.close()
 
-                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'sex': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
+                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'gender': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
 
@@ -156,13 +153,13 @@ class RoMIExperiment(Experiment.Experiment):
             if (self.email_exists(data["email"])):
                 return json.dumps({'error': 'email'})
 
-            self.register(data["email"], data["name"], data["surname"], data["school"], data["bdate"], data['grade'], data['sex'])
+            self.register(data["email"], data["name"], data["surname"], data["school"], data["bdate"], data['grade'], data['gender'])
 
             if not self._cfg_manager.get_value('romie_labpsico'):
                 self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                 result = {'error': None, 'time': self.finish_time, 'points': self.points}
             else:
-                result = {'error': None, 'sex': data['sex'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username}
+                result = {'error': None, 'gender': data['gender'], 'birthday': data['bdate'], 'grade': data['grade'], 'user': self.username}
 
             return json.dumps(result)
 
@@ -201,7 +198,7 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Callback to perform cleaning after the experiment ends.
         """
-        if(DEBUG):
+        if(self._cfg_manager.get_value('debug')):
             print "[RoMIE] do_dispose called"
 
         return "OK"
@@ -226,18 +223,17 @@ class RoMIExperiment(Experiment.Experiment):
         """
         Update points in the database
         """
-        if not self._cfg_manager.get_value('romie_demo'):
-            conn = sqlite3.connect(self.database)
+        conn = sqlite3.connect(self.database)
 
-            cur = conn.cursor()
-            cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
-            points = cur.fetchone()[0]
+        cur = conn.cursor()
+        cur.execute('SELECT points FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username,))
+        points = cur.fetchone()[0]
 
-            if (points < self.points):
-                conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
-                conn.commit()
+        if (points < self.points):
+            conn.execute('UPDATE '+self._cfg_manager.get_value('romie_table')+' SET points = ? WHERE username = ?', (self.points, self.username))
+            conn.commit()
 
-            conn.close()
+        conn.close()
 
     def email_exists(self, email):
         """
@@ -251,9 +247,9 @@ class RoMIExperiment(Experiment.Experiment):
 
         return count > 0
 
-    def register(self, email, name, surname, school, bdate, grade, sex):
+    def register(self, email, name, surname, school, bdate, grade, gender):
         conn = sqlite3.connect(self.database)
         conn.execute('INSERT INTO '+self._cfg_manager.get_value('romie_table')+' values (?,?,?,?,?,?,?,?,?,?)',
-            (self.username, email, name, surname, school, bdate, grade, sex, False, 0))
+            (self.username, email, name, surname, school, bdate, grade, gender, False, 0))
         conn.commit()
         conn.close()

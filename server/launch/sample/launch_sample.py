@@ -14,7 +14,7 @@
 # 
 
 import sys
-sys.path.append('../../src')
+sys.path.insert(0, '../../src')
 
 def inner(signals = False, condition = None, event_notifier = None):
     def before_shutdown():
