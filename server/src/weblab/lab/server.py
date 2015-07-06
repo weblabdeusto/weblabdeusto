@@ -77,6 +77,16 @@ class LaboratoryServer(object):
     EXPERIMENT_INSTANCE_ID_REGEX = r"^(.*)\:(.*)\@(.*)$"
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
+        """
+        :param coord_address: Structure that identifies a concrete machine / server [correct? type?]
+        :param locator: Registry through which we can get access to the ExperimentServer connectors. It
+        is through this registry that we can actually send requests to the Experiment Servers.
+        :param cfg_manager: Provides access to the experiment configuration
+        :param args: [unused?]
+        :param kwargs: [unused?]
+        :return:
+        """
+
         super(LaboratoryServer,self).__init__(*args, **kwargs)
 
         session_type    = cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_SESSION_TYPE,
@@ -107,6 +117,12 @@ class LaboratoryServer(object):
     # found. This task is executed at the beginning.
     #
     def _parse_assigned_experiments(self):
+        """
+        Parses the configuration that was provided to the server and loads every Experiment
+        that is declared in it. This task is executed at the beginning.
+        :return: List of tuples, each tuple containing information for an Experiment
+        """
+
         assigned_experiments = self._cfg_manager.get_value(WEBLAB_LABORATORY_SERVER_ASSIGNED_EXPERIMENTS)
 
         parsed_experiments = []
@@ -162,8 +178,16 @@ class LaboratoryServer(object):
                     parsed_experiments.append( (experiment_instance_id, coord_address, { 'checkers' : checking_handlers, 'api' : api, 'manages_polling' : manages_polling, 'number' : number }) )
         return parsed_experiments
 
+
     def _load_assigned_experiments(self):
+        """
+        Parses the experiments from the server config and loads them into the internal registry.
+        :return: None
+        """
+
+        # Create the registry in which to store the Experiments.
         self._assigned_experiments = AssignedExperiments.AssignedExperiments()
+
         parsed_experiments         = self._parse_assigned_experiments()
 
         for exp_inst_id, coord_address, exp_info in parsed_experiments:
