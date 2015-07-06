@@ -56,17 +56,17 @@ except ImportError:
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
-def get_app_instance(view):
-    return view.admin.weblab_admin_app
-
-
 class AdminAuthnMixIn(object):
+    @property
+    def app_instance(self):
+        return self.admin.weblab_admin_app
+
     def is_accessible(self):
-        return get_app_instance(self).is_admin()
+        return self.app_instance.is_admin()
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
+            if self.app_instance.get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
@@ -1884,7 +1884,7 @@ class PermissionsAddingView(AdministratorView):
                                url_for('permissions/role.index_view'))
 
 class SystemPropertiesForm(Form):
-    users = TextAreaField(lazy_gettext(u"Users:"), description=lazy_gettext(u"Add the user list using the detailed format"))
+    demo_available = TextAreaField(lazy_gettext("Demo available:"))
 
 class SystemProperties(AdministratorView):
     def __init__(self, db_session, **kwargs):
@@ -1893,6 +1893,9 @@ class SystemProperties(AdministratorView):
 
     @expose('/')
     def index(self):
+        db = self.app_instance.db
+        client_config = db.client_configuration()
+        print(client_config)
         form = SystemPropertiesForm()
         return self.render("admin/admin-system-properties.html", form = form)
 
@@ -1904,7 +1907,7 @@ class HomeView(AdminAuthnMixIn, AdminIndexView):
 
     @expose()
     def index(self):
-        db = get_app_instance(self).get_db()
+        db = self.app_instance.db
         last_week_uses = db.frontend_admin_uses_last_week()
         last_year_uses = db.frontend_admin_uses_last_year()
         geo_month = db.frontend_admin_uses_geographical_month()

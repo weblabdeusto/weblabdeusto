@@ -14,8 +14,6 @@
 #
 from __future__ import print_function, unicode_literals
 
-from __future__ import unicode_literals
-
 import os
 import sys
 import datetime
@@ -852,6 +850,23 @@ def populate_weblab_tests(engine, tests):
     )
 
     session.add(up_any_access_forward)
+
+    client_properties = {
+        "development": True,
+        "demo.available": True,
+        "sound.enabled": False,
+        "admin.email": "weblab@deusto.es",
+        "google.analytics.tracking.code": "UA-12576838-6",
+        "experiments.default_picture": "/img/experiments/default.jpg",
+        "host.entity.image.login": "/img/udeusto-logo.jpg",
+        "host.entity.image": "/img/udeusto-logo-main.jpg",
+        "host.entity.image.mobile": "/img/udeusto-logo-mobile.jpg",
+        "host.entity.link": "http://www.deusto.es/",
+        "facebook.like.box.visible": False
+    }
+    
+    for key, value in six.iteritems(client_properties):
+        session.add(model.DbClientProperties(key, value))
 
     session.commit()
 

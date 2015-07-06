@@ -1644,7 +1644,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options[Creation.QUIET]:
         launch_script += """        pass\n"""
     else:
-        launch_script += """        print("Stopping servers...)"\n"""
+        launch_script += """        print("Stopping servers...")\n"""
 
     launch_script += """    \n"""
 
@@ -1766,7 +1766,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if options[Creation.QUIET]:
             """        pass\n"""
         else:
-            """        print("Stopping servers...)"\n"""
+            """        print("Stopping servers...")\n"""
         xmlrpc_launch_script += """    \n"""
 
         xmlrpc_launch_script += (

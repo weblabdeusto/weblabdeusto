@@ -192,6 +192,10 @@ class AdministrationApplication(object):
         # 
         self.bypass_authz = bypass_authz
 
+    @property
+    def db(self):
+        return self.core_server.db
+
     def get_db(self):
         return self.core_server.db
 
