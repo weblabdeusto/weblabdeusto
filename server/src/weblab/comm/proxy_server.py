@@ -1,39 +1,27 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-#
-# Copyright (C) 2012 onwards University of Deusto
-# All rights reserved.
-#
-# This software is licensed as described in the file COPYING, which
-# you should have received as part of this distribution.
-#
-# This software consists of contributions made by many individuals,
-# listed below:
-#
-# Author: Pablo Orduña <pablo@ordunya.com>
-#
 from __future__ import print_function, unicode_literals
 
-import sys
 import os
-from six.moves import socketserver
-from six.moves import BaseHTTPServer
-import shutil
-import urllib2
-import mimetypes
+import sys
+import random
+import hashlib
 import threading
 
-PROXY           = 'proxy:'
-PROXIES         = 'proxies:'
+import six
+import requests
+
+from flask import Flask, Response, stream_with_context, abort, send_file, redirect, request, escape
+from werkzeug.routing import Rule
+
 PROXY_SESSION   = 'proxy-sessions:'
 REDIRECT        = 'redirect:'
 FILE            = 'file:'
 
-PROTOCOLS = PROXY, FILE, PROXY_SESSION, PROXIES, REDIRECT
+PROTOCOLS = FILE, PROXY_SESSION, REDIRECT
 QUIET = False
 
-def generate_proxy_handler(paths):
-
+def _validate_protocols(paths):
+    """Check that the paths are valid, and that the order is not hiding some results"""
     for _, processor in paths:
         if not processor.startswith(PROTOCOLS):
             raise ValueError("Invalid protocol in paths: %s " % processor)
@@ -52,202 +40,163 @@ def generate_proxy_handler(paths):
                 print("ProxyHandler: Path %s (number %s) will not be managed since a previous one manages %s!" % (_path, pos, _previous_path), file=sys.stderr)
                 break
         previous_paths.append(_path)
+    return previous_paths
 
-    class AvoidHTTPRedirectHandler(urllib2.HTTPRedirectHandler):
-        """ Do not follow any redirection """
-        def http_error_302(self, req, fp, code, msg, headers):
-            raise urllib2.HTTPError(req.get_full_url(), code, msg, headers, fp)
+def _add_rules(app, current_path, value):
+    hash_value = hashlib.new("md5", value).hexdigest()
+    # If it ends in <path:url>, use also without it
+    app.url_map.add(Rule(current_path, endpoint=hash_value))
+    if '<path' in current_path:
+        app.url_map.add(Rule(current_path.split('<')[0], endpoint=hash_value))
+        if '/<' not in current_path:
+            app.url_map.add(Rule(current_path.replace('<','/<'), endpoint=hash_value))
+    return hash_value
 
-        http_error_301 = http_error_303 = http_error_307 = http_error_302
+def _generate_file(app, current_path, value):
+    """
+    FILE
+    
+    Example: { '/foo' : 'file:/var/www/' }
+    
+    If  /foo/index.html => returns /var/www/index.html
+    """
+    where = value.split(':', 1)[1]
+    endpoint = _add_rules(app, current_path, value)
 
-    class ProxyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    @app.endpoint(endpoint)
+    def handle_file(url = None):
+        if '..' in url:
+            abort(404)
+        fname = os.path.join(where, url)
+        if os.path.exists(fname):
+            return send_file(fname, as_attachment = False, conditional = True)
+        else:
+            return abort(404)
 
-        if not mimetypes.inited:
-            mimetypes.init() # try to read system mime.types
-        extensions_map = mimetypes.types_map.copy()
+def _generate_redirect(app, current_path, value):
+    """
+    REDIRECT
+    
+    Example: { '/foo' : 'redirect:http://www.google.com' }
+    
+    If /foo => redirect to http://www.google.com
+    """
+    where = value.split(':', 1)[1]
+    endpoint = _add_rules(app, current_path, value)
 
-        proxies_count      = 0
-        proxies_count_lock = threading.Lock()
+    @app.endpoint(endpoint)
+    def handle_file(url = None):
+        return redirect(where)
 
-        def do_GET(self):
-            try:
-                f = self.send_head()
-                if f:
-                    shutil.copyfileobj(f, self.wfile)
-                    f.close()
-            except:
-                self.log_error('Error processing %s' % self.path)
-                raise
+def _generate_proxy(app, current_path, value):
+    """ 
+    PROXY_SESSION
+    
+    Example: { u'/weblab/json/', u'proxy-sessions:weblabsessionid:route1=http://localhost:10000/weblab/json/,route2=http://localhost:10001/weblab/json/,route3=http://localhost:10002/weblab/json/,' }
+    
+    If /weblab/json/
+       if route1 present in weblabsessionid, proxy to http://localhost:10000/weblab/json/
+       if route2 present in weblabsessionid, proxy to http://localhost:10001/weblab/json/
+       if route3 present in weblabsessionid, proxy to http://localhost:10002/weblab/json/
+       else, randomly to any of them.
+    """
+    
+    endpoint = _add_rules(app, current_path, value)
 
-        def log_message(self, *args, **kwargs):
-            if not QUIET:
-                BaseHTTPServer.BaseHTTPRequestHandler.log_message(self, *args, **kwargs)
+    where = value.split(':', 1)[1]
+    cookie_name, routes = where.split(':', 1)
+    routes = dict([ route.strip().split('=', 1) for route in routes.split(',') if route.strip() ])
 
-        def do_POST(self):
-            try:
-                length = int(self.headers['content-length'])
-                f = self.send_head(self.rfile.read(length))
-                if f:
-                    shutil.copyfileobj(f, self.wfile)
-                    f.close()
-            except:
-                self.log_error('Error processing %s' % self.path)
-                raise
+    # cookie_name = 'weblabsessionid'
+    # routes = {
+    #    'route1' : 'http://localhost:10000/weblab/json/',
+    #    'route2' : 'http://localhost:10001/weblab/json/',
+    #    'route3' : 'http://localhost:10002/weblab/json/',
+    # }
 
-        def do_HEAD(self):
-            self.send_head()
+    routes_list = list(routes.values())
 
-        def send_head(self, data = None):
-            for path, processor in paths:
-                if self.path.startswith(path.replace('$','')):
-                    if path.endswith('$') and self.path != path.replace('$',''):
-                        continue
-                    if path.replace('$','') == '':
-                        path = self.path
-                    else:
-                        path = self.path.split(path.replace('$',''), 1)[1]
-                    if processor.startswith(FILE):
-                        base_path = processor.split(FILE, 1)[1]
-                        return self.send_head_file(data, path, base_path)
-                    elif processor.startswith(PROXY):
-                        proxy = processor.split(PROXY, 1)[1]
-                        return self.send_head_proxy(data, path, proxy)
-                    elif processor.startswith(PROXIES):
-                        proxies_str = processor.split(PROXIES, 1)[1]
-                        proxies = [ proxy.strip() for proxy in proxies_str.split(',') if proxy.strip() ]
-                        return self.send_head_proxies(data, path, proxies)
-                    elif processor.startswith(PROXY_SESSION):
-                        proxies_str = processor.split(PROXY_SESSION, 1)[1]
-                        cookie_name = proxies_str.split(':', 1)[0]
-                        proxies_str = proxies_str.split(':', 1)[1]
-                        proxies = {}
-                        for proxy_str in filter(None, proxies_str.split(',')):
-                            route, proxy = proxy_str.split('=', 1)
-                            proxies[route.strip()] = proxy.strip()
-                        return self.send_head_proxy_session(data, path, cookie_name, proxies)
-                    elif processor.startswith(REDIRECT):
-                        location = processor.split(REDIRECT, 1)[1]
-                        return self.send_head_redirect(data, path, location)
+    @app.endpoint(endpoint)
+    def handle_proxy(url = None):
+        current_cookie_value = request.cookies.get(cookie_name, '')
 
-            self.log_error("No path for: %s" % self.path)
-            self.send_response(404, 'File not found')
-            return None
+        where = None
+        for route in routes:
+            if current_cookie_value.endswith(route):
+                where = routes[route]
+                break
 
-        def send_head_redirect(self, data, path, location):
-            self.send_response(301)
-            self.send_header('Location', location)
-            self.end_headers()
+        if where is None:
+            where = random.choice(routes_list)
 
-        def send_head_proxies(self, data, path, proxies):
-            with ProxyHandler.proxies_count_lock:
-                ProxyHandler.proxies_count += 1
-                current_count = ProxyHandler.proxies_count
-            proxy_url = proxies[current_count % len(proxies)]
-            return self.send_head_proxy(data, path, proxy_url)
+        headers = dict(request.headers)
+        headers['X-Forwarded-For'] = request.remote_addr
+        headers.pop('Host', None)
+        headers.pop('host', None)
+        if request.method == 'GET':
+            req = requests.get(where + (url or ''), headers = headers, cookies = dict(request.cookies))
+        elif request.method == 'POST':
+            req = requests.post(where + (url or ''),  data = request.data, headers = headers, cookies = dict(request.cookies))
 
-        def send_head_proxy_session(self, data, path, cookie_name, proxies):
-            cookies_str = self.headers.get('Cookie', self.headers.get('cookie', None))
-            proxy_url = None
-            if cookies_str is not None:
-                for cookie_str in cookies_str.split(';'):
-                    if cookie_str.find('='):
-                        current_cookie_name = cookie_str.split('=', 1)[0].strip()
-                        if current_cookie_name == cookie_name:
-                            value = cookie_str.split('=', 1)[1].strip()
-                            if value.find('.') >= 0:
-                                value = value.rsplit('.',1)[1].strip()
-                                if value in proxies:
-                                    proxy_url = proxies[value]
-                            break
-            if proxy_url is None:
-                with ProxyHandler.proxies_count_lock:
-                    ProxyHandler.proxies_count += 1
-                    current_count = ProxyHandler.proxies_count
-                keys = proxies.keys()
-                proxy_url = proxies[keys[current_count % len(keys)]]
-            return self.send_head_proxy(data, path, proxy_url)
+        return Response(req.content, headers = dict(req.headers), content_type = req.headers['content-type'])
 
-        def send_head_proxy(self, data, path, proxy_url):
-            request_headers = dict(self.headers)
-            request_headers['X-Forwarded-For'] = self.client_address[0]
-            request = urllib2.Request("%s%s" % (proxy_url, path), data, headers = request_headers)
-            opener = urllib2.build_opener(AvoidHTTPRedirectHandler)
-            try:
-                urlobj = opener.open(request)
-            except urllib2.HTTPError as e:
-                self.send_response(e.code, e.msg) # TODO
-                for response_header in e.hdrs:
-                    self.send_header(response_header, e.hdrs[response_header])
-                self.end_headers()
-                return None
 
-            response_headers = urlobj.info()
-            self.send_response(200) # TODO
-            for response_header in response_headers:
-                self.send_header(response_header, response_headers[response_header])
-            self.end_headers()
-            return urlobj
+def generate_proxy_handler(paths):
+    _validate_protocols(paths)
 
-        def send_head_file(self, data, path, base_path):            
-            path = path.split('?', 1)[0]
-            path = path.split('#', 1)[0]
-            path = path.replace('/', os.sep)
-            files = filter(lambda x : x and x != '..', path.split(os.sep))
-            if len(files) > 0:
-                path = os.path.join(*files)
-                final_path = os.path.join(base_path, path)
+    app = Flask(__name__)
+
+    for path, value in paths:
+        # $ is supported, otherwise anything after will be considered url
+        if path.endswith('$'):
+            current_path = path[:-1]
+            if current_path == '':
+                current_path = '/'
+        else:
+            if path == '':
+                current_path = '/<path:url>'
+                continue #TODO
             else:
-                final_path = base_path
-            try:
-                f = open(final_path, 'rb')
-            except:
-                self.log_error("Could not find %s" % final_path)
-                self.send_response(404, 'File not found')
-                return None
+                current_path = path + '<path:url>'
+            if current_path == '/weblab/<path:url>':
+                continue
+                
 
-            extension = ('.' + final_path).rsplit('.', 1)[1]
-            mtype = self.extensions_map.get('.' + extension, 'application/octet-stream')
-            fs = os.fstat(f.fileno())
-            self.send_response(200)
-            self.send_header("Content-type", mtype)
-            self.send_header("Content-Length", str(fs[6]))
-            self.send_header("Last-Modified", self.date_time_string(fs.st_mtime))
-            self.end_headers()
-            return f
+        if value.startswith(FILE):
+            _generate_file(app, current_path, value)
+        elif value.startswith(REDIRECT):
+            _generate_redirect(app, current_path, value)
+        elif value.startswith(PROXY_SESSION):
+            _generate_proxy(app, current_path, value)
+        else:
+            print("Unknown starting path: %s" % value)
 
-    return ProxyHandler
+    if DEBUG:
+        @app.route("/site-map")
+        def site_map():
+            lines = []
+            for rule in app.url_map.iter_rules():
+                line = str(escape(repr(rule)))
+                lines.append(line)
 
-class ProxyServer(socketserver.ThreadingMixIn, BaseHTTPServer.HTTPServer):
-    daemon_threads      = True
-    request_queue_size  = 50
-    allow_reuse_address = True
+            ret = "<br>".join(lines)
+            return ret
+    return app
 
-    def __init__(self, server_address, proxy_handler):
-        BaseHTTPServer.HTTPServer.__init__(self, server_address, proxy_handler)
-
-    def get_request(self):
-        sock, addr = BaseHTTPServer.HTTPServer.get_request(self)
-        sock.settimeout(None)
-        return sock, addr
-
-def run(port, proxy_handler):
-    server = ProxyServer(('',port), proxy_handler)
-    server.serve_forever()
+DEBUG = True # TODO
 
 def start(port, paths):
-    proxy_handler = generate_proxy_handler(paths)
-    t = threading.Thread(target=run, args = (port, proxy_handler))
+    app = generate_proxy_handler(paths)
+    t = threading.Thread(target=app.run, kwargs = dict(port = port, threaded = True, debug = DEBUG, use_reloader = False))
     t.setName('proxy-server:%s' % port)
     t.setDaemon(True)
     t.start()
-    return t
 
 if __name__ == '__main__':
     paths = [
-#        ('/web', 'proxy:http://www.weblab.deusto.es'),
-#        ('/foo', 'proxy-sessions:weblabsessionid:route1=http://www.weblab.deusto.es'),
-#        ('/client', 'file:/var/www/'),
-#        ('/client/foo', 'redirect:/foo'),
+        ('/foo', 'proxy-sessions:weblabsessionid:route1=http://weblab.deusto.es'),
+        ('/client', 'file:/var/www/'),
+        ('/client/foo', 'redirect:/foo'),
     ]
     start(8000, paths)
     raw_input('Listening in port 8000, press Enter to finish...')
