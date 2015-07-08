@@ -1,4 +1,28 @@
 {% extends 'weblab-master.html' %}
 {% block body %}
-:-D
+    {% from "_form_helpers.html" import render_field %}
+
+    <h2>{{ gettext("System properties") }}</h2>
+
+    <form method="POST" action="{{ request.url }}" class="form-horizontal">
+        {{ form.hidden_tag() }}
+
+        <fieldset>
+            {% for field_name in form.FIELDS %}
+                {{ render_field(form|attr(field_name)) }}
+            {% endfor %}
+
+            <div class="text-center">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+ 
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
 {% endblock %}

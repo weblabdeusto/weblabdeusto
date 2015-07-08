@@ -1,4 +1,7 @@
 {% macro render_field(field, required = False, no_form_control = False) %}
+    {% if field.type in ('FileField', 'BooleanField') %}
+        {% set no_form_control = True %}
+    {% endif %}
 
     <div class="form-group {% if field.errors %}error{% endif %}">
         {% if required %}

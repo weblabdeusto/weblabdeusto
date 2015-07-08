@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 import os
 import re
 import sha
+import sys
 import time
 import json
 import random
@@ -23,7 +24,7 @@ except:
     print("Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file")
     raise
 
-from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError, FileField
 from wtforms.fields.core import UnboundField
 from wtforms.fields.html5 import URLField, DateField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
@@ -1884,7 +1885,33 @@ class PermissionsAddingView(AdministratorView):
                                url_for('permissions/role.index_view'))
 
 class SystemPropertiesForm(Form):
-    demo_available = TextAreaField(lazy_gettext("Demo available:"))
+    demo_available = BooleanField(lazy_gettext("Demo available:"))
+    demo_user = Select2Field(lazy_gettext("Demo user"))
+    demo_password = TextField(lazy_gettext("Demo password"))
+    create_account = BooleanField(lazy_gettext("Create account:"))
+    host_entity_image = FileField(lazy_gettext("Entity picture:"))
+    host_entity_image_mobile = FileField(lazy_gettext("Entity mobile picture:"))
+    host_entity_link = URLField(lazy_gettext("Entity link:"))
+    public_admin_mail = FileField(lazy_gettext("Public admin e-mail:"), validators = [Email()])
+    google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
+
+    # base.location: "/w/whatever": generated at client_config.py
+
+    FIELDS = collections.OrderedDict()
+    FIELDS['demo_available'] = 'demo.available'
+    FIELDS['demo_user'] = 'demo.user'
+    FIELDS['demo_password'] = 'demo.password'
+    FIELDS['create_account'] = 'create.account.visible'
+    FIELDS['host_entity_image'] = 'host.entity.image'
+    FIELDS['host_entity_image_mobile'] = 'host.entity.image.mobile'
+    FIELDS['host_entity_link'] = 'host.entity.link'
+    FIELDS['public_admin_mail'] = 'admin.email'
+    FIELDS['google_analytics'] = 'google.analytics.tracking.code'
+
+# Validation - double check
+for key in SystemPropertiesForm.FIELDS:
+    if not hasattr(SystemPropertiesForm, key):
+        print("Invalid name: %s" % key, file=sys.stderr)
 
 class SystemProperties(AdministratorView):
     def __init__(self, db_session, **kwargs):
@@ -1897,6 +1924,8 @@ class SystemProperties(AdministratorView):
         client_config = db.client_configuration()
         print(client_config)
         form = SystemPropertiesForm()
+        logins = db.list_user_logins()
+        form.demo_user.choices = zip(logins, logins)
         return self.render("admin/admin-system-properties.html", form = form)
 
 

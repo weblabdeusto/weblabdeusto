@@ -237,7 +237,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 				String picture = retriever.getProperty("experiment.picture", "");
 				
 				if(picture.isEmpty())
-					picture = retriever.getProperty("experiments.default_picture", "");
+					picture = retriever.getProperty("experiments.default_picture", "/img/experiments/default.jpg");
 				
 	            if(picture.startsWith("/"))
 	                picture = GWT.getModuleBaseURL() + picture;

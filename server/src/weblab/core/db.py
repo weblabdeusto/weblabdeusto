@@ -224,7 +224,6 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
-
     @typecheck(basestring, ExperimentUsage)
     @logged()
     def store_experiment_usage(self, user_login, experiment_usage):
@@ -1177,6 +1176,10 @@ class DatabaseGateway(object):
     @with_session
     def client_configuration(self):
         return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbClientProperties).all() ])
+
+    @with_session
+    def list_user_logins(self):
+        return [ row[0] for row in _current.session.query(model.DbUser.login).all() ]
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)
