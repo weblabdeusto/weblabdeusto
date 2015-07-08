@@ -4,6 +4,9 @@ import gevent
 import time
 import xmlrpclib
 import urllib2
+import sys
+from util import _get_type_name
+
 
 class LabListener(object):
     """
@@ -17,40 +20,47 @@ class LabListener(object):
         self.listen_port = listen_port
         self.server = pywsgi.WSGIServer((self.listen_host, self.listen_port), self.on_http_request)
 
+        # For now we will not use a method registry because we will just forward any method.
+        self.methods_registry = {
+        }
+
     def on_http_request(self, environ, start_response):
-        start_response('404 Not Found', [('Content-Type', 'text/html')])
-        print "ON HTTP REQUEST"
-        return ['<b>Hello world!!!!</b>\n']
+        if environ['REQUEST_METHOD'] == 'GET':
+            start_response('200', [('Content-Type', 'text/html')])
+            return ["This server accepts ExperimentServer-like methods"]
 
-    def test_me(self, message):
-        return message
+        input = environ.get('wsgi.input')
+        raw_data = input.read()
+        params, method_name = xmlrpclib.loads(raw_data)
+        if method_name.startswith('Util.'):
+            method_name = method_name[len('Util.'):]
 
-    def is_up_and_running(self):
-        return True
+        # We do not check that the method exists here.
+        # if method_name not in self.methods_list:
+        #     start_response('404', [('Content-Type', 'text/html')])
+        #     return [xmlrpclib.dumps(xmlrpclib.Fault("Method not found", "Method not found"))]
 
-    def start_experiment(self, client_initial_data, server_initial_data):
-        return "{}"
+        try:
+            if method_name == 'test_bridge':
+                result = params[0]
+            else:
+                method = getattr(self, method_name)
+                result = method(*params)
+        except:
+            start_response('500', [('Content-Type', 'text/html')])
+            exc_type, exc_instance, _ = sys.exc_info()
+            remote_exc_type = _get_type_name(exc_type)
+            fault = xmlrpclib.Fault(remote_exc_type, repr(exc_instance.args))
+            # TODO: Log errors
+            # log.error(__name__, 'Error on %s' % method_name)
+            # log.error_exc(__name__)
+            return [xmlrpclib.dumps(fault)]
 
-    def send_file(self, content, file_info):
-        return "ok"
+        start_response('200 OK', [('Content-Type', 'text/html')])
+        content = xmlrpclib.dumps((result,))
+        return [content]
 
-    def send_command(self, command_string):
-        print "AT SEND_COMMAND"
-        gevent.sleep(5)
-        print "AT SEND COMMAND (2)"
-        gevent.sleep(5)
-        print "AT SEND COMMAND (3)"
-        gevent.sleep(5)
-        return "ok"
-
-    def dispose(self):
-        return "{}"
-
-    def should_finish(self):
-        return 0
-
-    def get_api(self):
-        return "2"
+    def forward_request(self, raw_data):
 
     def start(self):
         """
