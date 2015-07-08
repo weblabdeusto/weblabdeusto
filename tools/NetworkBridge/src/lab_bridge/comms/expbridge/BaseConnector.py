@@ -19,6 +19,15 @@ class BaseConnector(object):
         :param auth: Authentication data received from the ExpBridge.
         :param experiments: Dictionary containing the experiment information.
         """
+        password = data["password"]
+        if password != "0000":
+            raise Exception("Auth Failure Exception") # TODO: Replace with a proper exception.
+
+        # Auth succeeded. Create a new session.
+        self.session = self._generate_session()
+
+        # Build the response
+
         return "ok"
 
     def send_request(self, experiment):
@@ -35,3 +44,4 @@ class BaseConnector(object):
         :return:
         """
         raise NotImplementedError("Not implemented")
+

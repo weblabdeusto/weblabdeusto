@@ -1,4 +1,6 @@
 import json
+import random
+import string
 from gevent import pywsgi
 from lab_bridge.comms.expbridge import BaseConnector
 
@@ -12,6 +14,26 @@ class LongPollingConnector(BaseConnector):
     def __init__(self, listen_host, listen_port):
         super(BaseConnector, self).__init__(listen_host, listen_port)
         self.server = pywsgi.WSGIServer((self.listen_host, self.listen_port), self.on_http_request)
+        self.session = None
+
+    def _generate_session(self):
+        return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(12))
+
+    def _handle_register_request(self, data):
+        """
+        Handles the register request.
+        :param data:
+        :return:
+        """
+        password = data["auth"]
+        if password != "0000":
+            raise Exception("Auth Failure Exception") # TODO: Replace with a proper exception.
+
+        # Auth succeeded. Create a new session.
+        self.session = self._generate_session()
+
+        # Build the response
+
 
     def on_http_request(self, environ, start_response):
         """
@@ -27,8 +49,14 @@ class LongPollingConnector(BaseConnector):
 
         message = json.loads(raw_data)
 
-        start_response('200 OK', [('Content-Type', 'text/html')])
-        return ["Registered"]
+        if message["type"] == "register":
+            data = message["data"]
+            start_response('200 OK', [('Content-Type', 'text/html')])
+            return [self._handle_register_request(data)]
+
+        else:
+            # TODO
+            pass
 
     def on_register(self, auth, experiments):
         """

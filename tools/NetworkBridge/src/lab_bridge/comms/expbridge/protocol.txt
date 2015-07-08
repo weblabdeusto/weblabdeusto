@@ -5,7 +5,7 @@ C->S (HTTP REQ)
 {
     "type": "register",
     "data": {
-        "password": "0000",
+        "auth": "0000",
         "experiments": ["exp1", "exp2"]
     }
 }
