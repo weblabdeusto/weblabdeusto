@@ -19,4 +19,3 @@ recursive-include experiments/binary *
 recursive-include experiments/labview/fpga_programmer *
 recursive-include experiments/logic *
 recursive-include experiments/ud_pic18 *
-recursive-include webserver *

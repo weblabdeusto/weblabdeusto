@@ -33,7 +33,7 @@ public class ConfigVariables {
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
-	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
+	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = false;
 		
 	
 	static {

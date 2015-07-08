@@ -2,15 +2,26 @@
 {% block body %}
     {% from "_form_helpers.html" import render_field %}
 
-    <h2>{{ gettext("System properties") }}</h2>
+    <h2>{{ gettext("System settings") }}</h2>
 
     <form method="POST" action="{{ request.url }}" class="form-horizontal">
         {{ form.hidden_tag() }}
 
         <fieldset>
-            {% for field_name in form.FIELDS %}
-                {{ render_field(form|attr(field_name)) }}
+            {% for category in form.FIELDS %}
+                <div class="col-sm-offset-1">
+                    <h3>{{ category['name'] }}</h3>
+                    <p>{{ category['description'] }}</p>
+                </div>
+                
+                <br>
+                {% for field in category['values'] %}
+                    {{ render_field(form|attr(field.field)) }}
+                {% endfor %}
+
+                <br>
             {% endfor %}
+
 
             <div class="text-center">
                 <div class="form-actions">

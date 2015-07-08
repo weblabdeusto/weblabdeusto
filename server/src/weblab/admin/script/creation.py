@@ -1836,9 +1836,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
         ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
         ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
-
-        ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%s' % images_dir),
-
         ('%(root)s/weblab/client',      'file:%(war_path)s'),
     ]
 
@@ -1858,10 +1855,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
         """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
         """\n"""
-        """Alias %(root)s/weblab/client/weblabclientlab//img%(root-img)s/         %(directory)s/client/images/\n"""
-        """\n"""
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
-        """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
         """<Location %(root)s/weblab/>\n"""
         """    <IfModule authz_core_module>\n"""
@@ -1888,19 +1882,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """</Directory>\n"""
         """\n"""
         """<Directory "%(war_path)s">\n"""
-        """    Options Indexes\n"""
-        """\n"""
-        """    <IfModule authz_core_module>\n"""
-        """        Require all granted\n"""
-        """    </IfModule>\n"""
-        """\n"""
-        """    <IfModule !authz_core_module>\n"""
-        """        Order allow,deny\n"""
-        """        Allow from All\n"""
-        """    </IfModule>\n"""
-        """</Directory>\n"""
-        """\n"""
-        """<Directory "%(webserver_path)s">\n"""
         """    Options Indexes\n"""
         """\n"""
         """    <IfModule authz_core_module>\n"""
@@ -1987,7 +1968,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    proxy_paths.append(('%(root)s/weblab/',            'file:%(webserver_path)s'))
     proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
 
     if base_url in ('','/'):
@@ -2000,8 +1980,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
     server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
-                'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'),
-                'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
+                'directory' : os.path.abspath(directory).replace('\\','/'),
+                'war_path' : data_filename('war').replace('\\','/') }
 
     apache_conf = apache_conf % server_conf_dict
     proxy_paths = eval(repr(proxy_paths) % server_conf_dict)

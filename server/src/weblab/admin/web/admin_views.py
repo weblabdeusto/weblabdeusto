@@ -13,6 +13,7 @@ import traceback
 import threading
 import collections
 
+
 import six
 from weblab.core.babel import gettext, lazy_gettext
 from weblab.admin.util import password2sha
@@ -566,15 +567,16 @@ class AuthsPanel(AdministratorModelView):
     
     CONFIGURABLES = {
         'LDAP' : {
-            'form' : LdapForm,
-            'fields' : ['ldap_uri', 'domain', 'base'],
-            'generate_func' : generate_ldap_config,
-            'fill_func' : fill_ldap_config,
+            'form': LdapForm,
+            'fields': ['ldap_uri', 'domain', 'base'],
+            'generate_func': generate_ldap_config,
+            'fill_func': fill_ldap_config,
         }, 
         'TRUSTED-IP-ADDRESSES' : {
-            'form' : TrustedIpForm,
-            'fields' : ['ip_addresses'],
-            'fill_func' : fill_trusted_ip_config,
+            'form': TrustedIpForm,
+            'fields': ['ip_addresses'],
+            'generate_func': generate_trusted_ip_config,
+            'fill_func': fill_trusted_ip_config,
         },
     }
 
@@ -1884,11 +1886,20 @@ class PermissionsAddingView(AdministratorView):
                                model.DbRolePermission, model.DbRolePermissionParameter,
                                url_for('permissions/role.index_view'))
 
+class ClientField(collections.namedtuple('ClientField', ['field', 'key'])):
+    @property
+    def type(self):
+        return 'client'
+
+class ServerField(collections.namedtuple('ServerField', ['field', 'key'])):
+    @property
+    def type(self):
+        return 'server'
+
 class SystemPropertiesForm(Form):
     demo_available = BooleanField(lazy_gettext("Demo available:"))
     demo_user = Select2Field(lazy_gettext("Demo user"))
     demo_password = TextField(lazy_gettext("Demo password"))
-    create_account = BooleanField(lazy_gettext("Create account:"))
     host_entity_image = FileField(lazy_gettext("Entity picture:"))
     host_entity_image_mobile = FileField(lazy_gettext("Entity mobile picture:"))
     host_entity_link = URLField(lazy_gettext("Entity link:"))
@@ -1897,33 +1908,67 @@ class SystemPropertiesForm(Form):
 
     # base.location: "/w/whatever": generated at client_config.py
 
-    FIELDS = collections.OrderedDict()
-    FIELDS['demo_available'] = 'demo.available'
-    FIELDS['demo_user'] = 'demo.user'
-    FIELDS['demo_password'] = 'demo.password'
-    FIELDS['create_account'] = 'create.account.visible'
-    FIELDS['host_entity_image'] = 'host.entity.image'
-    FIELDS['host_entity_image_mobile'] = 'host.entity.image.mobile'
-    FIELDS['host_entity_link'] = 'host.entity.link'
-    FIELDS['contact_email'] = 'admin.email'
-    FIELDS['google_analytics'] = 'google.analytics.tracking.code'
+    FIELDS = [
+        {
+            'name' : lazy_gettext("Guest accounts"),
+            'description' : lazy_gettext("Manage public account creation, guest accounts, etc.:"),
+            'values' : [
+                ClientField(field='demo_available', key='demo.available'),
+                ClientField(field='demo_user', key='demo.user'),
+                ClientField(field='demo_password', key='demo.password'),
+            ],
+        },
+        {
+            'name' : lazy_gettext("Entity"),
+            'description' : lazy_gettext("Entity customization: logo, links, etc.:"),
+            'values' : [
+                ClientField(field='host_entity_image', key='host.entity.image'),
+                ClientField(field='host_entity_image_mobile', key='host.entity.image.mobile'),
+                ClientField(field='host_entity_link', key='host.entity.link'),
+                ClientField(field='contact_email', key='admin.email'),
+            ],
+        },
+        {
+            'name' : lazy_gettext("Tracking"),
+            'description' : lazy_gettext("Tracking identification"),
+            'values' : [
+                ClientField(field='google_analytics', key='google.analytics.tracking.code'),
+            ]
+        },
+    ]
+    FIELDS_BY_KEY = {
+        # key: field_name
+    }
+
 
 # Validation - double check
-for key in SystemPropertiesForm.FIELDS:
-    if not hasattr(SystemPropertiesForm, key):
-        print("Invalid name: %s" % key, file=sys.stderr)
+for category in SystemPropertiesForm.FIELDS:
+    for _field in category['values']:
+        if not hasattr(SystemPropertiesForm, _field.field):
+            print("Invalid name: %s" % _field.field, file=sys.stderr)
+        else:
+            SystemPropertiesForm.FIELDS_BY_KEY[_field.key] = _field.field
 
 class SystemProperties(AdministratorView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
         super(SystemProperties, self).__init__(**kwargs)
 
-    @expose('/')
+    @expose('/', methods = ['GET', 'POST'])
     def index(self):
         db = self.app_instance.db
         client_config = db.client_configuration()
-        print(client_config)
-        form = SystemPropertiesForm()
+        
+        kwargs = {}
+        for key, value in six.iteritems(client_config):
+            field_name = SystemPropertiesForm.FIELDS_BY_KEY.get(key)
+            if field_name is not None:
+                kwargs[field_name] = value
+            else:
+                print("ClientConfiguration key %s not present in the form" % key)
+
+        form = SystemPropertiesForm(**kwargs)
+
         logins = db.list_user_logins()
         form.demo_user.choices = zip(logins, logins)
         return self.render("admin/admin-system-properties.html", form = form)

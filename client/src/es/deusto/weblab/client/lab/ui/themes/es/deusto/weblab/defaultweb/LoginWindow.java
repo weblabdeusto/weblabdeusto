@@ -90,7 +90,7 @@ class LoginWindow extends BaseWindow {
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
-	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
+	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = false;
 	
 	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
 	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = false;

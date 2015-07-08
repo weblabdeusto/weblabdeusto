@@ -701,7 +701,7 @@ class ClientConfiguration2db(Upgrader):
         simple_server_config_filename = os.path.join('httpd','simple_server_config.py')
         lines = []
         for line in open(simple_server_config_filename):
-            if 'weblabclientadmin' not in line and 'configuration.js' not in line:
+            if 'weblabclientadmin' not in line and 'configuration.js' not in line and 'webserver' not in line and 'client/images' not in line:
                 lines.append(line)
 
         open(simple_server_config_filename, 'w').write(''.join(lines))
@@ -709,6 +709,7 @@ class ClientConfiguration2db(Upgrader):
         apache_weblab_generic_conf_filename = os.path.join('httpd', 'apache_weblab_generic.conf')
         lines = []
         bad_pos = -1
+        recording = True
         for pos, line in enumerate(open(apache_weblab_generic_conf_filename)):
             if bad_pos >= 0:
                 bad_pos -= 1
@@ -718,10 +719,17 @@ class ClientConfiguration2db(Upgrader):
                 bad_pos = 1
                 continue
 
-            if 'configuration.js' in line or 'weblabclientadmin' in line:
+            if 'configuration.js' in line or 'weblabclientadmin' in line or 'client/images' in line:
                 continue
 
-            lines.append(line)
+            if 'webserver' in line and '<Directory' in line:
+                recording = False
+            if not recording and '</Directory' in line:
+                recording = True
+                continue
+                
+            if recording:
+                lines.append(line)
 
         open(apache_weblab_generic_conf_filename, 'w').write(''.join(lines))
 
