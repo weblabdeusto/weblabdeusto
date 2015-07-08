@@ -1,0 +1,25 @@
+lab_bridge:
+    host: localhost
+    port: 20000
+    experiments:
+        exp1:
+            port: 20001
+            path: exp1
+    exp_bridges:
+        exp_bridge_1:
+            proto:
+                type: ajax
+                host: localhost
+                port: 30000
+
+
+exp_bridge:
+    host: localhost
+    port: 30000
+    lab_bridge:
+        host: localhost
+        port: 20000
+    experiments:
+        exp1:
+            host: localhost
+            port: 30001

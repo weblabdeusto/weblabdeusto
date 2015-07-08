@@ -1,0 +1,52 @@
+The LongPollingConnector relies on the following messages:
+
+C->S (HTTP REQ)
+"REGISTER ME AND THESE EXPERIMENTS"
+{
+    "type": "register",
+    "data": {
+        "password": "0000",
+        "experiments": ["exp1", "exp2"]
+    }
+}
+
+
+S->C
+"OK, REGISTERED, YOUR SESSION IS THIS"
+{
+    "type": "register",
+    "data": {
+        "result": "ok",
+        "sid": "s000"
+    }
+}
+
+
+
+C->S
+"GOT REQUESTS FOR ME? HAVE THESE RESPONSES TO PREV REQUESTS"
+{
+    "type": "tick",
+    "data": {
+        "responses": [
+            {
+                "id": "2001",
+                "data": "<xmlrpc>{archimedes_status: ball_down}</xmlrpc>"
+            }
+        ]
+    }
+}
+
+S->C
+"DO THESE REQUESTS"
+{
+    "type": "tick",
+    "data": {
+        "requests": [
+            {
+                "id": "2002",
+                "data": "<xmlrpc>TURNLED ON</xmlrpc>"
+            }
+        ]
+    }
+}

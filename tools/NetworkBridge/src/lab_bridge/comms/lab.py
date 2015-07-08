@@ -1,10 +1,8 @@
+import xmlrpclib
+import sys
 
 from gevent import pywsgi
-import gevent
-import time
-import xmlrpclib
-import urllib2
-import sys
+
 from util import _get_type_name
 
 
@@ -25,12 +23,20 @@ class LabListener(object):
         }
 
     def on_http_request(self, environ, start_response):
+        """
+        This should be handled in a Greenlet. It just forwards the request and
+        returns the response.
+        :type environ: dict
+        :type start_response: __builtin__.instancemethod
+        :return:
+        """
         if environ['REQUEST_METHOD'] == 'GET':
             start_response('200', [('Content-Type', 'text/html')])
             return ["This server accepts ExperimentServer-like methods"]
 
         input = environ.get('wsgi.input')
         raw_data = input.read()
+
         params, method_name = xmlrpclib.loads(raw_data)
         if method_name.startswith('Util.'):
             method_name = method_name[len('Util.'):]
@@ -44,8 +50,9 @@ class LabListener(object):
             if method_name == 'test_bridge':
                 result = params[0]
             else:
-                method = getattr(self, method_name)
-                result = method(*params)
+                # We will simply forward the request.
+                result = self.forward_request(raw_data)
+                return [result]
         except:
             start_response('500', [('Content-Type', 'text/html')])
             exc_type, exc_instance, _ = sys.exc_info()
@@ -61,24 +68,11 @@ class LabListener(object):
         return [content]
 
     def forward_request(self, raw_data):
+        print "FORWARDING REQUEST"
 
     def start(self):
         """
         Registers all experiment server - like methods and starts the XMLRPC server.
         :return:
         """
-        # self.server.start()
-        self.server.serve_forever()
-
-        # print self.listen_host
-        # self.server = ThreadedXMLRPCServer( (self.listen_host, self.listen_port), WebLabHandler)
-        # self.server.register_function(self.test_me, "Util.test_me")
-        # self.server.register_function(self.is_up_and_running, "Util.is_up_and_running")
-        # self.server.register_function(self.start_experiment, "Util.start_experiment")
-        # self.server.register_function(self.send_file, "Util.send_file_to_device")
-        # self.server.register_function(self.send_command, "Util.send_command_to_device")
-        # self.server.register_function(self.dispose, "Util.dispose")
-        # self.server.register_function(self.get_api, "Util.get_api")
-        # self.server.register_function(self.should_finish, "Util.should_finish")
-        # print "Running FAKE XML-RPC server on port %i" % self.listen_port
-        # self.server.serve_forever()
+        return self.server.start()

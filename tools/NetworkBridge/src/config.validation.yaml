@@ -1,0 +1,18 @@
+# TODO: DEFINE THE FULL SCHEMA.
+
+type: map
+mapping:
+  "lab_bridge":
+    type: mapping
+    mapping:
+      "host":
+        type: str
+        required: no
+      "port":
+        type: int
+        required: yes
+
+    required: no
+  "exp_bridge":
+    type: any
+    required: no
