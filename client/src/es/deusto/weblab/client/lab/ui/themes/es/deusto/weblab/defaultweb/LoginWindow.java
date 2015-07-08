@@ -93,7 +93,7 @@ class LoginWindow extends BaseWindow {
 	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
 	
 	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
-	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = true;
+	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = false;
 
 	private static final String FACEBOOK_LIKE_BOX_ID_PROPERTY = "facebook.like.box.app.id";
 	private static final String DEFAULT_FACEBOOK_LIKE_BOX_ID = "147077572014824";

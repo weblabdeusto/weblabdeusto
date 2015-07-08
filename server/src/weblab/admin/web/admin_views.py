@@ -1892,7 +1892,7 @@ class SystemPropertiesForm(Form):
     host_entity_image = FileField(lazy_gettext("Entity picture:"))
     host_entity_image_mobile = FileField(lazy_gettext("Entity mobile picture:"))
     host_entity_link = URLField(lazy_gettext("Entity link:"))
-    public_admin_mail = FileField(lazy_gettext("Public admin e-mail:"), validators = [Email()])
+    contact_email = TextField(lazy_gettext("Contact e-mail:"), validators = [Email()])
     google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
 
     # base.location: "/w/whatever": generated at client_config.py
@@ -1905,7 +1905,7 @@ class SystemPropertiesForm(Form):
     FIELDS['host_entity_image'] = 'host.entity.image'
     FIELDS['host_entity_image_mobile'] = 'host.entity.image.mobile'
     FIELDS['host_entity_link'] = 'host.entity.link'
-    FIELDS['public_admin_mail'] = 'admin.email'
+    FIELDS['contact_email'] = 'admin.email'
     FIELDS['google_analytics'] = 'google.analytics.tracking.code'
 
 # Validation - double check
