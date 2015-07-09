@@ -1896,6 +1896,11 @@ class ServerField(collections.namedtuple('ServerField', ['field', 'key'])):
     def type(self):
         return 'server'
 
+class OtherField(collections.namedtuple('OtherField', ['field', 'key'])):
+    @property
+    def type(self):
+        return 'other'
+
 class SystemPropertiesForm(Form):
     demo_available = BooleanField(lazy_gettext("Demo available:"))
     demo_user = Select2Field(lazy_gettext("Demo user"))
@@ -1904,6 +1909,7 @@ class SystemPropertiesForm(Form):
     host_entity_image_mobile = FileField(lazy_gettext("Entity mobile picture:"))
     host_entity_link = URLField(lazy_gettext("Entity link:"))
     contact_email = TextField(lazy_gettext("Contact e-mail:"), validators = [Email()])
+    admin_emails = TextField(lazy_gettext("Admin e-mails:"), description = lazy_gettext("Separated by commas"))
     google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
 
     # base.location: "/w/whatever": generated at client_config.py
@@ -1922,10 +1928,11 @@ class SystemPropertiesForm(Form):
             'name' : lazy_gettext("Entity"),
             'description' : lazy_gettext("Entity customization: logo, links, etc.:"),
             'values' : [
-                ClientField(field='host_entity_image', key='host.entity.image'),
-                ClientField(field='host_entity_image_mobile', key='host.entity.image.mobile'),
+                OtherField(field='host_entity_image', key='host.entity.image'),
+                OtherField(field='host_entity_image_mobile', key='host.entity.image.mobile'),
                 ClientField(field='host_entity_link', key='host.entity.link'),
                 ClientField(field='contact_email', key='admin.email'),
+                ServerField(field='admin_emails', key='admin.emails'),
             ],
         },
         {
@@ -1939,6 +1946,7 @@ class SystemPropertiesForm(Form):
     FIELDS_BY_KEY = {
         # key: field_name
     }
+    ALL_FIELDS = []
 
 
 # Validation - double check
@@ -1947,7 +1955,9 @@ for category in SystemPropertiesForm.FIELDS:
         if not hasattr(SystemPropertiesForm, _field.field):
             print("Invalid name: %s" % _field.field, file=sys.stderr)
         else:
+            SystemPropertiesForm.ALL_FIELDS.append(_field)
             SystemPropertiesForm.FIELDS_BY_KEY[_field.key] = _field.field
+
 
 class SystemProperties(AdministratorView):
     def __init__(self, db_session, **kwargs):
@@ -1968,9 +1978,26 @@ class SystemProperties(AdministratorView):
                 print("ClientConfiguration key %s not present in the form" % key)
 
         form = SystemPropertiesForm(**kwargs)
-
         logins = db.list_user_logins()
         form.demo_user.choices = zip(logins, logins)
+
+        if form.validate_on_submit():
+            client_properties = {
+                # key: value
+            }
+            server_properties = {
+                # key: value
+            }
+            for field in SystemPropertiesForm.ALL_FIELDS:
+                data = getattr(form, field.field).data
+                if field.type == 'client':
+                    client_properties[field.key] = data
+                elif field.type == 'server':
+                    server_properties[field.key] = data
+                # field.type == 'other' => Discarded. e.g., images
+            print(client_properties)
+            print(server_properties)
+
         return self.render("admin/admin-system-properties.html", form = form)
 
 
