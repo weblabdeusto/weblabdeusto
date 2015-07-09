@@ -27,6 +27,7 @@ C->S
 "GOT REQUESTS FOR ME? HAVE THESE RESPONSES TO PREV REQUESTS"
 {
     "type": "tick",
+    "sid": "s000",
     "data": {
         "responses": [
             {
@@ -45,6 +46,7 @@ S->C
         "requests": [
             {
                 "id": "2002",
+                "experiment": "exp1",
                 "data": "<xmlrpc>TURNLED ON</xmlrpc>"
             }
         ]

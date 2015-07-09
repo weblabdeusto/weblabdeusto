@@ -1,10 +1,9 @@
 
-import labnetbridge
-
+from lab_bridge import cfg
 
 def test_parse_config():
-    cfg = labnetbridge.parse_config("data/config.test.yml")
-    assert cfg is not None
-    assert cfg["bridges"] is not None
+    conf = cfg.parse_config("data/config.test.yml")
+    assert conf is not None
+    assert conf["bridges"] is not None
 
-    labnetbridge.verify_config(cfg)
+    cfg.verify_config(conf)
