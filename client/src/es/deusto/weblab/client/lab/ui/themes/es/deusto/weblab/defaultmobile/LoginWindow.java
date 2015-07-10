@@ -86,7 +86,7 @@ class LoginWindow extends BaseWindow {
 	}
 
 	private void setupWidgets(final Widget wid) {
-	    this.logoImage.setUrl("../web/logos/mobile");
+	    this.logoImage.setUrl("../web/logos/small");
 	    
 	    final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
 		this.institutionLink.setHref(hostEntityLink);

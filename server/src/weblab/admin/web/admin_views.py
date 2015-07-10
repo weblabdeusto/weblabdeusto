@@ -15,6 +15,8 @@ import collections
 
 
 import six
+
+from weblab.core.web.logo import logo_impl
 from weblab.core.babel import gettext, lazy_gettext
 from weblab.admin.util import password2sha
 from weblab.util import data_filename
@@ -25,7 +27,7 @@ except:
     print("Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file")
     raise
 
-from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError, FileField
+from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
 from wtforms.fields.html5 import URLField, DateField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
@@ -36,6 +38,7 @@ from sqlalchemy.orm import joinedload
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
 from flask.ext.wtf import Form
+from flask.ext.wtf.file import FileField
 
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.contrib.sqla.filters import FilterEqual
@@ -1896,17 +1899,18 @@ class ServerField(collections.namedtuple('ServerField', ['field', 'key'])):
     def type(self):
         return 'server'
 
-class OtherField(collections.namedtuple('OtherField', ['field', 'key'])):
+class ImageField(collections.namedtuple('ImageField', ['field', 'image'])):
     @property
     def type(self):
-        return 'other'
+        return 'image'
+
 
 class SystemPropertiesForm(Form):
     demo_available = BooleanField(lazy_gettext("Demo available:"))
     demo_user = Select2Field(lazy_gettext("Demo user"))
     demo_password = TextField(lazy_gettext("Demo password"))
     host_entity_image = FileField(lazy_gettext("Entity picture:"))
-    host_entity_image_mobile = FileField(lazy_gettext("Entity mobile picture:"))
+    host_entity_image_small = FileField(lazy_gettext("Entity small picture:"))
     host_entity_link = URLField(lazy_gettext("Entity link:"))
     contact_email = TextField(lazy_gettext("Contact e-mail:"), validators = [Email()])
     admin_emails = TextField(lazy_gettext("Admin e-mails:"), description = lazy_gettext("Separated by commas"))
@@ -1928,8 +1932,8 @@ class SystemPropertiesForm(Form):
             'name' : lazy_gettext("Entity"),
             'description' : lazy_gettext("Entity customization: logo, links, etc.:"),
             'values' : [
-                OtherField(field='host_entity_image', key='host.entity.image'),
-                OtherField(field='host_entity_image_mobile', key='host.entity.image.mobile'),
+                ImageField(field='host_entity_image', image='.logo_regular'),
+                ImageField(field='host_entity_image_small', image='.logo_small'),
                 ClientField(field='host_entity_link', key='host.entity.link'),
                 ClientField(field='contact_email', key='admin.email'),
                 ServerField(field='admin_emails', key='admin.emails'),
@@ -1954,7 +1958,7 @@ for category in SystemPropertiesForm.FIELDS:
     for _field in category['values']:
         if not hasattr(SystemPropertiesForm, _field.field):
             print("Invalid name: %s" % _field.field, file=sys.stderr)
-        else:
+        elif hasattr(_field, 'key'):
             SystemPropertiesForm.ALL_FIELDS.append(_field)
             SystemPropertiesForm.FIELDS_BY_KEY[_field.key] = _field.field
 
@@ -1964,10 +1968,27 @@ class SystemProperties(AdministratorView):
         self._db_session = db_session
         super(SystemProperties, self).__init__(**kwargs)
 
+    @expose('/logos/regular')
+    def logo_regular(self):
+        return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_PATH])
+
+    @expose('/logos/small')
+    def logo_small(self):
+        return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_SMALL_PATH])
+
+    def _store_image(self, field, config_property):
+        image_path = self.app_instance.config[config_property]
+        image_path = os.path.abspath(image_path)
+        if os.path.exists(image_path):
+            field.data.save(image_path)
+        else:
+            field.errors = [gettext("File %(path)s does not exist. Create it first", path=image_path)]
+
     @expose('/', methods = ['GET', 'POST'])
     def index(self):
         db = self.app_instance.db
         client_config = db.client_configuration()
+        server_config = db.server_configuration()
         
         kwargs = {}
         for key, value in six.iteritems(client_config):
@@ -1982,12 +2003,20 @@ class SystemProperties(AdministratorView):
         form.demo_user.choices = zip(logins, logins)
 
         if form.validate_on_submit():
+
+            if form.host_entity_image.data:
+                self._store_image(form.host_entity_image, configuration_doc.CORE_LOGO_PATH)
+
+            if form.host_entity_image_small.data:
+                self._store_image(form.host_entity_image, configuration_doc.CORE_LOGO_SMALL_PATH)
+
             client_properties = {
                 # key: value
             }
             server_properties = {
                 # key: value
             }
+
             for field in SystemPropertiesForm.ALL_FIELDS:
                 data = getattr(form, field.field).data
                 if field.type == 'client':
@@ -1995,8 +2024,7 @@ class SystemProperties(AdministratorView):
                 elif field.type == 'server':
                     server_properties[field.key] = data
                 # field.type == 'other' => Discarded. e.g., images
-            print(client_properties)
-            print(server_properties)
+            db.store_configuration(client_properties, server_properties)
 
         return self.render("admin/admin-system-properties.html", form = form)
 

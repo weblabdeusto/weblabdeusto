@@ -23,20 +23,21 @@ from weblab.util import data_filename
 from weblab.core.wl import weblab_api
 import weblab.configuration_doc as configuration_doc
 
-@weblab_api.route_web('/logos/regular')
-def logo():
-    logo_path = weblab_api.config[configuration_doc.CORE_LOGO_PATH]
+def logo_impl(logo_path):
     logo_path = os.path.abspath(logo_path)
     if not os.path.exists(logo_path):
         print("Error:", logo_path, "not found")
         logo_path = data_filename("weblab/admin/logo-not-found.jpg")
     return send_file(logo_path)
+   
 
-@weblab_api.route_web('/logos/mobile')
-def logo_mobile():
-    logo_path = weblab_api.config[configuration_doc.CORE_LOGO_MOBILE_PATH]
-    logo_path = os.path.abspath(logo_path)
-    if not os.path.exists(logo_path):
-        print("Error:",logo_path, "not found")
-        logo_path = data_filename("weblab/admin/logo-not-found.jpg")
-    return send_file(logo_path)
+@weblab_api.route_web('/logos/regular')
+def logo():
+    logo_path = weblab_api.config[configuration_doc.CORE_LOGO_PATH]
+    return logo_impl(logo_path)
+
+@weblab_api.route_web('/logos/small')
+def logo_small():
+    logo_path = weblab_api.config[configuration_doc.CORE_LOGO_SMALL_PATH]
+    return logo_impl(logo_path)
+

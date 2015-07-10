@@ -176,7 +176,7 @@ CORE_GEOIP2_COUNTRY_FILEPATH        = 'geoip2_country_filepath'
 CORE_LOCAL_CITY                     = 'local_city'
 CORE_LOCAL_COUNTRY                  = 'local_country'
 CORE_LOGO_PATH                      = 'logo_path'
-CORE_LOGO_MOBILE_PATH               = 'logo_mobile_path'
+CORE_LOGO_SMALL_PATH                = 'logo_small_path'
 
 _sorted_variables.extend([
     # URL, identifiers
@@ -195,7 +195,7 @@ _sorted_variables.extend([
     (CORE_LOCAL_CITY,                    _Argument(CORE, basestring, None, "Local city (e.g., if deployed in Bilbao, should be Bilbao). This is used so WebLab-Deusto uses it for resolving local IP addresses")),
     (CORE_LOCAL_COUNTRY,                 _Argument(CORE, basestring, None, "Local country, in ISO 3166 format (e.g., if deployed in Spain, should be ES). This is used so WebLab-Deusto uses it for resolving local IP addresses")),
     (CORE_LOGO_PATH,                     _Argument(CORE, basestring, 'client/images/logo.jpg', "File path of the logo.")),
-    (CORE_LOGO_MOBILE_PATH,              _Argument(CORE, basestring, 'client/images/logo-mobile.jpg', "File path of the logo.")),
+    (CORE_LOGO_SMALL_PATH,               _Argument(CORE, basestring, 'client/images/logo-mobile.jpg', "File path of the small version of the logo.")),
 ])
 
 # 

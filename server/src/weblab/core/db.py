@@ -23,6 +23,7 @@ import traceback
 from functools import wraps
 from collections import OrderedDict, namedtuple
 
+import six
 import sqlalchemy
 import sqlalchemy.sql as sql
 from sqlalchemy.orm import joinedload
@@ -1176,6 +1177,31 @@ class DatabaseGateway(object):
     @with_session
     def client_configuration(self):
         return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbClientProperties).all() ])
+
+    @with_session
+    def server_configuration(self):
+        return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbServerProperties).all() ])
+
+    @with_session
+    def store_configuration(self, client_properties, server_properties):
+        self._store_configuration(client_properties, model.DbClientProperties)
+        self._store_configuration(server_properties, model.DbServerProperties)
+        try:
+            _current.session.commit()
+        except sqlalchemy.exc.SQLAlchemyError:
+            _current.session.rollback()
+            raise
+
+    def _store_configuration(self, properties, klass):
+        properties = dict(properties)
+        for cp in _current.session.query(klass).all():
+            if cp.name in properties:
+                cp.value = properties.pop(cp.name)
+                _current.session.add(cp)
+
+        for name, value in six.iteritems(properties):
+            new_property = klass(name=name, value=value)
+            _current.session.add(new_property)
 
     @with_session
     def list_user_logins(self):

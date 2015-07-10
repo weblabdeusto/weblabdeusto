@@ -4,7 +4,7 @@
 
     <h2>{{ gettext("System settings") }}</h2>
 
-    <form method="POST" action="{{ request.url }}" class="form-horizontal">
+    <form method="POST" action="{{ request.url }}" class="form-horizontal" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
 
         <fieldset>
@@ -17,6 +17,11 @@
                 <br>
                 {% for field in category['values'] %}
                     {{ render_field(form|attr(field.field)) }}
+                    {% if field.type == 'image' %}
+                        <div class="col-sm-offset-3">
+                            <img src="{{ url_for(field.image) }}"/> 
+                        </div>
+                    {% endif %}
                 {% endfor %}
 
                 <br>

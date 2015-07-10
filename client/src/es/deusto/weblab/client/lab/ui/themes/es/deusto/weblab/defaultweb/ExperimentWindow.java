@@ -146,7 +146,7 @@ class ExperimentWindow extends BaseWindow {
 		ExperimentWindow.uiBinder.createAndBindUi(this);
 		
 		this.logoImage.setUrl("../web/logos/regular");
-		this.bottomLogoImage.setUrl("../web/logos/mobile");
+		this.bottomLogoImage.setUrl("../web/logos/small");
 		
 		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
 		this.bottomInstitutionLink.setHref(hostEntityLink);

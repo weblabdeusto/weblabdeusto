@@ -70,6 +70,7 @@ class AdministrationApplication(object):
         app.json_encoder = CustomJSONEncoder
         
         self.cfg_manager = cfg_manager
+        self.config = cfg_manager
         db.initialize(cfg_manager)
 
         self.core_server = core_server
