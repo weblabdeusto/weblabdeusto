@@ -2055,18 +2055,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if not len(extension) in (3,4):
         extension = 'jpg'
 
-    configuration_js['host.entity.image.login']        = '/img/client/images/logo.%s' % extension
-    configuration_js['host.entity.image']              = '/img/client/images/logo.%s' % extension
-    configuration_js['host.entity.image.mobile']       = '/img/client/images/logo-mobile.%s' % extension
-
-    if base_url != '' and base_url != '/':
-        configuration_js['base.location']                  = base_url
-    else:
-        configuration_js['base.location']                  = ''
-
-
-    logo_path        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/images',1)[1])
-    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/images',1)[1])
+    logo_path        = '%s%s%s' % (directory, apache_img_dir, '/logo.%s' % extension)
+    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, '/logo-mobile.%s' % extension)
 
     creation_results[CreationResult.IMG_FILE]        = logo_path
     creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
@@ -2091,8 +2081,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(logo_mobile_path, 'wb').write(logo_mobile_contents)
 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
-    configuration_js['facebook.like.box.visible']      = False
-    configuration_js['create.account.visible']         = False
 
     deploy.add_client_config(Session, configuration_js)
 

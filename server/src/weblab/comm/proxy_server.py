@@ -85,10 +85,11 @@ def _generate_proxy(current_path, value):
 
     headers = dict(request.headers)
     headers['X-Forwarded-For'] = request.remote_addr
+    headers['X-Forwarded-Host'] = request.host
     headers.pop('Host', None)
     headers.pop('host', None)
 
-    kwargs = dict(headers = headers, cookies = dict(request.cookies))
+    kwargs = dict(headers = headers, cookies = dict(request.cookies), allow_redirects=False)
 
     if request.method == 'GET':
         method = requests.get
@@ -110,9 +111,10 @@ def _generate_proxy(current_path, value):
 
     MAX_RETRIES = 5
     retry = 0
+    full_url = chosen_url + current_path
     while True:
         try:
-            req = method(chosen_url + current_path, **kwargs)
+            req = method(full_url, **kwargs)
             break
         except requests.ConnectionError:
             if request.method != 'GET':
@@ -121,8 +123,15 @@ def _generate_proxy(current_path, value):
             if retry >= MAX_RETRIES:
                 raise
             time.sleep(0.5)
+    
+    response_kwargs = {
+        'headers' : dict(req.headers),
+        'status' : req.status_code,
+    }
+    if 'content-type' in req.headers:
+        response_kwargs['content_type'] = req.headers['content-type']
 
-    return Response(req.content, headers = dict(req.headers), content_type = req.headers['content-type'])
+    return Response(req.content, **response_kwargs)
 
 
 def generate_proxy_handler(paths):
@@ -140,7 +149,7 @@ def generate_proxy_handler(paths):
 
         for path, value in paths:
             if path.endswith('$'):
-                if url == path[:-1]:
+                if url == path[:-1] or url == path[:-1] + '/':
                     selected_path = path
                     current_path = path[:-1]
                     current_value = value

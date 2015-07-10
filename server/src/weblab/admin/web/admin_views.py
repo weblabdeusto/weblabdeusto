@@ -91,8 +91,10 @@ def _get_instance(cur_view, klass):
     for view in cur_view.admin._views:
         if isinstance(view, klass):
             return view
-
-    raise Exception("INSTANCE NOT FOUND")
+    
+    # For example, in the profile logs view, you may not access the Experiments panel
+    if cur_view.admin.app.debug:
+        print("ERROR", "INSTANCE NOT FOUND FOR {0} and {1}".format(cur_view, klass))
 
 
 def show_link(cur_view, klass, filter_info, view_name=lazy_gettext('View')):
@@ -108,6 +110,8 @@ def show_link(cur_view, klass, filter_info, view_name=lazy_gettext('View')):
         view_name = filter_info.values()[0]
 
     instance = _get_instance(cur_view, klass)
+    if instance is None:
+        return view_name
     
     filters = {
         # filter_key : filter_id

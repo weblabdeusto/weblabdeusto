@@ -854,9 +854,7 @@ def populate_weblab_tests(engine, tests):
     client_properties = {
         "demo.available": True,
         "admin.email": "weblab@deusto.es",
-        "google.analytics.tracking.code": "UA-12576838-6",
-        "host.entity.image": "/img/udeusto-logo-main.jpg",
-        "host.entity.image.mobile": "/img/udeusto-logo-mobile.jpg",
+        "google.analytics.tracking.code": "UA-1234567-8",
         "host.entity.link": "http://www.deusto.es/",
     }
     
