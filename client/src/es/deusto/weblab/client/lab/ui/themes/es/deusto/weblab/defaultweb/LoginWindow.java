@@ -152,12 +152,7 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
 		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
-		String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LOGIN_IMAGE, "");
-		if(!hostEntityImage.isEmpty()){
-			if(hostEntityImage.startsWith("/"))
-				hostEntityImage = GWT.getModuleBaseURL() + hostEntityImage;
-			this.hostEntityLogo.setUrl(hostEntityImage);
-		}
+		this.hostEntityLogo.setUrl("../web/logos/regular");
 		
 		this.introText.setHTML(this.i18nMessages.weblabDeustoIsARemote_long());
 		

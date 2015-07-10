@@ -36,9 +36,6 @@ import es.deusto.weblab.client.lab.ui.themes.es.deusto.weblab.defaultweb.LoginWi
 public class DefaultTheme extends LabThemeBase {
 
 	public static class Configuration {
-		public static final String HOST_ENTITY_IMAGE        = "host.entity.image";
-		public static final String HOST_ENTITY_LOGIN_IMAGE  = "host.entity.image.login";
-		public static final String HOST_ENTITY_MOBILE_IMAGE = "host.entity.image.mobile";
 		public static final String HOST_ENTITY_LINK         = "host.entity.link";
 	}
 	

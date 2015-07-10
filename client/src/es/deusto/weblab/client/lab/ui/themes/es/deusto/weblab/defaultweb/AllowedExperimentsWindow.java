@@ -170,8 +170,7 @@ class AllowedExperimentsWindow extends BaseWindow {
 	protected void loadWidgets(){
 	    AllowedExperimentsWindow.uiBinder.createAndBindUi(this);
 
-		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
-		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
+        this.logoImage.setUrl("../web/logos/regular");
 		
 		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
 		this.institutionLink.setHref(hostEntityLink);
