@@ -96,6 +96,14 @@
             <td><strong>{{ gettext("Reservation identifier") }}</strong></td>
             <td>{{ uue.reservation_id }} </td>
         </tr>
+        <tr>
+            <td><strong>{{ gettext("Country") }}</strong></td>
+            <td>{{ uue.country or gettext("country not available") }} </td>
+        </tr>
+        <tr>
+            <td><strong>{{ gettext("City") }}</strong></td>
+            <td>{{ uue.city or gettext("city not available") }} </td>
+        </tr>
         {% if 'permission_scope' in properties and 'permission_id' in properties %}
         <tr>
             <td><strong>{{ gettext("Permission") }}</strong></td>

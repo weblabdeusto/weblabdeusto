@@ -155,7 +155,6 @@ class LocationRetriever(threading.Thread):
                         traceback.print_exc()
 
         self.locator = AddressLocator(config, local_country = self.local_country, local_city = self.local_city)
-            
 
     def stop(self):
         self.stopping = True
@@ -176,7 +175,6 @@ class LocationRetriever(threading.Thread):
             except Exception:
                 traceback.print_exc()
                 changes = 0
-
             if changes == 0:
                 self.sleepStep()
             # if there were 1 change, call without sleeping to check 

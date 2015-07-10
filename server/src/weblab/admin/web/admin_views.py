@@ -1928,7 +1928,7 @@ class SystemPropertiesForm(Form):
             'description' : lazy_gettext("Manage public account creation, guest accounts, etc.:"),
             'values' : [
                 ClientField(field='demo_available', key='demo.available'),
-                ClientField(field='demo_user', key='demo.user'),
+                ClientField(field='demo_user', key='demo.username'),
                 ClientField(field='demo_password', key='demo.password'),
             ],
         },
