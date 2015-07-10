@@ -2008,7 +2008,7 @@ class SystemProperties(AdministratorView):
                 self._store_image(form.host_entity_image, configuration_doc.CORE_LOGO_PATH)
 
             if form.host_entity_image_small.data:
-                self._store_image(form.host_entity_image, configuration_doc.CORE_LOGO_SMALL_PATH)
+                self._store_image(form.host_entity_image_small, configuration_doc.CORE_LOGO_SMALL_PATH)
 
             client_properties = {
                 # key: value

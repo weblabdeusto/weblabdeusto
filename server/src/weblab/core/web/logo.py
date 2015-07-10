@@ -28,7 +28,9 @@ def logo_impl(logo_path):
     if not os.path.exists(logo_path):
         print("Error:", logo_path, "not found")
         logo_path = data_filename("weblab/admin/logo-not-found.jpg")
-    return send_file(logo_path)
+    response = send_file(logo_path, as_attachment = False, conditional = True, add_etags = True, cache_timeout=0)
+    response.headers['Cache-Control'] = 'max-age=0'
+    return response
    
 
 @weblab_api.route_web('/logos/regular')
