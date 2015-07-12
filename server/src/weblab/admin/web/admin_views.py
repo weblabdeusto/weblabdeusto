@@ -29,7 +29,7 @@ except:
 
 from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
-from wtforms.fields.html5 import URLField, DateField
+from wtforms.fields.html5 import URLField, DateField, EmailField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
@@ -155,7 +155,7 @@ class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
     column_filters = ( 'full_name', 'login', 'role', 'email', model.DbGroup.name ) 
     column_searchable_list = ('full_name', 'login')
-    column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"))
+    column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"), auths=lazy_gettext("Credentials"))
 
     form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
@@ -163,7 +163,8 @@ class UsersPanel(AdministratorModelView):
     column_descriptions = dict(login=lazy_gettext('Username (all letters, dots and numbers)'),
                                full_name=lazy_gettext('First and Last name'),
                                email=lazy_gettext('Valid e-mail address'),
-                               avatar=lazy_gettext('Not implemented yet, it should be a public URL for a user picture.'))
+                               avatar=lazy_gettext('Not implemented yet, it should be a public URL for a user picture.'),
+                               auths=lazy_gettext("User credentials: a password or alternative mechanisms"))
 
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
@@ -219,14 +220,14 @@ class UsersPanel(AdministratorModelView):
     def _on_auth_changed(self, auth_instance):
         if auth_instance.auth.auth_type.name.lower() == 'db':
             password = auth_instance.configuration
-            if len(password) < 6:
-                raise Exception(gettext("Password too short"))
+            if len(password) < 4: # "demo" should be a valid password
+                raise ValidationError(gettext("Password too short"))
             auth_instance.configuration = password2sha(password)
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
             except:
-                raise Exception(gettext("Use a numeric ID for Facebook"))
+                raise ValidationError(gettext("Use a numeric ID for Facebook"))
                 # Other validations would be here
 
 
@@ -697,7 +698,7 @@ class AuthsPanel(AdministratorModelView):
 
     def on_model_delete(self, auth):
         if auth.auth_type.name == 'DB':
-            raise Exception(gettext("Can't delete this authentication system"))
+            raise ValidationError(gettext("Can't delete this authentication system"))
 
 
 class UserUsedExperimentPanel(AdministratorModelView):
@@ -1584,7 +1585,7 @@ class GenericPermissionPanel(AdministratorModelView):
         if exceeded_arguments:
             message += gettext("Exceeded arguments: %(arguments)s", arguments=', '.join(exceeded_arguments))
         if message:
-            raise Exception(message)
+            raise ValidationError(message)
 
         if permission.permission_type == 'experiment_allowed':
             exp_name = [parameter for parameter in permission.parameters if
@@ -1601,12 +1602,12 @@ class GenericPermissionPanel(AdministratorModelView):
                     found = True
                     break
             if not found:
-                raise Exception(gettext("Experiment not found: %(experiment)s%", experiment='%s@%s' % (exp_name, cat_name)))
+                raise ValidationError(gettext("Experiment not found: %(experiment)s%", experiment='%s@%s' % (exp_name, cat_name)))
 
             try:
                 int(time_allowed)
             except:
-                raise Exception(gettext("Time allowed must be a number (in seconds)"))
+                raise ValidationError(gettext("Time allowed must be a number (in seconds)"))
 
 
 class PermissionEditForm(InlineFormAdmin):
@@ -1912,11 +1913,11 @@ class ImageField(collections.namedtuple('ImageField', ['field', 'image'])):
 class SystemPropertiesForm(Form):
     demo_available = BooleanField(lazy_gettext("Demo available:"))
     demo_user = Select2Field(lazy_gettext("Demo user"))
-    demo_password = TextField(lazy_gettext("Demo password"))
+    demo_password = TextField(lazy_gettext("Demo password"), description=lazy_gettext("Password of the selected user. It will be publicly shown. Make sure that it is the valid password for the user."))
     host_entity_image = FileField(lazy_gettext("Entity picture:"))
     host_entity_image_small = FileField(lazy_gettext("Entity small picture:"))
     host_entity_link = URLField(lazy_gettext("Entity link:"))
-    contact_email = TextField(lazy_gettext("Contact e-mail:"), validators = [Email()])
+    contact_email = EmailField(lazy_gettext("Contact e-mail:"), validators = [Email()])
     admin_emails = TextField(lazy_gettext("Admin e-mails:"), description = lazy_gettext("Separated by commas"))
     google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
 
@@ -2005,7 +2006,10 @@ class SystemProperties(AdministratorView):
         form = SystemPropertiesForm(**kwargs)
         logins = db.list_user_logins()
         form.demo_user.choices = zip(logins, logins)
-        # TODO: establish that the default option is the current one, if any
+
+        create_msg = gettext("create one")
+        create_one = "<a href='{0}'>{1}</a>".format(url_for('users/users.create_view', url=request.url), create_msg)
+        form.demo_user.description = Markup(gettext("Select from the list, or %(create_one)s", create_one=create_one))
 
         if form.validate_on_submit():
 
