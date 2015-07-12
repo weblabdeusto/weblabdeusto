@@ -2005,6 +2005,7 @@ class SystemProperties(AdministratorView):
         form = SystemPropertiesForm(**kwargs)
         logins = db.list_user_logins()
         form.demo_user.choices = zip(logins, logins)
+        # TODO: establish that the default option is the current one, if any
 
         if form.validate_on_submit():
 

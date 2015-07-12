@@ -2051,11 +2051,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     #
     configuration_js = {}
 
-    configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
-    configuration_js['sound.enabled']                  = False
     configuration_js['admin.email']                    = 'weblab@deusto.es'
-    configuration_js['experiments.default_picture']    = '/img/experiments/default.jpg'
 
     extension = original_logo_path.split('.')[-1]
     if not len(extension) in (3,4):
