@@ -273,7 +273,8 @@ public class LabController implements ILabController {
         HistoryProperties.reloadHistory();
         final String redirectTo = HistoryProperties.getValue(HistoryProperties.REDIRECT);
         if (redirectTo != null) {
-            if (redirectTo.startsWith(Window.Location.getProtocol() + "//" + Window.Location.getHost() + "/") ){
+            if (redirectTo.startsWith("http://" + Window.Location.getHost() + "/") || 
+                redirectTo.startsWith("https://" + Window.Location.getHost() + "/")){
                 Window.Location.replace(redirectTo);
                 return true;
             }
