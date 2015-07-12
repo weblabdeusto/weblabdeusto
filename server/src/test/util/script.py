@@ -91,7 +91,7 @@ class ServerCreator(threading.Thread):
 
             try:
                 for address in (self.temporal_addresses + [self.address]):
-                    r = requests.get('%sjson' % self.address)
+                    r = requests.get('%sjson/' % self.address, allow_redirects=False)
                     if r.status_code != 200:
                         finished = False
             except:
