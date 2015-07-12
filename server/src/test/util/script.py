@@ -60,7 +60,7 @@ class ServerCreator(threading.Thread):
             self.shutdown_port = new_port()
             self.public_port = new_port()
             self.address = 'http://localhost:%s/weblab/' % self.public_port
-            sys.argv = shlex.split("weblab-admin create %s --quiet --not-interactive --socket-wait=%s --start-port=%s %s --http-server-port=%s" % (self.weblab_dir, self.shutdown_port, start_port, command, self.public_port))
+            sys.argv = shlex.split("weblab-admin create %s --ignore-locations --quiet --not-interactive --socket-wait=%s --start-port=%s %s --http-server-port=%s" % (self.weblab_dir, self.shutdown_port, start_port, command, self.public_port))
 
             weblab_admin()
 

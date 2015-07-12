@@ -192,6 +192,7 @@ class Creation(object):
     NOT_INTERACTIVE      = 'not_interactive'
     MYSQL_ADMIN_USER     = 'mysql_admin_username'
     MYSQL_ADMIN_PASSWORD = 'mysql_admin_password'
+    IGNORE_LOCATIONS     = 'ignore_locations'
 
 class CreationFlags(object):
     HTTP_SERVER_PORT = '--http-server-port'
@@ -494,6 +495,8 @@ def _build_parser():
                                                          "balancing the amount of experiments among different copies of the laboratories. "
                                                          "By establishing a higher number of laboratories, the generated deployment will "
                                                          "have the experiments balanced among them.")
+    parser.add_option("--ignore-locations",       dest = Creation.IGNORE_LOCATIONS, action="store_true", default=False,
+                                                  help = "Ignore locations. Otherwise, it will tell you to download two files for GeoLocation"),
 
     admin_data = OptionGroup(parser, "Administrator data",
                                                 "Administrator basic data: username, password, etc.")
@@ -1058,6 +1061,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "debug_mode   = True\n"
                         "\n"
+                        "%(ignore_locations)s\n"
+                        "\n"
                         "#########################\n"
                         "# General configuration #\n"
                         "#########################\n"
@@ -1157,6 +1162,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'other_scheduling_systems'                : other_scheduling_systems,
         'other_core_coordinator_external_servers' : other_core_coordinator_external_servers,
         'session_storage'                         : session_storage,
+        'ignore_locations'                        : 'ignore_locations = True' if options[Creation.IGNORE_LOCATIONS] else '',
 
         'session_db_engine'                       : options[Creation.SESSION_DB_ENGINE],
         'session_db_host'                         : options[Creation.SESSION_DB_HOST],
@@ -2143,10 +2149,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     print("     %s " % server_url, file=stdout)
     print("", file=stdout)
     print("And log in as '%s' using '%s' as password." % (options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD]), file=stdout)
-    print("", file=stdout)
-    print("You should also configure the images directory with two images called:", file=stdout)
-    print("", file=stdout)
-    print("     %s and %s" % (logo_path, logo_mobile_path), file=stdout)
     print("", file=stdout)
     print("You can also add users, permissions, etc. from the web interface.", file=stdout)
     print("", file=stdout)

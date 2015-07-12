@@ -125,7 +125,7 @@ class LocationRetriever(threading.Thread):
 
         geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
         if not os.path.exists(geoip2_city_filepath or 'not_found_file'):
-            if not is_testing():
+            if not is_testing() and not config[configuration_doc.CORE_IGNORE_LOCATIONS]:
                 local_directory = os.path.abspath(".")
                 if " " in local_directory:
                     local_directory = '"{0}"'.format(local_directory)
