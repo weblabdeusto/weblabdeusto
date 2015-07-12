@@ -30,6 +30,7 @@ except ImportError:
     print("argparse not found. You must upgrade Python to Python 2.7 or higher", file=sys.stderr)
     sys.exit(-1)
 
+import six
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -688,7 +689,9 @@ class ClientConfiguration2db(Upgrader):
         Session = sessionmaker(bind=engine)
         session = Session()
         try:
-            for key, value in self.config.iteritems():
+            for key, value in six.iteritems(self.config):
+                if key in ('development', 'host.entity.image.mobile', 'host.entity.image', 'sound.enabled', 'experiments.default_picture', 'host.entity.image.login', 'facebook.like.box.visible', 'create.account.visible'):
+                    continue
                 new_property = model.DbClientProperties(key, value)
                 session.add(new_property)
             
