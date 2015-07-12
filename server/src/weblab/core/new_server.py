@@ -255,6 +255,24 @@ class WebLabAPI(object):
                     pass
 
     @property
+    def client_config(self):
+        """ Check in context. If not there, retrieve from the database and store in context """
+        if hasattr(self.context, 'client_config'):
+            return getattr(self.context, 'client_config')
+        db = self.db
+        if db is None:
+            return None
+        client_config = db.client_configuration()
+        self.context.client_config = client_config
+        return client_config
+
+    def client_property(self, name):
+        client_config = self.client_config
+        if client_config is None:
+            return None
+        return client_config.get(name)
+
+    @property
     def user_agent(self):
         return getattr(self.context, 'user_agent', '<user agent not found>')
 

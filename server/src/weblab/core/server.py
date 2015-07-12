@@ -482,6 +482,10 @@ class WebLabFlaskServer(WebLabWsgiServer):
         weblab_api.apply_routes_webclient(core_webclient, server)
         self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
 
+        @self.app.context_processor
+        def inject_weblab_api():
+            return dict(weblab_api=weblab_api)
+
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
         if flask_debug:
