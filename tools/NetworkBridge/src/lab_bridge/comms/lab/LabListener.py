@@ -55,9 +55,11 @@ class LabListener(object):
             else:
                 # We will simply forward the request.
                 result = self.forward_request(raw_data)
+                start_response('200', [('Content-Type', 'text/html')])
                 return [result]
         except:
-            start_response('500', [('Content-Type', 'text/html')])
+            # Exceptions need to be reported through status_code 200 too.
+            start_response('200', [('Content-Type', 'text/html')])
             exc_type, exc_instance, _ = sys.exc_info()
             remote_exc_type = _get_type_name(exc_type)
             fault = xmlrpclib.Fault(remote_exc_type, repr(exc_instance.args))
@@ -88,3 +90,10 @@ class LabListener(object):
         :return:
         """
         return self.server.start()
+
+    def stop(self):
+        """
+        Stops the running server
+        :return:
+        """
+        self.server.stop()

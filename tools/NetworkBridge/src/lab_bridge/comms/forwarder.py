@@ -14,6 +14,15 @@ class ExperimentNotFound(Exception):
     pass
 
 
+def _reset():
+    """
+    Clears the internal registry of connectors.
+    :return:
+    """
+    global _exp_connectors
+    _exp_connectors = {}
+
+
 def forward_request(experiment, req):
     """
     Forwards a request through the appropriate connector, which must have been registered
@@ -26,7 +35,7 @@ def forward_request(experiment, req):
     :return: The response to the send_request request.
     """
 
-    connector = _exp_connectors.get(experiment)
+    connector = _exp_connectors.get(experiment, None)
     """ :type : lab_bridge.comms.expbridge.BaseConnector.BaseConnector """
 
     if connector is None:

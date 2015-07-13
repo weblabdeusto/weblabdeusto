@@ -1,9 +1,7 @@
-import gevent
-import grequests
+from nose.tools import *
+
 from lab_bridge.comms import forwarder
 from lab_bridge.comms.expbridge import BaseConnector
-
-from nose.tools import *
 
 bc = None
 
