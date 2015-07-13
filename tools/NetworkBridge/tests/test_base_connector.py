@@ -1,5 +1,6 @@
 import gevent
 import grequests
+from lab_bridge.comms import forwarder
 from lab_bridge.comms.expbridge import BaseConnector
 
 from nose.tools import *
@@ -28,6 +29,12 @@ def test_on_register_success():
     assert result is not None
     assert type(bc.session) is str
     assert bc.session == result
+
+    # Ensure that the experiments are registered in the forwarder.
+    assert "exp1" in forwarder._exp_connectors
+    assert "exp2" in forwarder._exp_connectors
+    assert forwarder._exp_connectors["exp1"] == bc
+    assert forwarder._exp_connectors["exp2"] == bc
 
 @raises(Exception)
 def test_on_register_failure():

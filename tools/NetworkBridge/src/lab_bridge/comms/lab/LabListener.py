@@ -2,8 +2,9 @@ import xmlrpclib
 import sys
 
 from gevent import pywsgi
+from lab_bridge.comms import forwarder
 
-from util import _get_type_name
+from lab_bridge.comms.util import _get_type_name
 
 
 class LabListener(object):
@@ -12,10 +13,12 @@ class LabListener(object):
     receive the commands themselves. It will essentially have the same interface as an ExperimentServer.
     """
 
-    def __init__(self, listen_host, listen_port):
+    def __init__(self, exp_name, listen_host, listen_port, listen_path):
         super(LabListener, self).__init__()
         self.listen_host = listen_host
         self.listen_port = listen_port
+        self.listen_path = listen_path
+        self.experiment = exp_name
         self.server = pywsgi.WSGIServer((self.listen_host, self.listen_port), self.on_http_request)
 
         # For now we will not use a method registry because we will just forward any method.
@@ -68,7 +71,16 @@ class LabListener(object):
         return [content]
 
     def forward_request(self, raw_data):
-        print "FORWARDING REQUEST"
+        """
+        Forwards a request and retrieves the response. This should be called
+        from a greenlet because it is a blocking call and it may take a while.
+        Will throw an ExperimentNotFound error if the right Connector has not
+        registered itself.
+        :param raw_data:
+        :return:
+        """
+        response = forwarder.forward_request(self.experiment, raw_data)
+        return response
 
     def start(self):
         """

@@ -2,6 +2,8 @@ import json
 import random
 import string
 from gevent import pywsgi
+from lab_bridge.comms import forwarder
+
 
 class NotAuthorizedException(Exception):
     pass
@@ -44,6 +46,11 @@ class BaseConnector(object):
 
         # Auth succeeded. Create a new session.
         self.session = self._generate_session()
+
+        # Register the experiments in the forwarder, so that we can send the requests received by the LabListener
+        # through the right connector.
+        for exp in experiments:
+            forwarder.add_connector(exp, self)
 
         return self.session
 
