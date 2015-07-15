@@ -27,4 +27,7 @@ def client_configuration():
     url = weblab_api.config[configuration_doc.CORE_SERVER_URL]
     path = urlparse.urlparse(url).path # /foo/weblab/
     contents['base.location'] = path.rsplit('/weblab/', 1)[0]
+    if not contents.get('demo.available'):
+        contents.pop('demo.username', None)
+        contents.pop('demo.password', None)
     return jsonify(contents)
