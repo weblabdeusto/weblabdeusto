@@ -38,7 +38,7 @@ from sqlalchemy.orm import joinedload
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
 from flask.ext.wtf import Form
-from flask.ext.wtf.file import FileField
+from flask.ext.wtf.file import FileField, FileAllowed
 
 from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.contrib.sqla.filters import FilterEqual
@@ -1909,13 +1909,14 @@ class ImageField(collections.namedtuple('ImageField', ['field', 'image'])):
     def type(self):
         return 'image'
 
+IMAGES_FORMATS = ['jpg', 'jpeg', 'png', 'gif']
 
 class SystemPropertiesForm(Form):
     demo_available = BooleanField(lazy_gettext("Demo available:"))
     demo_user = Select2Field(lazy_gettext("Demo user"))
     demo_password = TextField(lazy_gettext("Demo password"), description=lazy_gettext("Password of the selected user. It will be publicly shown. Make sure that it is the valid password for the user."))
-    host_entity_image = FileField(lazy_gettext("Entity picture:"))
-    host_entity_image_small = FileField(lazy_gettext("Entity small picture:"))
+    host_entity_image = FileField(lazy_gettext("Entity picture:"), validators = [ FileAllowed(IMAGES_FORMATS, lazy_gettext('Images only!')) ])
+    host_entity_image_small = FileField(lazy_gettext("Entity small picture:"), validators = [ FileAllowed(IMAGES_FORMATS, lazy_gettext('Images only!')) ])
     host_entity_link = URLField(lazy_gettext("Entity link:"))
     contact_email = EmailField(lazy_gettext("Contact e-mail:"), validators = [Email()])
     admin_emails = TextField(lazy_gettext("Admin e-mails:"), description = lazy_gettext("Separated by commas"))
