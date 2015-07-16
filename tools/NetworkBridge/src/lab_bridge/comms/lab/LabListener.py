@@ -19,6 +19,7 @@ class LabListener(object):
         self.listen_port = listen_port
         self.listen_path = listen_path
         self.experiment = exp_name
+        print "Initializing the server"
         self.server = pywsgi.WSGIServer((self.listen_host, self.listen_port), self.on_http_request)
 
         # For now we will not use a method registry because we will just forward any method.
@@ -26,6 +27,19 @@ class LabListener(object):
         }
 
     def on_http_request(self, environ, start_response):
+        RESPONSE = """
+        <params>
+        <param>
+        <value><string>YES</string></value>
+        </param>
+        </params>
+        """
+        headers = [('Content-Type', 'text/html')]
+        start_response('200', [('Content-Type', 'text/html'), ('Connections', 'close')])
+        print "RETURNING: "
+        return [RESPONSE]
+
+    def fake_on_http_request(self, environ, start_response):
         """
         This should be handled in a Greenlet. It just forwards the request and
         returns the response.
