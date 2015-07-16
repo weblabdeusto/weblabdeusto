@@ -14,7 +14,7 @@
             </div>
 
             <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
-                <a href="http://www.deusto.es">
+                <a href="{{ weblab_api.client_property("host.entity.link") }}">
                     <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
                 </a>
             </div>
@@ -33,7 +33,7 @@
                         <label class="control-label" for="username">{{ gettext("Username") }}</label>
 
                         <div class="controls">
-                            <input type="text" name="username" placeholder="Username" id="username"
+                            <input type="text" name="username" placeholder="{{ gettext("Username") }}" id="username"
                                    class="form-control">
                         </div>
                     </div>
@@ -42,7 +42,7 @@
                         <label class="control-label" for="username">{{ gettext("Password") }}</label>
 
                         <div class="controls">
-                            <input type="password" name="password" placeholder="Password" id="password"
+                            <input type="password" name="password" placeholder="{{ gettext("Password") }}" id="password"
                                    class="form-control">
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                     <div class="form-group">
                         <div class="row">
                             <div class="col-xs-4">
-                                <input href="#" id="login" type="submit" class="btn btn-success" value="Log in »">
+                                <input href="#" id="login" type="submit" class="btn btn-success" value="{{ gettext("Log in") }} »">
                             </div>
                             <div class="col-xs-8">
                                 <p class="alert alert-info" id="login-status" style="visibility:hidden">
@@ -63,7 +63,7 @@
                     {% if weblab_api.client_property("demo.available") %}
                     <div style="margin-top: 0px">
                         <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
-                        <input type="submit" href="#" name="guestlogin" id="guestlogin" class="btn btn-default" value="{{ gettext("Log in as guest") }}"/>
+                        <a href="{{ url_for('.demo') }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
                     </div>
                     {% endif %}
                 </form>

@@ -93,3 +93,8 @@ def logout():
 
     return redirect(url_for(".index", _external=True, _scheme=request.scheme))
 
+@weblab_api.route_webclient("/demo")
+def demo():
+    # TODO: log in
+    return ":-)"
+
