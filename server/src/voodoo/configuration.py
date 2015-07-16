@@ -96,6 +96,8 @@ class ConfigurationManager(object):
             self._values_readlock  = NullLock()
             self._values_writelock = NullLock()
 
+        self.client = {}
+        self.server = {}
         self._modules = []
         if CFG_LOCKING:
             self._modules_lock = threading.RLock()

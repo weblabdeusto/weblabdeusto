@@ -14,7 +14,7 @@
             </div>
 
             <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
-                <a href="{{ weblab_api.client_property("host.entity.link") }}">
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
                     <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
                 </a>
             </div>
@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     
-                    {% if weblab_api.client_property("demo.available") %}
+                    {% if weblab_api.config.client["demo.available"] %}
                     <div style="margin-top: 0px">
                         <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
                         <a href="{{ url_for('.demo') }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
@@ -88,10 +88,10 @@
                             {{ gettext("Support") }}
                         </h3>
 
-                        <p>{{ gettext("For any technical issue you may find, please contact us at {mail}".format(mail = '<a href="mailto:{0}">{0}</a>'.format(weblab_api.client_property("admin.email")))) }}</p>
+                        <p>{{ gettext("For any technical issue you may find, please contact us at {mail}".format(mail = '<a href="mailto:{0}">{0}</a>'.format(weblab_api.config.client["admin.email"]))) }}</p>
                     </div>
                 </div>
-                {% if weblab_api.client_property("demo.available") %}
+                {% if weblab_api.config.client["demo.available"] %}
                 <div class="row">
                     <div class="col-xs-2 wl-vertical-center">
                         <img class="wl-login-icon" src="{{ url_for(".static", filename="img/ui/demo.png") }}"
@@ -103,7 +103,7 @@
                             {{ gettext("Demo") }}
                         </h3>
                         
-                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username {username} and the password {password}.".format(username = "<b>{0}</b>".format(weblab_api.client_property("demo.username")), password = "<b>{0}</b>".format(weblab_api.client_property("demo.password")))) }}</p>
+                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username {username} and the password {password}.".format(username = "<b>{0}</b>".format(weblab_api.config.client["demo.username"]), password = "<b>{0}</b>".format(weblab_api.config.client["demo.password"]))) }}</p>
                     </div>
                 </div>
                 {% endif %}

@@ -38,6 +38,7 @@ from weblab.core.babel import initialize_i18n
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
+from weblab.core.config import DbConfig
 from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
 
@@ -555,6 +556,9 @@ class UserProcessingServer(object):
 
         self._db_manager     = DatabaseGateway(cfg_manager)
         self.db = self._db_manager
+
+        cfg_manager.client = DbConfig(self.db.client_configuration)
+        cfg_manager.server = DbConfig(self.db.server_configuration)
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
