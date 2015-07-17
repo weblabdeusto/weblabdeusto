@@ -185,6 +185,11 @@ def create_external_user(system = None, credentials = None):
 def list_experiments():
     return weblab_api.ctx.user_processor.list_experiments()
 
+@weblab_api.route_api('/user/session/check/')
+@load_user_processor
+def check_user_session():
+    return True
+
 @weblab_api.route_api('/user/info/')
 @load_user_processor
 def get_user_information():
@@ -316,6 +321,11 @@ def logout():
 # Reservation operations
 #
 # 
+
+@weblab_api.route_api('/reservation/check/')
+@load_reservation_processor
+def check_reservation_session():
+    return True
 
 @weblab_api.route_api('/reservation/finish/', methods = ['POST'])
 @load_reservation_processor
