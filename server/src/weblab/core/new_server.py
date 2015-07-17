@@ -10,7 +10,7 @@ import threading
 from functools import wraps, partial
 from collections import OrderedDict
 
-from flask import request, Response
+from flask import request, Response, make_response
 
 from voodoo.log import log, level, log_exc, logged
 import weblab.core.codes as ErrorCodes
@@ -494,7 +494,13 @@ class WebLabAPI(object):
 
         return response
 
-    def fill_session_cookie(self, response, value):
+    def make_response(self, *args, **kwargs):
+        response = make_response(*args, **kwargs)
+        if self.session_id:
+            self.fill_session_cookie(response)
+        return response
+
+    def fill_session_cookie(self, response, value = None):
         """
         Inserts the weblabsessionid and loginweblabsessionid cookies into the specified Flask response.
         :type response: flask.wrappers.Response
@@ -502,6 +508,9 @@ class WebLabAPI(object):
         :return: The flask response with the added cookies.
         :rtype: flask.wrappers.Response
         """
+        if value is None:
+            value = '%s.%s' % (self.session_id, self.ctx.route)
+            
         now = datetime.datetime.utcnow()
         response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
         response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)

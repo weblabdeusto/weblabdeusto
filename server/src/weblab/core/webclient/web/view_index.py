@@ -51,15 +51,7 @@ def handle_login_POST():
         # This currently redirects to HTTP even if being called from HTTPS. Tried _external as a workaround but didn't work.
         # More info: https://github.com/mitsuhiko/flask/issues/773
         # For now we force the scheme from the request.
-        response = make_response(redirect(next or url_for(".labs", _external=True, _scheme=request.scheme)))
-        """ @type: flask.Response """
-
-        session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
-
-        # Inserts the weblabsessionid and loginsessionid cookies into the response.
-        # (What is the purpose of having both? Why the different expire dates?)
-        weblab_api.fill_session_cookie(response, session_id_cookie)
-        return response
+        return weblab_api.make_response(redirect(next or url_for(".labs", _external=True, _scheme=request.scheme)))
 
 def handle_login_GET():
     """
@@ -102,13 +94,5 @@ def demo():
 
     next_url = request.values.get("next")
     next_url = safe_redirect(next_url)
-    response = make_response(redirect(next_url or url_for(".labs", _external=True, _scheme=request.scheme)))
-    """ @type: flask.Response """
-
-    session_id_cookie = '%s.%s' % (session_id.id, weblab_api.ctx.route)
-
-    # Inserts the weblabsessionid and loginsessionid cookies into the response.
-    # (What is the purpose of having both? Why the different expire dates?)
-    weblab_api.fill_session_cookie(response, session_id_cookie)
-    return response
+    return weblab_api.make_response(redirect(next_url or url_for(".labs", _external=True, _scheme=request.scheme)))
 
