@@ -44,7 +44,7 @@ class TestViewLab(unittest.TestCase):
         """ :type: flask.testing.FlaskClient """
 
         # Login.
-        rv = self.app.post('weblab/web/webclient/', data=dict(username='any', password='password'))
+        rv = self.app.post('weblab/web/webclient/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST for any / password does not return 302")
 
     def test_nothing(self):
@@ -63,7 +63,7 @@ class TestViewLab(unittest.TestCase):
         """
         Shutdown the WebLab instance that we have started for the test.
         """
-        rv = self.app.post('/weblab/web/webclient/', data=dict(username='any', password='password'))
+        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()

@@ -5,9 +5,11 @@ from flask import render_template, url_for, request, flash, redirect
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient.web.helpers import _get_loggedin_info, _get_experiment_info
 from weblab.core.wl import weblab_api
+from weblab.core.webclient.web import login_required
 
 
 @weblab_api.route_webclient("/lab.html")
+@login_required
 def lab():
     """
     Renders a specific laboratory.
@@ -36,17 +38,12 @@ def lab():
         # Get the target URL for the JS API.
         # Note: The following commented line should work best; but it doesn't make sure that the protocol matches.
         # core_server_url = weblab_api.server_instance.core_server_url
-        core_server_url = os.path.join(*[url_for(".index"), "../../"])
+        core_server_url = os.path.join(*[url_for(".login"), "../../"])
         json_url = os.path.join(*[core_server_url, "json/"])
         # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
         lab_url = os.path.join(url_for(".static", filename=""))
 
         return render_template("webclient_web/lab.html", experiment=experiment, loggedin=loggedin_info, json_url=json_url, lab_url=lab_url)
-
-    except SessionNotFoundError as ex:
-        flash("You are not logged in", category="error")
-        next = request.full_path
-        return redirect(url_for(".index", _external=True, _scheme=request.scheme, next=next))
     except Exception as ex:
-        raise ex
+        raise
 

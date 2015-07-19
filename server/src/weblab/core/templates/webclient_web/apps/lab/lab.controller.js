@@ -139,7 +139,7 @@ function LabController($scope, $injector) {
             $scope.reserveMessage.message = '{{ gettext("You are not logged in") }}';
             $scope.reserveMessage.type = 'danger';
             setTimeout(function () {
-                window.location = '{{ url_for(".index") }}';
+                window.location = '{{ url_for(".login") }}';
             }, 1500);
         }
         else {
