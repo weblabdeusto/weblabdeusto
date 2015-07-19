@@ -21,7 +21,7 @@ import datetime
 import threading
 import traceback
 from functools import wraps
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, defaultdict
 
 import six
 import sqlalchemy
@@ -135,15 +135,39 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    def _get_permission_scope(self, permission):
+        if isinstance(permission, model.DbUserPermission):
+            return  'user'
+        elif isinstance(permission, model.DbGroupPermission):
+            return 'group'
+        elif isinstance(permission, model.DbRolePermission):
+            return 'role'
+        return 'unknown'
+
     # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()
     def list_experiments(self, user_login, exp_name = None, cat_name = None):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
+            access_all_labs_permissions = self._gather_permissions(session, user, 'access_all_labs')
             user_permissions = self._gather_permissions(session, user, 'experiment_allowed')
 
-            grouped_experiments = {}
+            grouped_experiments = defaultdict(list) # {
+            #    experiment_unique_id : [ experiment_allowed ]
+            # }
+            if len(access_all_labs_permissions) > 0:
+                permission = access_all_labs_permissions[0]
+                permission_scope = self._get_permission_scope(permission)
+                default_priority = 100 # Super-low priority
+                default_time_allowed = 180 # 3 minutes
+                default_initialization = True
+
+                for experiment in session.query(model.DbExperiment).all():
+                    experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), default_time_allowed, default_priority, default_initialization, permission.permanent_id, permission.id, permission_scope)
+                    experiment_unique_id = unicode(experiment)
+                    grouped_experiments[experiment_unique_id].append(experiment_allowed)
+
             for permission in user_permissions:
                 p_permanent_id                 = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
                 p_category_id                  = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
@@ -161,21 +185,11 @@ class DatabaseGateway(object):
 
                 experiment = experiments[0]
 
-                if isinstance(permission, model.DbUserPermission):
-                    permission_scope = 'user'
-                elif isinstance(permission, model.DbGroupPermission):
-                    permission_scope = 'group'
-                elif isinstance(permission, model.DbRolePermission):
-                    permission_scope = 'role'
-                else:
-                    permission_scope = 'unknown'
+                permission_scope = self._get_permission_scope(permission)
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id, permission.id, permission_scope)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
-                if experiment_unique_id in grouped_experiments:
-                    grouped_experiments[experiment_unique_id].append(experiment_allowed)
-                else:
-                    grouped_experiments[experiment_unique_id] = [experiment_allowed]
+                grouped_experiments[experiment_unique_id].append(experiment_allowed)
 
             # If any experiment is duplicated, only the less restrictive one is given
             experiments = []

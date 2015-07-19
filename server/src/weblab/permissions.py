@@ -110,6 +110,19 @@ _register(cant_change_profile)
 
 ###############################################################
 # 
+#             Access all labs
+# 
+
+ACCESS_ALL_LABS = u'access_all_labs'
+ACCESS_ALL_LABS_DESC = u"Enable access to all labs, with a fixed amount of time and super-low priority"
+
+access_all_labs = PermissionType(ACCESS_ALL_LABS, ACCESS_ALL_LABS_DESC, [])
+
+_register(access_all_labs)
+
+
+###############################################################
+# 
 #            Instrutor is a teacher of a group
 # 
 

@@ -486,6 +486,15 @@ def insert_required_initial_data(engine):
     administrator_admin_panel_access_p1 = model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(administrator_admin_panel_access_p1)
 
+    administrator_access_all_labs = model.DbRolePermission(
+        administrator,
+        permissions.ACCESS_ALL_LABS,
+        "administrator_role::access_all_labs",
+        datetime.datetime.utcnow(),
+        "Access all the laboratories"
+    )
+    session.add(administrator_access_all_labs)
+
     upgrader = DbRegularUpgrader(str(engine.url))
     session.execute(
         model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
@@ -650,6 +659,7 @@ def populate_weblab_tests(engine, tests):
         'admin3'       : (administrator, 'Name of administrator 3',       'weblab@deusto.es'),
 
         'any'          : (student,       'Name of any',                   'weblab@deusto.es',  'password', None, [(auth_facebook, '1168497114')]),
+        'admin'        : (administrator, 'Administrator',                 'weblab@deusto.es'),
 
         'archimedes'   : (student,       'Usuario de prueba para Splash', 'weblab@deusto.es',  'archimedes'),
         'consumer1'    : (federated,     'Consumer University 1',         'weblab@deusto.es'),
