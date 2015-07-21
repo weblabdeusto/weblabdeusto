@@ -56,7 +56,7 @@ def create_query_params(**kwargs):
 
     for potential_arg in 'date_precision',:
         if potential_arg in request.args:
-            if request.args[potential_arg] in ('month', 'year', 'week'):
+            if request.args[potential_arg] in ('day', 'month', 'year', 'week'):
                 params[potential_arg] = request.args[potential_arg]
 
     if 'date_precision' not in params:
@@ -161,8 +161,12 @@ def _per_country_by_to_d3(per_time):
     for country in top_countries:
         for key in [ key for key, value in per_time[country] ]:
             if len(key) == 1:
-                key_used = 'year'
-                date_key = datetime.date(year = key[0], month = 1, day = 1)
+                if isinstance(key[0], datetime.date):
+                    key_used = 'day'
+                    date_key = key[0]
+                else:
+                    key_used = 'year'
+                    date_key = datetime.date(year = key[0], month = 1, day = 1)
             elif len(key) == 2:
                 key_used = 'month'
                 date_key = datetime.date(year = key[0], month = key[1], day = 1)

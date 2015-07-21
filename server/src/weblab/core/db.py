@@ -1033,7 +1033,16 @@ class DatabaseGateway(object):
             return self.quickadmin_uses_per_country_by_year(query_params)
         if query_params.date_precision == 'month':
             return self.quickadmin_uses_per_country_by_month(query_params)
+        if query_params.date_precision == 'day':
+            return self.quickadmin_uses_per_country_by_day(query_params)
         return {} 
+
+    @with_session
+    def quickadmin_uses_per_country_by_day(self, query_params):
+        # country, count, year, month
+        initial_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbUserUsedExperiment.start_date_date)
+        group_by = (model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.start_date_date)
+        return self._quickadmin_uses_per_country_by_date(query_params, initial_query, group_by)
 
     @with_session
     def quickadmin_uses_per_country_by_month(self, query_params):
