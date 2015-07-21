@@ -967,7 +967,7 @@ class DatabaseGateway(object):
             query = query.filter(model.DbUserUsedExperiment.start_date >= query_params.start_date)
 
         if query_params.end_date:
-            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date)
+            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date + datetime.timedelta(days=1))
 
         if query_params.ip:
             query = query.filter(model.DbUserUsedExperiment.origin == query_params.ip)
