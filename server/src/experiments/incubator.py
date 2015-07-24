@@ -236,7 +236,8 @@ class StatusManager(threading.Thread):
                 image_file_path = os.path.join(webcam_dir, '%s_%s' % (now.hour, now.minute) )
                 open(image_file_path, 'wb').write(image)
             except:
-                traceback.print_exc()
+                if self._verbose:
+                    traceback.print_exc()
                 pass
 
     def retrieve_historic(self, year, month, day):
