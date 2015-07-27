@@ -1,9 +1,9 @@
 from __future__ import print_function, unicode_literals
 import traceback
-from flask import render_template, request, flash, redirect, url_for, make_response
+from flask import render_template, request, flash, redirect, url_for, jsonify
 from weblab.core.login.exc import InvalidCredentialsError
-from weblab.core.webclient.web.helpers import safe_redirect
-
+from weblab.core.webclient.web.helpers import safe_redirect, WebError, json_exc, web_exc
+from weblab.core.babel import gettext
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 
@@ -21,6 +21,23 @@ def login():
 
     return handle_login_GET()
 
+@weblab_api.route_webclient("/login/json", methods=["POST"])
+@json_exc
+def login_json():
+    contents = request.get_json(force=True, silent=True)
+    if contents == False or not isinstance(contents, dict):
+        return weblab_api.jsonify(error = True, message = "Error reading username and password")
+
+    username = contents.get('username', '')
+    password = contents.get('password', '')
+
+    try:
+        session_id = weblab_api.api.login(username, password)
+    except InvalidCredentialsError:
+        return weblab_api.jsonify(error = True, message = gettext("Invalid username or password"))
+
+    return weblab_api.jsonify(error = False, redirect = get_next_url())
+
 def handle_login_POST():
     """
     Carries out an actual log in.
@@ -33,25 +50,22 @@ def handle_login_POST():
     password = request.values.get("password")
 
     # We may or may not have a 'next' field. If we do, we make sure that the URL is safe.
-    next = request.values.get("next")
-    next = safe_redirect(next)
-
     try:
         session_id = weblab_api.api.login(username, password)
     except InvalidCredentialsError:
-        flash("Invalid username or password", category="error")
+        flash(gettext("Invalid username or password"), category="error")
         # _scheme is a workaround. See comment in other redirect.
         return redirect(url_for(".login", _external=True, _scheme=request.scheme))
     except:
         traceback.print_exc()
-        flash("There was an unexpected error while logging in.", 500)
-        return make_response("There was an unexpected error while logging in.", 500)
+        flash(gettext("There was an unexpected error while logging in."), 500)
+        return weblab_api.make_response(gettext("There was an unexpected error while logging in."), 500)
     else:
         # TODO: Find proper way to do this.
         # This currently redirects to HTTP even if being called from HTTPS. Tried _external as a workaround but didn't work.
         # More info: https://github.com/mitsuhiko/flask/issues/773
         # For now we force the scheme from the request.
-        return weblab_api.make_response(redirect(next or url_for(".labs", _external=True, _scheme=request.scheme)))
+        return weblab_api.make_response(redirect(get_next_url()))
 
 def handle_login_GET():
     """
@@ -91,8 +105,10 @@ def demo():
         # TODO: mail the admin, use an errors template
         return "Invalid configuration! Contact the administrator so he correctly puts the username and password for the demo account"
         
+    return weblab_api.make_response(redirect(get_next_url()))
 
+def get_next_url():
     next_url = request.values.get("next")
     next_url = safe_redirect(next_url)
-    return weblab_api.make_response(redirect(next_url or url_for(".labs", _external=True, _scheme=request.scheme)))
+    return next_url or url_for(".labs", _external=True, _scheme=request.scheme)
 

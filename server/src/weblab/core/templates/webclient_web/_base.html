@@ -100,16 +100,18 @@
     {# WeblabWeb.CORE_URL = "{{ url_for("redir_json") }}"; #}
 </script>
 
+{% if weblab_api.config.client.get('google.analytics.tracking.code') %}
 <script type="text/javascript"> 
     var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
     document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 </script> 
 <script type="text/javascript"> 
     try {
-        var pageTracker = _gat._getTracker("UA-12576838-2");
+        var pageTracker = _gat._getTracker("{{ weblab_api.config.client['google.analytics.tracking.code'] }}");
         pageTracker._trackPageview();
     } catch(err) {}
 </script> 
+{% endif %}
 
 <script src="{{ url_for("core_web.version") }}"></script>
 <script type="text/javascript">

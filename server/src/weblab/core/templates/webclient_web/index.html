@@ -22,9 +22,9 @@
 
         <div class="row">
 
-            <div class="col-lg-4 col-md-5 well" style="padding-left: 40px; padding-right: 40px">
+            <div class="col-lg-4 col-md-5 well" style="padding-left: 40px; padding-right: 40px" ng-controller="LoginScreenController">
 
-                <form action="#" id="login-form" method="POST" class="form-horizontal" role="form">
+                <form action="#" id="login-form" ng-submit="login($event)" method="POST" class="form-horizontal" role="form">
                     <div id="legend">
                         <legend class="">{{ gettext("Log in") }}</legend>
                     </div>
@@ -33,8 +33,7 @@
                         <label class="control-label" for="username">{{ gettext("Username") }}</label>
 
                         <div class="controls">
-                            <input type="text" name="username" placeholder="{{ gettext("Username") }}" id="username"
-                                   class="form-control">
+                            <input type="text" ng-disabled="status.waiting" ng-model="credentials.username" name="username" placeholder="{{ gettext("Username") }}" id="username" class="form-control">
                         </div>
                     </div>
 
@@ -42,26 +41,30 @@
                         <label class="control-label" for="username">{{ gettext("Password") }}</label>
 
                         <div class="controls">
-                            <input type="password" name="password" placeholder="{{ gettext("Password") }}" id="password"
-                                   class="form-control">
+                            <input type="password" ng-disabled="status.waiting" ng-model="credentials.password" name="password" placeholder="{{ gettext("Password") }}" id="password" class="form-control">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <div class="row">
-                            <div class="col-xs-4">
-                                <input href="#" id="login" type="submit" class="btn btn-success" value="{{ gettext("Log in") }} »">
+                        <div style="width: 100%; padding-bottom: 10px">
+                            <input style="width: 100%" ng-disabled="status.waiting" href="#" id="login" type="submit" class="btn btn-success" value="{{ gettext("Log in") }} »">
+                        </div>
+       
+                        <div style="width: 100%" ng-cloak ng-show="status.waiting">
+                            <div class="progress" style="width: 100%">
+                                <div class="progress-bar progress-bar-striped active" style="width: 100%">
+                                    <span>{{ gettext("Logging in...") }}</span>
+                                </div>
                             </div>
-                            <div class="col-xs-8">
-                                <p class="alert alert-info" id="login-status" style="visibility:hidden">
-                                    {# To be filled from JS #}
-                                </p>
-                            </div>
+                        </div>
+
+                        <div style="width: 100%" ng-cloak ng-show="error.message">
+                            <p class="alert alert-danger" ng-bind="error.message"></p>
                         </div>
                     </div>
                     
                     {% if weblab_api.config.client["demo.available"] %}
-                    <div style="margin-top: 0px">
+                    <div style="margin-top: 0px" class="text-center">
                         <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
                         <a href="{{ url_for('.demo') }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
                     </div>
@@ -115,7 +118,7 @@
                     </div>
                     <div class="col-xs-10 wl-vertical-center">
                         <h3>
-                            {{ gettext("                            Open Source") }}
+                            {{ gettext("Open Source") }}
                         </h3>
 
                         <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in {link}".format(link = '<a href="https://github.com/weblabdeusto/weblabdeusto/">https://github.com/weblabdeusto/weblabdeusto/</a>')) }}</p>
@@ -131,24 +134,40 @@
 
 {% block scripts %}
     <script type="text/javascript">
-
-
-        /**
-         * Angular code.
-         */
         angular
                 .module("loginScreen", [])
                 .controller("LoginScreenController", LoginScreenController);
 
-        function LoginScreenController($scope) {
+        function LoginScreenController($scope, $http) {
+            $scope.login = login;
+            $scope.credentials = {};
+            $scope.error = {};
+            $scope.status = {};
+            
+            function login(event) {
+                event.preventDefault();
 
+                $scope.error.message = undefined;
+                $scope.status.waiting = true;
+
+                $http.post("{{ url_for('.login_json') }}", $scope.credentials)
+                    .success(function(data) {
+                        if (data.error) {
+                            $scope.error.message = data.message;
+                        } else {
+                            location.replace(data.redirect);
+                        }
+                    }).error(function(data) {
+                        $scope.error.message = "{{ gettext('Error logging in') }}";
+                    }).finally(function() {
+                        $scope.status.waiting = false;
+                    });;
+            }
         }
 
-        // We manually bootstrap the page so that we don't have to pre-load this code.
         angular.element(document).ready(function () {
             angular.bootstrap(document, ['loginScreen']);
         });
-
     </script>
 {% endblock %}
 

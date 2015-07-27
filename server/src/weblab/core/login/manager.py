@@ -11,7 +11,7 @@ import weblab.core.login.exc as LoginErrors
 from weblab.core.exc import DbUserNotFoundError
 from weblab.data import ValidDatabaseSessionId
 
-LOGIN_FAILED_DELAY = 5
+LOGIN_FAILED_DELAY = 2
 NOT_LINKABLE_USERS = 'login_not_linkable_users'
 DEFAULT_GROUPS     = 'login_default_groups_for_external_users'
 CREATING_EXTERNAL_USERS = 'login_creating_external_users'

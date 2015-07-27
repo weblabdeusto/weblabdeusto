@@ -363,7 +363,7 @@ class WebLabAPI(object):
     def _wrap_response(self, response):
         if isinstance(response, Response):
             return response
-        return self.jsonify(response)
+        return self.wl_jsonify(response)
 
     def _json(self, web_context, flask_app, instance_args):
         _global_context.current_weblab = self
@@ -475,7 +475,22 @@ class WebLabAPI(object):
             return wrapped_func
         return wrapper
 
-    def jsonify(self, obj, limit = 15, wrap_ok = True):
+    def jsonify(self, **kwargs):
+        obj = kwargs
+        indent = request.args.get('indent', None)
+        if indent:
+            indent = 4
+        serialized = json.dumps(obj, indent = indent)
+        response = Response(serialized, mimetype = 'application/json')
+
+        if self.session_id:
+            session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
+            self.fill_session_cookie(response, session_id_cookie)
+
+        return response
+       
+
+    def wl_jsonify(self, obj, limit = 15, wrap_ok = True):
         simplified_obj = simplify_response(obj, limit = limit)
         if wrap_ok:
             simplified_obj = {

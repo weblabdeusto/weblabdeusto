@@ -1,13 +1,46 @@
 from __future__ import print_function, unicode_literals
 from collections import defaultdict
+from functools import wraps
 import hashlib
 import json
 import os
 import re
 import urllib
 import urlparse
-from weblab.core.wl import weblab_api
 
+from weblab.core.wl import weblab_api
+from flask import current_app
+
+class WebError(Exception):
+    pass
+
+def json_exc(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except WebError as e:
+            return weblab_api.jsonify(error=True, message=e.args[0])
+        except Exception:
+            if current_app.debug:
+                raise
+            traceback.print_exc()
+            return weblab_api.jsonify(error=True, message=gettext("Error processing request"))
+    return wrapped
+
+def web_exc(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except WebError as e:
+            return weblab_api.make_response(gettext(e.args[0]), 500)
+        except Exception:
+            if current_app.debug:
+                raise
+            traceback.print_exc()
+            return weblab_api.make_response(gettext("Error processing request"), 500)
+    return wrapped
 
 def remove_comments_from_json(string):
     """
