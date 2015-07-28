@@ -273,6 +273,27 @@ class WebLabAPI(object):
         return client_config.get(name)
 
     @property
+    def current_user(self):
+        """
+        :rtype: weblab.db.models.DbUser
+        """
+        current_user = getattr(self.context, 'current_user', None)
+        if current_user is not None:
+            return current_user
+
+        if getattr(self.context, 'current_user_not_found', False):
+            return None
+        
+        try:
+            user = self.api.get_user()
+        except coreExc.SessionNotFoundError:
+            self.context.current_user_not_found = True
+            return None
+        else:
+            self.context.current_user = user
+            return user
+
+    @property
     def user_agent(self):
         return getattr(self.context, 'user_agent', '<user agent not found>')
 

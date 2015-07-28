@@ -190,6 +190,15 @@ def list_experiments():
 def check_user_session():
     return True
 
+@weblab_api.route_api('/user/')
+@load_user_processor
+def get_user():
+    """
+    :rtype: weblab.db.models.DbUser
+    """
+    login = weblab_api.ctx.user_session['db_session_id'].username
+    return weblab_api.db.get_user(login)
+
 @weblab_api.route_api('/user/info/')
 @load_user_processor
 def get_user_information():

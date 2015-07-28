@@ -107,6 +107,10 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    @with_session
+    def get_user(self, login):
+        return _current.session.query(model.DbUser).filter_by(login=login).first()
+
     @logged()
     def list_clients(self):
         """Lists the ExperimentClients """
