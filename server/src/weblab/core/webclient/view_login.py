@@ -71,7 +71,7 @@ def handle_login_GET():
     """
     Displays the index (the login page).
     """
-    return render_template("webclient/index.html")
+    return render_template("webclient/login.html")
 
 
 @weblab_api.route_webclient("/logout",  methods=["GET", "POST"])

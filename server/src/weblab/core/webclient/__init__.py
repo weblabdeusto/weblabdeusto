@@ -28,8 +28,8 @@ def reservation_required(func):
         return func(*args, **kwargs)
     return wrapper
 
-import view_index
+import view_login
 import view_labs
 import view_lab
 
-assert view_index is not None and view_labs is not None and view_lab is not None
+assert view_login is not None and view_labs is not None and view_lab is not None
