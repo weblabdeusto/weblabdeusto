@@ -1,7 +1,7 @@
-{% extends "webclient_web/_logged_base.html" %}
+{% extends "webclient/_logged_base.html" %}
 {% set title="Lab - " %}
 
-{% import "webclient_web/_upload.html" as upload %}
+{% import "webclient/_upload.html" as upload %}
 
 {% block styles %}
     {{ super() }}
@@ -13,7 +13,7 @@
     {{ super() }}
 
     {# Includes the base HTML for the angular App for the laboratory, so that it is (or seems) more modular. #}
-    {% include 'webclient_web/apps/lab/lab.html' %}
+    {% include 'webclient/apps/lab/lab.html' %}
 
 {% endblock %}
 
@@ -52,19 +52,19 @@
 
 
     {# Embedded templates #}
-    {% include 'webclient_web/apps/lab/expinfo/expinfo.template.html' %}
-    {% include 'webclient_web/apps/lab/reserve-status/reserve-status.directive.html' %}
-    {% include 'webclient_web/apps/lab/iframe/experiment-iframe.template.html' %}
+    {% include 'webclient/apps/lab/expinfo/expinfo.template.html' %}
+    {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.html' %}
+    {% include 'webclient/apps/lab/iframe/experiment-iframe.template.html' %}
 
     {# Fake includes so that we can use Jinja2 directives #}
     <script type="text/javascript">
-        {% include 'webclient_web/apps/lab/app.js' %}
-        {% include 'webclient_web/apps/lab/lab.controller.js' %}
-        {% include 'webclient_web/apps/lab/expinfo/expinfo.directive.js' %}
-        {% include 'webclient_web/apps/lab/iframe/resizer.factory.js' %}
-        {% include 'webclient_web/apps/lab/iframe/experiment-iframe.controller.js' %}
-        {% include 'webclient_web/apps/lab/iframe/experiment-iframe.directive.js' %}
-        {% include 'webclient_web/apps/lab/reserve-status/reserve-status.directive.js' %}
+        {% include 'webclient/apps/lab/app.js' %}
+        {% include 'webclient/apps/lab/lab.controller.js' %}
+        {% include 'webclient/apps/lab/expinfo/expinfo.directive.js' %}
+        {% include 'webclient/apps/lab/iframe/resizer.factory.js' %}
+        {% include 'webclient/apps/lab/iframe/experiment-iframe.controller.js' %}
+        {% include 'webclient/apps/lab/iframe/experiment-iframe.directive.js' %}
+        {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.js' %}
     </script>
 
 {% endblock %}
