@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals
 from flask import render_template, Response
 
-from weblab.webclient.web.helpers import _retrieve_configuration_js
+from weblab.webclient.helpers import _retrieve_configuration_js
 from weblab.core.wl import weblab_api
 
 

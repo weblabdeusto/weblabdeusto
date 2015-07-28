@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 import traceback
 from flask import render_template, request, flash, redirect, url_for, jsonify
 from weblab.core.login.exc import InvalidCredentialsError
-from weblab.core.webclient.web.helpers import safe_redirect, WebError, json_exc, web_exc
+from weblab.core.webclient.helpers import safe_redirect, WebError, json_exc, web_exc
 from weblab.core.babel import gettext
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError

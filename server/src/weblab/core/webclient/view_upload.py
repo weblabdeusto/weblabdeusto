@@ -1,7 +1,7 @@
 from __future__ import print_function, unicode_literals
 from flask import render_template, request
 
-from weblab.webclient.web.flask_app import flask_app
+from weblab.webclient.flask_app import flask_app
 
 
 @flask_app.route("/upload", methods=["GET", "POST"])

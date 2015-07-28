@@ -3,10 +3,10 @@ import urllib
 
 from flask import render_template, url_for, request, flash, redirect
 
-from weblab.core.webclient.web.helpers import _get_loggedin_info, _get_experiment_info
+from weblab.core.webclient.helpers import _get_loggedin_info, _get_experiment_info
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
-from weblab.core.webclient.web import login_required
+from weblab.core.webclient import login_required
 
 
 @weblab_api.route_webclient("/")
