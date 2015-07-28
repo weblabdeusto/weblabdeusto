@@ -4,24 +4,28 @@
     <div class="container" id="loggedin-container">
         <div class="row">
 
+            {% if weblab_api.current_user %}
             <div class="col-xs-12 col-sm-9 pull-right" style="text-align: right">
                 <!-- pull-right not used because we're just aligning right -->
                 <p style="white-space: nowrap"> <!-- The nowrap is so that the log-out doesnt get a line-break -->
-                    <a href="{{ loggedin.profile_url }}"><img style="display:inline-block"
+
+                    <a href="{{ url_for('profile.index') }}"><img style="display:inline-block"
                                                               class="img-responsive img-rounded"
-                                                              src="{{ loggedin.gravatar }}" width="30px"/></a>
-                    <a href="{{ loggedin.profile_url }}">{{ loggedin.full_name }}</a> | <a
+                                                              src="{{ weblab_api.ctx.gravatar_url }}" width="30px"/></a>
+                    <a href="{{ url_for('profile.index') }}">{{ weblab_api.current_user.full_name }}</a> | <a
                             href="{{ url_for("admin.index") }}"><img
                             src="{{ url_for(".static", filename="img/ui/administration.png") }}"/></a> | <a
                             href="{{ url_for("profile.index") }}"><img
                             src="{{ url_for(".static", filename="img/ui/profile.png") }}"/></a> | <a
                             href="{{ url_for(".logout") }}">{{ gettext("Log out") }}</a>
+
                 </p>
             </div>
+            {% endif %}
 
             <div class="col-xs-12 col-sm-3">
-                <a href="{{ loggedin.host_link }}">
-                    <img id="logo" class="img-responsive" src="{{ loggedin.logo_url }}"/>
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                    <img id="logo" class="img-responsive" src="{{ url_for("core_web.logo") }}"/>
                 </a>
             </div>
 

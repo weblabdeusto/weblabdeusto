@@ -83,57 +83,36 @@ def safe_redirect(redir):
         return None
 
 
-def _get_loggedin_info():
+def _get_gravatar_url():
     """
-    Returns a dictionary with several parameters to render the logged_in part of the website.
-    PRERREQUISITE: weblab_api.ctx.reservation_id must be set.
-    :return: info dictionary
-    :rtype: dict
+    Returns the gravatar URL 
+    :return: gravatar URL
+    :rtype: unicode
     """
-
-    # Retrieve the configuration.js info.
-    deployment_dir = weblab_api.config.get("deployment_dir")
-    configuration_js_path = os.path.join(*[deployment_dir, "configuration.js"])
-    configuration_js = open(configuration_js_path).read()
-    configuration_js = remove_comments_from_json(configuration_js)
-    configuration_js = json.loads(configuration_js)
+    # TODO: default to the /avatar/ thing; change the db to support that 
+    # /weblab/web/avatars/<hidden-id>.jpg is that URL if the user doesn't 
+    # have any gravatar URL
 
     # Retrieve user information
-    user_info = weblab_api.api.get_user_information()
+    if weblab_api.current_user:
+        email = weblab_api.current_user.email
 
-    # Calculate the Gravatar from the mail
-    gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(user_info.email.lower()).hexdigest() + "?"
-    gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
+        # Calculate the Gravatar from the mail
+        gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
+        gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
+        return gravatar_url
+    return None
 
-    info = {}
-    core_server_url = weblab_api.server_instance.core_server_url
-    info["logo_url"] = os.path.join(*[core_server_url, "client", "weblabclientlab", configuration_js["host.entity.image"].lstrip('/')])
-    info["host_link"] = configuration_js["host.entity.link"]
-    info["full_name"] = user_info.full_name
-    info["gravatar"] = gravatar_url
-
-    return info
-
-
-def _get_experiment_info(experiments_raw):
+def _get_experiment(experiment_raw):
     """
-    Retrieves a data-only dict with the allowed experiments by name and an index of these same experiments
-    by their categories.
-    :param experiments_raw: Raw experiments list as returned by list_experiments API.
-    :return: (experiments, experiments_by_category)
+    Retrieves a simple dictionary with the most important data of the experiment object.
+    :rtype: dict
     """
-    experiments = {}
-    experiments_by_category = defaultdict(list)
+    exp = {}
+    exp["name"] = experiment_raw.experiment.name
+    exp["category"] = experiment_raw.experiment.category.name
+    exp["time"] = experiment_raw.time_allowed
+    exp["type"] = experiment_raw.experiment.client.client_id
+    exp["config"] = experiment_raw.experiment.client.configuration
+    return exp
 
-    for raw_exp in experiments_raw:
-        exp = {}
-        exp["name"] = raw_exp.experiment.name
-        exp["category"] = raw_exp.experiment.category.name
-        exp["time"] = raw_exp.time_allowed
-        exp["type"] = raw_exp.experiment.client.client_id
-        exp["config"] = raw_exp.experiment.client.configuration
-
-        experiments[exp["name"]] = exp
-        experiments_by_category[exp["category"]].append(exp)
-
-    return experiments, experiments_by_category

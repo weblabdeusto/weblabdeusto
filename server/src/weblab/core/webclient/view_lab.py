@@ -3,7 +3,7 @@ import os
 from flask import render_template, url_for, request, flash, redirect
 
 from weblab.core.exc import SessionNotFoundError
-from weblab.core.webclient.helpers import _get_loggedin_info, _get_experiment_info
+from weblab.core.webclient.helpers import _get_gravatar_url, _get_experiment
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
 
@@ -27,13 +27,20 @@ def lab():
 
         weblab_api.ctx.reservation_id = sessionid
 
-        # Retrieve the loggedin information.
-        loggedin_info = _get_loggedin_info()
+        # TODO: Remove me whenever we implement gravatar properly
+        weblab_api.ctx.gravatar_url = _get_gravatar_url()
 
-        experiments_raw = weblab_api.api.list_experiments()
-        experiments, experiments_by_category = _get_experiment_info(experiments_raw)
+        experiment_list = weblab_api.api.list_experiments()
 
-        experiment = experiments[name]
+        experiment = None
+        for exp_allowed in experiment_list:
+            if exp_allowed.experiment.name == name and exp_allowed.experiment.category.name == category:
+                experiment = _get_experiment(exp_allowed)
+
+        if experiment is None:
+            # TODO: check what to do in case there is no session_id (e.g., federated mode)
+            flash(gettext("You don't have permission on this laboratory"), 'danger')
+            return redirect(url_for('.labs'))
 
         # Get the target URL for the JS API.
         # Note: The following commented line should work best; but it doesn't make sure that the protocol matches.
@@ -43,7 +50,7 @@ def lab():
         # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
         lab_url = os.path.join(url_for(".static", filename=""))
 
-        return render_template("webclient/lab.html", display_name=name, experiment=experiment, loggedin=loggedin_info, json_url=json_url, lab_url=lab_url)
+        return render_template("webclient/lab.html", display_name=name, experiment=experiment, json_url=json_url, lab_url=lab_url)
     except Exception as ex:
         raise
 

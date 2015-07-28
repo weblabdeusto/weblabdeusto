@@ -52,7 +52,7 @@
                             </p>
 
                             {% if experiment["type"] == "js" or experiment["type"] == "redirect" %}
-                            <a href="{{ url_for(".lab", category = experiment["category"], name = urllib.quote_plus(experiment["name"]), type = experiment["type"]) }}">
+                            <a href="{{ url_for(".lab", category = experiment["category"], name = experiment["name"], type = experiment["type"]) }}">
                                 <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>
                             </a>
                             {% endif %}
@@ -199,11 +199,6 @@
         }
 
         $(document).ready(function () {
-
-            // Retrieve the sessionid from a cookie.
-            var sid = $.cookie("sessionid");
-
-
             // Initialize the filters and handlers in the categories in the menu.
             var $categoryMenuItems = $(".category-menu-item>a");
             $categoryMenuItems.click(function (ev) {
