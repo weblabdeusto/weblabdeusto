@@ -72,7 +72,20 @@ def handle_login_GET():
     """
     Displays the index (the login page).
     """
-    return render_template("webclient/login.html")
+    if request.args.get('next'):
+        url_kwargs = dict(next=request.args.get('next'))
+    else:
+        url_kwargs = {}
+
+    try:
+        weblab_api.api.check_user_session()
+    except SessionNotFoundError:
+        pass # Expected behavior
+    else:
+        # User is already logged in, send him to the next url
+        return redirect(get_next_url())
+
+    return render_template("webclient/login.html", url_kwargs = url_kwargs)
 
 
 @weblab_api.route_webclient("/logout",  methods=["GET", "POST"])
@@ -106,10 +119,13 @@ def demo():
         # TODO: mail the admin, use an errors template
         return "Invalid configuration! Contact the administrator so he correctly puts the username and password for the demo account"
     
+    if request.args.get('next'):
+        return weblab_api.make_response(redirect(get_next_url()))
+
     return labs_view()
 
 def get_next_url():
-    next_url = request.values.get("next")
+    next_url = request.args.get("next")
     next_url = safe_redirect(next_url)
     return next_url or url_for(".labs", _external=True, _scheme=request.scheme)
 

@@ -1901,6 +1901,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """</Directory>\n"""
         """\n"""
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
+        """ProxyPreserveHost On\n"""
         """ProxyVia On\n"""
         """\n"""
         """ProxyPass                       %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""

@@ -24,13 +24,18 @@ def _get_experiment_info(experiments_raw):
 
     return experiments, experiments_by_category
 
-
+# Not @login_required since we want to skip the next= in this case. This way, the /demo link will be available, and by default
+# loging sends back to this location.
 @weblab_api.route_webclient('/')
-@login_required
 def labs():
     """
     Renders the Laboratories List.
     """
+    try:
+        weblab_api.api.check_user_session()
+    except SessionNotFoundError:
+        return redirect(url_for('.login'))
+
     experiments_raw = weblab_api.api.list_experiments()
     experiments, experiments_by_category = _get_experiment_info(experiments_raw)
 

@@ -66,7 +66,7 @@
                     {% if weblab_api.config.client["demo.available"] %}
                     <div style="margin-top: 0px" class="text-center">
                         <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
-                        <a href="{{ url_for('.demo') }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
+                        <a href="{{ url_for('.demo', **url_kwargs) }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
                     </div>
                     {% endif %}
                 </form>
@@ -150,7 +150,7 @@
                 $scope.error.message = undefined;
                 $scope.status.waiting = true;
 
-                $http.post("{{ url_for('.login_json') }}", $scope.credentials)
+                $http.post("{{ url_for('.login_json', **url_kwargs) }}", $scope.credentials)
                     .success(function(data) {
                         if (data.error) {
                             $scope.error.message = data.message;
