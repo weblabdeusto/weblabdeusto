@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ weblab_api.locale or 'en' }}">
 <head>
     <!-- Meta, title, CSS, favicons, etc. -->
     <title>WebLab&#8209;Deusto - {{ title }}</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="{{ gettext("List of Remote Laboratories") }}">
+    <meta name="author" content="{{ gettext("WebLab-Deusto authors") }}">
 
     <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
     <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap-glyphicons.css") }}" rel="stylesheet"/>
@@ -91,14 +91,6 @@
 <script src="{{ url_for(".static", filename="js/jquery.cookie-1.4.1.min.js") }}"></script>
 
 <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
-
-<script type="text/javascript">
-    // We redirect all local requests through the flask server so that we can deal with
-    // the routing cookies that are currently required. This will probably change in the
-    // future.
-    {# WeblabWeb.LOGIN_URL = "{{ url_for("redir_login_json") }}"; #}
-    {# WeblabWeb.CORE_URL = "{{ url_for("redir_json") }}"; #}
-</script>
 
 {% if weblab_api.config.client.get('google.analytics.tracking.code') %}
 <script type="text/javascript"> 

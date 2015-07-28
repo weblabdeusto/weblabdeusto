@@ -43,7 +43,7 @@ def lab():
         # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
         lab_url = os.path.join(url_for(".static", filename=""))
 
-        return render_template("webclient/lab.html", experiment=experiment, loggedin=loggedin_info, json_url=json_url, lab_url=lab_url)
+        return render_template("webclient/lab.html", display_name=name, experiment=experiment, loggedin=loggedin_info, json_url=json_url, lab_url=lab_url)
     except Exception as ex:
         raise
 
