@@ -3,6 +3,7 @@ import traceback
 from flask import render_template, request, flash, redirect, url_for, jsonify
 from weblab.core.login.exc import InvalidCredentialsError
 from weblab.core.webclient.helpers import safe_redirect, WebError, json_exc, web_exc
+from weblab.core.webclient.view_labs import labs as labs_view
 from weblab.core.babel import gettext
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
@@ -104,8 +105,8 @@ def demo():
     except InvalidCredentialsError:
         # TODO: mail the admin, use an errors template
         return "Invalid configuration! Contact the administrator so he correctly puts the username and password for the demo account"
-        
-    return weblab_api.make_response(redirect(get_next_url()))
+    
+    return labs_view()
 
 def get_next_url():
     next_url = request.values.get("next")

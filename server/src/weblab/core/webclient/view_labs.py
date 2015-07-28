@@ -19,9 +19,9 @@ def labs():
     experiments, experiments_by_category = _get_experiment_info(experiments_raw)
     loggedin_info = _get_loggedin_info()
 
-    return render_template("webclient/labs.html", experiments=experiments,
+    return weblab_api.make_response(render_template("webclient/labs.html", experiments=experiments,
                            experiments_by_category=experiments_by_category,
-                           urllib=urllib, loggedin=loggedin_info)
+                           urllib=urllib, loggedin=loggedin_info))
 
 
 
