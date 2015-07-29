@@ -14,7 +14,7 @@
         <div class="column col-sm-9" id="experiment-descriptions">
 
             <!-- To be displayed only if no experiments match the filters -->
-            <div id="no-experiments-alert" class="alert alert-info" style="display:none">
+            <div id="no-experiments-alert" class="alert alert-info" ng-cloak ng-show="!search.any_experiment_found">
                 <h3>{{ gettext("No experiments are available with the current filters") }}</h3>
                 <p>{{ gettext("
                     No experiments are available which match the current filters. You might want to change the filters.
@@ -28,13 +28,7 @@
             </div>
             {% raw %}
             <div ng-cloak class="experiment-description well" ng-repeat="experiment in experiments" ng-attr-data-name="{{ experiment["name"] }}"
-                 ng-show="(search.term.length == 0 || (
-                                experiment.name.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 ||
-                                experiment.category.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 ||
-                                experiment.description.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 
-                            )) && (
-                                !search.categories || categories[experiment.category].selected
-                            )"
+                 ng-show="experiment.visible"
                  ng-attr-data-category="{{ experiment.category }}"
                  ng-attr-data-experimentid="{{ experiment.key }}">
                 <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
@@ -79,7 +73,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <input id="exp-search" type="Search" placeholder="{{ gettext("Search...") }}"
-                                               class="form-control" autofocus="true" ng-model="search.term"/>
+                                               class="form-control" autofocus="true" ng-model="search.term" ng-change="_filter_experiments()"/>
 
                                         <div class="input-group-btn">
                                             <div class="btn btn-info" disabled>
@@ -143,10 +137,12 @@
             $scope.experiments = {{ experiments|tojson(indent=4) }};
             $scope.categories = {};
             $scope.search = {
-                categories: false,
-                term: ""
+                term: "",
+                any_experiment_found: true,
+                any_category_selected: false
             };
             $.each($scope.experiments, function(index, exp) {
+                exp.visible = true;
                 if (exp.category in $scope.categories) {
                     $scope.categories[exp.category].count++;
                 } else {
@@ -157,17 +153,49 @@
                 }
             });
 
-            // $scope._filter_experiments = _filter_experiments;
+            $scope._filter_experiments = _filter_experiments;
             $scope._category_click = _category_click;
 
             function _category_click(category) {
+
                 $scope.categories[category].selected = !$scope.categories[category].selected;
-                var any_found = false;
+                var any_category_found = false;
                 $.each($scope.categories, function(index, cat_data) {
-                    any_found = any_found || cat_data.selected;
+                    any_category_found = any_category_found || cat_data.selected;
                 });
-                $scope.search.categories = any_found;
-                // _filter_experiments();
+                $scope.search.any_category_selected = any_category_found;
+                _filter_experiments();
+            }
+
+            function _filter_experiments() {
+                $.each($scope.experiments, function(index, experiment) {
+                    // By default, it's visible
+                    experiment.visible = true;
+
+                    // By search term
+                    var search_term = $scope.search.term;
+                    if (search_term.length > 0) { // If there's a search term
+                        if (!( experiment.name.toLowerCase().indexOf(search_term.toLowerCase()) >= 0 ||
+                                experiment.category.toLowerCase().indexOf(search_term.toLowerCase()) >= 0 ||
+                                experiment.description.toLowerCase().indexOf(search_term.toLowerCase()) >= 0 
+                            )) {
+                            experiment.visible = false;
+                            return;
+                        }
+                    }
+
+                    // By category
+                    if ($scope.search.any_category_selected) {
+                        if (!$scope.categories[experiment.category].selected) {
+                            experiment.visible = false;
+                            return;
+                        }
+                    }
+
+                    // Other filters (future)
+                });
+
+                $scope.search.any_experiment_found = $scope.experiments.filter(function(exp) { return exp.visible; }).length > 0;
             }
 
             /**
