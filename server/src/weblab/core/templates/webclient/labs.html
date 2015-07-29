@@ -28,6 +28,13 @@
             </div>
             {% raw %}
             <div ng-cloak class="experiment-description well" ng-repeat="experiment in experiments" ng-attr-data-name="{{ experiment["name"] }}"
+                 ng-show="(search.term.length == 0 || (
+                                experiment.name.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 ||
+                                experiment.category.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 ||
+                                experiment.description.toLowerCase().indexOf(search.term.toLowerCase()) >= 0 
+                            )) && (
+                                !search.categories || categories[experiment.category].selected
+                            )"
                  ng-attr-data-category="{{ experiment.category }}"
                  ng-attr-data-experimentid="{{ experiment.key }}">
                 <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
@@ -43,12 +50,7 @@
                     </div>
 
                     <div class="col-sm-10">
-                        <p>
-                            <!-- TODO: change the database to support this -->
-                            This is the Archimedes experiment, in which the user can check how the Archimedes
-                            principle works in practise by controlling any of several balls which can be remotely
-                            immersed into water.
-                        </p>
+                        <p>{{ experiment.description }}</p>
                         <a ng-href="{{ experiment.lab_link }}">
                             {% endraw %} {# use gettext() using jinja #}
                             <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
@@ -77,7 +79,7 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <input id="exp-search" type="Search" placeholder="{{ gettext("Search...") }}"
-                                               class="form-control"/>
+                                               class="form-control" autofocus="true" ng-model="search.term"/>
 
                                         <div class="input-group-btn">
                                             <div class="btn btn-info" disabled>
@@ -105,9 +107,12 @@
                             <ul class="sidebar-nav list-unstyled" id="menu-categories">
                                 {% raw %}
                                 <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
-                                    ng-repeat="(category, number) in categories" ng-attr-data-category="{{ category }}">
-                                    <a href="#">
-                                        {{ category }} ({{ number }})
+                                    ng-repeat="(category, category_data) in categories" 
+                                    ng-attr-data-category="{{ category }}"
+                                    ng-class="{ 'highlighted' : categories[category].selected, 'bg-success' : categories[category].selected }"
+                                    >
+                                    <a href="#" ng-click="_category_click(category)">
+                                        {{ category }} ({{ category_data.count }})
                                     </a>
                                 </li>
                                 {% endraw %}
@@ -137,13 +142,97 @@
         function LabsScreenController($scope) {
             $scope.experiments = {{ experiments|tojson(indent=4) }};
             $scope.categories = {};
+            $scope.search = {
+                categories: false,
+                term: ""
+            };
             $.each($scope.experiments, function(index, exp) {
                 if (exp.category in $scope.categories) {
-                    $scope.categories[exp.category]++;
+                    $scope.categories[exp.category].count++;
                 } else {
-                    $scope.categories[exp.category] = 1;
+                    $scope.categories[exp.category] = {
+                        selected: false,
+                        count: 1
+                    };
                 }
             });
+
+            // $scope._filter_experiments = _filter_experiments;
+            $scope._category_click = _category_click;
+
+            function _category_click(category) {
+                $scope.categories[category].selected = !$scope.categories[category].selected;
+                var any_found = false;
+                $.each($scope.categories, function(index, cat_data) {
+                    any_found = any_found || cat_data.selected;
+                });
+                $scope.search.categories = any_found;
+                // _filter_experiments();
+            }
+
+            /**
+             * Filters the experiments according to whatever configuration the filters are in.
+             * As of now search filtering and category filtering are supported.
+             * @return {undefined} Nothing
+             */
+             /*
+            function _filter_experiments() {
+                var all_experiments = $(".experiment-description");
+                var filtered_experiments = $(".experiment-description");
+
+                // Filter by category. If *any* category is selected, remove those that don't belong to these.
+                var highlightedCategories = $(".category-menu-item.highlighted");
+                var notFilteredExperiments = $();
+                if (highlightedCategories.length > 0) {
+                    highlightedCategories.each(function (index) {
+                        var category_name = $(this).data("category");
+                        var exps = $(".experiment-description[data-category='" + category_name + "']");
+                        notFilteredExperiments = notFilteredExperiments.add(exps);
+                    });
+                    filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+                }
+
+
+                // Filter by search. If anything is within the search box, show only those experiments which contain
+                // that in the name. Eventually maybe support will be added for the description field too (but as of now
+                // it makes no sense because the description doesn't actually exist server-side).
+                var searchtext = $("#exp-search").val().toLowerCase();
+                notFilteredExperiments = $();
+                if (searchtext.length != 0) {
+                    filtered_experiments.each(function (index) {
+                        var elem = $(this);
+
+                        // @type string
+                        var experiment_name = elem.data("name").toLowerCase();
+
+                        if (experiment_name.indexOf(searchtext) != -1) {
+                            notFilteredExperiments = notFilteredExperiments.add(elem);
+                        }
+                    });
+                    filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
+                }
+
+                // Determine the color of the search box.
+                if (searchtext.length == 0) {
+                    $("#exp-search").css("background-color", "auto");
+                } else if (filtered_experiments.length > 0) {
+                    $("#exp-search").css("background-color", "#EFFFDE");
+                } else if (filtered_experiments.length == 0) {
+                    $("#exp-search").css("background-color", "#FFE6E6");
+                }
+
+                // Hide the experiments that should be hidden.
+                all_experiments.not(filtered_experiments).slideUp(500);
+
+                // Show the experiments that should be shown.
+                filtered_experiments.delay(100).slideDown(500);
+
+                if(filtered_experiments.length == 0)
+                    $("#no-experiments-alert").show();
+                else
+                    $("#no-experiments-alert").hide();
+            }
+            */
         }
 
         angular.element(document).ready(function () {
@@ -151,84 +240,14 @@
         });
 
 
-        /**
-         * Filters the experiments according to whatever configuration the filters are in.
-         * As of now search filtering and category filtering are supported.
-         * @return {undefined} Nothing
-         */
-        function _filter_experiments() {
-            var all_experiments = $(".experiment-description");
-            var filtered_experiments = $(".experiment-description");
-
-            // Filter by category. If *any* category is selected, remove those that don't belong to these.
-            var highlightedCategories = $(".category-menu-item.highlighted");
-            var notFilteredExperiments = $();
-            if (highlightedCategories.length > 0) {
-                highlightedCategories.each(function (index) {
-                    var category_name = $(this).data("category");
-                    var exps = $(".experiment-description[data-category='" + category_name + "']");
-                    notFilteredExperiments = notFilteredExperiments.add(exps);
-                });
-                filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
-            }
-
-
-            // Filter by search. If anything is within the search box, show only those experiments which contain
-            // that in the name. Eventually maybe support will be added for the description field too (but as of now
-            // it makes no sense because the description doesn't actually exist server-side).
-            var searchtext = $("#exp-search").val().toLowerCase();
-            notFilteredExperiments = $();
-            if (searchtext.length != 0) {
-                filtered_experiments.each(function (index) {
-                    var elem = $(this);
-
-                    /** @type string */
-                    var experiment_name = elem.data("name").toLowerCase();
-
-                    if (experiment_name.indexOf(searchtext) != -1) {
-                        notFilteredExperiments = notFilteredExperiments.add(elem);
-                    }
-                });
-                filtered_experiments = filtered_experiments.filter(notFilteredExperiments);
-            }
-
-            // Determine the color of the search box.
-            if (searchtext.length == 0) {
-                $("#exp-search").css("background-color", "auto");
-            } else if (filtered_experiments.length > 0) {
-                $("#exp-search").css("background-color", "#EFFFDE");
-            } else if (filtered_experiments.length == 0) {
-                $("#exp-search").css("background-color", "#FFE6E6");
-            }
-
-            // Hide the experiments that should be hidden.
-            all_experiments.not(filtered_experiments).slideUp(500);
-
-            // Show the experiments that should be shown.
-            filtered_experiments.delay(100).slideDown(500);
-
-            if(filtered_experiments.length == 0)
-                $("#no-experiments-alert").show();
-            else
-                $("#no-experiments-alert").hide();
-        }
-
+        /*
         $(document).ready(function () {
-            // Initialize the filters and handlers in the categories in the menu.
-            var $categoryMenuItems = $(".category-menu-item>a");
-            $categoryMenuItems.click(function (ev) {
-                console.log(ev.target);
-                $(ev.target).parent().toggleClass("highlighted");
-                $(ev.target).parent().toggleClass("bg-success");
-                _filter_experiments();
-            });
-
             // When something is typed in the search box we apply the filter.
             $("#exp-search").bind('input propertychange', function () {
-                _filter_experiments();
+                // _filter_experiments();
             });
 
         }); // !ready
-
+        */
     </script>
 {% endblock %}

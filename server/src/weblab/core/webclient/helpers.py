@@ -110,12 +110,13 @@ def _get_experiment(experiment_raw):
     :rtype: dict
     """
     exp = {}
-    exp["name"] = experiment_raw.experiment.name
-    exp["category"] = experiment_raw.experiment.category.name
-    exp["time"] = experiment_raw.time_allowed
-    exp["type"] = experiment_raw.experiment.client.client_id
-    exp["config"] = experiment_raw.experiment.client.configuration
-    exp["logo_link"] = weblab_api.ctx.core_server_url + "client/weblabclientlab/" + exp["config"].get("experiment.picture", "")
-    exp["lab_link"] = url_for(".lab", category_name = exp["category"], experiment_name = exp["name"])
+    exp['name'] = experiment_raw.experiment.name
+    exp['category'] = experiment_raw.experiment.category.name
+    exp['time'] = experiment_raw.time_allowed
+    exp['type'] = experiment_raw.experiment.client.client_id
+    exp['config'] = experiment_raw.experiment.client.configuration
+    exp['logo_link'] = weblab_api.ctx.core_server_url + 'client/weblabclientlab/' + exp['config'].get('experiment.picture', '')
+    exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])
+    exp['description'] = "This is a dummy description of the laboratory {name} of category {category}".format(name=exp['name'], category=exp['category'])
     return exp
 
