@@ -8,23 +8,16 @@ from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
 
 
-@weblab_api.route_webclient("/lab.html")
+@weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/")
 @login_required
-def lab():
+def lab(category_name, experiment_name):
     """
     Renders a specific laboratory.
     """
 
     try:
-        name = request.values.get("name")
-        category = request.values.get("category")
-        type = request.values.get("type")
-
-        if name is None or category is None or type is None:
-            return "500 Please specify a name and category", 500
-
+        # TODO: review, probably not necessary
         sessionid = request.cookies.get("weblabsessionid")
-
         weblab_api.ctx.reservation_id = sessionid
 
         # TODO: Remove me whenever we implement gravatar properly
@@ -34,13 +27,15 @@ def lab():
 
         experiment = None
         for exp_allowed in experiment_list:
-            if exp_allowed.experiment.name == name and exp_allowed.experiment.category.name == category:
+            if exp_allowed.experiment.name == experiment_name and exp_allowed.experiment.category.name == category_name:
                 experiment = _get_experiment(exp_allowed)
 
         if experiment is None:
             # TODO: check what to do in case there is no session_id (e.g., federated mode)
             flash(gettext("You don't have permission on this laboratory"), 'danger')
             return redirect(url_for('.labs'))
+
+        type = experiment['type']
 
         # Get the target URL for the JS API.
         # Note: The following commented line should work best; but it doesn't make sure that the protocol matches.
@@ -50,7 +45,7 @@ def lab():
         # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
         lab_url = os.path.join(url_for(".static", filename=""))
 
-        return render_template("webclient/lab.html", display_name=name, experiment=experiment, json_url=json_url, lab_url=lab_url)
+        return render_template("webclient/lab.html", display_name=experiment_name, experiment=experiment, json_url=json_url, lab_url=lab_url)
     except Exception as ex:
         raise
 

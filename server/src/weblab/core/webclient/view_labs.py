@@ -24,6 +24,14 @@ def _get_experiment_info(experiments_raw):
 
     return experiments, experiments_by_category
 
+@weblab_api.route_webclient('/labs/')
+def slash_labs():
+    return redirect(url_for('.labs', code=301))
+
+@weblab_api.route_webclient('/labs/<category_name>/')
+def slash_labs_category(category_name):
+    return redirect(url_for('.labs', category=category_name, code=301))
+
 # Not @login_required since we want to skip the next= in this case. This way, the /demo link will be available, and by default
 # loging sends back to this location.
 @weblab_api.route_webclient('/')
