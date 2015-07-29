@@ -1,9 +1,6 @@
 {% extends "webclient/_logged_base.html" %}
 {% set title=gettext("My Experiments") %}
 
-{# Hard-coded for now: #}
-{% set IMAGES_FOLDER="../../client/weblabclientlab/" %}
-
 {% block body %}
     {{ super() }}
 
@@ -12,7 +9,7 @@
     </center>
 
     <div class="container">
-    <div class="row">
+    <div class="row" ng-controller="LabsScreenController">
         <!-- Column for the labs themselves -->
         <div class="column col-sm-9" id="experiment-descriptions">
 
@@ -26,42 +23,41 @@
                 ") }}</p>
             </div>
 
-            <!-- TO BE DYNAMICALLY FILLED WITH EXPERIMENT DESCRIPTIONS -->
-            {% for exp_key, experiment in experiments.items() %}
-                <div class="experiment-description well" data-name="{{ experiment["name"] }}"
-                     data-category="{{ experiment["category"] }}"
-                     data-experimentid="{{ exp_key }}">
-                    <h3>{{ experiment["name"] }}</h3>
-                    <h4>{{ experiment["category"] }}</h4>
+            <div ng-show="false" class="well">
+                <h3>{{ gettext("Loading laboratories...") }}</h3>
+            </div>
+            {% raw %}
+            <div ng-cloak class="experiment-description well" ng-repeat="experiment in experiments" ng-attr-data-name="{{ experiment["name"] }}"
+                 ng-attr-data-category="{{ experiment.category }}"
+                 ng-attr-data-experimentid="{{ experiment.key }}">
+                <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
+                <h4>{{ experiment.category }}</h4>
 
-                    <div class="row">
-                        <div class="col-sm-2" style="text-align: center">
-                            <img style="display: inline-block" class="img-responsive img-thumbnail"
-                                 src="{{ IMAGES_FOLDER + experiment["config"].get("experiment.picture", "") }}"
-                                 alt="experiment_picture" width="80" height="100"/>
-                        </div>
+                <div class="row">
+                    <div class="col-sm-2" style="text-align: center">
+                        <a ng-href="{{ experiment.lab_link }}">
+                        <img style="display: inline-block" class="img-responsive img-thumbnail"
+                             ng-src="{{ experiment.logo_link }}"
+                             alt="experiment_picture" width="80" height="100"/>
+                        </a>
+                    </div>
 
-                        <div class="col-sm-10">
-                            <p>
-                                This is the Archimedes experiment, in which the user can check how the Archimedes
-                                principle works in practise by controlling any of several balls which can be remotely
-                                immersed into water.
-                            </p>
-                            <p>
-                                <strong>{{ gettext("Experiment type:") }}</strong> {{ experiment["type"] }}
-                            </p>
-
-                            {% if experiment["type"] == "js" or experiment["type"] == "redirect" %}
-                            <a href="{{ url_for(".lab", category_name = experiment["category"], experiment_name = experiment["name"]) }}">
-                                <button class="btn btn-info reserve-new" id="reserve-new">Reserve</button>
-                            </a>
-                            {% endif %}
-
-                        </div>
+                    <div class="col-sm-10">
+                        <p>
+                            <!-- TODO: change the database to support this -->
+                            This is the Archimedes experiment, in which the user can check how the Archimedes
+                            principle works in practise by controlling any of several balls which can be remotely
+                            immersed into water.
+                        </p>
+                        <a ng-href="{{ experiment.lab_link }}">
+                            {% endraw %} {# use gettext() using jinja #}
+                            <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
+                            {% raw %}
+                        </a>
                     </div>
                 </div>
-            {% endfor %}
-
+            </div>
+            {% endraw %}
         </div>
 
 
@@ -97,7 +93,7 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row" ng-cloak>
                 <div class="column col-sm-12">
                     <div id="wrapper">
                         <legend>
@@ -107,15 +103,14 @@
                         <!-- Sidebar -->
                         <div id="sidebar-wrapper">
                             <ul class="sidebar-nav list-unstyled" id="menu-categories">
-                                <!-- CATEGORIES GO HERE AND ARE DYNAMICALLY FILLED -->
-                                {% for category, experiments_in_category in experiments_by_category.items() %}
-                                    <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
-                                        data-category="{{ category }}">
-                                        <a href="#">
-                                            {{ category }} ({{ experiments_in_category | length }})
-                                        </a>
-                                    </li>
-                                {% endfor %}
+                                {% raw %}
+                                <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
+                                    ng-repeat="(category, number) in categories" ng-attr-data-category="{{ category }}">
+                                    <a href="#">
+                                        {{ category }} ({{ number }})
+                                    </a>
+                                </li>
+                                {% endraw %}
                             </ul>
                         </div>
                         <!-- /#sidebar-wrapper -->
@@ -135,6 +130,26 @@
     {{ super() }}
 
     <script type="text/javascript">
+        angular
+                .module("labsScreen", [])
+                .controller("LabsScreenController", LabsScreenController);
+
+        function LabsScreenController($scope) {
+            $scope.experiments = {{ experiments|tojson(indent=4) }};
+            $scope.categories = {};
+            $.each($scope.experiments, function(index, exp) {
+                if (exp.category in $scope.categories) {
+                    $scope.categories[exp.category]++;
+                } else {
+                    $scope.categories[exp.category] = 1;
+                }
+            });
+        }
+
+        angular.element(document).ready(function () {
+            angular.bootstrap(document, ['labsScreen']);
+        });
+
 
         /**
          * Filters the experiments according to whatever configuration the filters are in.

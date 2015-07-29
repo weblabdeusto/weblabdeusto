@@ -9,7 +9,7 @@ import urllib
 import urlparse
 
 from weblab.core.wl import weblab_api
-from flask import current_app
+from flask import current_app, url_for
 
 class WebError(Exception):
     pass
@@ -115,5 +115,7 @@ def _get_experiment(experiment_raw):
     exp["time"] = experiment_raw.time_allowed
     exp["type"] = experiment_raw.experiment.client.client_id
     exp["config"] = experiment_raw.experiment.client.configuration
+    exp["logo_link"] = weblab_api.ctx.core_server_url + "client/weblabclientlab/" + exp["config"].get("experiment.picture", "")
+    exp["lab_link"] = url_for(".lab", category_name = exp["category"], experiment_name = exp["name"])
     return exp
 
