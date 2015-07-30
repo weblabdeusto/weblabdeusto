@@ -13,60 +13,27 @@
     <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap-glyphicons.css") }}" rel="stylesheet"/>
     <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
 
-    {% block styles %}
-    {% endblock %}
-    <style>
-        body { 
-            padding-top: 20px;
-        }
-        .spacer {
-            display: inline-block;
-            width: 6em;
-            height: 3em;
-        }
-        .vmargin-20 {
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        .footer {
-            border-top-color: rgb(229, 229, 229);
-            border-top-style: solid;
-            border-top-width: 1px;
-            margin-top: 20px;
-            color: rgb(119, 119, 119);
-        }
-
-        .footer-text {
-            margin-top: 20px;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-    </style>
-    {% block header %}
-    {% endblock %}
+    {% block styles %}{% endblock %}
+    {% block header %}{% endblock %}
 </head>
 <body>
-
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                {% with messages = get_flashed_messages(with_categories = True) %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{% if category == 'error' %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
-                            <button type="button" class="close" data-dismiss="alert">×</button>
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endwith %}
+    {% with messages = get_flashed_messages(with_categories = True) %}
+    {% if messages %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+            {% for category, message in messages %}
+                <div class="alert alert-{% if category == 'error' %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    {{ message }}
                 </div>
+            {% endfor %}
             </div>
         </div>
-
-
-{% block body %}
-
-
-{% endblock %}
+    </div>
+    {% endif %}
+    {% endwith %}
+{% block body %}{% endblock %}
 
     <div class="footer">
         <div class="container footer-text">
@@ -92,6 +59,14 @@
 
 <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
 
+<script src="{{ url_for("core_web.version") }}"></script>
+<script type="text/javascript">
+    if (wlVersionMessage != null) {
+        $("#weblab_version").html(wlVersionMessage);
+    }
+</script>
+{% block scripts %}{% endblock %}
+
 {% if weblab_api.config.client.get('google.analytics.tracking.code') %}
 <script type="text/javascript"> 
     var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
@@ -104,16 +79,5 @@
     } catch(err) {}
 </script> 
 {% endif %}
-
-<script src="{{ url_for("core_web.version") }}"></script>
-<script type="text/javascript">
-    if (wlVersionMessage != null) {
-        $("#weblab_version").html(wlVersionMessage);
-    }
-</script>
-
-{% block scripts %}
-
-{% endblock %}
 </body>
 </html>

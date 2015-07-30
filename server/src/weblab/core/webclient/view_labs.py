@@ -27,16 +27,14 @@ def labs():
     except SessionNotFoundError:
         return redirect(url_for('.login'))
 
-    experiments_raw = weblab_api.api.list_experiments()
-    experiments = [ _get_experiment(raw_exp) for raw_exp in experiments_raw ]
-
     # TODO: Remove me whenever we implement gravatar properly
     weblab_api.context.gravatar_url = _get_gravatar_url()
 
-    return weblab_api.make_response(render_template("webclient/labs.html", experiments=experiments))
+    return weblab_api.make_response(render_template("webclient/labs.html"))
 
-
-
-
-
-
+@weblab_api.route_webclient('/labs.json')
+@login_required
+def labs_json():
+    experiments_raw = weblab_api.api.list_experiments()
+    experiments = [ _get_experiment(raw_exp) for raw_exp in experiments_raw ]
+    return weblab_api.jsonify(experiments=experiments)

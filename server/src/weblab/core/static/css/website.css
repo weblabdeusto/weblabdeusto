@@ -1,3 +1,30 @@
+body { 
+    padding-top: 20px;
+}
+.spacer {
+    display: inline-block;
+    width: 6em;
+    height: 3em;
+}
+.vmargin-20 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.footer {
+    border-top-color: rgb(229, 229, 229);
+    border-top-style: solid;
+    border-top-width: 1px;
+    margin-top: 20px;
+    color: rgb(119, 119, 119);
+}
+
+.footer-text {
+    margin-top: 20px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+
 .wl-vertical-center
 {
     float: none;
