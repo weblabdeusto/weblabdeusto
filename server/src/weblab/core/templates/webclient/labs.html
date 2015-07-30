@@ -27,7 +27,9 @@
                 <h3>{{ gettext("Loading laboratories...") }}</h3>
             </div>
             {% raw %}
-            <div ng-cloak class="experiment-description well" ng-repeat="experiment in experiments" 
+            <div ng-cloak 
+                 class="experiment-description well" 
+                 ng-repeat="experiment in experiments" 
                  ng-show="experiment.visible">
                 <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
                 <h4>{{ experiment.category }}</h4>
