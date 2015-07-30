@@ -60,7 +60,6 @@ class TestViewLabs(unittest.TestCase):
         self.assertIn("Name of any", rv.data, "Labs page does not contain the expected 'Name of any' text")
         self.assertIn("Log out", rv.data, "Labs page does not contain the expected 'Log out' text")
         self.assertIn("Filter by", rv.data, "Labs page does not contain the expected 'Filter by' text")
-        self.assertIn("Experiment type", rv.data, "Labs page does not contain the expected 'Experiment type' text")
 
     def tearDown(self):
         """

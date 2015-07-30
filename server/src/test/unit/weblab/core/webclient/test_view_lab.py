@@ -54,7 +54,7 @@ class TestViewLab(unittest.TestCase):
         """
         Ensure that the labs page seems to load.
         """
-        rv = self.app.get('/weblab/web/webclient/lab.html?category=%s&name=%s&type=%s' % ("Dummy experiments", "jsdummy", "js"))
+        rv = self.app.get('/weblab/web/webclient/labs/%s/%s/' % ("Dummy%20experiments", "jsdummy"))
         self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
         self.assertIn("Reserve this", rv.data, "Lab page does not contain the expected 'Reserve this' text")
         self.assertIn("upload", rv.data, "Lab page does not contain the expected 'Upload' text")

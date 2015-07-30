@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 import os
 from flask import render_template, url_for, request, flash, redirect
 
+from weblab.core.babel import gettext
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient.helpers import _get_gravatar_url, _get_experiment
 from weblab.core.wl import weblab_api
@@ -14,7 +15,6 @@ def lab(category_name, experiment_name):
     """
     Renders a specific laboratory.
     """
-
     try:
         # TODO: review, probably not necessary
         sessionid = request.cookies.get("weblabsessionid")
