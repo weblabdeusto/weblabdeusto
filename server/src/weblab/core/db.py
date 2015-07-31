@@ -940,7 +940,14 @@ class DatabaseGateway(object):
         if now.month == 1:
             since = now.replace(month = 12, year = now.year - 1)
         else:
-            since = now.replace(month = now.month - 1)
+            day = now.day
+            if day == 31:
+                if now.month in (5, 7, 8, 10, 12):
+                    day = 30
+                elif now.month == 3:
+                    day = 28
+            
+            since = now.replace(month = now.month - 1, day = day)
 
         return self.quickadmin_uses_per_country(UsesQueryParams.create(start_date=since))
 
