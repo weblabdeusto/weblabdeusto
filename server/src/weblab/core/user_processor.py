@@ -60,8 +60,8 @@ class UserProcessor(object):
     def username(self):
         return self._session['db_session_id'].username
 
-    def list_experiments(self):
-        return self._db_manager.list_experiments(self.username)
+    def list_experiments(self, exp_name = None, cat_name = None):
+        return self._db_manager.list_experiments(self.username, exp_name = exp_name, cat_name = cat_name)
 
     def get_user_information(self):
         if 'user_information' in self._session:

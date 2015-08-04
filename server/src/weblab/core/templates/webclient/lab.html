@@ -1,5 +1,5 @@
 {% extends "webclient/_logged_base.html" %}
-{% set title="Lab - " + display_name %}
+{% set title="Lab - " + experiment['display_name'] %}
 
 {% import "webclient/_upload.html" as upload %}
 
@@ -27,12 +27,8 @@
     {{ upload.code(config["UPLOAD_URL"]) }}
 
     <script type="text/javascript">
-
-    console.log("THE EXPERIMENT IS: ");
-    console.log({{ experiment|tojson }});
-
-    console.debug("Load callback set");
-
+        var WL_JSON_URL = "{{ url_for('json.service_url') }}";
+        var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
 
     {# Await for the page #}
     $(document).ready(function () {

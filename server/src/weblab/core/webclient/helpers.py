@@ -111,6 +111,8 @@ def _get_experiment(experiment_raw):
     """
     exp = {}
     exp['name'] = experiment_raw.experiment.name
+    # TODO: use a proper display name
+    exp['display_name'] = experiment_raw.experiment.name
     exp['category'] = experiment_raw.experiment.category.name
     exp['time'] = experiment_raw.time_allowed
     exp['type'] = experiment_raw.experiment.client.client_id

@@ -559,7 +559,7 @@ class WebLabAPI(object):
         instance_args = self._get_instance_args(server_instance, flask_app)
 
         if web_context in self.apis:
-            flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(web_context, flask_app, instance_args) )
+            flask_app.route(base_path + "/", methods = ['GET', 'POST'], endpoint = 'service_url')(lambda : self._json(web_context, flask_app, instance_args) )
 
         for path in self.routes[web_context]:
             self._create_wrapper(base_path, path, flask_app, web_context, instance_args)

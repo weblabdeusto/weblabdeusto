@@ -16,14 +16,10 @@ def lab(category_name, experiment_name):
     Renders a specific laboratory.
     """
     try:
-        # TODO: review, probably not necessary
-        sessionid = request.cookies.get("weblabsessionid")
-        weblab_api.ctx.reservation_id = sessionid
-
         # TODO: Remove me whenever we implement gravatar properly
         weblab_api.ctx.gravatar_url = _get_gravatar_url()
 
-        experiment_list = weblab_api.api.list_experiments()
+        experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
 
         experiment = None
         for exp_allowed in experiment_list:
@@ -32,20 +28,16 @@ def lab(category_name, experiment_name):
 
         if experiment is None:
             # TODO: check what to do in case there is no session_id (e.g., federated mode)
-            flash(gettext("You don't have permission on this laboratory"), 'danger')
+            if weblab_api.db.check_experiment_exists(experiment_name, category_name):
+                flash(gettext("You don't have permission on this laboratory"), 'danger')
+            else:
+                flash(gettext("Experiment does not exist"), 'danger')
             return redirect(url_for('.labs'))
 
-        type = experiment['type']
-
         # Get the target URL for the JS API.
-        # Note: The following commented line should work best; but it doesn't make sure that the protocol matches.
-        # core_server_url = weblab_api.server_instance.core_server_url
-        core_server_url = os.path.join(*[url_for(".login"), "../../"])
-        json_url = os.path.join(*[core_server_url, "json/"])
-        # Old URL: lab_url = os.path.join(*[core_server_url, "client", "weblabclientlab/"])
-        lab_url = os.path.join(url_for(".static", filename=""))
+        lab_url = url_for(".static", filename="")
 
-        return render_template("webclient/lab.html", display_name=experiment_name, experiment=experiment, json_url=json_url, lab_url=lab_url)
+        return render_template("webclient/lab.html", experiment=experiment, lab_url=lab_url)
     except Exception as ex:
         raise
 

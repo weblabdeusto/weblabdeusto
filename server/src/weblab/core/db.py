@@ -148,6 +148,14 @@ class DatabaseGateway(object):
             return 'role'
         return 'unknown'
 
+    @with_session
+    def check_experiment_exists(self, exp_name = None, cat_name = None):
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name = cat_name).first()
+        if category is None:
+            return False
+        experiment = _current.session.query(model.DbExperiment).filter_by(name = exp_name, category = category).first()
+        return experiment is not None
+
     # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()
     def list_experiments(self, user_login, exp_name = None, cat_name = None):

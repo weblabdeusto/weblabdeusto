@@ -58,8 +58,7 @@ function LabController($scope, $injector) {
     // ------------------------
 
     // Initialize the Weblab API.
-    var json_url = "{{ json_url }}";
-    WeblabWeb.setTargetURLs(json_url, json_url);
+    WeblabWeb.setTargetURLs(WL_JSON_URL, WL_JSON_URL);
 
 
 
@@ -202,8 +201,7 @@ function LabController($scope, $injector) {
 
                 window.currentExperiment = wexp; // Save it in a GLOBAL.
                 var url = result["url"];
-                var json_url = "{{ json_url }}";
-                wexp.setTargetURL(json_url);
+                wexp.setTargetURL(WL_JSON_URL);
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
                 // Listen also for a dispose, for other ui changes.
@@ -254,11 +252,11 @@ function LabController($scope, $injector) {
                         "r": id,
                         "c": initConfig,
                         "t": time,
-                        "u": "{{ json_url }}",
+                        "u": WL_JSON_URL,
                         "free": "true"
                     };
                     {# //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"; #}
-                    var redir = "{{ lab_url + experiment['config']['html.file'] }}";
+                    var redir = WL_LAB_URL + "{{ experiment['config']['html.file'] }}";
                     redir += "?" + $.param(params);
                     console.log(redir);
 

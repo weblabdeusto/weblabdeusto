@@ -182,8 +182,8 @@ def create_external_user(system = None, credentials = None):
 # 
 @weblab_api.route_api('/user/experiments/')
 @load_user_processor
-def list_experiments():
-    return weblab_api.ctx.user_processor.list_experiments()
+def list_experiments(exp_name = None, cat_name = None):
+    return weblab_api.ctx.user_processor.list_experiments(exp_name = exp_name, cat_name = cat_name)
 
 @weblab_api.route_api('/user/session/check/')
 @load_user_processor
