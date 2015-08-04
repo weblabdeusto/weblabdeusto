@@ -703,6 +703,13 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    @with_session
+    def retrieve_user_auths(self, username):
+        user = _current.session.query(model.DbUser).filter_by(login=username).first()
+        if user is None:
+            return None
+        return user.auths
+
     @logged()
     def check_external_credentials(self, external_id, system):
         """ Given an External ID, such as the ID in Facebook or Moodle or whatever, and selecting

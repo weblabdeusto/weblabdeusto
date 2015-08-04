@@ -7,6 +7,7 @@ import traceback
 
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+import flask
 from flask import Flask, request, redirect, escape
 from flask.ext.admin import Admin
 from flask.ext.admin.menu import MenuLink
@@ -206,26 +207,19 @@ class AdministrationApplication(object):
         if self.bypass_authz:
             return True
 
+        if 'is_weblab_admin' in flask.session:
+            return flask.session['is_weblab_admin']
+
         try:
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
             if not session_id:
                 return False
-
+            
             with weblab_api(self.core_server, session_id = session_id):
-                try:
-                    permissions = weblab.core.server.get_user_permissions()
-                except SessionNotFoundError:
-                    # Gotcha
-                    return False
-
-            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
-            if len(admin_permissions) == 0:
-                return False
-
-            if admin_permissions[0].parameters[0].value:
-                return True
-
-            return False
+                is_admin = weblab_api.is_admin
+            
+            flask.session['is_weblab_admin'] = is_admin
+            return is_admin
         except:
             traceback.print_exc()
             return False

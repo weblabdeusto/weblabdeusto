@@ -294,6 +294,24 @@ class WebLabAPI(object):
             return user
 
     @property
+    def is_admin(self):
+        if hasattr(self.context, 'is_admin'):
+            return self.context.is_admin
+        
+        is_admin = False
+        try:
+            permissions = self.api.get_user_permissions()
+        except coreExc.SessionNotFoundError:
+            pass
+        else:
+            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
+            if len(admin_permissions) > 0 and admin_permissions[0].parameters[0].value:
+                is_admin = True
+
+        self.context.is_admin = is_admin
+        return self.context.is_admin
+
+    @property
     def user_agent(self):
         return getattr(self.context, 'user_agent', '<user agent not found>')
 
