@@ -16,7 +16,7 @@ from __future__ import print_function, unicode_literals
 
 import hashlib
 
-from flask import redirect
+from flask import redirect, request
 from weblab.core.wl import weblab_api
 from weblab.core.exc import DatabaseError
 
@@ -34,10 +34,12 @@ def avatar(login):
 
     email, auths = response
 
-    for auth_name, auth_config, user_auth_config in auths:
-        if auth_name == 'FACEBOOK':
-            return redirect("http://graph.facebook.com/{user_id}/picture?type=square".format(user_id = user_auth_config))
+    size = request.args.get('size', '50')
+
+    for auth_type_name, auth_name, auth_config, user_auth_config in auths:
+        if auth_type_name == 'FACEBOOK':
+            return redirect("http://graph.facebook.com/{user_id}/picture?type=square&width={size}".format(user_id = user_auth_config, size=size))
         # Other cases here...
 
-    return redirect('http://www.gravatar.com/avatar/{md5}?d=identicon'.format(md5=hashlib.md5(email).hexdigest()))
+    return redirect('http://www.gravatar.com/avatar/{md5}?d=identicon&s={size}'.format(md5=hashlib.md5(email).hexdigest(), size=size))
 

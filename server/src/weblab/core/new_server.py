@@ -366,9 +366,11 @@ class WebLabAPI(object):
         if self.current_user:
             email = self.current_user.email
 
+            size = 50 # To be configured
+
             # Calculate the Gravatar from the mail
             gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
-            gravatar_url += urllib.urlencode({'d': url_for('core_web.avatar', login=self.current_user.login, _external=True), 's': str(50)})
+            gravatar_url += urllib.urlencode({'d': url_for('core_web.avatar', login=self.current_user.login, size=size, _external=True), 's': str(size)})
             return gravatar_url
         return None
 
