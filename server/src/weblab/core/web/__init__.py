@@ -65,3 +65,6 @@ assert client_config is not None # avoid warnings
 import logo
 assert logo is not None # avoid warnings
 
+import avatar
+assert avatar is not None # avoid warnings
+

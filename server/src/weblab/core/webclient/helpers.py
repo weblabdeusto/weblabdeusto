@@ -1,11 +1,9 @@
 from __future__ import print_function, unicode_literals
 from collections import defaultdict
 from functools import wraps
-import hashlib
 import json
 import os
 import re
-import urllib
 import urlparse
 
 from weblab.core.wl import weblab_api
@@ -82,27 +80,6 @@ def safe_redirect(redir):
         return redir
     except Exception:
         return None
-
-
-def _get_gravatar_url():
-    """
-    Returns the gravatar URL 
-    :return: gravatar URL
-    :rtype: unicode
-    """
-    # TODO: default to the /avatar/ thing; change the db to support that 
-    # /weblab/web/avatars/<hidden-id>.jpg is that URL if the user doesn't 
-    # have any gravatar URL
-
-    # Retrieve user information
-    if weblab_api.current_user:
-        email = weblab_api.current_user.email
-
-        # Calculate the Gravatar from the mail
-        gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d': "http://placehold.it/150x150", 's': str(50)})
-        return gravatar_url
-    return None
 
 def _get_experiment(experiment_raw):
     """

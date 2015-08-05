@@ -10,7 +10,7 @@
 
                     <a href="{{ url_for('profile.index') }}"><img style="display:inline-block"
                                                               class="img-responsive img-rounded"
-                                                              src="{{ weblab_api.ctx.gravatar_url }}" width="30px"/></a>
+                                                              src="{{ weblab_api.gravatar_url }}" width="30px"/></a>
                     <a href="{{ url_for('profile.index') }}">{{ weblab_api.current_user.full_name }}</a> | <a
                             href="{{ url_for("admin.index") }}"><img
                             src="{{ url_for(".static", filename="img/ui/administration.png") }}"/></a> | <a

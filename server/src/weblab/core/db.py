@@ -704,11 +704,13 @@ class DatabaseGateway(object):
             session.close()
 
     @with_session
-    def retrieve_user_auths(self, username):
+    def retrieve_avatar_user_auths(self, username):
         user = _current.session.query(model.DbUser).filter_by(login=username).first()
         if user is None:
             return None
-        return user.auths
+        return user.email, [ (user_auth.auth.name, user_auth.auth.configuration, user_auth.configuration) 
+                    for user_auth in user.auths 
+                    if user_auth.auth.name in ('FACEBOOK', )]
 
     @logged()
     def check_external_credentials(self, external_id, system):

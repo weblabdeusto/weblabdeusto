@@ -4,7 +4,7 @@ from flask import render_template, url_for, request, flash, redirect
 
 from weblab.core.babel import gettext
 from weblab.core.exc import SessionNotFoundError
-from weblab.core.webclient.helpers import _get_gravatar_url, _get_experiment
+from weblab.core.webclient.helpers import _get_experiment
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
 
@@ -16,9 +16,6 @@ def lab(category_name, experiment_name):
     Renders a specific laboratory.
     """
     try:
-        # TODO: Remove me whenever we implement gravatar properly
-        weblab_api.ctx.gravatar_url = _get_gravatar_url()
-
         experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
 
         experiment = None

@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 from collections import defaultdict
 from flask import render_template, url_for, request, flash, redirect
 
-from weblab.core.webclient.helpers import _get_gravatar_url, _get_experiment
+from weblab.core.webclient.helpers import _get_experiment
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient import login_required
@@ -26,9 +26,6 @@ def labs():
         weblab_api.api.check_user_session()
     except SessionNotFoundError:
         return redirect(url_for('.login'))
-
-    # TODO: Remove me whenever we implement gravatar properly
-    weblab_api.context.gravatar_url = _get_gravatar_url()
 
     return weblab_api.make_response(render_template("webclient/labs.html"))
 

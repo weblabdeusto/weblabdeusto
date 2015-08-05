@@ -2,6 +2,8 @@ from __future__ import print_function, unicode_literals
 import sys
 import json
 import types
+import urllib
+import hashlib
 import urlparse
 import datetime
 import traceback
@@ -10,7 +12,7 @@ import threading
 from functools import wraps, partial
 from collections import OrderedDict
 
-from flask import request, Response, make_response
+from flask import request, Response, make_response, url_for
 
 from voodoo.log import log, level, log_exc, logged
 import weblab.core.codes as ErrorCodes
@@ -353,6 +355,28 @@ class WebLabAPI(object):
     @property
     def client_address(self):
         return getattr(self.context, 'client_address', None)
+
+    @property
+    def gravatar_url(self):
+        """
+        Returns the gravatar URL 
+        :return: gravatar URL
+        :rtype: unicode
+        """
+        # TODO: default to the /avatar/ thing; change the db to support that 
+        # /weblab/web/avatars/<hidden-id>.jpg is that URL if the user doesn't 
+        # have any gravatar URL
+
+        # Retrieve user information
+        if self.current_user:
+            email = self.current_user.email
+
+            # Calculate the Gravatar from the mail
+            gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
+            gravatar_url += urllib.urlencode({'d': url_for('core_web.avatar', login=self.current_user.login, _external=True), 's': str(50)})
+            return gravatar_url
+        return None
+
 
     @property
     def server_instance(self):

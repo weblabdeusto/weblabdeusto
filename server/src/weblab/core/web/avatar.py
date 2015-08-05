@@ -14,6 +14,9 @@
 #
 from __future__ import print_function, unicode_literals
 
+import hashlib
+
+from flask import redirect
 from weblab.core.wl import weblab_api
 from weblab.core.exc import DatabaseError
 
@@ -22,14 +25,19 @@ from weblab.core.exc import DatabaseError
 @weblab_api.route_web('/avatar/<login>/')
 def avatar(login):
     try:
-        auths = weblab_api.db.retrieve_role_user_auths(login)
+        response = weblab_api.db.retrieve_avatar_user_auths(login)
     except DatabaseError:
         return "Login not found", 404
     else:
-        if auths is None:
+        if response is None:
             return "Login not found", 404
 
-    # avatars = []
-    # [ auth.auth_type for auth in auths ]
-    return "avatar not yet implemented"
+    email, auths = response
+
+    for auth_name, auth_config, user_auth_config in auths:
+        if auth_name == 'FACEBOOK':
+            return redirect("http://graph.facebook.com/{user_id}/picture?type=square".format(user_id = user_auth_config))
+        # Other cases here...
+
+    return redirect('http://www.gravatar.com/avatar/{md5}?d=identicon'.format(md5=hashlib.md5(email).hexdigest()))
 
