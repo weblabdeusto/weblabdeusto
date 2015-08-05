@@ -38,7 +38,7 @@ def avatar(login):
 
     for auth_type_name, auth_name, auth_config, user_auth_config in auths:
         if auth_type_name == 'FACEBOOK':
-            return redirect("http://graph.facebook.com/{user_id}/picture?type=square&width={size}".format(user_id = user_auth_config, size=size))
+            return redirect("http://graph.facebook.com/{user_id}/picture?type=square&height={size}".format(user_id = user_auth_config, size=size))
         # Other cases here...
 
     return redirect('http://www.gravatar.com/avatar/{md5}?d=identicon&s={size}'.format(md5=hashlib.md5(email).hexdigest(), size=size))
