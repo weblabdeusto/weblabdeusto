@@ -300,15 +300,10 @@ class WebLabAPI(object):
         if hasattr(self.context, 'is_admin'):
             return self.context.is_admin
         
-        is_admin = False
         try:
-            permissions = self.api.get_user_permissions()
+            is_admin = self.api.is_admin()
         except coreExc.SessionNotFoundError:
-            pass
-        else:
-            admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
-            if len(admin_permissions) > 0 and admin_permissions[0].parameters[0].value:
-                is_admin = True
+            is_admin = False
         self.context.is_admin = is_admin
         return self.context.is_admin
 

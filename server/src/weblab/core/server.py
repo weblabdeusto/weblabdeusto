@@ -253,6 +253,11 @@ def get_experiment_uses_by_id(reservation_ids = None):
 def get_user_permissions():
     return weblab_api.ctx.user_processor.get_user_permissions()
 
+@weblab_api.route_api('/user/is_admin/')
+@load_user_processor
+def is_admin():
+    return weblab_api.ctx.user_processor.is_admin()
+
 @weblab_api.route_api('/user/reservations/', methods = [ 'POST' ])
 @load_user_processor
 def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None):

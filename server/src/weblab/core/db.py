@@ -230,17 +230,6 @@ class DatabaseGateway(object):
 
     @typecheck(basestring)
     @logged()
-    def is_admin(self, user_login):
-        session = self.Session()
-        try:
-            user = self._get_user(session, user_login)
-            user_permissions = self._gather_permissions(session, user, 'admin_panel_access')
-            return len(user_permissions) > 0
-        finally:
-            session.close()
-
-    @typecheck(basestring)
-    @logged()
     def is_instructor(self, user_login):
         session = self.Session()
         try:
@@ -548,6 +537,23 @@ class DatabaseGateway(object):
             session.close()
 
         return results
+
+    @with_session
+    def is_admin(self, user_login):
+        user = _current.session.query(model.DbUser).filter_by(login = user_login).options(joinedload('role')).first()
+        if user.role.name in ('administrator', 'admin'):
+            return True
+
+        first_admin_permission = _current.session.query(model.DbUserPermission).filter_by(user = user, permission_type=permissions.ADMIN_PANEL_ACCESS).first()
+        if first_admin_permission is not None:
+            return True
+
+        groups = list(user.groups)
+        if len(groups) > 0:
+            first_admin_permission = _current.session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group.in_(groups), model.DbGroupPermission.permission_type==permissions.ADMIN_PANEL_ACCESS).first()
+            if first_admin_permission is not None:
+                return True
+        return False
 
     @logged()
     def get_user_permissions(self, user_login):
