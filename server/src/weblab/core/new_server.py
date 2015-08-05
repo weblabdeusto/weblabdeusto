@@ -307,7 +307,6 @@ class WebLabAPI(object):
             admin_permissions = [ permission for permission in permissions if permission.name == 'admin_panel_access' ]
             if len(admin_permissions) > 0 and admin_permissions[0].parameters[0].value:
                 is_admin = True
-
         self.context.is_admin = is_admin
         return self.context.is_admin
 

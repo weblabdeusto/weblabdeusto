@@ -11,8 +11,9 @@ from StringIO import StringIO
 import networkx as nx
 
 from flask import redirect, request, Response, url_for
-from flask.ext.admin import expose, AdminIndexView, BaseView
-from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.admin import expose
+
+from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView, WebLabModelView
 
 from sqlalchemy import sql, func as sa_func, distinct, not_, outerjoin
 
@@ -32,30 +33,38 @@ def is_instructor(view):
     role = get_app_instance(view).get_user_role()
     return role in ('administrator', 'professor', 'instructor', 'admin')
 
-class InstructorView(BaseView):
+class InstructorAuthnMixIn(object):
+    @property
+    def app_instance(self):
+        return self.admin.weblab_admin_app
+
+    def before_request(self):
+        # self.request_context.is_admin = self.app_instance.is_admin()
+        is_admin = self.app_instance.is_admin()
+        if is_admin:
+            self.request_context.is_instructor = True
+            return True
+        
+        role = self.app_instance.get_user_role()
+        self.request_context.is_instructor = role in ('administrator', 'professor', 'instructor', 'admin')
+
     def is_accessible(self):
-        return is_instructor(self)
+        return self.request_context.is_instructor
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
+            if self.app_instance.get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
             return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
-        return super(InstructorView, self)._handle_view(name, **kwargs)
+        return super(InstructorAuthnMixIn, self)._handle_view(name, **kwargs)
 
-class InstructorModelView(ModelView):
-    def is_accessible(self):
-        return is_instructor(self)
 
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
-                return redirect(url_for('not_allowed'))
+class InstructorView(InstructorAuthnMixIn, WebLabBaseView):
+    pass
 
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
-
-        return super(InstructorModelView, self)._handle_view(name, **kwargs)
+class InstructorModelView(InstructorAuthnMixIn, WebLabModelView):
+    pass
 
 class ImmutableGroup(object):
     def __init__(self, group, mapping):
@@ -84,7 +93,7 @@ def convert_groups_to_immutable(group_list):
         new_groups.append(new_group)
     return new_groups
 
-class InstructorHomeView(AdminIndexView):
+class InstructorHomeView(InstructorAuthnMixIn, WebLabAdminIndexView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
         super(InstructorHomeView, self).__init__(**kwargs)
@@ -97,18 +106,6 @@ class InstructorHomeView(AdminIndexView):
         set_uses_number_in_name(self._db_session, groups)
         tree_groups = get_tree_groups(groups)
         return self.render("instructor/instructor-index.html", is_admin = get_app_instance(self).is_admin(), admin_url = get_app_instance(self).full_admin_url, user_information = user_information, groups = groups, tree_groups = tree_groups)
-
-    def is_accessible(self):
-        return is_instructor(self)
-
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            if get_app_instance(self).get_user_information() is not None:
-                return redirect(url_for('not_allowed'))
-            
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
-
-        return super(InstructorHomeView, self)._handle_view(name, **kwargs)
 
 def get_assigned_group_ids(view, session):
     # If the user is an administrator, permissions are not relevant.

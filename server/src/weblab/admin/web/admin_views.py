@@ -40,11 +40,11 @@ from flask import Markup, request, redirect, abort, url_for, flash, Response
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import FileField, FileAllowed
 
-from flask.ext.admin.contrib.sqla import ModelView
 from flask.ext.admin.contrib.sqla.filters import FilterEqual
-from flask.ext.admin import expose, AdminIndexView, BaseView
+from flask.ext.admin import expose
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
+from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView
 
 import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
@@ -66,8 +66,11 @@ class AdminAuthnMixIn(object):
     def app_instance(self):
         return self.admin.weblab_admin_app
 
+    def before_request(self):
+        self.request_context.is_admin = self.app_instance.is_admin()
+
     def is_accessible(self):
-        return self.app_instance.is_admin()
+        return self.request_context.is_admin
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
@@ -77,11 +80,11 @@ class AdminAuthnMixIn(object):
 
         return super(AdminAuthnMixIn, self)._handle_view(name, **kwargs)
 
-class AdministratorView(AdminAuthnMixIn, BaseView):
+class AdministratorView(AdminAuthnMixIn, WebLabBaseView):
     pass
 
 
-class AdministratorModelView(AdminAuthnMixIn, ModelView):
+class AdministratorModelView(AdminAuthnMixIn, WebLabModelView):
     pass
 
 SAME_DATA = object()
@@ -2039,7 +2042,7 @@ class SystemProperties(AdministratorView):
         return self.render("admin/admin-system-properties.html", form = form)
 
 
-class HomeView(AdminAuthnMixIn, AdminIndexView):
+class HomeView(AdminAuthnMixIn, WebLabAdminIndexView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
         super(HomeView, self).__init__(**kwargs)

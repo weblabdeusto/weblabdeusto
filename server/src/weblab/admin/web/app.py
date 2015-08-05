@@ -207,9 +207,6 @@ class AdministrationApplication(object):
         if self.bypass_authz:
             return True
 
-        if 'is_weblab_admin' in flask.session:
-            return flask.session['is_weblab_admin']
-
         try:
             session_id = (request.cookies.get('weblabsessionid') or '').split('.')[0]
             if not session_id:
@@ -218,7 +215,6 @@ class AdministrationApplication(object):
             with weblab_api(self.core_server, session_id = session_id):
                 is_admin = weblab_api.is_admin
             
-            flask.session['is_weblab_admin'] = is_admin
             return is_admin
         except:
             traceback.print_exc()

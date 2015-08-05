@@ -3,7 +3,8 @@ import sha
 import random
 
 from flask import redirect, request, flash
-from flask.ext.admin import expose, AdminIndexView, BaseView
+from flask.ext.admin import expose
+from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView
 
 import weblab.db.model as model
 from weblab.admin.util import password2sha
@@ -28,7 +29,7 @@ class ProfileEditForm(Form):
     facebook    = TextField(lazy_gettext(u"Facebook id:"), description=lazy_gettext("Facebook identifier (number)."), validators = [NumberRange(min=1000) ])
     password    = PasswordField(lazy_gettext(u"Password:"), description=lazy_gettext("Password."))
 
-class ProfileEditView(BaseView):
+class ProfileEditView(WebLabBaseView):
 
     def __init__(self, db_session, *args, **kwargs):
         super(ProfileEditView, self).__init__(*args, **kwargs)
@@ -154,7 +155,7 @@ class MyAccessesPanel(admin_views.UserUsedExperimentPanel):
             return uf
         return None
 
-class ProfileHomeView(AdminIndexView):
+class ProfileHomeView(WebLabAdminIndexView):
 
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
