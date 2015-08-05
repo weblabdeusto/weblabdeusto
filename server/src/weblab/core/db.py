@@ -117,7 +117,7 @@ class DatabaseGateway(object):
         session = self.Session()
         try:
             clients = {}
-            for experiment in session.query(model.DbExperiment).all():
+            for experiment in session.query(model.DbExperiment).options(joinedload('category'), joinedload('client_parameters')).all():
                 exp = experiment.to_business()
                 clients[exp.name, exp.category.name] = exp.client
             return clients
@@ -548,9 +548,9 @@ class DatabaseGateway(object):
         if first_admin_permission is not None:
             return True
 
-        groups = list(user.groups)
-        if len(groups) > 0:
-            first_admin_permission = _current.session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group.in_(groups), model.DbGroupPermission.permission_type==permissions.ADMIN_PANEL_ACCESS).first()
+        group_ids = [ group.id for group in user.groups ]
+        if len(group_ids) > 0:
+            first_admin_permission = _current.session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group_id.in_(group_ids), model.DbGroupPermission.permission_type==permissions.ADMIN_PANEL_ACCESS).first()
             if first_admin_permission is not None:
                 return True
         return False
@@ -608,8 +608,17 @@ class DatabaseGateway(object):
     def _add_or_replace_permissions(self, permissions, permissions_to_add):
         permissions.extend(permissions_to_add)
 
-    def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
-        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type() == permission_type_name ]
+    def _get_permissions(self, session, user_or_role_or_group, permission_type_name):
+        if isinstance(user_or_role_or_group, model.DbGroup):
+            return session.query(model.DbGroupPermission).filter_by(group = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        if isinstance(user_or_role_or_group, model.DbUser):
+            return session.query(model.DbUserPermission).filter_by(user = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        if isinstance(user_or_role_or_group, model.DbRole):
+            return session.query(model.DbRolePermission).filter_by(role = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        raise Exception("Unknown type: {0}".format(user_or_role_or_group))
 
     def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
