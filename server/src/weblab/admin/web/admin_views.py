@@ -18,7 +18,7 @@ import six
 
 from weblab.core.web.logo import logo_impl
 from weblab.core.babel import gettext, lazy_gettext
-from weblab.admin.util import password2sha
+from weblab.admin.util import password2sha, display_date
 from weblab.util import data_filename
 
 try:
@@ -721,6 +721,8 @@ class UserUsedExperimentPanel(AdministratorModelView):
     column_formatters = dict(
         user=lambda v, c, uue, p: show_link(v, UsersPanel, {('User', 'login'): uue.user.login}, SAME_DATA),
         experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, { ('Experiment', 'name') : uue.experiment.name, ('ExperimentCategory', 'name') : uue.experiment.category.name }, uue.experiment),
+        start_date=lambda v,c, uue, p: display_date(uue.start_date),
+        end_date=lambda v,c, uue, p: display_date(uue.end_date),
         details=lambda v, c, uue, p: Markup('<a href="%s">%s</a>' % (url_for('.detail', id=uue.id), gettext("Details"))),
     )
 

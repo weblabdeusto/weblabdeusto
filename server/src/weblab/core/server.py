@@ -38,6 +38,7 @@ from weblab.core.babel import initialize_i18n
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
+from weblab.admin.util import display_date
 from weblab.core.config import DbConfig
 from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
@@ -509,7 +510,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         @self.app.context_processor
         def inject_weblab_api():
-            return dict(weblab_api=weblab_api)
+            return dict(weblab_api=weblab_api, display_date=display_date)
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 

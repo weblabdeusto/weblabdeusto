@@ -30,11 +30,11 @@
         </tr>
         <tr>
             <td><strong>{{ gettext("Start date") }}</strong></td>
-            <td>{{ uue.start_date }} </td>
+            <td>{{ display_date(uue.start_date) }} </td>
         </tr>
         <tr>
             <td><strong>{{ gettext("End date") }}</strong></td>
-            <td>{{ uue.end_date }} </td>
+            <td>{{ display_date(uue.end_date) }} </td>
         </tr>
         {% if 'from_direct_ip' in properties and properties['from_direct_ip'] != uue.origin %}
         <tr>

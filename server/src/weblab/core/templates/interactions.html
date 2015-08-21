@@ -44,9 +44,9 @@
     <tbody>
         {% for _, is_command, interaction in interactions %}
             <tr>
-                <td>{{ interaction.timestamp_before }}.{{ unicode(interaction.timestamp_before_micro).zfill(6) }}</td>
+                <td>{{ display_date(interaction.timestamp_before) }}.{{ unicode(interaction.timestamp_before_micro).zfill(6) }}</td>
                 {% if interaction.timestamp_after %}
-                    <td>{{ interaction.timestamp_after }}.{{ unicode(interaction.timestamp_after_micro).zfill(6) }}</td>
+                    <td>{{ display_date(interaction.timestamp_after) }}.{{ unicode(interaction.timestamp_after_micro).zfill(6) }}</td>
                 {% else %}
                     <td>{{ gettext("Not provided") }}</td>
                 {% endif %}

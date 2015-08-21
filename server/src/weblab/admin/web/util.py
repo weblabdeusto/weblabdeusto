@@ -1,6 +1,7 @@
 from __future__ import print_function, unicode_literals
 
 import threading
+
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
 
@@ -43,4 +44,5 @@ class WebLabBaseView(AdminRequestInjector, BaseView):
 
 class WebLabModelView(AdminRequestInjector, ModelView):
     pass
+
 
