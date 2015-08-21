@@ -175,7 +175,14 @@ class DatabaseGateway(object):
                 default_time_allowed = 180 # 3 minutes
                 default_initialization = True
 
-                for experiment in session.query(model.DbExperiment).all():
+                query_obj = session.query(model.DbExperiment)
+                if exp_name is not None:
+                    query_obj = query_obj.filter_by(name=exp_name)
+                if cat_name is not None:
+                    category = session.query(model.DbExperimentCategory).filter_by(name=cat_name).first()
+                    query_obj = query_obj.filter_by(category=category)
+
+                for experiment in query_obj.all():
                     experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), default_time_allowed, default_priority, default_initialization, permission.permanent_id, permission.id, permission_scope)
                     experiment_unique_id = unicode(experiment)
                     grouped_experiments[experiment_unique_id].append(experiment_allowed)
