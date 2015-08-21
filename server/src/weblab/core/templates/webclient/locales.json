@@ -1,0 +1,4 @@
+{
+    "TITLE" : {{ ng_gettext("This is a title")|tojson }},
+    "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
+}
