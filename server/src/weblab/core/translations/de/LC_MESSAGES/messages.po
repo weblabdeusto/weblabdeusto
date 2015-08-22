@@ -1,4 +1,4 @@
-# Spanish translations for weblab.
+# German translations for weblab.
 # Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the weblab project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
@@ -9,9 +9,9 @@ msgstr ""
 "Project-Id-Version: weblab 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-08-22 19:23+0200\n"
-"PO-Revision-Date: 2015-08-22 14:53+0200\n"
+"PO-Revision-Date: 2015-08-22 19:24+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: es <LL@li.org>\n"
+"Language-Team: de <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: weblab/core/templates/details.html:116
 #: weblab/core/templates/admin/admin-index.html:35
 msgid "View"
-msgstr "Ver"
+msgstr ""
 
 #: weblab/admin/web/admin_views.py:148
 msgid ""
@@ -222,7 +222,7 @@ msgstr ""
 #: weblab/core/templates/instructor/instructor_group_stats.html:120
 #: weblab/core/templates/webclient/i18n.html:58
 msgid "Users"
-msgstr "Usuarios"
+msgstr "Benutzer"
 
 #: weblab/admin/web/admin_views.py:531
 msgid "Name:"
@@ -324,7 +324,7 @@ msgstr ""
 #: weblab/core/templates/webclient/i18n.html:12
 #: weblab/core/templates/webclient/i18n.html:65
 msgid "Experiment"
-msgstr "Experimento"
+msgstr "Experiment"
 
 #: weblab/admin/web/admin_views.py:718 weblab/admin/web/admin_views.py:836
 #: weblab/admin/web/admin_views.py:867
@@ -396,7 +396,7 @@ msgstr ""
 #: weblab/admin/web/admin_views.py:833 weblab/admin/web/admin_views.py:867
 #: weblab/core/templates/webclient/i18n.html:13
 msgid "Category"
-msgstr "Categoría"
+msgstr "Kategorie"
 
 #: weblab/admin/web/admin_views.py:834
 msgid "Name for this experiment"
@@ -516,7 +516,7 @@ msgstr ""
 #: weblab/core/templates/webclient/login.html:33
 #: weblab/core/templates/webclient/login.html:36
 msgid "Username"
-msgstr "Usuario"
+msgstr "Benutzername"
 
 #: weblab/admin/web/admin_views.py:1117
 msgid "Username of the remote system"
@@ -527,7 +527,7 @@ msgstr ""
 #: weblab/core/templates/webclient/login.html:41
 #: weblab/core/templates/webclient/login.html:44
 msgid "Password"
-msgstr "Contraseña"
+msgstr "Passwort"
 
 #: weblab/admin/web/admin_views.py:1118
 msgid "Password of the remote system"
@@ -655,7 +655,7 @@ msgstr ""
 #: weblab/admin/web/app.py:130 weblab/admin/web/app.py:187
 #: weblab/core/templates/webclient/i18n.html:61
 msgid "Group"
-msgstr "Grupo"
+msgstr "Gruppe"
 
 #: weblab/admin/web/admin_views.py:1663
 msgid "Permission type:"
@@ -1023,7 +1023,7 @@ msgstr ""
 #: weblab/core/templates/details.html:67
 #: weblab/core/templates/webclient/i18n.html:39
 msgid "Mobile"
-msgstr "Móviles"
+msgstr "Mobil"
 
 #: weblab/core/templates/details.html:73
 msgid "Facebook"
@@ -1547,7 +1547,7 @@ msgstr ""
 #: weblab/core/templates/webclient/_logged_base.html:19
 #: weblab/core/templates/webclient/i18n.html:19
 msgid "Log out"
-msgstr "Salir"
+msgstr "Abmelden"
 
 #: weblab/core/templates/webclient/_upload.html:65
 msgid "File to Upload"
@@ -1565,43 +1565,43 @@ msgstr ""
 
 #: weblab/core/templates/webclient/i18n.html:6
 msgid "Finish"
-msgstr "Finalizar"
+msgstr "Beenden"
 
 #: weblab/core/templates/webclient/i18n.html:7
 msgid "Experiment finished"
-msgstr "El experimento ha terminado"
+msgstr "Experiment abgeschlossen"
 
 #: weblab/core/templates/webclient/i18n.html:8
 msgid "Go back"
-msgstr "Volver"
+msgstr "Zurück"
 
 #: weblab/core/templates/webclient/i18n.html:9
 msgid "Selected experiment"
-msgstr "Experimento seleccionado"
+msgstr "Ausgewähltes Experiment"
 
 #: weblab/core/templates/webclient/i18n.html:10
 msgid "Powered by"
-msgstr "Powered by"
+msgstr "Präsentiert von"
 
 #: weblab/core/templates/webclient/i18n.html:11
 msgid "Experiment hosted by"
-msgstr "Experimento alojado en"
+msgstr "Experiment bereitgestellt von"
 
 #: weblab/core/templates/webclient/i18n.html:14
 msgid "Assigned time"
-msgstr "Tiempo disponible"
+msgstr "Benötigte Zeit"
 
 #: weblab/core/templates/webclient/i18n.html:15
 msgid "Back to My experiments"
-msgstr "Volver a Mis experimentos"
+msgstr "Zurück zu meinen Experimenten"
 
 #: weblab/core/templates/webclient/i18n.html:16
 msgid "Contacting the laboratory"
-msgstr "Esperando confirmación"
+msgstr "Warten auf Bestätigung"
 
 #: weblab/core/templates/webclient/i18n.html:17
 msgid "Waiting in the queue, position {0}"
-msgstr "Esperando en la cola, posición {0}"
+msgstr "In der Warteschlange, an Position {0}"
 
 #: weblab/core/templates/webclient/i18n.html:18
 msgid ""
@@ -1610,86 +1610,88 @@ msgid ""
 " be able to use the experiment. If you prefer, you can also log in later, "
 "because usually this takes a long time."
 msgstr ""
-"Ese experimento está roto. Por favor, contacta con el administrador <{0}>. "
-"Aún así estás en la cola (posición: {1}), así que tan pronto como el "
-"administrador arregle el fallo pasarás a usar el experimento. Si prefieres, "
-"puedes conectarte más tarde, ya que normalmente esto lleva un tiempo."
+"Das Experiment ist nicht verfügbar. Bitte wenden Sie sich an den "
+"Administrator {0} . Sie sind in der Warteschlange (Position: {1} ), sobald "
+"wie ein Administrator das Problem behebt, können Sie das Experiment "
+"durchführen. Wenn Sie möchten, können Sie sich auch zu einem späteren "
+"Zeitpunkt anmelden, da die Fehlerbehebung in der Regel lange Zeit dauert."
 
 #: weblab/core/templates/webclient/i18n.html:20
 #: weblab/core/templates/webclient/labs.html:2
 #: weblab/core/templates/webclient/labs.html:8
 msgid "My Experiments"
-msgstr "Mis Experimentos"
+msgstr "Meine Experimente"
 
 #: weblab/core/templates/webclient/i18n.html:21
 msgid "Picture"
-msgstr "Imagen"
+msgstr "Bild"
 
 #: weblab/core/templates/webclient/i18n.html:24
 #: weblab/core/webclient/view_login.py:38
 #: weblab/core/webclient/view_login.py:57
 msgid "Invalid username or password"
-msgstr "Usuario o contraseña inválido"
+msgstr "Ungültiger Benutzername oder ungültiges Passwort."
 
 #: weblab/core/templates/webclient/i18n.html:25
 msgid "Logging in"
-msgstr "Conectándose"
+msgstr "Anmeldung..."
 
 #: weblab/core/templates/webclient/i18n.html:26
 msgid "The {0} field can not be empty"
-msgstr "El campo {0} no puede estar vacío"
+msgstr "Das {0} Feld darf nicht leer sein."
 
 #: weblab/core/templates/webclient/i18n.html:27
 msgid "Reserve"
-msgstr "Reservar"
+msgstr "Reservieren"
 
 #: weblab/core/templates/webclient/i18n.html:28
 msgid "Reserving"
-msgstr "Reservando"
+msgstr "Reservieren..."
 
 #: weblab/core/templates/webclient/i18n.html:29
 msgid "Welcome to the WebLab-DEUSTO"
-msgstr "Bienvenido al WebLab-DEUSTO"
+msgstr "Willkommen zum WebLab-DEUSTO"
 
 #: weblab/core/templates/webclient/i18n.html:30
 msgid "Show experiments"
-msgstr "Mostrar experimentos"
+msgstr "Experimente zeigen"
 
 #: weblab/core/templates/webclient/i18n.html:31
 msgid "Welcome"
-msgstr "Bienvenido"
+msgstr "Willkommen"
 
 #: weblab/core/templates/webclient/i18n.html:32
 #: weblab/core/templates/webclient/login.html:29
 #: weblab/core/templates/webclient/login.html:50
 msgid "Log in"
-msgstr "Acceder"
+msgstr "Einloggen"
 
 #: weblab/core/templates/webclient/i18n.html:33
 msgid "Choose"
-msgstr "Seleccionar"
+msgstr "Wählen"
 
 #: weblab/core/templates/webclient/i18n.html:34
 #: weblab/core/templates/webclient/apps/lab/lab.html:15
 msgid "Reserve this experiment"
-msgstr "Reserva este experimento"
+msgstr "Reservieren Sie dieses Experiment"
 
 #: weblab/core/templates/webclient/i18n.html:35
 msgid "For any technical issue you may find, please contact us at {0}"
-msgstr "Para cualquier problema técnico escríbenos a {0}"
+msgstr "Für technische Probleme kontaktieren Sie uns bitte unter {0}"
 
 #: weblab/core/templates/webclient/i18n.html:36
 msgid ""
 "If you do not have a user account, you can try our demo experiments with the"
 " username <strong>{0}</strong> and the password <strong>{1}</strong>."
 msgstr ""
-"Si no tienes una cuenta de usuario, puedes probar nuestros experimentos demo"
-" con el usuario <strong>{0}</strong> y la contraseña <strong>{1}</strong>."
+"Wenn Sie nicht über ein Benutzerkonto verfügen, können Sie unsere Demo-"
+"Experimente mit dem Benutzernamen <strong> {0} </ strong> und dem Kennwort "
+"<strong> {1} </ strong> testen."
 
 #: weblab/core/templates/webclient/i18n.html:37
 #: weblab/core/templates/webclient/login.html:91
 msgid "Support"
-msgstr "Soporte"
+msgstr "Support"
 
 #: weblab/core/templates/webclient/i18n.html:38
 #: weblab/core/templates/webclient/login.html:106
@@ -1699,31 +1701,31 @@ msgstr "Demo"
 #: weblab/core/templates/webclient/i18n.html:40
 #: weblab/core/templates/webclient/login.html:121
 msgid "Open Source"
-msgstr "Open Source"
+msgstr "Open-Source"
 
 #: weblab/core/templates/webclient/i18n.html:41
 msgid "Create an account"
-msgstr "Crear cuenta"
+msgstr "Konto erstellen"
 
 #: weblab/core/templates/webclient/i18n.html:42
 msgid "Don''t have an account? Create one through Facebook"
-msgstr "¿No tienes cuenta? Crea una a través de Facebook"
+msgstr "Haben Sie noch kein Konto? Erstellen Sie eines über Facebook"
 
 #: weblab/core/templates/webclient/i18n.html:43
 msgid "Administration Panel"
-msgstr "Panel de administración"
+msgstr "Administrationsoberfläche"
 
 #: weblab/core/templates/webclient/i18n.html:44
 msgid "WebLab-Deusto is Open Source Software, and it is available in {0}"
-msgstr "WebLab-Deusto es Software Libre, y está disponible en {0}"
+msgstr "WebLab-Deusto ist eine Open Source Software, verfügbar unter {0}"
 
 #: weblab/core/templates/webclient/i18n.html:45
 msgid ""
 "Perform your experiments in the mobile version by clicking <a "
 "href=\"{0}\">here</a>"
 msgstr ""
-"Realiza tus experimentos desde dispositivos móviles haciendo click <a "
-"href=\"{0}\">aquí</a>"
+"Führen Sie Ihre Experimente in der mobilen Version durch, indem Sie <a "
+"href=\\\"{0}\\\"> hier </ a> klicken."
 
 #: weblab/core/templates/webclient/i18n.html:46
 msgid ""
@@ -1733,82 +1735,83 @@ msgid ""
 "the <a href=\"http://www.weblab.deusto.es/\" target=\"_blank\">WebLab-Deusto"
 " Research Group</a> site."
 msgstr ""
-"WebLab-Deusto es un Laboratorio Remoto. Los estudiantes acceden a "
-"experimentos desplegados en la universidad, teniendo la misma experiencia "
-"que en laboratorios tradicionales. Más información acerca del proyecto está "
-"disponible en la web del <a href=\"http://www.weblab.deusto.es/\" "
-"target=\"_blank\">Grupo de Investigación WebLab-Deusto</a>."
+"Das WebLab-Deusto stellt ein ferngesteuerbares Labor dar. Studenten greifen "
+"auf Experimente zu, die physikalisch in der Universität sind. Dabei machen "
+"sie die gleiche Erfahrung als ob sie diese eigenhändig und vor Ort "
+"durchführen würden. Mehr Informationen zu diesem Projekt finden Sie unter <a"
+" href=\\\"http://www.weblab.deusto.es/\\\" target=\\\"_blank\\\"> WebLab-"
+"Deusto Research Group </ a>."
 
 #: weblab/core/templates/webclient/i18n.html:47
 msgid "Information"
-msgstr "Información"
+msgstr "Information"
 
 #: weblab/core/templates/webclient/i18n.html:48
 #: weblab/core/templates/webclient/login.html:68
 msgid "Some experiments allow guest access"
-msgstr "Algunos experimentos permiten el acceso de invitados"
+msgstr "Einige Experimente erlauben einen Gast-Zugang"
 
 #: weblab/core/templates/webclient/i18n.html:49
 msgid "Login as guest"
-msgstr "Entrar como invitado"
+msgstr "Melden Sie sich als Gast an"
 
 #: weblab/core/templates/webclient/i18n.html:50
 msgid "Direct link"
-msgstr "Enlace directo"
+msgstr "Direkter Link"
 
 #: weblab/core/templates/webclient/i18n.html:51
 msgid "Click here"
-msgstr "Haz click aquí"
+msgstr "Hier klicken"
 
 #: weblab/core/templates/webclient/i18n.html:52
 msgid "More languages"
-msgstr "Más idiomas"
+msgstr "Mehr Sprachen:"
 
 #: weblab/core/templates/webclient/i18n.html:53
 msgid "This field can not be empty"
-msgstr "Este campo no puede estar vací­o"
+msgstr "Dieses Feld darf nicht leer sein"
 
 #: weblab/core/templates/webclient/i18n.html:54
 msgid "Your user account is not allowed to access the Administration Panel"
 msgstr ""
-"Tu cuenta de usuario no tiene permisos para acceder al panel de "
-"administración"
+"Ihr Benutzerkonto ist nicht berechtigt, um auf den Administrationsdialog "
+"zuzugreifen"
 
 #: weblab/core/templates/webclient/i18n.html:55
 msgid "Accesses"
-msgstr "Accesos"
+msgstr "Zugriffe"
 
 #: weblab/core/templates/webclient/i18n.html:56
 msgid "Search"
-msgstr "Consultar"
+msgstr "Suchen"
 
 #: weblab/core/templates/webclient/i18n.html:57
 msgid "Passwords do not match"
-msgstr "Las contraseñas introducidas no coinciden"
+msgstr "Die Passwörter stimmen nicht überein."
 
 #: weblab/core/templates/webclient/i18n.html:59
 msgid "Clear filter"
-msgstr "Borrar filtro"
+msgstr "Filter löschen"
 
 #: weblab/core/templates/webclient/i18n.html:60
 msgid "Choose a value"
-msgstr "Elige un valor"
+msgstr "Wählen Sie einen Wert"
 
 #: weblab/core/templates/webclient/i18n.html:62
 msgid "To"
-msgstr "A"
+msgstr "An"
 
 #: weblab/core/templates/webclient/i18n.html:63
 msgid "From"
-msgstr "Desde"
+msgstr "Von"
 
 #: weblab/core/templates/webclient/i18n.html:64
 msgid "Filter"
-msgstr "Filtro"
+msgstr "Filter"
 
 #: weblab/core/templates/webclient/i18n.html:66
 msgid "VISIR experiment"
-msgstr "Experimento VISIR"
+msgstr "VISIR Experiment"
 
 #: weblab/core/templates/webclient/i18n.html:67
 msgid ""
@@ -1817,14 +1820,15 @@ msgid ""
 "VISIR; try to refresh WebLab and it will work. If this problem persists, "
 "contact the administrator. Error: {0}"
 msgstr ""
-"Tu navegador no encuentra el código de VISIR. Si es la primera vez que lo "
-"pruebas, puede ser normal: sólo significa que ha tardado demasiado en "
-"bajarse VISIR; vuelve a recargar esta página y debería funcionar. Si el "
-"problema persiste, contacta con el administrador. Error: {0}"
+"Ihr Browser konnte den VISIR Code nicht finden. Wenn es das Experiment das "
+"erste Mal durchführt wird, kann das normal sein: Es bedeutet nur, dass es zu"
+" lange dauerte, um das VISIR System herunterzuladen. Versuchen Sie WebLab zu"
+" aktualisieren, damit es funktioniert. Wenn das Problem weiterhin besteht, "
+"wenden Sie sich an den Administrator. Fehler: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:68
 msgid "Circuits available"
-msgstr "Circuitos disponibles"
+msgstr "Schaltungen verfügbar"
 
 #: weblab/core/templates/webclient/i18n.html:69
 msgid ""
@@ -1833,18 +1837,18 @@ msgid ""
 "href=''http://svn.openlabs.bth.se/''>Open Source</a> project developed at "
 "the <a href=''http://www.bth.se/''>BTH</a>"
 msgstr ""
-"Este laboratorio es <a "
-"href=''http://openlabs.bth.se/index.php?page=ElectroLab''>VISIR</a>, un "
-"proyecto <a href=''http://svn.openlabs.bth.se/''>Open Source</a> "
-"desarrollado en el <a href=''http://www.bth.se/''>BTH</a>"
+"Zur Verfügung gestellt vom <a "
+"href=''http://openlabs.bth.se/index.php?page=ElectroLab''> VISIR </ a> <a "
+"href = ''http://svn.openlabs.bth.se/ ''>, ein Open Source </ a> Projekt an "
+"der <a href=''http://www.bth.se/''> BTH </ a> entwickelt."
 
 #: weblab/core/templates/webclient/i18n.html:70
 msgid "Select the program to send:"
-msgstr "Selecciona el programa a enviar:"
+msgstr "Wählen Sie das zusendende Programm aus:"
 
 #: weblab/core/templates/webclient/i18n.html:71
 msgid "Upload"
-msgstr "Subir"
+msgstr "Upload"
 
 #: weblab/core/templates/webclient/i18n.html:72
 msgid ""
@@ -1861,11 +1865,13 @@ msgid ""
 " here the program that would be sent to the device. Since it could be "
 "harmful, in the demo we always send the same demonstration file."
 msgstr ""
-"Esta demo demuestra las colas multirecurso de WebLab-Deusto. Verás un CPLD o"
-" una FPGA dependiendo de cuál esté disponible. Puedes probar a loguearte en "
-"ud-demo-pld y ud-demo-fpga y entonces en este para comprobar que te dará el "
-"que esté libre. Si no fuese una demo, podrías elegir el programa que enviar."
-" Pero como podría ser peligroso, esta demo mandará un programa de ejemplo."
+"Diese Demo zeigt die Multiresource Warteschlangen WebLab-Deusto. Sie "
+"verwenden einen CPLD oder FPGA je nachdem, welche verfügbar ist. Sie können "
+"testen, in ud-demo-PLD und ud-demo-FPGA anmelden und melden Sie sich dann "
+"bei diesem Experiment, um zu überprüfen, dass es zu der von Ihnen frei zu "
+"gehen. Wenn dies nicht eine Demo, würden Sie wählen Sie hier das Programm, "
+"das an das Gerät gesendet werden würde. Da es sein könnte schädlich, in der "
+"Demo haben wir schicken immer die gleiche Demonstration Datei."
 
 #: weblab/core/templates/webclient/i18n.html:73
 msgid ""
@@ -1873,72 +1879,73 @@ msgid ""
 " to the device. Since it could be harmful, in the demo we always send the "
 "same demonstration file."
 msgstr ""
-"Si no fuese una demo, podrías elegir el programa que enviar. Pero como "
-"podría ser peligroso, esta demo mandará un programa de ejemplo."
+"Wenn dies keine Demo wäre, würden Sie hier das Programm wählen, das an das "
+"Gerät gesendet werden würde. Da es fehlerhaft sein könnte, wird in der Demo "
+"immer die gleiche Demonstration Datei geschickt."
 
 #: weblab/core/templates/webclient/i18n.html:74
 msgid "File sent."
-msgstr "Fichero enviado."
+msgstr "Datei gesendet."
 
 #: weblab/core/templates/webclient/i18n.html:75
 msgid "Device ready"
-msgstr "Dispositivo listo"
+msgstr "Gerät betriebsbereit."
 
 #: weblab/core/templates/webclient/i18n.html:76
 msgid "Device programming failed"
-msgstr "La programación del dispositivo ha fallado"
+msgstr "Geräteprogrammierung gescheitert"
 
 #: weblab/core/templates/webclient/i18n.html:77
 msgid "This file type is not allowed"
-msgstr "Este tipo de archivo no está permitido"
+msgstr ""
 
 #: weblab/core/templates/webclient/i18n.html:78
 msgid "Sending file"
-msgstr "Enviando fichero"
+msgstr "Dateien werden gesendet..."
 
 #: weblab/core/templates/webclient/i18n.html:79
 msgid "Finishing programming"
-msgstr "Terminando de programar"
+msgstr "Programmierung abgeschlossen"
 
 #: weblab/core/templates/webclient/i18n.html:80
 msgid ""
 "Your Virtual Machine is not yet ready. Please, wait. It often takes around "
 "{0} seconds."
 msgstr ""
-"Tu máquina virtual no está lista todavía. Por favor, espera. Normalmente "
-"lleva unos {0} segundos."
+"Ihre virtuelle Machine ist noch nicht bereit. Bitte warten Sie. Es dauert "
+"oft ca. {0} Sekunden."
 
 #: weblab/core/templates/webclient/i18n.html:81
 msgid "Finishing"
-msgstr "Finalizando"
+msgstr "Fertigstellung"
 
 #: weblab/core/templates/webclient/i18n.html:82
 msgid "Done. VM is ready"
-msgstr "Hecho. La máquina virtual está lista"
+msgstr "Vorgang abgeschlossen. Ihre VM steht bereit!"
 
 #: weblab/core/templates/webclient/i18n.html:83
 msgid "Loading, please wait ({0}%)"
-msgstr "Cargando, espera por favor ({0}%)"
+msgstr "Resourcen werden geladen, bitte warten ( {0} %)"
 
 #: weblab/core/templates/webclient/i18n.html:84
 msgid "Your Virtual Machine is now ready!"
-msgstr "¡Tu máquina virtual está lista!"
+msgstr "Ihre Virtual Machine ist nun bereit!"
 
 #: weblab/core/templates/webclient/i18n.html:85
 msgid "VM address:"
-msgstr "Dirección de la VM:"
+msgstr "VM-Adresse:"
 
 #: weblab/core/templates/webclient/i18n.html:86
 msgid "Load Java applet VNC Client"
-msgstr "Cargar applet de Java con cliente VNC"
+msgstr "Laden Sie das Java-Applet VNC Client"
 
 #: weblab/core/templates/webclient/i18n.html:87
 msgid "Redirecting to"
-msgstr "Redirigiendo a"
+msgstr "Umleitung zu"
 
 #: weblab/core/templates/webclient/i18n.html:88
 msgid "remote system"
-msgstr "sistema remoto"
+msgstr "Fernsteuerungssystem"
 
 #: weblab/core/templates/webclient/i18n.html:89
 msgid ""
@@ -1948,153 +1955,153 @@ msgid ""
 " feed the fish (you can see the food in the top left side of the first "
 "camera) and turn on and off the lights."
 msgstr ""
-"El submarino sólo está disponible a veces, ya que suele quedarse sin "
-"batería. Si tienes suerte, podrás ver al submarino y su luz estará verde, "
-"por lo que podrás utilizarlo. Si no, sólo podrás dar de comer a los peces "
-"(puedes ver la comida que cae de arriba a la izquierda en la primera cámara)"
-" y encender y apagar las luces."
+"Das U-Boot ist nur wenige Male verfügbar, da die Batterie schnell zuende "
+"geht. Wenn Du Glück hast, siehst Du das U-Boot mit einem grünen Licht, als "
+"Zeichen, dass Du damit spielen kannst. Andernfalls, kannst Du nur die Fische"
+" (das Essen kann man in der oberen linken Seite der ersten Kamera sehen) "
+"füttern und Lichter ein-und ausschalten."
 
 #: weblab/core/templates/webclient/i18n.html:90
 msgid "Activate the submarine control panel"
-msgstr "Activar el panel de control del submarino"
+msgstr "Aktivieren Sie das U-Boot-Bedienfeld"
 
 #: weblab/core/templates/webclient/i18n.html:91
 msgid ""
 "The submarine is probably out of battery! Don''t you want to feed the fish "
 "or play with the lights?"
 msgstr ""
-"¡El submarino probablemente esté sin batería! ¿No quieres dar de comer a los"
-" peces o encender y apagar las luces?"
+"Die Batterie des U-Boots ist wahrscheinlich leer! Willst du als Alternative "
+"nicht die Fische füttern oder mit dem Licht spielen?"
 
 #: weblab/core/templates/webclient/i18n.html:92
 msgid "Yes, activate the submarine panel"
-msgstr "Sí, activar el panel de control del submarino"
+msgstr "Ja, aktivieren Sie das U-Boot Panel"
 
 #: weblab/core/templates/webclient/i18n.html:93
 msgid "Fish fed!"
-msgstr "Dando de comer a los peces."
+msgstr "Fische wurden gefüttert!"
 
 #: weblab/core/templates/webclient/i18n.html:94
 msgid "Fish already fed recently. Try again in {0} hours"
-msgstr ""
-"Se ha dado de comer a los peces recientemente. Vuelve a intentarlo en {0} "
-"horas"
+msgstr "Fische wurden vor kurzem gefüttert. Versuchen Sie es in {0} Stunden"
 
 #: weblab/core/templates/webclient/i18n.html:95
 msgid "Fish not fed: {0}"
-msgstr "No se ha dado de comer a los peces: {0}"
+msgstr "Die Fische sind nicht gefüttert: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:96
 msgid "You can now control the aquarium"
-msgstr "Ahora puedes controlar el acuario."
+msgstr "Sie können nun das Aquarium benutzen"
 
 #: weblab/core/templates/webclient/i18n.html:97
 msgid "The program is being executed in the bot"
-msgstr "El programa está siendo ejecutado en el robot"
+msgstr "Das Programm wird im Roboter ausgeführt."
 
 #: weblab/core/templates/webclient/i18n.html:98
 msgid "There was an error: {0}"
-msgstr "Ha habido un error: {0}"
+msgstr "Es gab einen Fehler: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:99
 msgid "Select what program should be sent to the device"
-msgstr "Selecciona el programa a enviar al dispositivo"
+msgstr "Wählen Sie, welches Programm auf das Gerät übertragen werden soll."
 
 #: weblab/core/templates/webclient/i18n.html:100
 msgid "You can now control the bot"
-msgstr "Ahora puedes controlar el robot"
+msgstr "Sie können jetzt den Roboter fernsteuern."
 
 #: weblab/core/templates/webclient/i18n.html:101
 msgid "Programming interactive demo"
-msgstr "Programando demo interactiva"
+msgstr "Programmierung einer interaktiven Demo."
 
 #: weblab/core/templates/webclient/i18n.html:102
 msgid "Failed: {0}"
-msgstr "Ha habido un fallo: {0}"
+msgstr "Fehler: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:103
 msgid "Welcome to the WebLab-Deusto Logic Game!"
-msgstr "¡Bienvenido al juego de lógica de WebLab-Deusto!"
+msgstr "Willkommen auf dem WebLab-Deusto Logic Game!"
 
 #: weblab/core/templates/webclient/i18n.html:104
 msgid "Replace the unknown gate with the correct one so the LED turns on."
 msgstr ""
-"Reemplaza la puerta desconocida con la correcta para que se encienda la luz."
+"Ersetzen Sie den unbekannten Ausgang mit dem richtigen, damit die LED "
+"aufleuchtet."
 
 #: weblab/core/templates/webclient/i18n.html:105
 msgid ""
 "Solve as many circuits as possible to get more points and become the winner!"
 msgstr ""
-"¡Resuelve tantos circuitos como puedas para obtener más puntos y ser el "
-"ganador!"
+"Lösen Sie so viele Schaltungen wie möglich, um mehr Punkte zu bekommen und "
+"um zu gewinnen!"
 
 #: weblab/core/templates/webclient/i18n.html:106
 msgid ""
 "You can check your score at <a href=''/weblab/admin/winners.py''>the winners"
 " page</a>"
 msgstr ""
-"Puedes comprobar tu puntuación <a href=''/weblab/admin/winners.py''>en la "
-"página de ganadores</a>"
+"Sie können Ihre erreichten Punkte unter <a "
+"href=''/weblab/admin/winners.py''> auf der Endergebnis Seite überprüfen</ a>"
 
 #: weblab/core/templates/webclient/i18n.html:107
 msgid "Finished. Waiting for your score"
-msgstr "Finalizado. Esperando puntuación"
+msgstr "Fertig. Ihre Punkte werden berechnet."
 
 #: weblab/core/templates/webclient/i18n.html:108
 msgid "Finished. Your score: {0}"
-msgstr "Finalizado. Tu puntuación: {0}"
+msgstr "Fertig. Ihre Punkte: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:109
 msgid "Sending solution"
-msgstr "Enviando solución"
+msgstr "Lösung wird gesendet"
 
 #: weblab/core/templates/webclient/i18n.html:110
 msgid "Well done! 1 point. Let''s see the next one!"
-msgstr "¡Bien hecho! 1 punto. ¡Veamos el siguiente!"
+msgstr "Gut gemacht! 1 Punkt. Lassen Sie uns das nächste sehen!"
 
 #: weblab/core/templates/webclient/i18n.html:111
 msgid "Wrong one! Game over. Total points: {0}"
-msgstr "¡Error! El juego ha acabado. Puntos: {0}"
+msgstr "Falsch! Game over! Gesamtpunktzahl: {0}"
 
 #: weblab/core/templates/webclient/i18n.html:112
 msgid "Choose the correct gate:"
-msgstr "Elige la puerta correcta:"
+msgstr "Wählen Sie den richtigen Ausgang:"
 
 #: weblab/core/templates/webclient/i18n.html:113
 msgid "Check the ranking <a href=''{0}''>here</a>"
-msgstr "Comprueba la clasificación <a href=''{0}''>here</a>"
+msgstr "Überprüfen Sie Ihre Bewertung <a href=''{0}''> hier </ a>"
 
 #: weblab/core/templates/webclient/i18n.html:114
 msgid "Send solution"
-msgstr "Enviar solución"
+msgstr "Lösung schicken"
 
 #: weblab/core/templates/webclient/i18n.html:115
 msgid ""
 "This laboratory is managed by a Java applet that should pop up. If nothing "
 "happens, check you have Java properly configured."
 msgstr ""
-"Este laboratorio utiliza un Applet de Java que se abre en otra ventana. Si "
-"no ocurre, comprueba tu configuración de Java."
+"Dieses Labor wird von einem Java-Applet verwaltet, das auf dem Bildschirm "
+"erscheinen sollte. Wenn nichts passiert, überprüfen Sie bitte ob Java "
+"richtig konfiguriert wurde."
 
 #: weblab/core/templates/webclient/i18n.html:116
 msgid "Pure BCD"
-msgstr "BCD puro"
+msgstr "BCD."
 
 #: weblab/core/templates/webclient/i18n.html:117
 msgid "Other BCDs"
-msgstr "Otros BCD"
+msgstr "Andere BCDs"
 
 #: weblab/core/templates/webclient/i18n.html:118
 msgid "Select a code:"
-msgstr "Selecciona un código:"
+msgstr "Wählen Sie einen Code:"
 
 #: weblab/core/templates/webclient/i18n.html:119
 msgid "Select other code"
-msgstr "Selecciona otro código"
+msgstr "Wählen Sie einen anderen Code"
 
 #: weblab/core/templates/webclient/i18n.html:120
 msgid "Loading {0}"
-msgstr "Cargando {0}"
+msgstr "Lade {0}"
 
 #: weblab/core/templates/webclient/labs.html:18
 msgid "No experiments are available with the current filters"
@@ -2131,7 +2138,7 @@ msgstr ""
 
 #: weblab/core/templates/webclient/locales.json:2
 msgid "This is a title"
-msgstr "Esto es un título"
+msgstr ""
 
 #: weblab/core/templates/webclient/locales.json:3
 msgid "Foo bar"

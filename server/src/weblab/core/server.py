@@ -68,19 +68,6 @@ import voodoo.resources_manager as ResourceManager
 
 from weblab.admin.web.app import AdministrationApplication
 
-check_session_params = dict(
-        exception_to_raise = coreExc.SessionNotFoundError,
-        what_session       = "Core Users ",
-        cut_session_id     = ';'
-    )
-
-check_reservation_session_params = dict(
-        exception_to_raise         = coreExc.SessionNotFoundError,
-        what_session               = "Core Reservations ",
-        session_manager_field_name = "_reservations_session_manager",
-        cut_session_id             = ';'
-    )
-
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
 CHECKING_TIME_NAME    = 'core_checking_time'

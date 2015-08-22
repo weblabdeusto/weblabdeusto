@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: weblab 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-08-22 14:57+0200\n"
+"POT-Creation-Date: 2015-08-22 19:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -218,6 +218,7 @@ msgstr ""
 #: weblab/core/templates/admin/admin-add-students.html:45
 #: weblab/core/templates/instructor/instructor_group_stats.html:38
 #: weblab/core/templates/instructor/instructor_group_stats.html:120
+#: weblab/core/templates/webclient/i18n.html:58
 msgid "Users"
 msgstr ""
 
@@ -318,6 +319,8 @@ msgstr ""
 #: weblab/admin/web/instructor_views.py:227
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:28
 #: weblab/core/templates/admin/admin-scheduler-create-ilab.html:34
+#: weblab/core/templates/webclient/i18n.html:12
+#: weblab/core/templates/webclient/i18n.html:65
 msgid "Experiment"
 msgstr ""
 
@@ -385,6 +388,7 @@ msgid "Experiments"
 msgstr ""
 
 #: weblab/admin/web/admin_views.py:833 weblab/admin/web/admin_views.py:867
+#: weblab/core/templates/webclient/i18n.html:13
 msgid "Category"
 msgstr ""
 
@@ -502,6 +506,7 @@ msgid "Example: https://www.weblab.deusto.es/weblab/"
 msgstr ""
 
 #: weblab/admin/web/admin_views.py:1117
+#: weblab/core/templates/webclient/i18n.html:22
 #: weblab/core/templates/webclient/login.html:33
 #: weblab/core/templates/webclient/login.html:36
 msgid "Username"
@@ -512,6 +517,7 @@ msgid "Username of the remote system"
 msgstr ""
 
 #: weblab/admin/web/admin_views.py:1118
+#: weblab/core/templates/webclient/i18n.html:23
 #: weblab/core/templates/webclient/login.html:41
 #: weblab/core/templates/webclient/login.html:44
 msgid "Password"
@@ -641,6 +647,7 @@ msgstr ""
 
 #: weblab/admin/web/admin_views.py:1642 weblab/admin/web/admin_views.py:1666
 #: weblab/admin/web/app.py:130 weblab/admin/web/app.py:187
+#: weblab/core/templates/webclient/i18n.html:61
 msgid "Group"
 msgstr ""
 
@@ -1008,6 +1015,7 @@ msgid "Web browser"
 msgstr ""
 
 #: weblab/core/templates/details.html:67
+#: weblab/core/templates/webclient/i18n.html:39
 msgid "Mobile"
 msgstr ""
 
@@ -1531,6 +1539,7 @@ msgid "WebLab-Deusto authors"
 msgstr ""
 
 #: weblab/core/templates/webclient/_logged_base.html:19
+#: weblab/core/templates/webclient/i18n.html:19
 msgid "Log out"
 msgstr ""
 
@@ -1550,9 +1559,491 @@ msgstr ""
 msgid "Select file..."
 msgstr ""
 
+#: weblab/core/templates/webclient/i18n.html:6
+msgid "Finish"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:7
+msgid "Experiment finished"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:8
+msgid "Go back"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:9
+msgid "Selected experiment"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:10
+msgid "Powered by"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:11
+msgid "Experiment hosted by"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:14
+msgid "Assigned time"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:15
+msgid "Back to My experiments"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:16
+msgid "Contacting the laboratory"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:17
+msgid "Waiting in the queue, position {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:18
+msgid ""
+"That experiment is broken. Please contact the administrator {0}. Anyway, "
+"you are in the queue (position: {1}), so as soon as the admin fixes it "
+"you will be able to use the experiment. If you prefer, you can also log "
+"in later, because usually this takes a long time."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:20
 #: weblab/core/templates/webclient/labs.html:2
 #: weblab/core/templates/webclient/labs.html:8
 msgid "My Experiments"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:21
+msgid "Picture"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:24
+#: weblab/core/webclient/view_login.py:38
+#: weblab/core/webclient/view_login.py:57
+msgid "Invalid username or password"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:25
+msgid "Logging in"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:26
+msgid "The {0} field can not be empty"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:27
+msgid "Reserve"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:28
+msgid "Reserving"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:29
+msgid "Welcome to the WebLab-DEUSTO"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:30
+msgid "Show experiments"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:31
+msgid "Welcome"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:32
+#: weblab/core/templates/webclient/login.html:29
+#: weblab/core/templates/webclient/login.html:50
+msgid "Log in"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:33
+msgid "Choose"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:34
+#: weblab/core/templates/webclient/apps/lab/lab.html:15
+msgid "Reserve this experiment"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:35
+msgid "For any technical issue you may find, please contact us at {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:36
+msgid ""
+"If you do not have a user account, you can try our demo experiments with "
+"the username <strong>{0}</strong> and the password <strong>{1}</strong>."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:37
+#: weblab/core/templates/webclient/login.html:91
+msgid "Support"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:38
+#: weblab/core/templates/webclient/login.html:106
+msgid "Demo"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:40
+#: weblab/core/templates/webclient/login.html:121
+msgid "Open Source"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:41
+msgid "Create an account"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:42
+msgid "Don''t have an account? Create one through Facebook"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:43
+msgid "Administration Panel"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:44
+msgid "WebLab-Deusto is Open Source Software, and it is available in {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:45
+msgid ""
+"Perform your experiments in the mobile version by clicking <a "
+"href=\"{0}\">here</a>"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:46
+msgid ""
+"WebLab-Deusto is a Remote Laboratory. Students access experiments "
+"physically located in the university, having the same experience as if in"
+" traditional hands-on-lab sessions. There is more information regarding "
+"the project in the <a href=\"http://www.weblab.deusto.es/\" "
+"target=\"_blank\">WebLab-Deusto Research Group</a> site."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:47
+msgid "Information"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:48
+#: weblab/core/templates/webclient/login.html:68
+msgid "Some experiments allow guest access"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:49
+msgid "Login as guest"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:50
+msgid "Direct link"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:51
+msgid "Click here"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:52
+msgid "More languages"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:53
+msgid "This field can not be empty"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:54
+msgid "Your user account is not allowed to access the Administration Panel"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:55
+msgid "Accesses"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:56
+msgid "Search"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:57
+msgid "Passwords do not match"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:59
+msgid "Clear filter"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:60
+msgid "Choose a value"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:62
+msgid "To"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:63
+msgid "From"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:64
+msgid "Filter"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:66
+msgid "VISIR experiment"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:67
+msgid ""
+"Your web browser did not find VISIR code. If it''s the first time you run"
+" it, this might be normal: it just means that it took too long to "
+"download VISIR; try to refresh WebLab and it will work. If this problem "
+"persists, contact the administrator. Error: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:68
+msgid "Circuits available"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:69
+msgid ""
+"Powered by the wonderful <a "
+"href=''http://openlabs.bth.se/index.php?page=ElectroLab''>VISIR</a> <a "
+"href=''http://svn.openlabs.bth.se/''>Open Source</a> project developed at"
+" the <a href=''http://www.bth.se/''>BTH</a>"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:70
+msgid "Select the program to send:"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:71
+msgid "Upload"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:72
+msgid ""
+"This demo demonstrates the multiresource queues of WebLab-Deusto. WebLab-"
+"Deusto supports that a single resource type can be used by different "
+"laboratories (therefore many laboratories share the same queue), and a "
+"laboratory can be built on top of different types of resources (and "
+"therefore, the laboratory internally uses more than one queue at the same"
+" time, which is probably shared with other laboratories). In this demo, "
+"you will use a CPLD or a FPGA depending on which one is available, but "
+"you can test that ud-demo-pld and ud-demo-fpga have their own queues. For"
+" instance, if you use one web browser to use the FPGA, you''ll see that "
+"using this demo you will not be assigned the FPGA. If this wasn''t a "
+"demo, you would select here the program that would be sent to the device."
+" Since it could be harmful, in the demo we always send the same "
+"demonstration file."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:73
+msgid ""
+"If this wasn''t a demo, you would select here the program that would be "
+"sent to the device. Since it could be harmful, in the demo we always send"
+" the same demonstration file."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:74
+msgid "File sent."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:75
+msgid "Device ready"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:76
+msgid "Device programming failed"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:77
+msgid "This file type is not allowed"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:78
+msgid "Sending file"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:79
+msgid "Finishing programming"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:80
+msgid ""
+"Your Virtual Machine is not yet ready. Please, wait. It often takes "
+"around {0} seconds."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:81
+msgid "Finishing"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:82
+msgid "Done. VM is ready"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:83
+msgid "Loading, please wait ({0}%)"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:84
+msgid "Your Virtual Machine is now ready!"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:85
+msgid "VM address:"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:86
+msgid "Load Java applet VNC Client"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:87
+msgid "Redirecting to"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:88
+msgid "remote system"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:89
+msgid ""
+"The submarine is only available few times, since the battery is usually "
+"empty. If you''re lucky, you''ll see the submarine and the green light of"
+" the submarine on, so you can play with it. Otherwise you''ll only be "
+"able to feed the fish (you can see the food in the top left side of the "
+"first camera) and turn on and off the lights."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:90
+msgid "Activate the submarine control panel"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:91
+msgid ""
+"The submarine is probably out of battery! Don''t you want to feed the "
+"fish or play with the lights?"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:92
+msgid "Yes, activate the submarine panel"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:93
+msgid "Fish fed!"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:94
+msgid "Fish already fed recently. Try again in {0} hours"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:95
+msgid "Fish not fed: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:96
+msgid "You can now control the aquarium"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:97
+msgid "The program is being executed in the bot"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:98
+msgid "There was an error: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:99
+msgid "Select what program should be sent to the device"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:100
+msgid "You can now control the bot"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:101
+msgid "Programming interactive demo"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:102
+msgid "Failed: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:103
+msgid "Welcome to the WebLab-Deusto Logic Game!"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:104
+msgid "Replace the unknown gate with the correct one so the LED turns on."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:105
+msgid ""
+"Solve as many circuits as possible to get more points and become the "
+"winner!"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:106
+msgid ""
+"You can check your score at <a href=''/weblab/admin/winners.py''>the "
+"winners page</a>"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:107
+msgid "Finished. Waiting for your score"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:108
+msgid "Finished. Your score: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:109
+msgid "Sending solution"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:110
+msgid "Well done! 1 point. Let''s see the next one!"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:111
+msgid "Wrong one! Game over. Total points: {0}"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:112
+msgid "Choose the correct gate:"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:113
+msgid "Check the ranking <a href=''{0}''>here</a>"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:114
+msgid "Send solution"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:115
+msgid ""
+"This laboratory is managed by a Java applet that should pop up. If "
+"nothing happens, check you have Java properly configured."
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:116
+msgid "Pure BCD"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:117
+msgid "Other BCDs"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:118
+msgid "Select a code:"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:119
+msgid "Select other code"
+msgstr ""
+
+#: weblab/core/templates/webclient/i18n.html:120
+msgid "Loading {0}"
 msgstr ""
 
 #: weblab/core/templates/webclient/labs.html:18
@@ -1599,17 +2090,8 @@ msgstr ""
 msgid "Foo bar"
 msgstr ""
 
-#: weblab/core/templates/webclient/login.html:29
-#: weblab/core/templates/webclient/login.html:50
-msgid "Log in"
-msgstr ""
-
 #: weblab/core/templates/webclient/login.html:56
 msgid "Logging in..."
-msgstr ""
-
-#: weblab/core/templates/webclient/login.html:68
-msgid "Some experiments allow guest access"
 msgstr ""
 
 #: weblab/core/templates/webclient/login.html:69
@@ -1629,18 +2111,6 @@ msgid ""
 "hands-on-lab sessions. There is more information\n"
 "                    regarding\n"
 "                    the project in the WebLab-Deusto Research Group site."
-msgstr ""
-
-#: weblab/core/templates/webclient/login.html:91
-msgid "Support"
-msgstr ""
-
-#: weblab/core/templates/webclient/login.html:106
-msgid "Demo"
-msgstr ""
-
-#: weblab/core/templates/webclient/login.html:121
-msgid "Open Source"
 msgstr ""
 
 #: weblab/core/templates/webclient/login.html:161
@@ -1698,10 +2168,6 @@ msgstr ""
 msgid "Reserving experiment..."
 msgstr ""
 
-#: weblab/core/templates/webclient/apps/lab/lab.html:15
-msgid "Reserve this experiment"
-msgstr ""
-
 #: weblab/core/templates/webclient/apps/lab/lab.html:26
 msgid "Reserve (in Frame)"
 msgstr ""
@@ -1728,11 +2194,6 @@ msgstr ""
 
 #: weblab/core/webclient/view_lab.py:31
 msgid "Experiment does not exist"
-msgstr ""
-
-#: weblab/core/webclient/view_login.py:38
-#: weblab/core/webclient/view_login.py:57
-msgid "Invalid username or password"
 msgstr ""
 
 #: weblab/core/webclient/view_login.py:62
