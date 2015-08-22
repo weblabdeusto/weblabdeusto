@@ -29,8 +29,12 @@
     <script type="text/javascript">
         var WL_JSON_URL = "{{ url_for('json.service_url') }}";
         var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
+        var WL_LOGIN_URL = "{{ url_for('.login') }}";
         var LOCALES_URL = "{{ url_for('.locales') }}";
         var PREFERRED_LANGUAGE = "{{ get_locale() }}";
+        var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
+        var EXPERIMENT_DATA = {{ experiment|tojson }};
+        var WL_SESSION_ID = "{{ request.cookies.get('weblabsessionid') }}";
         
 
     {# Await for the page #}
@@ -56,14 +60,14 @@
     {% include 'webclient/apps/lab/iframe/experiment-iframe.template.html' %}
 
     {# Fake includes so that we can use Jinja2 directives #}
-    <script type="text/javascript">
-        {% include 'webclient/apps/lab/app.js' %}
-        {% include 'webclient/apps/lab/lab.controller.js' %}
-        {% include 'webclient/apps/lab/expinfo/expinfo.directive.js' %}
-        {% include 'webclient/apps/lab/iframe/resizer.factory.js' %}
-        {% include 'webclient/apps/lab/iframe/experiment-iframe.controller.js' %}
-        {% include 'webclient/apps/lab/iframe/experiment-iframe.directive.js' %}
-        {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.js' %}
+    <script type="text/javascript"> {# ready to move to static? #}
+        {% include 'webclient/apps/lab/app.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/lab.controller.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/expinfo/expinfo.directive.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/iframe/resizer.factory.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/iframe/experiment-iframe.controller.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/iframe/experiment-iframe.directive.js' %} {# ready! #}
+        {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.js' %} {# ready! #}
     </script>
 
 {% endblock %}

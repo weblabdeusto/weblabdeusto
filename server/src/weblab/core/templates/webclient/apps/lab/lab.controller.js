@@ -30,12 +30,13 @@ function LabController($scope, $injector) {
     // -------------------------
 
     $scope.experiment = {};
-    $scope.experiment.data = {{ experiment|tojson }};
+    $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
     $scope.experiment.active = false;
 
     $scope.reserveMessage = {
         message: '',
+        translationData: {},
         type: 'info'
     };
 
@@ -104,11 +105,14 @@ function LabController($scope, $injector) {
         if (!broken) {
             if (position != undefined) {
                 if (position == 0) {
-                    $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. You are next.') }}";
+                    $scope.reserveMessage.message = "WAITING_IN_QUEUE_NEXT";
                     $scope.reserveMessage.type = 'info';
                 }
                 else {
-                    $scope.reserveMessage.message = "{{ gettext('Waiting in the queue. Your position is: ') }}" + position + ".";
+                    $scope.reserveMessage.message = "WAITING_IN_QUEUE_N";
+                    $scope.reserveMessage.translationData = {
+                        position: position
+                    };
                     $scope.reserveMessage.type = 'info';
                 }
 
@@ -117,17 +121,17 @@ function LabController($scope, $injector) {
         } else if(broken) {
             if (position != undefined) {
                 if (position == 0) {
-                    $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken and no instances are available. Even though, you are first the queue.') }}";
+                    $scope.reserveMessage.message = "WAITING_FOR_INSTANCES_NEXT";
                     $scope.reserveMessage.type = 'danger';
                 }
                 else {
-                    $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken and no instances are available. Even though, you are waiting in the queue. Your position is: ') }}" + position + ".";
+                    $scope.reserveMessage.message = "WAITING_FOR_INSTANCES_N";
                     $scope.reserveMessage.type = 'danger';
                 }
 
                 $scope.$apply();
             } else {
-                $scope.reserveMessage.message = "{{ gettext('The experiment seems to be broken. We will keep trying, but for now, reserve will probably fail.') }}";
+                $scope.reserveMessage.message = "WAITING_FOR_INSTANCES_N";
                 $scope.reserveMessage.type = 'danger';
             }
         }
@@ -140,14 +144,17 @@ function LabController($scope, $injector) {
     function handleReserveFail(error) {
         // We logged out.
         if (error.code == "JSON:Client.SessionNotFound") {
-            $scope.reserveMessage.message = '{{ gettext("You are not logged in") }}';
+            $scope.reserveMessage.message = 'NOT_LOGGED_IN';
             $scope.reserveMessage.type = 'danger';
             setTimeout(function () {
-                window.location = '{{ url_for(".login") }}';
+                window.location = WL_LOGIN_URL;
             }, 1500);
         }
         else {
-            $scope.reserveMessage.message = '{{ gettext("Failed to reserve: ") }}' + error.message;
+            $scope.reserveMessage.message = 'FAILED_TO_RESERVE';
+            $scope.reserveMessage.translationData = {
+                reason: error.message
+            };
             $scope.reserveMessage.type = 'danger';
         }
 
@@ -158,14 +165,14 @@ function LabController($scope, $injector) {
      * Called to reserve the experiment in the frame.
      */
     function reserveInFrame() {
-        var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
+        var sessionid = WL_SESSION_ID;
         sessionid = sessionid.split(".", 1)[0];
 
-        var name = "{{ experiment['name'] }}";
-        var category = "{{ experiment['category'] }}";
+        var name = EXPERIMENT_DATA['name'];
+        var category = EXPERIMENT_DATA['category'];
 
         $scope.experiment.reserving = true;
-        $scope.reserveMessage.message = "{{ gettext('Reserving...') }}";
+        $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
@@ -179,7 +186,7 @@ function LabController($scope, $injector) {
                 console.log("SETTING EXPERIMENT TO ACTIVE. SCOPE: ");
                 console.log($scope.$id);
 
-                $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
+                $scope.reserveMessage.message = "RESERVATION_DONE";
                 $scope.reserveMessage.type = 'info';
 
                 var frame = $("#exp-frame")[0];
@@ -189,7 +196,7 @@ function LabController($scope, $injector) {
                 // support being embedded in the weblab client. In this case, we will report a custom error.
                 if(Wexp == undefined || Wexp.lastInstance == undefined) {
                     var error = {
-                        message: "{{ gettext('The experiment does not seem to support iframe mode') }}",
+                        message: "The experiment does not seem to support iframe mode", // TODO: translations
                         code: "JSON:ClientSideError:IframeModeNotSupported"
                     };
                     $scope.experiment.active = false;
@@ -227,15 +234,15 @@ function LabController($scope, $injector) {
     }
 
     function reserveInWindow() {
-        var sessionid = "{{ request.cookies.get('weblabsessionid') }}";
+        var sessionid = WL_SESSION_ID;
         sessionid = sessionid.split('.')[0];
 
-        var name = "{{ experiment['name'] }}";
-        var category = "{{ experiment['category'] }}";
+        var name = EXPERIMENT_DATA['name'];
+        var category = EXPERIMENT_DATA['category'];
 
 
         $scope.experiment.reserving = true;
-        $scope.reserveMessage.message = "{{ gettext('Reserving experiment...') }}";
+        $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
         WeblabWeb.reserve_experiment(sessionid, name, category)
@@ -246,7 +253,7 @@ function LabController($scope, $injector) {
                 console.log(result);
 
                 $scope.experiment.reserving = false;
-                $scope.reserveMessage.message = "{{ gettext('Reservation done') }}";
+                $scope.reserveMessage.message = "RESERVATION_DONE";
                 $scope.reserveMessage.type = 'info';
 
 
@@ -260,8 +267,7 @@ function LabController($scope, $injector) {
                         "u": WL_JSON_URL,
                         "free": "true"
                     };
-                    {# //var redir = "{{ '//rawgit.com/weblabdeusto/weblabdeusto/new_client/client/src/es/deusto/weblab/public/' + experiment["html.file"] }}"; #}
-                    var redir = WL_LAB_URL + "{{ experiment['config']['html.file'] }}";
+                    var redir = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
                     redir += "?" + $.param(params);
                     console.log(redir);
 

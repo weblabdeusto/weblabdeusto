@@ -60,7 +60,7 @@ function wlExperimentIframe($injector) {
             $log.debug("Injecting scripts");
 
             // TODO: We should maybe consider removing this and just forcing experiment developers to include the library if they want to support proper resizing.
-            resizer.injectScriptIntoFrame(iframe, "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}"); // Automatic iframe resizing.
+            resizer.injectScriptIntoFrame(iframe, IFRAME_RESIZER_URL); // Automatic iframe resizing.
         }
 
     } // !wlExperimentIframeLink

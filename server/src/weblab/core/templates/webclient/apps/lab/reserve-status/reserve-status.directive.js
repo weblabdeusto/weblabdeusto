@@ -9,6 +9,7 @@ function wlReserveStatus() {
 
         scope: {
             message: "=message",
+            translationData: "=translationData",
             type: "=type"
         },
 
