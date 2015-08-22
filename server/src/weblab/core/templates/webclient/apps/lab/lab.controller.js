@@ -1,7 +1,12 @@
 angular
-    .module("lab")
+    .module("lab", ['pascalprecht.translate'])
+    .config(['$translateProvider', translateConfig])
     .controller("LabController", LabController);
 
+function translateConfig($translateProvider) {
+    $translateProvider.useUrlLoader(LOCALES_URL);
+    $translateProvider.preferredLanguage(PREFERRED_LANGUAGE);
+}
 
 function LabController($scope, $injector) {
 
