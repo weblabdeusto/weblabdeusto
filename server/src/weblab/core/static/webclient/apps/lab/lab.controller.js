@@ -257,8 +257,7 @@ function LabController($scope, $injector) {
                 $scope.reserveMessage.type = 'info';
 
 
-                {# TODO: Tidy this up. #}
-                {% if experiment["type"] == "js" %}
+                if (EXPERIMENT_DATA["type"] == "js") {
 
                     var params = {
                         "r": id,
@@ -273,8 +272,7 @@ function LabController($scope, $injector) {
 
                     window.location = redir;
 
-                {# We assume it is a REDIRECT (HTTP) experiment #}
-                {% else %}
+                } else {
 
                     // If it is indeed a REDIRECT (HTTP) experiment, then initConfig of the reservation will
                     // contain an "url" attribute, which is the URL to which to redirect.
@@ -297,10 +295,7 @@ function LabController($scope, $injector) {
                     console.log("Redirecting to: " + url);
                     window.location = url;
 
-                {% endif %}
-
-
-
+                }
             });
     } //! reserveInWindow()
 

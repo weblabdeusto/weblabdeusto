@@ -59,15 +59,12 @@
     {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.html' %}
     {% include 'webclient/apps/lab/iframe/experiment-iframe.template.html' %}
 
-    {# Fake includes so that we can use Jinja2 directives #}
-    <script type="text/javascript"> {# ready to move to static? #}
-        {% include 'webclient/apps/lab/app.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/lab.controller.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/expinfo/expinfo.directive.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/iframe/resizer.factory.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/iframe/experiment-iframe.controller.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/iframe/experiment-iframe.directive.js' %} {# ready! #}
-        {% include 'webclient/apps/lab/reserve-status/reserve-status.directive.js' %} {# ready! #}
-    </script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/app.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/lab.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/expinfo/expinfo.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/resizer.factory.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve-status/reserve-status.directive.js") }}"></script>
 
 {% endblock %}
