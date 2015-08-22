@@ -438,7 +438,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
 
         # Initialize internationalization code.
-        initialize_i18n(self.app)
+        self.babel = initialize_i18n(self.app)
 
         # Mostly for debugging purposes, this snippet will print the site-map so that we can check
         # which methods we are routing.
@@ -601,6 +601,7 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
 
         self.flask_server = WebLabFlaskServer(self, cfg_manager)
+        self.babel = self.flask_server.babel
 
         self.dont_start = cfg_manager.get_value('dont_start', dont_start)
         if not self.dont_start:

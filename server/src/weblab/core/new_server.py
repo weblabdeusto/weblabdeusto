@@ -352,6 +352,10 @@ class WebLabAPI(object):
         return getattr(self.context, 'client_address', None)
 
     @property
+    def languages(self):
+        return sorted(self.server_instance.babel.list_translations(), key=lambda locale: locale.display_name.capitalize())
+
+    @property
     def gravatar_url(self):
         """
         Returns the gravatar URL 

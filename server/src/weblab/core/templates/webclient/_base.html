@@ -40,8 +40,17 @@
             <div class="text-center">
                 <p id="weblab_version"></p>
                 <p>
-                {% for lang in "العربية", "Čeština", "English", "Español", "Euskara", "Deutsch", "Français", "Magyar", "Nederlands", "Português", "Română", "Русский", "Slovenčina" %}
-                    <a href="">{{ lang }}</a>
+                {% for lang in weblab_api.languages %}
+                    {% if '?' in request.url and 'locale=' in request.url.split('?')[1] %}
+                        {# If there is already a locale= in the URL, just replace that query variable #}
+                        {% set old_lang = request.url.split('locale=')[1].split('&')[0] %}
+                        {% set new_locale_url = request.url.replace('locale=' + old_lang, 'locale=' + lang.language) %}
+                    {% else %}
+                        {# Otherwise, add the locale #}
+                        {% set separator = '&' if '?' in request.url else '?' %}
+                        {% set new_locale_url = request.url + separator + 'locale=' + lang.language %}
+                    {% endif %}
+                    <a href="{{ new_locale_url }}">{{ lang.display_name.capitalize() }}</a>
                 {% endfor %}
                 </p>
             </div>

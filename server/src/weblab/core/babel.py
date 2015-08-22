@@ -60,4 +60,4 @@ def initialize_i18n(app):
                 locale = 'en'
             session['locale'] = locale
             return locale
-
+        return babel
