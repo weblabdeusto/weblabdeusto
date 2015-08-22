@@ -50,6 +50,7 @@ def locales():
             traceback.print_exc()
             last_modified = datetime.datetime.now()
 
+        messages_directory = data_filename('weblab/core/translations')
         messages_file = data_filename('weblab/core/translations/{0}/LC_MESSAGES/messages.mo'.format(lang))
         if os.path.exists(messages_file):
             try:
@@ -62,8 +63,9 @@ def locales():
             
         def ng_gettext(text):
             """Wrapper of gettext. It uses the messages_file to load particular translations (e.g. if 'es' is requested, it uses the translations for Spanish)."""
-            translation = support.Translations.load(messages_file)
-            return translation.gettext(text)
+            translation = support.Translations.load(messages_directory, lang)
+            translated_text = translation.gettext(text)
+            return translated_text
 
         contents = render_template('webclient/locales.json', ng_gettext=ng_gettext)
         etag = hashlib.new('sha1', contents).hexdigest()
