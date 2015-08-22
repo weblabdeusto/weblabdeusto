@@ -7,19 +7,21 @@ try:
 
     if USE_BABELEX:
         # Use regular Babelex instead of Babel
-        from flask.ext.babelex import Babel as Babel_ex, gettext as gettext_ex, lazy_gettext as lazy_gettext_ex, ngettext as ngettext_ex
+        from flask.ext.babelex import Babel as Babel_ex, gettext as gettext_ex, lazy_gettext as lazy_gettext_ex, ngettext as ngettext_ex, get_locale as get_locale_ex
 
         gettext = gettext_ex
         ngettext = ngettext_ex
         lazy_gettext = lazy_gettext_ex
+        get_locale = get_locale_ex
         Babel = Babel_ex
     else:
         # Use regular Babel instead of Babelex
-        from flask.ext.babel import Babel as Babel_reg, gettext as gettext_reg, lazy_gettext as lazy_gettext_reg, ngettext as ngettext_reg
+        from flask.ext.babel import Babel as Babel_reg, gettext as gettext_reg, lazy_gettext as lazy_gettext_reg, ngettext as ngettext_reg, get_locale as get_locale_reg
 
         gettext = gettext_reg
         ngettext = ngettext_reg
         lazy_gettext = lazy_gettext_reg
+        get_locale = get_locale_reg
         Babel = Babel_reg
 
 except ImportError:
@@ -38,6 +40,9 @@ except ImportError:
 
     def lazy_gettext(string, **variables):
         return gettext(string, **variables)
+
+    def get_locale():
+        return 'en'
 
 
 def initialize_i18n(app):

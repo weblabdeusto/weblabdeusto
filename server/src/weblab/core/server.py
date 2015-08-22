@@ -34,7 +34,7 @@ import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
 from voodoo.resources_manager import is_testing
-from weblab.core.babel import initialize_i18n
+from weblab.core.babel import initialize_i18n, get_locale
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
@@ -497,7 +497,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         @self.app.context_processor
         def inject_weblab_api():
-            return dict(weblab_api=weblab_api, display_date=display_date)
+            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale)
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 

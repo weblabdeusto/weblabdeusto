@@ -29,6 +29,9 @@
     <script type="text/javascript">
         var WL_JSON_URL = "{{ url_for('json.service_url') }}";
         var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
+        var LOCALES_URL = "{{ url_for('.locales') }}";
+        var PREFERRED_LANGUAGE = "{{ get_locale() }}";
+        
 
     {# Await for the page #}
     $(document).ready(function () {

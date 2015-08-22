@@ -353,6 +353,8 @@ class WebLabAPI(object):
 
     @property
     def languages(self):
+        if self.server_instance.babel is None:
+            return []
         return sorted(self.server_instance.babel.list_translations(), key=lambda locale: locale.display_name.capitalize())
 
     @property
