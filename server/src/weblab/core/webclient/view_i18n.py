@@ -23,7 +23,8 @@ PER_LANG = {
 def locales():
     lang = request.args.get('lang')
     if not lang:
-        return "?lang argument is missing", 404
+        # Default language is English
+        lang = 'en'
 
     try:
         Locale.parse(lang)
@@ -60,6 +61,7 @@ def locales():
             last_modified = max(last_modified, messages_last_modified)
             
         def ng_gettext(text):
+            """Wrapper of gettext. It uses the messages_file to load particular translations (e.g. if 'es' is requested, it uses the translations for Spanish)."""
             translation = support.Translations.load(messages_file)
             return translation.gettext(text)
 
@@ -73,13 +75,21 @@ def locales():
         }
 
         PER_LANG[lang] = lang_contents
-
-    if request.if_none_match is not None and request.if_none_match == lang_contents['etag']:
+    
+    # At this point, lang_contents exists, and contains:
+    #    last_modified: pointing at the latest point where the contents where modified
+    #    contents: the string with the processed contents
+    #    etag: with the hash of the contents
+    
+    # First we check etag (and return 304 if the contents were not changed)
+    if request.if_none_match is not None and request.if_none_match.contains(lang_contents['etag']):
         return Response(status=304)
 
+    # Then the date (and return 304 if the date is correct)
     if request.if_modified_since is not None and request.if_modified_since >= lang_contents['last_modified']:
         return Response(status=304)
-
+    
+    # Otherwise, we create the response
     response = Response(lang_contents['contents'])
     response.mimetype = 'application/json'
     response.last_modified = lang_contents['last_modified']
