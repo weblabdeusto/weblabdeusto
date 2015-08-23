@@ -1,7 +1,7 @@
 # First, update the messages.pot file:
 pybabel extract -F babel.cfg -k lazy_gettext -k ng_gettext -o messages.pot --project weblab --version 5.0 .
 
-# Then, if you want to generate for a certain language (es for Spanish in this case), run:
+# Then, if you want to generate for a certain language ("es" for Spanish in this case), run:
 pybabel update -i messages.pot -d weblab/core/translations -l es
 
 # If it was the first time, run:
