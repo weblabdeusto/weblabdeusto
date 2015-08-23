@@ -34,6 +34,11 @@ function LabController($scope, $injector) {
     $scope.experiment.reserving = false;
     $scope.experiment.active = false;
 
+    $scope.experiment_iframe = {
+        laburl: WL_LAB_URL,
+        experiment: EXPERIMENT_DATA
+    };
+
     $scope.reserveMessage = {
         message: '',
         translationData: {},

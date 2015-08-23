@@ -31,10 +31,7 @@ def lab(category_name, experiment_name):
                 flash(gettext("Experiment does not exist"), 'danger')
             return redirect(url_for('.labs'))
 
-        # Get the target URL for the JS API.
-        lab_url = url_for(".static", filename="")
-
-        return render_template("webclient/lab.html", experiment=experiment, lab_url=lab_url)
+        return render_template("webclient/lab.html", experiment=experiment)
     except Exception as ex:
         raise
 

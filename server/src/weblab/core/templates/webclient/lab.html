@@ -36,9 +36,10 @@
         var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
         var EXPERIMENT_DATA = {{ experiment|tojson }};
         var WL_SESSION_ID = "{{ request.cookies.get('weblabsessionid') }}";
-        
+
         {# These ones should be located somewhere else... but just don't know how without using url_for in static files which is what we try to avoid #}
         var RESERVE_STATUS_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve-status/reserve-status.directive.html") }}";
+        var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
 
     {# Await for the page #}
     $(document).ready(function () {
@@ -59,7 +60,6 @@
 
     {# Embedded templates #}
     {% include 'webclient/apps/lab/expinfo/expinfo.template.html' %}
-    {% include 'webclient/apps/lab/iframe/experiment-iframe.template.html' %}
 
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/app.js") }}"></script>
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/lab.controller.js") }}"></script>

@@ -7,7 +7,11 @@ angular
 function wlExperimentIframe($injector) {
     return {
         restrict: "E",
-        template: $("#experiment-iframe-template").html(),
+        scope: {
+            laburl: "=laburl",
+            experiment: "=experiment"
+        },
+        templateUrl: EXPERIMENT_IFRAME_TEMPLATE_URL,
         controller: "ExperimentIframeController",
         controllerAs: "experimentIframeController",
         link: wlExperimentIframeLink
@@ -16,7 +20,6 @@ function wlExperimentIframe($injector) {
 
 
     function wlExperimentIframeLink(scope, elem, attrs, ctrl) {
-
         // -------------
         // Dependencies
         // -------------
