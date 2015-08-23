@@ -13,7 +13,7 @@ function wlReserveStatus() {
             type: "=type"
         },
 
-        template: $("#reserve-status-template").html(),
+        templateUrl: RESERVE_STATUS_TEMPLATE_URL,
 
         link: wlReserveStatusLink
 
