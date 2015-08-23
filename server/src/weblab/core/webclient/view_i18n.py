@@ -6,7 +6,6 @@ import datetime
 import traceback
 
 import babel
-from babel import Locale, support
 from flask import request, render_template, Response
 
 from weblab.core.wl import weblab_api
@@ -28,7 +27,7 @@ def locales():
         lang = 'en'
 
     try:
-        Locale.parse(lang)
+        babel.Locale.parse(lang)
     except (babel.core.UnknownLocaleError, ValueError) as e:
         # Avoid storing fake languages
         return "Invalid language", 400
@@ -64,7 +63,7 @@ def locales():
             
         def ng_gettext(text):
             """Wrapper of gettext. It uses the messages_file to load particular translations (e.g. if 'es' is requested, it uses the translations for Spanish)."""
-            translation = support.Translations.load(messages_directory, lang)
+            translation = babel.support.Translations.load(messages_directory, lang)
             translated_text = translation.gettext(text)
             return translated_text
 
