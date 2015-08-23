@@ -5,6 +5,7 @@ import hashlib
 import datetime
 import traceback
 
+import babel
 from babel import Locale, support
 from flask import request, render_template, Response
 
@@ -28,7 +29,7 @@ def locales():
 
     try:
         Locale.parse(lang)
-    except (babel.core.UnknownLocaleException, ValueError) as e:
+    except (babel.core.UnknownLocaleError, ValueError) as e:
         # Avoid storing fake languages
         return "Invalid language", 400
 
