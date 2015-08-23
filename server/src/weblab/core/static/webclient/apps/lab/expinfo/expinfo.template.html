@@ -1,11 +1,24 @@
 <div class="row">
     <div class="col-lg-4 col-lg-push-4 text-center well">
         <p>
+            <img ng-src="{{ experiment['logo_link'] }}">
+        </p>
+        <p>
             <strong>{{ "EXPERIMENT"|translate }}</strong> {{ experiment["name"] }}
         </p>
 
         <p>
             <strong>{{ "CATEGORY"|translate }}</strong> {{ experiment["category"] }}
+        </p>
+
+        <p>
+            <!-- 
+                TODO: 
+                1. time (in format minutes:seconds) 
+                2. description
+                3. resize (bigger, splitted in two)
+
+            -->
         </p>
     </div>
 </div>

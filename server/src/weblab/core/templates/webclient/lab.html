@@ -12,12 +12,21 @@
 
     {{ super() }}
 
-    <div ng-controller="LabController">
+    {# Angular.js code. All in raw. #}
+    {% raw %}
+    
+    <div ng-show="false" class="row">
+        <div class="col-lg-4 col-lg-push-4 text-center well">
+            <h4>Loading experiment...</h4>
+        </div>
+    </div>
+
+    <div ng-controller="LabController" ng-cloak>
 
         <div class="container" id="reserve-container">
 
             <div class="text-center">
-                <h2>{{ gettext("Reserve this experiment") }}</h2>
+                <h2>{{ experiment.data.display_name }}</h2>
             </div>
 
             <!-- Component for the experiment information window thing -->
@@ -28,11 +37,11 @@
                 <div class="row">
                     <div class="col-lg-2 col-lg-offset-4 text-center">
                         <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                           id="reserve-frame-btn" ng-click="reserveInFrame()">{{ gettext("Reserve (in Frame)") }}</a>
+                           id="reserve-frame-btn" ng-click="reserveInFrame()">{{ 'RESERVE_FRAME'|translate }}</a>
                     </div>
                     <div class="col-lg-2 text-center">
                         <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
-                           id="reserve-free-btn" ng-click="reserveInWindow()">{{ gettext("Reserve (in Window)") }}</a>
+                           id="reserve-free-btn" ng-click="reserveInWindow()">{{ 'RESERVE_WINDOW'|translate }}</a>
                     </div>
                 </div>
             </div>
@@ -45,7 +54,7 @@
         <div ng-cloak ng-show="isExperimentActive()" class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ gettext("Finish") }}</a>
+                    <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ 'FINISH'|translate }}</a>
                 </div>
             </div>
         </div>
@@ -59,6 +68,8 @@
         <wl-experiment-iframe ng-show="isExperimentActive()" laburl="experiment_iframe.laburl" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
 
     </div>
+
+    {% endraw %}
 
 {% endblock %}
 
