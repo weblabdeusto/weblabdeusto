@@ -39,6 +39,10 @@ function LabController($scope, $injector) {
         experiment: EXPERIMENT_DATA
     };
 
+    $scope.experiment_info = {
+        experiment: EXPERIMENT_DATA
+    };
+
     $scope.reserveMessage = {
         message: '',
         translationData: {},

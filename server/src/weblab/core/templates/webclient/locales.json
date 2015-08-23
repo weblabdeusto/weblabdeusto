@@ -7,6 +7,8 @@
     "FAILED_TO_RESERVE" : {{ ng_gettext("Failed to reserve: {{ reason }}")|tojson }},
     "RESERVING": {{ ng_gettext("Reserving...")|tojson }},
     "RESERVATION_DONE": {{ ng_gettext("Reservation done")|tojson }},
+    "EXPERIMENT": {{ ng_gettext("Experiment:")|tojson }},
+    "CATEGORY": {{ ng_gettext("Category:")|tojson }},
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
     "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
 }

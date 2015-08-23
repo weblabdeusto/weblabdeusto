@@ -40,6 +40,7 @@
         {# These ones should be located somewhere else... but just don't know how without using url_for in static files which is what we try to avoid #}
         var RESERVE_STATUS_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve-status/reserve-status.directive.html") }}";
         var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
+        var EXPINFO_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/expinfo/expinfo.template.html") }}";
 
     {# Await for the page #}
     $(document).ready(function () {
@@ -57,9 +58,6 @@
     <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular-translate-loader-url/angular-translate-loader-url.min.js") }}"></script>
     <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.min.js") }}"></script>
 
-
-    {# Embedded templates #}
-    {% include 'webclient/apps/lab/expinfo/expinfo.template.html' %}
 
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/app.js") }}"></script>
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/lab.controller.js") }}"></script>
