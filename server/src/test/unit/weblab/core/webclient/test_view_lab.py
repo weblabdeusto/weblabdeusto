@@ -56,7 +56,7 @@ class TestViewLab(unittest.TestCase):
         """
         rv = self.app.get('/weblab/web/webclient/labs/%s/%s/' % ("Dummy%20experiments", "jsdummy"))
         self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
-        self.assertIn("Reserve this", rv.data, "Lab page does not contain the expected 'Reserve this' text")
+        self.assertIn("jsdummy", rv.data, "Lab page does not contain the expected 'jsdummy' text")
         self.assertIn("upload", rv.data, "Lab page does not contain the expected 'Upload' text")
 
     def tearDown(self):
