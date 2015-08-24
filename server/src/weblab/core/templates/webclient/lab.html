@@ -11,11 +11,14 @@
 {% block body %}
 
     {{ super() }}
+    <div class="container">
+        <div class="col-lg-4">
+            <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
+        </div>
+    </div>
 
     {# Angular.js code. All in raw. #}
     {% raw %}
-
-    <!-- TODO: Show a link "back to the list" -->
 
     <div ng-show="false" class="row">
         <div class="col-lg-4 col-lg-push-4 text-center well">

@@ -34,7 +34,7 @@ msgstr ""
 #: weblab/admin/web/admin_views.py:161 weblab/admin/web/admin_views.py:1655
 #: weblab/admin/web/admin_views.py:1666
 msgid "Role"
-msgstr ""
+msgstr "Rol"
 
 #: weblab/admin/web/admin_views.py:161 weblab/core/templates/details.html:14
 #: weblab/core/templates/interactions.html:15

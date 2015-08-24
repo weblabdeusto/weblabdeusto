@@ -7,11 +7,13 @@
     "FAILED_TO_RESERVE" : {{ ng_gettext("Failed to reserve: {{ reason }}")|tojson }},
     "RESERVING": {{ ng_gettext("Reserving...")|tojson }},
     "RESERVATION_DONE": {{ ng_gettext("Reservation done")|tojson }},
-    "EXPERIMENT": {{ ng_gettext("Experiment:")|tojson }},
+    "EXPERIMENT": {{ ng_gettext("Experiment")|tojson }},
     "RESERVE_FRAME": {{ ng_gettext("Reserve (in Frame)")|tojson }},
     "RESERVE_WINDOW": {{ ng_gettext("Reserve (in Window)")|tojson }},
     "FINISH": {{ ng_gettext("Finish")|tojson }},
-    "CATEGORY": {{ ng_gettext("Category:")|tojson }},
+    "CATEGORY": {{ ng_gettext("Category")|tojson }},
+    "DESCRIPTION": {{ ng_gettext("Description")|tojson }},
+    "TIME": {{ ng_gettext("Assigned time")|tojson }},
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
     "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
 }
