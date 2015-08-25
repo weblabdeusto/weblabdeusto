@@ -14,6 +14,10 @@
     "CATEGORY": {{ ng_gettext("Category")|tojson }},
     "DESCRIPTION": {{ ng_gettext("Description")|tojson }},
     "TIME": {{ ng_gettext("Assigned time")|tojson }},
+    "HAVENT_USED_THE_LAB_BEFORE": {{ ng_gettext("You have not used this lab before")|tojson }},
+    "DATE": {{ ng_gettext("Date")|tojson }},
+    "LOCATION": {{ ng_gettext("Location")|tojson }},
+    "DETAILS": {{ ng_gettext("Details")|tojson }},
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
     "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
 }

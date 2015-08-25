@@ -6,7 +6,8 @@ function wlExpInfo() {
     return {
         restrict: "E",
         scope: {
-            experiment: "=experiment"
+            experiment: "=experiment",
+            latestuses: "=latestuses"
         },
         templateUrl: EXPINFO_TEMPLATE_URL
     }

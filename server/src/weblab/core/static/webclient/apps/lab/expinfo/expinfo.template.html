@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-3 col-lg-offset-1 text-center well">
+    <div class="col-lg-3 text-center well">
         <p>
             <img ng-src="{{ experiment['logo_link'] }}">
         </p>
@@ -12,7 +12,7 @@
         </p>
     </div>
 
-    <div class="col-lg-5 col-lg-offset well" style="margin-left: 10px">
+    <div class="col-lg-6">
         <p>
             <strong>{{ "TIME"|translate }}:</strong> <span ng-show="experiment['time'] >= 3600">{{ experiment['time'] / 3600|number:0 }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ experiment['time'] % 3600 / 60|number:0 }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}
         </p>
@@ -21,4 +21,30 @@
             <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment['description'] }}
         </p>
     </div>
+
+    <div class="col-lg-3 well" ng-show="latestuses.uses.length > 0">
+        <h5>{{ "LATEST_USES"|translate }}</h5>
+        
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>{{ "DATE"|translate }}</th>
+                    <th>{{ "LOCATION"|translate }}</th>
+                    <th>{{ "DETAILS"|translate }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="use in latestsuses.uses">
+                    <td>{{ use.datetime }}</td>
+                    <td>{{ use.location }}</td>
+                    <td><a href="{{ use.link }}">Details</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-lg-3 well" ng-show="latestuses.uses.length == 0">
+        <h5>{{ "HAVENT_USED_THE_LAB_BEFORE"|translate }}</h5>
+    </div>
+
 </div>

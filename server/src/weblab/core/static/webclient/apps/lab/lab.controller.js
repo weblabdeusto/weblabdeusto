@@ -33,6 +33,10 @@ function LabController($scope, $injector) {
     $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
     $scope.experiment.active = false;
+    
+    $scope.latest_uses = {
+        uses: []
+    };
 
     $scope.experiment_iframe = {
         laburl: WL_LAB_URL,
