@@ -1280,6 +1280,35 @@ class DatabaseGateway(object):
     def list_user_logins(self):
         return [ row[0] for row in _current.session.query(model.DbUser.login).all() ]
 
+    @with_session
+    def latest_uses_experiment_user(self, experiment_name, category_name, login, limit):
+        user_row = _current.session.query(model.DbUser.id).filter_by(login=login).first()
+        if user_row is None:
+            return []
+
+        user_id = user_row[0]
+
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name=category_name).first()
+        if category is None:
+            return []
+
+        experiment_row = _current.session.query(model.DbExperiment.id).filter_by(name=experiment_name, category=category).first()
+        if experiment_row is None:
+            return []
+
+        experiment_id = experiment_row[0]
+
+        data = []
+        for start_date, country, origin, use_id in _current.session.query(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.origin, model.DbUserUsedExperiment.id).filter_by(user_id=user_id, experiment_id=experiment_id)[-limit:]:
+            data.append({
+                'id': use_id,
+                'start_date': start_date,
+                'country': country,
+                'origin': origin,
+            })
+
+        return data
+
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)
 

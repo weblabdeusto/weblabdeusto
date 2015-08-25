@@ -8,7 +8,7 @@ function translateConfig($translateProvider) {
     $translateProvider.preferredLanguage(PREFERRED_LANGUAGE);
 }
 
-function LabController($scope, $injector) {
+function LabController($scope, $injector, $http) {
 
     // -------------------------
     // Save self-reference
@@ -78,13 +78,33 @@ function LabController($scope, $injector) {
 
     // Initialize the Weblab API.
     WeblabWeb.setTargetURLs(WL_JSON_URL, WL_JSON_URL);
-
+    
+    $http.get(LATEST_USES_URL).then(function(response) {
+        if (response.status == 200) {
+            $scope.latest_uses.uses = response.data.uses;
+            angular.forEach($scope.latest_uses.uses, function(value, key) {
+                var d = new Date(value.start_date.replace(/ /, 'T'));
+                var formatted = d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds());
+                value.start_date_formatted = formatted;
+            });
+        }
+    });
 
 
 
     // -------------------------
     // Implementations
     // -------------------------
+
+    /*
+    * Utility function that mimics Python's .zfill()
+    */
+    function zfill(n) {
+        if (n < 10) 
+            return "0" + n;
+        return n;
+    }
+
 
     /**
      * Called when an attempt is made to finish the current experiment.

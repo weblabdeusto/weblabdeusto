@@ -229,6 +229,12 @@ def get_reservation_id_by_session_id():
 def get_experiment_use_by_id(reservation_id = None):
     return weblab_api.ctx.user_processor.get_experiment_use_by_id(SessionId(reservation_id['id']))
 
+@weblab_api.route_api('/user/reservations/latests/<category_name>/<experiment_name>/')
+@load_user_processor
+def get_latest_uses_per_lab(category_name, experiment_name):
+    login = weblab_api.ctx.user_session['db_session_id'].username
+    return weblab_api.db.latest_uses_experiment_user(experiment_name, category_name, login, 5)
+
 @weblab_api.route_api('/user/reservations/<reservation_ids>/')
 @load_user_processor
 def get_experiment_uses_by_id(reservation_ids = None):

@@ -93,8 +93,10 @@
         var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
         var WL_LOGIN_URL = "{{ url_for('.login') }}";
         var LOCALES_URL = "{{ url_for('.locales') }}";
-        var PREFERRED_LANGUAGE = "{{ get_locale() }}";
+        var LATEST_USES_URL = "{{ url_for('.latest_uses', experiment_name=experiment['name'], category_name=experiment['category']) }}";
         var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
+
+        var PREFERRED_LANGUAGE = "{{ get_locale() }}";
         var EXPERIMENT_DATA = {{ experiment|tojson }};
         var WL_SESSION_ID = "{{ request.cookies.get('weblabsessionid') }}";
 

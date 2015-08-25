@@ -35,3 +35,19 @@ def lab(category_name, experiment_name):
     except Exception as ex:
         raise
 
+@weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/latest_uses.json")
+@login_required
+def latest_uses(category_name, experiment_name):
+    uses = []
+    for use in weblab_api.api.get_latest_uses_per_lab(category_name, experiment_name):
+        current_use = {
+            'start_date' : use['start_date'].strftime('%Y-%m-%d %H:%M:%SZ'),
+            'link' : url_for('accesses.detail', id=use['id'])
+        }
+        if use['country']:
+            current_use['location'] = '{0} ({1})'.format(use['country'], use['origin'])
+        else:
+            current_use['location'] = use['origin']
+
+        uses.append(current_use)
+    return weblab_api.jsonify(uses=uses)
