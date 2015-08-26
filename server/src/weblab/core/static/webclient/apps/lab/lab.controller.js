@@ -58,11 +58,13 @@ function LabController($scope, $injector, $http) {
     // Scope methods
     // -------------------------
 
+    $scope.reserve = reserve;
     $scope.reserveInFrame = reserveInFrame;
     $scope.reserveInWindow = reserveInWindow;
     $scope.isExperimentActive = isExperimentActive;
     $scope.isExperimentReserving = isExperimentReserving;
     $scope.finishExperiment = finishExperiment;
+    $scope.loadLatestUses = loadLatestUses;
 
 
     // ------------------------
@@ -79,18 +81,8 @@ function LabController($scope, $injector, $http) {
     // Initialize the Weblab API.
     WeblabWeb.setTargetURLs(WL_JSON_URL, WL_JSON_URL);
     
-    $http.get(LATEST_USES_URL).then(function(response) {
-        if (response.status == 200) {
-            $scope.latest_uses.uses = response.data.uses;
-            angular.forEach($scope.latest_uses.uses, function(value, key) {
-                var d = new Date(value.start_date.replace(/ /, 'T'));
-                var formatted = d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds());
-                value.start_date_formatted = formatted;
-            });
-        }
-    });
 
-
+    loadLatestUses();
 
     // -------------------------
     // Implementations
@@ -114,14 +106,6 @@ function LabController($scope, $injector, $http) {
     } // !finishExperiment
 
     /**
-     * Checks whether the experiment is being reserved.
-     */
-    function isExperimentReserving() {
-        return $scope.experiment.reserving;
-    }
-
-
-    /**
      * Checks whether the experiment is active.
      *
      * @return {bool}: True if the reserve has been done and the experiment has not finished yet. False otherwise.
@@ -129,6 +113,30 @@ function LabController($scope, $injector, $http) {
     function isExperimentActive() {
         return $scope.experiment.active;
     }
+
+    /**
+     * Checks whether the experiment is being reserved.
+     */
+    function isExperimentReserving() {
+        return $scope.experiment.reserving;
+    }
+    
+    /**
+     * Loads the latest uses by the current user in the current experiment
+     */
+    function loadLatestUses() {
+        $http.get(LATEST_USES_URL).then(function(response) {
+            if (response.status == 200) {
+                $scope.latest_uses.uses = response.data.uses;
+                angular.forEach($scope.latest_uses.uses, function(value, key) {
+                    var d = new Date(value.start_date.replace(/ /, 'T'));
+                    var formatted = d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds());
+                    value.start_date_formatted = formatted;
+                });
+            }
+        });
+    }
+
 
     /**
      * Handles a reserve progress update, received periodically while a reserve attempt is in progress.
@@ -194,6 +202,16 @@ function LabController($scope, $injector, $http) {
         $scope.$apply();
     } // !handleReserveFail
 
+    function reserve(where) {
+        if (where == 'frame') {
+            return reserveInFrame();
+        } else if (where == 'window') {
+            return reserveInWindow();
+        } else {
+            console.log("where must be frame or window: " + where);
+        }
+    }
+
     /**
      * Called to reserve the experiment in the frame.
      */
@@ -252,6 +270,7 @@ function LabController($scope, $injector, $http) {
                 // Listen also for a dispose, for other ui changes.
                 wexp.onFinish().done(function (f) {
                     $scope.experiment.active = false;
+                    $scope.loadLatestUses();
 
                     $scope.reserveMessage.message = "";
 

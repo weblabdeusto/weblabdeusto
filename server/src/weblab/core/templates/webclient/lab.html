@@ -11,15 +11,9 @@
 {% block body %}
 
     {{ super() }}
-    <div class="container">
-        <div class="col-lg-4">
-            <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
-        </div>
-    </div>
 
     {# Angular.js code. All in raw. #}
     {% raw %}
-
     <div ng-show="false" class="row">
         <div class="col-lg-4 col-lg-push-4 text-center well">
             <h4>Loading experiment...</h4>
@@ -27,6 +21,13 @@
     </div>
 
     <div ng-controller="LabController" ng-cloak>
+        <div class="container" ng-show="!isExperimentActive()">
+            <div class="col-lg-4">
+                {% endraw %}
+                <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
+                {% raw %}
+            </div>
+        </div>
 
         <div class="container" id="reserve-container">
 
@@ -34,25 +35,11 @@
                 <h2>{{ experiment.data.display_name }}</h2>
             </div>
 
-            <!-- Component for the experiment information window thing -->
-            <!-- Should be shown only when the experiment is NOT active -->
-            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" latestuses="latest_uses"></wl-exp-info>
-
-            <div ng-show="!isExperimentActive()">
-                <div class="row">
-                    <div class="col-lg-2 col-lg-offset-4 text-center">
-                        <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                           id="reserve-frame-btn" ng-click="reserveInFrame()">{{ 'RESERVE_FRAME'|translate }}</a>
-                    </div>
-                    <div class="col-lg-2 text-center">
-                        <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
-                           id="reserve-free-btn" ng-click="reserveInWindow()">{{ 'RESERVE_WINDOW'|translate }}</a>
-                    </div>
-                </div>
-            </div>
-
             <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" translationData="reserveMessage.translationData" type="reserveMessage.type"></wl-reserve-status>
 
+            <!-- Component for the experiment information window thing -->
+            <!-- Should be shown only when the experiment is NOT active -->
+            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)" is-experiment-reserving="isExperimentReserving()" latestuses="latest_uses"></wl-exp-info>
         </div>
 
 

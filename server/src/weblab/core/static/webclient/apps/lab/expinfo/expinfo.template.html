@@ -37,14 +37,22 @@
         </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-9">
+        <!-- TODO: support pictures, video, and so on -->
+        <p>
+            <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment['description'] }}
+        </p>
+
         <p>
             <strong>{{ "TIME"|translate }}:</strong> <span ng-show="experiment['time'] >= 3600">{{ experiment['time'] / 3600|number:0 }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ experiment['time'] % 3600 / 60|number:0 }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}
         </p>
 
-        <p>
-            <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment['description'] }}
-        </p>
+        <div class="text-center" style="width: 66%">
+            <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+               id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE_FRAME'|translate }}</a>
+            <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+               id="reserve-free-btn" ng-click="reserve({ where: 'window' })">{{ 'RESERVE_WINDOW'|translate }}</a>
+        </div>
     </div>
 
 </div>

@@ -50,4 +50,5 @@ def latest_uses(category_name, experiment_name):
             current_use['location'] = use['origin']
 
         uses.append(current_use)
-    return weblab_api.jsonify(uses=uses)
+
+    return weblab_api.jsonify(uses=uses[::-1])
