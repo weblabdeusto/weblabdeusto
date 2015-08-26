@@ -17,6 +17,7 @@ function LabsScreenController($scope, $http) {
         // category_name: {
         //     selected: false,
         //     count: 1
+        //     experiments: []
         // }
     };
     $scope.search = {
@@ -85,10 +86,12 @@ function LabsScreenController($scope, $http) {
             exp.visible = true;
             if (exp.category in $scope.categories) {
                 $scope.categories[exp.category].count++;
+                $scope.categories[exp.category].experiments.push(exp);
             } else {
                 $scope.categories[exp.category] = {
                     selected: false,
-                    count: 1
+                    count: 1,
+                    experiments: [ exp ]
                 };
             }
         });
