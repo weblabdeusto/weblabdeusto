@@ -54,10 +54,10 @@
           <!-- Wrapper for slides -->
           <div class="carousel-inner" role="listbox">
             <div ng-repeat-start="exp_image in experiment.images.items" class="item text-center active" style="height: 350px" ng-if="$first">
-                <img src="{{ exp_image }}" alt="image">
+                <img ng-src="{{ exp_image }}" alt="image">
             </div>
             <div ng-repeat-end class="item text-center" style="height: 350px" ng-if="!$first">
-                <img src="{{ exp_image }}" alt="image">
+                <img ng-src="{{ exp_image }}" alt="image">
             </div>
 
           </div>
@@ -94,10 +94,10 @@
     </div>
 
 
-    <div class="col-lg-2 well">
+    <div class="col-lg-2 well" ng-cloak>
         <h4>Stats</h4>
-        <p><strong>Number of uses:</strong> 12312</p>
-        <p><strong>Status:</strong> working</p>
+        <p><strong>Number of uses:</strong> {{ stats.total_uses }}</p>
+        <p><strong>Status:</strong> <span style="color: {{ stats.status_color }}">{{ stats.status|translate }}</span></p>
     </div>
 
 </div>

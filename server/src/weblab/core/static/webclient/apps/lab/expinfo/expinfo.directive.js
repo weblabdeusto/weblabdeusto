@@ -8,6 +8,7 @@ function wlExpInfo() {
         scope: {
             experiment: "=",
             latestuses: "=",
+            stats: "=",
             reserve: "&",
             isExperimentReserving: "&"
         },

@@ -44,7 +44,7 @@
 
             <!-- Component for the experiment information window thing -->
             <!-- Should be shown only when the experiment is NOT active -->
-            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)" is-experiment-reserving="isExperimentReserving()" latestuses="latest_uses"></wl-exp-info>
+            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)" is-experiment-reserving="isExperimentReserving()" stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
             <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" translationData="reserveMessage.translationData" type="reserveMessage.type"></wl-reserve-status>
         </div>
 
@@ -87,6 +87,7 @@
         var WL_LOGIN_URL = "{{ url_for('.login') }}";
         var LOCALES_URL = "{{ url_for('.locales') }}";
         var LATEST_USES_URL = "{{ url_for('.latest_uses', experiment_name=experiment['name'], category_name=experiment['category']) }}";
+        var LAB_STATS_URL = "{{ url_for('.lab_stats', experiment_name=experiment['name'], category_name=experiment['category']) }}";
         var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
 
         var PREFERRED_LANGUAGE = "{{ get_locale() }}";

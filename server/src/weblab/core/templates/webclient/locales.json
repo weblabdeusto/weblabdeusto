@@ -19,6 +19,8 @@
     "DATE": {{ ng_gettext("Date")|tojson }},
     "LOCATION": {{ ng_gettext("Location")|tojson }},
     "DETAILS": {{ ng_gettext("Details")|tojson }},
+    "ONLINE": {{ ng_gettext("Online")|tojson }},
+    "OFFLINE": {{ ng_gettext("Offline")|tojson }},
     "MY_LATEST_USES": {{ ng_gettext("My latest uses")|tojson }},
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
     "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}

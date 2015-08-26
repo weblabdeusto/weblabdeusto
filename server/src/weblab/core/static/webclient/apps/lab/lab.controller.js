@@ -65,6 +65,7 @@ function LabController($scope, $injector, $http) {
     $scope.isExperimentReserving = isExperimentReserving;
     $scope.finishExperiment = finishExperiment;
     $scope.loadLatestUses = loadLatestUses;
+    $scope.loadLabStats = loadLabStats;
 
 
     // ------------------------
@@ -83,6 +84,7 @@ function LabController($scope, $injector, $http) {
     
 
     loadLatestUses();
+    loadLabStats();
 
     // -------------------------
     // Implementations
@@ -137,6 +139,20 @@ function LabController($scope, $injector, $http) {
         });
     }
 
+    /**
+     * Loads the general stats
+     */
+    function loadLabStats() {
+        $http.get(LAB_STATS_URL).then(function(response) {
+            if (response.status == 200) {
+                $scope.lab_stats = response.data.stats;
+                if (response.data.stats.status == 'online') {
+                    $scope.lab_stats.status = 'ONLINE';
+                    $scope.lab_stats.status_color = 'green';
+                }
+            }
+        });
+    }
 
     /**
      * Handles a reserve progress update, received periodically while a reserve attempt is in progress.

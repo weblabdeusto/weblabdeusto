@@ -52,3 +52,25 @@ def latest_uses(category_name, experiment_name):
         uses.append(current_use)
 
     return weblab_api.jsonify(uses=uses[::-1])
+
+@weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/stats.json")
+@login_required
+def lab_stats(category_name, experiment_name):
+    experiment_found = False
+    try:
+        experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
+
+
+        for exp_allowed in experiment_list:
+            if exp_allowed.experiment.name == experiment_name and exp_allowed.experiment.category.name == category_name:
+                experiment_found = True
+
+    except Exception as ex:
+        return {}
+
+    if not experiment_found:
+        return {}
+
+    stats = weblab_api.db.get_experiment_stats(experiment_name, category_name)
+    stats['status'] = 'online';
+    return weblab_api.jsonify(stats=stats)

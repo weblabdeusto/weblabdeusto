@@ -26,6 +26,7 @@ from collections import OrderedDict, namedtuple, defaultdict
 import six
 import sqlalchemy
 import sqlalchemy.sql as sql
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -1308,6 +1309,40 @@ class DatabaseGateway(object):
             })
 
         return data
+
+    @with_session
+    def get_experiment_stats(self, experiment_name, category_name):
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name=category_name).first()
+        if category is None:
+            return []
+
+        experiment_row = _current.session.query(model.DbExperiment.id).filter_by(name=experiment_name, category=category).first()
+        if experiment_row is None:
+            return []
+
+        experiment_id = experiment_row[0]
+
+        now = datetime.datetime.now()
+        last_year = now.replace(year=now.year-1)
+
+        if now.month == 1:
+            last_month = now.replace(month = 12, year = now.year - 1)
+        else:
+            try:
+                last_month = now.replace(month = now.month-1)
+            except ValueError: # e.g., 31 of March => 31 of February doesn't exist
+                last_month = now.replace(day=1) - datetime.timedelta(days=1) # e.g., 1 of March - 1 day (which will be 28, 29 in February or 30 in April etc.)
+
+        total_uses = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter_by(experiment_id=experiment_id).first()[0]
+        total_uses_last_month = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id == experiment_id, model.DbUserUsedExperiment.start_date >= last_month).first()
+        total_uses_last_year = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id == experiment_id, model.DbUserUsedExperiment.start_date >= last_year).first()
+
+        return {
+            'total_uses': total_uses,
+            'total_uses_last_month': total_uses_last_month,
+            'total_uses_last_year': total_uses_last_year,
+        }
+
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)
