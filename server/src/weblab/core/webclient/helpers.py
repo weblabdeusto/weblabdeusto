@@ -97,5 +97,12 @@ def _get_experiment(experiment_raw):
     exp['logo_link'] = weblab_api.ctx.core_server_url + 'client/weblabclientlab/' + exp['config'].get('experiment.picture', 'img/experiments/default.jpg')
     exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])
     exp['description'] = "This is a dummy description of the laboratory {name} of category {category}".format(name=exp['name'], category=exp['category'])
+    exp['images'] = {
+        'max_height' : 350,
+        'items' : [
+            'http://weblabdeusto.readthedocs.org/en/latest/_images/weblab_box.jpg',
+            'http://weblabdeusto.readthedocs.org/en/latest/_images/demo-pld.jpg',
+        ]
+    }
     return exp
 

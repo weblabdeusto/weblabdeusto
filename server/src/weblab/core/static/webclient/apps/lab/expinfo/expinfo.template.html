@@ -37,12 +37,41 @@
         </div>
     </div>
 
-    <div class="col-lg-9">
+    <div class="col-lg-7">
         <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
         <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
         <p>
             <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment['description'] }}
         </p>
+
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+          <!-- Indicators -->
+          <ol class="carousel-indicators">
+            <li ng-repeat-start="exp_image in experiment.images.items" data-target="#carousel-example-generic" data-slide-to="0" class="active" ng-if="$first"></li>
+            <li ng-repeat-end="exp_image in experiment.images.items" data-target="#carousel-example-generic" data-slide-to="$index" ng-if="!$first"></li>
+          </ol>
+
+          <!-- Wrapper for slides -->
+          <div class="carousel-inner" role="listbox">
+            <div ng-repeat-start="exp_image in experiment.images.items" class="item text-center active" style="height: 350px" ng-if="$first">
+                <img src="{{ exp_image }}" alt="image">
+            </div>
+            <div ng-repeat-end class="item text-center" style="height: 350px" ng-if="!$first">
+                <img src="{{ exp_image }}" alt="image">
+            </div>
+
+          </div>
+
+          <!-- Controls -->
+          <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
 
         <p>
             <strong>{{ "TIME"|translate }}:</strong> <span ng-show="experiment['time'] >= 3600">{{ experiment['time'] / 3600|number:0 }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ experiment['time'] % 3600 / 60|number:0 }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}
@@ -58,6 +87,13 @@
                id="reserve-free-btn" ng-click="reserve({ where: 'window' })">{{ 'RESERVE_WINDOW'|translate }}</a>
             -->
         </div>
+    </div>
+
+
+    <div class="col-lg-2 well">
+        <h4>Stats</h4>
+        <p><strong>Number of uses:</strong> 12312</p>
+        <p><strong>Status:</strong> working</p>
     </div>
 
 </div>
