@@ -38,7 +38,8 @@
     </div>
 
     <div class="col-lg-9">
-        <!-- TODO: support pictures, video, and so on -->
+        <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
+        <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
         <p>
             <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment['description'] }}
         </p>
@@ -49,9 +50,13 @@
 
         <div class="text-center" style="width: 66%">
             <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+               id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE'|translate }}</a>
+            <!-- 
+            <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
                id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE_FRAME'|translate }}</a>
             <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
                id="reserve-free-btn" ng-click="reserve({ where: 'window' })">{{ 'RESERVE_WINDOW'|translate }}</a>
+            -->
         </div>
     </div>
 

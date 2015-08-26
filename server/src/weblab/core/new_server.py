@@ -358,6 +358,25 @@ class WebLabAPI(object):
         return sorted(self.server_instance.babel.list_translations(), key=lambda locale: locale.display_name.capitalize())
 
     @property
+    def language_links(self):
+        language_links = []
+        for language in self.languages:
+            if '?' in request.url and 'locale=' in request.url.split('?')[1]:
+                # If there is already a locale= in the URL, just replace that query variable
+                old_lang = request.url.split('locale=')[1].split('&')[0]
+                link = request.url.replace('locale=' + old_lang, 'locale=' + language.language)
+            else:
+                # Otherwise, add the locale
+                separator = '&' if '?' in request.url else '?'
+                link = request.url + separator + 'locale=' + language.language
+
+            language_links.append({
+                'link' : link,
+                'name' : language.display_name.capitalize()
+            })
+        return language_links
+
+    @property
     def gravatar_url(self):
         """
         Returns the gravatar URL 

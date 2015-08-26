@@ -9,6 +9,7 @@
     "RESERVATION_DONE": {{ ng_gettext("Reservation done")|tojson }},
     "EXPERIMENT": {{ ng_gettext("Experiment")|tojson }},
     "RESERVE_FRAME": {{ ng_gettext("Reserve (in Frame)")|tojson }},
+    "RESERVE": {{ ng_gettext("Reserve")|tojson }},
     "RESERVE_WINDOW": {{ ng_gettext("Reserve (in Window)")|tojson }},
     "FINISH": {{ ng_gettext("Finish")|tojson }},
     "CATEGORY": {{ ng_gettext("Category")|tojson }},
