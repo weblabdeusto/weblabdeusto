@@ -94,7 +94,7 @@
     </div>
 
 
-    <div class="col-lg-2 well" ng-cloak>
+    <div class="col-lg-2 well" ng-cloak ng-show="stats.status">
         <h4>Stats</h4>
         <p><strong>Number of uses:</strong> {{ stats.total_uses }}</p>
         <p><strong>Status:</strong> <span style="color: {{ stats.status_color }}">{{ stats.status|translate }}</span></p>
