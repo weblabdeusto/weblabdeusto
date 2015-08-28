@@ -287,6 +287,7 @@ function LabController($scope, $injector, $http) {
                 wexp.onFinish().done(function (f) {
                     $scope.experiment.active = false;
                     $scope.loadLatestUses();
+                    $scope.loadLabStats();
 
                     $scope.reserveMessage.message = "";
 

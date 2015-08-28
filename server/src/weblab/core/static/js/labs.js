@@ -25,16 +25,24 @@ function LabsScreenController($scope, $http) {
         any_experiment_found: true,
         any_category_selected: false
     };
+    $scope.experiment_list = {
+        order: 'name'
+    };
     
     // 
     // Scope methods
     // 
     $scope.filter_experiments = filter_experiments;
     $scope.category_click = category_click;
+    $scope.set_order = set_order;
 
     // 
     // Implementation
     // 
+    function set_order(order) {
+        $scope.experiment_list.order = order;
+    }
+
     function category_click(category) {
 
         $scope.categories[category].selected = !$scope.categories[category].selected;
