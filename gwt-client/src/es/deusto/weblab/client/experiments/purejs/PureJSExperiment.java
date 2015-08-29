@@ -22,7 +22,6 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Label;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.UIExperimentBase;
 
@@ -45,8 +44,8 @@ public class PureJSExperiment extends UIExperimentBase {
 	
 	@Override
 	public void initialize() {
-		final SessionID sessionId = this.boardController.getSessionId();
-		redirectToHtml("session_id=" + sessionId.getRealId());
+//		final SessionID sessionId = this.boardController.getSessionId();
+//		redirectToHtml("session_id=" + sessionId.getRealId());
 	}
 	
 	private void redirectToHtml(String hashInfo) {
@@ -73,7 +72,7 @@ public class PureJSExperiment extends UIExperimentBase {
 
 	@Override
 	public void start(final int time, String initialConfiguration){
-		final SessionID sessionId = this.boardController.getReservationId();
-		redirectToHtml("reservation_id=" + sessionId.getRealId());
+//		final SessionID sessionId = this.boardController.getReservationId();
+//		redirectToHtml("reservation_id=" + sessionId.getRealId());
 	}
 }

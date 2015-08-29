@@ -14,7 +14,6 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
@@ -31,17 +30,6 @@ public interface IBoardBaseController{
 	 * Is the user accessing through facebook?
 	 */
 	public boolean isFacebook();
-	
-	/**
-	 * What is the session id of the user? It is useful when using other type of communications, such
-	 * as iframes in the LabVIEW experiment.
-	 */
-	public SessionID getSessionId();
-	
-	/**
-	 * What is the reservation id of the user? 
-	 */
-	public SessionID getReservationId();
 	
 	/**
 	 * What is the experiment id of this experiment?
