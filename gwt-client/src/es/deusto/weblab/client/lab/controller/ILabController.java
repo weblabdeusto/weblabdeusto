@@ -28,7 +28,6 @@ public interface ILabController {
 	public boolean startedLoggedIn();
 	public boolean startedReserved();
 	public void logout();
-	public void checkSessionIdStillValid(SessionID sessionId, IValidSessionCallback callback);
 	
 	public void setUIManager(IUIManager uimanager);
 	
