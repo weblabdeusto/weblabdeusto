@@ -1,0 +1,12 @@
+<configuration>
+	<!-- <hostname>localhost</hostname> -->
+	<!-- <port>2324</hostname> -->
+	<hostname>localhost</hostname>
+	<port>2324</port>
+	<http>0</http>
+	<httpurl>http://localhost:8080/measureserver</httpurl>
+	
+	<weblab>1</weblab>
+	<weblaburl>http://localhost:12345</weblaburl>
+	<ignorecookie>1</ignorecookie>
+</configuration>

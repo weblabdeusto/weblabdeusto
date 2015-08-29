@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Incubadora</title>
+		<meta charset="UTF-8">
+
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+
+		<script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
+		<script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script>
+			$(parent.document).find('iframe[name=wlframe]').hide();
+
+			start = function() {
+				updateData = function() {
+					Weblab.sendCommand("DATA", function(response) {
+						data = JSON.parse(response);
+						if (data != 'undefined' && data['temperature'] != 'undefined' && data['humidity'] != 'undefined' && data['temperature'] != '' && data['humidity'] != '') {
+							$('#temperature span').text((Math.round(data["temperature"] * 100) / 100)+"ºC");
+							$('#humidity span').text((Math.round(data["humidity"] * 100) / 100)+"%");
+						}
+
+						setTimeout(updateData, 2000);
+					});
+				}
+
+				updateCam = function() {
+					d = new Date();
+					$('#camera').attr("src", "http://cams.weblab.deusto.es/webcam/proxied.py/incubator1?"+d.getTime());
+				}
+
+				$('#light_on').click(function() {
+					Weblab.sendCommand('L_ON');
+				});
+
+				$('#light_off').click(function() {
+					Weblab.sendCommand('L_OFF');
+				});
+
+				$('#camera').on("load", function(){setTimeout(updateCam, 400)});
+				updateCam();
+				updateData();
+				$(parent.document).find('iframe[name=wlframe]').show();
+			}
+
+			Weblab.setOnStartInteractionCallback(start);
+		</script>
+	</head>
+	<body>
+		<section class="container-fluid">
+			<section class="col-md-8">
+				<img id="camera" alt="Cámara" src="https://cams.weblab.deusto.es/webcam/proxied.py/incubator1">
+			</section>
+			<section class="col-md-4">
+				<section id="temperature" class="col-md-6">Temperatura: <span></span></section>
+				<section id="humidity" class="col-md-6">Humedad: <span></span></section>
+				<section class="col-md-12" style="margin-top: 4em">
+					<button id="light_on">
+						<img alt="Encender Lámpara" src="img/light_on.png"> Encender
+					</button>
+					<button id="light_off">
+						<img alt="Apagar Lámpara" src="img/light_off.png"> Apagar
+					</button>
+				</section>
+			</section>
+		</section>
+	</body>
+</html>

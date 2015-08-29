@@ -1,0 +1,116 @@
+header
+{
+	font-size: 2.5em;
+	margin-bottom: 0.25em;
+}
+
+.movements
+{
+	text-align: left;
+	font-weight: bold;
+}
+
+.points
+{
+	text-align: right;
+}
+
+.controls
+{
+	margin-top: 5em;
+}
+
+.camera1, .camera2
+{
+	text-align: center;
+}
+
+.camera1 img
+{
+	width: 85%;
+}
+
+.camera2 img
+{
+	width: 260px;
+}
+
+.camera2 p
+{
+	width: 240px;
+	height: 195px;
+	text-align: center;
+	margin: auto;
+}
+
+.controls button
+{
+	width: 55px;
+	height: 55px;
+	padding: 0px;
+}
+
+.sponsors
+{
+	padding-top: 2.5em;
+}
+
+.inactive p.inactive
+{
+	font-weight: bold;
+	font-size: 1.25em;
+	color: #FFFFFF;
+	margin-top: -195px;
+	padding-top: 2em;
+}
+
+.active
+{
+	cursor: pointer;
+}
+
+.active p.active
+{
+	font-weight: bold;
+	font-size: 1.25em;
+	color: #FFFFFF;
+	margin-top: -195px;
+	padding-top: 4em;
+}
+
+.active p.inactive
+{
+	display: none;
+}
+
+.inactive p.active
+{
+	display: none;
+}
+
+#question .modal-body form input[type="radio"]
+{
+	cursor: pointer;
+	margin-top: 1em;
+	margin-left: 3em;
+}
+
+#question .modal-body form label
+{
+	cursor: pointer;
+	padding-left: 0.5em;
+	font-weight: normal;
+	vertical-align: middle;
+}
+
+#labpsicoExperiment
+{
+	width: 100%;
+	height: 500px;
+	border: none;
+}
+
+#gender
+{
+	margin-left: 1em;
+}

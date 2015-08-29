@@ -1,0 +1,31 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	
+	<ui:with field="res" type="es.deusto.weblab.client.ui.Resources" />
+	
+	<ui:style>
+		.newlink{
+		 	cursor: hand; 
+			cursor: pointer; 
+		}
+		.webcam {
+			padding: 5px;	
+		}
+	</ui:style>
+	
+	<g:DecoratorPanel>
+		<g:VerticalPanel horizontalAlignment="CENTER">
+		
+			<g:Label ui:field="titleLabel"/>
+			
+			<w:WlWebcam ui:field="webcam" styleName="{style.webcam}" />
+			
+			<g:HorizontalPanel spacing="30">
+				<w:WlSwitch ui:field="lightSwitch"/>
+				<g:Image ui:field="more" resource='{res.calendar}' height="38" styleName="{style.newlink}"/>
+			</g:HorizontalPanel>
+		</g:VerticalPanel>
+	</g:DecoratorPanel>
+</ui:UiBinder> 

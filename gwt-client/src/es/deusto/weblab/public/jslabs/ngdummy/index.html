@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+    <!-- Reference bootstrap styles, just for the looks. -->
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
+
+    <!-- Reference the application's styles themselves. -->
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+
+</head>
+<body>
+
+
+<!-- The experiment will be draw here. If the experiment was larger we might want to use an angular route to
+split it up in different 'windows', but no need for this example. -->
+<div ng-include src="'app/main.html'"></div>
+
+
+<!-- Include jQuery, Angular and Bootstrap libraries. Any client-side library could be used, however. -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<!-- URI.js required for the Webcam component. -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
+
+<!-- Include the WeblabJS library. This is the library used to interact with Weblab in Managed Experiments. -->
+<script src="../../jslib/weblabjs.js"></script>
+
+<!-- Include this application's code itself -->
+<script src="app/app.js"></script>
+<script src="app/app.controller.js"></script>
+<script src="app/button/button.controller.js"></script>
+<script src="app/button/button.directive.js"></script>
+<script src="app/webcam/webcam.controller.js"></script>
+<script src="app/webcam/webcam.directive.js"></script>
+
+
+<!-- Initialize angular manually. -->
+<script type="text/javascript">
+    angular.element(document).ready(function(){
+        angular.bootstrap(document, ["ngdummy"]);
+    });
+</script>
+
+</body>
+</html>

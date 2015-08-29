@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Archimedes Experiment</title>
+
+    <!-- Third-party libraries JS & CSS -->
+    <link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes.css" rel="stylesheet" type="text/css"/>
+    <link href="css/archimedes_design.css" rel="stylesheet" type="text/css"/>
+
+    <!-- For compatibility with old IE and, especially, with PhantomJS, used for some testing -->
+    <script type="text/javascript" src="../../jslib/es5-shim.min.js"></script>
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-latest.min.js"></script>
+    <script type="text/javascript" src="./bootstrap3/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.7.2/mustache.min.js"></script>
+    <script type="text/javascript" src="./libs/d3.v3.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.7.1/coffee-script.min.js"></script>
+    <script type="text/javascript" src="./libs/jquery.i18n.min.js"></script>
+
+
+    <!-- WebLab library -->
+    <script type="text/javascript" src="../../jslib/weblabjs.js"></script>
+
+    <!-- Archimedes-specific JS & CSS -->
+    <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
+    <link href="css/timeweight_plot.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/archimedes_configuration.js"></script>
+    <script type="text/javascript" src="js/datatable.js"></script>
+    <script type="text/javascript" src="js/imagezoom.js"></script>
+    <script type="text/javascript" src="js/misc_ui.js"></script>
+    <script type="text/javascript" src="js/archimedes_instance.js"></script>
+    <script type="text/javascript" src="js/archimedes_experiment.js"></script>
+    <script type="text/javascript" src="js/timeweight_plot.js"></script>
+    <script type="text/javascript" src="js/widgets.js"></script>
+    <script type="text/javascript" src="js/archimedes_design.js"></script>
+    
+
+</head>
+
+<body>
+
+
+<!-- Some small MUSTACHE templates -->
+<script type="x-tmpl-mustache" id="shown-button-template">
+    <label title="{{ tooltip }}" class="btn btn-success active" data-instance="{{ instance }}" style="margin-bottom: 10px; margin-right: 5px; margin-left: 5px" >
+        <input id="{{ id }}" type="checkbox" checked>{{ text }}</input>
+    </label>
+</script>
+
+
+<script type="text/javascript">
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        // global
+        archimedesExperiment = new ArchimedesExperiment(Registry, View);
+
+        // Carries out translations on the HTML, modifying the text
+        // in those elements which are not dynamically created.
+        translatePage();
+
+        // Initialize the shownpanel, to show or hide instances.
+        initializeShownPanel();
+
+    });
+
+    //! Initializes the ShownPanel. This can be reinitialized when the View changes with no issues.
+    //!
+    //! This provides a way to easily hide or show instances. It uses the global View object to choose which buttons to display.
+    //! Whenever the View changes, this needs to be called again.
+    //! Instances will be displayed only if they are visible.
+    function initializeShownPanel()
+    {
+        // Remove existing buttons, so that we can safely call this function repeteadly when the view updates.
+        $("#shownpanel").children().remove();
+
+        $.each(View, function(name, entry) {
+
+            if(!$("#" + name + "-experiment-instance").is(":visible")) {
+                return true;
+            }
+
+            // We want text to be the custom name defined in the Registry. If the instance doesn't have that attribute,
+            // we use the instance name itself.
+            var text = Registry[name].name;
+            if(text == undefined)
+                text = name;
+
+            var rendered = Mustache.render($("#shown-button-template").html(), {text: text, tooltip: $.i18n._("hide"), id: "show-" + name, instance: name});
+            $("#shownpanel").append($(rendered));
+
+            $("#show-hide-tooltip").attr("title", $.i18n._("showInstancesHelpTitle"));
+            $("#show-hide-tooltip").data("content", $.i18n._("showInstancesHelpContent"));
+            $("#show-hide-tooltip").popover({html: true});
+        });
+
+        // To handle clicks on the buttons of the instance show/hide panel
+        $("#shownpanel>label").click(function(ev){
+
+            var changed = $(ev.target);
+            var instance_name = changed.data("instance");
+
+            // Make the color change more obvious.
+            changed.toggleClass("btn-success");
+            changed.toggleClass("my-btn-disabled");
+
+            // Find the related instance.
+            var instance = archimedesExperiment.instances[instance_name];
+
+            if(changed.find("input").prop("checked")) {
+                // Hide
+                $("#" + instance_name + "-experiment-instance").fadeOut(600);
+                changed.attr("title", $.i18n._("show"));
+                instance.pause(); // Resume webcam etc.
+            } else {
+                // Show
+                $("#" + instance_name + "-experiment-instance").fadeIn(600);
+                changed.attr("title", $.i18n._("hide"));
+                instance.resume(); // Stop webcam etc.
+            }
+        });
+    }
+
+    function translatePage() {
+        // Translate the strings in the experiment frame, etc.
+        $(document).attr("title", $.i18n._("archimedes.experiment"));
+        $("#hdModalLabelTitle").text($.i18n._("hd.picture"));
+        $(".modal-footer > button").text($.i18n._("close"));
+        $("#plotModalLabel").text($.i18n._("time.weight.plot"));
+
+        // Translate the strings in the experiment instances.
+    }
+
+
+</script>
+
+
+<!-- Large modal to show the HD picture -->
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="hdModalLabelTitle">HD picture</h4>
+            </div>
+            <div class="modal-body">
+                <img id="hdpic" style="width: 100%; max-height: 800px; " src="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Large modal to show the TIME/WEIGHT plot -->
+<!-- Modal -->
+<div class="modal fade" id="plotModal" tabindex="-1" role="dialog" aria-labelledby="plotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="plotModalLabel">Time / Weight Plot</h4>
+            </div>
+            <div class="modal-body">
+                <p id="plotexplanation"></p>
+
+                <div id="plotModalBody">
+                <!-- CONTENT WILL BE DYNAMICALLY APPENDED HERE -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="container">
+
+    <h2>
+        <span class="timer" id="timer"></span>
+    </h2>
+
+    <div class="text-center" style="width: 100%">
+        <div class="editmodeh hide" id="editmodeh">
+            <h2>
+                <span>
+                    DESIGN MODE
+                </span>
+            </h2>
+            <p>
+                Click on the elements you wish to hide.
+            </p>
+        </div>
+    </div>
+
+
+    <!-- To show or hide instances in standard mode -->
+    <div class="row">
+        <div class="col-lg-12 well">
+            <legend class="legend">
+                <div style="display: inline-block" id="toggle-show-hide"></div>
+                <a id="show-hide-tooltip" tabindex="0" class="glyphicon glyphicon-info-sign" data-toggle="popover" data-placement="bottom" data-trigger="focus"
+                   title=""
+                   data-content="">
+                </a>
+            </legend>
+            <div class="" id="shownpanel" data-toggle="buttons">
+                <!-- To be filled. Buttons are dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- For the design view, to fully hide instances -->
+    <!-- CURRENTLY NOT IMPLEMENTED / UNUSED -->
+    <div class="row instances_select" style="display: none">
+        <form>
+        <!-- To be filled dynamically -->
+        </form>
+    </div>
+
+    <div class="instances_row row clearfix">
+
+        <!-- THE INSTANCE TEMPLATES WILL BE RENDERED HERE -->
+
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    var cur_hash = location.hash.substring(1);
+    var configure = "";
+    var variables = cur_hash.split('&');
+    for(var i in variables){
+        var cur_variable = variables[i];
+        if(cur_variable.indexOf('configure=') == 0)
+            configure = cur_variable.substring('configure='.length);
+    }
+
+    var appcomposer_config = appcomposer_config || [];
+
+    if (configure.toLowerCase() == "true") {
+        setTimeout(ArchimedesDesign.enableDesignView, 300);
+
+        function getConfiguration() {
+            return ArchimedesDesign.getView();
+        }
+
+        function initializer(config) {
+            ArchimedesDesign.setDesignView(config);
+        }
+
+        function labmanager_retrieval() {
+            return { 'widget_url' : 'http://www.weblab.deusto.es/golab/labmanager/opensocial/public/widgets/archimedes/widget_default.xml' };
+        }
+
+        appcomposer_config.push(['get_view', getConfiguration]);
+        appcomposer_config.push(['initializer', initializer]);
+        appcomposer_config.push(['labmanager_retrieval', labmanager_retrieval]);
+
+        var new_script = document.createElement('script'); 
+        new_script.type = 'text/javascript'; 
+        new_script.async = true;
+        new_script.src = "../../jslib/appcomposer.js";
+        var s = document.getElementsByTagName('script')[0]; 
+        s.parentNode.insertBefore(new_script, s);
+    }
+
+
+    // Internationalize things in this page.
+    $("#toggle-show-hide").html($.i18n._("toggle-show-hide"));
+
+</script>
+
+
+<!--<script type="text/javascript">-->
+    <!--setTimeout( function() {-->
+        <!--ArchimedesDesign.enableDesignView();-->
+
+        <!--setInterval(function () {-->
+            <!--var v = ArchimedesDesign.getView();-->
+            <!--console.log(v);-->
+            <!--ArchimedesDesign.setDesignView(v);-->
+        <!--}, 3000);-->
+    <!--}, 1000 );-->
+<!--</script>-->
+
+
+</body>
+</html>

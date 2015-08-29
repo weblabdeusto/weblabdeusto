@@ -1,0 +1,11 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	<ui:style>
+		
+	</ui:style>
+	<g:VerticalPanel>
+		<w:WlWebcam ui:field="webcam"></w:WlWebcam>
+	</g:VerticalPanel>
+</ui:UiBinder> 

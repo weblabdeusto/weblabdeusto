@@ -1,0 +1,95 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    <ui:with field='res' type='es.deusto.weblab.client.experiments.submarine.ui.Resources'/>
+    <ui:with field='i18n' type='es.deusto.weblab.client.i18n.IWebLabI18N'/>
+    
+    <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:VerticalPanel borderWidth="0" ui:field="mainWidgetsPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+		
+			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:VerticalPanel>
+					<g:Image ui:field="lookHereImage" resource="{res.lookHere}" visible="false"/>
+					<w:WlWebcam ui:field="webcam1" visible="false"></w:WlWebcam>
+				</g:VerticalPanel>
+				<g:VerticalPanel>
+					<w:WlWebcam ui:field="webcam2" visible="false"></w:WlWebcam>
+				</g:VerticalPanel>
+			</g:HorizontalPanel>
+
+			<g:HorizontalPanel borderWidth="0" horizontalAlignment="ALIGN_CENTER" width="100%">
+				<w:WlTimer ui:field="timer" width="100%" styleName="wl-time_remaining"></w:WlTimer>
+			</g:HorizontalPanel>
+
+			<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
+								
+			<!-- Needs to be initially hidden so as not to take space on the reserve screen. -->
+			<g:HorizontalPanel borderWidth="0" ui:field="inputWidgetsPanel" visible="false" horizontalAlignment='ALIGN_CENTER' width="100%">
+				<g:HorizontalPanel spacing="100" height="100%" width="100%">
+					<g:cell height="100%" verticalAlignment="ALIGN_MIDDLE">
+						<g:Grid cellSpacing="10">
+							<g:row spacing="10" horizontalAlignment='ALIGN_CENTER'>
+								<g:customCell><g:Image ui:field="lightImage"/></g:customCell>
+								<g:customCell><g:Image resource="{res.food}"/></g:customCell>
+								<g:customCell><g:VerticalPanel width="60px" horizontalAlignment="ALIGN_CENTER"><g:Image ui:field="thermometer" visible="false"/></g:VerticalPanel></g:customCell>
+							</g:row>
+							<g:row spacing="10">
+								<g:customCell><w:WlSwitch ui:field="lightSwitch"/></g:customCell>
+								<g:customCell><w:WlButton ui:field="foodButton"/></g:customCell>
+								<g:customCell><g:HTML width="100px" ui:field="temperature" visible="false"/></g:customCell>
+							</g:row>
+						</g:Grid>
+					</g:cell>
+					<g:cell width="100%">
+						<g:VerticalPanel ui:field="activateSubmarinePanel" width="100%"  horizontalAlignment="ALIGN_CENTER" spacing="30">
+							<g:Label width="500px" text="{i18n.submarineIsOnlyAvailableFewTimes}" />
+							<g:Button ui:field="activateSubmarineButton" text="{i18n.activateSubmarineControlPanel}"/>
+						</g:VerticalPanel>
+					</g:cell>
+					<g:cell width="100%">
+						<g:VerticalPanel ui:field="activateSubmarinePanel2" width="100%"  horizontalAlignment="ALIGN_CENTER" spacing="30" visible="false">
+							<g:Image resource="{res.playWithLights}"/>
+							<g:Label width="500px" text="{i18n.submarineIsProbablyOutOfBattery}" />
+							<g:Button ui:field="activateSubmarineButton2" text="{i18n.yesActivateSubmarineControlPanel}"/>
+						</g:VerticalPanel>
+					</g:cell>
+					<g:Grid ui:field="submarineGrid" visible="false">
+						<g:row>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="forwardButton" resource='{res.forward}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell><g:Image ui:field="leftButton" resource='{res.left}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="rightButton" resource='{res.right}' styleName="wl-img-button"/></g:customCell>
+						</g:row>
+						<g:row>
+							<g:customCell><g:Label/></g:customCell>
+							<g:customCell><g:Image ui:field="backwardButton" resource='{res.backward}' styleName="wl-img-button"/></g:customCell>
+							<g:customCell><g:Label/></g:customCell>
+						</g:row>
+					</g:Grid>
+					<g:cell height="100%">
+						<g:VerticalPanel height="100%" ui:field="submarinePanel" visible="false">
+							<g:cell verticalAlignment="ALIGN_MIDDLE">
+								<g:VerticalPanel>
+									<g:Image ui:field="upButton" resource='{res.up}' styleName="wl-img-button"/>
+									<g:Image ui:field="downButton" resource='{res.down}' styleName="wl-img-button"/>
+								</g:VerticalPanel>
+							</g:cell>
+						</g:VerticalPanel>
+					</g:cell>
+				</g:HorizontalPanel>		
+			</g:HorizontalPanel>
+			
+		</g:VerticalPanel>
+		
+	</g:VerticalPanel>
+
+				
+	
+
+</ui:UiBinder>

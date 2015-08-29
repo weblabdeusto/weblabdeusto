@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>VISIR HTML5</title>
+	<link rel="stylesheet" href="instrumentframe/instrumentframe.css" />
+	<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="visir.js"></script>
+	<script type="text/javascript" src="../jslib/weblabjs.js"></script>
+	<script>
+
+	$(parent.document).find('iframe[name=wlframe]').hide();
+
+	function init()
+	{
+		function MakeMeasurement()
+		{
+			reg.MakeRequest(transport);
+		}
+
+		trace("starting up..");
+
+		var transport = new visir.WLTransport(visir.SetWorking);
+		transport.onerror = function(err) { alert("Error: " + err); }
+
+		transport.Connect();
+
+		var extservice = new visir.ExtServices({ MakeMeasurement: MakeMeasurement });
+		var reg = new visir.InstrumentRegistry(extservice);
+		var frame = new visir.InstrumentFrame(reg, transport, $("#instrumentframe"));
+
+		emptyexperiment = '<save version="2"><instruments htmlinstruments="Breadboard|FlukeMultimeter|HPFunctionGenerator|AgilentOscilloscope|TripleDC"></instruments><circuit></circuit></save>';
+		reg.LoadExperiment(emptyexperiment, frame.GetInstrumentContainer());
+
+		$(".measure").click( function() {
+			MakeMeasurement();
+		});
+
+		$(parent.document).find('iframe[name=wlframe]').show();
+	}
+	Weblab.setOnStartInteractionCallback(function(){ visir.Load(init); });
+</script>
+</head>
+<body>
+	<!--[if lt IE 9]><p style="font-weight: bold; color: #CC2222">This experiment is not supported in your current browser. We strongly recommend you to update it or to get a new browser, such as <a href="http://chrome.google.com/" alt="Download Google Chrome">Google Chrome</a></p><![endif]-->
+	<div id="instrumentframe"></div>
+</body>
+</html>

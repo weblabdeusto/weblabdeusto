@@ -1,0 +1,61 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets"
+    >
+    
+    
+    <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:VerticalPanel ui:field="verticalPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+		
+			<g:Label ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER">
+			Select the program to send:
+			</g:Label>
+		
+			<!-- Originally the width was 85% but apparently the webcam doesn't appear centered in that case. -->
+			<g:VerticalPanel ui:field="innerVerticalPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width='100%' spacing='0'>
+			
+				<g:HorizontalPanel ui:field="webcamPanel" width="100%" horizontalAlignment="ALIGN_CENTER" />
+							
+				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
+					
+					<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"></w:WlWaitingLabel>
+					
+					<w:WlClockActivator ui:field="clockActivator" width="70%" styleName="wl-clock_activation_panel" visible="false"></w:WlClockActivator>
+				</g:HorizontalPanel>
+				
+				<!--  Panel with the switches -->
+				<g:HorizontalPanel borderWidth="0" ui:field="switchesRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlSwitch title="9"></w:WlSwitch>
+					<w:WlSwitch title="8"></w:WlSwitch>
+					<w:WlSwitch title="7"></w:WlSwitch>
+					<w:WlSwitch title="6"></w:WlSwitch>
+					<w:WlSwitch title="5"></w:WlSwitch>
+					<w:WlSwitch title="4"></w:WlSwitch>
+					<w:WlSwitch title="3"></w:WlSwitch>
+					<w:WlSwitch title="2"></w:WlSwitch>
+					<w:WlSwitch title="1"></w:WlSwitch>
+					<w:WlSwitch title="0"></w:WlSwitch>
+				</g:HorizontalPanel>
+			
+				<!--  Panel with the buttons -->
+				<g:HorizontalPanel borderWidth="0" ui:field="buttonsRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlTimedButton title="3"></w:WlTimedButton>
+					<w:WlTimedButton title="2"></w:WlTimedButton>
+					<w:WlTimedButton title="1"></w:WlTimedButton>
+					<w:WlTimedButton title="0"></w:WlTimedButton>					
+				</g:HorizontalPanel>
+				
+			</g:VerticalPanel>
+			
+		</g:VerticalPanel>
+		
+		<!-- The upload form will be inserted into this panel. -->
+		<g:HorizontalPanel ui:field="uploadStructurePanel" horizontalAlignment="ALIGN_CENTER" width="100%">
+			<g:Hidden></g:Hidden>
+		</g:HorizontalPanel>
+	</g:VerticalPanel>
+	
+
+</ui:UiBinder>

@@ -1,0 +1,68 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N"/>
+    
+    <g:VerticalPanel width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:VerticalPanel ui:field="upperSide" width='100%' spacing="10" horizontalAlignment='ALIGN_CENTER'>
+			<g:Anchor text="&lt; {i18n.backToMyExperiments}" ui:field="back" horizontalAlignment="ALIGN_LEFT"></g:Anchor>
+			<g:Label ui:field="reserveExperimentLabel" text="{i18n.reserveThisExperiment}" styleName="mobile-title-label" />
+			<g:Label ui:field="selectedExperimentLabel" text="{i18n.selectedExperiment}" styleName="mobile-title-label" />
+			<g:Grid ui:field="grid" cellSpacing='1' styleName="mobile-experiment-details">
+				<g:row>
+					<g:customCell>
+						<g:Label text="{i18n.experimentName}:"/>
+					</g:customCell>
+					<g:customCell>
+						<g:Label ui:field="experimentName" styleName="mobile-experiment-detail"/>
+					</g:customCell>
+				</g:row>
+				
+				<g:row>
+					<g:customCell>
+						<g:Label text="{i18n.experimentCategory}:"/>
+					</g:customCell>
+					<g:customCell>
+						<g:Label ui:field="experimentCategory" styleName="mobile-experiment-detail"/>
+					</g:customCell>
+				</g:row>
+				
+				<g:row>
+					<g:customCell>
+						<g:Label text="{i18n.timeAllowed}:"/>
+					</g:customCell>
+					<g:customCell>
+						<g:Label ui:field="timeAllowed" styleName="mobile-experiment-detail"/>
+					</g:customCell>
+				</g:row>
+			</g:Grid>
+		</g:VerticalPanel>
+		
+		<g:VerticalPanel ui:field='experimentArea' width='100%' horizontalAlignment='ALIGN_CENTER'>
+		</g:VerticalPanel>
+		
+		<g:VerticalPanel ui:field="reserveSide" width='100%' horizontalAlignment='ALIGN_CENTER'>
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<w:WlWaitingLabel ui:field="waitingLabel"/>
+			</g:Cell>
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:Button ui:field="reserveButton" text="{i18n.reserve}"/>
+			</g:Cell>
+		</g:VerticalPanel>
+		
+		<g:VerticalPanel ui:field="finishSide" width='100%' horizontalAlignment='ALIGN_CENTER' visible="false">
+			<g:Cell horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:Button ui:field="finishButton" text="{i18n.finish}"/>
+			</g:Cell>
+		</g:VerticalPanel>
+		
+		<g:Label ui:field='generalErrorLabel' styleName='wl-error_message' >
+		</g:Label>
+		
+	
+	</g:VerticalPanel>
+	
+
+</ui:UiBinder>

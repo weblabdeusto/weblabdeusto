@@ -1,0 +1,74 @@
+/* Space out content a bit */
+body {
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    /* We do not allow text selection. For most of the interface text selection would just be a glitch.
+    May need to be enabled for specific controls */
+    user-select: none;
+}
+
+wl-webcam div {
+    width: 100%;
+    text-align: center;
+    height: 500px;
+}
+
+wl-webcam div img {
+    border: 2px solid darkgray;
+
+    /* So that the image is resized automatically to fit the container" */
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.my-elevator-controls {
+}
+
+
+.my-calling-controls * * legend {
+    font-size: 1.2em;
+}
+
+.elevator-btn {
+    width: 50px;
+
+    border: 1px solid darkgray;
+    border-radius: 3px;
+    padding: 2px;
+
+    position: relative;
+    display: block;
+}
+
+.elevator-btn:hover{
+    border: 1px solid black;
+}
+
+.elevator-btn-pressed {
+    /* To be displayed only while the button is being pressed by the user. */
+    background-color: lightgray;
+}
+
+.elevator-btn-overlay {
+    position: absolute;
+    width: 30px;
+
+    margin-top: -40px;
+    margin-left: 10px;
+
+    opacity: 0.5;
+
+    /* Important, so that we do not catch the events meant for the actual elevator-btn. */
+    pointer-events: none;
+}
+
+.elevator-caption {
+    display: block;
+}
+
+.elevator-btn-img-wrapper {
+    vertical-align: top;
+    display: inline-block;
+    text-align: center;
+}
