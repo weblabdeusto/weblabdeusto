@@ -14,8 +14,8 @@
         <div class="row">
             <div class="pull-right">
                 <a href="#" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a> 
-                <a href="#" ng-disabled="experiment_list.order == 'user_uses'" ng-click="set_order('user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
-                <a href="#" ng-disabled="experiment_list.order == 'latest_use'" ng-click="set_order('latest_use')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
+                <a href="#" ng-disabled="experiment_list.order == 'user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
+                <a href="#" ng-disabled="experiment_list.order == 'latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
             </div>
         </div>
         <div class="row">

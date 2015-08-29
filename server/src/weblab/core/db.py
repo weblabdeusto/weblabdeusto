@@ -221,6 +221,17 @@ class DatabaseGateway(object):
                 experiments.append(less_restrictive_experiment_allowed)
 
             experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
+
+            if experiments:
+                experiment_allowed_by_id = { experiment_allowed.experiment.id : experiment_allowed for experiment_allowed in experiments }
+                experiment_ids = [ experiment_allowed.experiment.id for experiment_allowed in experiments ]
+
+                for experiment_id, uses_for_user in session.query(model.DbUserUsedExperiment.experiment_id, func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id.in_(experiment_ids), model.DbUserUsedExperiment.user_id == user.id).group_by(model.DbUserUsedExperiment.experiment_id).all():
+                    experiment_allowed_by_id[experiment_id].total_uses = uses_for_user
+
+                for experiment_id, max_date in session.query(model.DbUserUsedExperiment.experiment_id, func.max(model.DbUserUsedExperiment.start_date)).filter(model.DbUserUsedExperiment.experiment_id.in_(experiment_ids), model.DbUserUsedExperiment.user_id == user.id).group_by(model.DbUserUsedExperiment.experiment_id).all():
+                    experiment_allowed_by_id[experiment_id].latest_use = max_date
+
             return tuple(experiments)
         finally:
             session.close()

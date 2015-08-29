@@ -92,6 +92,8 @@ def _get_experiment(experiment_raw):
     exp['display_name'] = experiment_raw.experiment.name
     exp['category'] = experiment_raw.experiment.category.name
     exp['time'] = experiment_raw.time_allowed
+    exp['latest_use_epoch'] = int(experiment_raw.latest_use.strftime("%s")) if experiment_raw.latest_use is not None else 0
+    exp['user_uses'] = experiment_raw.total_uses
     exp['type'] = experiment_raw.experiment.client.client_id
     exp['config'] = experiment_raw.experiment.client.configuration
     exp['logo_link'] = weblab_api.ctx.core_server_url + 'client/weblabclientlab/' + exp['config'].get('experiment.picture', 'img/experiments/default.jpg')
