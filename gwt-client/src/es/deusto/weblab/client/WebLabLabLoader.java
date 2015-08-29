@@ -22,7 +22,6 @@ import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Category;
 import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.ILabCommunication;
-import es.deusto.weblab.client.lab.comm.LabCommunication;
 import es.deusto.weblab.client.lab.controller.ILabController;
 import es.deusto.weblab.client.lab.controller.IValidSessionCallback;
 import es.deusto.weblab.client.lab.controller.LabController;
@@ -54,9 +53,7 @@ public class WebLabLabLoader {
 		// We need to initialize the AudioManager singleton
 		AudioManager.initialize(this.configurationManager);
 		
-		final ILabCommunication communications = new LabCommunication(
-				this.configurationManager
-		);
+		final ILabCommunication communications = null;
 		
 		final PollingHandler pollingHandler = new PollingHandler(
 				this.configurationManager 
