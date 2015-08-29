@@ -17,8 +17,4 @@ package es.deusto.weblab.client;
 
 public class WebLabClientLab extends WebLabClient {
 
-	@Override
-	public void loadApplication() {
-		
-	}
 }
