@@ -14,15 +14,14 @@
 package es.deusto.weblab.client.lab.ui;
 
 import es.deusto.weblab.client.configuration.IConfigurationManager;
-import es.deusto.weblab.client.lab.controller.ILabController;
 
 public class LabThemeFactory {
 	
 	public interface IWlLabThemeLoadedCallback{
-		public void onThemeLoaded(LabThemeBase theme);
+		public void onThemeLoaded();
 		public void onFailure(Throwable reason);
 	}
 	
-	public static void themeFactory(final IConfigurationManager configurationManager, final ILabController controller, String themeName, boolean mobile, final IWlLabThemeLoadedCallback callback){
+	public static void themeFactory(final IConfigurationManager configurationManager, String themeName, boolean mobile, final IWlLabThemeLoadedCallback callback){
 	}
 }
