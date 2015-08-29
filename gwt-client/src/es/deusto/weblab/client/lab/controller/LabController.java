@@ -30,7 +30,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
@@ -39,7 +38,6 @@ import com.google.gwt.user.client.Window.ClosingHandler;
 
 import es.deusto.weblab.client.HistoryProperties;
 import es.deusto.weblab.client.WebLabClient;
-import es.deusto.weblab.client.WebLabLabLoader;
 import es.deusto.weblab.client.comm.callbacks.ISessionIdCallback;
 import es.deusto.weblab.client.comm.callbacks.IUserInformationCallback;
 import es.deusto.weblab.client.comm.callbacks.IVoidCallback;
@@ -407,20 +405,12 @@ public class LabController implements ILabController {
 			@Override
 			public void onSuccess() {
 				// Sometimes stored with different paths
-				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
 				LabController.this.uimanager.onLoggedOut();
 			}
 			
 			@Override
 			public void onFailure(CommException e) {
 				// Sometimes stored with different paths
-				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.LOGIN_WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
-				Cookies.removeCookie(WebLabLabLoader.WEBLAB_SESSION_ID_COOKIE);
 				LabController.this.sessionVariables.hideExperiment();
 				LabController.this.uimanager.onErrorAndFinishSession(e.getMessage());
 			}
