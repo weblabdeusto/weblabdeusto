@@ -14,9 +14,6 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import java.util.List;
-import java.util.Vector;
-
 import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
@@ -88,6 +85,4 @@ public class EntryRegistry {
 		new RedirectCreatorFactory(),
 		new PureJSCreatorFactory(),
 	};
-	
-	static final List<ExperimentEntry> entries = new Vector<ExperimentEntry>();
 }
