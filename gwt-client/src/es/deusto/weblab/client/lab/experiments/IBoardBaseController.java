@@ -15,7 +15,6 @@
 package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
@@ -31,10 +30,6 @@ public interface IBoardBaseController{
 	 */
 	public boolean isFacebook();
 	
-	/**
-	 * What is the experiment id of this experiment?
-	 */
-	public ExperimentID getExperimentId();
 	
 	////////////////////////////////////
 	// 

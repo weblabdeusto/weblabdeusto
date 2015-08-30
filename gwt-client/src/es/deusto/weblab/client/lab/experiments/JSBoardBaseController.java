@@ -12,13 +12,11 @@
 *
 */
 
-package es.deusto.weblab.client;
+package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
-import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 
 public class JSBoardBaseController implements IBoardBaseController {
 
@@ -26,12 +24,6 @@ public class JSBoardBaseController implements IBoardBaseController {
 	public boolean isFacebook() {
 		// TODO Auto-generated method stub
 		return false;
-	}
-
-	@Override
-	public ExperimentID getExperimentId() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

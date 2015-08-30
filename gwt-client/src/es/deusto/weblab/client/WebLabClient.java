@@ -22,6 +22,7 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.EntryRegistry;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
+import es.deusto.weblab.client.lab.experiments.JSBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
