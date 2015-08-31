@@ -4,6 +4,7 @@ angular
     .controller("LabController", LabController);
 
 function translateConfig($translateProvider) {
+    $translateProvider.useSanitizeValueStrategy('escaped');
     $translateProvider.useUrlLoader(LOCALES_URL);
     $translateProvider.preferredLanguage(PREFERRED_LANGUAGE);
 }
@@ -40,8 +41,17 @@ function LabController($scope, $injector, $http) {
 
     $scope.experiment_iframe = {
         laburl: WL_LAB_URL,
-        experiment: EXPERIMENT_DATA
+        experiment: EXPERIMENT_DATA,
+        full_url: ""
     };
+
+    if (EXPERIMENT_DATA['config']['html.file'] != undefined) {
+        if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0) {
+            $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
+        } else {
+            $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
+        }
+    }
 
     $scope.experiment_info = {
         experiment: EXPERIMENT_DATA

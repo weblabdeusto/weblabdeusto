@@ -52,6 +52,18 @@ def _build_requirements():
     shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
     print "[done]"
 
+    GWT_CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','gwt-client'))
+    GWT_WAR_LOCATION = os.path.join(GWT_CLIENT_LOCATION,'war')
+    compile_client(GWT_WAR_LOCATION, GWT_CLIENT_LOCATION)
+
+    # In any case, the client was compiled in the past or just now. Let's copy it here.
+    print "Copying...",
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'gwt-war'), True)
+    shutil.copytree(GWT_WAR_LOCATION, os.path.join('weblabdeusto_data', 'gwt-war'))
+    shutil.rmtree(os.path.join('weblabdeusto_data', 'gwt-war', 'WEB-INF'), True)
+    print "[done]"
+
+
 class WebLabBuild(_build_py):
     def run(self):
         if not self.dry_run:

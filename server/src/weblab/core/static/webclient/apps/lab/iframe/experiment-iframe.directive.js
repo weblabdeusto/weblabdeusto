@@ -8,8 +8,9 @@ function wlExperimentIframe($injector) {
     return {
         restrict: "E",
         scope: {
-            laburl: "=laburl",
-            experiment: "=experiment"
+            laburl: "=",
+            experiment: "=",
+            iframeurl: "="
         },
         templateUrl: EXPERIMENT_IFRAME_TEMPLATE_URL,
         controller: "ExperimentIframeController",

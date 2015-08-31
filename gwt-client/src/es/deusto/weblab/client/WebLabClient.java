@@ -46,46 +46,53 @@ public class WebLabClient implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-		final IBoardBaseController boardBaseController = new JSBoardBaseController();
-		WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
-		final IConfigurationRetriever configurationRetriever = JSBoardBaseController.getExperimentConfiguration();
-		
-		final String clientCodeName = JSBoardBaseController.getClientCodeName();
-		final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
-		if (experimentCreatorFactory == null) {
-			showError("client code name " + clientCodeName + " not implemented in GWT");
-			return;
-		}
-		
-		final ExperimentCreator creator;
-		try {
-			creator = experimentCreatorFactory.createExperimentCreator(configurationRetriever);
-		} catch (ExperimentCreatorInstanciationException e1) {
-			showError("Could not instantiate experiment: " + e1.getMessage());
-			e1.printStackTrace();
-			return;
-		}
-
-		final IExperimentLoadedCallback callback = new IExperimentLoadedCallback() {
-			
+		JSBoardBaseController.onConfigurationLoaded(new Runnable() {
 			@Override
-			public void onFailure(Throwable e) {
-				GWT.log("Client code name " + clientCodeName + " not working", e);
-				showError("client code name " + clientCodeName + " not implemented in GWT");
-			}
-			
-			@Override
-			public void onExperimentLoaded(ExperimentBase experiment) {
-				WebLabClient.this.putWidget(experiment.getWidget());
-				JSBoardBaseController.registerExperiment(experiment);
-			}
-		};
+			public void run() {
+				GWT.log("Configuration loaded. Starting GWT experiment...");
+				final IBoardBaseController boardBaseController = new JSBoardBaseController();
+				WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
+				final IConfigurationRetriever configurationRetriever = JSBoardBaseController.getExperimentConfiguration();
+				
+				final String clientCodeName = JSBoardBaseController.getClientCodeName();
+				final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
+				if (experimentCreatorFactory == null) {
+					showError("client code name " + clientCodeName + " not implemented in GWT");
+					return;
+				}
+				
+				final ExperimentCreator creator;
+				try {
+					creator = experimentCreatorFactory.createExperimentCreator(configurationRetriever);
+				} catch (ExperimentCreatorInstanciationException e1) {
+					showError("Could not instantiate experiment: " + e1.getMessage());
+					e1.printStackTrace();
+					return;
+				}
 
-		if (JSBoardBaseController.isMobile()) {
-			creator.createMobile(boardBaseController, callback);
-		} else {
-			creator.createWeb(boardBaseController, callback);
-		}
+				final IExperimentLoadedCallback callback = new IExperimentLoadedCallback() {
+					
+					@Override
+					public void onFailure(Throwable e) {
+						GWT.log("Client code name " + clientCodeName + " not working", e);
+						showError("client code name " + clientCodeName + " not implemented in GWT");
+					}
+					
+					@Override
+					public void onExperimentLoaded(ExperimentBase experiment) {
+						GWT.log("GWT experiment loaded. Registering methods.");
+						WebLabClient.this.putWidget(experiment.getWidget());
+						JSBoardBaseController.registerExperiment(experiment);
+					}
+				};
+
+				if (JSBoardBaseController.isMobile()) {
+					creator.createMobile(boardBaseController, callback);
+				} else {
+					creator.createWeb(boardBaseController, callback);
+				}
+			}
+		});
 	}
 
 	private IExperimentCreatorFactory getExperimentFactory(final String clientCodeName) {

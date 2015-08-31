@@ -217,9 +217,9 @@ if __name__ == '__main__':
     generate_figures_script = "figures%sgenerate_figures_%s.py" % (os.sep, date)
     open(generate_figures_script,'w').write(CODE)
 
-    print "Executing %s..." % generate_figures_script,
+    print("Executing %s..." % generate_figures_script,)
     os.system("%s %s" % (sys.executable, generate_figures_script))
-    print "[done]"
+    print("[done]")
 
 
     html = generate_html(protocols, configuration, working_methods, date, cfg.SYSTEM, cfg.RUNNING_CONFIGURATION)
@@ -229,8 +229,8 @@ if __name__ == '__main__':
     # END PRINTING THIS PART
 
     if verbose:
-        print "HTML file available in",html_filename
-        print "Finished plotting; %s" % show_time()
+        print("HTML file available in",html_filename)
+        print("Finished plotting; %s" % show_time())
         flush()
 
 if __name__ == '__main__':

@@ -69,6 +69,9 @@ WeblabExp = function () {
     var mConfiguration = {}; // Will be initialized on the start using the ?c=url argument
     var mReservation; // Must be set through setReservation()
 
+    // Callback reporting that the weblab instance has been configured. If no config is provided it's also established.
+    var mOnConfigLoadPromise = $.Deferred();
+
     // To store callbacks for the start
     var mOnStartPromise = $.Deferred();
 
@@ -701,14 +704,26 @@ WeblabExp = function () {
                 $.each(success.scripts, function(i, script_url) {
                     $.getScript(script_url);
                 });
+                mOnConfigLoadPromise.resolve();
             }).fail(function (fail) {
                 console.error("Error loading configuration file from " + config_url);
+                mOnConfigLoadPromise.resolve();
             });
         } else {
             console.log("Experiment disabled due to configuration URL missing. Provide a ?c=url parameter if you want to activate it.");
+            mOnConfigLoadPromise.resolve();
         }
     };
-
+    
+    /**
+    * Optional method. Reports whenever the configuration has been loaded and processed.
+    */
+    this.onConfigLoad = function(onConfigLoadHandler) {
+        if (onConfigLoadHandler != undefined) {
+            mOnConfigLoadPromise.done(onConfigLoadHandler);
+        }
+        return mOnConfigLoadPromise.promise();
+    };
 
     ///////////////////////////////////
     // CONSTRUCTION & INITIALIZATION
