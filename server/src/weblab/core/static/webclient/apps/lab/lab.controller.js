@@ -42,15 +42,17 @@ function LabController($scope, $injector, $http) {
     $scope.experiment_iframe = {
         laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
-        full_url: ""
+        iframe_url: "ZURULLO"
     };
 
-    if (EXPERIMENT_DATA['config']['html.file'] != undefined) {
+    if (CLIENT_TYPE == "js") {
         if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
             $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
         }
+    } else {
+        $scope.experiment_iframe.iframe_url = GWT_BASE_URL;
     }
 
     $scope.experiment_info = {
@@ -168,7 +170,7 @@ function LabController($scope, $injector, $http) {
      * Handles a reserve progress update, received periodically while a reserve attempt is in progress.
      */
     function handleReserveProgress(status, position, result, broken) {
-
+        window.currentExperiment._callOnQueue();
         if (!broken) {
             if (position != undefined) {
                 if (position == 0) {
@@ -252,6 +254,30 @@ function LabController($scope, $injector, $http) {
         $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
+        var frame = $("#exp-frame")[0];
+        var Wexp = frame.contentWindow.WeblabExp;
+
+        // If wexp is undefined, then it is likely that the experiment loaded in the iframe does not actually
+        // support being embedded in the weblab client. In this case, we will report a custom error.
+        if(Wexp == undefined || Wexp.lastInstance == undefined) {
+            var error = {
+                message: "The experiment does not seem to support iframe mode", // TODO: translations
+                code: "JSON:ClientSideError:IframeModeNotSupported"
+            };
+            $scope.experiment.active = false;
+            $scope.experiment.reserving = false;
+            handleReserveFail(error);
+            return;
+            // TODO: For now, we return. The experiment is actually reserved successfully, but we cannot
+            // go on because the library does not work as expected.
+        }
+
+        // TODO: Consider checking whether WeblabExp version is the expected one.
+
+        var wexp = Wexp.lastInstance;
+
+        window.currentExperiment = wexp; // Save it in a GLOBAL.
+
         WeblabWeb.reserve_experiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
@@ -266,32 +292,10 @@ function LabController($scope, $injector, $http) {
                 $scope.reserveMessage.message = "RESERVATION_DONE";
                 $scope.reserveMessage.type = 'info';
 
-                var frame = $("#exp-frame")[0];
-                var Wexp = frame.contentWindow.WeblabExp;
-
-                // If wexp is undefined, then it is likely that the experiment loaded in the iframe does not actually
-                // support being embedded in the weblab client. In this case, we will report a custom error.
-                if(Wexp == undefined || Wexp.lastInstance == undefined) {
-                    var error = {
-                        message: "The experiment does not seem to support iframe mode", // TODO: translations
-                        code: "JSON:ClientSideError:IframeModeNotSupported"
-                    };
-                    $scope.experiment.active = false;
-                    $scope.experiment.reserving = false;
-                    handleReserveFail(error);
-                    return;
-                    // TODO: For now, we return. The experiment is actually reserved successfully, but we cannot
-                    // go on because the library does not work as expected.
-                }
-
-                // TODO: Consider checking whether WeblabExp version is the expected one.
-
-                var wexp = Wexp.lastInstance;
-
-                window.currentExperiment = wexp; // Save it in a GLOBAL.
                 var url = result["url"];
+                var wexp = window.currentExperiment;
                 wexp._setTargetURL(WL_JSON_URL);
-                wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
+                wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["initial_configuration"]);
 
                 // Listen also for a dispose, for other ui changes.
                 wexp.onFinish().done(function (f) {

@@ -160,5 +160,4 @@ public interface IConfigurationRetriever {
 	 * @throws InvalidConfigurationValueException The key is present, but it is not an int.
 	 */
 	public double getDoubleProperty(ExperimentParameterDefault parameter);
-
 }

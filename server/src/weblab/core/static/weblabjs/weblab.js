@@ -75,7 +75,13 @@ WeblabExp = function () {
     // To store callbacks for the start
     var mOnStartPromise = $.Deferred();
 
-    // To store callbacksf or the end
+    // To store callbacks for setting the time
+    var mOnSetTimePromise = $.Deferred();
+
+    // To store callbacks for running code when on a queue
+    var mOnQueuePromise = $.Deferred();
+
+    // To store callbacks for the end
     var mOnFinishPromise = $.Deferred();
 
     // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
@@ -184,8 +190,8 @@ WeblabExp = function () {
         this._startPolling();
 
         console.debug("[reservationReady] Resolving START promise on ReservationReady");
-
         mOnStartPromise.resolve(Math.round(time), initial_config);
+        mOnSetTimePromise.resolve(Math.round(time));
     };
 
     /**
@@ -233,6 +239,10 @@ WeblabExp = function () {
      */
     this._setTargetURLToTesting = function () {
         this.CORE_URL = "http://localhost:18345";
+    };
+
+    this._callOnQueue = function () {
+        mOnQueuePromise.resolve();
     };
 
     /**
@@ -437,10 +447,10 @@ WeblabExp = function () {
     this._send_command = function (command) {
         var promise = $.Deferred();
         var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
-
+        console.log("Sending command: " + command);
         this._send(request)
             .done(function (success_data) {
-                console.debug("Data received: " + success_data);
+                console.debug("Data received: " + success_data.commandstring);
                 console.debug(success_data);
                 promise.resolve(success_data);
             })
@@ -662,6 +672,33 @@ WeblabExp = function () {
         // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
         // Revise them.
 
+    /**
+     * onSetTime( setTimeHandler ) -> promise
+     *
+     * @param {function} [setTimeHandler]: The set time handler function. Should receive the time left.
+     *
+     * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
+     */
+    this.onSetTime = function (setTimeHandler) {
+        if (setTimeHandler != undefined) {
+            mOnSetTimePromise.done(setTimeHandler);
+        }
+        return mOnSetTimePromise.promise();
+    };
+
+    /**
+     * onQueue( queueHandler ) -> promise
+     *
+     * @param {function} [queueHandler]: The queue handler function. Does not receive any argument.
+     *
+     * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
+     */
+    this.onQueue = function (queueHandler) {
+        if (queueHandler != undefined) {
+            mOnQueuePromise.done(queueHandler);
+        }
+        return mOnQueuePromise.promise();
+    };
 
     /**
      * Carries out free-mode initialization. Extracts the reservation ID, the

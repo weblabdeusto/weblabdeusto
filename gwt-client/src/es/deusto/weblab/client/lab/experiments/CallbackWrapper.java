@@ -33,6 +33,7 @@ public final class CallbackWrapper implements ISimpleResponseCallback {
 	
 	@Override
 	public void onSuccess(String responseCommand) {
+		JSBoardBaseController.log("Received response: " + responseCommand);
 		this.callback.onSuccess(new ResponseCommand(responseCommand));
 	}
 }

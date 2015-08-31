@@ -89,6 +89,8 @@
         var LATEST_USES_URL = "{{ url_for('.latest_uses', experiment_name=experiment['name'], category_name=experiment['category']) }}";
         var LAB_STATS_URL = "{{ url_for('.lab_stats', experiment_name=experiment['name'], category_name=experiment['category']) }}";
         var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
+        var GWT_BASE_URL = "{{ url_for('core_web.gwt_index') }}";
+        var CLIENT_TYPE = "{{ experiment['type'] }}";
 
         var PREFERRED_LANGUAGE = "{{ get_locale() }}";
         var EXPERIMENT_DATA = {{ experiment|tojson }};

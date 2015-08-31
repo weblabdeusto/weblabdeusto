@@ -24,7 +24,6 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
 import es.deusto.weblab.client.configuration.ConfigurationRetriever;
-import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -120,13 +119,13 @@ public class JSBoardBaseController implements IBoardBaseController {
 	 * 
 	 */
 	
-	public static IConfigurationRetriever getExperimentConfiguration() {
+	public static ConfigurationRetriever getExperimentConfiguration() {
 		final Map<String, Object> rawConfig = new HashMap<String, Object>();
 		populateConfiguration(rawConfig);
 		log("Config loaded into map. Keys: " + rawConfig.keySet().size());
 		final Map<String, JSONValue> config = new HashMap<String, JSONValue>();
 		for (String key : rawConfig.keySet()) {
-			final Object rawValue = config.get(key);
+			final Object rawValue = rawConfig.get(key);
 			final JSONValue value;
 			if (rawValue == null) {
 				value = JSONNull.getInstance();
@@ -147,7 +146,9 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}
 	
 	public static native void log(String message) /*-{
-		$wnd.console.log(message);
+		if ($wnd.WEBLAB_DEBUG === true) { 
+			$wnd.console.log("[gwt] " + message);
+		}
 	}-*/;
 	
 	static native void populateConfiguration(Map<String, Object> configObj) /*-{
@@ -229,8 +230,6 @@ public class JSBoardBaseController implements IBoardBaseController {
 		registerExperimentImpl(experiment);
 		
 		// TODO: getInitialData() not supported
-		// TODO: queued() not supported
-		// TODO: setTime(int time) not supported
 		// TODO: expectsPostEnd() not supported
 		// TODO: postEnd() not supported
 	}
@@ -238,6 +237,14 @@ public class JSBoardBaseController implements IBoardBaseController {
 	static native void registerExperimentImpl(ExperimentBase experiment) /*-{
 		$wnd.weblab.onStart(function (time, config) {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::start(ILjava/lang/String;)(time, config);
+		});
+		
+		$wnd.weblab.onSetTime(function (time) {
+			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::setTime(I)(time);
+		});
+		
+		$wnd.weblab.onQueue(function () {
+			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::queued()();
 		});
 		
 		$wnd.weblab.onFinish(function() {

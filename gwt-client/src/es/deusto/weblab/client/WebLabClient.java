@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-import es.deusto.weblab.client.configuration.IConfigurationRetriever;
+import es.deusto.weblab.client.configuration.ConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.EntryRegistry;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
@@ -27,6 +27,7 @@ import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
 import es.deusto.weblab.client.lab.experiments.JSBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
+import es.deusto.weblab.client.ui.audio.AudioManager;
 
 public class WebLabClient implements EntryPoint {
     
@@ -51,8 +52,10 @@ public class WebLabClient implements EntryPoint {
 				JSBoardBaseController.log("Configuration loaded. Starting GWT experiment...");
 				final IBoardBaseController boardBaseController = new JSBoardBaseController();
 				WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
-				final IConfigurationRetriever configurationRetriever = JSBoardBaseController.getExperimentConfiguration();
+				JSBoardBaseController.log("Base location: " +  WebLabClient.baseLocation);
 				
+				final ConfigurationRetriever configurationRetriever = JSBoardBaseController.getExperimentConfiguration();
+				AudioManager.initialize(configurationRetriever);
 				final String clientCodeName = JSBoardBaseController.getClientCodeName();
 				final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
 				if (experimentCreatorFactory == null) {
