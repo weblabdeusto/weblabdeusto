@@ -73,6 +73,8 @@ WeblabExp = function (frameMode) {
     this.POLL_FREQUENCY = 4000; // Indicates how often we will poll once polling is started. Will not normally be changed.
 
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
+
+    var mConfiguration = {}; // Will be initialized on the start using the ?c=url argument
     var mReservation; // Must be set through setReservation()
 
     // To store callbacks for the start
@@ -208,7 +210,7 @@ WeblabExp = function (frameMode) {
      * Note that if running from a local file (file:// protocol) http:// will be preppended
      * to the URLs.
      */
-    this.setTargetURL = function (target_url) {
+    this._setTargetURL = function (target_url) {
         this.CORE_URL = target_url;
 
         // For making testing possible from local files (after the various security settings
@@ -225,7 +227,7 @@ WeblabExp = function (frameMode) {
      * Sets the target URLs to the standard ones. That is, the ones that will work
      * on the main Weblab instance, which is at //www.weblab.deusto.es.
      */
-    this.setTargetURLToStandard = function () {
+    this._setTargetURLToStandard = function () {
         this.CORE_URL = "//www.weblab.deusto.es/weblab/json/";
     };
 
@@ -234,7 +236,7 @@ WeblabExp = function (frameMode) {
      * the ones that will work with a local Weblab instance started through the launch_sample
      * configuration, which is the one typically used for development.
      */
-    this.setTargetURLToTesting = function () {
+    this._setTargetURLToTesting = function () {
         this.CORE_URL = "http://localhost:18345";
     };
 
@@ -480,6 +482,12 @@ WeblabExp = function (frameMode) {
         return promise;
     };
 
+    /**
+     * Set the experiment configuration
+     */
+    this._setConfiguration = function(configuration) {
+        mConfiguration = configuration;
+    }
 
     ///////////////////////////////////////////////////////////////
     //
@@ -490,6 +498,14 @@ WeblabExp = function (frameMode) {
     // context different than Weblab-Deusto.
     //
     ///////////////////////////////////////////////////////////////
+
+
+    /**
+     * Get the experiment configuration
+     */
+    this.getConfiguration = function() {
+        return mConfiguration;
+    }
 
 
     /**
@@ -666,12 +682,39 @@ WeblabExp = function (frameMode) {
         var time = $.QueryString["t"];
         time = parseInt(time);
 
-        this.setTargetURL(url);
+        this._setTargetURL(url);
 
         // TODO: Eventually, it would probably be more appropriate to pass only the reservation_id and to query
         // the server for the other data.
 
         this._reservationReady(reservation, time, startconfig);
+    };
+
+    /**
+    * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
+    * This function relies on a ?c=<configuration-url.json> parameter. If missing, the experiment will be
+    * considered unconfigured (so it can be loaded but without calling the server and so on).
+    */
+    this._loadConfig = function () {
+        if ($.QueryString["c"] !== undefined) {
+            var that = this;
+            var config_url = $.QueryString["c"];
+            $.ajax({
+                "type": "GET",
+                "url": config_url,
+                "dataType": "json",
+            }).done(function (success, status, jqXHR) {
+                that._setTargetURL(success.targetURL);
+                that._setConfiguration(success.config);
+                $.each(success.scripts, function(i, script_url) {
+                    $.getScript(script_url);
+                });
+            }).fail(function (fail) {
+                console.error("Error loading configuration file from " + config_url);
+            });
+        } else {
+            console.log("Experiment disabled due to configuration URL missing. Provide a ?c=url parameter if you want to activate it.");
+        }
     };
 
 
@@ -686,6 +729,8 @@ WeblabExp = function (frameMode) {
     if (mFrameMode == false) {
         this._handleFreeModeInit();
     }
+
+    this._loadConfig();
 
 
     ///////////////////////////////////////////////////////////////

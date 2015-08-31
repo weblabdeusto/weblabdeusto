@@ -280,7 +280,7 @@ function LabController($scope, $injector, $http) {
 
                 window.currentExperiment = wexp; // Save it in a GLOBAL.
                 var url = result["url"];
-                wexp.setTargetURL(WL_JSON_URL);
+                wexp._setTargetURL(WL_JSON_URL);
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["starting_config"]);
 
                 // Listen also for a dispose, for other ui changes.
