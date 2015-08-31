@@ -1,6 +1,5 @@
 <div class="" style="padding-top: 20px">
     <div class="">
-        <!-- We append a rawgit base URL for testing -->
-        <iframe id="exp-frame" width="100%" scrolling="no" ng-src="{{ laburl + experiment['config']['html.file'] }}" style="border: 0;"></iframe>
+        <iframe id="exp-frame" width="100%" scrolling="no" ng-src="{{ laburl + experiment['config']['html.file'] + '?c=' + experiment.config_url }}" style="border: 0;"></iframe>
     </div>
 </div>

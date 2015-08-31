@@ -150,7 +150,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 		var configuration = $wnd.gwt_experiment_config.config;
 		for (var key in configuration) {
 			var value = configuration[key];
-			configObj.@java.util.Map::put(Ljava/lang/String;Ljava/lang/Object;)(key, value);
+			configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, value);
 		}
 	}-*/;
 	
@@ -221,6 +221,8 @@ public class JSBoardBaseController implements IBoardBaseController {
 	public static void registerExperiment(ExperimentBase experiment) {
 		experiment.initialize();
 		// TODO: sometimes call initializeReserved();
+		
+		registerExperimentImpl(experiment);
 		
 		// TODO: getInitialData() not supported
 		// TODO: queued() not supported

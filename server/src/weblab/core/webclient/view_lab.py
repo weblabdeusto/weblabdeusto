@@ -35,6 +35,27 @@ def lab(category_name, experiment_name):
     except Exception as ex:
         raise
 
+@weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/config.json")
+@login_required
+def lab_config(category_name, experiment_name):
+    experiment_config = {}
+    try:
+        experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
+
+
+        for exp_allowed in experiment_list:
+            if exp_allowed.experiment.name == experiment_name and exp_allowed.experiment.category.name == category_name:
+                experiment_config = exp_allowed.experiment.client.configuration
+
+    except Exception as ex:
+        experiment_config = {}
+
+    scripts = [
+        url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True)
+    ]
+    return weblab_api.jsonify(targetURL=url_for('json.service_url'), scripts=scripts, config=experiment_config)
+
+
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/latest_uses.json")
 @login_required
 def latest_uses(category_name, experiment_name):
