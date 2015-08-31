@@ -36,10 +36,6 @@ WEBLABEXP_DEBUG = false;
  *
  * Note that this class is meant to be instanced anew for each laboratory reserve.
  *
- * @example:
- * // Instance WeblabExp in FREE mode.
- * weblab = new WeblabExp(false);
- *
  * It relies on jQuery-style deferred callbacks, and is thus
  * dependent on the jQuery library.
  *
@@ -48,12 +44,8 @@ WEBLABEXP_DEBUG = false;
  *
  * Constructor.
  *
- * @param {bool} [frameMode]: This parameter is strictly optional. If not set (undefined) then the mode will be
- * guessed automatically. If set to TRUE, the mode will be set to the FRAME MODE. If false, it will be set to the
- * FREE MODE.
- *
  */
-WeblabExp = function (frameMode) {
+WeblabExp = function () {
 
     ///////////////////////////////////////////////////////////////
     //
@@ -722,8 +714,7 @@ WeblabExp = function (frameMode) {
     // CONSTRUCTION & INITIALIZATION
     ///////////////////////////////////
 
-    if (frameMode == undefined)
-        mFrameMode = this._guessFrameMode();
+    mFrameMode = this._guessFrameMode();
 
     // If we are in free-mode we have to handle some free-mode-specific initialization.
     if (mFrameMode == false) {
@@ -762,4 +753,4 @@ WeblabExp.VERSION = "1"; // Keep the version of the library in the prototype.
 // Each time it is instanced, a reference to the last created instance will be saved in the prototype.
 WeblabExp.lastInstance = undefined;
 
-
+weblab = new WeblabExp();
