@@ -110,8 +110,8 @@ public class JSBoardBaseController implements IBoardBaseController {
 
 	@Override
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		// TODO: to be implemented (file management)
-		sendAsyncFileImpl("", new CallbackWrapper(callback));
+		// This is not implemented
+		sendFile(uploadStructure, callback);
 	}
 	
 	/*
@@ -230,9 +230,6 @@ public class JSBoardBaseController implements IBoardBaseController {
 			experiment.initialize();
 		
 		registerExperimentImpl(experiment);
-		
-		// TODO: expectsPostEnd() not supported
-		// TODO: postEnd() not supported
 	}
 	
 	static native boolean isStartReserved() /*-{
@@ -256,9 +253,16 @@ public class JSBoardBaseController implements IBoardBaseController {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::queued()();
 		});
 		
-		$wnd.weblab.onFinish(function() {
+		$wnd.weblab.onEnd(function() {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::end()();
 		});
+		
+		// only if it expects postEnd we call onFinish(). onFinish internally assumes the expectsPostEnd (if called, then it expects it)
+		if (experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::expectsPostEnd()()) {
+			$wnd.weblab.onFinish(function(initialData, endData) {
+				experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::postEnd(Ljava/lang/String;Ljava/lang/String;)(initialConfig, endConfig);
+			});
+		}
 	}-*/;
 	
 	public static native void onConfigurationLoaded(Runnable task) /*-{

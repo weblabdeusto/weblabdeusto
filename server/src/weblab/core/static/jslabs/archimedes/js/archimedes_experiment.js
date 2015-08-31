@@ -21,7 +21,7 @@ ArchimedesExperiment = function (registry, view) {
     this.initialize = function () {
 
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (!weblabExp.isDebuggingMode() && weblabExp.isFrameMode())
+        if (!weblab.isDebuggingMode() && weblab.isFrameMode())
             hideFrame();
 
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function (template) {
@@ -81,7 +81,7 @@ ArchimedesExperiment = function (registry, view) {
             // Declare onStartInteraction listener.
             // This is at times not getting called.
             // TODO: Fix this.
-            weblabExp.onStart().done(function (time, initial_config) {
+            weblab.onStart().done(function (time, initial_config) {
                 showFrame();
 
                 console.log("[DBG]: Time left: " + time);
@@ -111,7 +111,7 @@ ArchimedesExperiment = function (registry, view) {
 
 
 
-            weblabExp.onFinish().done(function () {
+            weblab.onFinish().done(function () {
 
                 this.stopRefreshingData();
 
@@ -144,8 +144,8 @@ ArchimedesExperiment = function (registry, view) {
             }
         });
 
-        weblabExp.dbgSetSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
-        weblabExp
+        weblab.dbgSetSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
+        weblab
             .sendCommand(command)
             .done(
                 function(data) {

@@ -300,7 +300,7 @@ ArchimedesInstance = function (instanceid) {
             console.log("DOWN");
 
             if (downButton.attr("disabled") == undefined) {
-                weblabExp.sendCommand(instanceid + ":DOWN")
+                weblab.sendCommand(instanceid + ":DOWN")
                     .done(
                         function (success) {
                             //$(getidselect("downButton") + " img").attr("src", "img/down_green.png");
@@ -322,7 +322,7 @@ ArchimedesInstance = function (instanceid) {
             console.log("UP");
 
             if (upButton.attr("disabled") == undefined) {
-                weblabExp.sendCommand(instanceid + ":UP")
+                weblab.sendCommand(instanceid + ":UP")
                     .done(
                     function (success) {
                         //upButton.find("img").attr("src", "img/up_green.png");
@@ -350,7 +350,7 @@ ArchimedesInstance = function (instanceid) {
                 //$("#hdpic").attr("src", "");
                 $("#photoModal").modal();
 
-                weblabExp.sendCommand(instanceid + ":IMAGE")
+                weblab.sendCommand(instanceid + ":IMAGE")
                     .done(
                     function (data) {
                         photoButton.removeAttr("disabled");
@@ -386,9 +386,9 @@ ArchimedesInstance = function (instanceid) {
                     "3:60\n" +
                     "4:90";
 
-                weblabExp.setSendCommandResponse(fakeData);
+                weblab.setSendCommandResponse(fakeData);
 
-                weblabExp.sendCommand(instanceid + ":PLOT")
+                weblab.sendCommand(instanceid + ":PLOT")
                     .done(
                     function (data) {
 

@@ -85,7 +85,11 @@ WeblabExp = function () {
     var mOnGetInitialDataCallback;
 
     // To store callbacks for the end
+    var mOnEndPromise = $.Deferred();
+
+    // To store callbacks for the finish
     var mOnFinishPromise = $.Deferred();
+    var mExpectsPostEnd = false;
 
     // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
     var mPollingTimer;
@@ -353,7 +357,7 @@ WeblabExp = function () {
             .done(function (result) {
                 // This means the experiment is still active. We shall check again soon, unless the experiment
                 // has been explicitly finished.
-                if (!mOnFinishPromise.state() != "resolved") {
+                if (!mOnEndPromise.state() != "resolved") {
                     mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                 }
                 console.debug("POLL: " + result);
@@ -363,7 +367,7 @@ WeblabExp = function () {
                 // TODO:
 
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
-                mOnFinishPromise.resolve();
+                mOnEndPromise.resolve();
 
                 console.debug("POLL F: " + error);
                 // TODO: How are connection failures handled??? Do we consider the experiment finished?
@@ -615,8 +619,8 @@ WeblabExp = function () {
 
                 promise.resolve(success);
 
-                if (mOnFinishPromise.state() != "resolved")
-                    mOnFinishPromise.resolve(success);
+                if (mOnEndPromise.state() != "resolved")
+                    mOnEndPromise.resolve(success);
             })
             .fail(function (error) {
                 promise.reject(error);
@@ -641,13 +645,6 @@ WeblabExp = function () {
     */
     this.setOnGetInitialDataCallback = function (onGetInitialDataCallback) {
         mOnGetInitialDataCallback = onGetInitialDataCallback;
-
-        if(mIsExperimentActive)
-        {
-            // Data is purposedly ignored. The experiment is already active so no initial
-            // data can be sent anymore.
-            mOnGetInitialDataCallback();
-        }
     };
 
     /**
@@ -690,6 +687,7 @@ WeblabExp = function () {
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
      */
     this.onFinish = function (finishHandler) {
+        mExpectsPostEnd = true;
         if (finishHandler != undefined) {
             mOnFinishPromise.done(finishHandler.bind(this));
         }
@@ -703,6 +701,26 @@ WeblabExp = function () {
 
         // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
         // Revise them.
+
+    /**
+     * onFinish( endHandler ) -> promise
+     * onFinish () -> promise
+     *
+     * Registers an end handler, which will be called when the experiment's interaction ends. Several end
+     * handlers can be registered. Callbacks will be executed in FIFO order, as guaranteed by jQuery Deferred rules.
+     * A finish handler may not be specified. In that case, a jQuery Promise is returned, to which .done() callbacks
+     * can be freely attached.
+     *
+     * @param {function} [startHandler]: The finish handler function.
+     *
+     * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
+     */
+    this.onEnd = function (onEndHandler) {
+        if (onEndHandler != undefined) {
+            mOnEndPromise.done(onEndHandler.bind(this));
+        }
+        return mOnEndPromise.promise();
+    };
 
     /**
      * onSetTime( setTimeHandler ) -> promise

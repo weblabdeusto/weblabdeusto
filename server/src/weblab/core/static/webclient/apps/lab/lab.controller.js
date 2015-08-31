@@ -42,7 +42,8 @@ function LabController($scope, $injector, $http) {
     $scope.experiment_iframe = {
         laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
-        iframe_url: "ZURULLO"
+        language: PREFERRED_LANGUAGE,
+        iframe_url: ""
     };
 
     if (CLIENT_TYPE == "js") {

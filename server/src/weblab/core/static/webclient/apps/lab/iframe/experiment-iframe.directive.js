@@ -10,7 +10,8 @@ function wlExperimentIframe($injector) {
         scope: {
             laburl: "=",
             experiment: "=",
-            iframeurl: "="
+            iframeurl: "=",
+            language: "="
         },
         templateUrl: EXPERIMENT_IFRAME_TEMPLATE_URL,
         controller: "ExperimentIframeController",
