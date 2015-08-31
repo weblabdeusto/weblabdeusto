@@ -17,7 +17,6 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
@@ -124,7 +123,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 	public static IConfigurationRetriever getExperimentConfiguration() {
 		final Map<String, Object> rawConfig = new HashMap<String, Object>();
 		populateConfiguration(rawConfig);
-		
+		log("Config loaded into map. Keys: " + rawConfig.keySet().size());
 		final Map<String, JSONValue> config = new HashMap<String, JSONValue>();
 		for (String key : rawConfig.keySet()) {
 			final Object rawValue = config.get(key);
@@ -138,13 +137,18 @@ public class JSBoardBaseController implements IBoardBaseController {
 			} else if (rawValue instanceof String) {
 				value = new JSONString((String)rawValue);
 			} else {
-				GWT.log("Invalid value for key: " + key);
+				log("Invalid value for key: " + key);
 				continue;
 			}
+			log("Key: " + key + "; value: " + value);
 			config.put(key, value);
 		}
 		return new ConfigurationRetriever(config);
 	}
+	
+	public static native void log(String message) /*-{
+		$wnd.console.log(message);
+	}-*/;
 	
 	static native void populateConfiguration(Map<String, Object> configObj) /*-{
 		var configuration = $wnd.gwt_experiment_config.config;
