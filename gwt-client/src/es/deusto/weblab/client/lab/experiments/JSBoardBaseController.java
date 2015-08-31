@@ -14,6 +14,18 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNull;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
+
+import es.deusto.weblab.client.configuration.ConfigurationRetriever;
+import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
@@ -108,6 +120,40 @@ public class JSBoardBaseController implements IBoardBaseController {
 	 * JSNI implementations
 	 * 
 	 */
+	
+	public static IConfigurationRetriever getExperimentConfiguration() {
+		final Map<String, Object> rawConfig = new HashMap<String, Object>();
+		populateConfiguration(rawConfig);
+		
+		final Map<String, JSONValue> config = new HashMap<String, JSONValue>();
+		for (String key : rawConfig.keySet()) {
+			final Object rawValue = config.get(key);
+			final JSONValue value;
+			if (rawValue == null) {
+				value = JSONNull.getInstance();
+			} else if (rawValue instanceof Number){
+				value = new JSONNumber(((Number)rawValue).doubleValue());
+			} else if (rawValue instanceof Boolean) {
+				value = JSONBoolean.getInstance((Boolean)rawValue);
+			} else if (rawValue instanceof String) {
+				value = new JSONString((String)rawValue);
+			} else {
+				GWT.log("Invalid value for key: " + key);
+				continue;
+			}
+			config.put(key, value);
+		}
+		return new ConfigurationRetriever(config);
+	}
+	
+	static native void populateConfiguration(Map<String, Object> configObj) /*-{
+		var configuration = $wnd.gwt_experiment_config.config;
+		for (var key in configuration) {
+			var value = configuration[key];
+			configObj.@java.util.Map::put(Ljava/lang/String;Ljava/lang/Object;)(key, value);
+		}
+	}-*/;
+	
 	public static native String getClientCodeName() /*-{
 		return $wnd.gwt_experiment_config.client_code_name;
 	}-*/; 
@@ -171,4 +217,25 @@ public class JSBoardBaseController implements IBoardBaseController {
 		// This method is not implemented
 		sendFileImpl(commandString, callback);
 	}
+
+	public static void registerExperiment(ExperimentBase experiment) {
+		experiment.initialize();
+		// TODO: sometimes call initializeReserved();
+		
+		// TODO: getInitialData() not supported
+		// TODO: queued() not supported
+		// TODO: setTime(int time) not supported
+		// TODO: expectsPostEnd() not supported
+		// TODO: postEnd() not supported
+	}
+	
+	static native void registerExperimentImpl(ExperimentBase experiment) /*-{
+		WebLabExp.onStart(function (time, config) {
+			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::start(ILjava/lang/String;)(time, config);
+		});
+		
+		WebLabExp.onFinish(function() {
+			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::end()();
+		});
+	}-*/;	
 }

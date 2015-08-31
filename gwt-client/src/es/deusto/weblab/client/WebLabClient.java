@@ -14,6 +14,7 @@
 package es.deusto.weblab.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -47,7 +48,7 @@ public class WebLabClient implements EntryPoint {
 	public void onModuleLoad() {
 		final IBoardBaseController boardBaseController = new JSBoardBaseController();
 		WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
-		final IConfigurationRetriever configurationRetriever = null;
+		final IConfigurationRetriever configurationRetriever = JSBoardBaseController.getExperimentConfiguration();
 		
 		final String clientCodeName = JSBoardBaseController.getClientCodeName();
 		final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
@@ -69,11 +70,14 @@ public class WebLabClient implements EntryPoint {
 			
 			@Override
 			public void onFailure(Throwable e) {
+				GWT.log("Client code name " + clientCodeName + " not working", e);
+				showError("client code name " + clientCodeName + " not implemented in GWT");
 			}
 			
 			@Override
 			public void onExperimentLoaded(ExperimentBase experiment) {
 				WebLabClient.this.putWidget(experiment.getWidget());
+				JSBoardBaseController.registerExperiment(experiment);
 			}
 		};
 

@@ -20,8 +20,7 @@ import es.deusto.weblab.client.lab.experiments.ExperimentParameter;
 import es.deusto.weblab.client.lab.experiments.ExperimentParameterDefault;
 
 /**
- * Retrieve configuration arguments. See {@link ConfigurationManager} to see where it is
- * retrieved from (a JSON file).
+ * Retrieve configuration arguments. 
  */
 public interface IConfigurationRetriever {
 

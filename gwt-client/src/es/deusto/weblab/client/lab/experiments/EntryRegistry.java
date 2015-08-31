@@ -30,7 +30,6 @@ import es.deusto.weblab.client.experiments.incubator.IncubatorCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
-import es.deusto.weblab.client.experiments.purejs.PureJSCreatorFactory;
 import es.deusto.weblab.client.experiments.redirect.RedirectCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_maze.RobotMazeCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_movement.RobotMovementCreatorFactory;
@@ -83,6 +82,5 @@ public class EntryRegistry {
 		new AquariumCreatorFactory(),
 		new RobotMazeCreatorFactory(),
 		new RedirectCreatorFactory(),
-		new PureJSCreatorFactory(),
 	};
 }
