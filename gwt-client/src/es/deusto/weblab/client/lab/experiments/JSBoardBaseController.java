@@ -172,11 +172,11 @@ public class JSBoardBaseController implements IBoardBaseController {
 	
 	static native void cleanImpl() /*-{
 		// TODO: this is incorrect (clean != finish)
-		return WebLabExp.finishExperiment();
+		return weblab.finishExperiment();
 	}-*/;
 
 	static native void finishImpl() /*-{
-		return WebLabExp.finishExperiment();
+		return weblab.finishExperiment();
 	}-*/;
 	
 	static native void stopPollingImpl() /*-{
@@ -188,7 +188,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}-*/;
 	
 	static native void sendCommandImpl(String commandString, ISimpleResponseCallback callback) /*-{
-		WeblabExp.sendCommand(commandString)
+		weblab.sendCommand(commandString)
 			.done(function(success) {
 				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onSuccess(Ljava/lang/String;)(success);
 			})
@@ -204,7 +204,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 	
 	static native void sendFileImpl(String commandString, ISimpleResponseCallback callback) /*-{
 		// TODO: integrate file management
-		WeblabExp.sendCommand(commandString)
+		weblab.sendCommand(commandString)
 			.done(function(success) {
 				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onSuccess(Ljava/lang/String;)(success);
 			})
@@ -232,11 +232,11 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}
 	
 	static native void registerExperimentImpl(ExperimentBase experiment) /*-{
-		WebLabExp.onStart(function (time, config) {
+		weblab.onStart(function (time, config) {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::start(ILjava/lang/String;)(time, config);
 		});
 		
-		WebLabExp.onFinish(function() {
+		weblab.onFinish(function() {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::end()();
 		});
 	}-*/;	

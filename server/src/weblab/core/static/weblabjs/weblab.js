@@ -38,7 +38,7 @@ WEBLABEXP_DEBUG = false;
  *
  * @example:
  * // Instance WeblabExp in FREE mode.
- * weblabExp = new WeblabExp(false);
+ * weblab = new WeblabExp(false);
  *
  * It relies on jQuery-style deferred callbacks, and is thus
  * dependent on the jQuery library.
@@ -761,7 +761,5 @@ WeblabExp.VERSION = "1"; // Keep the version of the library in the prototype.
 
 // Each time it is instanced, a reference to the last created instance will be saved in the prototype.
 WeblabExp.lastInstance = undefined;
-
-
 
 
