@@ -68,6 +68,3 @@ assert logo is not None # avoid warnings
 import avatar
 assert avatar is not None # avoid warnings
 
-import gwt
-assert gwt is not None # avoid warnings
-

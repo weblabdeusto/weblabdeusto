@@ -224,19 +224,28 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}
 
 	public static void registerExperiment(ExperimentBase experiment) {
-		experiment.initialize();
-		// TODO: sometimes call initializeReserved();
+		if (isStartReserved())
+			experiment.initializeReserved();
+		else
+			experiment.initialize();
 		
 		registerExperimentImpl(experiment);
 		
-		// TODO: getInitialData() not supported
 		// TODO: expectsPostEnd() not supported
 		// TODO: postEnd() not supported
 	}
 	
+	static native boolean isStartReserved() /*-{
+		return $wnd.gwt_experiment_config.start_reserved;
+	}-*/;
+	
 	static native void registerExperimentImpl(ExperimentBase experiment) /*-{
 		$wnd.weblab.onStart(function (time, config) {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::start(ILjava/lang/String;)(time, config);
+		});
+		
+		$wnd.weblab.setOnGetInitialDataCallback(function () {
+			return experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::getInitialData()();
 		});
 		
 		$wnd.weblab.onSetTime(function (time) {

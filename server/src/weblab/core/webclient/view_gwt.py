@@ -21,6 +21,7 @@ from flask import send_from_directory, render_template, request, url_for
 
 from weblab.core.wl import weblab_api
 from weblab.util import data_filename
+from weblab.core.webclient import login_required
 
 def _process_index():
     config_path = request.args.get('c')
@@ -29,7 +30,8 @@ def _process_index():
         'client_code_name': "",
         'base_location': url_for('json.service_url').rsplit('json/', 0)[0],
         'mobile': False,
-        'facebook': False
+        'facebook': False,
+        'start_reserved': False
     }
 
     if config_path and config_path.count('/') > 3 and '://' in config_path:
@@ -65,11 +67,13 @@ def _process_index():
 
     return render_template('gwt-index.html', client_config=client_config)
 
-@weblab_api.route_web('/gwt/')
+@weblab_api.route_webclient('/gwt/')
+@login_required
 def gwt_index():
     return _process_index()
 
-@weblab_api.route_web('/gwt/<path:path>')
+@weblab_api.route_webclient('/gwt/<path:path>')
+@login_required
 def gwt(path = ''):
     # If it's the index, generate something
     if path in ('', 'index.html', 'index.htm'):

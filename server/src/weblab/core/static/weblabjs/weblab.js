@@ -81,6 +81,9 @@ WeblabExp = function () {
     // To store callbacks for running code when on a queue
     var mOnQueuePromise = $.Deferred();
 
+    // For the callback
+    var mOnGetInitialDataCallback;
+
     // To store callbacks for the end
     var mOnFinishPromise = $.Deferred();
 
@@ -244,6 +247,11 @@ WeblabExp = function () {
     this._callOnQueue = function () {
         mOnQueuePromise.resolve();
     };
+
+    this._getInitialData = function () {
+        if(mOnGetInitialDataCallback != undefined)
+            return mOnGetInitialDataCallback();
+    }
 
     /**
     * Checks whether the experiment is apparently not linked to Weblab and thus running in a local test mode.
@@ -617,6 +625,30 @@ WeblabExp = function () {
         return promise.promise();
     };
 
+
+   /** 
+    * Sets the getInitialDataCallback. This is the callback that will be invoked
+    * when the reserve process is started, so the client can provide to the server
+    * whatever data it expects from the 'lobby' stage of the experiment.
+    *
+    * If the experiment is active when we call this method then the callback will be invoked, but the
+    * returned data will have no effect because other data will have been provided to the server
+    * already. Calling it is thus mostly for consistency and in case the user is interested
+    * in the event itself and not so much on returning specific data.
+    *
+    * @param onGetInitialDataCallback: This callback takes no parameters but should
+    * return the data, either as a JSON-encoded string or as an Object.
+    */
+    this.setOnGetInitialDataCallback = function (onGetInitialDataCallback) {
+        mOnGetInitialDataCallback = onGetInitialDataCallback;
+
+        if(mIsExperimentActive)
+        {
+            // Data is purposedly ignored. The experiment is already active so no initial
+            // data can be sent anymore.
+            mOnGetInitialDataCallback();
+        }
+    };
 
     /**
      * onStart( startHandler ) -> promise

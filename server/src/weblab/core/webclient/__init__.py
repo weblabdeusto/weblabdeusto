@@ -32,5 +32,6 @@ import view_login
 import view_labs
 import view_lab
 import view_i18n
+import view_gwt
 
-assert view_login is not None and view_labs is not None and view_lab is not None and view_i18n is not None
+assert view_login is not None and view_labs is not None and view_lab is not None and view_i18n is not None and view_gwt is not None
