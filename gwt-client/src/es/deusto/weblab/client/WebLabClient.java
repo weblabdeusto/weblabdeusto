@@ -22,10 +22,10 @@ import es.deusto.weblab.client.configuration.IConfigurationRetriever;
 import es.deusto.weblab.client.lab.experiments.EntryRegistry;
 import es.deusto.weblab.client.lab.experiments.ExperimentBase;
 import es.deusto.weblab.client.lab.experiments.ExperimentCreator;
-import es.deusto.weblab.client.lab.experiments.JSBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.ExperimentFactory.IExperimentLoadedCallback;
 import es.deusto.weblab.client.lab.experiments.IBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.IExperimentCreatorFactory;
+import es.deusto.weblab.client.lab.experiments.JSBoardBaseController;
 import es.deusto.weblab.client.lab.experiments.exceptions.ExperimentCreatorInstanciationException;
 
 public class WebLabClient implements EntryPoint {
@@ -45,11 +45,11 @@ public class WebLabClient implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-		WebLabClient.baseLocation = getBaseLocation();
 		final IBoardBaseController boardBaseController = new JSBoardBaseController();
+		WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
 		final IConfigurationRetriever configurationRetriever = null;
 		
-		final String clientCodeName = getClientCodeName();
+		final String clientCodeName = JSBoardBaseController.getClientCodeName();
 		final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
 		if (experimentCreatorFactory == null) {
 			showError("client code name " + clientCodeName + " not implemented in GWT");
@@ -77,7 +77,7 @@ public class WebLabClient implements EntryPoint {
 			}
 		};
 
-		if (getMobile()) {
+		if (JSBoardBaseController.isMobile()) {
 			creator.createMobile(boardBaseController, callback);
 		} else {
 			creator.createWeb(boardBaseController, callback);
@@ -93,20 +93,4 @@ public class WebLabClient implements EntryPoint {
 		}
 		return currentCreatorFactory;
 	}
-	
-	/*
-	 * JavaScript native implementations
-	 */
-	
-	public static native String getClientCodeName() /*-{
-		return $wnd.gwt_experiment_config.client_code_name;
-	}-*/; 
-	
-	public static native boolean getMobile() /*-{
-		return $wnd.gwt_experiment_config.mobile;
-	}-*/;
-	
-	public static native String getBaseLocation() /*-{
-		return $wnd.gwt_experiment_config.base_location;
-	}-*/;
 }

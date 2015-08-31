@@ -14,27 +14,47 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.dto.experiments.ResponseCommand;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
 public class JSBoardBaseController implements IBoardBaseController {
 	
-	private final static ISimpleResponseCallback NULL_RESPONSE_CALLBACK = new ISimpleResponseCallback() {
-		@Override
-		public void onFailure(String e) {
-		}
-		
-		@Override
-		public void onSuccess(String responseCommand) {
-		}
-	};
+	/*
+	 * general metadata methods
+	 */
+	@Override
+	public boolean isFacebook() {
+		return isFacebookImpl();
+	}
+
+	@Override
+	public void clean() {
+		cleanImpl();
+	}
+
+	@Override
+	public void finish() {
+		finishImpl();
+	}
+
+	@Override
+	public void stopPolling() {
+		stopPollingImpl();
+	}
+
+	@Override
+	public void disableFinishOnClose() {
+		disableFinishOnCloseImpl();
+	}
+
+	/*
+	 * INTERACTION METHODS
+	 */
 	
 	@Override
 	public void sendCommand(Command command) {
-		sendCommandImpl(command.getCommandString(), NULL_RESPONSE_CALLBACK);
+		sendCommandImpl(command.getCommandString(), NullSimpleResponseCallback.NULL_RESPONSE_CALLBACK);
 	}
 	
 	@Override
@@ -44,7 +64,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 	
 	@Override
 	public void sendCommand(String command) {
-		sendCommandImpl(command, NULL_RESPONSE_CALLBACK);
+		sendCommandImpl(command, NullSimpleResponseCallback.NULL_RESPONSE_CALLBACK);
 	}
 
 	@Override
@@ -52,7 +72,76 @@ public class JSBoardBaseController implements IBoardBaseController {
 		sendCommandImpl(command, new CallbackWrapper(callback));
 	}
 
-	public static native void sendCommandImpl(String commandString, ISimpleResponseCallback callback) /*-{
+	@Override
+	public void sendAsyncCommand(Command command) {
+		sendAsyncCommandImpl(command.getCommandString(), NullSimpleResponseCallback.NULL_RESPONSE_CALLBACK);
+	}
+
+	@Override
+	public void sendAsyncCommand(Command command, IResponseCommandCallback callback) {
+		sendAsyncCommandImpl(command.getCommandString(), new CallbackWrapper(callback));
+	}
+
+	@Override
+	public void sendAsyncCommand(String command) {
+		sendAsyncCommandImpl(command, NullSimpleResponseCallback.NULL_RESPONSE_CALLBACK);
+	}
+
+	@Override
+	public void sendAsyncCommand(String command, IResponseCommandCallback callback) {
+		sendAsyncCommandImpl(command, new CallbackWrapper(callback));
+	}
+
+	@Override
+	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
+		// TODO: to be implemented (file management)
+		sendFileImpl("", new CallbackWrapper(callback));
+	}
+
+	@Override
+	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
+		// TODO: to be implemented (file management)
+		sendAsyncFileImpl("", new CallbackWrapper(callback));
+	}
+	
+	/*
+	 * JSNI implementations
+	 * 
+	 */
+	public static native String getClientCodeName() /*-{
+		return $wnd.gwt_experiment_config.client_code_name;
+	}-*/; 
+	
+	public static native boolean isMobile() /*-{
+		return $wnd.gwt_experiment_config.mobile;
+	}-*/;
+	
+	public static native String getBaseLocation() /*-{
+		return $wnd.gwt_experiment_config.base_location;
+	}-*/;
+
+	static native boolean isFacebookImpl() /*-{
+		return $wnd.gwt_experiment_config.facebook;
+	}-*/;
+	
+	static native void cleanImpl() /*-{
+		// TODO: this is incorrect (clean != finish)
+		return WebLabExp.finishExperiment();
+	}-*/;
+
+	static native void finishImpl() /*-{
+		return WebLabExp.finishExperiment();
+	}-*/;
+	
+	static native void stopPollingImpl() /*-{
+		// TODO: not implemented in the current version of the JS library
+	}-*/;
+
+	static native void disableFinishOnCloseImpl() /*-{
+		// TODO: not implemented in the current version of the JS library
+	}-*/;
+	
+	static native void sendCommandImpl(String commandString, ISimpleResponseCallback callback) /*-{
 		WeblabExp.sendCommand(commandString)
 			.done(function(success) {
 				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onSuccess(Ljava/lang/String;)(success);
@@ -62,93 +151,24 @@ public class JSBoardBaseController implements IBoardBaseController {
 			});
 	}-*/;
 
-	@Override
-	public boolean isFacebook() {
-		// TODO Auto-generated method stub
-		return false;
+	static void sendAsyncCommandImpl(String commandString, ISimpleResponseCallback callback) {
+		// This method is not implemented
+		sendCommandImpl(commandString, callback);
 	}
+	
+	static native void sendFileImpl(String commandString, ISimpleResponseCallback callback) /*-{
+		// TODO: integrate file management
+		WeblabExp.sendCommand(commandString)
+			.done(function(success) {
+				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onSuccess(Ljava/lang/String;)(success);
+			})
+			.fail(function(error) {
+				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onFailure(Ljava/lang/String;)(error);
+			});
+	}-*/;
 
-
-	@Override
-	public void sendAsyncCommand(Command command) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendAsyncCommand(Command command,
-			IResponseCommandCallback callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendAsyncCommand(String command) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendAsyncCommand(String command,
-			IResponseCommandCallback callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendFile(UploadStructure uploadStructure,
-			IResponseCommandCallback callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void sendAsyncFile(UploadStructure uploadStructure,
-			IResponseCommandCallback callback) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void clean() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void finish() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopPolling() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void disableFinishOnClose() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public final static class CallbackWrapper implements ISimpleResponseCallback {
-		
-		private final IResponseCommandCallback callback;
-		
-		public CallbackWrapper(IResponseCommandCallback callback) {
-			this.callback = callback;
-		}
-		
-		@Override
-		public void onFailure(String e) {
-			this.callback.onFailure(new CommException(e));
-		}
-		
-		@Override
-		public void onSuccess(String responseCommand) {
-			this.callback.onSuccess(new ResponseCommand(responseCommand));
-		}
+	static void sendAsyncFileImpl(String commandString, ISimpleResponseCallback callback) {
+		// This method is not implemented
+		sendFileImpl(commandString, callback);
 	}
 }

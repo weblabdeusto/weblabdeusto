@@ -66,6 +66,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * don't care the result.
 	 */
+	@Deprecated
 	public void sendAsyncCommand(Command command);
 	
 	/**
@@ -73,6 +74,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
 	
 	/**
@@ -80,6 +82,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * don't care about the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(String command);
 	
 	/**
@@ -87,6 +90,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(String command, IResponseCommandCallback callback);
 	
 	////////////////////////////////////
@@ -101,6 +105,7 @@ public interface IBoardBaseController{
 	/**
 	 * Send a file asynchronously, notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 	
 	////////////////////////////////////
