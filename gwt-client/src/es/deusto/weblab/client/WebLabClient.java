@@ -50,6 +50,8 @@ public class WebLabClient implements EntryPoint {
 			@Override
 			public void run() {
 				JSBoardBaseController.log("Configuration loaded. Starting GWT experiment...");
+				JSBoardBaseController.show();
+				
 				final IBoardBaseController boardBaseController = new JSBoardBaseController();
 				WebLabClient.baseLocation = JSBoardBaseController.getBaseLocation();
 				JSBoardBaseController.log("Base location: " +  WebLabClient.baseLocation);

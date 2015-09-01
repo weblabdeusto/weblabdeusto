@@ -196,6 +196,7 @@ WeblabExp = function () {
      * @param {object} initial_config: Initial configuration of the experiment, obtained from the confirmed reservation.
      */
     this._reservationReady = function (reservation_id, time, initial_config) {
+        this.show();
 
         console.debug("[reservationReady] ReservationReady called");
         console.debug("Frame Mode: " + this.isFrameMode());
@@ -886,6 +887,13 @@ WeblabExp = function () {
         mFinishOnClose = false;
     };
 
+    /**
+    * Show the body whenever loaded
+    */
+    this.show = function() {
+        $("body").show();
+    };
+
     ///////////////////////////////////
     // CONSTRUCTION & INITIALIZATION
     ///////////////////////////////////
@@ -901,7 +909,7 @@ WeblabExp = function () {
 
     var that = this;
     $(window).bind('beforeunload', function(){
-        if (mFinishOnClose) {
+        if (mFinishOnClose && mExperimentActive) {
             // TODO: if (isExperimentActive()) finish
             mClosing = true;
             that.finishExperiment();

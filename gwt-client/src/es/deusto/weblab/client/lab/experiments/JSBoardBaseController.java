@@ -265,6 +265,10 @@ public class JSBoardBaseController implements IBoardBaseController {
 		}
 	}-*/;
 	
+	public static native void show() /*-{
+		$wnd.weblab.show();
+	}-*/;
+	
 	public static native void onConfigurationLoaded(Runnable task) /*-{
 		$wnd.weblab.onConfigLoad(function() {
 			task.@java.lang.Runnable::run()();
