@@ -299,7 +299,7 @@ function LabController($scope, $injector, $http) {
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["initial_configuration"]);
 
                 // Listen also for a dispose, for other ui changes.
-                wexp.onFinish().done(function (f) {
+                wexp.onEnd().done(function (f) {
                     $scope.experiment.active = false;
                     $scope.loadLatestUses();
                     $scope.loadLabStats();

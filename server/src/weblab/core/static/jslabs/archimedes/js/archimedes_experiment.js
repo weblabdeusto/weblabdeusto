@@ -111,7 +111,7 @@ ArchimedesExperiment = function (registry, view) {
 
 
 
-            weblab.onFinish().done(function () {
+            weblab.onEnd().done(function () {
 
                 this.stopRefreshingData();
 

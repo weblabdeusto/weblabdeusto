@@ -85,6 +85,9 @@
 			<fileset dir="src" excludes="**/*.java"/>
 		</copy>
         <exec executable="python">
+            <arg value="generate_clients.py"/>
+        </exec>
+        <exec executable="python">
             <arg value="i18n_gatherer.py"/>
         </exec>
 	</target>

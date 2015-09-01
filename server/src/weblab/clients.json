@@ -782,37 +782,5 @@
                 "description": "Path to the experiment pictures"
             }
         }
-    }, 
-    "purejs": {
-        "parameters": {
-            "load.on.init": {
-                "type": "bool", 
-                "description": "Load the HTML"
-            }, 
-            "html.file": {
-                "type": "string", 
-                "description": "HTML file to redirect the user"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
-            }, 
-            "experiment.info.description": {
-                "type": "string", 
-                "description": "Description message"
-            }, 
-            "base.url": {
-                "type": "string", 
-                "description": "Base URL before the HTML file. By default, it's experiments/"
-            }, 
-            "experiment.info.link": {
-                "type": "string", 
-                "description": "Link to point in the information"
-            }, 
-            "experiment.picture": {
-                "type": "string", 
-                "description": "Path to the experiment pictures"
-            }
-        }
     }
 }
