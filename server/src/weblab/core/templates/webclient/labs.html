@@ -8,138 +8,141 @@
         <h2>{{ gettext("My Experiments") }}</h2>
     </center>
 
-    <div class="container">
+
     <div ng-controller="LabsScreenController">
-        {% raw %}
-        <div class="row">
-            <div class="pull-right">
-                <a href="#" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a> 
-                <a href="#" ng-disabled="experiment_list.order == 'user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
-                <a href="#" ng-disabled="experiment_list.order == 'latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
-            </div>
-        </div>
-        <div class="row">
-            <div ng-cloak class="col-sm-3" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
-                <div class="well" style="width: 100%; height: 60px; margin: 5px">
-                    <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%">
-                    <img style="display: inline-block; max-height: 100%; max-width: 40px; margin-right: 10px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
-                    <span style="font-weight: bold">{{ experiment.name }}</span></a>
+        <div ng-cloak ng-show="experiments.length > 0" class="container">
+            {% raw %}
+            <div class="row">
+                <div class="pull-right">
+                    <a href="#" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a> 
+                    <a href="#" ng-disabled="experiment_list.order == 'user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
+                    <a href="#" ng-disabled="experiment_list.order == 'latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
                 </div>
             </div>
-        </div>
-        {% endraw %}
-        
-        <div class="row">
-            <!-- Column for the labs themselves -->
-            <div class="column col-sm-9" id="experiment-descriptions">
-
-                <!-- To be displayed only if no experiments match the filters -->
-                <div id="no-experiments-alert" class="alert alert-info" ng-cloak ng-show="!search.any_experiment_found">
-                    <h3>{{ gettext("No experiments are available with the current filters") }}</h3>
-                    <p>{{ gettext("
-                        No experiments are available which match the current filters. You might want to change the filters.
-                        If after changing the filters the experiment you seek still does not seem to be available,
-                        you may need to request access to your teacher, laboratory provider or Weblab administrator.
-                    ") }}</p>
-                </div>
-
-                <div ng-show="false" class="well">
-                    <h3>{{ gettext("Loading laboratories...") }}</h3>
-                </div>
-                {% raw %}
-                <div ng-cloak 
-                     class="experiment-description well" 
-                     ng-repeat="experiment in experiments" 
-                     ng-show="experiment.visible">
-                    <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
-                    <h4>{{ experiment.category }}</h4>
-
-                    <div class="row">
-                        <div class="col-sm-2" style="text-align: center">
-                            <a ng-href="{{ experiment.lab_link }}">
-                            <img style="display: inline-block" class="img-responsive img-thumbnail"
-                                 ng-src="{{ experiment.logo_link }}"
-                                 alt="experiment_picture" width="80" height="100"/>
-                            </a>
-                        </div>
-
-                        <div class="col-sm-10">
-                            <p>{{ experiment.description }}</p>
-                            <a ng-href="{{ experiment.lab_link }}">
-                                {% endraw %} {# use gettext() using jinja #}
-                                <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
-                                {% raw %}
-                            </a>
-                        </div>
+            <div class="row">
+                <div class="col-xs-6 col-sm-4 col-md-3" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
+                    <div class="well" style="width: 100%; height: 60px; margin: 5px">
+                        <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%">
+                        <img style="display: inline-block; max-height: 100%; max-width: 40px; margin-right: 10px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
+                        <span style="font-size: 100%; font-weight: bold">{{ experiment.name }}</span></a>
                     </div>
                 </div>
-                {% endraw %}
             </div>
+            {% endraw %}
+        </div>
+            
+        <div class="container">
+            <div class="row">
+                <!-- Column for the labs themselves -->
+                <div class="column col-sm-9" id="experiment-descriptions">
+
+                    <!-- To be displayed only if no experiments match the filters -->
+                    <div id="no-experiments-alert" class="alert alert-info" ng-cloak ng-show="!search.any_experiment_found">
+                        <h3>{{ gettext("No experiments are available with the current filters") }}</h3>
+                        <p>{{ gettext("
+                            No experiments are available which match the current filters. You might want to change the filters.
+                            If after changing the filters the experiment you seek still does not seem to be available,
+                            you may need to request access to your teacher, laboratory provider or Weblab administrator.
+                        ") }}</p>
+                    </div>
+
+                    <div ng-show="false" class="well">
+                        <h3>{{ gettext("Loading laboratories...") }}</h3>
+                    </div>
+                    {% raw %}
+                    <div ng-cloak 
+                         class="experiment-description well" 
+                         ng-repeat="experiment in experiments" 
+                         ng-show="experiment.visible">
+                        <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
+                        <h4>{{ experiment.category }}</h4>
+
+                        <div class="row">
+                            <div class="col-sm-2" style="text-align: center">
+                                <a ng-href="{{ experiment.lab_link }}">
+                                <img style="display: inline-block" class="img-responsive img-thumbnail"
+                                     ng-src="{{ experiment.logo_link }}"
+                                     alt="experiment_picture" width="80" height="100"/>
+                                </a>
+                            </div>
+
+                            <div class="col-sm-10">
+                                <p>{{ experiment.description }}</p>
+                                <a ng-href="{{ experiment.lab_link }}">
+                                    {% endraw %} {# use gettext() using jinja #}
+                                    <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
+                                    {% raw %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endraw %}
+                </div>
 
 
-            <!-- Column for the categories menu -->
-            <div class="column col-sm-3 well">
+                <!-- Column for the categories menu -->
+                <div class="column col-sm-3 well">
 
-                <div class="row">
-                    <div class="column col-sm-12">
-                        <div id="wrapper">
-                            <legend>
-                                {{ gettext("Filter by Search") }}
-                            </legend>
+                    <div class="row">
+                        <div class="column col-sm-12">
+                            <div id="wrapper">
+                                <legend>
+                                    {{ gettext("Filter by Search") }}
+                                </legend>
 
-                            <!-- Sidebar -->
-                            <div id="search-wrapper">
-                                <form action="#" class="form">
-                                    <div class="form-group">
-                                        <div class="input-group">
-                                            <input id="exp-search" type="Search" placeholder="{{ gettext("Search...") }}"
-                                                   class="form-control" autofocus="true" ng-model="search.term" ng-change="filter_experiments()"/>
+                                <!-- Sidebar -->
+                                <div id="search-wrapper">
+                                    <form action="#" class="form">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input id="exp-search" type="Search" placeholder="{{ gettext("Search...") }}"
+                                                       class="form-control" autofocus="true" ng-model="search.term" ng-change="filter_experiments()"/>
 
-                                            <div class="input-group-btn">
-                                                <div class="btn btn-info" disabled>
-                                                    <span class="glyphicon glyphicon-search"></span>
+                                                <div class="input-group-btn">
+                                                    <div class="btn btn-info" disabled>
+                                                        <span class="glyphicon glyphicon-search"></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
+                                <!-- /#search-wrapper -->
                             </div>
-                            <!-- /#search-wrapper -->
                         </div>
                     </div>
-                </div>
 
-                <div class="row" ng-cloak>
-                    <div class="column col-sm-12">
-                        <div id="wrapper">
-                            <legend>
-                                {{ gettext("Filter by Category") }}
-                            </legend>
+                    <div class="row" ng-cloak>
+                        <div class="column col-sm-12">
+                            <div id="wrapper">
+                                <legend>
+                                    {{ gettext("Filter by Category") }}
+                                </legend>
 
-                            <!-- Sidebar -->
-                            <div id="sidebar-wrapper">
-                                <ul class="sidebar-nav list-unstyled" id="menu-categories">
-                                    {% raw %}
-                                    <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
-                                        ng-repeat="(category, category_data) in categories" 
-                                        ng-class="{ 'highlighted' : category_data.selected, 'bg-success' : category_data.selected }"
-                                        >
-                                        <a href="#" ng-click="category_click(category)">
-                                            {{ category }} ({{ category_data.count }})
-                                        </a>
-                                    </li>
-                                    {% endraw %}
-                                </ul>
+                                <!-- Sidebar -->
+                                <div id="sidebar-wrapper">
+                                    <ul class="sidebar-nav list-unstyled" id="menu-categories">
+                                        {% raw %}
+                                        <li class="menu-item category-menu-item" style="padding: 3px 1px 1px 3px"
+                                            ng-repeat="(category, category_data) in categories" 
+                                            ng-class="{ 'highlighted' : category_data.selected, 'bg-success' : category_data.selected }"
+                                            >
+                                            <a href="#" ng-click="category_click(category)">
+                                                {{ category }} ({{ category_data.count }})
+                                            </a>
+                                        </li>
+                                        {% endraw %}
+                                    </ul>
+                                </div>
+                                <!-- /#sidebar-wrapper -->
                             </div>
-                            <!-- /#sidebar-wrapper -->
                         </div>
-                    </div>
-                </div>
+                    </div> <!-- row -->
 
-            </div>
-        </div>
+                </div>  <!-- categories menu -->
+            </div> <!-- container -->
 
-    </div>
+    </div> <!-- controller -->
 
 {% endblock %}
 
