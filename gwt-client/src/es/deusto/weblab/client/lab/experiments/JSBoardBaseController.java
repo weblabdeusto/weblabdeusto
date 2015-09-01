@@ -185,11 +185,11 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}-*/;
 	
 	static native void stopPollingImpl() /*-{
-		// TODO: not implemented in the current version of the JS library
+		return $wnd.weblab.stopPolling();
 	}-*/;
 
 	static native void disableFinishOnCloseImpl() /*-{
-		// TODO: not implemented in the current version of the JS library
+		return $wnd.weblab.disableFinishOnClose();
 	}-*/;
 	
 	static native void sendCommandImpl(String commandString, ISimpleResponseCallback callback) /*-{

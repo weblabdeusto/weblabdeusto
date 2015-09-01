@@ -93,6 +93,20 @@ WeblabExp = function () {
 
     // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
     var mPollingTimer;
+    
+    // To keep track of whether we're now polling or not
+    var mPolling = false;
+
+    // When closing the current window, send a "finish()" message to the server (so somebody else can use the lab)
+    var mFinishOnClose = true;
+
+    // When closing, we don't want anybody to do something (e.g., callbacks being called, etc.)
+    var mClosing = false;
+
+    // Keep record of whether the experiment is active or not
+    var mExperimentActive = false;
+    var mOnExperimentActive = $.Deferred();
+    var mOnExperimentDeactive = $.Deferred();
 
     // To keep track of the state of the object.
     var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
@@ -189,6 +203,8 @@ WeblabExp = function () {
         if (mStartCalled == true)
             throw new Error("_reservationReady should only be called once");
         mStartCalled = true;
+        mExperimentActive = true;
+        mOnExperimentActive.resolve(reservation_id, time, initial_config);
 
         // Set the ID.
         mReservation = reservation_id;
@@ -325,21 +341,22 @@ WeblabExp = function () {
      */
     this._poll = function () {
         var promise = $.Deferred();
-        var request = {"method": "poll", "params": {"reservation_id": {"id": mReservation}}};
+        if (mPolling) {
+            var request = {"method": "poll", "params": {"reservation_id": {"id": mReservation}}};
 
-        this._send(request)
-            .done(function (success) {
+            this._send(request)
+                .done(function (success) {
 
-                if(WEBLABEXP_DEBUG) {
-                    console.debug("Data received: " + success);
-                    console.debug(success);
-                }
-                promise.resolve(success);
-            })
-            .fail(function (error) {
-                promise.reject(error);
-            });
-
+                    if(WEBLABEXP_DEBUG) {
+                        console.debug("Data received: " + success);
+                        console.debug(success);
+                    }
+                    promise.resolve(success);
+                })
+                .fail(function (error) {
+                    promise.reject(error);
+                });
+        }
         return promise.promise();
     }; // !_poll
 
@@ -352,29 +369,49 @@ WeblabExp = function () {
      */
     this._startPolling = function () {
         var frequency = this.POLL_FREQUENCY; // The polling freq might be a setting somewhere. For now it's hard-coded to 4 seconds.
+        mPolling = true;
 
         this._poll()
             .done(function (result) {
-                // This means the experiment is still active. We shall check again soon, unless the experiment
-                // has been explicitly finished.
-                if (!mOnEndPromise.state() != "resolved") {
-                    mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
+                if (mPolling) {
+                    // This means the experiment is still active. We shall check again soon, unless the experiment
+                    // has been explicitly finished.
+                    if (!mOnEndPromise.state() != "resolved") {
+                        mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
+                    }
+                    console.debug("POLL: " + result);
                 }
-                console.debug("POLL: " + result);
             }.bind(this))
             .fail(function (error) {
+                mPolling = false;
                 // Presumably, the experiment has ended. We should actually check the error to make sure it's so.
                 // TODO:
 
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
-                mOnEndPromise.resolve();
+                if (!mClosing) {
+                    mExperimentActive = false;
+                    mOnEndPromise.resolve();
+                    mOnExperimentDeactive.resolve();
+                }
+                /*
+                    Original code:
+
+                        if(e instanceof NoCurrentReservationException){ // "JSON:Client.NoCurrentReservation"
+                            LabController.this.finishReservation();
+                        } else if (e instanceof SessionNotFoundException) { // "JSON:Client.SessionNotFound"
+                            LabController.this.finishReservationAndLogout();
+                        } else {
+                            LabController.this.sessionVariables.hideExperiment();
+                            LabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
+                            LabController.this.cleanExperiment();
+                        }
+                */
 
                 console.debug("POLL F: " + error);
                 // TODO: How are connection failures handled??? Do we consider the experiment finished?
             }.bind(this));
 
     }; // !_startPolling
-
 
     /**
      * Internal send function. It will send the request to the target URL.
@@ -506,6 +543,36 @@ WeblabExp = function () {
         mConfiguration = configuration;
     }
 
+    /**
+    * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
+    * This function relies on a ?c=<configuration-url.json> parameter. If missing, the experiment will be
+    * considered unconfigured (so it can be loaded but without calling the server and so on).
+    */
+    this._loadConfig = function () {
+        if ($.QueryString["c"] !== undefined) {
+            var that = this;
+            var config_url = $.QueryString["c"];
+            $.ajax({
+                "type": "GET",
+                "url": config_url,
+                "dataType": "json",
+            }).done(function (success, status, jqXHR) {
+                that._setTargetURL(success.targetURL);
+                that._setConfiguration(success.config);
+                $.each(success.scripts, function(i, script_url) {
+                    $.getScript(script_url);
+                });
+                mOnConfigLoadPromise.resolve();
+            }).fail(function (fail) {
+                console.error("Error loading configuration file from " + config_url);
+                mOnConfigLoadPromise.resolve();
+            });
+        } else {
+            console.log("Experiment disabled due to configuration URL missing. Provide a ?c=url parameter if you want to activate it.");
+            mOnConfigLoadPromise.resolve();
+        }
+    };
+
     ///////////////////////////////////////////////////////////////
     //
     // PUBLIC INTERFACE
@@ -524,6 +591,14 @@ WeblabExp = function () {
         return mConfiguration;
     }
 
+    /**
+     * Stop polling
+     * @public
+     */
+    this.stopPolling = function() {
+        clearTimeout(mPollingTimer);
+        mPolling = false;
+    }
 
     /**
      * Sends a command to the experiment server.
@@ -616,11 +691,14 @@ WeblabExp = function () {
 
                 // Disable the polling timer if needed.
                 clearTimeout(mPollingTimer);
+                mExperimentActive = false;
 
                 promise.resolve(success);
 
-                if (mOnEndPromise.state() != "resolved")
+                if (mOnEndPromise.state() != "resolved" && !mClosing) {
                     mOnEndPromise.resolve(success);
+                    mOnExperimentDeactive.resolve();
+                }
             })
             .fail(function (error) {
                 promise.reject(error);
@@ -702,6 +780,23 @@ WeblabExp = function () {
         // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
         // Revise them.
 
+    /*
+    * Events for adding events when an experiment is active or inactive
+    */
+    this.onExperimentActive = function(experimentActiveHandler) {
+        if (experimentActiveHandler != undefined) {
+            mOnExperimentActive.done(experimentActiveHandler.bind(this));
+        }
+        return mOnExperimentActive.promise();
+    };
+    this.onExperimentDeactive = function(experimentDeactiveHandler) {
+        if (experimentDeactiveHandler != undefined) {
+            mOnExperimentDeactive.done(experimentDeactiveHandler.bind(this));
+        }
+        return mOnExperimentDeactive.promise();
+    };
+
+
     /**
      * onFinish( endHandler ) -> promise
      * onFinish () -> promise
@@ -772,35 +867,7 @@ WeblabExp = function () {
         this._reservationReady(reservation, time, startconfig);
     };
 
-    /**
-    * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
-    * This function relies on a ?c=<configuration-url.json> parameter. If missing, the experiment will be
-    * considered unconfigured (so it can be loaded but without calling the server and so on).
-    */
-    this._loadConfig = function () {
-        if ($.QueryString["c"] !== undefined) {
-            var that = this;
-            var config_url = $.QueryString["c"];
-            $.ajax({
-                "type": "GET",
-                "url": config_url,
-                "dataType": "json",
-            }).done(function (success, status, jqXHR) {
-                that._setTargetURL(success.targetURL);
-                that._setConfiguration(success.config);
-                $.each(success.scripts, function(i, script_url) {
-                    $.getScript(script_url);
-                });
-                mOnConfigLoadPromise.resolve();
-            }).fail(function (fail) {
-                console.error("Error loading configuration file from " + config_url);
-                mOnConfigLoadPromise.resolve();
-            });
-        } else {
-            console.log("Experiment disabled due to configuration URL missing. Provide a ?c=url parameter if you want to activate it.");
-            mOnConfigLoadPromise.resolve();
-        }
-    };
+
     
     /**
     * Optional method. Reports whenever the configuration has been loaded and processed.
@@ -810,6 +877,13 @@ WeblabExp = function () {
             mOnConfigLoadPromise.done(onConfigLoadHandler);
         }
         return mOnConfigLoadPromise.promise();
+    };
+
+    /**
+    * Disable that whenever the window is closed, the system sends a finishExperiment() event.
+    */
+    this.disableFinishOnClose = function() {
+        mFinishOnClose = false;
     };
 
     ///////////////////////////////////
@@ -824,6 +898,15 @@ WeblabExp = function () {
     }
 
     this._loadConfig();
+
+    var that = this;
+    $(window).bind('beforeunload', function(){
+        if (mFinishOnClose) {
+            // TODO: if (isExperimentActive()) finish
+            mClosing = true;
+            that.finishExperiment();
+        }
+    });
 
 
     ///////////////////////////////////////////////////////////////
