@@ -664,6 +664,20 @@ WeblabExp = function () {
         return promise.promise();
     };
 
+    /**
+    * get reservation identifier. Used in GWT for example for sending files.
+    */
+    this.getReservationId = function () {
+        return this._getReservation();
+    };
+
+    /**
+    * get reservation identifier. Used in GWT for example for sending files.
+    */
+    this.getFileUploadUrl = function () {
+        var baseUrl = this.CORE_URL.substring(0, this.CORE_URL.length - "json/".length);
+        return baseUrl + "/web/upload/";
+    };
 
     /**
      * Finishes the experiment. When the experiment is finished, the result is reported

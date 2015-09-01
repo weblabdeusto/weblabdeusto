@@ -17,14 +17,23 @@ package es.deusto.weblab.client.lab.experiments;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONNull;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
+import com.google.gwt.user.client.ui.Hidden;
 
+import es.deusto.weblab.client.comm.exceptions.CommException;
 import es.deusto.weblab.client.configuration.ConfigurationRetriever;
 import es.deusto.weblab.client.dto.experiments.Command;
+import es.deusto.weblab.client.dto.experiments.EmptyResponseCommand;
+import es.deusto.weblab.client.dto.experiments.ResponseCommand;
+import es.deusto.weblab.client.lab.comm.FileResponseException;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
@@ -103,10 +112,98 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}
 
 	@Override
-	public void sendFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
-		// TODO: to be implemented (file management)
-		sendFileImpl("", new CallbackWrapper(callback));
+	public void sendFile(final UploadStructure uploadStructure, final IResponseCommandCallback callback) {
+		final Hidden reservationIdElement = new Hidden("reservation_id", getReservationId());
+		
+		// Set up uploadStructure
+		uploadStructure.addInformation(reservationIdElement);
+		uploadStructure.addInformation(new Hidden("file_info", uploadStructure.getFileInfo()));
+		uploadStructure.addInformation(new Hidden("is_async", "false"));
+		uploadStructure.getFileUpload().setName("file_sent");
+		uploadStructure.getFormPanel().setAction(getFileUploadUrl());
+		uploadStructure.getFormPanel().setEncoding(FormPanel.ENCODING_MULTIPART);
+		uploadStructure.getFormPanel().setMethod(FormPanel.METHOD_POST);
+
+		// Register handler
+		uploadStructure.getFormPanel().addSubmitCompleteHandler(new SubmitCompleteHandler() {
+
+			@Override
+			public void onSubmitComplete(SubmitCompleteEvent event) {
+				uploadStructure.removeInformation(reservationIdElement);
+
+				final String resultMessage = event.getResults();
+				if(GWT.isScript() && resultMessage == null) {
+					this.reportFail(callback);
+				} else {
+					this.processResultMessage(callback, resultMessage);
+				}
+			}
+
+			private void processResultMessage(IResponseCommandCallback callback, String resultMessage) {				
+				if(resultMessage == null) {
+					if (GWT.isScript()) {
+						callback.onSuccess(new EmptyResponseCommand());
+					}
+					return;
+				}
+				
+				final ResponseCommand parsedResponseCommand;
+				try {
+					parsedResponseCommand = parseSendFileResponse(resultMessage);
+				} catch (final FileResponseException e) {
+					callback.onFailure(e);
+					return;
+				}
+				callback.onSuccess(parsedResponseCommand);
+			}
+			private void reportFail(final IResponseCommandCallback callback) {
+				GWT.log("reportFail could not send the file", null);
+				callback.onFailure(new CommException("Couldn't send the file"));
+			}			
+		});
+
+		// Submit
+		uploadStructure.getFormPanel().submit();
 	}
+
+
+	private ResponseCommand parseSendFileResponse(final String responseText) throws FileResponseException{
+		final String startMessage = "<body>";
+		final String endMessage = "</body>";
+		
+		final int startPoint = responseText.trim().toLowerCase().indexOf(startMessage) + startMessage.length();
+		final int endPoint = responseText.trim().toLowerCase().lastIndexOf(endMessage);
+		
+		// Sometimes the browsers provide us directly the body of the message, sometimes it provides the full HTML message
+		final String parsedResponse;
+		if(startPoint < 0 || endPoint < 0 || startPoint > endPoint)
+		    parsedResponse = responseText;
+		else
+		    parsedResponse = responseText.trim().substring(startPoint, endPoint);
+		
+		final int firstAT = parsedResponse.indexOf("@");
+		if(firstAT < 0)
+		    throw new FileResponseException("Sending file failed: response should have at least one '@' symbol");
+		final String firstWord = parsedResponse.substring(0, firstAT);
+		final String restOfText = parsedResponse.substring(firstAT + 1);
+		
+		if(firstWord.toLowerCase().equals("success")){
+		    return new ResponseCommand(restOfText);
+		}else if(firstWord.toLowerCase().equals("error")){
+		    final int secondAT = restOfText.indexOf("@");
+		    final String faultString = restOfText.substring(secondAT + 1);
+		    throw new FileResponseException(faultString);
+		}else
+		    throw new FileResponseException("Sending file failed: first element must be 'success' or 'error'");
+	}
+	
+	static native String getReservationId() /*-{
+		return $wnd.weblab.getReservationId();
+	}-*/;
+
+	static native String getFileUploadUrl() /*-{
+		return $wnd.weblab.getFileUploadUrl();
+	}-*/;
 
 	@Override
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback) {
@@ -207,22 +304,6 @@ public class JSBoardBaseController implements IBoardBaseController {
 		sendCommandImpl(commandString, callback);
 	}
 	
-	static native void sendFileImpl(String commandString, ISimpleResponseCallback callback) /*-{
-		// TODO: integrate file management
-		$wnd.weblab.sendCommand(commandString)
-			.done(function(success) {
-				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onSuccess(Ljava/lang/String;)(success);
-			})
-			.fail(function(error) {
-				callback.@es.deusto.weblab.client.lab.experiments.ISimpleResponseCallback::onFailure(Ljava/lang/String;)(error);
-			});
-	}-*/;
-
-	static void sendAsyncFileImpl(String commandString, ISimpleResponseCallback callback) {
-		// This method is not implemented
-		sendFileImpl(commandString, callback);
-	}
-
 	public static void registerExperiment(ExperimentBase experiment) {
 		if (isStartReserved())
 			experiment.initializeReserved();
