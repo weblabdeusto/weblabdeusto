@@ -722,6 +722,10 @@ WeblabExp = function () {
         return promise.promise();
     };
 
+    this.cleanExperiment = function () {
+        // TODO: Implement this
+        this.finishExperiment();
+    };
 
    /** 
     * Sets the getInitialDataCallback. This is the callback that will be invoked

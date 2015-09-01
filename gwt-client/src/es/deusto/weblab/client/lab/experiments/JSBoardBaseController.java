@@ -273,8 +273,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}-*/;
 	
 	static native void cleanImpl() /*-{
-		// TODO: this is incorrect (clean != finish)
-		return $wnd.weblab.finishExperiment();
+		return $wnd.weblab.cleanExperiment();
 	}-*/;
 
 	static native void finishImpl() /*-{
