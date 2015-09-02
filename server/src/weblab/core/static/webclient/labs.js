@@ -37,6 +37,7 @@ function LabsScreenController($scope, $http) {
     $scope.filter_experiments = filter_experiments;
     $scope.category_click = category_click;
     $scope.set_order = set_order;
+    $scope.replacePath = replacePath;
 
     // 
     // Implementation
@@ -58,6 +59,10 @@ function LabsScreenController($scope, $http) {
         $scope.search.any_category_selected = any_category_found;
         filter_experiments();
     }
+
+    function replacePath(url) {
+        location.replace(url);  
+    };
 
     function filter_experiments() {
         angular.forEach($scope.experiments, function(experiment, index) {

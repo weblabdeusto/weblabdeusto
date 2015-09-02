@@ -25,7 +25,7 @@
             </div>
             <div class="row" ng-show="experiment_list.order != 'category'">
                 <div class="col-xs-6 col-sm-4 col-md-3" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
-                    <div class="well" style="width: 100%; height: 60px; margin: 5px">
+                    <div ng-click="replacePath(experiment.lab_link)" class="well" style="width: 100%; height: 60px; margin: 5px">
                         <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%">
                         <img style="display: inline-block; max-height: 100%; max-width: 40px; margin-right: 10px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
                         <span style="font-size: 100%; font-weight: bold">{{ experiment.name }}</span></a>
