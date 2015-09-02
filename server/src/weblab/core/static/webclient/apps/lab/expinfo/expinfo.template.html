@@ -39,7 +39,8 @@
         <br>
         <div class="well col-lg-6 col-lg-offset-2 text-center">
             <span style="margin-right: 15px">
-                <strong>{{ "TIME"|translate }}:</strong> <span ng-show="experiment['time'] >= 3600">{{ experiment['time'] / 3600|number:0 }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ experiment['time'] % 3600 / 60|number:0 }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}
+                <!-- Math.floor instead of number:0 => number:0 is round, so 1.666 says 2 -->
+                <strong>{{ "TIME"|translate }}:</strong> <span ng-show="experiment['time'] >= 3600">{{ Math.floor(experiment['time'] / 3600) }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ Math.floor(experiment['time'] % 3600 / 60) }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}
             </span>
 
             <span>
