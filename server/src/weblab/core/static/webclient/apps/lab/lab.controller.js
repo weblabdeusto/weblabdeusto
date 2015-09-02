@@ -33,6 +33,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment = {};
     $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
+    $scope.experiment.loading = true;
     $scope.experiment.active = false;
     
     $scope.latest_uses = {
@@ -43,7 +44,8 @@ function LabController($scope, $injector, $http) {
         laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
         language: PREFERRED_LANGUAGE,
-        iframe_url: ""
+        iframe_url: "",
+        markAsLoaded: markAsLoaded
     };
 
     if (CLIENT_TYPE == "js") {
@@ -76,6 +78,7 @@ function LabController($scope, $injector, $http) {
     $scope.reserveInWindow = reserveInWindow;
     $scope.isExperimentActive = isExperimentActive;
     $scope.isExperimentReserving = isExperimentReserving;
+    $scope.isExperimentLoading = isExperimentLoading;
     $scope.finishExperiment = finishExperiment;
     $scope.loadLatestUses = loadLatestUses;
     $scope.loadLabStats = loadLabStats;
@@ -136,6 +139,18 @@ function LabController($scope, $injector, $http) {
         return $scope.experiment.reserving;
     }
     
+    /**
+     * Checks whether the experiment is being loaded.
+     */
+    function isExperimentLoading() {
+        return $scope.experiment.loading;
+    }
+
+    function markAsLoaded() {
+        $scope.experiment.loading = false;
+        $scope.$apply();
+    }
+
     /**
      * Loads the latest uses by the current user in the current experiment
      */

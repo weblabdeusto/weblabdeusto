@@ -44,7 +44,7 @@
             </span>
 
             <span>
-                <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                <a ng-disabled="isExperimentReserving() || isExperimentLoading()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
                    id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE'|translate }}</a>
                 <!-- 
                 <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
