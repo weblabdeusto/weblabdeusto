@@ -65,7 +65,7 @@ def _process_index():
 
 
 
-    return render_template('gwt-index.html', client_config=client_config)
+    return render_template('webclient/gwt-index.html', client_config=client_config)
 
 @weblab_api.route_webclient('/gwt/')
 @login_required
