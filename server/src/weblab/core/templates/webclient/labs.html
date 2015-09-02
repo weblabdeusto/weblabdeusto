@@ -13,13 +13,17 @@
         <div ng-cloak ng-show="experiments.length > 0" class="container">
             {% raw %}
             <div class="row">
+                <div class="pull-left">
+                    <a href="#details" class="btn" style="margin-left: 10px"><i class="glyphicon glyphicon-list-alt"></i></a>
+                </div>
                 <div class="pull-right">
+                    <a href="#" ng-disabled="experiment_list.order == 'category'" ng-click="set_order('category')"><i class="glyphicon glyphicon-sort"></i></a>
                     <a href="#" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a> 
                     <a href="#" ng-disabled="experiment_list.order == 'user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
                     <a href="#" ng-disabled="experiment_list.order == 'latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" ng-show="experiment_list.order != 'category'">
                 <div class="col-xs-6 col-sm-4 col-md-3" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
                     <div class="well" style="width: 100%; height: 60px; margin: 5px">
                         <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%">
@@ -28,11 +32,27 @@
                     </div>
                 </div>
             </div>
+            <div class="row" ng-show="experiment_list.order == 'category' && category_data.any_visible" ng-repeat="(category_name, category_data) in categories">
+                 <h4 style="margin-left: 20px">{{ category_name }}</h4>
+                 <div class="col-xs-6 col-sm-4 col-md-3" ng-repeat="experiment in category_data.experiments|orderBy:'name'" ng-show="experiment.visible">
+                    <div class="well" style="width: 100%; height: 60px; margin: 5px">
+                        <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%">
+                        <img style="display: inline-block; max-height: 100%; max-width: 40px; margin-right: 10px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
+                        <span style="font-size: 100%; font-weight: bold">{{ experiment.name }}</span></a>
+                    </div>
+                </div>
+            </div>
             {% endraw %}
+            <a name="details"></a>
+            <h3>{{ gettext("Details") }}</h3>
         </div>
             
         <div class="container">
             <div class="row">
+                <div ng-show="experiment_list.loading" class="well col-sm-10 col-sm-push-1">
+                    <h3>{{ gettext("Loading laboratories...") }}</h3>
+                </div>
+
                 <!-- Column for the labs themselves -->
                 <div class="column col-sm-9" id="experiment-descriptions">
 
@@ -46,9 +66,6 @@
                         ") }}</p>
                     </div>
 
-                    <div ng-show="false" class="well">
-                        <h3>{{ gettext("Loading laboratories...") }}</h3>
-                    </div>
                     {% raw %}
                     <div ng-cloak 
                          class="experiment-description well" 
@@ -81,7 +98,7 @@
 
 
                 <!-- Column for the categories menu -->
-                <div class="column col-sm-3 well">
+                <div class="column col-sm-3 well" ng-cloak ng-show="!experiment_list.loading">
 
                     <div class="row">
                         <div class="column col-sm-12">
@@ -153,5 +170,5 @@
         var LABS_JSON = "{{ url_for('.labs_json') }}";
     </script>
 
-    <script type="text/javascript" src="{{ url_for('.static', filename="js/labs.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for('.static', filename="webclient/labs.js") }}"></script>
 {% endblock %}

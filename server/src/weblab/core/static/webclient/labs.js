@@ -16,7 +16,8 @@ function LabsScreenController($scope, $http) {
     $scope.categories = {
         // category_name: {
         //     selected: false,
-        //     count: 1
+        //     count: 1,
+        //     any_visible: true
         //     experiments: []
         // }
     };
@@ -26,7 +27,8 @@ function LabsScreenController($scope, $http) {
         any_category_selected: false
     };
     $scope.experiment_list = {
-        order: 'name'
+        order: 'name',
+        loading: true
     };
     
     // 
@@ -86,6 +88,15 @@ function LabsScreenController($scope, $http) {
         });
 
         $scope.search.any_experiment_found = $scope.experiments.filter(function(exp) { return exp.visible; }).length > 0;
+
+        angular.forEach($scope.categories, function(category_data, category_name) {
+            var any_category_experiment_found = false;
+            angular.forEach(category_data.experiments, function(exp, index) {
+                if (exp.visible)
+                    any_category_experiment_found = true;
+            });
+            category_data.any_visible = any_category_experiment_found;
+        });
     }
 
     function _on_load_experiments(data) {
@@ -97,12 +108,14 @@ function LabsScreenController($scope, $http) {
                 $scope.categories[exp.category].experiments.push(exp);
             } else {
                 $scope.categories[exp.category] = {
+                    any_visible: true,
                     selected: false,
                     count: 1,
                     experiments: [ exp ]
                 };
             }
         });
+        $scope.experiment_list.loading = false;
     }
 
     function _on_load_error(data) {
