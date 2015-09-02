@@ -512,7 +512,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
             toolbar = DebugToolbarExtension()
             toolbar.init_app(self.app)
             self.app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-            self.app.config['DEBUG_TB_PROFILER_ENABLED'] = True
+            # self.app.config['DEBUG_TB_PROFILER_ENABLED'] = True
 
 
 class UserProcessingServer(object):
