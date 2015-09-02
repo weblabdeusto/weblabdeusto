@@ -91,6 +91,9 @@ WeblabExp = function () {
     var mOnFinishPromise = $.Deferred();
     var mExpectsPostEnd = false;
 
+    // To store whether the end() method has been called or not
+    var mEndCalled = false;
+
     // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
     var mPollingTimer;
     
@@ -375,11 +378,7 @@ WeblabExp = function () {
         this._poll()
             .done(function (result) {
                 if (mPolling) {
-                    // This means the experiment is still active. We shall check again soon, unless the experiment
-                    // has been explicitly finished.
-                    if (!mOnEndPromise.state() != "resolved") {
-                        mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
-                    }
+                    mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
                     console.debug("POLL: " + result);
                 }
             }.bind(this))
@@ -390,9 +389,7 @@ WeblabExp = function () {
 
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
                 if (!mClosing) {
-                    mExperimentActive = false;
-                    mOnEndPromise.resolve();
-                    mOnExperimentDeactive.resolve();
+                    this.finishReservation();
                 }
                 /*
                     Original code:
@@ -519,23 +516,87 @@ WeblabExp = function () {
      *
      * @private
      */
-    this._finished_experiment = function () {
+    this._finished_experiment = function (forceCallServer) {
+        // Disable the polling timer if needed.
+        clearTimeout(mPollingTimer);
+        mExperimentActive = false;
+
+        var justCalledEnd = false;
+        if (!mEndCalled) {
+            mEndCalled = true;
+            justCalledEnd = true
+            mOnEndPromise.resolve();
+        }
+
         var promise = $.Deferred();
-        var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
+        if (forceCallServer || justCalledEnd) {
+            var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
-        this._send(request)
-            .done(function (success_data) {
-                console.debug("Data received: " + success_data);
-                console.debug(success_data);
+            this._send(request)
+                .done(function (success_data) {
+                    if (mExpectsPostEnd) {
+                        this._poll_for_post_reservation()
+                            .done(function() {
+                                // Don't do mOnExperimentDeactive.resolve, since this is done the next time finish() is called
+                                promise.resolve();
+                            })
+                            .fail(function(error) {
+                                promise.fail(error);
+                            });
+                    } else {
+                        promise.resolve();
+                        mOnExperimentDeactive.resolve();
+                    }
+                })
+                .fail(function (error) {
+                    mOnExperimentDeactive.fail(error);
+                    promise.reject(error);
+                });
 
-                promise.resolve(success_data);
-            })
-            .fail(function (error) {
-                promise.reject(error);
-            });
-
-        return promise;
+        } else { // !forceCallServer && !justCalledEnd
+            // Experiment already ended: clean it!
+            mOnExperimentDeactive.resolve();
+            promise.resolve();
+        }
+        return promise.promise();
     };
+
+    this._poll_for_post_reservation = function() {
+        var promise = $.Deferred();
+        // TODO: periodicallly call getReservationStatus()
+/*
+            if(!LabController.this.sessionVariables.isExperimentVisible())
+                return;
+            
+            if(reservation instanceof PostReservationReservationStatus){
+                final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
+                if(status.isFinished()){
+                    System.out.println("[DBG] status is finished. Calling postEndWrapper");
+                    LabController.this.sessionVariables.getCurrentExperimentBase().postEndWrapper(status.getInitialData(), status.getEndData());
+                }else{
+                    final Timer t = new Timer() {
+                        
+                        @Override
+                        public void run() {
+                            pollForPostReservationData();
+                        }
+                    };
+                    t.schedule(200);
+                }
+            }else if(reservation instanceof ConfirmedReservationStatus){
+                final Timer t = new Timer() {
+                    
+                    @Override
+                    public void run() {
+                        pollForPostReservationData();
+                    }
+                };
+                t.schedule(200);
+            }else
+                this.onError(
+*/
+        return promise.promise();
+    }
 
     /**
      * Set the experiment configuration
@@ -694,37 +755,27 @@ WeblabExp = function () {
      *
      */
     this.finishExperiment = function () {
-
         var promise = $.Deferred();
-
-        this._finished_experiment()
+        this._finished_experiment(true)
             .done(function (success) {
-
-                // TODO: Send the right thing to the callbacks. As of now I think they just receive a JSON, which
-                // isn't right. Actually the end_data seems to also be in the post-reservation message from
-                // the reservation status message.
-
-                // Disable the polling timer if needed.
-                clearTimeout(mPollingTimer);
-                mExperimentActive = false;
-
                 promise.resolve(success);
-
-                if (mOnEndPromise.state() != "resolved" && !mClosing) {
-                    mOnEndPromise.resolve(success);
-                    mOnExperimentDeactive.resolve();
-                }
             })
             .fail(function (error) {
                 promise.reject(error);
             });
-
         return promise.promise();
     };
 
     this.cleanExperiment = function () {
-        // TODO: Implement this
-        this.finishExperiment();
+        var promise = $.Deferred();
+        this._finished_experiment(false)
+            .done(function (success) {
+                promise.resolve(success)
+            })
+            .fail(function (error) {
+                promise.reject(error);
+            });
+        return promise.promise();
     };
 
    /** 
@@ -817,15 +868,15 @@ WeblabExp = function () {
 
 
     /**
-     * onFinish( endHandler ) -> promise
-     * onFinish () -> promise
+     * onEnd( endHandler ) -> promise
+     * onEnd() -> promise
      *
      * Registers an end handler, which will be called when the experiment's interaction ends. Several end
      * handlers can be registered. Callbacks will be executed in FIFO order, as guaranteed by jQuery Deferred rules.
      * A finish handler may not be specified. In that case, a jQuery Promise is returned, to which .done() callbacks
      * can be freely attached.
      *
-     * @param {function} [startHandler]: The finish handler function.
+     * @param {function} [endHandler]: The finish handler function.
      *
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
      */
