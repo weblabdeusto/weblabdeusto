@@ -19,13 +19,14 @@
 
     {{ super() }}
 
-    {# Angular.js code. All in raw. #}
-    {% raw %}
     <div ng-show="false" class="row">
         <div class="col-lg-4 col-lg-push-4 text-center well">
-            <h4>Loading experiment...</h4>
+            <h4>{{ gettext("Loading experiment...") }}</h4>
         </div>
     </div>
+
+    {# Angular.js code. All in raw. #}
+    {% raw %}
 
     <div ng-controller="LabController" ng-cloak>
         <div class="container" ng-show="!isExperimentActive()">
