@@ -95,10 +95,6 @@ function LabController($scope, $injector, $http) {
     // Initialization
     // ------------------------
 
-    // Initialize the Weblab API.
-    WeblabWeb.setTargetURLs(WL_JSON_URL, WL_JSON_URL);
-    
-
     loadLatestUses();
     loadLabStats();
 
@@ -291,10 +287,10 @@ function LabController($scope, $injector, $http) {
         // TODO: Consider checking whether WeblabExp version is the expected one.
 
         var wexp = Wexp.lastInstance;
-
         window.currentExperiment = wexp; // Save it in a GLOBAL.
+        wexp._setTargetURL(WL_JSON_URL);
 
-        WeblabWeb.reserve_experiment(sessionid, name, category)
+        wexp.reserve_experiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (uid, time, initial_config, result) {
@@ -310,7 +306,6 @@ function LabController($scope, $injector, $http) {
 
                 var url = result["url"];
                 var wexp = window.currentExperiment;
-                wexp._setTargetURL(WL_JSON_URL);
                 wexp._reservationReady(result["reservation_id"]["id"], result["time"], result["initial_configuration"]);
 
                 // Listen also for a dispose, for other ui changes.
@@ -344,7 +339,11 @@ function LabController($scope, $injector, $http) {
         $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
-        WeblabWeb.reserve_experiment(sessionid, name, category)
+        var wexp = Wexp.lastInstance;
+        window.currentExperiment = wexp; // Save it in a GLOBAL.
+        wexp._setTargetURL(WL_JSON_URL);
+
+        wexp.reserve_experiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {
@@ -386,7 +385,7 @@ function LabController($scope, $injector, $http) {
 
                     if(url == undefined) {
                         console.error("EXPERIMENT DOES NOT SEEM TO BE OF REDIRECT TYPE: NO URL PROVIDED.");
-                        WeblabWeb.finishExperiment(); // Abort the experiment.
+                        wexp.finishExperiment(); // Abort the experiment.
                         return;
                     }
 
