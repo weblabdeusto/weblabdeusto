@@ -62,7 +62,6 @@ WeblabExp = function () {
      */
     var mFrameMode;
 
-    var RESERVE_POLLING_FREQ = 2000; // Number of milliseconds between polling request
     this.POLL_FREQUENCY = 4000; // Indicates how often we will poll once polling is started. Will not normally be changed.
 
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
@@ -390,7 +389,7 @@ WeblabExp = function () {
 
                 // TODO: We should also add a way to retrieve the finish information. For now an empty call.
                 if (!mClosing) {
-                    this.finishReservation();
+                    this.finishExperiment();
                 }
                 /*
                     Original code:
@@ -542,13 +541,13 @@ WeblabExp = function () {
                                 promise.resolve();
                             })
                             .fail(function(error) {
-                                promise.fail(error);
+                                promise.reject(error);
                             });
                     } else {
                         promise.resolve();
                         mOnExperimentDeactive.resolve();
                     }
-                })
+                }.bind(this))
                 .fail(function (error) {
                     mOnExperimentDeactive.fail(error);
                     promise.reject(error);
@@ -565,37 +564,31 @@ WeblabExp = function () {
     this._poll_for_post_reservation = function() {
         var promise = $.Deferred();
         // TODO: periodicallly call getReservationStatus()
-/*
-            if(!LabController.this.sessionVariables.isExperimentVisible())
-                return;
-            
-            if(reservation instanceof PostReservationReservationStatus){
-                final PostReservationReservationStatus status = (PostReservationReservationStatus)reservation;
-                if(status.isFinished()){
-                    System.out.println("[DBG] status is finished. Calling postEndWrapper");
-                    LabController.this.sessionVariables.getCurrentExperimentBase().postEndWrapper(status.getInitialData(), status.getEndData());
-                }else{
-                    final Timer t = new Timer() {
-                        
-                        @Override
-                        public void run() {
-                            pollForPostReservationData();
+        
+        var wait_for_post_reservation = function() {
+            this._get_reservation_status(mReservation)
+                    .done(function (result) {
+                        var status = result['status'];
+                        if (status === "Reservation::confirmed") {
+                            setTimeout(wait_for_post_reservation, 500);
+                        } else if (status === "Reservation::post_reservation") {
+                            if (result['finished']) {
+                                var initial_data = result['initial_data'];
+                                var end_data = result['end_data'];
+                                mOnFinishPromise.resolve(initial_data, end_data);
+                                promise.resolve(initial_data, end_data);
+                            } else {
+                                setTimeout(wait_for_post_reservation, 400);
+                            }
+                        } else {
+                            promise.reject({'msg': 'Unexpected post reservation message'});
                         }
-                    };
-                    t.schedule(200);
-                }
-            }else if(reservation instanceof ConfirmedReservationStatus){
-                final Timer t = new Timer() {
-                    
-                    @Override
-                    public void run() {
-                        pollForPostReservationData();
-                    }
-                };
-                t.schedule(200);
-            }else
-                this.onError(
-*/
+                    })
+                    .fail(function (error) {
+                        promise.reject(error);
+                    });
+        }.bind(this);
+        wait_for_post_reservation();
         return promise.promise();
     }
 
@@ -1078,23 +1071,33 @@ WeblabExp = function () {
                                 promise.resolve(reservationid, time, startingconfig, result);
                             }
                             else {
+                                var frequency = 2 * 1000; // 2 seconds
+                                var MAX_POLLING = 10 * 1000; // 10 seconds
+                                var MIN_POLLING = 1 * 1000; // 1 second
 
                                 if (status === "Reservation::waiting") {
                                     // The reservation is not ready yet. We are in the queue.
                                     // We report the status, but we will repeat
                                     // the query in a couple seconds.
                                     promise.notify(status, result["position"], result, false);
+
+                                    // Between 1 second and 10, depending on the position (if there are 5 people, you can wait 5 seconds between polls).
+                                    frequency = Math.min(MAX_POLLING, MIN_POLLING * (result["position"] + 1));
                                 }
                                 else if (status === "Reservation::waiting_instances") {
                                     // The reservation is not ready because apparently there are no instances
                                     // of the experiment. We will report our status and repeat the query in a
                                     // couple seconds.
                                     promise.notify(status, result["position"], result, true);
+
+                                    // It is not very often that this changes, so half MAX_POLLING IS FINE
+                                    frequency = MAX_POLLING / 2;
                                 }
                                 else if (status === "Reservation::waiting_confirmation") {
                                     // We are waiting for confirmation. Soon we will receive a
                                     // Reservation::confirmed state.
                                     promise.notify(status, undefined, result, false);
+                                    frequency = 400; // 0.4 seconds; if you're next, we refresh quite often
                                 }
                                 else
                                 {
@@ -1102,9 +1105,7 @@ WeblabExp = function () {
                                 }
 
                                 // Try again soon.
-                                // TODO: MIN_POLLING = 1 SECOND, MAX_POLLING = 10 SECONDS, Math.min((position + 1) * MIN_POLLING, MAX_POLLING)
-                                // WAITING_CONFIRMATION = 0.4 SECOND
-                                setTimeout(check_status, RESERVE_POLLING_FREQ);
+                                setTimeout(check_status, frequency);
                             }
                         })
                         .fail(function (result) {

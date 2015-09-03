@@ -340,7 +340,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 		// only if it expects postEnd we call onFinish(). onFinish internally assumes the expectsPostEnd (if called, then it expects it)
 		if (experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::expectsPostEnd()()) {
 			$wnd.weblab.onFinish(function(initialData, endData) {
-				experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::postEnd(Ljava/lang/String;Ljava/lang/String;)(initialConfig, endConfig);
+				experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::postEnd(Ljava/lang/String;Ljava/lang/String;)(initialData, endData);
 			});
 		}
 	}-*/;
