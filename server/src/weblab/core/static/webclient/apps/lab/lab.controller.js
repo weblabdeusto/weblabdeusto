@@ -116,7 +116,7 @@ function LabController($scope, $injector, $http) {
      * Called when an attempt is made to finish the current experiment.
      */
     function finishExperiment() {
-        window.currentExperiment.finishExperiment();
+        window.currentExperiment.cleanExperiment();
     } // !finishExperiment
 
     /**

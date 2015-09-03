@@ -563,7 +563,6 @@ WeblabExp = function () {
 
     this._poll_for_post_reservation = function() {
         var promise = $.Deferred();
-        // TODO: periodicallly call getReservationStatus()
         
         var wait_for_post_reservation = function() {
             this._get_reservation_status(mReservation)
@@ -914,9 +913,6 @@ WeblabExp = function () {
      * @param {str} finishData: The data returned by the experiment after finishing.
      */
 
-        // TODO: It is not yet certain that the types for the callbacks startHandler and Finish handler are as of now accurate.
-        // Revise them.
-
     /*
     * Events for adding events when an experiment is active or inactive
     */
@@ -988,6 +984,7 @@ WeblabExp = function () {
      * @private
      */
     this._handleFreeModeInit = function () {
+        // TODO, in case of Window there is still missing stuff
         console.info("[WeblabExp]: Running with FREE MODE enabled");
 
         var reservation = $.QueryString["r"];
@@ -997,9 +994,6 @@ WeblabExp = function () {
         time = parseInt(time);
 
         this._setTargetURL(url);
-
-        // TODO: Eventually, it would probably be more appropriate to pass only the reservation_id and to query
-        // the server for the other data.
 
         this._reservationReady(reservation, time, startconfig);
     };
