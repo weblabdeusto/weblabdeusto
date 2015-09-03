@@ -1102,6 +1102,8 @@ WeblabExp = function () {
                                 }
 
                                 // Try again soon.
+                                // TODO: MIN_POLLING = 1 SECOND, MAX_POLLING = 10 SECONDS, Math.min((position + 1) * MIN_POLLING, MAX_POLLING)
+                                // WAITING_CONFIRMATION = 0.4 SECOND
                                 setTimeout(check_status, RESERVE_POLLING_FREQ);
                             }
                         })
@@ -1161,7 +1163,6 @@ WeblabExp = function () {
     var that = this;
     $(window).bind('beforeunload', function(){
         if (mFinishOnClose && mExperimentActive) {
-            // TODO: if (isExperimentActive()) finish
             mClosing = true;
             that.finishExperiment();
         }
