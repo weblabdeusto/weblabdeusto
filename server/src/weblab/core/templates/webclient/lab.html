@@ -47,6 +47,9 @@
             <!-- Should be shown only when the experiment is NOT active -->
             <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)" is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()" stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
             <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" translationData="reserveMessage.translationData" type="reserveMessage.type"></wl-reserve-status>
+            <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
+            <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
+
         </div>
 
 
@@ -61,10 +64,6 @@
         <div ng-show="!isExperimentActive()" class="container" id="file-upload-container" style="margin-top: 20px">
             {{ upload.content() }}
         </div>
-
-
-        <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
-        <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
 
     </div>
 
