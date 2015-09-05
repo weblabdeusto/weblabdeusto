@@ -101,6 +101,8 @@
         var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
         var EXPINFO_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/expinfo/expinfo.template.html") }}";
 
+        var FEDERATED_MODE = {{ federated_mode|tojson }};
+
     {# Await for the page #}
     $(document).ready(function () {
 

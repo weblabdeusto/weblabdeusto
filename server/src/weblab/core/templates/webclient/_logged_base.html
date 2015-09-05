@@ -1,5 +1,6 @@
 {% extends "webclient/_base.html" %}
 {% block body %}
+    {% if not federated_mode %}
     <div class="container" id="loggedin-container" style="margin-bottom: 10px">
         <div class="row">
 
@@ -30,4 +31,5 @@
         </div>
         <!-- !row -->
     </div>
+    {% endif %}
 {% endblock %}

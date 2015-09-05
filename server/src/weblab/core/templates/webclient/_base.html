@@ -35,6 +35,7 @@
     {% endwith %}
 {% block body %}{% endblock %}
 
+{% if not federated_mode %}
     <div class="footer">
         <div class="container footer-text">
             <div class="text-center">
@@ -47,6 +48,7 @@
             </div>
         </div>
     </div>
+{% endif %}
 
 <script src="{{ url_for(".static", filename="js/jquery.js") }}"></script>
 <script src="{{ url_for(".static", filename="bootstrap3/js/bootstrap.js") }}"></script>

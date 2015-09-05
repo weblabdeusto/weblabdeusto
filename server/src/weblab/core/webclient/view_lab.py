@@ -1,6 +1,6 @@
 from __future__ import print_function, unicode_literals
 import os
-from flask import render_template, url_for, request, flash, redirect
+from flask import render_template, url_for, request, flash, redirect, session
 
 from weblab.core.babel import gettext
 from weblab.core.exc import SessionNotFoundError
@@ -15,6 +15,9 @@ def lab(category_name, experiment_name):
     """
     Renders a specific laboratory.
     """
+    # TODO: remove login_required, etc.
+    federated_reservation_id = session.pop('reservation_id', None)
+    federated_mode = federated_reservation_id is not None
     try:
         experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
 
@@ -31,7 +34,7 @@ def lab(category_name, experiment_name):
                 flash(gettext("Experiment does not exist"), 'danger')
             return redirect(url_for('.labs'))
 
-        return render_template("webclient/lab.html", experiment=experiment)
+        return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode)
     except Exception as ex:
         raise
 
