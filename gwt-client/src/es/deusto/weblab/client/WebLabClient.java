@@ -46,6 +46,7 @@ public class WebLabClient implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
+        HistoryProperties.reloadHistory();
 		JSBoardBaseController.onConfigurationLoaded(new Runnable() {
 			@Override
 			public void run() {
