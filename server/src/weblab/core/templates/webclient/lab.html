@@ -81,6 +81,7 @@
     {{ upload.code(config["UPLOAD_URL"]) }}
 
     <script type="text/javascript">
+        {# TODO: select which ones of these variables are required by weblab.js and move them to a file easy to import, so we can make themes in a simple way #}
         {# Put here all the global variables of those things that will later be accessed by the static JS files #}
         var WL_JSON_URL = "{{ url_for('json.service_url') }}";
         var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
@@ -100,8 +101,10 @@
         var RESERVE_STATUS_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve-status/reserve-status.directive.html") }}";
         var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
         var EXPINFO_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/expinfo/expinfo.template.html") }}";
-
+        
+        // Federated information
         var FEDERATED_MODE = {{ federated_mode|tojson }};
+        var BACK_URL = {{ back_url |tojson }};
 
     {# Await for the page #}
     $(document).ready(function () {

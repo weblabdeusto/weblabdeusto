@@ -8,8 +8,8 @@ from weblab.core.wl import weblab_api
 
 @weblab_api.route_webclient('/federated/<category_name>/<experiment_name>/')
 def federated(category_name, experiment_name):
-    url = request.args.get('back_url')
     widget = request.args.get('widget')
     session['reservation_id'] = request.args.get('reservation_id')
+    session['back_url'] = request.args.get('back_url')
     return redirect(url_for('.lab', experiment_name=experiment_name, category_name=category_name))
 

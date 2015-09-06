@@ -18,6 +18,10 @@ def lab(category_name, experiment_name):
     # TODO: remove login_required, etc.
     federated_reservation_id = session.pop('reservation_id', None)
     federated_mode = federated_reservation_id is not None
+    if federated_mode:
+        back_url = session.pop('back_url', None)
+    else:
+        back_url = None
     try:
         experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
 
@@ -34,7 +38,7 @@ def lab(category_name, experiment_name):
                 flash(gettext("Experiment does not exist"), 'danger')
             return redirect(url_for('.labs'))
 
-        return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode)
+        return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode, back_url = back_url)
     except Exception as ex:
         raise
 
