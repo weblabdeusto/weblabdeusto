@@ -57,7 +57,7 @@ class LdapGateway(object):
                                 self.base,                          # base
                                 ldap.SCOPE_SUBTREE,                 # scope :-S
                                 '(sAMAccountName=%s)' % user_login, # filter
-                                ["givenName","sn","mail"]           # retrieved attributes (is this ok?)
+                                [str("givenName"),str("sn"),str("mail")]           # retrieved attributes (is this ok?)
                          )
             if len(result_set) < 1:
                 print("User '%s' not found" % user_login, file=sys.stderr)
