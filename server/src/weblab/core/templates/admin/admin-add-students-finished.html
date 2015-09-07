@@ -10,7 +10,7 @@
         <br/>
         
         {% if group_name %}
-        <p>{{ gettext("The following users has been successfully added and added to the group %(group_name)s:", group_name="<strong>%s</strong>" % group_name) }}</p>
+        <p>{{ gettext("The following users has been successfully added and added to the group %(group_name)s:", group_name=group_name) }}</p>
         {% else %}
         <p>{{ gettext("The following users has been successfully added:") }}</p>
         {% endif %}

@@ -36,7 +36,7 @@ class LdapGateway(object):
     def _parse_result_set(self, result_set, user_login):
         user_map = result_set[0][1]
         return { "login"    : user_login,
-                 "full_name": "%s %s" % (user_map['givenName'][0], user_map['sn'][0]),
+                 "full_name": ("%s %s" % (user_map['givenName'][0].decode('utf-8'), user_map['sn'][0].decode('utf-8'))).encode('utf-8'),
                  "email"    : user_map['mail'][0] }
 
     def _bind(self):
@@ -62,7 +62,7 @@ class LdapGateway(object):
             if len(result_set) < 1:
                 print("User '%s' not found" % user_login, file=sys.stderr)
             elif len(result_set) > 1:
-                print("Invalid state: too many users found for username %s" % user_login, file=sys.stderr)
+                # print("Invalid state: too many users found for username %s" % user_login, file=sys.stderr)
                 users.append(self._parse_result_set(result_set, user_login))
             else:
                 users.append(self._parse_result_set(result_set, user_login))
