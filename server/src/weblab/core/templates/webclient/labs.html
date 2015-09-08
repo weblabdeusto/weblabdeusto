@@ -4,16 +4,7 @@
 {% block styles %}
     {{ super() }}
     <style>
-        .lab-block {
-            width: 100%; 
-            height: 60px; 
-            margin: 5px; 
-            cursor: pointer; 
-            cursor: hand;
-        }
-        .lab-block:hover {
-            background-color: white;
-        }
+
     </style>
 {% endblock %}
 
@@ -27,17 +18,18 @@
 
     <div ng-controller="LabsScreenController">
         <div ng-cloak ng-show="experiments.length > 0" class="container">
-            {% raw %}
             <div class="row">
                 <div class="pull-left">
-                    <a href="#details" class="btn" style="margin-left: 10px"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    <a href="#details" title="{{ gettext('Go to details') }}" class="btn"
+                       style="margin-left: 10px"><i class="glyphicon glyphicon-list-alt"></i></a>
                 </div>
-                <div class="pull-right">
-                    <a href="#" ng-disabled="experiment_list.order == 'category'" ng-click="set_order('category')"><i class="glyphicon glyphicon-sort"></i></a>
-                    <a href="#" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a> 
-                    <a href="#" ng-disabled="experiment_list.order == '-user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a> 
-                    <a href="#" ng-disabled="experiment_list.order == '-latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
+                <div class="pull-right wl-order-buttons-wrapper">
+                    <a href="#" title="{{ gettext('Order by Category') }}" ng-disabled="experiment_list.order == 'category'" ng-click="set_order('category')" class="btn"><i class="glyphicon glyphicon-sort"></i></a>
+                    <a href="#" title="{{ gettext('Order Alphabetically') }}" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a>
+                    <a href="#" title="{{ gettext('Order by Number of Uses') }}" ng-disabled="experiment_list.order == '-user_uses'" ng-click="set_order('-user_uses')" class="btn"><i class="glyphicon glyphicon-sort-by-order"></i></a>
+                    <a href="#" title="{{ gettext('Order by Last Use Time') }}" ng-disabled="experiment_list.order == '-latest_use_epoch'" ng-click="set_order('-latest_use_epoch')" class="btn"><i class="glyphicon glyphicon-time"></i></a>
                 </div>
+                {% raw %}
             </div>
             <div class="row" ng-show="experiment_list.order != 'category'">
                 <div class="col-xs-6 col-sm-4 col-md-3" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
