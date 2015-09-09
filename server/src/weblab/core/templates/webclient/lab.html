@@ -45,10 +45,19 @@
 
             <!-- Component for the experiment information window thing -->
             <!-- Should be shown only when the experiment is NOT active -->
-            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)" is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()" stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
-            <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0" message="reserveMessage.message" translationData="reserveMessage.translationData" type="reserveMessage.type"></wl-reserve-status>
+            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
+                         is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()"
+                         stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
+
+            <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0"
+                               message="reserveMessage.message" translationData="reserveMessage.translationData"
+                               type="reserveMessage.type"></wl-reserve-status>
+
             <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
             <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
+
+            <wl-reserve ng-show="!isExperimentActive()" experiment="experiment_info.experiment" is-experiment-reserving="isExperimentReserving()"
+                        is-experiment-loading="isExperimentLoading()" reserve="reserve(where)"></wl-reserve>
 
         </div>
 
@@ -98,9 +107,12 @@
         var WL_SESSION_ID = "{{ request.cookies.get('weblabsessionid') }}";
 
         {# These ones should be located somewhere else... but just don't know how without using url_for in static files which is what we try to avoid #}
+        {# (Would it maybe make more sense to have a single STATIC_ROOT global that points to webclient/apps/, and to build the static template URLS from it, so as not
+        to have to add files here for every template that we add?) #}
         var RESERVE_STATUS_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve-status/reserve-status.directive.html") }}";
         var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
         var EXPINFO_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/expinfo/expinfo.template.html") }}";
+        var LAB_RESERVE_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve/reserve.template.html") }}";
         
         // Federated information
         var FEDERATED_MODE = {{ federated_mode|tojson }};
@@ -130,5 +142,7 @@
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.controller.js") }}"></script>
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.directive.js") }}"></script>
     <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve-status/reserve-status.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.directive.js") }}"></script>
 
 {% endblock %}

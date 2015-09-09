@@ -1,3 +1,10 @@
-/**
- * Created by lrg on 9/09/15.
- */
+angular
+    .module("lab")
+    .controller("ReserveController", ReserveController);
+
+
+function ReserveController($scope, $injector) {
+
+    var controller = this;
+
+} // !ReserveController
