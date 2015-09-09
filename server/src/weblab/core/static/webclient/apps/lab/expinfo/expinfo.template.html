@@ -11,7 +11,7 @@
         </p>
         -->
 
-        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" ng-show="experiment.images.items.length > 0">
           <!-- Indicators -->
           <ol class="carousel-indicators">
             <li ng-repeat-start="exp_image in experiment.images.items" data-target="#carousel-example-generic" data-slide-to="0" class="active" ng-if="$first"></li>

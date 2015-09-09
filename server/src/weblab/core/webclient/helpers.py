@@ -103,8 +103,8 @@ def _get_experiment(experiment_raw):
     exp['images'] = {
         'max_height' : 350,
         'items' : [
-            'http://weblabdeusto.readthedocs.org/en/latest/_images/weblab_box.jpg',
-            'http://weblabdeusto.readthedocs.org/en/latest/_images/demo-pld.jpg',
+#            'http://weblabdeusto.readthedocs.org/en/latest/_images/weblab_box.jpg',
+#            'http://weblabdeusto.readthedocs.org/en/latest/_images/demo-pld.jpg',
         ]
     }
     return exp
