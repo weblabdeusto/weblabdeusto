@@ -271,10 +271,13 @@ function LabController($scope, $injector, $http) {
         $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
+
+        var wexp = new WeblabExp(true);
+
+        window.currentExperiment = wexp; // Save it in a GLOBAL.
+
         debugger;
 
-        var wexp = Wexp.lastInstance;
-        window.currentExperiment = wexp; // Save it in a GLOBAL.
         wexp._setTargetURL(WL_JSON_URL);
 
         wexp.reserve_experiment(sessionid, name, category)
@@ -288,49 +291,27 @@ function LabController($scope, $injector, $http) {
                 $scope.reserveMessage.message = "RESERVATION_DONE";
                 $scope.reserveMessage.type = 'info';
 
+                // If it is indeed a REDIRECT (HTTP) experiment, then initConfig of the reservation will
+                // contain an "url" attribute, which is the URL to which to redirect.
+                console.log("ON REDIR");
 
-                if (EXPERIMENT_DATA["type"] == "js") {
-
-                    var params = {
-                        "r": id,
-                        "c": initConfig,
-                        "t": time,
-                        "u": WL_JSON_URL,
-                        "free": "true"
-                    };
-                    var redir = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
-                    redir += "?" + $.param(params);
-                    console.log(redir);
-
-                    window.location = redir;
-
-                } else {
-
-                    // As of now this will kinda never run on "redirect" experiments because they have their own
-                    // dedicated function.
-
-                    // If it is indeed a REDIRECT (HTTP) experiment, then initConfig of the reservation will
-                    // contain an "url" attribute, which is the URL to which to redirect.
-                    console.log("ON REDIR");
-
-                    var parsedConfig = JSON.parse(initConfig);
-                    var url = parsedConfig["url"];
+                var parsedConfig = JSON.parse(initConfig);
+                var url = parsedConfig["url"];
 
 
-                    // Replace TIME_REMAINING if present. Seems to be somewhat standard.
-                    url = url.replace("TIME_REMAINING", Math.floor(time));
+                // Replace TIME_REMAINING if present. Seems to be somewhat standard.
+                url = url.replace("TIME_REMAINING", Math.floor(time));
 
-                    if(url == undefined) {
-                        console.error("EXPERIMENT DOES NOT SEEM TO BE OF REDIRECT TYPE: NO URL PROVIDED.");
-                        wexp.finishExperiment(); // Abort the experiment.
-                        return;
-                    }
-
-                    // Redirect to the provided address.
-                    console.log("Redirecting to: " + url);
-                    window.location = url;
-
+                if(url == undefined) {
+                    console.error("EXPERIMENT DOES NOT SEEM TO BE OF REDIRECT TYPE: NO URL PROVIDED.");
+                    wexp.finishExperiment(); // Abort the experiment.
+                    return;
                 }
+
+                // Redirect to the provided address.
+                console.log("Redirecting to: " + url);
+                window.location = url;
+
             });
     } //! reserveInWindow
 

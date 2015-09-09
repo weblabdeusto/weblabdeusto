@@ -632,7 +632,7 @@ WeblabExp = function (frameMode) {
             mOnFinishPromise.done(finishHandler.bind(this));
         }
         return mOnFinishPromise.promise();
-    }
+    };
 
     /**
      * @callback finishHandler
