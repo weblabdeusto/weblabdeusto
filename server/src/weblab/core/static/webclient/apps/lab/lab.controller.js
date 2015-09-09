@@ -243,9 +243,6 @@ function LabController($scope, $injector, $http) {
     } // !handleReserveFail
 
     function reserve(where) {
-
-        where = "window";
-
         if(CLIENT_TYPE == "redirect")
             return reserveRedirect();
 
