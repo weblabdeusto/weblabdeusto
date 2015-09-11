@@ -78,7 +78,7 @@ class DigilentAdept(object):
         finally:
             self._release_device()
 
-        self._log(res,out,err)
+        self._log(res, out, err)
 
         # TODO: this could be improved :-D
         if out.find("ERROR") >= 0:

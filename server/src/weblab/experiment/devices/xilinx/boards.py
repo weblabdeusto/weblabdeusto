@@ -11,11 +11,15 @@
 # listed below:
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
+#         Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
 from __future__ import print_function, unicode_literals
 
-PLD  = 'PLD'
-FPGA = 'FPGA'
 
-def getXilinxDeviceValues():
-    return (PLD, FPGA)
+def getBoardTypesList():
+    """
+    Retrieves the list of possible Board types. The Board type is passed to the Programmer, and its activity
+    may depend on it.
+    :return:
+    """
+    return ('PLD', 'FPGA')
