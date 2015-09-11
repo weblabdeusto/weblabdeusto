@@ -46,6 +46,7 @@ class XilinxProgrammer(object):
         elif programmer_name == 'Xcs3prog':
             return Xcs3progProgrammer(cfg_manager, xilinx_board_type)
         else:
+            print "Invalid device: " + programmer_name
             raise InvalidDeviceToProgramError(programmer_name)
 
     @abstractmethod

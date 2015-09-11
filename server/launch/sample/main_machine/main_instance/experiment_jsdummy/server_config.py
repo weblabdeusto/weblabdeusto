@@ -27,6 +27,6 @@ Program -p 1
 exit
 """
 
-weblab_xilinx_experiment_xilinx_device = 'FPGA'
+xilinx_board_type = 'FPGA'
 weblab_xilinx_experiment_port_number   = 1
 
