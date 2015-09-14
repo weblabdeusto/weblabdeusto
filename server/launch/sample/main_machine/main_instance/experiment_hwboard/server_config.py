@@ -21,7 +21,7 @@ weblab_xilinx_experiment_port_number   = 1
 # But for testing we are going to fake it:
 
 xilinx_home = "."
-xilinx_impact_full_path = ["python","../../src/test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
+xilinx_impact_full_path = ["python", "../../src/test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
 xilinx_programmer_type = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
 xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
