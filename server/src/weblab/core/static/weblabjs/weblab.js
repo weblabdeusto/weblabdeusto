@@ -275,6 +275,7 @@ WeblabExp = function () {
     this._getInitialData = function () {
         if(mOnGetInitialDataCallback != undefined)
             return mOnGetInitialDataCallback();
+        return {};
     }
 
     /**
@@ -646,6 +647,8 @@ WeblabExp = function () {
     this._reserve_experiment = function (sessionid, experiment_name, experiment_category) {
         var promise = $.Deferred();
 
+        var initialData = this._getInitialData();
+
         this._send({
                 "method": "reserve_experiment",
                 "params": {
@@ -654,7 +657,7 @@ WeblabExp = function () {
                         "exp_name": experiment_name,
                         "cat_name": experiment_category
                     },
-                    "client_initial_data": "{}",
+                    "client_initial_data": JSON.stringify(initialData),
                     "consumer_data": "{}"
                 }
             })
