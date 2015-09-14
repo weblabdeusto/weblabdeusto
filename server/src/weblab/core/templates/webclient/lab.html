@@ -29,7 +29,7 @@
     {% raw %}
 
     <div ng-controller="LabController" ng-cloak>
-        <div class="container" ng-show="!isExperimentActive()">
+        <div class="container-fluid" ng-show="!isExperimentActive()">
             <div class="col-lg-4">
                 {% endraw %}
                 <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
@@ -37,11 +37,14 @@
             </div>
         </div>
 
-        <div class="container" id="reserve-container">
+        <div class="container-fluid" id="reserve-container">
 
             <div class="text-center">
                 <h2>{{ experiment.data.display_name }}</h2>
             </div>
+
+            <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
+            <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
 
             <!-- Component for the experiment information window thing -->
             <!-- Should be shown only when the experiment is NOT active -->
@@ -53,16 +56,13 @@
                                message="reserveMessage.message" translationData="reserveMessage.translationData"
                                type="reserveMessage.type"></wl-reserve-status>
 
-            <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
-            <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
-
             <wl-reserve ng-show="!isExperimentActive()" experiment="experiment_info.experiment" is-experiment-reserving="isExperimentReserving()"
                         is-experiment-loading="isExperimentLoading()" reserve="reserve(where)"></wl-reserve>
 
         </div>
 
 
-        <div ng-cloak ng-show="isExperimentActive()" class="container">
+        <div ng-cloak ng-show="isExperimentActive()" class="container-fluid">
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ 'FINISH'|translate }}</a>
@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <div ng-show="!isExperimentActive()" class="container" id="file-upload-container" style="margin-top: 20px">
+        <div ng-show="!isExperimentActive()" class="container-fluid" id="file-upload-container" style="margin-top: 20px">
             {{ upload.content() }}
         </div>
 
