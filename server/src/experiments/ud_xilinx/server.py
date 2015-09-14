@@ -198,14 +198,14 @@ class UdXilinxExperiment(Experiment.Experiment):
         VHDL code and then program the board if the result is successful.
         """
         self._current_state = STATE_SYNTHESIZING
-        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device_name.lower())
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._board_type.lower())
         #c.DEBUG = True
         content = base64.b64decode(file_content)
 
         done_already = c.is_same_as_last(content)
 
         if not done_already:
-            if self._device_name.lower() == "fpga":
+            if self._board_type.lower() == "fpga":
                 # TODO: This is quite ugly. We make sure the Compilar class replaces some string to make the
                 # UCF / augmented reality works.
                 c.feed_vhdl(content, True, False)
@@ -272,7 +272,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
-                                             suffix='.' + self._xilinx_impact.get_suffix())
+                                             suffix='.' + self._programmer.get_suffix())  # Originally the Programmer wasn't the one to contain the suffix info.
             try:
                 try:
                     #TODO: encode? utf8?
