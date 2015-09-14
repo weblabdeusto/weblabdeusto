@@ -190,10 +190,11 @@ function LabController($scope, $injector, $http) {
                     $scope.reserveMessage.type = 'info';
                 }
                 else {
-                    $scope.reserveMessage.message = "WAITING_IN_QUEUE_N";
+                    console.log(position);
                     $scope.reserveMessage.translationData = {
                         position: position
                     };
+                    $scope.reserveMessage.message = "WAITING_IN_QUEUE_N";
                     $scope.reserveMessage.type = 'info';
                 }
 

@@ -653,6 +653,8 @@ WeblabExp = function () {
         var promise = $.Deferred();
 
         var initialData = this._getInitialData();
+        if (initialData == null || initialData == undefined)
+            initialData = {};
 
         this._send({
                 "method": "reserve_experiment",

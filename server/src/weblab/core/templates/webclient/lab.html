@@ -53,7 +53,7 @@
                          stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
 
             <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0"
-                               message="reserveMessage.message" translationData="reserveMessage.translationData"
+                               message="reserveMessage.message" translation-data="reserveMessage.translationData"
                                type="reserveMessage.type"></wl-reserve-status>
 
             <wl-reserve ng-show="!isExperimentActive()" experiment="experiment_info.experiment" is-experiment-reserving="isExperimentReserving()"
