@@ -111,6 +111,11 @@ WeblabExp = function () {
     var mOnExperimentActive = $.Deferred();
     var mOnExperimentDeactive = $.Deferred();
 
+    // Reset WebLab whenever the experiment has been deactivated
+    mOnExperimentDeactive.done(function () {
+        this.reset();
+    }.bind(this));
+
     // To keep track of the state of the object.
     var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
 
@@ -714,6 +719,10 @@ WeblabExp = function () {
     //
     ///////////////////////////////////////////////////////////////
 
+
+    this.reset = function () {
+        weblab = new WeblabExp();
+    }
 
     /**
      * Get the experiment configuration
