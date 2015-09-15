@@ -8,9 +8,9 @@ function wlReserveStatus() {
         restrict: "E",
 
         scope: {
-            message: "=message",
-            translationData: "=translationData",
-            type: "=type"
+            message: "=",
+            translationData: "=",
+            type: "="
         },
 
         templateUrl: RESERVE_STATUS_TEMPLATE_URL,

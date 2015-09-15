@@ -111,6 +111,11 @@ WeblabExp = function () {
     var mOnExperimentActive = $.Deferred();
     var mOnExperimentDeactive = $.Deferred();
 
+    // Reset WebLab whenever the experiment has been deactivated
+    mOnExperimentDeactive.done(function () {
+        this.reset();
+    }.bind(this));
+
     // To keep track of the state of the object.
     var mStartCalled = false; // Whether the experiment is already started. (_reservationReady already called and callbacks triggered etc.
 
@@ -275,6 +280,7 @@ WeblabExp = function () {
     this._getInitialData = function () {
         if(mOnGetInitialDataCallback != undefined)
             return mOnGetInitialDataCallback();
+        return {};
     }
 
     /**
@@ -646,6 +652,10 @@ WeblabExp = function () {
     this._reserve_experiment = function (sessionid, experiment_name, experiment_category) {
         var promise = $.Deferred();
 
+        var initialData = this._getInitialData();
+        if (initialData == null || initialData == undefined)
+            initialData = {};
+
         this._send({
                 "method": "reserve_experiment",
                 "params": {
@@ -654,7 +664,7 @@ WeblabExp = function () {
                         "exp_name": experiment_name,
                         "cat_name": experiment_category
                     },
-                    "client_initial_data": "{}",
+                    "client_initial_data": JSON.stringify(initialData),
                     "consumer_data": "{}"
                 }
             })
@@ -711,6 +721,10 @@ WeblabExp = function () {
     //
     ///////////////////////////////////////////////////////////////
 
+
+    this.reset = function () {
+        weblab = new WeblabExp();
+    }
 
     /**
      * Get the experiment configuration

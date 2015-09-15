@@ -1,17 +1,17 @@
-        <div class="well col-xs-10 col-xs-offset-1 col-lg-4 col-lg-offset-4 text-center">
+        <div class="well text-center">
             <span style="margin-right: 15px">
                 <!-- Math.floor instead of number:0 => number:0 is round, so 1.666 says 2 -->
                 <strong>{{ "TIME"|translate }}:</strong>
                 <span ng-show="experiment['time'] >= 3600">{{ Math.floor(experiment['time'] / 3600) }}:</span><span ng-show="experiment['time'] >=3600 && experiment['time'] % 3600 / 60 < 10">0</span><span ng-show="experiment['time'] >= 60">{{ Math.floor(experiment['time'] % 3600 / 60) }}:</span><span ng-show="experiment['time'] % 60 < 10">0</span>{{ experiment['time'] % 60 }}</span>
 
             <span>
-                <a ng-disabled="isExperimentReserving() || isExperimentLoading()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                   id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE'|translate }}</a>
+                <a ng-disabled="experiment.isExperimentReserving() || experiment.isExperimentLoading()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                   id="reserve-frame-btn" ng-click="experiment.reserve('frame')">{{ 'RESERVE'|translate }}</a>
                 <!--
-                <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
-                   id="reserve-frame-btn" ng-click="reserve({ where: 'frame' })">{{ 'RESERVE_FRAME'|translate }}</a>
-                <a ng-disabled="isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
-                   id="reserve-free-btn" ng-click="reserve({ where: 'window' })">{{ 'RESERVE_WINDOW'|translate }}</a>
+                <a ng-disabled="experiment.isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                   id="reserve-frame-btn" ng-click="experiment.reserve('frame')">{{ 'RESERVE_FRAME'|translate }}</a>
+                <a ng-disabled="experiment.isExperimentReserving()" href="#" class="btn btn-primary reserve-btn reserve-free-btn"
+                   id="reserve-free-btn" ng-click="experiment.reserve('window')">{{ 'RESERVE_WINDOW'|translate }}</a>
                 -->
             </span>
         </div>

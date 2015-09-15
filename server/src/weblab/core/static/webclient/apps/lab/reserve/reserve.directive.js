@@ -11,10 +11,7 @@ function wlReserve() {
         link: wlReserveLink,
         templateUrl: LAB_RESERVE_TEMPLATE_URL,
         scope: {
-            experiment: "=",
-            isExperimentReserving: "&",
-            isExperimentLoading: "&",
-            reserve: "&"
+            experiment: "="
         }
     };
 

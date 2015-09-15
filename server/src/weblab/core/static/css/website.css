@@ -56,21 +56,38 @@ img.wl-logo
 }
 
 
-
 /* Styles for the Labs screen */
 .lab-block {
     width: 100%;
-    height: 60px;
-    margin: 3px;
+    height: 120px; 
+    padding: 12px;
+/*    margin: 3px;*/
     cursor: pointer;
     cursor: hand;
+    background-color: white;
+/*    border: 1px solid #999;
+    border-radius: 0px;*/
+}
+
+.labs-block {
+    background-color: #f3f3f3;
 }
 
 .lab-block:hover {
-    background-color: white;
+/*    background-color: #c3c3c3;*/
+}
+
+.lab-block-wrapper:hover {
+/*    opacity: 0.8;*/
 }
 
 .wl-order-buttons-wrapper
 {
     user-select: none;
+}
+
+@media screen and (min-width: 1600px) {
+    .col-wl-lg-1 {
+        width: 8.3333%;
+    }
 }
