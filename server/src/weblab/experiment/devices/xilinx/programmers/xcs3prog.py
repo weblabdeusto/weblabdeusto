@@ -63,8 +63,9 @@ class Xcs3prog(object):
         self._lock.release()
 
     @logged()
-    def program_device(self, program_path):
-        self._parse_configuration_to_program()
+    def program_device(self, program_path, xilinx_board_type):
+        # TODO: Maybe this shouldn't be hard-coded.
+        self._parse_configuration_to_program(xilinx_board_type)
 
         # The batch content should have a $FILE template so that we can replace it.
         cmd_params = self._xc3sprog_batch_content.replace('$FILE', program_path)
@@ -122,7 +123,7 @@ class Xcs3prog(object):
 
         return result, stdout, stderr
 
-    def _parse_configuration_to_program(self, device):
+    def _parse_configuration_to_program(self, xilinx_board_type):
         """
         Reads the relevant Experiment configuration.
         Variables required:
@@ -133,7 +134,7 @@ class Xcs3prog(object):
         """
         try:
             self._xc3sprog_full_path = self._cfg_manager.get_value('xc3sprog_full_path')
-            self._xc3sprog_batch_content = self._cfg_manager.get_value('xc3sprog_batch_content_' + device)
+            self._xc3sprog_batch_content = self._cfg_manager.get_value('xc3sprog_batch_content_' + xilinx_board_type)
         except ConfigurationErrors.KeyNotFoundError as knfe:
             raise CantFindXc3sprogProperty(
                 "Can't find in configuration manager the property '%s'" % knfe.key
