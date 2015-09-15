@@ -267,7 +267,6 @@ class ElevatorExperiment(Experiment.Experiment):
             log.log(ElevatorExperiment, log.level.Warning, "Error programming file: " + str(e))
             log.log_exc(ElevatorExperiment, log.level.Warning)
 
-    # This is used in the demo experiment
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
@@ -293,7 +292,7 @@ class ElevatorExperiment(Experiment.Experiment):
 
             #TODO: test me
             log.log(ElevatorExperiment, log.level.Info,
-                    "Exception joining sending program to device: %s" % e.args[0])
+                    "Exception programming the logic into the board: %s" % e.args[0])
             log.log_exc(ElevatorExperiment, log.level.Debug)
             raise ExperimentErrors.SendingFileFailureError("Error sending file to device: %s" % e)
         self._clear()
