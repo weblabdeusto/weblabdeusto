@@ -37,28 +37,81 @@
             </div>
         </div>
 
-        <div class="container-fluid" id="reserve-container">
+        <div id="reserve-container">
+            
+            <div class="container">
+                <div class="text-center">
+                    <h2><img ng-src="{{ experiment_info.experiment.logo_link }}" height="40px"> {{ experiment.data.display_name }}</h2>
+                    <h4>({{ experiment_info.experiment.category }})</h4>
 
-            <div class="text-center">
-                <h2>{{ experiment.data.display_name }}</h2>
+                </div>
             </div>
+            
+            <div class="container-fluid">
+
+
+            <div class="row">
+                <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
+                <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
+
+                <!-- The description is disabled for now because we don't actually support it in the database -->
+                <div class="col-md-6" ng-show="experiment_info.experiment.description">
+                    <p>
+                        <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment_info.experiment.description }}
+                    </p>
+                </div>
+                
+                <div class="col-md-6" ng-show="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
+                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                      <!-- Indicators -->
+                      <ol class="carousel-indicators">
+                        <li ng-repeat-start="exp_image in experiment_info.experiment.images.items" data-target="#carousel-example-generic" data-slide-to="0" class="active" ng-if="$first"></li>
+                        <li ng-repeat-end="exp_image in experiment_info.experiment.images.items" data-target="#carousel-example-generic" data-slide-to="$index" ng-if="!$first"></li>
+                      </ol>
+
+                      <!-- Wrapper for slides -->
+                      <div class="carousel-inner" role="listbox">
+                        <div ng-repeat-start="exp_image in experiment_info.experiment.images.items" class="item text-center active" style="height: 350px" ng-if="$first">
+                            <img ng-src="{{ exp_image }}" alt="image">
+                        </div>
+                        <div ng-repeat-end class="item text-center" style="height: 350px" ng-if="!$first">
+                            <img ng-src="{{ exp_image }}" alt="image">
+                        </div>
+
+                      </div>
+
+                      <!-- Controls -->
+                      <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                      <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </div>
+                </div>
+
+                <br>
+            </div>
+
 
             <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
             <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
+            </div>
 
-            <!-- Component for the experiment information window thing -->
-            <!-- Should be shown only when the experiment is NOT active -->
-            <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
-                         is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()"
-                         stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
+            <div class="container-fluid" style="margin-right: 30px; margin-left: 15px">
+                <!-- Component for the experiment information window thing -->
+                <!-- Should be shown only when the experiment is NOT active -->
+                <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
+                             is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()"
+                             stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
 
-            <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0"
-                               message="reserveMessage.message" translation-data="reserveMessage.translationData"
-                               type="reserveMessage.type"></wl-reserve-status>
+                <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0"
+                                   message="reserveMessage.message" translation-data="reserveMessage.translationData"
+                                   type="reserveMessage.type"></wl-reserve-status>
 
-            <wl-reserve ng-show="!isExperimentActive()" experiment="experiment_info.experiment" is-experiment-reserving="isExperimentReserving()"
-                        is-experiment-loading="isExperimentLoading()" reserve="reserve(where)"></wl-reserve>
-
+            </div>
         </div>
 
 

@@ -1,63 +1,12 @@
 <div class="row">
-
-    <div class="col-xs-12 col-md-7 col-md-push-3">
-        <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
-        <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
-
-        <!-- The description is disabled for now because we don't actually support it in the database -->
-        <p ng-show="experiment.description">
-            <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment.description }}
-        </p>
-
-        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" ng-show="experiment.images.items.length > 0">
-          <!-- Indicators -->
-          <ol class="carousel-indicators">
-            <li ng-repeat-start="exp_image in experiment.images.items" data-target="#carousel-example-generic" data-slide-to="0" class="active" ng-if="$first"></li>
-            <li ng-repeat-end="exp_image in experiment.images.items" data-target="#carousel-example-generic" data-slide-to="$index" ng-if="!$first"></li>
-          </ol>
-
-          <!-- Wrapper for slides -->
-          <div class="carousel-inner" role="listbox">
-            <div ng-repeat-start="exp_image in experiment.images.items" class="item text-center active" style="height: 350px" ng-if="$first">
-                <img ng-src="{{ exp_image }}" alt="image">
-            </div>
-            <div ng-repeat-end class="item text-center" style="height: 350px" ng-if="!$first">
-                <img ng-src="{{ exp_image }}" alt="image">
-            </div>
-
-          </div>
-
-          <!-- Controls -->
-          <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
-            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
-            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
+    <div class="text-center col-xs-12 col-md-6 col-md-push-3">
+        <div style="width: 50%; min-width: 300px; display: inline-block">
+        <wl-reserve ng-show="!isExperimentActive()" experiment="experiment"></wl-reserve>
         </div>
-
-        <br>
-
         <!-- Reserve used to be here -->
-
     </div>
 
-    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-8 col-md-3 col-md-pull-7">
-        <div class="well text-center">
-            <p>
-                <img ng-src="{{ experiment.logo_link }}">
-            </p>
-            <p>
-                <strong>{{ "EXPERIMENT"|translate }}:</strong> {{ experiment.name }}
-            </p>
-
-            <p>
-                <strong>{{ "CATEGORY"|translate }}:</strong> {{ experiment.category }}
-            </p>
-        </div>
-
+    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-8 col-md-3 col-md-pull-6">
         <div ng-show="latestuses.uses.length > 0">
             <h4>{{ "MY_LATEST_USES"|translate }}</h4>
             
@@ -83,7 +32,7 @@
     </div>
 
 
-    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-4 col-md-2 well" ng-cloak ng-show="stats.status">
+    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-4 col-md-3 well" ng-cloak ng-show="stats.status">
         <h4>Stats</h4>
         <p><strong>Number of uses:</strong> {{ stats.total_uses }}</p>
         <p><strong>Status:</strong> <span style="color: {{ stats.status_color }}">{{ stats.status|translate }}</span></p>

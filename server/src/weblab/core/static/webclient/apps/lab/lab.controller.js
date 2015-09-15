@@ -62,6 +62,10 @@ function LabController($scope, $injector, $http) {
         experiment: EXPERIMENT_DATA
     };
 
+    $scope.experiment_info.experiment.isExperimentReserving = isExperimentReserving;
+    $scope.experiment_info.experiment.isExperimentLoading = isExperimentLoading;
+    $scope.experiment_info.experiment.reserve = reserve;
+
     $scope.reserveMessage = {
         message: '',
         translationData: {},
