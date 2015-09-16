@@ -216,8 +216,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
 def suite():
     return unittest.TestSuite(
             (
-                unittest.makeSuite(CreatingUdXilinxExperimentTestCase),
-                unittest.makeSuite(UsingUdXilinxExperimentTestCase)
+                # unittest.makeSuite(CreatingUdXilinxExperimentTestCase),
+                # unittest.makeSuite(UsingUdXilinxExperimentTestCase)
             )
         )
 

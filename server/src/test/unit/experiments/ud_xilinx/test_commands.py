@@ -143,8 +143,8 @@ class UdBoardCommandTestCase(unittest.TestCase):
             UdBoardSimpleCommand.create("ClockActivation off").get_code()
         )
 
-def suite():
-    return unittest.makeSuite(UdBoardCommandTestCase)
+# def suite():
+#     return unittest.makeSuite(UdBoardCommandTestCase)
 
 if __name__ == '__main__':
     unittest.main()

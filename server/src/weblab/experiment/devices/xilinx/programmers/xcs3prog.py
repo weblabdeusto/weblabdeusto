@@ -133,6 +133,7 @@ class Xcs3prog(object):
         :param device: The actual device name. For instance, FPGA or PLD. The actual batch content will depend upon it.
         """
         try:
+            # TODO: RENAME XC3S TO XCS3 OR THE OTHER WAY ROUND
             self._xc3sprog_full_path = self._cfg_manager.get_value('xc3sprog_full_path')
             self._xc3sprog_batch_content = self._cfg_manager.get_value('xc3sprog_batch_content_' + xilinx_board_type)
         except ConfigurationErrors.KeyNotFoundError as knfe:
