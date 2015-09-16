@@ -60,7 +60,7 @@ def lab_config(category_name, experiment_name):
     scripts = [
         url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True)
     ]
-    return weblab_api.jsonify(targetURL=url_for('json.service_url'), scripts=scripts, config=experiment_config)
+    return weblab_api.jsonify(targetURL=url_for('json.service_url'), scripts=scripts, config=experiment_config, currentURL = weblab_api.core_server_url)
 
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/latest_uses.json")

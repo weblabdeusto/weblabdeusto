@@ -65,6 +65,7 @@ WeblabExp = function () {
     this.POLL_FREQUENCY = 4000; // Indicates how often we will poll once polling is started. Will not normally be changed.
 
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
+    this.currentURL = ""; // Will be initialized through _setCurrentURL()
 
     var mConfiguration = {}; // Will be initialized on the start using the ?c=url argument
     var mReservation; // Must be set through setReservation()
@@ -255,6 +256,11 @@ WeblabExp = function () {
             }
         }
     };
+
+    this._setCurrentURL = function (current_url) {
+        this.currentURL = current_url;
+    };
+
 
     /**
      * Sets the target URLs to the standard ones. That is, the ones that will work
@@ -619,6 +625,7 @@ WeblabExp = function () {
                 "dataType": "json",
             }).done(function (success, status, jqXHR) {
                 that._setTargetURL(success.targetURL);
+                that._setCurrentURL(success.currentURL);
                 that._setConfiguration(success.config);
                 $.each(success.scripts, function(i, script_url) {
                     $.getScript(script_url);
@@ -1073,7 +1080,15 @@ WeblabExp = function () {
                             var status = result["status"];
                             if (status === "Reservation::confirmed") {
                                 // The reservation has succeded. We report this as done, with certain variables.
-
+                                if (result['url'] && result['url'] != self.currentURL) {
+                                    // TODO: top.location should be replaced by something else
+                                    var remote_reservation_id = result['remote_reservation_id']['id'];
+                                    var current_url = top.location.href;
+                                    var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remote_reservation_id + "&back=" + current_url;
+                                    // TODO: locale
+                                    self.disableFinishOnClose();
+                                    top.location.replace(remoteUrl);
+                                }
                                 var time = result["time"];
                                 var startingconfig = result["initial_configuration"];
                                 promise.resolve(reservationid, time, startingconfig, result);

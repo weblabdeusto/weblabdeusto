@@ -352,6 +352,10 @@ class WebLabAPI(object):
         return getattr(self.context, 'client_address', None)
 
     @property
+    def core_server_url(self):
+        return self.context.config.get_value('core_server_url', None)
+
+    @property
     def languages(self):
         if self.server_instance.babel is None:
             return []
