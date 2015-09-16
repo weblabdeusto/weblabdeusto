@@ -71,7 +71,7 @@ class Xcs3progProgrammer(XilinxProgrammer):
 
     @Override(XilinxProgrammer)
     def program(self, file_name):
-        self._xc3sprog_device.program_device(file_name)
+        self._xc3sprog_device.program_device(file_name, self._xilinx_board_type)
 
     @Override(XilinxProgrammer)
     def get_suffix(self):

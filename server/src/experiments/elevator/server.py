@@ -35,7 +35,6 @@ import weblab.experiment.exc as ExperimentErrors
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
 from experiments.xilinxc.compiler import Compiler
-import watertank_simulation
 from voodoo.threaded import threaded
 
 
@@ -265,14 +264,13 @@ class ElevatorExperiment(Experiment.Experiment):
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
             self._current_state = STATE_FAILED
-            log.log(UdXilinxExperiment, log.level.Warning, "Error programming file: " + str(e))
-            log.log_exc(UdXilinxExperiment, log.level.Warning)
+            log.log(ElevatorExperiment, log.level.Warning, "Error programming file: " + str(e))
+            log.log_exc(ElevatorExperiment, log.level.Warning)
 
-    # This is used in the demo experiment
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
-                                             suffix='.' + self._xilinx_impact.get_suffix())
+                                             suffix='.' + self._programmer.get_suffix())
             try:
                 try:
                     #TODO: encode? utf8?
@@ -293,9 +291,9 @@ class ElevatorExperiment(Experiment.Experiment):
         except Exception as e:
 
             #TODO: test me
-            log.log(UdXilinxExperiment, log.level.Info,
-                    "Exception joining sending program to device: %s" % e.args[0])
-            log.log_exc(UdXilinxExperiment, log.level.Debug)
+            log.log(ElevatorExperiment, log.level.Info,
+                    "Exception programming the logic into the board: %s" % e.args[0])
+            log.log_exc(ElevatorExperiment, log.level.Debug)
             raise ExperimentErrors.SendingFileFailureError("Error sending file to device: %s" % e)
         self._clear()
 
@@ -456,38 +454,10 @@ class ElevatorExperiment(Experiment.Experiment):
             elif command.startswith('VIRTUALWORLD_MODE'):
                 vw = command.split(" ")[1]
                 self._virtual_world = vw
-
-                # Stop the watertank if it is running.
-                if self._watertank is not None:
-                    self._watertank.autoupdater_stop()
-
-                if vw == "watertank":
-                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
-                    self._last_virtualworld_update = time.time()
-                    self._watertank.autoupdater_start(1)
-                    return "ok"
-                elif vw == "watertank_temperatures":
-                    self._virtual_world = "watertank"  # So that other parts of the code aren't confused. Not very tidy. TODO: Fixme.
-                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5, True)
-                    self._last_virtualworld_update = time.time()
-                    self._watertank.autoupdater_start(1)
-                    return "ok"
-                else:
-                    return "unknown_virtualworld"
+                return "Elevator does not currently support any Virtual World"
 
             elif command.startswith('VIRTUALWORLD_STATE'):
-
-                if (self._watertank != None):
-                    self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
-
-                    now = time.time()
-                    # TODO: This should not be done here. For now however, it's the easiest place to put it in.
-                    self.virtualworld_update(now - self._last_virtualworld_update)
-                    self._last_virtualworld_update = now
-
-                    return self._virtual_world_state
-
-                return "{}";
+                return "Elevator does not currently support any Virtual World"
 
             elif command == 'HELP':
                 return "VIRTUALWORLD_MODE | VIRTUALWORLD_STATE | SYNTHESIZING_RESULT | READ_LEDS | REPORT_SWITCHES | REPORT_USE_TIME_LEFT | STATE | ChangeSwitch"
@@ -572,7 +542,7 @@ if __name__ == "__main__":
     except:
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
 
-    experiment = UdXilinxExperiment(None, None, cfg_manager)
+    experiment = ElevatorExperiment(None, None, cfg_manager)
 
     lab_session_id = SessionId('my-session-id')
     experiment.do_start_experiment()
@@ -587,32 +557,6 @@ if __name__ == "__main__":
 
 
 
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    print experiment.do_send_command_to_device("ChangeSwitch on 1")
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    print experiment.do_send_command_to_device("VIRTUALWORLD_MODE watertank")
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    time.sleep(1)
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1)
-    print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-    experiment._watertank.current_volume = 0
-    time.sleep(5)
-    print experiment.do_send_command_to_device("REPORT_SWITCHES")
-    time.sleep(1)
-    while (True):
-        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-        experiment._watertank.current_volume = 0
-        print experiment.do_send_command_to_device("READ_LEDS")
-        print experiment.do_send_command_to_device("REPORT_SWITCHES")
-        time.sleep(1)
-        print experiment.do_send_command_to_device("REPORT_SWITCHES")
-        print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
-
-
-
 if __name__ == "__main__":
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
@@ -623,7 +567,7 @@ if __name__ == "__main__":
     except:
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_elevator/server_config.py")
 
-    experiment = UdXilinxExperiment(None, None, cfg_manager)
+    experiment = ElevatorExperiment(None, None, cfg_manager)
 
     lab_session_id = SessionId('my-session-id')
     experiment.do_start_experiment()
