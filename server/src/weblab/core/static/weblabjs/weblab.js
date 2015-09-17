@@ -1081,13 +1081,22 @@ WeblabExp = function () {
                             if (status === "Reservation::confirmed") {
                                 // The reservation has succeded. We report this as done, with certain variables.
                                 if (result['url'] && result['url'] != self.currentURL) {
-                                    // TODO: top.location should be replaced by something else
                                     var remote_reservation_id = result['remote_reservation_id']['id'];
-                                    var current_url = top.location.href;
+                                    if (mFrameMode) {
+                                        current_url = parent.location.href;
+                                    } else {
+                                        current_url = location.href;
+                                    }
+
                                     var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remote_reservation_id + "&back=" + current_url;
                                     // TODO: locale
                                     self.disableFinishOnClose();
-                                    top.location.replace(remoteUrl);
+
+                                    if (mFrameMode) {
+                                        parent.location.replace(remoteUrl);
+                                    } else {
+                                        location.replace(remoteUrl);
+                                    }
                                 }
                                 var time = result["time"];
                                 var startingconfig = result["initial_configuration"];
