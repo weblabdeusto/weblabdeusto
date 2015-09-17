@@ -496,12 +496,12 @@ def test_read_leds(self):
 def suite():
     return unittest.TestSuite(
         (
-            unittest.makeSuite(BasicUdXilinxExperimentTestCase),
-            unittest.makeSuite(PermissionsXilinxExperimentTestCase),
-            unittest.makeSuite(EarlyKickingXilinxExperimentTestCase),
-            unittest.makeSuite(VirtualWorldXilinxExperimentTestCase),
-            unittest.makeSuite(WatertankSimulationTestCase),
-            unittest.makeSuite(WatertankSimulationTestCaseTemperatures)
+            # unittest.makeSuite(BasicUdXilinxExperimentTestCase),
+            # unittest.makeSuite(PermissionsXilinxExperimentTestCase),
+            # unittest.makeSuite(EarlyKickingXilinxExperimentTestCase),
+            # unittest.makeSuite(VirtualWorldXilinxExperimentTestCase),
+            # unittest.makeSuite(WatertankSimulationTestCase),
+            # unittest.makeSuite(WatertankSimulationTestCaseTemperatures)
         )
     )
 
