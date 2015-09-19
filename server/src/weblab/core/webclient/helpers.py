@@ -81,21 +81,14 @@ def safe_redirect(redir):
     except Exception:
         return None
 
-def _get_experiment(experiment_raw):
-    """
-    Retrieves a simple dictionary with the most important data of the experiment object.
-    :rtype: dict
-    """
+def _get_experiment_data(experiment_raw):
     exp = {}
-    exp['name'] = experiment_raw.experiment.name
+    exp['name'] = experiment_raw.name
     # TODO: use a proper display name
-    exp['display_name'] = experiment_raw.experiment.name
-    exp['category'] = experiment_raw.experiment.category.name
-    exp['time'] = experiment_raw.time_allowed
-    exp['latest_use_epoch'] = int(experiment_raw.latest_use.strftime("%s")) if experiment_raw.latest_use is not None else 0
-    exp['user_uses'] = experiment_raw.total_uses
-    exp['type'] = experiment_raw.experiment.client.client_id
-    exp['config'] = experiment_raw.experiment.client.configuration
+    exp['display_name'] = experiment_raw.name
+    exp['category'] = experiment_raw.category.name
+    exp['type'] = experiment_raw.client.client_id
+    exp['config'] = experiment_raw.client.configuration
     exp['logo_link'] = weblab_api.ctx.core_server_url + 'client/weblabclientlab/' + exp['config'].get('experiment.picture', 'img/experiments/default.jpg')
     exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])
     exp['config_url'] = url_for('.lab_config', experiment_name=exp['name'], category_name=exp['category'], _external=True)
@@ -111,6 +104,16 @@ def _get_experiment(experiment_raw):
                 'http://weblabdeusto.readthedocs.org/en/latest/_images/weblab_box.jpg',
                 'http://weblabdeusto.readthedocs.org/en/latest/_images/demo-pld.jpg',
             ]
+    return exp
 
+def _get_experiment(experiment_raw):
+    """
+    Retrieves a simple dictionary with the most important data of the experiment object.
+    :rtype: dict
+    """
+    exp = _get_experiment_data(experiment_raw.experiment)
+    exp['time'] = experiment_raw.time_allowed
+    exp['latest_use_epoch'] = int(experiment_raw.latest_use.strftime("%s")) if experiment_raw.latest_use is not None else 0
+    exp['user_uses'] = experiment_raw.total_uses
     return exp
 

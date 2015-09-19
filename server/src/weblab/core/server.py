@@ -418,6 +418,11 @@ def send_async_command(command):
 def get_reservation_info():
     return weblab_api.ctx.reservation_processor.get_info()
 
+@weblab_api.route_api('/reservation/info/experiment/')
+@load_reservation_processor
+def get_reservation_experiment_info():
+    experiment_id = weblab_api.ctx.reservation_session['experiment_id']
+    return weblab_api.db.get_experiment(experiment_id.exp_name, experiment_id.cat_name)
 
 @weblab_api.route_api('/reservation/poll/')
 @load_reservation_processor

@@ -593,6 +593,15 @@ class DatabaseGateway(object):
         except NoResultFound:
             raise DbErrors.DbProvidedUserNotFoundError("Unable to find a User with the provided login: '%s'" % user_login)
 
+    @with_session
+    def get_experiment(self, experiment_name, category_name):
+        result = _current.session.query(model.DbExperiment) \
+                .filter(model.DbExperimentCategory.name == category_name) \
+                .filter_by(name=experiment_name).first()
+        if result is not None:
+            return result.to_business()
+        return None
+ 
     def _get_experiment(self, session, exp_name, cat_name):
         try:
             return session.query(model.DbExperiment) \
@@ -1243,7 +1252,7 @@ class DatabaseGateway(object):
             'properties' : properties,
             'commands' : commands,
             'files' : files,
-        }
+        }       
 
     @with_session
     def quickadmin_filepath(self, file_id):
