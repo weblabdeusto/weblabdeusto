@@ -46,19 +46,15 @@ def lab(category_name, experiment_name):
         raise
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/config.json")
-@login_required
 def lab_config(category_name, experiment_name):
     experiment_config = {}
     try:
-        experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
-
-
-        for exp_allowed in experiment_list:
-            if exp_allowed.experiment.name == experiment_name and exp_allowed.experiment.category.name == category_name:
-                experiment_config = exp_allowed.experiment.client.configuration
-
+        experiment = weblab_api.db.get_experiment(experiment_name, category_name)
     except Exception as ex:
-        experiment_config = {}
+        pass
+    else:
+        if experiment is not None:
+            experiment_config = experiment.client.configuration
 
     scripts = [
         url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True)

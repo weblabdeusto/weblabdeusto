@@ -47,33 +47,22 @@ def _process_index():
             experiment_config = {}
             client_name = ''
             try:
-                experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
-
-
-                for exp_allowed in experiment_list:
-                    if exp_allowed.experiment.name == experiment_name and exp_allowed.experiment.category.name == category_name:
-                        experiment_config = exp_allowed.experiment.client.configuration
-                        client_name = exp_allowed.experiment.client.client_id
-
+                experiment = weblab_api.db.get_experiment(experiment_name, category_name)
             except Exception as ex:
                 traceback.print_exc()
-                experiment_config = {}
-                client_name = ''
+                experiment = None
 
-            client_config['config'] = experiment_config
-            client_config['client_code_name'] = client_name
-
-
+            if experiment is not None:
+                client_config['config'] = experiment.client.configuration
+                client_config['client_code_name'] = experiment.client.client_id
 
     return render_template('webclient/gwt-index.html', client_config=client_config)
 
 @weblab_api.route_webclient('/gwt/')
-@login_required
 def gwt_index():
     return _process_index()
 
 @weblab_api.route_webclient('/gwt/<path:path>')
-@login_required
 def gwt(path = ''):
     # If it's the index, generate something
     if path in ('', 'index.html', 'index.htm'):
