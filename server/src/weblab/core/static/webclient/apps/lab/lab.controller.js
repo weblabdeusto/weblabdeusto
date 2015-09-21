@@ -35,6 +35,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment.reserving = false;
     $scope.experiment.loading = true;
     $scope.experiment.active = false;
+    $scope.experiment.federated = FEDERATED_MODE;
     
     $scope.latest_uses = {
         uses: []
@@ -64,6 +65,7 @@ function LabController($scope, $injector, $http) {
 
     $scope.experiment_info.experiment.isExperimentReserving = isExperimentReserving;
     $scope.experiment_info.experiment.isExperimentLoading = isExperimentLoading;
+    $scope.experiment_info.experiment.isExperimentFederated = isExperimentFederated;
     $scope.experiment_info.experiment.reserve = reserve;
 
     $scope.reserveMessage = {
@@ -83,6 +85,7 @@ function LabController($scope, $injector, $http) {
     $scope.isExperimentActive = isExperimentActive;
     $scope.isExperimentReserving = isExperimentReserving;
     $scope.isExperimentLoading = isExperimentLoading;
+    $scope.isExperimentFederated = isExperimentFederated;
     $scope.finishExperiment = finishExperiment;
     $scope.loadLatestUses = loadLatestUses;
     $scope.loadLabStats = loadLabStats;
@@ -99,8 +102,10 @@ function LabController($scope, $injector, $http) {
     // Initialization
     // ------------------------
 
-    loadLatestUses();
-    loadLabStats();
+    if (!FEDERATED_MODE) {
+        loadLatestUses();
+        loadLabStats();
+    }
 
     // -------------------------
     // Implementations
@@ -131,6 +136,16 @@ function LabController($scope, $injector, $http) {
     function isExperimentActive() {
         return $scope.experiment.active;
     }
+
+    /**
+     * Checks whether the experiment is federated.
+     *
+     * @return {bool}: True if the experiment is federated
+     */
+    function isExperimentFederated() {
+        return $scope.experiment.federated;
+    }
+
 
     /**
      * Checks whether the experiment is being reserved.
@@ -378,8 +393,10 @@ function LabController($scope, $injector, $http) {
                 // Listen also for a dispose, for other ui changes.
                 wexp.onExperimentDeactive().done(function (f) {
                     $scope.experiment.active = false;
-                    $scope.loadLatestUses();
-                    $scope.loadLabStats();
+                    if (!FEDERATED_MODE) {
+                        $scope.loadLatestUses();
+                        $scope.loadLabStats();
+                    }
 
                     $scope.reserveMessage.message = "";
 

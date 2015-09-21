@@ -8,6 +8,7 @@ from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
 
+# TODO: make sure we have a special 500 error handler, which simply calls error but also calls the send_mail function
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/")
 def lab(category_name, experiment_name):
