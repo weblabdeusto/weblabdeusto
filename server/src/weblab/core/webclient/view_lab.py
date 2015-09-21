@@ -15,10 +15,10 @@ def lab(category_name, experiment_name):
     """
     Renders a specific laboratory.
     """
-    federated_reservation_id = session.pop('reservation_id', None)
+    federated_reservation_id = session.get('reservation_id')
     federated_mode = federated_reservation_id is not None
     if federated_mode:
-        back_url = session.pop('back_url', None)
+        back_url = session.get('back_url')
     else:
         back_url = None
 
@@ -26,8 +26,20 @@ def lab(category_name, experiment_name):
     if federated_mode:
         weblab_api.ctx.reservation_id = federated_reservation_id
         # Now obtain the current experiment
-        experiment = _get_experiment_data(weblab_api.api.get_reservation_experiment_info())
-    else:
+        try:
+            experiment = _get_experiment_data(weblab_api.api.get_reservation_experiment_info())
+        except SessionNotFoundError:
+            session.pop('reservation_id', None)
+            session.pop('back_url', None)
+            federated_mode = False
+
+            # Check if the user has a valid session (it may happen that this comes from an old reservation_id)
+            try:
+                experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
+            except SessionNotFoundError:
+                return render_template("webclient/error.html", error_message = gettext("The reservation you used has expired."), federated_mode = True, back_url = back_url)
+
+    if experiment is None:
         try:
             experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
         except SessionNotFoundError:

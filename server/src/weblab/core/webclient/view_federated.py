@@ -36,7 +36,7 @@ def federated():
                 now = datetime.datetime.now()
                 response.set_cookie('weblabsessionid', reservation_id_plus_route, expires = now + datetime.timedelta(days = 100), path = weblab_api.ctx.location)
                 return response
-    
+
     weblab_api.ctx.reservation_id = reservation_id
     try:
         experiment = weblab_api.api.get_reservation_experiment_info()
@@ -48,5 +48,8 @@ def federated():
 
     session['reservation_id'] = reservation_id
     session['back_url'] = request.args.get('back_url')
-    return redirect(url_for('.lab', experiment_name=experiment.name, category_name=experiment.category.name))
+    response = redirect(url_for('.lab', experiment_name=experiment.name, category_name=experiment.category.name))
+    reservation_id_plus_route = '%s.%s' % (reservation_id, weblab_api.ctx.route)
+    weblab_api.fill_session_cookie(response, reservation_id_plus_route)
+    return response
 
