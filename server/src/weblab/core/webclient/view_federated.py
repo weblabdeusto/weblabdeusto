@@ -4,6 +4,8 @@ import datetime
 from flask import render_template, request, flash, redirect, url_for, jsonify, session
 
 from weblab.core.wl import weblab_api
+from weblab.core.babel import gettext
+from weblab.core.exc import SessionNotFoundError
 
 # ../../client/index.html%(localization)s#reservation_id=%(reservation_id)s&back_url=%(back_url)s&widget=%(widget)s
 
@@ -13,16 +15,21 @@ def federated():
     widget = request.args.get('widget')
     reservation_id = request.args.get('reservation_id')
     reservation_tokens = reservation_id.split(';')
+    back_url = request.args.get('back_url')
     if len(reservation_tokens) == 1:
         reservation_id = reservation_tokens[0]
     else:
         reservation_id = reservation_tokens[0]
         reservation_id_plus_route = reservation_tokens[1]
+        # The second argument is the session identifier plus a route. 
+        # Here we analyze whether this message was intended for this server or for any other with a different route.
+        # To do this, we check the route, and if it's different, we return a redirection to the same URL but setting a cookie with the required URL
+        # However, if we were already redirecting, then there is a problem (e.g., not using an existing route), and a message is displayed.
         if '.' in reservation_id_plus_route:
             route = reservation_id_plus_route.split('.', 1)[1]
             if route != weblab_api.ctx.route:
                 if redirecting:
-                    return "Invalid federated URL: you're attempting to use a route not used in this WebLab-Deusto instance"
+                    return render_template("webclient/error.html", error_message = gettext("Invalid federated URL: you're attempting to use a route not used in this WebLab-Deusto instance"), federated_mode = True, title = gettext("Error"), back_url = back_url)
 
                 session['federated_redirecting'] = "true"
                 response = redirect(request.url)
@@ -33,9 +40,11 @@ def federated():
     weblab_api.ctx.reservation_id = reservation_id
     try:
         experiment = weblab_api.api.get_reservation_experiment_info()
+    except SessionNotFoundError:
+        return render_template("webclient/error.html", error_message = gettext("The provided reservation identifier is not valid or has expired."), federated_mode = True, back_url = back_url)
     except:
-        # TODO
-        raise
+        traceback.print_exc()
+        return render_template("webclient/error.html", error_message = gettext("Unexpected error on the server side while trying to get the reservation information."), federated_mode = True, back_url = back_url)
 
     session['reservation_id'] = reservation_id
     session['back_url'] = request.args.get('back_url')

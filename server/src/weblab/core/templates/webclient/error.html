@@ -1,0 +1,20 @@
+{% extends "webclient/_logged_base.html" %}
+{% set title = title or gettext("Error") %}
+{% block body %}
+    {{ super() }}
+
+    <div class="row">
+        <div class="container">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="alert alert-danger text-center">
+                    <h1>{{ gettext("Error") }}</h1>
+                    <h4>{{ error_message }}</h4>
+                </div>
+
+                {% if back_url %}
+                    <a class="btn btn-default" href="{{ back_url }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Go back") }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
