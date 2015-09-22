@@ -1,6 +1,5 @@
 language: python
 cache: pip
-sudo: false
 services:
   - redis-server
 python: 2.7
