@@ -157,7 +157,7 @@
                                             ng-repeat="(category, category_data) in categories" 
                                             ng-class="{ 'highlighted' : category_data.selected, 'bg-success' : category_data.selected }"
                                             >
-                                            <a href="#" ng-click="category_click(category)">
+                                            <a href="#" ng-click="filterCategory(category)">
                                                 {{ category }} ({{ category_data.count }})
                                             </a>
                                         </li>
