@@ -421,6 +421,13 @@ def get_reservation_info():
 @weblab_api.route_api('/reservation/info/experiment/')
 @load_reservation_processor
 def get_reservation_experiment_info():
+    # First poll, then run it
+    try:
+        reservation_processor = weblab_api.ctx.reservation_processor
+        weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    except coreExc.NoCurrentReservationError:
+        raise coreExc.SessionNotFoundError("reservation expired")
+
     experiment_id = weblab_api.ctx.reservation_session['experiment_id']
     return weblab_api.db.get_experiment(experiment_id.exp_name, experiment_id.cat_name)
 
