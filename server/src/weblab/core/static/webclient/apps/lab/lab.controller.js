@@ -74,6 +74,7 @@ function LabController($scope, $injector, $http) {
         type: 'info'
     };
 
+    var mExperimentLoaded = $.Deferred();
 
     // -------------------------
     // Scope methods
@@ -102,7 +103,11 @@ function LabController($scope, $injector, $http) {
     // Initialization
     // ------------------------
 
-    if (!FEDERATED_MODE) {
+    if (FEDERATED_MODE) {
+        onExperimentLoaded(function() {
+            
+        });
+    } else {
         loadLatestUses();
         loadLabStats();
     }
@@ -164,6 +169,12 @@ function LabController($scope, $injector, $http) {
     function markAsLoaded() {
         $scope.experiment.loading = false;
         $scope.$apply();
+        mExperimentLoaded.resolve();
+    }
+
+    function onExperimentLoaded(callback) {
+        mExperimentLoaded.done(callback);
+        return mExperimentLoaded.promise();
     }
 
     /**

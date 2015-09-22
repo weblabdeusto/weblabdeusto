@@ -29,7 +29,7 @@
     {% raw %}
 
     <div ng-controller="LabController" ng-cloak>
-        <div class="container-fluid" ng-show="!isExperimentActive() && !isExperimentFederated()">
+        <div class="container-fluid" ng-show="!isExperimentActive()" ng-if="!isExperimentFederated()">
             <div class="col-lg-4">
                 {% endraw %}
                 <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
@@ -61,7 +61,7 @@
                     </p>
                 </div>
                 
-                <div class="col-md-6" ng-show="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
+                <div class="col-md-6" ng-if="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
                     <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
                       <!-- Indicators -->
                       <ol class="carousel-indicators">
@@ -100,10 +100,10 @@
             <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
             </div>
 
-            <div class="container-fluid" style="margin-right: 30px; margin-left: 15px" ng-show="!isExperimentFederated()">
+            <div class="container-fluid" style="margin-right: 30px; margin-left: 15px">
                 <!-- Component for the experiment information window thing -->
                 <!-- Should be shown only when the experiment is NOT active -->
-                <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
+                <wl-exp-info ng-if="!isExperimentFederated()" ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
                              is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()"
                              stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
 
