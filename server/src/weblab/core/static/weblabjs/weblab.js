@@ -1048,7 +1048,9 @@ WeblabExp = function () {
     };
 
 
-    this.check_status = function (reservationid, promise) {
+    this.check_status = function (reservationid) {
+        var promise = $.Deferred();
+
         self._get_reservation_status(reservationid)
             .done(function (result) {
                 var status = result["status"];
@@ -1112,8 +1114,17 @@ WeblabExp = function () {
 
                     // Try again soon.
                     setTimeout(function() { 
-                        self.check_status(reservationid, promise); 
-                    }, frequency);
+                        self.check_status(reservationid)
+                            .done(function (reservationid, time, initialConfig, result) {
+                                promise.resolve(reservationid, time, initialConfig, result);
+                            }.bind(this))
+                            .progress(function (status, queuePosition, result, broken) {
+                                promise.notify(status, queuePosition, result, broken);
+                            }.bind(this))
+                            .fail(function (result) {
+                                promise.reject(result);
+                            });
+                    }.bind(this), frequency);
                 }
             })
             .fail(function (result) {
@@ -1124,6 +1135,7 @@ WeblabExp = function () {
                 //   maybe it would be appropriate to request a dispose().
                 promise.reject(result);
             })
+        return promise;
     };
 
     /**
@@ -1151,7 +1163,16 @@ WeblabExp = function () {
             .done(function (reservationresponse) {
                 // This will call itself repeteadly if needed.
                 var reservationid = reservationresponse["reservation_id"]["id"];
-                this.check_status(reservationid, promise);
+                this.check_status(reservationid, promise)
+                    .done(function (reservationid, time, initialConfig, result) {
+                        promise.resolve(reservationid, time, initialConfig, result);
+                    }.bind(this))
+                    .progress(function (status, queuePosition, result, broken) {
+                        promise.notify(status, queuePosition, result, broken);
+                    }.bind(this))
+                    .fail(function (result) {
+                        promise.reject(result);
+                    });
             }.bind(this))
             .fail(function (result) {
                 promise.reject(result);
