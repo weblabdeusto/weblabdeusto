@@ -45,8 +45,7 @@ function LabController($scope, $injector, $http) {
         laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
         language: PREFERRED_LANGUAGE,
-        iframe_url: "",
-        markAsLoaded: markAsLoaded
+        iframe_url: ""
     };
 
     if (CLIENT_TYPE == "js") {
@@ -77,6 +76,12 @@ function LabController($scope, $injector, $http) {
     var mExperimentLoaded = $.Deferred();
 
     // -------------------------
+    // Scope bindings
+    // -------------------------
+
+    $scope.$on("experimentLoaded", markAsLoaded);
+
+    // -------------------------
     // Scope methods
     // -------------------------
 
@@ -105,7 +110,7 @@ function LabController($scope, $injector, $http) {
 
     if (FEDERATED_MODE) {
         onExperimentLoaded(function() {
-            
+            startReserved('frame', FEDERATED_RESERVATION_ID);            
         });
     } else {
         loadLatestUses();
@@ -165,11 +170,11 @@ function LabController($scope, $injector, $http) {
     function isExperimentLoading() {
         return $scope.experiment.loading;
     }
-
+    
     function markAsLoaded() {
         $scope.experiment.loading = false;
-        $scope.$apply();
         mExperimentLoaded.resolve();
+        $scope.$apply();
     }
 
     function onExperimentLoaded(callback) {
@@ -273,35 +278,48 @@ function LabController($scope, $injector, $http) {
         $scope.$apply();
     } // !handleReserveFail
 
+    function startReserved(where, reservationID) {
+        var reservationStatusPromiseGenerator = function (weblab) {
+            return weblab.getReservationStatus(reservationID);
+        }.bind(this);
+
+        return _reserve(where, reservationStatusPromiseGenerator);
+    } // !reserveRedirect
+
     function reserve(where) {
+        var reservationStatusPromiseGenerator = function (weblab) {
+            var sessionID = WL_SESSION_ID;
+            sessionID = sessionID.split(".", 1)[0];
+            var name = EXPERIMENT_DATA['name'];
+            var category = EXPERIMENT_DATA['category'];
+            return weblab.reserveExperiment(sessionID, name, category);
+        }.bind(this);
+
+        return _reserve(where, reservationStatusPromiseGenerator);
+    } // !reserveRedirect
+
+    function _reserve(where, reservationStatusPromiseGenerator) {
+        $scope.experiment.reserving = true;
+        $scope.reserveMessage.message = "RESERVING";
+        $scope.reserveMessage.type = 'info';
+
         if(CLIENT_TYPE == "redirect")
-            return reserveRedirect();
+            return reserveRedirect(reservationStatusPromiseGenerator);
 
         if (where == 'frame') {
-            return reserveInFrame();
+            return reserveInFrame(reservationStatusPromiseGenerator);
         } else if (where == 'window') {
-            return reserveInWindow();
+            return reserveInWindow(reservationStatusPromiseGenerator);
         } else {
             console.log("where must be frame or window: " + where);
         }
-    } // !reserveRedirect
+    }
 
     /**
      * Called to reserve the experiment if it is of type redirect. For now, no difference is made between
      * frame or no-frame.
      */
-    function reserveRedirect() {
-        var sessionid = WL_SESSION_ID;
-        sessionid = sessionid.split('.')[0];
-
-        var name = EXPERIMENT_DATA['name'];
-        var category = EXPERIMENT_DATA['category'];
-
-
-        $scope.experiment.reserving = true;
-        $scope.reserveMessage.message = "RESERVING";
-        $scope.reserveMessage.type = 'info';
-
+    function reserveRedirect(reservationStatusPromiseGenerator) {
         window.currentExperiment = weblab; // Save it in a GLOBAL.
         
         weblab.setOnGetInitialDataCallback(function () { 
@@ -309,7 +327,7 @@ function LabController($scope, $injector, $http) {
         });
         weblab._setTargetURL(WL_JSON_URL);
 
-        weblab.reserveExperiment(sessionid, name, category)
+        reservationStatusPromiseGenerator(weblab)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {
@@ -348,17 +366,7 @@ function LabController($scope, $injector, $http) {
     /**
      * Called to reserve the experiment in the frame.
      */
-    function reserveInFrame() {
-        var sessionid = WL_SESSION_ID;
-        sessionid = sessionid.split(".", 1)[0];
-
-        var name = EXPERIMENT_DATA['name'];
-        var category = EXPERIMENT_DATA['category'];
-
-        $scope.experiment.reserving = true;
-        $scope.reserveMessage.message = "RESERVING";
-        $scope.reserveMessage.type = 'info';
-
+    function reserveInFrame(reservationStatusPromiseGenerator) {
         var frame = $("#exp-frame")[0];
         var Wexp = frame.contentWindow.WeblabExp;
 
@@ -383,7 +391,8 @@ function LabController($scope, $injector, $http) {
         window.currentExperiment = wexp; // Save it in a GLOBAL.
         wexp._setTargetURL(WL_JSON_URL);
 
-        wexp.reserveExperiment(sessionid, name, category)
+        // This method reserves or uses an existing reservation
+        reservationStatusPromiseGenerator(wexp)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (uid, time, initial_config, result) {
@@ -422,23 +431,12 @@ function LabController($scope, $injector, $http) {
             });
     }
 
-    function reserveInWindow() {
-        var sessionid = WL_SESSION_ID;
-        sessionid = sessionid.split('.')[0];
-
-        var name = EXPERIMENT_DATA['name'];
-        var category = EXPERIMENT_DATA['category'];
-
-
-        $scope.experiment.reserving = true;
-        $scope.reserveMessage.message = "RESERVING";
-        $scope.reserveMessage.type = 'info';
-
+    function reserveInWindow(reservationStatusPromiseGenerator) {
         var wexp = Wexp.lastInstance;
         window.currentExperiment = wexp; // Save it in a GLOBAL.
         wexp._setTargetURL(WL_JSON_URL);
 
-        wexp.reserveExperiment(sessionid, name, category)
+        reservationStatusPromiseGenerator(wexp)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {

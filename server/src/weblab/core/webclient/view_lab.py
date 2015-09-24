@@ -58,7 +58,7 @@ def lab(category_name, experiment_name):
                 flash(gettext("Experiment does not exist"), 'danger')
             return redirect(url_for('.labs'))
 
-    return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode, back_url = back_url)
+    return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode, back_url = back_url, federated_reservation_id = federated_reservation_id)
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/config.json")
 def lab_config(category_name, experiment_name):
