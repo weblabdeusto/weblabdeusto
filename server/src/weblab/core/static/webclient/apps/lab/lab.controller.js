@@ -309,7 +309,7 @@ function LabController($scope, $injector, $http) {
         });
         weblab._setTargetURL(WL_JSON_URL);
 
-        weblab.reserve_experiment(sessionid, name, category)
+        weblab.reserveExperiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {
@@ -383,7 +383,7 @@ function LabController($scope, $injector, $http) {
         window.currentExperiment = wexp; // Save it in a GLOBAL.
         wexp._setTargetURL(WL_JSON_URL);
 
-        wexp.reserve_experiment(sessionid, name, category)
+        wexp.reserveExperiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (uid, time, initial_config, result) {
@@ -438,7 +438,7 @@ function LabController($scope, $injector, $http) {
         window.currentExperiment = wexp; // Save it in a GLOBAL.
         wexp._setTargetURL(WL_JSON_URL);
 
-        wexp.reserve_experiment(sessionid, name, category)
+        wexp.reserveExperiment(sessionid, name, category)
             .progress(handleReserveProgress)
             .fail(handleReserveFail)
             .done(function (id, time, initConfig, result) {

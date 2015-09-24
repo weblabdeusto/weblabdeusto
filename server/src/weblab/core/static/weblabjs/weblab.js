@@ -202,11 +202,11 @@ WeblabExp = function () {
      *
      * It should only be called once. Calling it twice should trigger an exception.
      *
-     * @param {str} reservation_id: The reservation ID.
+     * @param {str} reservationID: The reservation ID.
      * @param {number} time: Time left for the experiment. If not an int, it will be rounded from the float.
-     * @param {object} initial_config: Initial configuration of the experiment, obtained from the confirmed reservation.
+     * @param {object} initialConfig: Initial configuration of the experiment, obtained from the confirmed reservation.
      */
-    this._reservationReady = function (reservation_id, time, initial_config) {
+    this._reservationReady = function (reservationID, time, initialConfig) {
         this.show();
 
         console.debug("[reservationReady] ReservationReady called");
@@ -216,23 +216,23 @@ WeblabExp = function () {
             throw new Error("_reservationReady should only be called once");
         mStartCalled = true;
         mExperimentActive = true;
-        mOnExperimentActive.resolve(reservation_id, time, initial_config);
+        mOnExperimentActive.resolve(reservationID, time, initialConfig);
 
         // Set the ID.
-        mReservation = reservation_id;
+        mReservation = reservationID;
 
         // Start the polling mechanism.
         this._startPolling();
 
         console.debug("[reservationReady] Resolving START promise on ReservationReady");
-        mOnStartPromise.resolve(Math.round(time), initial_config);
+        mOnStartPromise.resolve(Math.round(time), initialConfig);
         mOnSetTimePromise.resolve(Math.round(time));
     };
 
     /**
      * Sets the target URL to which the AJAX requests will be directed. This is the
      * URL of the Core server's JSON handler.
-     * @param {str} target_url: URL of the core server.
+     * @param {str} targetURL: URL of the core server.
      *
      * Note that by default requests will be directed to the standard Weblab instance,
      * that is, to the Weblab instance located at //www.weblab.deusto.es/weblab. These
@@ -246,8 +246,8 @@ WeblabExp = function () {
      * Note that if running from a local file (file:// protocol) http:// will be preppended
      * to the URLs.
      */
-    this._setTargetURL = function (target_url) {
-        this.CORE_URL = target_url;
+    this._setTargetURL = function (targetURL) {
+        this.CORE_URL = targetURL;
 
         // For making testing possible from local files (after the various security settings
         // have been disabled).
@@ -259,8 +259,8 @@ WeblabExp = function () {
         }
     };
 
-    this._setCurrentURL = function (current_url) {
-        this.currentURL = current_url;
+    this._setCurrentURL = function (currentURL) {
+        this.currentURL = currentURL;
     };
 
 
@@ -309,11 +309,11 @@ WeblabExp = function () {
      * Sets the reservation id to use.
      * For internal use. Does not trigger callbacks.
      *
-     * @param {str} reservation_id: The reservation ID to use.
+     * @param {str} sessionID: The reservation ID to use.
      * @private
      */
-    this._setReservation = function (reservation_id) {
-        mReservation = reservation_id;
+    this._setReservation = function (sessionID) {
+        mReservation = sessionID;
     };
 
     /**
@@ -455,7 +455,7 @@ WeblabExp = function () {
             "contentType": "application/json"
         })
             .done(function (success, status, jqXHR) {
-                // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
+                // Example of a response: {"params":{"session_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
 
                 // Check that the internal is_exception is set to false.
                 if (success["is_exception"] === true) {
@@ -500,27 +500,27 @@ WeblabExp = function () {
      * @returns {$.Promise} Promise with .done(result) and .fail(error). Result is the "result" key within the response.
      *
      * @example
-     * Example of a send_command result:
+     * Example of a sendCommand result:
      * {"result": {"commandstring": "{\"blue\": true, \"white\": true, \"red\": true, \"yellow\": true}"}, "is_exception": false}
      *
      * @private
      */
-    this._send_command = function (command) {
+    this._sendCommand = function (command) {
         var promise = $.Deferred();
         var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
         console.log("Sending command: " + command);
         this._send(request)
-            .done(function (success_data) {
-                console.debug("Data received: " + success_data.commandstring);
-                console.debug(success_data);
-                promise.resolve(success_data);
+            .done(function (successData) {
+                console.debug("Data received: " + successData.commandstring);
+                console.debug(successData);
+                promise.resolve(successData);
             })
             .fail(function (error) {
                 promise.reject(error);
             });
 
         return promise.promise();
-    }; // !_send_command
+    }; // !_sendCommand
 
 
     /**
@@ -530,7 +530,7 @@ WeblabExp = function () {
      *
      * @private
      */
-    this._finished_experiment = function (forceCallServer) {
+    this._finishedExperiment = function (forceCallServer) {
         // Disable the polling timer if needed.
         clearTimeout(mPollingTimer);
         mExperimentActive = false;
@@ -547,9 +547,9 @@ WeblabExp = function () {
             var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
             this._send(request)
-                .done(function (success_data) {
+                .done(function (successData) {
                     if (mExpectsPostEnd) {
-                        this._poll_for_post_reservation()
+                        this._pollForPostReservation()
                             .done(function() {
                                 // Don't do mOnExperimentDeactive.resolve, since this is done the next time finish() is called
                                 promise.resolve();
@@ -575,23 +575,23 @@ WeblabExp = function () {
         return promise.promise();
     };
 
-    this._poll_for_post_reservation = function() {
+    this._pollForPostReservation= function() {
         var promise = $.Deferred();
         
-        var wait_for_post_reservation = function() {
-            this._get_reservation_status(mReservation)
+        var waitForPostReservation = function() {
+            this._getReservationStatus(mReservation)
                     .done(function (result) {
                         var status = result['status'];
                         if (status === "Reservation::confirmed") {
-                            setTimeout(wait_for_post_reservation, 500);
+                            setTimeout(waitForPostReservation, 500);
                         } else if (status === "Reservation::post_reservation") {
                             if (result['finished']) {
-                                var initial_data = result['initial_data'];
-                                var end_data = result['end_data'];
-                                mOnFinishPromise.resolve(initial_data, end_data);
-                                promise.resolve(initial_data, end_data);
+                                var initialData = result['initial_data'];
+                                var endData = result['end_data'];
+                                mOnFinishPromise.resolve(initialData, endData);
+                                promise.resolve(initialData, endData);
                             } else {
-                                setTimeout(wait_for_post_reservation, 400);
+                                setTimeout(waitForPostReservation, 400);
                             }
                         } else {
                             promise.reject({'msg': 'Unexpected post reservation message'});
@@ -601,7 +601,7 @@ WeblabExp = function () {
                         promise.reject(error);
                     });
         }.bind(this);
-        wait_for_post_reservation();
+        waitForPostReservation();
         return promise.promise();
     }
 
@@ -620,21 +620,21 @@ WeblabExp = function () {
     this._loadConfig = function () {
         if ($.QueryString["c"] !== undefined) {
             var that = this;
-            var config_url = $.QueryString["c"];
+            var configURL = $.QueryString["c"];
             $.ajax({
                 "type": "GET",
-                "url": config_url,
+                "url": configURL,
                 "dataType": "json",
             }).done(function (success, status, jqXHR) {
                 that._setTargetURL(success.targetURL);
                 that._setCurrentURL(success.currentURL);
                 that._setConfiguration(success.config);
-                $.each(success.scripts, function(i, script_url) {
-                    $.getScript(script_url);
+                $.each(success.scripts, function(i, scriptURL) {
+                    $.getScript(scriptURL);
                 });
                 mOnConfigLoadPromise.resolve();
             }).fail(function (fail) {
-                console.error("Error loading configuration file from " + config_url);
+                console.error("Error loading configuration file from " + configURL);
                 mOnConfigLoadPromise.resolve();
             });
         } else {
@@ -649,16 +649,16 @@ WeblabExp = function () {
      * The valid reservation status reported are:
      *   - Reservation::waiting_confirmation
      *     @example
-     *     {"result": {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}, "is_exception": false}
+     *     {"result": {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "sessionID": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}, "is_exception": false}
      *
-     * @param {string} sessionid: Session ID of the user
+     * @param {string} sessionID: Session ID of the user
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
      * @returns {object} Through the callback, the json response.
      * @example
-     *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
+     *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "sessionID": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
-    this._reserve_experiment = function (sessionid, experiment_name, experiment_category) {
+    this._reserveExperiment = function (sessionID, experimentName, experimentCategory) {
         var promise = $.Deferred();
 
         var initialData = this._getInitialData();
@@ -668,10 +668,10 @@ WeblabExp = function () {
         this._send({
                 "method": "reserve_experiment",
                 "params": {
-                    "session_id": {"id": sessionid},
+                    "session_id": {"id": sessionID},
                     "experiment_id": {
-                        "exp_name": experiment_name,
-                        "cat_name": experiment_category
+                        "exp_name": experimentName,
+                        "cat_name": experimentCategory
                     },
                     "client_initial_data": JSON.stringify(initialData),
                     "consumer_data": "{}"
@@ -685,7 +685,7 @@ WeblabExp = function () {
             });
 
         return promise.promise();
-    } // ! reserve_experiment
+    } // ! reserveExperiment
 
     /**
      * Retrieves the status of a reservation.
@@ -694,21 +694,21 @@ WeblabExp = function () {
      *      @example
      *   - Reservation::waiting_confirmation
      *   - Reservation::waiting
-     *      {"result": {"status": "Reservation::waiting", "position": 0, "reservation_id": {"id": "5d70d409-e8a7-4123-9dfd-56e321740099;5d70d409-e8a7-4123-9dfd-56e321740099.route1"}}, "is_exception": false}
-     * @param {string} reservationid: ReservationID. This is provided by the call to reserve_experiment.
+     *      {"result": {"status": "Reservation::waiting", "position": 0, "sessionID": {"id": "5d70d409-e8a7-4123-9dfd-56e321740099;5d70d409-e8a7-4123-9dfd-56e321740099.route1"}}, "is_exception": false}
+     * @param {string} reservationID: ReservationID. This is provided by the call to reserveExperiment.
      * @returns {object} Through the callback, the whole JSON response, which includes the status itself.
      */
-    this._get_reservation_status = function (reservationid) {
+    this._getReservationStatus = function (reservationID) {
         var promise = $.Deferred();
 
         this._send({
                 "method": "get_reservation_status",
                 "params": {
-                    "reservation_id": {"id": reservationid}
+                    "reservation_id": {"id": reservationID}
                 }
             })
             .done(function (response) {
-                // Example of a response: {"params":{"reservation_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
+                // Example of a response: {"params":{"session_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
                 // console.log("Reservation status: " + response);
                 promise.resolve(response);
             })
@@ -769,7 +769,7 @@ WeblabExp = function () {
 
         var promise = $.Deferred();
 
-        this._send_command(command)
+        this._sendCommand(command)
             .done(function (success) {
                 promise.resolve(success.commandstring);
             })
@@ -845,7 +845,7 @@ WeblabExp = function () {
      */
     this.finishExperiment = function () {
         var promise = $.Deferred();
-        this._finished_experiment(true)
+        this._finishedExperiment(true)
             .done(function (success) {
                 promise.resolve(success);
             })
@@ -857,7 +857,7 @@ WeblabExp = function () {
 
     this.cleanExperiment = function () {
         var promise = $.Deferred();
-        this._finished_experiment(false)
+        this._finishedExperiment(false)
             .done(function (success) {
                 promise.resolve(success)
             })
@@ -1047,26 +1047,31 @@ WeblabExp = function () {
         $("body").show();
     };
 
-
-    this.check_status = function (reservationid) {
+    this.getReservationStatus = function (reservationID) {
         var promise = $.Deferred();
+        this._checkStatus(reservationID, promise);
+        return promise.promise();
+    };
 
-        self._get_reservation_status(reservationid)
+
+    this._checkStatus = function (reservationID, promise) {
+        this._getReservationStatus(reservationID)
             .done(function (result) {
                 var status = result["status"];
                 if (status === "Reservation::confirmed") {
                     // The reservation has succeded. We report this as done, with certain variables.
-                    if (result['url'] && result['url'] != self.currentURL) {
-                        var remote_reservation_id = result['remote_reservation_id']['id'];
+                    if (result['url'] && result['url'] != this.currentURL) {
+                        var remoteSessionID = result['remote_session_id']['id'];
+                        var currentURL;
                         if (mFrameMode) {
-                            current_url = parent.location.href;
+                            currentURL = parent.location.href;
                         } else {
-                            current_url = location.href;
+                            currentURL = location.href;
                         }
 
-                        var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remote_reservation_id + "&back=" + current_url;
+                        var remoteUrl = result['url'] + "client/federated.html#sessionID=" + remoteSessionID + "&back=" + currentURL;
                         // TODO: locale
-                        self.disableFinishOnClose();
+                        this.disableFinishOnClose();
 
                         if (mFrameMode) {
                             parent.location.replace(remoteUrl);
@@ -1076,7 +1081,7 @@ WeblabExp = function () {
                     }
                     var time = result["time"];
                     var startingconfig = result["initial_configuration"];
-                    promise.resolve(reservationid, time, startingconfig, result);
+                    promise.resolve(reservationID, time, startingconfig, result);
                 }
                 else {
                     var frequency = 2 * 1000; // 2 seconds
@@ -1113,20 +1118,11 @@ WeblabExp = function () {
                     }
 
                     // Try again soon.
-                    setTimeout(function() { 
-                        self.check_status(reservationid)
-                            .done(function (reservationid, time, initialConfig, result) {
-                                promise.resolve(reservationid, time, initialConfig, result);
-                            }.bind(this))
-                            .progress(function (status, queuePosition, result, broken) {
-                                promise.notify(status, queuePosition, result, broken);
-                            }.bind(this))
-                            .fail(function (result) {
-                                promise.reject(result);
-                            });
+                    setTimeout(function() {
+                        this._checkStatus(reservationID, promise);
                     }.bind(this), frequency);
                 }
-            })
+            }.bind(this))
             .fail(function (result) {
                 // An error occurred. We abort the whole reservation attempt.
                 // In the future, some further actions which could be considered:
@@ -1135,7 +1131,6 @@ WeblabExp = function () {
                 //   maybe it would be appropriate to request a dispose().
                 promise.reject(result);
             })
-        return promise;
     };
 
     /**
@@ -1144,35 +1139,27 @@ WeblabExp = function () {
      * The valid reservation status reported are:
      *   - Reservation::waiting_confirmation
      *     @example
-     *     {"result": {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}, "is_exception": false}
+     *     {"result": {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "sessionID": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}, "is_exception": false}
      *     @example
-     *     {"result": {"status": "Reservation::confirmed", "url": "https://www.weblab.deusto.es/weblab/", "remote_reservation_id": {"id": ""}, "time": 299.56350898742676, "initial_configuration": "{\"webcam\": \"https://www.weblab.deusto.es/webcam/proxied/pld2\", \"labels\": [\"cod1\", \"cod2\", \"cod3\", \"cod4\", \"cod5\"]}", "reservation_id": {"id": "8fefe7f3-8a8f-4a56-920c-64057d5a5701;8fefe7f3-8a8f-4a56-920c-64057d5a5701.route1"}}, "is_exception": false}
+     *     {"result": {"status": "Reservation::confirmed", "url": "https://www.weblab.deusto.es/weblab/", "remote_sessionID": {"id": ""}, "time": 299.56350898742676, "initial_configuration": "{\"webcam\": \"https://www.weblab.deusto.es/webcam/proxied/pld2\", \"labels\": [\"cod1\", \"cod2\", \"cod3\", \"cod4\", \"cod5\"]}", "sessionID": {"id": "8fefe7f3-8a8f-4a56-920c-64057d5a5701;8fefe7f3-8a8f-4a56-920c-64057d5a5701.route1"}}, "is_exception": false}
      *
-     * @param {string} sessionid: Session ID of the user
+     * @param {string} sessionID: Session ID of the user
      * @param {string} experiment_name: Experiment's name
      * @param {string} experiment_category: Experiment's category
-     * @returns {object} Callback. It reports through .done(id, time, initial_config, result_object)  {@link reserve_experiment~done}, through .fail(error)
+     * @returns {object} Callback. It reports through .done(id, time, initialConfig, result_object)  {@link reserveExperiment~done}, through .fail(error)
      * and through .progress(status, [queuePosition], result, [broken]).
      * @example
-     *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "reservation_id": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
+     *      {"status": "Reservation::waiting_confirmation", "url": "https://www.weblab.deusto.es/weblab/", "sessionID": {"id": "7b2059fd-2267-4523-9fa7-e33e3524b875;7b2059fd-2267-4523-9fa7-e33e3524b875.route1"}}
      */
-    this.reserve_experiment = function (sessionid, experiment_name, experiment_category) {
+    this.reserveExperiment = function (sessionID, experimentName, experimentCategory) {
         var promise = $.Deferred();
 
-        this._reserve_experiment(sessionid, experiment_name, experiment_category)
-            .done(function (reservationresponse) {
+        this._reserveExperiment(sessionID, experimentName, experimentCategory)
+            .done(function (reservationResponse) {
                 // This will call itself repeteadly if needed.
-                var reservationid = reservationresponse["reservation_id"]["id"];
-                this.check_status(reservationid, promise)
-                    .done(function (reservationid, time, initialConfig, result) {
-                        promise.resolve(reservationid, time, initialConfig, result);
-                    }.bind(this))
-                    .progress(function (status, queuePosition, result, broken) {
-                        promise.notify(status, queuePosition, result, broken);
-                    }.bind(this))
-                    .fail(function (result) {
-                        promise.reject(result);
-                    });
+                console.log(reservationResponse);
+                var reservationID = reservationResponse["reservation_id"]["id"];
+                this._checkStatus(reservationID, promise);
             }.bind(this))
             .fail(function (result) {
                 promise.reject(result);
@@ -1182,8 +1169,8 @@ WeblabExp = function () {
     }
 
     /**
-     * @callback reserve_experiment~done
-     * @param {str} reservationid: Reservation ID.
+     * @callback reserveExperiment~done
+     * @param {str} reservationID: Reservation ID.
      * @param {number} time: Seconds left for the experiment.
      * @param {str} initialConfig: Initial configuration for the experiment as a string, which will typically contain JSON.
      * TODO: If it is guaranteed to contain JSON we should decode it ourselves.
