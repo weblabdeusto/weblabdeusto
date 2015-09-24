@@ -26,7 +26,7 @@ class LabListener(object):
         self.methods_registry = {
         }
 
-    def _on_http_request(self, environ, start_response):
+    def _fake_on_http_request(self, environ, start_response):
         RESPONSE = """
         <params>
         <param>

@@ -19,7 +19,7 @@ class TestLabListener(object):
     def setup(self):
         forwarder._reset()
         self.ll = _start_server()
-        # self.client = xmlrpclib.ServerProxy("http://127.0.0.1:10501", )
+        self.client = xmlrpclib.ServerProxy("http://127.0.0.1:10501", )
         print "Started"
 
     def teardown(self):
@@ -37,12 +37,17 @@ class TestLabListener(object):
         return response[0]
 
     def test_test_bridge_request(self):
+        """
+        Ensure that the LabListener responds to the test_bridge testing command.
+        """
         response = self._test_bridge("hello")
         assert response == ("hello",)
 
-        # assert result == "testparam"
-
-    def _tsest_send_command_notfound(self):
+    def test_send_command_notfound(self):
+        """
+        Ensure that trying to carry out a send_command raises a specific exception if
+        a forwarder has not been added.
+        """
         try:
             result = self.client.send_command_to_device("TURNLED ON")
         except xmlrpclib.Fault as exc:
@@ -58,14 +63,17 @@ class TestLabListener(object):
     def _fake_forward_request(self, exp, req):
         return xmlrpclib.dumps(("ON",), methodresponse=True)
 
-    def _tsest_send_command_forwarding(self):
-        pass
+    def test_send_command_forwarding(self):
+        """
+        Ensure that the LabListener attempts to forward the command through the specified connector.
+        """
 
-        # m = self._get_expbridge_mock()
+        m = self._get_expbridge_mock()
 
         # Register our mock as if it was our connector.
-        # forwarder.add_connector("exp1", m)
+        forwarder.add_connector("exp1", m)
 
-        # response = self.client.send_command_to_device("TURNLED ON")
+        response = self.client.send_command_to_device("TURNLED ON")
 
-        # assert response == "ON"
+        # Ensure that the send_request in our mock was invoked.
+        assert response == "ON"
