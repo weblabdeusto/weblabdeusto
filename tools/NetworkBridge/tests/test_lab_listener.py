@@ -32,14 +32,15 @@ class TestLabListener(object):
 
     def _test_bridge(self, param):
         data = xmlrpclib.dumps((param,), methodname="test_bridge")
-        response = grequests.post("http://127.0.0.1:10501").send()
-        response = xmlrpclib.loads(response)
-        return response
+        response = grequests.post("http://127.0.0.1:10501", data=data).send()
+        response = xmlrpclib.loads(response.content)
+        return response[0]
 
     def test_test_bridge_request(self):
-        result =
+        response = self._test_bridge("hello")
+        assert response == ("hello",)
 
-        assert result == "testparam"
+        # assert result == "testparam"
 
     def _tsest_send_command_notfound(self):
         try:

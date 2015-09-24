@@ -26,7 +26,7 @@ class LabListener(object):
         self.methods_registry = {
         }
 
-    def on_http_request(self, environ, start_response):
+    def _on_http_request(self, environ, start_response):
         RESPONSE = """
         <params>
         <param>
@@ -39,7 +39,7 @@ class LabListener(object):
         print "RETURNING: "
         return [RESPONSE]
 
-    def fake_on_http_request(self, environ, start_response):
+    def on_http_request(self, environ, start_response):
         """
         This should be handled in a Greenlet. It just forwards the request and
         returns the response.
