@@ -62,6 +62,8 @@ WeblabExp = function () {
      */
     var mFrameMode;
 
+    var self = this;
+
     this.POLL_FREQUENCY = 4000; // Indicates how often we will poll once polling is started. Will not normally be changed.
 
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
@@ -1045,6 +1047,85 @@ WeblabExp = function () {
         $("body").show();
     };
 
+
+    this.check_status = function (reservationid, promise) {
+        self._get_reservation_status(reservationid)
+            .done(function (result) {
+                var status = result["status"];
+                if (status === "Reservation::confirmed") {
+                    // The reservation has succeded. We report this as done, with certain variables.
+                    if (result['url'] && result['url'] != self.currentURL) {
+                        var remote_reservation_id = result['remote_reservation_id']['id'];
+                        if (mFrameMode) {
+                            current_url = parent.location.href;
+                        } else {
+                            current_url = location.href;
+                        }
+
+                        var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remote_reservation_id + "&back=" + current_url;
+                        // TODO: locale
+                        self.disableFinishOnClose();
+
+                        if (mFrameMode) {
+                            parent.location.replace(remoteUrl);
+                        } else {
+                            location.replace(remoteUrl);
+                        }
+                    }
+                    var time = result["time"];
+                    var startingconfig = result["initial_configuration"];
+                    promise.resolve(reservationid, time, startingconfig, result);
+                }
+                else {
+                    var frequency = 2 * 1000; // 2 seconds
+                    var MAX_POLLING = 10 * 1000; // 10 seconds
+                    var MIN_POLLING = 1 * 1000; // 1 second
+
+                    if (status === "Reservation::waiting") {
+                        // The reservation is not ready yet. We are in the queue.
+                        // We report the status, but we will repeat
+                        // the query in a couple seconds.
+                        promise.notify(status, result["position"], result, false);
+
+                        // Between 1 second and 10, depending on the position (if there are 5 people, you can wait 5 seconds between polls).
+                        frequency = Math.min(MAX_POLLING, MIN_POLLING * (result["position"] + 1));
+                    }
+                    else if (status === "Reservation::waiting_instances") {
+                        // The reservation is not ready because apparently there are no instances
+                        // of the experiment. We will report our status and repeat the query in a
+                        // couple seconds.
+                        promise.notify(status, result["position"], result, true);
+
+                        // It is not very often that this changes, so half MAX_POLLING IS FINE
+                        frequency = MAX_POLLING / 2;
+                    }
+                    else if (status === "Reservation::waiting_confirmation") {
+                        // We are waiting for confirmation. Soon we will receive a
+                        // Reservation::confirmed state.
+                        promise.notify(status, undefined, result, false);
+                        frequency = 400; // 0.4 seconds; if you're next, we refresh quite often
+                    }
+                    else
+                    {
+                        promise.notify(status, undefined, result);
+                    }
+
+                    // Try again soon.
+                    setTimeout(function() { 
+                        self.check_status(reservationid, promise); 
+                    }, frequency);
+                }
+            })
+            .fail(function (result) {
+                // An error occurred. We abort the whole reservation attempt.
+                // In the future, some further actions which could be considered:
+                // - If it was a connection error, it would make sense to retry.
+                // - If the error suggests that the reservation might have succeeded anyway,
+                //   maybe it would be appropriate to request a dispose().
+                promise.reject(result);
+            })
+    };
+
     /**
      * Reserves an experiment.
      *
@@ -1066,94 +1147,12 @@ WeblabExp = function () {
     this.reserve_experiment = function (sessionid, experiment_name, experiment_category) {
         var promise = $.Deferred();
 
-        var self = this;
-
         this._reserve_experiment(sessionid, experiment_name, experiment_category)
             .done(function (reservationresponse) {
-
-                var reservationid = reservationresponse["reservation_id"]["id"];
-
-                // Check the status of our reservation.
-                var check_status = function () {
-                    self._get_reservation_status(reservationid)
-                        .done(function (result) {
-                            var status = result["status"];
-                            if (status === "Reservation::confirmed") {
-                                // The reservation has succeded. We report this as done, with certain variables.
-                                if (result['url'] && result['url'] != self.currentURL) {
-                                    var remote_reservation_id = result['remote_reservation_id']['id'];
-                                    if (mFrameMode) {
-                                        current_url = parent.location.href;
-                                    } else {
-                                        current_url = location.href;
-                                    }
-
-                                    var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remote_reservation_id + "&back=" + current_url;
-                                    // TODO: locale
-                                    self.disableFinishOnClose();
-
-                                    if (mFrameMode) {
-                                        parent.location.replace(remoteUrl);
-                                    } else {
-                                        location.replace(remoteUrl);
-                                    }
-                                }
-                                var time = result["time"];
-                                var startingconfig = result["initial_configuration"];
-                                promise.resolve(reservationid, time, startingconfig, result);
-                            }
-                            else {
-                                var frequency = 2 * 1000; // 2 seconds
-                                var MAX_POLLING = 10 * 1000; // 10 seconds
-                                var MIN_POLLING = 1 * 1000; // 1 second
-
-                                if (status === "Reservation::waiting") {
-                                    // The reservation is not ready yet. We are in the queue.
-                                    // We report the status, but we will repeat
-                                    // the query in a couple seconds.
-                                    promise.notify(status, result["position"], result, false);
-
-                                    // Between 1 second and 10, depending on the position (if there are 5 people, you can wait 5 seconds between polls).
-                                    frequency = Math.min(MAX_POLLING, MIN_POLLING * (result["position"] + 1));
-                                }
-                                else if (status === "Reservation::waiting_instances") {
-                                    // The reservation is not ready because apparently there are no instances
-                                    // of the experiment. We will report our status and repeat the query in a
-                                    // couple seconds.
-                                    promise.notify(status, result["position"], result, true);
-
-                                    // It is not very often that this changes, so half MAX_POLLING IS FINE
-                                    frequency = MAX_POLLING / 2;
-                                }
-                                else if (status === "Reservation::waiting_confirmation") {
-                                    // We are waiting for confirmation. Soon we will receive a
-                                    // Reservation::confirmed state.
-                                    promise.notify(status, undefined, result, false);
-                                    frequency = 400; // 0.4 seconds; if you're next, we refresh quite often
-                                }
-                                else
-                                {
-                                    promise.notify(status, undefined, result);
-                                }
-
-                                // Try again soon.
-                                setTimeout(check_status, frequency);
-                            }
-                        })
-                        .fail(function (result) {
-                            // An error occurred. We abort the whole reservation attempt.
-                            // In the future, some further actions which could be considered:
-                            // - If it was a connection error, it would make sense to retry.
-                            // - If the error suggests that the reservation might have succeeded anyway,
-                            //   maybe it would be appropriate to request a dispose().
-                            promise.reject(result);
-                        })
-                };
-
                 // This will call itself repeteadly if needed.
-                check_status();
-
-            })
+                var reservationid = reservationresponse["reservation_id"]["id"];
+                this.check_status(reservationid, promise);
+            }.bind(this))
             .fail(function (result) {
                 promise.reject(result);
             });
