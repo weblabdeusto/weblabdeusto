@@ -12,6 +12,7 @@
 #
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 from test.unit.weblab.proxy import fake_time
 from voodoo.gen import CoordAddress

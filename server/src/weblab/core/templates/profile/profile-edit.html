@@ -1,0 +1,41 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+
+<div class="row">
+    <div>
+        <br/>
+        <div class="text-center">
+           <h1>{{ gettext("My profile") }}</h1>
+        </div>
+        <br/>
+        <br/>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+
+            <fieldset>
+                {{ render_field(form.login) }}
+                {{ render_field(form.full_name) }}
+                {{ render_field(form.email) }}
+                {{ render_field(form.facebook) }}
+                {% if change_password %}
+                    {{ render_field(form.password) }}
+                {% endif %}
+
+                <div class="text-center">
+                    <div class="form-actions">
+                        {% if change_profile %}
+                            <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary disabled">{{ gettext("Save") }}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

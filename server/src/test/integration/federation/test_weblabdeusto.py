@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import time
@@ -29,9 +30,9 @@ DEBUG = False
 
 def debug(msg):
     if DEBUG:
-        print
-        print "DEBUG:",msg
-        print 
+        print()
+        print("DEBUG:", msg)
+        print()
         sys.stdout.flush()
 
 class AbstractFederatedWebLabDeustoTestCase(object):
@@ -315,7 +316,7 @@ def suite():
     if REDIS_AVAILABLE:
         suites.append(unittest.makeSuite(RedisFederatedWebLabDeustoTestCase))
     else:
-        print >> sys.stderr, "redis not available. Skipping redis-based federation integration tests"
+        print("redis not available. Skipping redis-based federation integration tests", file = sys.stderr)
     return unittest.TestSuite( suites )
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from sqlalchemy import Column, String
 from sqlalchemy.ext.declarative import declarative_base

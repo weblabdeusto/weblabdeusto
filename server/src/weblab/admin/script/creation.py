@@ -13,8 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
-
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 try:
     from PIL import Image
@@ -31,7 +30,6 @@ import uuid
 import traceback
 import sqlite3
 import urlparse
-import json
 import StringIO
 from collections import OrderedDict
 from optparse import OptionParser, OptionGroup
@@ -43,13 +41,12 @@ import sqlalchemy
 import weblab.configuration_doc as configuration_doc
 from weblab.util import data_filename
 
-import weblab.db.model as Model
+import weblab.db.model as model
 from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
 from .utils import ordered_dump
 
-from voodoo.resources_manager import is_testing
 import voodoo.sessions.db_lock_data as DbLockData
 import voodoo.sessions.sqlalchemy_data as SessionSqlalchemyData
 
@@ -195,6 +192,7 @@ class Creation(object):
     NOT_INTERACTIVE      = 'not_interactive'
     MYSQL_ADMIN_USER     = 'mysql_admin_username'
     MYSQL_ADMIN_PASSWORD = 'mysql_admin_password'
+    IGNORE_LOCATIONS     = 'ignore_locations'
 
 class CreationFlags(object):
     HTTP_SERVER_PORT = '--http-server-port'
@@ -213,11 +211,11 @@ def load_template(name, stdout = sys.stdout, stderr = sys.stderr):
         template = f.read()
         f.close()
     except:
-        print >> stderr, "Error: Could not load template file %s. Probably couldn't be found." % path
+        print("Error: Could not load template file %s. Probably couldn't be found." % path, file=stderr)
     return template
 
 def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, stdout, stderr, exit_func):
-    if verbose: print >> stdout, "Checking redis connection for %s..." % what,; stdout.flush()
+    if verbose: print("Checking redis connection for %s..." % what, end="", file=stdout); stdout.flush()
     kwargs = {}
     if redis_port   is not None: kwargs['port']     = redis_port
     if redis_passwd is not None: kwargs['password'] = redis_passwd
@@ -226,18 +224,18 @@ def _test_redis(what, verbose, redis_port, redis_passwd, redis_db, redis_host, s
     try:
         import redis
     except ImportError:
-        print >> stderr, "redis selected for %s; but redis module is not available. Try installing it with 'pip install redis'" % what
+        print("redis selected for %s; but redis module is not available. Try installing it with 'pip install redis'" % what, file=stderr)
         exit_func(-1)
     else:
         try:
             client = redis.Redis(**kwargs)
             client.get("this.should.not.exist")
         except:
-            print >> stderr, "redis selected for %s; but could not use the provided configuration" % what
+            print("redis selected for %s; but could not use the provided configuration" % what, file=stderr)
             traceback.print_exc(file=stderr)
             exit_func(-1)
         else:
-            if verbose: print >> stdout, "[done]"
+            if verbose: print("[done]", file=stdout)
 
 def uncomment_json(lines):
     new_lines = []
@@ -280,7 +278,7 @@ DB_ROOT     = None
 DB_PASSWORD = None
 
 def _check_database_connection(what, metadata, upgrader_class, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func):
-    if verbose: print >> stdout, "Checking database connection for %s..." % what,; stdout.flush()
+    if verbose: print("Checking database connection for %s..." % what, end="", file=stdout); stdout.flush()
 
     if db_engine == 'sqlite':
         base_location = os.path.join(os.path.abspath(directory), 'db', '%s.db' % db_name)
@@ -329,23 +327,23 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
         engine = create_engine(db_str, echo = False, pool = pool)
         engine.execute("select 1")
     except Exception as e:
-        print >> stderr, "error: database used for %s is misconfigured" % what
-        print >> stderr, "error: %s"  % str(e)
+        print("error: database used for %s is misconfigured" % what, file=stderr)
+        print("error: %s"  % str(e), file=stderr)
         if verbose:
             traceback.print_exc(file=stderr)
         else:
-            print >> stderr, "error: Use -v to get more detailed information"
+            print("error: Use -v to get more detailed information", file=stderr)
 
         try:
             create_database = deploy.generate_create_database(db_engine)
         except Exception as e:
-            print >> stderr, "error: You must create the database and the db credentials"
-            print >> stderr, "error: reason: there was an error trying to offer you the creation of users:", str(e)
+            print("error: You must create the database and the db credentials", file=stderr)
+            print("error: reason: there was an error trying to offer you the creation of users:", str(e), file=stderr)
             exit_func(-1)
         else:
             if create_database is None:
-                print >> stderr, "error: You must create the database and the db credentials"
-                print >> stderr, "error: reason: weblab does not support creating a database with engine %s" % db_engine
+                print("error: You must create the database and the db credentials", file=stderr)
+                print("error: reason: weblab does not support creating a database with engine %s" % db_engine, file=stderr)
                 exit_func(-1)
             else:
                 if options[Creation.NOT_INTERACTIVE]:
@@ -353,7 +351,7 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
                 else:
                     should_create = raw_input('Would you like to create it now? (y/N) ').lower().startswith('y')
                     if not should_create:
-                        print >> stderr, "not creating"
+                        print("not creating", file=stderr)
                         exit_func(-1)
                 if db_engine == 'sqlite':
                     create_database(admin_username = None, admin_password = None, database_name = db_name, new_user = None, new_password = None, db_dir = os.path.join(directory, 'db'))
@@ -374,21 +372,21 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
                     try:
                         create_database("Did you type your password incorrectly?", admin_username, admin_password, db_name, db_user, db_passwd, db_host, db_port)
                     except Exception as e:
-                        print >> stderr, "error: could not create database. reason:", str(e)
+                        print("error: could not create database. reason:", str(e), file=stderr)
                         exit_func(-1)
                     else:
                         DB_ROOT     = admin_username
                         DB_PASSWORD = admin_password
                 else:
-                    print >> stderr, "error: You must create the database and the db credentials"
-                    print >> stderr, "error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine
+                    print("error: You must create the database and the db credentials", file=stderr)
+                    print("error: reason: weblab does not support gathering information to create a database with engine %s" % db_engine, file=stderr)
                     exit_func(-1)
                 engine = create_engine(db_str, echo = False, pool = pool)
 
 
 
-    if verbose: print >> stdout, "[done]"
-    if verbose: print >> stdout, "Adding information to the %s database..." % what,; stdout.flush()
+    if verbose: print("[done]", file=stdout)
+    if verbose: print("Adding information to the %s database..." % what, end="", file=stdout); stdout.flush()
     metadata.drop_all(engine)
     metadata.create_all(engine)
 
@@ -404,7 +402,7 @@ def _check_database_connection(what, metadata, upgrader_class, directory, verbos
             session.commit()
             session.close()
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
     return engine
 
 def resize_image(image_path, max_width, max_height, final_path):
@@ -497,6 +495,8 @@ def _build_parser():
                                                          "balancing the amount of experiments among different copies of the laboratories. "
                                                          "By establishing a higher number of laboratories, the generated deployment will "
                                                          "have the experiments balanced among them.")
+    parser.add_option("--ignore-locations",       dest = Creation.IGNORE_LOCATIONS, action="store_true", default=False,
+                                                  help = "Ignore locations. Otherwise, it will tell you to download two files for GeoLocation"),
 
     admin_data = OptionGroup(parser, "Administrator data",
                                                 "Administrator basic data: username, password, etc.")
@@ -765,7 +765,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     # Validate basic options
     #
 
-    if verbose: print >> stdout, "Validating basic operations...",; stdout.flush()
+    if verbose: print("Validating basic operations...", end="", file=stdout); stdout.flush()
 
     if options[Creation.COORD_ENGINE] == 'sql':
         coord_engine = 'sqlalchemy'
@@ -789,11 +789,11 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                     sqlite_purpose += ', '
                 sqlite_purpose += 'general database'
 
-            print >> stderr, "ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose
+            print("ERROR: sqlite engine selected for %s is incompatible with multiple cores" % sqlite_purpose, file=stderr)
             exit_func(-1)
 
     if options[Creation.CORES] <= 0:
-        print >> stderr, "ERROR: There must be at least one core server."
+        print("ERROR: There must be at least one core server.", file=stderr)
         exit_func(-1)
 
     base_url = options[Creation.BASE_URL]
@@ -808,41 +808,41 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     server_url = protocol + options[Creation.SERVER_HOST] + base_url + '/weblab/'
 
     if options[Creation.XMLRPC_EXPERIMENT] and options[Creation.DUMMY_COPIES] > 1:
-        print >> stderr, "ERROR: there must be a single XML-RPC laboratory using the weblab-admin create at this point"
+        print("ERROR: there must be a single XML-RPC laboratory using the weblab-admin create at this point", file=stderr)
         exit_func(-1)
 
     if options[Creation.START_PORTS] < 1 or options[Creation.START_PORTS] >= 65535:
-        print >> stderr, "ERROR: starting port number must be at least 1"
+        print("ERROR: starting port number must be at least 1", file=stderr)
         exit_func(-1)
 
     if options[Creation.LOGO_PATH] is not None:
         original_logo_path = options[Creation.LOGO_PATH]
         if not os.path.exists(original_logo_path):
-            print >> stderr, "ERROR: logo path does not exist"
+            print("ERROR: logo path does not exist", file=stderr)
             exit_func(-1)
     else:
         original_logo_path = data_filename(os.path.join('weblab','admin','generic-logo.jpg'))
 
 
     if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
-        print >> stderr, "ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense."
+        print("ERROR: Inline lab server is incompatible with more than one core servers. It would require the lab server to be replicated in all the processes, which does not make sense.", file=stderr)
         exit_func(-1)
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
 
     if os.path.exists(directory) and not options[Creation.FORCE]:
-        print >> stderr, "ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory
+        print("ERROR: Directory %s already exists. Use --force if you want to overwrite the contents." % directory, file=stderr)
         exit_func(-1)
 
     if os.path.exists(directory):
         if not os.path.isdir(directory):
-            print >> stderr, "ERROR: %s is not a directory. Delete it before proceeding." % directory
+            print("ERROR: %s is not a directory. Delete it before proceeding." % directory, file=stderr)
             exit_func(-1)
     else:
         try:
             os.mkdir(directory)
         except Exception as e:
-            print >> stderr, "ERROR: Could not create directory %s: %s" % (directory, str(e))
+            print("ERROR: Could not create directory %s: %s" % (directory, str(e)), file=stderr)
             exit_func(-1)
 
     ###########################################
@@ -850,7 +850,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     # Validate database configurations
     #
 
-    if verbose: print >> stdout, "Start building database configuration"; stdout.flush()
+    if verbose: print("Start building database configuration", end="", file=stdout); stdout.flush()
 
     db_dir = os.path.join(directory, 'db')
     if not os.path.exists(db_dir):
@@ -875,7 +875,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         CoordinatorModel.load()
         _check_database_connection("coordination", CoordinatorModel.Base.metadata, DbSchedulingUpgrader, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     else:
-        print >> stderr, "The coordination engine %s is not registered" % options[Creation.COORD_ENGINE]
+        print("The coordination engine %s is not registered" % options[Creation.COORD_ENGINE], file=stderr)
         exit_func(-1)
 
 
@@ -895,7 +895,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         _check_database_connection("sessions", SessionSqlalchemyData.SessionBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
         _check_database_connection("sessions locking", DbLockData.SessionLockBase.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
     elif options[Creation.SESSION_STORAGE] != 'memory':
-        print >> stderr, "The session engine %s is not registered" % options[Creation.SESSION_STORAGE]
+        print("The session engine %s is not registered" % options[Creation.SESSION_STORAGE], file=stderr)
         exit_func(-1)
 
     db_engine = options[Creation.DB_ENGINE]
@@ -904,15 +904,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     db_port   = options[Creation.DB_PORT]
     db_user   = options[Creation.DB_USER]
     db_passwd = options[Creation.DB_PASSWD]
-    engine = _check_database_connection("core database", Model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
+    engine = _check_database_connection("core database", model.Base.metadata, None, directory, verbose, db_engine, db_host, db_port, db_name, db_user, db_passwd, options, stdout, stderr, exit_func)
 
-    if verbose: print >> stdout, "Adding required initial data...",; stdout.flush()
+    if verbose: print("Adding required initial data...", end="", file=stdout); stdout.flush()
     deploy.insert_required_initial_data(engine)
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
     if options[Creation.ADD_TEST_DATA]:
-        if verbose: print >> stdout, "Adding test data...",; stdout.flush()
+        if verbose: print("Adding test data...", end="", file=stdout); stdout.flush()
         deploy.populate_weblab_tests(engine, '1')
-        if verbose: print >> stdout, "[done]"
+        if verbose: print("[done]", file=stdout)
 
     Session = sessionmaker(bind=engine)
     group_name = 'Administrators'
@@ -948,7 +948,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     # Create voodoo infrastructure
     #
 
-    if verbose: print >> stdout, "Creating configuration files and directories...",; stdout.flush()
+    if verbose: print("Creating configuration files and directories...", end="", file=stdout); stdout.flush()
 
     global_config = {'hosts' : {}}
     global_config['hosts']['core_host'] = OrderedDict()
@@ -1061,6 +1061,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "\n"
                         "debug_mode   = True\n"
                         "\n"
+                        "%(ignore_locations)s\n"
+                        "\n"
                         "#########################\n"
                         "# General configuration #\n"
                         "#########################\n"
@@ -1160,6 +1162,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         'other_scheduling_systems'                : other_scheduling_systems,
         'other_core_coordinator_external_servers' : other_core_coordinator_external_servers,
         'session_storage'                         : session_storage,
+        'ignore_locations'                        : 'ignore_locations = True' if options[Creation.IGNORE_LOCATIONS] else '',
 
         'session_db_engine'                       : options[Creation.SESSION_DB_ENGINE],
         'session_db_host'                         : options[Creation.SESSION_DB_HOST],
@@ -1200,7 +1203,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     current_port = options[Creation.START_PORTS]
     creation_results[CreationResult.START_PORT] = current_port
 
-    latest_core_server_directory = None
     for core_number in range(1, options[Creation.CORES] + 1):
         current_core = core_host['processes']['core_process%s' % core_number]
         current_core['components']['core'] = { 'type' : 'core' }
@@ -1340,7 +1342,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
                 if options[Creation.VISIR_MEASUREMENT_SERVER] is not None:
                     if not ':' in options[Creation.VISIR_MEASUREMENT_SERVER] or options[Creation.VISIR_MEASUREMENT_SERVER].startswith(('http://','https://')) or '/' in options[Creation.VISIR_MEASUREMENT_SERVER].split(':')[1]:
-                        print >> stderr, "VISIR measurement server invalid format. Expected: server:port Change the configuration file"
+                        print("VISIR measurement server invalid format. Expected: server:port Change the configuration file", file=stderr)
                     visir_measurement_server = options[Creation.VISIR_MEASUREMENT_SERVER]
                 else:
                     result = urlparse.urlparse(options[Creation.VISIR_BASE_URL])
@@ -1423,14 +1425,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if not os.path.exists(files_stored_dir):
         os.mkdir(files_stored_dir)
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
 
     ###########################################
     #
     # Generate logs directory and config
     #
 
-    if verbose: print >> stdout, "Creating logs directories and configuration files...",; stdout.flush()
+    if verbose: print("Creating logs directories and configuration files...", end="", file=stdout); stdout.flush()
 
     logs_dir = os.path.join(directory, 'logs')
     if not os.path.exists(logs_dir):
@@ -1627,14 +1629,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(logs_config_dir, 'logging.configuration.%s.txt' % server_name), 'w').write(logging_file)
 
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
 
     ###########################################
     #
     # Generate launch script
     #
 
-    if verbose: print >> stdout, "Creating launch file...",; stdout.flush()
+    if verbose: print("Creating launch file...", end="", file=stdout); stdout.flush()
 
     launch_script = (
         """#!/usr/bin/env python\n"""
@@ -1648,7 +1650,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if options[Creation.QUIET]:
         launch_script += """        pass\n"""
     else:
-        launch_script += """        print "Stopping servers..."\n"""
+        launch_script += """        print("Stopping servers...")\n"""
 
     launch_script += """    \n"""
 
@@ -1770,7 +1772,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         if options[Creation.QUIET]:
             """        pass\n"""
         else:
-            """        print "Stopping servers..."\n"""
+            """        print("Stopping servers...")\n"""
         xmlrpc_launch_script += """    \n"""
 
         xmlrpc_launch_script += (
@@ -1813,14 +1815,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(os.path.join(directory, 'run-xmlrpc.py'), 'w').write( xmlrpc_launch_script )
         os.chmod(os.path.join(directory, 'run-xmlrpc.py'), stat.S_IRWXU)
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
 
     ###########################################
     #
     # Generate apache configuration file
     #
 
-    if verbose: print >> stdout, "Creating apache configuration files...",; stdout.flush()
+    if verbose: print("Creating apache configuration files...", end="", file=stdout); stdout.flush()
 
     if not os.path.exists(httpd_dir):
         os.mkdir(httpd_dir)
@@ -1840,13 +1842,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
         ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
         ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
-
-        ('%(root)s/weblab/client/weblabclientlab/configuration.js',      'file:%(directory)s/client/configuration.js'),
-        ('%(root)s/weblab/client/weblabclientadmin/configuration.js',    'file:%(directory)s/client/configuration.js'),
-
-        ('%(root)s/weblab/client/weblabclientlab//img%(root-img)s/',     'file:%s' % images_dir),
-        ('%(root)s/weblab/client/weblabclientadmin//img%(root-img)s/',   'file:%s' % images_dir),
-
         ('%(root)s/weblab/client',      'file:%(war_path)s'),
     ]
 
@@ -1856,9 +1851,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """   Header Set Cache-Control "max-age=0, no-store"\n"""
         """</LocationMatch>\n"""
         """\n"""
-        """<LocationMatch (.*)configuration\.js$>\n"""
-        """   Header Set Cache-Control "max-age=0, no-store"\n"""
-        """</LocationMatch>\n"""
         """<Files *.cache.*>\n"""
         """   Header Set Cache-Control "max-age=2592000"\n"""
         """</Files>\n"""
@@ -1869,14 +1861,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
         """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
         """\n"""
-        """Alias %(root)s/weblab/client/weblabclientlab/configuration.js      %(directory)s/client/configuration.js\n"""
-        """Alias %(root)s/weblab/client/weblabclientadmin/configuration.js %(directory)s/client/configuration.js\n"""
-        """\n"""
-        """Alias %(root)s/weblab/client/weblabclientlab//img%(root-img)s/         %(directory)s/client/images/\n"""
-        """Alias %(root)s/weblab/client/weblabclientadmin//img%(root-img)s/    %(directory)s/client/images/\n"""
-        """\n"""
         """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
-        """Alias %(root)s/weblab/                                          %(webserver_path)s\n"""
         """\n"""
         """<Location %(root)s/weblab/>\n"""
         """    <IfModule authz_core_module>\n"""
@@ -1915,20 +1900,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         """    </IfModule>\n"""
         """</Directory>\n"""
         """\n"""
-        """<Directory "%(webserver_path)s">\n"""
-        """    Options Indexes\n"""
-        """\n"""
-        """    <IfModule authz_core_module>\n"""
-        """        Require all granted\n"""
-        """    </IfModule>\n"""
-        """\n"""
-        """    <IfModule !authz_core_module>\n"""
-        """        Order allow,deny\n"""
-        """        Allow from All\n"""
-        """    </IfModule>\n"""
-        """</Directory>\n"""
-        """\n"""
         """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
+        """ProxyPreserveHost On\n"""
         """ProxyVia On\n"""
         """\n"""
         """ProxyPass                       %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
@@ -2002,7 +1975,6 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_conf += """</Proxy>\n"""
     apache_conf += """\n"""
 
-    proxy_paths.append(('%(root)s/weblab/',            'file:%(webserver_path)s'))
     proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
 
     if base_url in ('','/'):
@@ -2015,8 +1987,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
 
     server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
-                'root-img' : apache_img_dir, 'directory' : os.path.abspath(directory).replace('\\','/'),
-                'war_path' : data_filename('war').replace('\\','/'), 'webserver_path' : data_filename('webserver').replace('\\','/') }
+                'directory' : os.path.abspath(directory).replace('\\','/'),
+                'war_path' : data_filename('war').replace('\\','/') }
 
     apache_conf = apache_conf % server_conf_dict
     proxy_paths = eval(repr(proxy_paths) % server_conf_dict)
@@ -2072,7 +2044,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         apache_windows_conf_path = os.path.join(httpd_dir, 'apache_weblab_windows.conf')
         open(apache_windows_conf_path, 'w').write( apache_windows_conf )
 
-    if verbose: print >> stdout, "[done]"
+    if verbose: print("[done]", file=stdout)
 
     ###########################################
     #
@@ -2080,35 +2052,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     #
     configuration_js = {}
 
-    if is_testing():
-        lines = ["{}"]
-    else:
-        lines = open(data_filename(os.path.join('war','weblabclientlab','configuration.js'))).readlines()
-    new_lines = uncomment_json(lines)
-    configuration_js_data = json.loads(''.join(new_lines))
-
-    configuration_js['development']                    = False
     configuration_js['demo.available']                 = False
-    configuration_js['sound.enabled']                  = False
     configuration_js['admin.email']                    = 'weblab@deusto.es'
-    configuration_js['experiments.default_picture']    = '/img/experiments/default.jpg'
 
     extension = original_logo_path.split('.')[-1]
     if not len(extension) in (3,4):
         extension = 'jpg'
 
-    configuration_js['host.entity.image.login']        = '/img/client/images/logo.%s' % extension
-    configuration_js['host.entity.image']              = '/img/client/images/logo.%s' % extension
-    configuration_js['host.entity.image.mobile']       = '/img/client/images/logo-mobile.%s' % extension
-
-    if base_url != '' and base_url != '/':
-        configuration_js['base.location']                  = base_url
-    else:
-        configuration_js['base.location']                  = ''
-
-
-    logo_path        = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image'].split('/images',1)[1])
-    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, configuration_js['host.entity.image.mobile'].split('/images',1)[1])
+    logo_path        = '%s%s%s' % (directory, apache_img_dir, '/logo.%s' % extension)
+    logo_mobile_path = '%s%s%s' % (directory, apache_img_dir, '/logo-mobile.%s' % extension)
 
     creation_results[CreationResult.IMG_FILE]        = logo_path
     creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
@@ -2118,13 +2070,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             resize_image(original_logo_path, 250, 120, logo_path)
             resize_image(original_logo_path, 100,  50, logo_mobile_path)
         except Exception as e:
-            print >> stderr, "Error resizing images (%s). Original images will be used." % e
+            print("Error resizing images (%s). Original images will be used." % e, file=stderr)
             processed = False
         else:
             processed = True
     else:
         processed = False
-        print >> stderr, "PIL (pip install pillow) not installed. Not resizing images."
+        print("PIL (pip install pillow) not installed. Not resizing images.", file=stderr)
 
     if not processed:
         logo_contents = open(original_logo_path, 'rb').read()
@@ -2133,26 +2085,25 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         open(logo_mobile_path, 'wb').write(logo_mobile_contents)
 
     configuration_js['host.entity.link']               = options[Creation.ENTITY_LINK]
-    configuration_js['facebook.like.box.visible']      = False
-    configuration_js['create.account.visible']         = False
-    json.dump(configuration_js, open(os.path.join(client_dir, 'configuration.js'), 'w'), indent = True)
 
-    print >> stdout, ""
-    print >> stdout, "Congratulations!"
-    print >> stdout, "WebLab-Deusto system created"
-    print >> stdout, ""
+    deploy.add_client_config(Session, configuration_js)
+
+    print("", file=stdout)
+    print("Congratulations!", file=stdout)
+    print("WebLab-Deusto system created", file=stdout)
+    print("", file=stdout)
     if http_server_port is None:
         apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
         if os.path.exists("/etc/apache2/conf-available"):
-            print >> stdout, "Copy the file %s to /etc/apache/conf-available/apache_weblab_generic.conf" % os.path.abspath(apache_conf_path).replace('\\','/')
-            print >> stdout, ""
-            print >> stdout, "Then, enable the configuration file by running this command:"
-            print >> stdout, ""
-            print >> stdout, "    $ sudo a2enconf apache_weblab_generic"
-            print >> stdout, ""
-            print >> stdout, "Then, reload the apache service:"
-            print >> stdout, ""
-            print >> stdout, "    $ sudo service apache2 reload"
+            print("Copy the file %s to /etc/apache/conf-available/apache_weblab_generic.conf" % os.path.abspath(apache_conf_path).replace('\\','/'), file=stdout)
+            print("", file=stdout)
+            print("Then, enable the configuration file by running this command:", file=stdout)
+            print("", file=stdout)
+            print("    $ sudo a2enconf apache_weblab_generic", file=stdout)
+            print("", file=stdout)
+            print("Then, reload the apache service:", file=stdout)
+            print("", file=stdout)
+            print("    $ sudo service apache2 reload", file=stdout)
         else:
             if os.path.exists("/etc/apache2/conf.d"):
                 apache_httpd_path = 'a new file that you must create called /etc/apache/conf.d/weblab'
@@ -2161,50 +2112,46 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
                 apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
 
-            print >> stdout, r"Append the following to", apache_httpd_path
-            print >> stdout, ""
-            print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/')
+            print(r"Append the following to", apache_httpd_path, file=stdout)
+            print("", file=stdout)
+            print("    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/'), file=stdout)
             if sys.platform.find('win') == 0:
-                print >> stdout, "    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/')
+                print("    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/'), file=stdout)
         if sys.platform.find('win') == -1:
-            print >> stdout, ""
-            print >> stdout, "And enable the modules proxy proxy_balancer proxy_http headers."
-            print >> stdout, "For instance, in Ubuntu you can run: "
-            print >> stdout, ""
-            print >> stdout, "    $ sudo a2enmod proxy proxy_balancer proxy_http headers"
-            print >> stdout, ""
-            print >> stdout, "and depending on the version (in 14.04 onwards), also:"
-            print >> stdout, ""
-            print >> stdout, "    $ sudo a2enmod lbmethod_bybusyness"
-        print >> stdout, ""
-        print >> stdout, "Then restart apache. If you don't have apache don't worry, delete %s and " % directory
-        print >> stdout, "run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT
-        print >> stdout, ""
-        print >> stdout, "Then run:"
+            print("", file=stdout)
+            print("And enable the modules proxy proxy_balancer proxy_http headers.", file=stdout)
+            print("For instance, in Ubuntu you can run: ", file=stdout)
+            print("", file=stdout)
+            print("    $ sudo a2enmod proxy proxy_balancer proxy_http headers", file=stdout)
+            print("", file=stdout)
+            print("and depending on the version (in 14.04 onwards), also:", file=stdout)
+            print("", file=stdout)
+            print("    $ sudo a2enmod lbmethod_bybusyness", file=stdout)
+        print("", file=stdout)
+        print("Then restart apache. If you don't have apache don't worry, delete %s and " % directory, file=stdout)
+        print("run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT, file=stdout)
+        print("", file=stdout)
+        print("Then run:", file=stdout)
     else:
-        print >> stdout, "Run:"
-    print >> stdout, ""
-    print >> stdout, "     %s start %s" % (os.path.basename(sys.argv[0]), directory)
-    print >> stdout, ""
-    print >> stdout, "to start the WebLab-Deusto system. From that point, you'll be able to access: "
-    print >> stdout, ""
+        print("Run:", file=stdout)
+    print("", file=stdout)
+    print("     %s start %s" % (os.path.basename(sys.argv[0]), directory), file=stdout)
+    print("", file=stdout)
+    print("to start the WebLab-Deusto system. From that point, you'll be able to access: ", file=stdout)
+    print("", file=stdout)
     if http_server_port is not None:
-        print >> stdout, "   http://localhost:%s/" % http_server_port
-        print >> stdout, ""
-        print >> stdout, "Or in production if you later want to deploy it in Apache:"
-        print >> stdout, ""
-    print >> stdout, "     %s " % server_url
-    print >> stdout, ""
-    print >> stdout, "And log in as '%s' using '%s' as password." % (options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD])
-    print >> stdout, ""
-    print >> stdout, "You should also configure the images directory with two images called:"
-    print >> stdout, ""
-    print >> stdout, "     %s and %s" % (logo_path, logo_mobile_path)
-    print >> stdout, ""
-    print >> stdout, "You can also add users, permissions, etc. from the web interface."
-    print >> stdout, ""
-    print >> stdout, "Enjoy!"
-    print >> stdout, ""
+        print("   http://localhost:%s/" % http_server_port, file=stdout)
+        print("", file=stdout)
+        print("Or in production if you later want to deploy it in Apache:", file=stdout)
+        print("", file=stdout)
+    print("     %s " % server_url, file=stdout)
+    print("", file=stdout)
+    print("And log in as '%s' using '%s' as password." % (options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD]), file=stdout)
+    print("", file=stdout)
+    print("You can also add users, permissions, etc. from the web interface.", file=stdout)
+    print("", file=stdout)
+    print("Enjoy!", file=stdout)
+    print("", file=stdout)
 
     creation_results[CreationResult.END_PORT] = current_port
     return creation_results

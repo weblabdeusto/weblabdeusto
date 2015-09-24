@@ -7,7 +7,7 @@
 # often located under "c:/Users/<user_name>/.VirtualBox". Its exact 
 # location might nonetheless vary depending on the Operating System 
 # used, the Virtual Machine system and the local configuration.
-vm_storage_dir = """C:\Users\lrg\.VirtualBox\Machines"""
+vm_storage_dir = """C:\\Users\\lrg\\.VirtualBox\\Machines"""
 
 # Variables prefixed with "vbox" are specific to the Virtual Box 
 # Virtual Machine software. 

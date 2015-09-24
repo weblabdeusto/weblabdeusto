@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import time
 import threading
@@ -60,7 +61,7 @@ class SessionManagerCleaner(threading.Thread):
 
             except Exception as e:
                 if DEBUGGING:
-                    print "Error!",e
+                    print("Error!",e)
                     import traceback
                     traceback.print_exc()
 

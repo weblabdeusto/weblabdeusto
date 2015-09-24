@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import time as time_mod
 import cPickle as pickle

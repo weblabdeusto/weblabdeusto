@@ -1,0 +1,69 @@
+{
+	"breadboard" :
+	{
+		"message" : "Breadboard",
+		"description" : "Breadboard"
+	},
+	"multimeter" :
+	{
+		"message" : "Multimeter",
+		"description" : "Multimeter - Fluke 23"
+	},
+	"func_gen" :
+	{
+		"message" : "Function Generator",
+		"description" : "Function Generator - HP33120A"
+	},
+	"oscilloscope" :
+	{
+		"message" : "Oscilloscope",
+		"description" : "Oscilloscope - Agilent 54622A"
+	},
+	"dc_power" :
+	{
+		"message" : "DC Power",
+		"description" : "DC Power - Agilent E3631A"
+	},
+
+	"load" :
+	{
+		"message" : "Load",
+		"description" : "Load circuit"
+	},
+	"save" :
+	{
+		"message" : "Save",
+		"description" : "Save circuit"
+	},
+	"perf_measure" :
+	{
+		"message" : "Perform Measurement",
+		"description" : "Perform Measurement"
+	},
+
+	"wire_sel" :
+	{
+		"message" : "Wire color",
+		"description" : "Wire color selector"
+	},
+	"close" :
+	{
+		"message" : "Close",
+		"description" : "Close"
+	},
+	"reset" :
+	{
+		"message" : "Reset",
+		"description" : "Reset"
+	},
+	"osc_not_runnable" :
+	{
+		"message" : "The oscilloscope is not configured for continuous running",
+		"description" : "The oscilloscope is not configured for continuous running"
+	},
+	"down_man" :
+	{
+		"message" : "Download Manual",
+		"description" : "Download user manual"
+	}
+}

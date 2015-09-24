@@ -1,5 +1,7 @@
-import time
+from __future__ import print_function, unicode_literals
+import six
 import sys
+import time
 import pickle
 import xmlrpclib
 import requests
@@ -30,7 +32,10 @@ class AbstractClient(object):
     def _create_method(self, method_name):
         def method(*args):
             return self._call(method_name, *args)
-        method.__name__ = method_name
+        if six.PY2:
+            method.__name__ = method_name.encode('utf-8')
+        else:
+            method.__name__ = method_name
         return method
 
     @abstractmethod

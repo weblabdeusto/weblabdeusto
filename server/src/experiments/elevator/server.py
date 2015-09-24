@@ -15,32 +15,28 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+import os
+import tempfile
+import urllib2
+import json
+import base64
+import time
+import random
+import traceback
+
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
-from experiments.ud_xilinx.programmers import UdXilinxProgrammer
-import os
-import tempfile
+from weblab.experiment.devices.xilinx.programmers.programmers import XilinxProgrammer
 import voodoo.log as log
 import weblab.data.server_type as ServerType
 import weblab.experiment.exc as ExperimentErrors
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
-import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
-import urllib2
 from experiments.xilinxc.compiler import Compiler
-
-import json
-import base64
-import time
-import random
-
-import traceback
-
 from voodoo.threaded import threaded
+
 
 
 # Though it would be slightly more efficient to use single characters, it's a text protocol
@@ -71,7 +67,7 @@ DEBUG = False
 
 
 #TODO: which exceptions should the user see and which ones should not?
-class UdXilinxExperiment(Experiment.Experiment):
+class ElevatorExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
     @logged("info")
@@ -79,14 +75,17 @@ class UdXilinxExperiment(Experiment.Experiment):
         return "2"
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-        super(UdXilinxExperiment, self).__init__(*args, **kwargs)
+        super(ElevatorExperiment, self).__init__(*args, **kwargs)
         self._coord_address = coord_address
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._device_name, self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
-        self._programmer = self._load_programmer()
+        # Board & Programming related attributes
+        self._board_type = self._cfg_manager.get_value('xilinx_board_type', "")  # Read the board type: IE: FPGA
+        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type', "")  # Read the programmer type: IE: DigilentAdapt
+        self._programmer = self._load_programmer(self._programmer_type, self._board_type)
         self._command_sender = self._load_command_sender()
+
         self.webcam_url = self._load_webcam_url()
 
         self._programming_thread = None
@@ -118,30 +117,26 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         # These are for virtual-worlds
         self._virtual_world = ""
-        self._virtual_world_state = "";
+        self._virtual_world_state = ""
         self._last_virtualworld_update = time.time()
         self._watertank = None
         self._watertank_time_without_demand_change = 0
 
-
-    def _load_xilinx_device(self):
-        device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        devices = [i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name]
-        if len(devices) == 1:
-            return device_name, devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
-        else:
-            raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(device_name)
-
-    def _load_programmer(self):
-        device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
+    def _load_programmer(self, programmer_type, board_type):
+        """
+        Loads the Programmer that will handle the actual programming of the logic into the Board.
+        :param programmer_type: The type of programmer (for instance, DigilentAdapt, or XilinxImpact)
+        :param board_type: The type of Xilinx board (for instance, FPGA or PLD)
+        :return:
+        """
+        return XilinxProgrammer.create(programmer_type, self._cfg_manager, board_type)
 
     def _load_command_sender(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
 
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()
+        cfg_webcam_url = "%s_webcam_url" % self._board_type.lower()
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
 
     def get_state(self):
@@ -210,7 +205,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         if not done_already:
             if self._device_name.lower() == "fpga":
-                # TODO: This is quite ugly. We make sure the Compiler class replaces some string to make the
+                # TODO: This is quite ugly. We make sure the Compilar class replaces some string to make the
                 # UCF / augmented reality works.
                 c.feed_vhdl(content, True, False)
             else:
@@ -269,14 +264,13 @@ class UdXilinxExperiment(Experiment.Experiment):
             # Note: Currently, running the fake xilinx will raise this exception when
             # trying to do a CleanInputs, for which apparently serial is needed.
             self._current_state = STATE_FAILED
-            log.log(UdXilinxExperiment, log.level.Warning, "Error programming file: " + str(e))
-            log.log_exc(UdXilinxExperiment, log.level.Warning)
+            log.log(ElevatorExperiment, log.level.Warning, "Error programming file: " + str(e))
+            log.log_exc(ElevatorExperiment, log.level.Warning)
 
-    # This is used in the demo experiment
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
-                                             suffix='.' + self._xilinx_impact.get_suffix())
+                                             suffix='.' + self._programmer.get_suffix())
             try:
                 try:
                     #TODO: encode? utf8?
@@ -297,9 +291,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         except Exception as e:
 
             #TODO: test me
-            log.log(UdXilinxExperiment, log.level.Info,
-                    "Exception joining sending program to device: %s" % e.args[0])
-            log.log_exc(UdXilinxExperiment, log.level.Debug)
+            log.log(ElevatorExperiment, log.level.Info,
+                    "Exception programming the logic into the board: %s" % e.args[0])
+            log.log_exc(ElevatorExperiment, log.level.Debug)
             raise ExperimentErrors.SendingFileFailureError("Error sending file to device: %s" % e)
         self._clear()
 
@@ -341,9 +335,31 @@ class UdXilinxExperiment(Experiment.Experiment):
                 self.webcam_url, self._programmer_time, self._synthesizer_time, self._max_use_time), "batch": False})
 
 
-    # TODO: Eventually, there should be some way to limit the number of switches that a 
+    def virtualworld_update(self, delta):
+        """
+        Handles virtual world updating. For instance, in the case of the watertank,
+        it will control the virtual sensors (switches) depending on the watertank level.
+        """
+        if self._watertank != None:
+            waterLevel = self._watertank.get_water_level()
+            self.change_switch(0, waterLevel >= 0.20)
+            self.change_switch(1, waterLevel >= 0.50)
+            self.change_switch(2, waterLevel >= 0.80)
+
+            # These only apply for the temperature mode, but they are always valid nonetheless.
+            temp_warnings = self._watertank.get_temperature_warnings()
+            self.change_switch(3, temp_warnings[0])
+            self.change_switch(4, temp_warnings[1])
+
+        self._watertank_time_without_demand_change += delta
+
+        if self._watertank_time_without_demand_change > 5:
+            self._watertank_time_without_demand_change = 0
+            self._watertank.set_outputs([random.randint(0, 20)])
+
+    # TODO: Eventually, there should be some way to limit the number of switches that a
     # user can explicitly control depending on the VirtualWorld simulation and state.
-    # For instance, if the first switch represents a water level sensor, it makes no 
+    # For instance, if the first switch represents a water level sensor, it makes no
     # sense for the user to be able to define its state. For now, it is left as-is
     # mainly for debugging convenience.
 
@@ -351,7 +367,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         Changes the state of a switch. This can be used, for instance, for
         simulating sensors.
-        
+
         @param switch Number of the switch to change.
         @param on True if we wish to turn it on, false to turn it off.
         """
@@ -435,8 +451,16 @@ class UdXilinxExperiment(Experiment.Experiment):
                 # This should be fixed, after making sure it will not break anything.
                 return self._switches_state
 
+            elif command.startswith('VIRTUALWORLD_MODE'):
+                vw = command.split(" ")[1]
+                self._virtual_world = vw
+                return "Elevator does not currently support any Virtual World"
+
+            elif command.startswith('VIRTUALWORLD_STATE'):
+                return "Elevator does not currently support any Virtual World"
+
             elif command == 'HELP':
-                return "SYNTHESIZING_RESULT | READ_LEDS | REPORT_SWITCHES | REPORT_USE_TIME_LEFT | STATE | ChangeSwitch"
+                return "VIRTUALWORLD_MODE | VIRTUALWORLD_STATE | SYNTHESIZING_RESULT | READ_LEDS | REPORT_SWITCHES | REPORT_USE_TIME_LEFT | STATE | ChangeSwitch"
 
             elif command == 'SYNTHESIZING_RESULT':
                 if (DEBUG):
@@ -489,6 +513,49 @@ class UdXilinxExperiment(Experiment.Experiment):
             inputsList.append(inputsMap[i])
         return inputsList
 
+    def _update_watertank(self, led_state):
+        """
+        This function should probably be moved somewhere, and made generic. Ideally, we would want
+        watertank to be some kind of plugin.
+        """
+        first_pump = led_state[7] == '1'
+        second_pump = led_state[6] == '1'
+        if first_pump:
+            first_pump = 10
+        else:
+            first_pump = 0
+        if second_pump:
+            second_pump = 10
+        else:
+            second_pump = 0
+        self._watertank.set_input(0, first_pump)
+        self._watertank.set_input(1, second_pump)
+
+
+if __name__ == "__main__":
+    from voodoo.configuration import ConfigurationManager
+    from voodoo.sessions.session_id import SessionId
+
+    cfg_manager = ConfigurationManager()
+    try:
+        cfg_manager.append_path("../../../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+    except:
+        cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_fpga/server_config.py")
+
+    experiment = ElevatorExperiment(None, None, cfg_manager)
+
+    lab_session_id = SessionId('my-session-id')
+    experiment.do_start_experiment()
+
+    experiment._max_use_time = 10
+    print experiment.do_send_command_to_device("REPORT_USE_TIME_LEFT")
+    print experiment.do_send_command_to_device("STATE")
+    print experiment.do_send_command_to_device("STATE")
+    print experiment.do_should_finish()
+    print experiment.do_send_command_to_device("STATE")
+    print experiment.do_should_finish()
+
+
 
 if __name__ == "__main__":
     from voodoo.configuration import ConfigurationManager
@@ -500,7 +567,7 @@ if __name__ == "__main__":
     except:
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_elevator/server_config.py")
 
-    experiment = UdXilinxExperiment(None, None, cfg_manager)
+    experiment = ElevatorExperiment(None, None, cfg_manager)
 
     lab_session_id = SessionId('my-session-id')
     experiment.do_start_experiment()

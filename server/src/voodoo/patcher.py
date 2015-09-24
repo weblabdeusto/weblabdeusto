@@ -12,9 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import re
-from functools import wraps
 
 ##########################################################
 #

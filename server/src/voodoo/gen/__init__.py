@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 from .parser import loads, load, load_dir
 from .locator import Locator
 from .address import CoordAddress

@@ -1,7 +1,9 @@
+from __future__ import print_function, unicode_literals
+
 import os
 import re
-import sys
 import sha
+import sys
 import time
 import json
 import random
@@ -11,18 +13,23 @@ import traceback
 import threading
 import collections
 
+
+import six
+
+from weblab.core.web.logo import logo_impl
 from weblab.core.babel import gettext, lazy_gettext
+from weblab.admin.util import password2sha, display_date
 from weblab.util import data_filename
 
 try:
     CLIENTS = json.load(open(data_filename(os.path.join('weblab', 'clients.json'))))
 except:
-    print "Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file"
+    print("Error loading weblab/clients.json. Did you run weblab-admin upgrade? Check the file")
     raise
 
 from wtforms import TextField, TextAreaField, PasswordField, SelectField, BooleanField, HiddenField, ValidationError
 from wtforms.fields.core import UnboundField
-from wtforms.fields.html5 import URLField, DateField
+from wtforms.fields.html5 import URLField, DateField, EmailField
 from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 
 from sqlalchemy.sql.expression import desc
@@ -31,17 +38,18 @@ from sqlalchemy.orm import joinedload
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
 from flask.ext.wtf import Form
+from flask.ext.wtf.file import FileField, FileAllowed
 
-from flask.ext.admin.contrib.sqla import ModelView
-from flask.ext.admin import expose, AdminIndexView, BaseView
+from flask.ext.admin.contrib.sqla.filters import FilterEqual
+from flask.ext.admin import expose
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
+from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView
 
 import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
 import weblab.permissions as permissions
 
-from weblab.admin.web.filters import get_filter_number, generate_filter_any
 from weblab.admin.web.fields import DisabledTextField, VisiblePasswordField, RecordingQuerySelectField
 
 try:
@@ -53,126 +61,104 @@ except ImportError:
 
 from weblab.core.coordinator.clients.weblabdeusto import WebLabDeustoClient
 
-def get_app_instance():
-    import weblab.admin.web.app as admin_app
-    return admin_app.GLOBAL_APP_INSTANCE
+class AdminAuthnMixIn(object):
+    @property
+    def app_instance(self):
+        return self.admin.weblab_admin_app
 
+    def before_request(self):
+        self.request_context.is_admin = self.app_instance.is_admin()
 
-class AdministratorView(BaseView):
     def is_accessible(self):
-        return get_app_instance().is_admin()
+        return self.request_context.is_admin
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+            if self.app_instance.get_user_information() is not None:
+                return redirect(url_for('not_allowed'))
+            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
 
-        return super(AdministratorView, self)._handle_view(name, **kwargs)
+        return super(AdminAuthnMixIn, self)._handle_view(name, **kwargs)
 
-class MyProfileView(AdministratorView):
-    @expose()
-    def index(self):
-        return redirect(request.url.split('/weblab/administration')[0] + '/weblab/administration/profile')
-
-
-class AdministratorModelView(ModelView):
-    def is_accessible(self):
-        return get_app_instance().is_admin()
-
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
-
-        return super(AdministratorModelView, self)._handle_view(name, **kwargs)
+class AdministratorView(AdminAuthnMixIn, WebLabBaseView):
+    pass
 
 
-    # 
-    # TODO XXX FIXME: This may be a bug. However, whenever this is commented,
-    # Flask-Admin does this:
-    #
-    #       # Auto join
-    #       for j in self._auto_joins:
-    #                   query = query.options(subqueryload(j))
-    # 
-    # And some (weird) results in UserUsedExperiment are not shown, while other yes
-    # 
-    def scaffold_auto_joins(self):
-        return []
-
+class AdministratorModelView(AdminAuthnMixIn, WebLabModelView):
+    pass
 
 SAME_DATA = object()
 
+def _get_instance(cur_view, klass):
+    # TODO: find a better way to find the klass on admin
+    for view in cur_view.admin._views:
+        if isinstance(view, klass):
+            return view
+    
+    # For example, in the profile logs view, you may not access the Experiments panel
+    if cur_view.admin.app.debug:
+        print("ERROR", "INSTANCE NOT FOUND FOR {0} and {1}".format(cur_view, klass))
 
-def get_full_url(url):
-    script_name = get_app_instance().script_name
-    return script_name + url
 
+def show_link(cur_view, klass, filter_info, view_name=lazy_gettext('View')):
+    """ Given the current view, a class (e.g. UsersPanel) and a set of filters (in the form of dictionary), provide a link with the name provided.
 
-def show_link(klass, filter_name, field, name, view='View'):
-    instance = klass.INSTANCE
-    url = get_full_url(instance.url)
+    Examples: 
+        show_link(self, UsersPanel, { 'login' : 'student1' }) -> link to UsersPanel filtering by login = 'student1'
+        show_link(self, UsersPanel, { ('Role', 'name') : 'administrator' }) -> link to UsersPanel filtering by Role.name = 'administrator'
+        show_link(self, ExperimentPanel, { 'name : 'ud-pld', ('ExperimentCategory', 'name') : 'PLD experiments' }) -> link to UsersPanel with two filters
+        show_link(self, UsersPanel, { 'login' : 'student1' }, SAME_DATA) -> link to UsersPanel filtering by login = 'student1', using 'student1' as visible data
+    """
+    if view_name == SAME_DATA:
+        view_name = filter_info.values()[0]
 
-    link = u'<a href="%s?' % url
+    instance = _get_instance(cur_view, klass)
+    if instance is None:
+        return view_name
+    
+    filters = {
+        # filter_key : filter_id
+    }
+    for pos, flt in enumerate(instance.get_filters()):
+        if isinstance(flt, FilterEqual):
+            for filter_key in filter_info:
+                if isinstance(filter_key, unicode):
+                    filter_table = cur_view.model.__tablename__
+                    filter_column = filter_key
+                else:
+                    filter_table, filter_column = filter_key
+                if flt.column.name in filter_column and flt.column.table.name == filter_table:
+                    filters[filter_key] = pos
 
-    if isinstance(filter_name, basestring):
-        filter_numbers = [getattr(instance, u'%s_filter_number' % filter_name)]
-    else:
-        filter_numbers = [getattr(instance, u'%s_filter_number' % fname) for fname in filter_name]
+    if not filters:
+        return "Error; filter not found"
+    
+    kwargs = {}
+    for pos, (filter_key, filter_id) in enumerate(six.iteritems(filters)):
+        kwargs['flt{0}_{1}'.format(pos, filter_id)] = filter_info[filter_key]
 
-    if isinstance(name, basestring):
-        names = [name]
-    else:
-        names = name
-
-    for pos, (filter_number, name) in enumerate(zip(filter_numbers, names)):
-        if '.' not in name:
-            data = getattr(field, name)
-        else:
-            variables = name.split('.')
-            current = field
-            data = None
-            for variable in variables:
-                current = getattr(current, variable)
-                if current is None:
-                    data = ''
-                    break
-            if data is None:
-                data = current
-        link += u'flt%s_%s=%s&' % (pos + 1, filter_number, data)
-
-    if view == SAME_DATA:
-        view = data
-
-    link = link[:-1] + u'">%s</a>' % view
-
-    return Markup(link)
+    link = url_for(instance.endpoint + '.index_view', **kwargs)
+    return Markup("<a href='{0}'>{1}</a>".format(link, view_name))
 
 
 class UserAuthForm(InlineFormAdmin):
     def postprocess_form(self, form_class):
         form_class.auth.field_class = RecordingQuerySelectField
         form_class.configuration = UnboundField(VisiblePasswordField,
-                                                description='Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.')
+                                                description=lazy_gettext('Detail the password (DB), Facebook ID -the number- (Facebook), OpenID identifier.'))
         return form_class
 
 
 LOGIN_REGEX = '^[A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-]*$'
 
 
-def _password2sha(password):
-    # TODO: Avoid replicating
-    randomstuff = ""
-    for _ in range(4):
-        c = chr(ord('a') + random.randint(0, 25))
-        randomstuff += c
-    password = password if password is not None else ''
-    return randomstuff + "{sha}" + sha.new(randomstuff + password).hexdigest()
 
 
 class UsersPanel(AdministratorModelView):
     column_list = ('role', 'login', 'full_name', 'email', 'groups', 'logs', 'permissions')
+    column_filters = ( 'full_name', 'login', 'role', 'email', model.DbGroup.name ) 
     column_searchable_list = ('full_name', 'login')
-    column_filters = ( 'full_name', 'login', 'role', 'email', 
-                     ) + generate_filter_any(model.DbGroup.name.property.columns[0], 'Group', model.DbUser.groups)
+    column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"), auths=lazy_gettext("Credentials"))
 
     form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
@@ -180,28 +166,30 @@ class UsersPanel(AdministratorModelView):
     column_descriptions = dict(login=lazy_gettext('Username (all letters, dots and numbers)'),
                                full_name=lazy_gettext('First and Last name'),
                                email=lazy_gettext('Valid e-mail address'),
-                               avatar=lazy_gettext('Not implemented yet, it should be a public URL for a user picture.'))
+                               avatar=lazy_gettext('Not implemented yet, it should be a public URL for a user picture.'),
+                               auths=lazy_gettext("User credentials: a password or alternative mechanisms"))
 
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-        role=lambda v, c, u, p: show_link(UsersPanel, 'role', u, 'role.name', SAME_DATA),
-        groups=lambda v, c, u, p: show_link(GroupsPanel, 'user', u, 'login'),
-        logs=lambda v, c, u, p: show_link(UserUsedExperimentPanel, 'user', u, 'login'),
-        permissions=lambda v, c, u, p: show_link(UserPermissionPanel, 'user', u, 'login'),
+        role=lambda v, c, u, p: show_link(v, UsersPanel, { ('Role', 'name'): u.role.name }, SAME_DATA),
+        groups=lambda v, c, u, p: show_link(v, GroupsPanel, { 'login': u.login }),
+        logs=lambda v, c, u, p: show_link(v, UserUsedExperimentPanel, { 'login': u.login }),
+        permissions=lambda v, c, u, p: show_link(v, UserPermissionPanel, { 'login': u.login }),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
-        self.login_filter_number = get_filter_number(self, u'User.login')
-        self.group_filter_number = get_filter_number(self, u'Group.name')
-        self.role_filter_number = get_filter_number(self, u'Role.name')
-
         self.local_data = threading.local()
 
-        UsersPanel.INSTANCE = self
+    def scaffold_filters(self, name):
+        filters = super(UsersPanel, self).scaffold_filters(name)
+
+        if "DbGroup" in unicode(name):
+            for key in self._filter_joins:
+                self._filter_joins[key].insert(0, model.t_user_is_member_of)
+
+        return filters
 
     def edit_form(self, obj=None):
         form = super(UsersPanel, self).edit_form(obj)
@@ -212,7 +200,7 @@ class UsersPanel(AdministratorModelView):
                     auth_instance.auth.name, auth_instance.configuration)
         return form
 
-    def on_model_change(self, form, user_model):
+    def on_model_change(self, form, user_model, is_created):
         auths = set()
         for auth_instance in user_model.auths:
             auths.add(auth_instance.auth)
@@ -235,14 +223,14 @@ class UsersPanel(AdministratorModelView):
     def _on_auth_changed(self, auth_instance):
         if auth_instance.auth.auth_type.name.lower() == 'db':
             password = auth_instance.configuration
-            if len(password) < 6:
-                raise Exception("Password too short")
-            auth_instance.configuration = _password2sha(password)
+            if len(password) < 4: # "demo" should be a valid password
+                raise ValidationError(gettext("Password too short"))
+            auth_instance.configuration = password2sha(password)
         elif auth_instance.auth.auth_type.name.lower() == 'facebook':
             try:
                 int(auth_instance.configuration)
             except:
-                raise Exception("Use a numeric ID for Facebook")
+                raise ValidationError(gettext("Use a numeric ID for Facebook"))
                 # Other validations would be here
 
 
@@ -273,7 +261,7 @@ class UsersAddingView(AdministratorView):
     @expose()
     def index(self):
         # TODO: enable / disable OpenID and LDAP depending on if it is available
-        return self.render("admin-add-students-select.html")
+        return self.render("admin/admin-add-students-select.html")
 
     def _get_form(self, klass=UsersBatchForm):
         form = klass()
@@ -288,8 +276,7 @@ class UsersAddingView(AdministratorView):
             if line.strip():
                 cur_columns = [col.strip() for col in line.split(',')]
                 if len(cur_columns) != len(columns):
-                    flash(
-                        u"Line %s (%s) does not have %s columns (%s found)" % (n, line, len(columns), len(cur_columns)))
+                    flash(gettext("Line %(n)s (%(line)s) does not have %(columns)s columns (%(cur_columns)s found)", n=n, line=line, columns=len(columns), cur_columns=len(cur_columns)))
                     errors = True
                     continue
 
@@ -298,11 +285,11 @@ class UsersAddingView(AdministratorView):
                     if fmt == 'login':
                         regex = re.compile(LOGIN_REGEX)
                         if not regex.match(column):
-                            flash(u"Login %s contains invalid characters" % column)
+                            flash(gettext("Login %(column)s contains invalid characters", column=column))
                             cur_error = True
                         existing_user = self.session.query(model.DbUser).filter_by(login=column).first()
                         if existing_user is not None:
-                            flash(u"User %s already exists" % column)
+                            flash(gettext("User %(column)s already exists", column=column))
                             # The user exists already. However, we do not consider this an error.
                             # That way we can add groups for which some users exist already.
                             # cur_error = True
@@ -310,7 +297,7 @@ class UsersAddingView(AdministratorView):
                         # Not exhaustive
                         regex = re.compile('^.*@.*\..*')
                         if not regex.match(column):
-                            flash("Invalid e-mail address: %s" % column)
+                            flash(gettext("Invalid e-mail address: %(column)s", column=column))
                             cur_error = True
                 if cur_error:
                     errors = True
@@ -318,11 +305,11 @@ class UsersAddingView(AdministratorView):
                     rows.append(cur_columns)
 
         if not errors and len(rows) == 0:
-            flash("No user provided")
+            flash(gettext("No user provided"))
             raise FormException()
 
         if errors:
-            flash("No user added due to errors detailed", 'error')
+            flash(gettext("No user added due to errors detailed"), 'error')
             raise FormException()
         return rows
 
@@ -336,7 +323,7 @@ class UsersAddingView(AdministratorView):
         for login, full_name, mail, password in rows:
             user = model.DbUser(login=login, full_name=full_name, email=mail, role=role)
             self.session.add(user)
-            user_auth = model.DbUserAuth(user=user, auth=auth, configuration=_password2sha(password))
+            user_auth = model.DbUserAuth(user=user, auth=auth, configuration=password2sha(password))
             self.session.add(user_auth)
             users.append(user)
 
@@ -361,7 +348,7 @@ class UsersAddingView(AdministratorView):
 
     def _process_ldap(self, text, form):
         if LdapGatewayClass is None:
-            flash("Error: ldap libraries not installed")
+            flash(gettext("Error: ldap libraries not installed"))
             return []
 
         role = self.session.query(model.DbRole).filter_by(name='student').one()
@@ -379,7 +366,7 @@ class UsersAddingView(AdministratorView):
             users_data = ldap.get_users(rows)
         except:
             traceback.print_exc()
-            flash("Error retrieving users from the LDAP server. Contact your administrator.")
+            flash(gettext("Error retrieving users from the LDAP server. Contact your administrator."))
             raise FormException()
 
         if len(users_data) != len(rows):
@@ -389,11 +376,11 @@ class UsersAddingView(AdministratorView):
                 if login not in retrieved_logins:
                     missing_logins.append(login)
             all_missing_logins = ', '.join(missing_logins)
-            flash("Error: could not find the following users: %s" % all_missing_logins)
+            flash(gettext("Error: could not find the following users: %(users)s", users=all_missing_logins))
             raise FormException()
 
         if len(users_data) == 0:
-            flash("No user processed")
+            flash(gettext("No user processed"))
             raise FormException()
 
         for user_data in users_data:
@@ -454,10 +441,10 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
     @expose('/ldap/', methods=['GET', 'POST'])
     def add_ldap(self):
@@ -465,7 +452,7 @@ class UsersAddingView(AdministratorView):
 
         ldap_auth_type = self.session.query(model.DbAuthType).filter_by(name='LDAP').first()
         if ldap_auth_type is None:
-            return "LDAP not registered as an Auth Type"
+            return gettext("LDAP not registered as an Auth Type")
 
         form.ldap_system.choices = [(auth.name, auth.name) for auth in ldap_auth_type.auths]
         description = gettext("In this case, you only need to provide the username of the users, separated by spaces or new lines. WebLab-Deusto will retrieve the rest of the information from the LDAP system.")
@@ -484,10 +471,10 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
     @expose('/openid/', methods=['GET', 'POST'])
     def add_openid(self):
@@ -509,36 +496,36 @@ class UsersAddingView(AdministratorView):
                     flash("Errors occurred while adding users")
                     self.session.rollback()
                 else:
-                    return self.render("admin-add-students-finished.html", users=users, group_name=group_name)
+                    return self.render("admin/admin-add-students-finished.html", users=users, group_name=group_name)
         elif not form.users.data:
             form.users.data = example
-        return self.render("admin-add-students.html", form=form, description=description, example=example)
+        return self.render("admin/admin-add-students.html", form=form, description=description, example=example)
 
 
 class GroupsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'parent', 'users', 'permissions')
+    column_labels = dict(name=lazy_gettext("Name"), parent=lazy_gettext("Parent"), users=lazy_gettext("Users"), permissions=lazy_gettext("Permissions"))
     form_columns = ('name', 'parent', 'users')
 
-    column_filters = ( ('name',)
-                       + generate_filter_any(model.DbUser.login.property.columns[0], 'User login', model.DbGroup.users)
-                       + generate_filter_any(model.DbUser.full_name.property.columns[0], 'User name',
-                                             model.DbGroup.users)
-    )
+    column_filters = ( 'name', model.DbUser.login, model.DbUser.full_name )
 
     column_formatters = dict(
-        users=lambda v, c, g, p: show_link(UsersPanel, 'group', g, 'name'),
-        permissions=lambda v, c, g, p: show_link(GroupPermissionPanel, 'group', g, 'name'),
+        users=lambda v, c, g, p: show_link(v, UsersPanel, {'name': g.name}),
+        permissions=lambda v, c, g, p: show_link(v, GroupPermissionPanel, {'name': g.name}),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
-        self.user_filter_number = get_filter_number(self, u'User.login')
+    def scaffold_filters(self, name):
+        filters = super(GroupsPanel, self).scaffold_filters(name)
 
-        GroupsPanel.INSTANCE = self
+        if "DbUser" in unicode(name):
+            for key in self._filter_joins:
+                self._filter_joins[key].insert(0, model.t_user_is_member_of)
+
+        return filters
 
 class DefaultAuthenticationForm(Form):
     name     = TextField(lazy_gettext(u"Name:"), description=lazy_gettext("Authentication name"), validators = [ Required() ])
@@ -557,7 +544,7 @@ class LdapForm(DefaultAuthenticationForm):
 
     def validate_ldap_uri(form, ldap_uri):
         if ';' in ldap_uri.data:
-            raise ValidationError("Character ; not supported")
+            raise ValidationError(gettext("Character ; not supported"))
 
     validate_domain = validate_base = validate_ldap_uri
 
@@ -587,25 +574,25 @@ class AuthsPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_filters = ( ('name', 'configuration', 'priority') )
     action_disallowed_list = ['delete']
+    column_labels = dict(name=lazy_gettext("Name"), configuration=lazy_gettext("Configuration"), priority=lazy_gettext("Priority"))
     
-    INSTANCE = None
     CONFIGURABLES = {
         'LDAP' : {
-            'form' : LdapForm,
-            'fields' : ['ldap_uri', 'domain', 'base'],
-            'generate_func' : generate_ldap_config,
-            'fill_func' : fill_ldap_config,
+            'form': LdapForm,
+            'fields': ['ldap_uri', 'domain', 'base'],
+            'generate_func': generate_ldap_config,
+            'fill_func': fill_ldap_config,
         }, 
         'TRUSTED-IP-ADDRESSES' : {
-            'form' : TrustedIpForm,
-            'fields' : ['ip_addresses'],
-            'fill_func' : fill_trusted_ip_config,
+            'form': TrustedIpForm,
+            'fields': ['ip_addresses'],
+            'generate_func': generate_trusted_ip_config,
+            'fill_func': fill_trusted_ip_config,
         },
     }
 
     def __init__(self, session, **kwargs):
         super(AuthsPanel, self).__init__(model.DbAuth, session, **kwargs)
-        AuthsPanel.INSTANCE = self
 
     @expose('/create/')
     def create_view(self, *args, **kwargs):
@@ -623,19 +610,19 @@ class AuthsPanel(AdministratorModelView):
             else:
                 if len(auth_type.auths) > 0:
                     auth_type_pack[1] = False
-                    auth_type_pack[2] = u"Already created"
+                    auth_type_pack[2] = gettext("Already created")
         
-        return self.render("admin-auths-create.html", auth_types = possible_auth_types)
+        return self.render("admin/admin-auths-create.html", auth_types = possible_auth_types)
 
     @expose('/create/<auth_type_name>/', methods = ['GET', 'POST'])
     def create_auth_view(self, auth_type_name):
         auth_type = self.session.query(model.DbAuthType).filter_by(name = auth_type_name).options(joinedload('auths')).first()
 
         if not auth_type:
-            return "Auth type not found"
+            return gettext("Auth type not found")
 
         if len(auth_type.auths) > 0 and auth_type_name not in self.CONFIGURABLES:
-            return "Existing auth type"
+            return gettext("Existing auth type")
 
         priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
         priority_choices = [ (str(priority), str(priority)) for priority in range(1, 20) if priority not in priorities ]
@@ -655,7 +642,7 @@ class AuthsPanel(AdministratorModelView):
         if form.validate_on_submit():
             configuration = generate_func(form)
             if self.session.query(model.DbAuth).filter_by(name = form.name.data).first():
-                form.name.errors = ['Name already taken']
+                form.name.errors = [gettext('Name already taken')]
             else:
                 auth = model.DbAuth(auth_type = auth_type, name = form.name.data, priority = int(form.priority.data), configuration = configuration)
                 self.session.add(auth)
@@ -663,16 +650,16 @@ class AuthsPanel(AdministratorModelView):
                 return redirect(url_for('.index_view'))
 
         form.name.data = auth_type_name
-        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.create_view'))
+        return self.render("admin/admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.create_view'))
 
     @expose('/edit/', methods = ['GET','POST'])
     def edit_view(self, *args, **kwargs):
         auth = self.session.query(model.DbAuth).filter_by(id = request.args.get('id', -1)).first()
         if auth is None:
-            return "Element not found"
+            return gettext("Element not found")
 
         if auth.auth_type.name == 'DB':
-            flash("Can't modify the DB authentication mechanism")
+            flash(gettext("Can't modify the DB authentication mechanism"))
             return redirect(url_for('.index_view'))
 
         priorities = [ auth.priority for auth in self.session.query(model.DbAuth).filter_by().all() ]
@@ -697,7 +684,7 @@ class AuthsPanel(AdministratorModelView):
             configuration = generate_func(form)
             existing_auth_name = self.session.query(model.DbAuth).filter_by(name = form.name.data).first()
             if existing_auth_name.id != auth.id:
-                form.name.errors = ['Name already taken']
+                form.name.errors = [gettext('Name already taken')]
             else:
                 auth.name = form.name.data
                 auth.priority = int(form.priority.data)
@@ -710,49 +697,41 @@ class AuthsPanel(AdministratorModelView):
         form.priority.data = str(auth.priority)
         fill_func(form, auth.configuration)
 
-        return self.render("admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.index_view'))
+        return self.render("admin/admin-auths-create-individual.html", auth_type_name = auth_type_name, form = form, fields = fields, back_link = url_for('.index_view'))
 
     def on_model_delete(self, auth):
         if auth.auth_type.name == 'DB':
-            raise Exception("Can't delete this authentication system")
+            raise ValidationError(gettext("Can't delete this authentication system"))
 
 
 class UserUsedExperimentPanel(AdministratorModelView):
-    column_auto_select_related = True
-    column_select_related_list = ('user',)
     can_delete = False
     can_edit = False
     can_create = False
 
     column_searchable_list = ('origin',)
     column_sortable_list = (
-        'UserUsedExperiment.id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
+        'id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
         'end_date', 'origin', 'coord_address')
     column_list = ( 'user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
-    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address')
+    column_filters = ( 'user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address', 'experiment.category')
+    column_labels = dict(user=lazy_gettext("User"), experiment=lazy_gettext("Experiment"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), 
+                        origin=lazy_gettext("Origin"), coord_address=lazy_gettext("Coord address"), details=lazy_gettext("Details"))
 
     column_formatters = dict(
-        user=lambda v, c, uue, p: show_link(UsersPanel, 'login', uue, 'user.login', SAME_DATA),
-        experiment=lambda v, c, uue, p: show_link(ExperimentPanel, ('name', 'category'), uue,
-                                               ('experiment.name', 'experiment.category.name'), uue.experiment),
-        details=lambda v, c, uue, p: Markup('<a href="%s">Details</a>' % (url_for('.detail', id=uue.id))),
+        user=lambda v, c, uue, p: show_link(v, UsersPanel, {('User', 'login'): uue.user.login}, SAME_DATA),
+        experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, { ('Experiment', 'name') : uue.experiment.name, ('ExperimentCategory', 'name') : uue.experiment.category.name }, uue.experiment),
+        start_date=lambda v,c, uue, p: display_date(uue.start_date),
+        end_date=lambda v,c, uue, p: display_date(uue.end_date),
+        details=lambda v, c, uue, p: Markup('<a href="%s">%s</a>' % (url_for('.detail', id=uue.id), gettext("Details"))),
     )
 
     action_disallowed_list = ['create', 'edit', 'delete']
-
-    INSTANCE = None
 
     def __init__(self, files_directory, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.files_directory = files_directory
-        if type(self) == UserUsedExperimentPanel:
-            self.user_filter_number = get_filter_number(self, u'User.login')
-        self.experiment_filter_number = get_filter_number(self, u'Experiment.name')
-        # self.experiment_category_filter_number  = get_filter_number(self, u'Category.name')
-
-        if type(self) == UserUsedExperimentPanel:
-            UserUsedExperimentPanel.INSTANCE = self
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
@@ -816,9 +795,9 @@ class UserUsedExperimentPanel(AdministratorModelView):
             return abort(404)
 
         if 'not stored' in uf.file_sent:
-            flash("File not stored")
+            flash(gettext("File not stored"))
             return self.render("error.html",
-                               message="The file has not been stored. Check the %s configuration value." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS)
+                               message=gettext("The file has not been stored. Check the %(config)s configuration value.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS))
 
         file_path = os.path.join(self.files_directory, uf.file_sent)
         if os.path.exists(file_path):
@@ -827,47 +806,42 @@ class UserUsedExperimentPanel(AdministratorModelView):
                                               'Content-Disposition': 'attachment; filename=file_%s.bin' % id})
         else:
             if os.path.exists(self.files_directory):
-                flash("Wrong configuration or file deleted")
+                flash(gettext("Wrong configuration or file deleted"))
                 return self.render("error.html",
-                                   message="The file was stored, but now it is not reachable. Check the %s property." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+                                   message=gettext("The file was stored, but now it is not reachable. Check the %(config)s property.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH))
             else:
-                flash("Wrong configuration")
+                flash(gettext("Wrong configuration"))
                 return self.render("error.html",
-                                   message="The file was stored, but now it is not reachable. The %s directory does not exist." % configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
+                                   message=gettext("The file was stored, but now it is not reachable. The %(config)s directory does not exist.", config=configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH))
 
 
 class ExperimentCategoryPanel(AdministratorModelView):
     column_searchable_list = ('name',)
     column_list = ('name', 'experiments')
+    column_labels = dict(name=lazy_gettext("Name"), experiments=lazy_gettext("Experiments"))
     column_filters = ( 'name', )
     form_excluded_columns = ('experiments',)
 
     column_formatters = dict(
-        experiments=lambda v, co, c, p: show_link(ExperimentPanel, 'category', c, 'name')
+        experiments=lambda v, co, c, p: show_link(v, ExperimentPanel, { 'name' : c.name })
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
 
-        self.category_filter_number = get_filter_number(self, u'Category.name')
-
-        ExperimentCategoryPanel.INSTANCE = self
-
 class ExperimentCreationForm(Form):
-    category = Select2Field(u"Category", validators = [ Required() ])
-    name = TextField("Name", description = "Name for this experiment", validators = [Required()])
-    client = Select2Field(u"Client", description = "Client to be used", default = 'blank', validators = [ Required() ])
-    start_date = DateField("Start date", description = "When the laboratory is going to start being used")
-    end_date = DateField("End date", description = "When the laboratory is not going to be used anymore")
+    category = Select2Field(lazy_gettext(u"Category"), validators = [ Required() ])
+    name = TextField(lazy_gettext("Name"), description = lazy_gettext("Name for this experiment"), validators = [Required()])
+    client = Select2Field(lazy_gettext("Client"), description = lazy_gettext("Client to be used"), default = 'blank', validators = [ Required() ])
+    start_date = DateField(lazy_gettext("Start date"), description = lazy_gettext("When the laboratory is going to start being used"))
+    end_date = DateField(lazy_gettext("End date"), description = lazy_gettext("When the laboratory is not going to be used anymore"))
 
     # Client parameters
-    experiment_info_description = TextField("experiment.info.description", description = "Experiment description")
-    html = TextField("html", description = "HTML to be displayed under the experiment")
-    experiment_info_link = URLField("experiment.info.link", description = "Link to be provided next to the lab (e.g., docs)")
-    experiment_picture = TextField("experiment.picture", description = "Address to a logo of the laboratory")
-    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = "Whether it should show the reserve button (unless you're sure, leave this set)", default = True)
+    experiment_info_description = TextField("experiment.info.description", description=lazy_gettext("Experiment description"))
+    html = TextField("html", description = lazy_gettext("HTML to be displayed under the experiment"))
+    experiment_info_link = URLField("experiment.info.link", description = lazy_gettext("Link to be provided next to the lab (e.g., docs)"))
+    experiment_picture = TextField("experiment.picture", description = lazy_gettext("Address to a logo of the laboratory"))
+    experiment_reserve_button_shown = BooleanField("experiment.reserve.button.shown", description = lazy_gettext("Whether it should show the reserve button (unless you're sure, leave this set)"), default = True)
 
 ALREADY_PROVIDED_CLIENT_PARAMETERS = ('experiment.info.description', 'html', 'experiment.info.link', 'experiment.reserve.button.shown', 'experiment.picture')
 
@@ -890,23 +864,18 @@ class ExperimentPanel(AdministratorModelView):
 
     column_searchable_list = ('name',)
     column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
+    column_labels = dict(category=lazy_gettext("Category"), name=lazy_gettext("Name"), client=lazy_gettext("Client"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), uses=lazy_gettext("Uses"))
     form_excluded_columns = 'user_uses',
     column_filters = ('name', 'category')
     form_overrides = dict( client = Select2Field )
 
     column_formatters = dict(
-        category=lambda v, c, e, p: show_link(ExperimentCategoryPanel, 'category', e, 'category.name', SAME_DATA),
-        uses=lambda v, c, e, p: show_link(UserUsedExperimentPanel, 'experiment', e, 'name'),
+        category=lambda v, c, e, p: show_link(v, ExperimentCategoryPanel, { ('ExperimentCategory', 'name'): e.category.name }, SAME_DATA),
+        uses=lambda v, c, e, p: show_link(v, UserUsedExperimentPanel, { 'name' : e.name, ('ExperimentCategory', 'name') : e.category.name }),
     )
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
-
-        self.name_filter_number = get_filter_number(self, u'Experiment.name')
-        self.category_filter_number = get_filter_number(self, u'Category.name')
-        ExperimentPanel.INSTANCE = self
 
     def _create_form(self, obj):
         form = ExperimentCreationForm(formdata = request.form, obj = obj)
@@ -958,7 +927,7 @@ class ExperimentPanel(AdministratorModelView):
         # And that there must be a name
         for parameter in all_parameters:
             if not parameter['name']:
-                parameter['error'] = "Emptry property name"
+                parameter['error'] = gettext("Empty property name")
                 errors = True
 
             if parameter['value']:
@@ -968,19 +937,19 @@ class ExperimentPanel(AdministratorModelView):
                     elif parameter['type'] == 'floating':
                         float(parameter['value'])
                 except ValueError:
-                    parameter['error'] = "Invalid %s" % parameter['type']
+                    parameter['error'] = gettext("Invalid %(type_name)s", type_name=parameter['type'])
                     errors = True
         
         # Check that you don't use an existing name
         for pos, parameter in enumerate(all_parameters):
             if parameter['name'] in ALREADY_PROVIDED_CLIENT_PARAMETERS:
-                parameter['error'] = "Repeated name!"
+                parameter['error'] = lazy_gettext("Repeated name!")
                 errors = True
 
             for parameter2 in all_parameters[pos + 1:]:
                 if parameter['name'] == parameter2['name']:
-                    parameter['error'] = "Repeated name!"
-                    parameter2['error'] = "Repeated name!"
+                    parameter['error'] = gettext("Repeated name!")
+                    parameter2['error'] = gettext("Repeated name!")
                     errors = True
 
         return static_parameters, dynamic_parameters, errors
@@ -994,11 +963,11 @@ class ExperimentPanel(AdministratorModelView):
             if form.validate_on_submit() and not errors:
                 db_cat = self.session.query(model.DbExperimentCategory).filter_by(name = form.category.data).first()
                 if db_cat is None:
-                    form.category.errors = ["Category doesn't exist"]
+                    form.category.errors = [gettext("Category doesn't exist")]
                 else:
                     existing_exp = self.session.query(model.DbExperiment).filter_by(name = form.name.data, category = db_cat).first()
                     if existing_exp:
-                        form.name.errors = ['Name already taken']
+                        form.name.errors = [gettext("Name already taken")]
                     else:
                         # Everything correct
                         db_exp = model.DbExperiment(name = form.name.data, category = db_cat,start_date = form.start_date.data, end_date = form.end_date.data, client = form.client.data)
@@ -1023,7 +992,7 @@ class ExperimentPanel(AdministratorModelView):
                         except:
                             self.session.rollback()
                             traceback.print_exc()
-                            flash("Error commiting data", "error")
+                            flash(gettext("Error storing data in the database"), "error")
                         else:
                             return redirect(url_for('.index_view'))
         else:
@@ -1036,7 +1005,7 @@ class ExperimentPanel(AdministratorModelView):
             static_parameters = []
             dynamic_parameters = []
 
-        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
+        return self.render("admin/admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(),
                                 static_parameters = json.dumps(static_parameters, indent = 4), 
                                 dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
@@ -1045,7 +1014,7 @@ class ExperimentPanel(AdministratorModelView):
         exp_id = request.args.get('id', -1)
         db_exp = self.session.query(model.DbExperiment).filter_by(id = exp_id).first()
         if not db_exp:
-            return "Experiment not found"
+            return gettext("Experiment not found")
 
         form = self._create_form(obj = db_exp)
 
@@ -1124,40 +1093,40 @@ class ExperimentPanel(AdministratorModelView):
                     except:
                         self.session.rollback()
                         traceback.print_exc()
-                        flash("Error commiting changes. Contact admin.", "error")
+                        flash(gettext("Error commiting changes. Contact admin."), "error")
                     else:
-                        flash("Changes saved")
+                        flash(gettext("Changes saved"))
                 else:
-                    flash("Category not found", "error")
+                    flash(gettext("Category not found"), "error")
         
-        return self.render("admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
+        return self.render("admin/admin-add-experiment.html", form = form, client_parameters = get_js_client_parameters(), 
                 static_parameters = json.dumps(static_parameters, indent = 4), 
                 dynamic_parameters = json.dumps(dynamic_parameters, indent = 4))
 
 
 class SchedulerForm(Form):
-    name = TextField("Scheduler name", description = "Unique name for this scheduler", validators = [Required()])
+    name = TextField(lazy_gettext("Scheduler name"), description = lazy_gettext("Unique name for this scheduler"), validators = [Required()])
 
 class PQueueForm(SchedulerForm):
-    randomize_instances = BooleanField("Randomize experiments", description = "First available slot is always the same or there is an internal random process")
+    randomize_instances = BooleanField(lazy_gettext("Randomize experiments"), description = lazy_gettext("First available slot is always the same or there is an internal random process"))
 
 PQueueObject = collections.namedtuple('PQueueObject', ['name', 'randomize_instances'])
 
 class ExternalWebLabForm(SchedulerForm):
-    base_url = URLField("Base URL", description = "Example: https://www.weblab.deusto.es/weblab/", validators = [Required(), URL()])
-    username = TextField("Username", description = "Username of the remote system", validators = [Required()])
-    password = PasswordField("Password", description = "Password of the remote system", validators = [])
+    base_url = URLField(lazy_gettext("Base URL"), description = lazy_gettext("Example: https://www.weblab.deusto.es/weblab/"), validators = [Required(), URL()])
+    username = TextField(lazy_gettext("Username"), description = lazy_gettext("Username of the remote system"), validators = [Required()])
+    password = PasswordField(lazy_gettext("Password"), description = lazy_gettext("Password of the remote system"), validators = [])
 
 class ILabBatchForm(SchedulerForm):
-    lab_server_url = URLField("Web service URL", description = "Example: http://weblab2.mit.edu/services/WebLabService.asmx", validators = [Required(), URL()])
-    identifier     = TextField("Identifier", description = "Fake Service Broker identifier", validators = [Required()])
-    passkey        = TextField("Passkey", description = "Remote Service broker passkey", validators = [Required()])
+    lab_server_url = URLField(lazy_gettext("Web service URL"), description = lazy_gettext("Example: http://weblab2.mit.edu/services/WebLabService.asmx"), validators = [Required(), URL()])
+    identifier     = TextField(lazy_gettext("Identifier"), description = lazy_gettext("Fake Service Broker identifier"), validators = [Required()])
+    passkey        = TextField(lazy_gettext("Passkey"), description = lazy_gettext("Remote Service broker passkey"), validators = [Required()])
 
 class RemoveForm(Form):
     identifier = HiddenField()
 
 class AddExperimentForm(Form):
-    experiment_identifier = Select2Field("Experiment to add")
+    experiment_identifier = Select2Field(lazy_gettext("Experiment to add"))
 
 class SchedulerPanel(AdministratorModelView):
     
@@ -1168,7 +1137,7 @@ class SchedulerPanel(AdministratorModelView):
 
     @expose('/create/')
     def create_view(self):
-        return self.render("admin-scheduler-create.html")
+        return self.render("admin/admin-scheduler-create.html")
 
     @expose('/create/pqueue/', ['GET', 'POST'])
     def create_pqueue_view(self):
@@ -1178,7 +1147,7 @@ class SchedulerPanel(AdministratorModelView):
         form = PQueueForm(formdata = request.form, obj = obj)
         if form.validate_on_submit():
             if obj is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
-                form.name.errors = ["Repeated name"]
+                form.name.errors = [gettext("Repeated name")]
             else:
                 # Populate config
                 if scheduler is None:
@@ -1186,7 +1155,7 @@ class SchedulerPanel(AdministratorModelView):
                 else:
                     config = json.loads(scheduler.config)
                 config['randomize_instances'] = form.randomize_instances.data
-                summary = "Queue for %s" % form.name.data
+                summary = gettext("Queue for %(name)s", name=form.name.data)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'PRIORITY_QUEUE', config = json.dumps(config), is_external = False)
@@ -1205,7 +1174,7 @@ class SchedulerPanel(AdministratorModelView):
                     flash("Scheduler saved", "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
-        return self.render("admin-scheduler-create-pqueue.html", form = form, back = back)
+        return self.render("admin/admin-scheduler-create-pqueue.html", form = form, back = back)
         
 
     @expose('/create/weblab/', ['GET', 'POST'])
@@ -1235,7 +1204,7 @@ class SchedulerPanel(AdministratorModelView):
                     config['password'] = form.password.data
 
                 parsed = urlparse.urlparse(form.base_url.data)
-                summary = "WebLab-Deusto at %s" % parsed.hostname
+                summary = gettext("WebLab-Deusto at %(where)s", where=parsed.hostname)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'EXTERNAL_WEBLAB_DEUSTO', config = json.dumps(config), is_external = True)
@@ -1248,10 +1217,10 @@ class SchedulerPanel(AdministratorModelView):
                     self.session.commit()
                 except:
                     traceback.print_exc()
-                    flash("Error adding resource", "error")
+                    flash(gettext("Error adding resource"), "error")
                     self.session.rollback()
                 else:
-                    flash("Scheduler saved", "success")
+                    flash(gettext("Scheduler saved"), "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
@@ -1261,7 +1230,7 @@ class SchedulerPanel(AdministratorModelView):
                 session_id = client.login(config['username'], config['password'])
                 experiments_allowed = client.list_experiments(session_id)
             except:
-                flash("Invalid configuration (or server down)", "error")
+                flash(gettext("Invalid configuration (or server down)"), "error")
                 traceback.print_exc()
                 experiments_allowed = []
             
@@ -1318,7 +1287,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error removing experiment", "error")
+                            flash(gettext("Error removing experiment"), "error")
                             self.session.rollback()
                             break
                         else:
@@ -1354,7 +1323,7 @@ class SchedulerPanel(AdministratorModelView):
                                     self.session.commit()
                                 except:
                                     traceback.print_exc()
-                                    flash("Error registering weblab experiment", "error")
+                                    flash(gettext("Error registering weblab experiment"), "error")
                                     self.session.rollback()
                                     break
                                 else:
@@ -1407,7 +1376,7 @@ class SchedulerPanel(AdministratorModelView):
         else:
             all_experiments = []
             all_misconfigured_experiments = []
-        return self.render("admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
+        return self.render("admin/admin-scheduler-create-weblab.html", form=form, back = back, experiments = all_experiments, misconfigured_experiments = all_misconfigured_experiments)
 
     @expose('/create/ilab/', ['GET', 'POST'])
     def create_ilab_view(self):    
@@ -1434,7 +1403,7 @@ class SchedulerPanel(AdministratorModelView):
         
         if self.is_action('form-add') and form.validate_on_submit():
             if scheduler is None and self.session.query(model.DbScheduler).filter_by(name = form.name.data).first() is not None:
-                form.name.errors = ["Repeated name"]
+                form.name.errors = [gettext("Repeated name")]
             else:
                 # Populate config
                 if scheduler is None:
@@ -1446,7 +1415,7 @@ class SchedulerPanel(AdministratorModelView):
                 config['passkey'] = form.passkey.data
 
                 parsed = urlparse.urlparse(form.lab_server_url.data)
-                summary = "iLab batch at %s" % parsed.hostname
+                summary = gettext("iLab batch at %(where)s", where=parsed.hostname)
 
                 if scheduler is None:
                     scheduler = model.DbScheduler(name = form.name.data, summary = summary, scheduler_type = 'ILAB_BATCH_QUEUE', config = json.dumps(config), is_external = True)
@@ -1459,10 +1428,10 @@ class SchedulerPanel(AdministratorModelView):
                     self.session.commit()
                 except:
                     traceback.print_exc()
-                    flash("Error adding resource", "error")
+                    flash(gettext("Error adding resource"), "error")
                     self.session.rollback()
                 else:
-                    flash("Scheduler saved", "success")
+                    flash(gettext("Scheduler saved"), "success")
                     return redirect(url_for('.edit_view', id = scheduler.id))
 
         if scheduler:
@@ -1485,7 +1454,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error registering ilab experiment", "error")
+                            flash(gettext("Error registering ilab experiment"), "error")
                             self.session.rollback()
                             break
                         choices.remove(unicode(experiment))
@@ -1509,7 +1478,7 @@ class SchedulerPanel(AdministratorModelView):
                             self.session.commit()
                         except:
                             traceback.print_exc()
-                            flash("Error removing experiment", "error")
+                            flash(gettext("Error removing experiment"), "error")
                             self.session.rollback()
                             break
                     else:
@@ -1522,18 +1491,18 @@ class SchedulerPanel(AdministratorModelView):
             add_form = None
             registered_experiments = []
 
-        return self.render("admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
+        return self.render("admin/admin-scheduler-create-ilab.html", form = form, back = back, registered_experiments = registered_experiments, add_form = add_form, create = scheduler is None)
 
 
     @expose('/edit/', ['GET', 'POST'])
     def edit_view(self):
         id = request.args.get('id')
         if id is None:
-            flash("No id provided", "error")
+            flash(gettext("No id provided"), "error")
             return redirect(url_for('.index_view'))
         scheduler = self.session.query(model.DbScheduler).filter_by(id = id).first()
         if scheduler is None:
-            flash("Id provided does not exist", "error")
+            flash(gettext("Id provided does not exist"), "error")
             return redirect(url_for('.index_view'))
 
         back = url_for('.index_view')
@@ -1571,12 +1540,13 @@ class GenericPermissionPanel(AdministratorModelView):
 
     can_create = False
 
-    column_descriptions = dict(permanent_id='A unique permanent identifier for a particular permission', )
+    column_descriptions = dict(permanent_id=lazy_gettext('A unique permanent identifier for a particular permission'))
     column_searchable_list = ('permanent_id', 'comments')
     column_formatters = dict(permission=display_parameters)
-    column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments' )
-    column_sortable_list = ( 'permission', 'permanent_id', 'date', 'comments')
+    column_filters = ( 'permission_type', 'permanent_id', 'date', 'comments')
+    column_sortable_list = ( 'permanent_id', 'date', 'comments')
     column_list = ('permission', 'permanent_id', 'date', 'comments')
+    column_labels = dict(permission=lazy_gettext("Permission"), permanent_id=lazy_gettext("Permanent ID"), date=lazy_gettext("Date"), comments=lazy_gettext("Comments"))
     form_overrides = dict(permanent_id=DisabledTextField, permission_type=DisabledTextField)
     form_excluded_columns = ('uses',)
 
@@ -1593,7 +1563,7 @@ class GenericPermissionPanel(AdministratorModelView):
                                                             **kwargs)
 
 
-    def on_model_change(self, form, permission):
+    def on_model_change(self, form, permission, is_created):
         # TODO: use weblab.permissions directly
         req_arguments = {
             'experiment_allowed': ('experiment_permanent_id', 'experiment_category_id', 'time_allowed'),
@@ -1614,13 +1584,13 @@ class GenericPermissionPanel(AdministratorModelView):
 
         message = ""
         if missing_arguments:
-            message = "Missing arguments: %s" % ', '.join(missing_arguments)
+            message = gettext("Missing arguments: %(arguments)s", arguments=', '.join(missing_arguments))
             if exceeded_arguments:
                 message += "; "
         if exceeded_arguments:
-            message += "Exceeded arguments: %s" % ', '.join(exceeded_arguments)
+            message += gettext("Exceeded arguments: %(arguments)s", arguments=', '.join(exceeded_arguments))
         if message:
-            raise Exception(message)
+            raise ValidationError(message)
 
         if permission.permission_type == 'experiment_allowed':
             exp_name = [parameter for parameter in permission.parameters if
@@ -1637,12 +1607,12 @@ class GenericPermissionPanel(AdministratorModelView):
                     found = True
                     break
             if not found:
-                raise Exception(u"Experiment not found: %s@%s" % (exp_name, cat_name))
+                raise ValidationError(gettext("Experiment not found: %(experiment)s%", experiment='%s@%s' % (exp_name, cat_name)))
 
             try:
                 int(time_allowed)
             except:
-                raise Exception("Time allowed must be a number (in seconds)")
+                raise ValidationError(gettext("Time allowed must be a number (in seconds)"))
 
 
 class PermissionEditForm(InlineFormAdmin):
@@ -1655,56 +1625,45 @@ class UserPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('user',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user', model.DbUser.login),)
     column_list = ('user', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['user'] = lazy_gettext("User")
 
     inline_models = (PermissionEditForm(model.DbUserPermissionParameter),)
 
-    INSTANCE = None
-
     def __init__(self, session, **kwargs):
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
-        self.user_filter_number = get_filter_number(self, u'User.login')
-        UserPermissionPanel.INSTANCE = self
 
 
 class GroupPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('group',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group', model.DbGroup.name),)
     column_list = ('group', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['group'] = lazy_gettext("Group")
 
     inline_models = (PermissionEditForm(model.DbGroupPermissionParameter),)
 
-    INSTANCE = None
-
     def __init__(self, session, **kwargs):
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
-
-        self.group_filter_number = get_filter_number(self, u'Group.name')
-
-        GroupPermissionPanel.INSTANCE = self
 
 
 class RolePermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('role',)
     column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role', model.DbRole.name),)
     column_list = ('role', ) + GenericPermissionPanel.column_list
+    column_labels = GenericPermissionPanel.column_labels.copy()
+    column_labels['role'] = lazy_gettext("Role")
 
     inline_models = (PermissionEditForm(model.DbRolePermissionParameter),)
-
-    INSTANCE = None
 
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
 
-        self.role_filter_number = get_filter_number(self, u'Role.name')
-
-        RolePermissionPanel.INSTANCE = self
-
-
 class PermissionsForm(Form):
-    permission_types = Select2Field(u"Permission type:",
+    permission_types = Select2Field(lazy_gettext("Permission type:"),
                                     choices=[(permission_type, permission_type) for permission_type in
                                              permissions.permission_types], default=permissions.EXPERIMENT_ALLOWED)
-    recipients = Select2Field(u"Type of recipient:", choices=[('user', 'User'), ('group', 'Group'), ('role', 'Role')],
+    recipients = Select2Field(lazy_gettext("Type of recipient:"), choices=[('user', lazy_gettext('User')), ('group', lazy_gettext('Group')), ('role', lazy_gettext('Role'))],
                               default='group')
 
 
@@ -1726,7 +1685,7 @@ class PermissionsAddingView(AdministratorView):
             elif form.recipients.data == 'group':
                 return redirect(url_for('.groups', permission_type=form.permission_types.data))
 
-        return self.render("admin-permissions.html", form=form, permission_types = permissions.permission_types)
+        return self.render("admin/admin-permissions.html", form=form, permission_types = permissions.permission_types)
 
     def _get_permission_form(self, permission_type, recipient_type, recipient_resolver, DbPermissionClass,
                              DbPermissionParameterClass):
@@ -1741,8 +1700,8 @@ class PermissionsAddingView(AdministratorView):
 
         class ParentPermissionForm(Form):
 
-            comments = TextField("Comments")
-            recipients = Select2Field(recipient_type, description="Recipients of the permission")
+            comments = TextField(lazy_gettext("Comments"))
+            recipients = Select2Field(recipient_type, description=lazy_gettext("Recipients of the permission"))
 
             def get_permanent_id(self):
                 recipient = recipient_resolver(self.recipients.data)
@@ -1777,15 +1736,15 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['experiment', 'time_allowed', 'priority', 'initialization_in_accounting']
 
-                experiment = Select2Field(u'Experiment', description="Experiment")
+                experiment = Select2Field(lazy_gettext('Experiment'), description=lazy_gettext("Experiment"))
 
-                time_allowed = TextField(u'Time assigned', description="Measured in seconds",
+                time_allowed = TextField(lazy_gettext('Time assigned'), description=lazy_gettext("Measured in seconds"),
                                          validators=[Required(), NumberRange(min=1)], default=100)
-                priority = TextField(u'Priority', description="Priority of the user",
+                priority = TextField(lazy_gettext('Priority'), description=lazy_gettext("Priority of the user"),
                                      validators=[Required(), NumberRange(min=0)], default=5)
-                initialization_in_accounting = SelectField(u'Initialization',
-                                                           description="Take initialization into account",
-                                                           choices=[('1', 'Yes'), ('0', 'No')], default='1')
+                initialization_in_accounting = SelectField(lazy_gettext('Initialization'),
+                                                           description=lazy_gettext("Take initialization into account"),
+                                                           choices=[('1', lazy_gettext('Yes')), ('0', lazy_gettext('No'))], default='1')
 
 
                 def __init__(self, *args, **kwargs):
@@ -1833,7 +1792,7 @@ class PermissionsAddingView(AdministratorView):
             class ParticularPermissionForm(ParentPermissionForm):
                 parameter_list = ['target_group']
 
-                target_group = Select2Field(u'Target group', description="Group to be instructed")
+                target_group = Select2Field(lazy_gettext('Target group'), description=lazy_gettext("Group to be instructed"))
 
                 def __init__(self, *args, **kwargs):
                     super(ParticularPermissionForm, self).__init__(*args, **kwargs)
@@ -1894,12 +1853,12 @@ class PermissionsAddingView(AdministratorView):
             try:
                 form.self_register()
             except:
-                flash("Error saving data. May the permission be duplicated?")
-                return self.render("admin-permission-create.html", form=form, fields=form.parameter_list,
+                flash(gettext("Error saving data. May the permission be duplicated?"))
+                return self.render("admin/admin-permission-create.html", form=form, fields=form.parameter_list,
                                    description=current_permission_type.description, permission_type=permission_type)
             return redirect(back_url)
 
-        return self.render("admin-permission-create.html", form=form, fields=form.parameter_list,
+        return self.render("admin/admin-permission-create.html", form=form, fields=form.parameter_list,
                            description=current_permission_type.description, permission_type=permission_type)
 
     @expose('/users/<permission_type>/', methods=['GET', 'POST'])
@@ -1911,9 +1870,9 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda login: self.session.query(model.DbUser).filter_by(login=login).one()
 
-        return self._show_form(permission_type, 'Users', users, recipient_resolver,
+        return self._show_form(permission_type, gettext('Users'), users, recipient_resolver,
                                model.DbUserPermission, model.DbUserPermissionParameter,
-                               get_full_url(UserPermissionPanel.INSTANCE.url))
+                               url_for('permissions/user.index_view'))
 
     @expose('/groups/<permission_type>/', methods=['GET', 'POST'])
     def groups(self, permission_type):
@@ -1923,9 +1882,9 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda group_name: self.session.query(model.DbGroup).filter_by(name=group_name).one()
 
-        return self._show_form(permission_type, 'Groups', groups, recipient_resolver,
+        return self._show_form(permission_type, gettext('Groups'), groups, recipient_resolver,
                                model.DbGroupPermission, model.DbGroupPermissionParameter,
-                               get_full_url(GroupPermissionPanel.INSTANCE.url))
+                               url_for('permissions/group.index_view'))
 
 
     @expose('/roles/<permission_type>/', methods=['GET', 'POST'])
@@ -1936,27 +1895,212 @@ class PermissionsAddingView(AdministratorView):
 
         recipient_resolver = lambda role_name: self.session.query(model.DbRole).filter_by(name=role_name).one()
 
-        return self._show_form(permission_type, 'Roles', roles, recipient_resolver,
+        return self._show_form(permission_type, gettext('Roles'), roles, recipient_resolver,
                                model.DbRolePermission, model.DbRolePermissionParameter,
-                               get_full_url(RolePermissionPanel.INSTANCE.url))
+                               url_for('permissions/role.index_view'))
+
+class ClientField(collections.namedtuple('ClientField', ['field', 'key'])):
+    @property
+    def type(self):
+        return 'client'
+
+class ServerField(collections.namedtuple('ServerField', ['field', 'key'])):
+    @property
+    def type(self):
+        return 'server'
+
+class ImageField(collections.namedtuple('ImageField', ['field', 'image'])):
+    @property
+    def type(self):
+        return 'image'
+
+IMAGES_FORMATS = ['jpg', 'jpeg', 'png', 'gif']
+
+class SystemPropertiesForm(Form):
+    demo_available = BooleanField(lazy_gettext("Demo available:"))
+    demo_user = Select2Field(lazy_gettext("Demo user"))
+    demo_password = TextField(lazy_gettext("Demo password"), description=lazy_gettext("Password of the selected user. It will be publicly shown. Make sure that it is the valid password for the user."))
+    host_entity_image = FileField(lazy_gettext("Entity picture:"), validators = [ FileAllowed(IMAGES_FORMATS, lazy_gettext('Images only!')) ])
+    host_entity_image_small = FileField(lazy_gettext("Entity small picture:"), validators = [ FileAllowed(IMAGES_FORMATS, lazy_gettext('Images only!')) ])
+    host_entity_link = URLField(lazy_gettext("Entity link:"))
+    contact_email = EmailField(lazy_gettext("Contact e-mail:"), validators = [Email()])
+    admin_emails = TextField(lazy_gettext("Admin e-mails:"), description = lazy_gettext("Separated by commas"))
+    google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
+
+    # base.location: "/w/whatever": generated at client_config.py
+
+    FIELDS = [
+        {
+            'name' : lazy_gettext("Guest accounts"),
+            'description' : lazy_gettext("Manage public account creation, guest accounts, etc.:"),
+            'values' : [
+                ClientField(field='demo_available', key='demo.available'),
+                ClientField(field='demo_user', key='demo.username'),
+                ClientField(field='demo_password', key='demo.password'),
+            ],
+        },
+        {
+            'name' : lazy_gettext("Entity"),
+            'description' : lazy_gettext("Entity customization: logo, links, etc.:"),
+            'values' : [
+                ImageField(field='host_entity_image', image='.logo_regular'),
+                ImageField(field='host_entity_image_small', image='.logo_small'),
+                ClientField(field='host_entity_link', key='host.entity.link'),
+                ClientField(field='contact_email', key='admin.email'),
+                ServerField(field='admin_emails', key='admin.emails'),
+            ],
+        },
+        {
+            'name' : lazy_gettext("Tracking"),
+            'description' : lazy_gettext("Tracking identification"),
+            'values' : [
+                ClientField(field='google_analytics', key='google.analytics.tracking.code'),
+            ]
+        },
+    ]
+    FIELDS_BY_KEY = {
+        # key: field_name
+    }
+    ALL_FIELDS = []
 
 
-class HomeView(AdminIndexView):
+# Validation - double check
+for category in SystemPropertiesForm.FIELDS:
+    for _field in category['values']:
+        if not hasattr(SystemPropertiesForm, _field.field):
+            print("Invalid name: %s" % _field.field, file=sys.stderr)
+        elif hasattr(_field, 'key'):
+            SystemPropertiesForm.ALL_FIELDS.append(_field)
+            SystemPropertiesForm.FIELDS_BY_KEY[_field.key] = _field.field
+
+
+class SystemProperties(AdministratorView):
+    def __init__(self, db_session, **kwargs):
+        self._db_session = db_session
+        super(SystemProperties, self).__init__(**kwargs)
+
+    @expose('/logos/regular')
+    def logo_regular(self):
+        return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_PATH])
+
+    @expose('/logos/small')
+    def logo_small(self):
+        return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_SMALL_PATH])
+
+    def _store_image(self, field, config_property):
+        image_path = self.app_instance.config[config_property]
+        image_path = os.path.abspath(image_path)
+        if os.path.exists(image_path):
+            field.data.save(image_path)
+        else:
+            field.errors = [gettext("File %(path)s does not exist. Create it first", path=image_path)]
+
+    @expose('/', methods = ['GET', 'POST'])
+    def index(self):
+        db = self.app_instance.db
+        client_config = db.client_configuration()
+        server_config = db.server_configuration()
+        
+        kwargs = {}
+        for key, value in six.iteritems(client_config):
+            field_name = SystemPropertiesForm.FIELDS_BY_KEY.get(key)
+            if field_name is not None:
+                kwargs[field_name] = value
+            else:
+                print("ClientConfiguration key %s not present in the form" % key)
+
+        form = SystemPropertiesForm(**kwargs)
+        logins = db.list_user_logins()
+        form.demo_user.choices = zip(logins, logins)
+
+        create_msg = gettext("create one")
+        create_one = "<a href='{0}'>{1}</a>".format(url_for('users/users.create_view', url=request.url), create_msg)
+        form.demo_user.description = Markup(gettext("Select from the list, or %(create_one)s", create_one=create_one))
+
+        if form.validate_on_submit():
+
+            if form.host_entity_image.data:
+                self._store_image(form.host_entity_image, configuration_doc.CORE_LOGO_PATH)
+
+            if form.host_entity_image_small.data:
+                self._store_image(form.host_entity_image_small, configuration_doc.CORE_LOGO_SMALL_PATH)
+
+            client_properties = {
+                # key: value
+            }
+            server_properties = {
+                # key: value
+            }
+
+            for field in SystemPropertiesForm.ALL_FIELDS:
+                data = getattr(form, field.field).data
+                if field.type == 'client':
+                    client_properties[field.key] = data
+                elif field.type == 'server':
+                    server_properties[field.key] = data
+                # field.type == 'other' => Discarded. e.g., images
+            db.store_configuration(client_properties, server_properties)
+
+        return self.render("admin/admin-system-properties.html", form = form)
+
+
+class HomeView(AdminAuthnMixIn, WebLabAdminIndexView):
     def __init__(self, db_session, **kwargs):
         self._db_session = db_session
         super(HomeView, self).__init__(**kwargs)
 
     @expose()
     def index(self):
-        return self.render("admin-index.html")
+        db = self.app_instance.db
+        last_week_uses = db.frontend_admin_uses_last_week()
+        last_year_uses = db.frontend_admin_uses_last_year()
+        geo_month = db.frontend_admin_uses_geographical_month()
+        latest_uses = db.frontend_admin_latest_uses()
+        return self.render("admin/admin-index.html",
+                latest_uses=latest_uses, geo_month=geo_month,
+                last_week_uses=self._to_nvd3(last_week_uses), 
+                last_year_uses=self._to_nvd3(last_year_uses))
 
-    def is_accessible(self):
-        return get_app_instance().is_admin()
+    def _to_nvd3(self, data):
+        formatted = [
+            # {
+            #   'key' : 'Experiment name', // or 'Total'
+            #   'values' : [
+            #       [
+            #           milliseconds_since_epoch,
+            #           value
+            #       ]
+            #   ]
+            # }
+        ]
 
-    def _handle_view(self, name, **kwargs):
-        if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+        total_values = collections.defaultdict(int)
+            # date : value
 
-        return super(HomeView, self)._handle_view(name, **kwargs)
+        total_experiments_value = collections.defaultdict(int)
+            # experiment : total_value
 
+        for experiment_name, experiment_data in six.iteritems(data):
+            for date, value in six.iteritems(experiment_data):
+                total_experiments_value[experiment_name] += value
+                total_values[date] += value
 
+        total_data = {
+            'key' : gettext('Total'),
+            'values' : []
+        }
+        for date in sorted(total_values.keys()):
+            total_data['values'].append([int(date.strftime('%s') + '000'), total_values[date]])
+        formatted.append(total_data)
+
+        for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(9):
+            experiment_data = {
+                'key' : experiment_name,
+                'values' : []
+            }
+            for date in sorted(data[experiment_name].keys()):
+                experiment_data['values'].append([int(date.strftime('%s') + '000'), data[experiment_name][date]])
+            formatted.append(experiment_data)
+
+        return formatted
+                

@@ -1,0 +1,112 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+{% from "_widgets.html" import multitimeline %}
+<h1>{{ gettext("Welcome to the administrator!") }}</h1>
+
+{{ gettext("You can use this tool to add or remove users, check what they did, or manage permissions.") }}
+
+<div class="row">
+    <div class="col-sm-6 text-center">
+        <h3>{{ gettext("Latest uses") }}</h3>
+
+        {% if latest_uses|length %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Experiment</th>
+                    <th>Date</th>
+                    <th>End date</th>
+                    <th>Use</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for use in latest_uses %}
+                    <tr>
+                        <td class="longname">{{ use['display_name'] }}</td>
+                        <td>{{ use['experiment_name'] }}</td>
+                        <td data-date="{{ use['start_date'] }}Z"></td>
+                        {% if use['end_date'] %}
+                        <td data-date="{{ use['end_date'] }}Z"></td>
+                        {% else %}
+                        <td><b>{{ gettext("Not yet finished") }}</b></td>
+                        {% endif %}
+                        <td><a href="{{ url_for('logs/users.detail', id=use['id']) }}">{{ gettext("View") }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-error">
+            <h2>{{ gettext("No use registered") }}</h2>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-sm-6 text-center">
+        <h3>{{ gettext("Last month - locations") }}</h3>
+        
+        {% if not geo_month and latest_uses %}
+            <div class="alert alert-warning">
+                {{ gettext("Make sure you have enabled locations storage by running:") }}
+                <pre>weblab-admin.py locations {directory} --reset-database --reset-cache</pre>
+            </div>
+        {% endif %}
+        <div id="regions_div" style="width: 100%; height: 400px;"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-6 text-center">
+        <h3>{{ gettext("Last week") }}</h3>
+        {{ multitimeline("last_week", height = '250px') }}
+    </div>
+
+    <div class="col-sm-6 text-center">
+        <h3>{{ gettext("Last year") }}</h3>
+        {{ multitimeline("last_year", height = '250px') }}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+
+    <script>        
+        {# included in the base #}
+        {#
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("td[data-date]").each(function (pos, value) {
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        });
+        #}
+        $("td.longname").each(function(pos, val) { 
+            $(val).attr("title", $(val).text()); 
+            var MAX_SIZE = 8;
+            if($(val).text().length > MAX_SIZE) {
+                var newTitle = $(val).text().substr(0, MAX_SIZE) + "..."; 
+                $(val).text(newTitle); 
+            } 
+        });
+    </script>
+
+    {% from "_widgets.html" import google_map, google_map_scripts, multitimeline_scripts, multitimeline_load %}
+
+    {{ google_map_scripts() }}
+    {{ google_map("regions_div", geo_month) }}
+
+    {{ multitimeline_scripts() }}
+    {{ multitimeline_load("last_week", last_week_uses|tojson|safe) }}
+    {{ multitimeline_load("last_year", last_year_uses|tojson|safe) }}
+
+
+{% endblock %}

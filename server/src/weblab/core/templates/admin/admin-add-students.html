@@ -1,0 +1,88 @@
+{% extends 'weblab-master.html' %}
+{% block head %}
+<style>
+    textarea {
+        {% if form|attr("ldap_user") %}
+        width : 250px;
+        {% else %}
+        width : 500px;
+        {% endif %}
+        height: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <br/>
+        <h1>{{ gettext("Add users") }}</h1>
+        <br/>
+        <br/>
+
+        <p>{{ description }}</p>
+        <pre>{{ example }}</pre>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+
+            <fieldset>
+                {% if form|attr("ldap_user") %}
+                    <div class="page-header">
+                            <h2>{{ gettext("Authentication") }}</h2>
+                    </div>
+
+                    {{ render_field(form.ldap_system) }}
+                    {{ render_field(form.ldap_user) }}
+                    {{ render_field(form.ldap_domain) }}
+                    {{ render_field(form.ldap_password) }}
+                {% endif %}
+
+                <div class="page-header">
+                    <h2>{{ gettext("Users") }}</h2>
+                </div>
+               
+
+                {{ render_field(form.users) }}
+
+                <div class="page-header">
+                    <h2>{{ gettext("Groups") }}</h2>
+                </div>
+
+
+                <div class="form-group">
+                    <div class="col-sm-offset-1">
+                        <p><input id="group-no"       type="radio" name="group" value="none" checked>&nbsp;{{ gettext("Don't add to any group.") }}</input></p>
+                        <p><input id="group-new"      type="radio" name="group" value="new">&nbsp;{{ gettext("Create a group and add these users to that group:") }}</input></p>
+                    </div>
+                </div>
+
+
+
+                {{ render_field(form.new_group) }}
+
+                <div class="form-group">
+                    <div class="col-sm-offset-1">
+                        <p><input id="group-existing" type="radio" name="group" value="existing">&nbsp;{{ gettext("Add them to the following existing group:") }}</p>
+                    </div>
+                </div>
+
+                {{ render_field(form.existing_group) }}
+                <div class="form-actions text-center">
+                    <a href="{{ url_for('.index') }}" class="btn btn-danger">{{ gettext("Back") }}</a>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}
+

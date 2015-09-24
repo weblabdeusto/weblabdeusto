@@ -6,22 +6,22 @@
 
 <div class="row">
 
-<h1>Interactions</h1>
+<h1>{{ gettext("Interactions") }}</h1>
 <br/>
-<h2>Details</h2>
+<h2>{{ gettext("Details") }}</h2>
 <table class="table table-bordered table-striped">
     <tbody>
         <tr>
-            <td><strong>Login</strong></td>
+            <td><strong>{{ gettext("Login") }}</strong></td>
             <td>{{ uue.user.login }} </td>
         </tr>
         <tr>
-            <td><strong>Full name</strong></td>
+            <td><strong>{{ gettext("Full name") }}</strong></td>
             <td>{{ uue.user.full_name }} </td>
         </tr>
         <tr>
-            <td><strong>More details</strong></td>
-            <td><a href="{{ url_for('.detail', id=uue.id) }}">details</a></td>
+            <td><strong>{{ gettext("More details") }}</strong></td>
+            <td><a href="{{ url_for('.detail', id=uue.id) }}">{{ gettext("details") }}</a></td>
         </tr>
     </tbody>
 </table>
@@ -30,34 +30,34 @@
 
 <div class="row">
 
-<h2>Interactions</h2>
+<h2>{{ gettext("Interactions") }}</h2>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
-            <th>Timestamp before</th>
-            <th>Timestamp after</th>
-            <th>Request</th>
-            <th>Response</th>
-            <th>Link</th>
+            <th>{{ gettext("Timestamp before") }}</th>
+            <th>{{ gettext("Timestamp after") }}</th>
+            <th>{{ gettext("Request") }}</th>
+            <th>{{ gettext("Response") }}</th>
+            <th>{{ gettext("Link") }}</th>
         </tr>
     </thead>
     <tbody>
         {% for _, is_command, interaction in interactions %}
             <tr>
-                <td>{{ interaction.timestamp_before }}.{{ unicode(interaction.timestamp_before_micro).zfill(6) }}</td>
+                <td>{{ display_date(interaction.timestamp_before) }}.{{ unicode(interaction.timestamp_before_micro).zfill(6) }}</td>
                 {% if interaction.timestamp_after %}
-                    <td>{{ interaction.timestamp_after }}.{{ unicode(interaction.timestamp_after_micro).zfill(6) }}</td>
+                    <td>{{ display_date(interaction.timestamp_after) }}.{{ unicode(interaction.timestamp_after_micro).zfill(6) }}</td>
                 {% else %}
-                    <td>Not provided</td>
+                    <td>{{ gettext("Not provided") }}</td>
                 {% endif %}
                 {% if is_command %}
                     <td>{{ interaction.command }}</td>
                     <td>{{ interaction.response }}</td>
-                    <td> N/A </td>
+                    <td>{{ gettext("N/A") }}</td>
                 {% else %}
                     <td>{{ interaction.file_info }} ({{ interaction.file_hash }})</td>
                     <td>{{ interaction.response }}</td>
-                    <td><a href="{{ url_for('.files', id = interaction.id) }}">Download</a> </td>
+                    <td><a href="{{ url_for('.files', id = interaction.id) }}">{{ gettext("Download") }}</a> </td>
                 {% endif %}
 
             </tr>

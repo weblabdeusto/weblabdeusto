@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from abc import ABCMeta, abstractmethod
 import os
@@ -358,7 +359,7 @@ def kill_launcher(pid_file):
 
 if __name__ == '__main__':
     if len(sys.argv) != 6:
-        print >> sys.stderr, "Error: invalid number of arguments"
+        print("Error: invalid number of arguments", file=sys.stderr)
         sys.exit(-1)
 
     _, config_dir, host_name, process_name, logging_file, debugger_port = sys.argv

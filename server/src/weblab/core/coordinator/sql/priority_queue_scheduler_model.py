@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from voodoo.dbutil import get_table_kwargs
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, UniqueConstraint, Text, Index

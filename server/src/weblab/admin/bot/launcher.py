@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 
@@ -72,19 +73,19 @@ class BotLauncher(object):
 
     def start(self):
         # Launching trials...
-        print "New trial. %i iterations" % self.iterations
+        print("New trial. %i iterations" % self.iterations)
         self.bot_trial = self._launch_trial()
 
-        print "Cleaning results...", time.asctime()
+        print("Cleaning results...", time.asctime())
         self.bot_trial = mapper.remove_unpickables(self.bot_trial)
 
         if self.pickle_file_name is not None:
             try:
-                print "Storing results...", time.asctime()
+                print("Storing results...", time.asctime())
                 self._dump_results()
-                print "Results stored",time.asctime()
+                print("Results stored",time.asctime())
             except Exception as e:
-                print "Error: Couldn't store results into %s: %r" % (self.pickle_file_name, e)
+                print("Error: Couldn't store results into %s: %r" % (self.pickle_file_name, e))
 
     def _launch_trial(self):
 
@@ -107,11 +108,11 @@ class BotLauncher(object):
         try:
             for launch_file in self.launch_files:
                 if self.verbose:
-                    print "[Launcher] Launching... %s" % launch_file
+                    print("[Launcher] Launching... %s" % launch_file)
                 weblab_process = WebLabProcess.WebLabProcess(launch_file, self.host, self.options, verbose = self.verbose)
                 weblab_process.start()
                 if self.verbose:
-                    print "[Launcher] %s running" % launch_file
+                    print("[Launcher] %s running" % launch_file)
                 started_processes.append(weblab_process)
 
             if len(started_processes) > 1:
@@ -125,7 +126,7 @@ class BotLauncher(object):
         except:
             for started_process in started_processes:
                 if self.verbose:
-                    print "[Launcher] Shutting down... %s" % started_process
+                    print("[Launcher] Shutting down... %s" % started_process)
                 started_process.shutdown()
             raise
         return started_processes
@@ -147,7 +148,7 @@ class BotLauncher(object):
 
         # Launching botusers...
         if self.verbose:
-            print "[Launcher] All processes launched"
+            print("[Launcher] All processes launched")
         try:
             botusers = []
             for botuser_creator_name, botuser_creator in self.scenario:

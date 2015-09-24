@@ -14,6 +14,7 @@
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import re
 import traceback
@@ -222,7 +223,7 @@ class LaboratoryServer(object):
                 log.log( LaboratoryServer, log.level.Warning, "It was not possible to find out the api version of %r. Using current version as default."
                          % experiment_coord_address)
                 if DEBUG:
-                    print "[DBG] Was not possible to find out the api version of %r" % experiment_coord_address
+                    print("[DBG] Was not possible to find out the api version of %r" % experiment_coord_address)
             else:
                 # Remember the api version that we retrieved
                 self._assigned_experiments.set_api(experiment_instance_id, reported_api)

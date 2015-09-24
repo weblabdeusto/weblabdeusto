@@ -36,7 +36,7 @@ class UdDemoXilinxExperiment(UdXilinxExperiment.UdXilinxExperiment):
 
     def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
         super(UdDemoXilinxExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
-        file_path = data_filename(os.path.join(module_directory, self.FILES[self._xilinx_device]))
+        file_path = data_filename(os.path.join(module_directory, self.FILES[self._board_type]))
         self.file_content = ExperimentUtil.serialize(open(file_path, "rb").read())
 
     @Override(UdXilinxExperiment.UdXilinxExperiment)

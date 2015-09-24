@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import os
 import json
 
@@ -10,11 +11,11 @@ def version():
     filename = data_filename(os.path.join('weblab','version.json'))
     contents = None
 
-    if filename is not None:
+    if filename is not None and os.path.exists(filename):
         version_contents = open(filename).read()
         try:
             version_contents_value = json.loads(version_contents)
-        except Exception as e:
+        except Exception:
             pass
         else:
             message = r"""WebLab-Deusto r<a href=\"https://github.com/weblabdeusto/weblabdeusto/commits/{version}\">{number}</a> | Last update: {date}""".format(

@@ -1,0 +1,44 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+    {% from "_form_helpers.html" import render_field %}
+
+    <h2>{{ gettext("System settings") }}</h2>
+
+    <form method="POST" action="{{ request.url }}" class="form-horizontal" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <fieldset>
+            {% for category in form.FIELDS %}
+                <div class="col-sm-offset-1">
+                    <h3>{{ category['name'] }}</h3>
+                    <p>{{ category['description'] }}</p>
+                </div>
+                
+                <br>
+                {% for field in category['values'] %}
+                    {{ render_field(form|attr(field.field)) }}
+                    {% if field.type == 'image' %}
+                        <div class="col-sm-offset-3">
+                            <img src="{{ url_for(field.image) }}"/> 
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <br>
+            {% endfor %}
+
+
+            <div class="text-center">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+ 
+{% endblock %}
+
+{% block tail %}
+    {{ super() }}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}

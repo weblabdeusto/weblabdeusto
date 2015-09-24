@@ -1,6 +1,9 @@
+from __future__ import print_function, unicode_literals
 import sys
 import json
 import types
+import urllib
+import hashlib
 import urlparse
 import datetime
 import traceback
@@ -9,7 +12,7 @@ import threading
 from functools import wraps, partial
 from collections import OrderedDict
 
-from flask import request, Response
+from flask import request, Response, make_response, url_for
 
 from voodoo.log import log, level, log_exc, logged
 import weblab.core.codes as ErrorCodes
@@ -126,7 +129,7 @@ def get_json():
         return rv
     
     data = request.data
-    print >> sys.stderr, "Error: could not deserialize:", data
+    print("Error: could not deserialize:", data, file=sys.stderr)
     sys.stderr.flush()
     log(__name__, level.Warning, "Error retrieving JSON contents")
     log(__name__, level.Warning, data)
@@ -246,7 +249,63 @@ class WebLabAPI(object):
             self.context.session_id = session_id
     
     def __exit__(self, *args, **kwargs):
-        pass
+        for key in dir(self.context):
+            if not key.startswith('__'):
+                try:
+                    delattr(self.context, key)
+                except AttributeError:
+                    pass
+
+    @property
+    def client_config(self):
+        """ Check in context. If not there, retrieve from the database and store in context """
+        if hasattr(self.context, 'client_config'):
+            return getattr(self.context, 'client_config')
+        db = self.db
+        if db is None:
+            return None
+        client_config = db.client_configuration()
+        self.context.client_config = client_config
+        return client_config
+
+    def client_property(self, name):
+        client_config = self.client_config
+        if client_config is None:
+            return None
+        return client_config.get(name)
+
+    @property
+    def current_user(self):
+        """
+        :rtype: weblab.db.models.DbUser
+        """
+        current_user = getattr(self.context, 'current_user', None)
+        if current_user is not None:
+            return current_user
+
+        if getattr(self.context, 'current_user_not_found', False):
+            return None
+        
+        try:
+            user = self.api.get_user()
+        except coreExc.SessionNotFoundError:
+            self.context.current_user_not_found = True
+            return None
+        else:
+            self.context.current_user = user
+            return user
+
+    @property
+    def is_admin(self):
+        if hasattr(self.context, 'is_admin'):
+            return self.context.is_admin
+        
+        try:
+            is_admin = self.api.is_admin()
+        except coreExc.SessionNotFoundError:
+            is_admin = False
+        self.context.is_admin = is_admin
+        return self.context.is_admin
 
     @property
     def user_agent(self):
@@ -291,6 +350,59 @@ class WebLabAPI(object):
     @property
     def client_address(self):
         return getattr(self.context, 'client_address', None)
+
+    @property
+    def core_server_url(self):
+        return self.context.config.get_value('core_server_url', None)
+
+    @property
+    def languages(self):
+        if self.server_instance.babel is None:
+            return []
+        return sorted(self.server_instance.babel.list_translations(), key=lambda locale: locale.display_name.capitalize())
+
+    @property
+    def language_links(self):
+        language_links = []
+        for language in self.languages:
+            if '?' in request.url and 'locale=' in request.url.split('?')[1]:
+                # If there is already a locale= in the URL, just replace that query variable
+                old_lang = request.url.split('locale=')[1].split('&')[0]
+                link = request.url.replace('locale=' + old_lang, 'locale=' + language.language)
+            else:
+                # Otherwise, add the locale
+                separator = '&' if '?' in request.url else '?'
+                link = request.url + separator + 'locale=' + language.language
+
+            language_links.append({
+                'link' : link,
+                'name' : language.display_name.capitalize()
+            })
+        return language_links
+
+    @property
+    def gravatar_url(self):
+        """
+        Returns the gravatar URL 
+        :return: gravatar URL
+        :rtype: unicode
+        """
+        # TODO: default to the /avatar/ thing; change the db to support that 
+        # /weblab/web/avatars/<hidden-id>.jpg is that URL if the user doesn't 
+        # have any gravatar URL
+
+        # Retrieve user information
+        if self.current_user:
+            email = self.current_user.email
+
+            size = 50 # To be configured
+
+            # Calculate the Gravatar from the mail
+            gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
+            gravatar_url += urllib.urlencode({'d': url_for('core_web.avatar', login=self.current_user.login, size=size, _external=True), 's': str(size)})
+            return gravatar_url
+        return None
+
 
     @property
     def server_instance(self):
@@ -339,7 +451,7 @@ class WebLabAPI(object):
     def _wrap_response(self, response):
         if isinstance(response, Response):
             return response
-        return self.jsonify(response)
+        return self.wl_jsonify(response)
 
     def _json(self, web_context, flask_app, instance_args):
         _global_context.current_weblab = self
@@ -451,7 +563,22 @@ class WebLabAPI(object):
             return wrapped_func
         return wrapper
 
-    def jsonify(self, obj, limit = 15, wrap_ok = True):
+    def jsonify(self, **kwargs):
+        obj = kwargs
+        indent = request.args.get('indent', None)
+        if indent:
+            indent = 4
+        serialized = json.dumps(obj, indent = indent)
+        response = Response(serialized, mimetype = 'application/json')
+
+        if self.session_id:
+            session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
+            self.fill_session_cookie(response, session_id_cookie)
+
+        return response
+       
+
+    def wl_jsonify(self, obj, limit = 15, wrap_ok = True):
         simplified_obj = simplify_response(obj, limit = limit)
         if wrap_ok:
             simplified_obj = {
@@ -470,7 +597,13 @@ class WebLabAPI(object):
 
         return response
 
-    def fill_session_cookie(self, response, value):
+    def make_response(self, *args, **kwargs):
+        response = make_response(*args, **kwargs)
+        if self.session_id:
+            self.fill_session_cookie(response)
+        return response
+
+    def fill_session_cookie(self, response, value = None):
         """
         Inserts the weblabsessionid and loginweblabsessionid cookies into the specified Flask response.
         :type response: flask.wrappers.Response
@@ -478,6 +611,9 @@ class WebLabAPI(object):
         :return: The flask response with the added cookies.
         :rtype: flask.wrappers.Response
         """
+        if value is None:
+            value = '%s.%s' % (self.session_id, self.ctx.route)
+            
         now = datetime.datetime.utcnow()
         response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
         response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
@@ -490,7 +626,7 @@ class WebLabAPI(object):
         instance_args = self._get_instance_args(server_instance, flask_app)
 
         if web_context in self.apis:
-            flask_app.route(base_path + "/", methods = ['GET', 'POST'])(lambda : self._json(web_context, flask_app, instance_args) )
+            flask_app.route(base_path + "/", methods = ['GET', 'POST'], endpoint = 'service_url')(lambda : self._json(web_context, flask_app, instance_args) )
 
         for path in self.routes[web_context]:
             self._create_wrapper(base_path, path, flask_app, web_context, instance_args)

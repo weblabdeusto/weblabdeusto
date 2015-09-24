@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 core_store_students_programs      = False
 core_store_students_programs_path = 'files_stored'
 core_experiment_poll_time         = 350 # seconds

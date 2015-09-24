@@ -1,0 +1,203 @@
+{% extends "webclient/_logged_base.html" %}
+{% set title="Lab - " + experiment['display_name'] %}
+
+{% import "webclient/_upload.html" as upload %}
+
+{% block styles %}
+    {{ super() }}
+    {{ upload.styles() }}
+    <style>
+        .carousel-inner > .item > img {
+            margin: 0 auto;
+            max-height: 100%;
+            max-width: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    {{ super() }}
+
+    <div ng-show="false" class="row">
+        <div class="col-lg-4 col-lg-push-4 text-center well">
+            <h4>{{ gettext("Loading experiment...") }}</h4>
+        </div>
+    </div>
+
+    {# Angular.js code. All in raw. #}
+    {% raw %}
+
+    <div ng-controller="LabController" ng-cloak>
+        <div class="container-fluid" ng-show="!isExperimentActive()" ng-if="!isExperimentFederated()">
+            <div class="col-lg-4">
+                {% endraw %}
+                <a class="btn btn-default" href="{{ url_for('.labs') }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Back to My experiments") }}</a>
+                {% raw %}
+            </div>
+        </div>
+
+        <div id="reserve-container">
+            
+            <div class="container">
+                <div class="text-center">
+                    <h2><img ng-src="{{ experiment_info.experiment.logo_link }}" height="40px"> {{ experiment.data.display_name }}</h2>
+                    <h4>({{ experiment_info.experiment.category }})</h4>
+
+                </div>
+            </div>
+            
+            <div class="container-fluid">
+
+
+            <div class="row" ng-show="!isExperimentActive()">
+                <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
+                <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
+
+                <!-- The description is disabled for now because we don't actually support it in the database -->
+                <div class="col-md-6" ng-show="experiment_info.experiment.description">
+                    <p>
+                        <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment_info.experiment.description }}
+                    </p>
+                </div>
+                
+                <div class="col-md-6" ng-if="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
+                    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                      <!-- Indicators -->
+                      <ol class="carousel-indicators">
+                        <li ng-repeat-start="exp_image in experiment_info.experiment.images.items" data-target="#carousel-example-generic" data-slide-to="0" class="active" ng-if="$first"></li>
+                        <li ng-repeat-end="exp_image in experiment_info.experiment.images.items" data-target="#carousel-example-generic" data-slide-to="$index" ng-if="!$first"></li>
+                      </ol>
+
+                      <!-- Wrapper for slides -->
+                      <div class="carousel-inner" role="listbox">
+                        <div ng-repeat-start="exp_image in experiment_info.experiment.images.items" class="item text-center active" style="height: 350px" ng-if="$first">
+                            <img ng-src="{{ exp_image }}" alt="image">
+                        </div>
+                        <div ng-repeat-end class="item text-center" style="height: 350px" ng-if="!$first">
+                            <img ng-src="{{ exp_image }}" alt="image">
+                        </div>
+
+                      </div>
+
+                      <!-- Controls -->
+                      <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                      <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </div>
+                </div>
+
+                <br>
+            </div> <!-- Carrousel -->
+
+
+            <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
+            <wl-experiment-iframe ng-show="!isExperimentLoading()" mark-as-loaded="experiment_iframe.markAsLoaded()" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
+            </div>
+
+            <div class="container-fluid" style="margin-right: 30px; margin-left: 15px">
+                <!-- Component for the experiment information window thing -->
+                <!-- Should be shown only when the experiment is NOT active -->
+                <wl-exp-info ng-if="!isExperimentFederated()" ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
+                             is-experiment-reserving="isExperimentReserving()" is-experiment-loading="isExperimentLoading()"
+                             stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
+
+                <wl-reserve-status ng-show="!isExperimentActive() && reserveMessage.message.length > 0"
+                                   message="reserveMessage.message" translation-data="reserveMessage.translationData"
+                                   type="reserveMessage.type"></wl-reserve-status>
+
+            </div>
+        </div>
+
+
+        <div ng-cloak ng-show="isExperimentActive()" class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ 'FINISH'|translate }}</a>
+                </div>
+            </div>
+        </div>
+
+        <div ng-show="!isExperimentActive()" class="container-fluid" id="file-upload-container" style="margin-top: 20px">
+            {{ upload.content() }}
+        </div>
+
+    </div>
+
+    {% endraw %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    {{ super() }}
+
+    {{ upload.scripts() }}
+
+    {{ upload.code(config["UPLOAD_URL"]) }}
+
+    <script type="text/javascript">
+        {# TODO: select which ones of these variables are required by weblab.js and move them to a file easy to import, so we can make themes in a simple way #}
+        {# Put here all the global variables of those things that will later be accessed by the static JS files #}
+        var WL_JSON_URL = "{{ url_for('json.service_url') }}";
+        var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
+        var WL_LOGIN_URL = "{{ url_for('.login') }}";
+        var LOCALES_URL = "{{ url_for('.locales') }}";
+        var LATEST_USES_URL = "{{ url_for('.latest_uses', experiment_name=experiment['name'], category_name=experiment['category']) }}";
+        var LAB_STATS_URL = "{{ url_for('.lab_stats', experiment_name=experiment['name'], category_name=experiment['category']) }}";
+        var IFRAME_RESIZER_URL = "{{ url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True, _scheme=request.scheme) }}";
+        var GWT_BASE_URL = "{{ url_for('.gwt_index') }}";
+        var CLIENT_TYPE = "{{ experiment['type'] }}";
+
+        var PREFERRED_LANGUAGE = "{{ get_locale() }}";
+        var EXPERIMENT_DATA = {{ experiment|tojson }};
+        var WL_SESSION_ID = "{{ request.cookies.get('weblabsessionid') }}";
+
+        {# These ones should be located somewhere else... but just don't know how without using url_for in static files which is what we try to avoid #}
+        {# (Would it maybe make more sense to have a single STATIC_ROOT global that points to webclient/apps/, and to build the static template URLS from it, so as not
+        to have to add files here for every template that we add?) #}
+        var RESERVE_STATUS_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve-status/reserve-status.directive.html") }}";
+        var EXPERIMENT_IFRAME_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/iframe/experiment-iframe.template.html") }}";
+        var EXPINFO_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/expinfo/expinfo.template.html") }}";
+        var LAB_RESERVE_TEMPLATE_URL = "{{ url_for('.static', filename="webclient/apps/lab/reserve/reserve.template.html") }}";
+        
+        // Federated information
+        var FEDERATED_MODE = {{ federated_mode|tojson }};
+        var BACK_URL = {{ back_url |tojson }};
+
+    {# Await for the page #}
+    $(document).ready(function () {
+
+        // Bootstrap angular itself.
+        angular.bootstrap(document, ['lab']);
+
+    }); //! document.ready
+
+    </script>
+
+
+    {# TODO: Switch for .min files on release #}
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular-translate/angular-translate.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular-translate-loader-url/angular-translate-loader-url.min.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.min.js") }}"></script>
+
+
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/app.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/lab.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/expinfo/expinfo.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/resizer.factory.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve-status/reserve-status.directive.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.controller.js") }}"></script>
+    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.directive.js") }}"></script>
+
+    <script type="text/javascript" src="{{ url_for(".static", filename="weblabjs/weblab.js") }}"></script>
+
+{% endblock %}

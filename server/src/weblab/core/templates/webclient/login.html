@@ -1,0 +1,173 @@
+{% set link="home" %}
+{% set title="Log in" %}
+{% extends "webclient/_base.html" %}
+{% block body %}
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-xs-6 col-md-5 col-lg-4">
+                <a href="http://weblab.deusto.es">
+                    <img class="wl-logo" src="{{ url_for(".static", filename="img/ui/logo_flat.png") }}"/>
+                </a>
+            </div>
+
+            <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-4 col-lg-offset-4">
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                    <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
+                </a>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+
+            <div class="col-xs-10 col-xs-push-1 col-lg-4 col-md-5 well" style="padding-left: 40px; padding-right: 40px" ng-controller="LoginScreenController">
+
+                <form action="#" id="login-form" ng-submit="login($event)" method="POST" class="form-horizontal" role="form">
+                    <div id="legend">
+                        <legend class="">{{ gettext("Log in") }}</legend>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="username">{{ gettext("Username") }}</label>
+
+                        <div class="controls">
+                            <input type="text" ng-disabled="status.waiting" ng-model="credentials.username" name="username" placeholder="{{ gettext("Username") }}" id="username" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label" for="username">{{ gettext("Password") }}</label>
+
+                        <div class="controls">
+                            <input type="password" ng-disabled="status.waiting" ng-model="credentials.password" name="password" placeholder="{{ gettext("Password") }}" id="password" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div style="width: 100%; padding-bottom: 10px">
+                            <input style="width: 100%" ng-disabled="status.waiting" href="#" id="login" type="submit" class="btn btn-success" value="{{ gettext("Log in") }} »">
+                        </div>
+       
+                        <div style="width: 100%" ng-cloak ng-show="status.waiting">
+                            <div class="progress" style="width: 100%">
+                                <div class="progress-bar progress-bar-striped active" style="width: 100%">
+                                    <span>{{ gettext("Logging in...") }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="width: 100%" ng-cloak ng-show="error.message">
+                            <p class="alert alert-danger" ng-bind="error.message"></p>
+                        </div>
+                    </div>
+                    
+                    {% if weblab_api.config.client["demo.available"] %}
+                    <div style="margin-top: 0px" class="text-center">
+                        <p style="line-height:1.2em">{{ gettext("Some experiments allow guest access") }}</p>
+                        <a href="{{ url_for('.demo', **url_kwargs) }}" class="btn btn-default">{{ gettext("Log in as guest") }}</a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+
+            <div class="col-xs-12 col-lg-6 col-md-6 col-md-push-1 col-lg-push-2">
+                <h2>{{ gettext("WebLab-Deusto") }}</h2>
+
+                <p>{{ gettext("WebLab-Deusto is a Remote Laboratory. Students access experiments physically located in the
+                    university,
+                    having the same experience as if in traditional hands-on-lab sessions. There is more information
+                    regarding
+                    the project in the WebLab-Deusto Research Group site.") }}</p>
+
+                <div class="row">
+
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for(".static", filename="img/ui/support.png") }}"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            {{ gettext("Support") }}
+                        </h3>
+
+                        <p>{{ gettext("For any technical issue you may find, please contact us at {mail}".format(mail = '<a href="mailto:{0}">{0}</a>'.format(weblab_api.config.client["admin.email"]))) }}</p>
+                    </div>
+                </div>
+                {% if weblab_api.config.client["demo.available"] %}
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for(".static", filename="img/ui/demo.png") }}"
+                                />
+                    </div>
+
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            {{ gettext("Demo") }}
+                        </h3>
+                        
+                        <p>{{ gettext("If you do not have a user account, you can try our demo experiments with the username {username} and the password {password}.".format(username = "<b>{0}</b>".format(weblab_api.config.client["demo.username"]), password = "<b>{0}</b>".format(weblab_api.config.client["demo.password"]))) }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="col-xs-2 wl-vertical-center">
+                        <img class="wl-login-icon" src="{{ url_for(".static", filename="img/ui/opensource.png") }}"
+                             style="width: 100%; height: 100%"/>
+                    </div>
+                    <div class="col-xs-10 wl-vertical-center">
+                        <h3>
+                            {{ gettext("Open Source") }}
+                        </h3>
+
+                        <p>{{ gettext("WebLab-Deusto is Open Source Software, and it is available in {link}".format(link = '<a href="https://github.com/weblabdeusto/weblabdeusto/">https://github.com/weblabdeusto/weblabdeusto/</a>')) }}</p>
+                    </div>
+                </div>
+                <!-- !row-->
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        angular
+                .module("loginScreen", [])
+                .controller("LoginScreenController", LoginScreenController);
+
+        function LoginScreenController($scope, $http) {
+            $scope.login = login;
+            $scope.credentials = {};
+            $scope.error = {};
+            $scope.status = {};
+            
+            function login(event) {
+                event.preventDefault();
+
+                $scope.error.message = undefined;
+                $scope.status.waiting = true;
+
+                $http.post("{{ url_for('.login_json', **url_kwargs) }}", $scope.credentials)
+                    .success(function(data) {
+                        if (data.error) {
+                            $scope.error.message = data.message;
+                        } else {
+                            location.replace(data.redirect);
+                        }
+                    }).error(function(data) {
+                        $scope.error.message = "{{ gettext('Error logging in') }}";
+                    }).finally(function() {
+                        $scope.status.waiting = false;
+                    });;
+            }
+        }
+
+        angular.element(document).ready(function () {
+            angular.bootstrap(document, ['loginScreen']);
+        });
+    </script>
+{% endblock %}
+

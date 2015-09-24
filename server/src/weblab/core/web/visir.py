@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import StringIO
 from flask import Response, make_response, request
@@ -64,32 +65,38 @@ def visir(fileonly = None):
 
     # Just deny any request with an URL containing .. to prevent security issues
     if ".." in fileonly:
-        if DEBUG: print "Forbidden"
+        if DEBUG: 
+            print("Forbidden")
         return Response("403 Forbidden: The URI should not contain ..", 403)
 
     # Find out the location of the file.
     fname = VISIR_LOCATION + fileonly
 
-    if DEBUG: print "Loading %s..." % fname,
+    if DEBUG: 
+        print("Loading %s..." % fname, end='')
 
     if not os.path.abspath(fname).startswith(VISIR_LOCATION):
-        if DEBUG: print "Forbidden"
+        if DEBUG: 
+            print("Forbidden")
         return Response("403 Forbidden: The URI tried to go outside the scope of VISIR", 403)
 
     # Intercept the save request
     if fileonly == 'save':
         content = intercept_save()
-        if DEBUG: print "Intercepted %s" % fileonly
+        if DEBUG: 
+            print("Intercepted %s" % fileonly)
         return content
 
     if fileonly == 'store_temporary.php':
         content = intercept_store()
-        if DEBUG: print "Intercepted %s" % fileonly
+        if DEBUG: 
+            print("Intercepted %s" % fileonly)
         return content
 
     if fileonly.startswith('temp/'):
         content = intercept_temp(fileonly[len('temp/'):])
-        if DEBUG: print "Intercepted %s" % fileonly
+        if DEBUG: 
+            print("Intercepted %s" % fileonly)
         return content
 
     # We did not intercept the request, we will just serve the file.
@@ -116,14 +123,14 @@ def visir(fileonly = None):
 
         # The file was not modified. Report as such.
         if mod_time is not None and mod_time <= since_time:
-            if DEBUG: print "Not modified"
+            if DEBUG: print("Not modified")
             return Response("304 Not Modified", 304)
 
     try:
         with open(fname, "rb") as f:
             content = f.read()
     except:
-        if DEBUG: print "Not found"
+        if DEBUG: print("Not found")
         return Response("404 Not found", 404)
     
     global MIMETYPES_LOADED
@@ -140,11 +147,11 @@ def visir(fileonly = None):
 
     if fileonly == "breadboard/library.xml":
         content = intercept_library(content, mimetype)
-        if DEBUG: print "Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest())
+        if DEBUG: print("Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest()))
         return content
 
     response.response = content
-    if DEBUG: print "Returning %s bytes" % len(content)
+    if DEBUG: print("Returning %s bytes" % len(content))
     return response
 
 
@@ -216,7 +223,7 @@ def intercept_library(content, mimetype):
         else:
             failed = response.commandstring is None or response.commandstring == 'failed'
     else:
-        print "Can not request library since reservation_id is None"
+        print("Can not request library since reservation_id is None")
         failed = True
 
     if failed:
@@ -249,7 +256,7 @@ def intercept_temp(fileonly):
     filename = os.path.basename(fileonly)
     full_filename = os.sep.join((VISIR_TEMP_FILES, filename))
     if not os.path.exists(full_filename):
-        if DEBUG: print "Not found"
+        if DEBUG: print("Not found")
         return make_response("404: Temporal file not found", 404)
 
     response = make_response(open(full_filename, 'rb').read())

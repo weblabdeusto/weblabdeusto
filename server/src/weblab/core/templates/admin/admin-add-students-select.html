@@ -1,0 +1,42 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <br/>
+        <h1>{{ gettext("Add users") }}</h1>
+        <br/>
+        <br/>
+        <p>{{ gettext("You can add multiple users in a single operation. So as to do this, you must select first an authentication type from the following. Then, you will need to fill a text in a particular format, which depends on each authentication type.") }}</p>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td><strong>{{ gettext("Type") }}</strong></td>
+                    <td><strong>{{ gettext("Description") }}</strong></td>
+                    <td><strong>{{ gettext("Action") }}</strong></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ gettext("Database") }}</td>
+                    <td>{{ gettext("Simplest method: a passwords is stored in WebLab-Deusto") }}</td>
+                    <td><a class="btn btn-primary" href="{{ url_for('.add_db') }}">{{ gettext("Add users") }}</a></td>
+                </tr>
+                <tr>
+                    <td>{{ gettext("OpenID") }}</td>
+                    <td>{{ gettext("Rely on an external system for authentication") }}</td>
+                    <td><a class="btn btn-primary"  href="{{ url_for('.add_openid') }}">{{ gettext("Add users") }}</a></td>
+                </tr>
+                <tr>
+                    <td>{{ gettext("LDAP") }}</td>
+                    <td>{{ gettext("Rely on a local authentication system, if available") }}</td>
+                    <td><a class="btn btn-primary" href="{{ url_for('.add_ldap') }}">{{ gettext("Add users") }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

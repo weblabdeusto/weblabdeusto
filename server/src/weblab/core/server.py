@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import sys
@@ -24,7 +25,6 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape
-from flask_debugtoolbar import DebugToolbarExtension
 
 from functools import wraps
 
@@ -33,10 +33,13 @@ import weblab.configuration_doc as configuration_doc
 import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
-from weblab.core.babel import Babel
+from voodoo.resources_manager import is_testing
+from weblab.core.babel import initialize_i18n, get_locale
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 
+from weblab.admin.util import display_date
+from weblab.core.config import DbConfig
 from weblab.core.login.manager import LoginManager
 from weblab.core.wsgi_manager import WebLabWsgiServer
 
@@ -65,19 +68,6 @@ import voodoo.resources_manager as ResourceManager
 
 from weblab.admin.web.app import AdministrationApplication
 
-check_session_params = dict(
-        exception_to_raise = coreExc.SessionNotFoundError,
-        what_session       = "Core Users ",
-        cut_session_id     = ';'
-    )
-
-check_reservation_session_params = dict(
-        exception_to_raise         = coreExc.SessionNotFoundError,
-        what_session               = "Core Reservations ",
-        session_manager_field_name = "_reservations_session_manager",
-        cut_session_id             = ';'
-    )
-
 _resource_manager = ResourceManager.CancelAndJoinResourceManager("UserProcessingServer")
 
 CHECKING_TIME_NAME    = 'core_checking_time'
@@ -92,6 +82,9 @@ def load_user_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab_api.ctx.server_instance
+        if weblab_api.ctx.session_id is None:
+            raise coreExc.SessionNotFoundError("Core Users session not found")
+
         session_id = SessionId(weblab_api.ctx.session_id)
         try:
             session = server._session_manager.get_session_locking(session_id)
@@ -115,6 +108,9 @@ def load_reservation_processor(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         server = weblab_api.ctx.server_instance
+        if weblab_api.ctx.reservation_id is None:
+            raise coreExc.SessionNotFoundError("Core Reservations session not found")
+
         reservation_id = SessionId(weblab_api.ctx.reservation_id.split(';')[0])
         try:
             session = server._reservations_session_manager.get_session_locking(reservation_id)
@@ -174,8 +170,22 @@ def create_external_user(system = None, credentials = None):
 # 
 @weblab_api.route_api('/user/experiments/')
 @load_user_processor
-def list_experiments():
-    return weblab_api.ctx.user_processor.list_experiments()
+def list_experiments(exp_name = None, cat_name = None):
+    return weblab_api.ctx.user_processor.list_experiments(exp_name = exp_name, cat_name = cat_name)
+
+@weblab_api.route_api('/user/session/check/')
+@load_user_processor
+def check_user_session():
+    return True
+
+@weblab_api.route_api('/user/')
+@load_user_processor
+def get_user():
+    """
+    :rtype: weblab.db.models.DbUser
+    """
+    login = weblab_api.ctx.user_session['db_session_id'].username
+    return weblab_api.db.get_user(login)
 
 @weblab_api.route_api('/user/info/')
 @load_user_processor
@@ -219,6 +229,12 @@ def get_reservation_id_by_session_id():
 def get_experiment_use_by_id(reservation_id = None):
     return weblab_api.ctx.user_processor.get_experiment_use_by_id(SessionId(reservation_id['id']))
 
+@weblab_api.route_api('/user/reservations/latests/<category_name>/<experiment_name>/')
+@load_user_processor
+def get_latest_uses_per_lab(category_name, experiment_name):
+    login = weblab_api.ctx.user_session['db_session_id'].username
+    return weblab_api.db.latest_uses_experiment_user(experiment_name, category_name, login, 5)
+
 @weblab_api.route_api('/user/reservations/<reservation_ids>/')
 @load_user_processor
 def get_experiment_uses_by_id(reservation_ids = None):
@@ -230,6 +246,11 @@ def get_experiment_uses_by_id(reservation_ids = None):
 @load_user_processor
 def get_user_permissions():
     return weblab_api.ctx.user_processor.get_user_permissions()
+
+@weblab_api.route_api('/user/is_admin/')
+@load_user_processor
+def is_admin():
+    return weblab_api.ctx.user_processor.is_admin()
 
 @weblab_api.route_api('/user/reservations/', methods = [ 'POST' ])
 @load_user_processor
@@ -308,6 +329,11 @@ def logout():
 # Reservation operations
 #
 # 
+
+@weblab_api.route_api('/reservation/check/')
+@load_reservation_processor
+def check_reservation_session():
+    return True
 
 @weblab_api.route_api('/reservation/finish/', methods = ['POST'])
 @load_reservation_processor
@@ -392,6 +418,18 @@ def send_async_command(command):
 def get_reservation_info():
     return weblab_api.ctx.reservation_processor.get_info()
 
+@weblab_api.route_api('/reservation/info/experiment/')
+@load_reservation_processor
+def get_reservation_experiment_info():
+    # First poll, then run it
+    try:
+        reservation_processor = weblab_api.ctx.reservation_processor
+        weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor )
+    except coreExc.NoCurrentReservationError:
+        raise coreExc.SessionNotFoundError("reservation expired")
+
+    experiment_id = weblab_api.ctx.reservation_session['experiment_id']
+    return weblab_api.db.get_experiment(experiment_id.exp_name, experiment_id.cat_name)
 
 @weblab_api.route_api('/reservation/poll/')
 @load_reservation_processor
@@ -418,22 +456,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
 
         # Initialize internationalization code.
-        if Babel is None:
-            print("Not using Babel. Everything will be in English")
-        else:
-            babel = Babel(self.app)
-
-            supported_languages = ['en']
-            supported_languages.extend([translation.language for translation in babel.list_translations()])
-
-            @babel.localeselector
-            def get_locale():
-                locale = request.args.get('locale', None)
-                if locale is None:
-                    locale = request.accept_languages.best_match(supported_languages)
-                if locale is None:
-                    locale = 'en'
-                return locale
+        self.babel = initialize_i18n(self.app)
 
         # Mostly for debugging purposes, this snippet will print the site-map so that we can check
         # which methods we are routing.
@@ -449,12 +472,14 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
 
         flask_debug = cfg_manager.get_value('flask_debug', False)
-        if flask_debug:
-            print >> sys.stderr, "*" * 50
-            print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!"
-            print >> sys.stderr, "WARNING " * 5
-            print >> sys.stderr, "*" * 50
+        core_facade_port = cfg_manager.get_value(configuration_doc.CORE_FACADE_PORT, 'unknown')
+        if flask_debug and not is_testing():
+            print("*" * 50, file=sys.stderr)
+            print("WARNING " * 5, file=sys.stderr)
+            print("flask_debug is set to True. This is an important security leak. Do not use it in production, only for bugfixing!!!", file=sys.stderr)
+            print("If you want to see the debug toolbar in Flask pages, also use http://localhost:{0}/weblab/".format(core_facade_port), file=sys.stderr)
+            print("WARNING " * 5, file=sys.stderr)
+            print("*" * 50, file=sys.stderr)
         self.app.config['DEBUG'] = flask_debug
         if os.path.exists('logs'):
             f = os.path.join('logs','admin_app.log')
@@ -488,12 +513,18 @@ class WebLabFlaskServer(WebLabWsgiServer):
         weblab_api.apply_routes_webclient(core_webclient, server)
         self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
 
+        @self.app.context_processor
+        def inject_weblab_api():
+            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale)
+
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 
         if flask_debug:
+            from flask_debugtoolbar import DebugToolbarExtension
             toolbar = DebugToolbarExtension()
             toolbar.init_app(self.app)
             self.app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+            # self.app.config['DEBUG_TB_PROFILER_ENABLED'] = True
 
 
 class UserProcessingServer(object):
@@ -521,8 +552,8 @@ class UserProcessingServer(object):
                 'property_human' : configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN,
                 'uuid'           : generated
             }
-            print msg
-            print >> sys.stderr, msg
+            print(msg)
+            print(msg, file = sys.stderr)
             log.log( UserProcessingServer, log.level.Error, msg)
 
         self.core_server_universal_id       = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER)
@@ -555,6 +586,10 @@ class UserProcessingServer(object):
         #
 
         self._db_manager     = DatabaseGateway(cfg_manager)
+        self.db = self._db_manager
+
+        cfg_manager.client = DbConfig(self.db.client_configuration)
+        cfg_manager.server = DbConfig(self.db.server_configuration)
 
         self._commands_store = TemporalInformationStore.CommandsTemporalInformationStore()
 
@@ -584,6 +619,7 @@ class UserProcessingServer(object):
         self._server_route   = cfg_manager.get_doc_value(configuration_doc.CORE_FACADE_SERVER_ROUTE)
 
         self.flask_server = WebLabFlaskServer(self, cfg_manager)
+        self.babel = self.flask_server.babel
 
         self.dont_start = cfg_manager.get_value('dont_start', dont_start)
         if not self.dont_start:

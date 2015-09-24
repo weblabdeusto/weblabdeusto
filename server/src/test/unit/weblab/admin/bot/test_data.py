@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import unittest
@@ -51,7 +52,7 @@ if Data.NUMPY_AVAILABLE:
     def suite():
         return unittest.makeSuite(DataTestCase)
 else:
-    print >> sys.stderr, "numpy not available. Disabling weblab.admin.bot tests."
+    print("numpy not available. Disabling weblab.admin.bot tests.", file=sys.stderr)
 
 def suite():
     return unittest.makeSuite(DataTestCase)

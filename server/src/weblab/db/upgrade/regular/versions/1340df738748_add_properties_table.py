@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add *Properties tables, and Locations to the UserUsedExperiment table
 
 Revision ID: 1340df738748

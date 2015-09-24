@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 
-weblab_xilinx_experiment_xilinx_device = 'FPGA'
+xilinx_board_type = 'FPGA'
 weblab_xilinx_experiment_port_number   = 1
 
 # This should be something like this:
@@ -23,7 +23,7 @@ weblab_xilinx_experiment_port_number   = 1
 xilinx_home = "."
 xilinx_impact_full_path = ["python","../../src/test/unit/weblab/experiment/devices/xilinx_impact/fake_impact.py" ]
 
-xilinx_device_to_program = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
+xilinx_programmer_type = 'XilinxImpact' # 'JTagBlazer', 'DigilentAdept'
 xilinx_device_to_send_commands = 'SerialPort' # 'HttpDevice'
 
 xilinx_serial_port_is_fake = True

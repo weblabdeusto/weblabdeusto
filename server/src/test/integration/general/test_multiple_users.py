@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import time
 import unittest

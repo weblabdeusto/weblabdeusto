@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="{{ weblab_api.locale or 'en' }}">
+<head>
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <title>{{ title }}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ gettext("List of Remote Laboratories") }}">
+    <meta name="author" content="{{ gettext("WebLab-Deusto authors") }}">
+
+    <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap-glyphicons.css") }}" rel="stylesheet"/>
+    <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
+
+    {% block styles %}{% endblock %}
+    {% block header %}{% endblock %}
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories = True) %}
+    {% if messages %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+            {% for category, message in messages %}
+                <div class="alert alert-{% if category in ('error','danger') %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
+                    <button type="button" class="close" data-dismiss="alert">×</button>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+{% block body %}{% endblock %}
+
+{% if not federated_mode %}
+    <div class="footer">
+        <div class="container footer-text">
+            <div class="text-center">
+                <p id="weblab_version"></p>
+                <p>
+                {% for lang in weblab_api.language_links %}
+                    <a href="{{ lang['link'] }}">{{ lang['name'] }}</a>
+                {% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script src="{{ url_for(".static", filename="js/jquery.js") }}"></script>
+<script src="{{ url_for(".static", filename="bootstrap3/js/bootstrap.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/mustache.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/persist-min.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/md5.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/sprintf.min.js") }}"></script>
+<script src="{{ url_for(".static", filename="js/jquery.cookie-1.4.1.min.js") }}"></script>
+
+<script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.js") }}"></script>
+<script type="text/javascript" src="{{ url_for(".static", filename="js/base.js") }}"></script>
+
+<script src="{{ url_for("core_web.version") }}"></script>
+<script type="text/javascript">
+    if (wlVersionMessage != null) {
+        $("#weblab_version").html(wlVersionMessage);
+    }
+</script>
+{% block scripts %}{% endblock %}
+
+{% if weblab_api.config.client.get('google.analytics.tracking.code') %}
+<script type="text/javascript"> 
+    var gaJsHost = (("https:" == document.location.protocol) ?  "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+    try {
+        var pageTracker = _gat._getTracker("{{ weblab_api.config.client['google.analytics.tracking.code'] }}");
+        pageTracker._trackPageview();
+    } catch(err) {}
+</script> 
+{% endif %}
+</body>
+</html>

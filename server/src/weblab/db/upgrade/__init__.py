@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 
@@ -92,11 +93,11 @@ class DbParticularUpgrader(object):
         current_rev = context.get_current_revision()
         
         if DEBUG:
-            print "Migrating %s" % self.url
-            print "Head: %s" % self.head
-            print "Current rev: %s" % current_rev
-            print "Correct?", current_rev == self.head
-            print
+            print("Migrating %s" % self.url)
+            print("Head: %s" % self.head)
+            print("Current rev: %s" % current_rev)
+            print("Correct?", current_rev == self.head)
+            print()
         return self.head == current_rev
 
     def upgrade(self):

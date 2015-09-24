@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import unittest
 import datetime

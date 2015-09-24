@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import json
 import requests
@@ -54,6 +55,7 @@ class WebLabDeustoClient(object):
         weblabsessionid = r.cookies.get('weblabsessionid')
         if weblabsessionid:
             self.weblabsessionid = weblabsessionid
+        r.raise_for_status()
         response = r.json()
         if response.get('is_exception', False):
             raise Exception(response["message"])

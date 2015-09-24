@@ -12,8 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import sys
 import os
@@ -53,11 +52,11 @@ def weblab_locations(directory):
         db = DatabaseGateway(config)
 
         if args.reset_database:
-            print "Resetting database"
+            print("Resetting database")
             db.reset_locations_database()
 
         if args.reset_cache:
-            print "Resetting cache"
+            print("Resetting cache")
             db.reset_locations_cache()
 
     run_with_config(directory, on_dir)

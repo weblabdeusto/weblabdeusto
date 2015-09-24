@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>WebLab-Deusto redirector</title>
+    <script type="text/javascript">
+    <!--
+        function redirect_weblab(){
+            var messages = document.getElementById('messages');
+
+            var cur_hash = location.hash.substring(1);
+            var reservation_id = null;
+            var back_url = null;
+            var locale   = null;
+            var widget   = null;
+            var variables = cur_hash.split('&');
+            for(var i in variables){
+                var cur_variable = variables[i];
+                if(cur_variable.indexOf('reservation_id=') == 0)
+                    reservation_id = cur_variable.substring('reservation_id='.length);
+                if(cur_variable.indexOf('widget=') == 0)
+                    widget = cur_variable.substring('widget='.length);
+                if(cur_variable.indexOf('back=') == 0)
+                    back_url = cur_variable.substring('back='.length);
+                if(cur_variable.indexOf('locale=') == 0)
+                    locale = cur_variable.substring('locale='.length);
+            }
+            if(reservation_id == null){ 
+                messages.innerHTML = 'Could not find a reservation_id';
+                document.getElementById('form_div').style.display = 'none';
+                return;
+            }
+            if(reservation_id.indexOf(';') < 0){
+                messages.innerHTML = 'Could not find a ; in the reservation identifier';
+                document.getElementById('form_div').style.display = 'none';
+                return;
+            }
+
+            var cookietext = reservation_id.split(';')[1];
+
+            var today  = new Date();
+            var expire = new Date();
+            expire.setTime(today + 4 * 3600 * 1000); // 4 hours
+
+            var expected_path = location.pathname.substring(0, location.pathname.lastIndexOf('client'));
+
+            document.cookie = 'loginweblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=' + expected_path;
+            document.cookie = 'weblabsessionid=' + cookietext + '; expires=' + expire.toGMTString() + '; path=' + expected_path;
+
+            document.getElementById('reservation_id_text').value = reservation_id;
+            if(back_url != null)
+                document.getElementById('back_url_text').value       = back_url;
+            if(locale != null)
+                document.getElementById('locale_text').value       = locale;
+            if(widget != null)
+                document.getElementById('widget_text').value       = widget;
+            document.getElementById('reservation_form').submit();
+        }
+    //-->
+    </script>
+</head>
+<body onload="javascript:redirect_weblab();">
+    <span id="messages"></span><br/>
+    <div id="form_div">
+    <p>Please, click on 'Submit'</p>
+    <form action="../../weblab/web/client/" method="POST" id="reservation_form">
+        <input id="reservation_id_text" type="text" name="reservation_id" value="" />
+        <input id="back_url_text"       type="text" name="back_url" value="" />
+        <input id="locale_text"         type="text" name="locale" value="" />
+        <input id="widget_text"         type="text" name="widget" value="" />
+        <input type="submit" value="Submit"/>
+    </form>
+    </div>
+</body>
+</html>

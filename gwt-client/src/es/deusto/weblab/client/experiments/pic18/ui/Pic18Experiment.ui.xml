@@ -1,0 +1,78 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets"
+    >
+    
+    <ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
+    
+    <g:VerticalPanel ui:field="widget" width='100%' horizontalAlignment='ALIGN_CENTER'>
+        
+		<g:VerticalPanel ui:field="verticalPanel" width='100%' horizontalAlignment='ALIGN_CENTER'>
+		
+			<g:Label ui:field="selectProgram" horizontalAlignment="ALIGN_CENTER" text="{i18n.selectProgramToSend}" />
+		
+			<!-- Originally the width was 85% but apparently the webcam doesn't appear centered in that case. -->
+			<g:VerticalPanel ui:field="innerVerticalPanel" borderWidth='0' horizontalAlignment='ALIGN_CENTER' width='100%' spacing='0'>
+			
+				<g:HorizontalPanel ui:field="webcamPanel" width="100%" horizontalAlignment="ALIGN_CENTER" />
+							
+				<g:HorizontalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="30">
+					<w:WlPredictiveProgressBar ui:field="progressBar" visible="false" width="75%" resolution="20"></w:WlPredictiveProgressBar>
+				</g:HorizontalPanel>
+				
+				<g:HorizontalPanel ui:field="timerMessagesPanel" borderWidth="0" width="100%" horizontalAlignment="ALIGN_CENTER" verticalAlignment="ALIGN_MIDDLE">
+					<w:WlTimer ui:field="timer" width="30%" styleName="wl-time_remaining"></w:WlTimer>
+					
+					<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"></w:WlWaitingLabel>
+					
+					
+					<g:VerticalPanel horizontalAlignment="ALIGN_CENTER">
+						<g:Label ui:field="clockInput" visible="false">TMR1/3 CKI</g:Label>
+						<w:WlClockActivator ui:field="clockActivator" width="70%" styleName="wl-clock_activation_panel" visible="false"></w:WlClockActivator>
+					</g:VerticalPanel>
+				</g:HorizontalPanel>
+				
+				<!--  Panel with the switches -->
+				<g:HorizontalPanel borderWidth="0" ui:field="switchesRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlSwitch ui:field="switch5" title="RB5"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch4" title="RB4"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch3" title="RB3"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch2" title="RB2"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch1" title="RB1"></w:WlSwitch>
+					<w:WlSwitch ui:field="switch0" title="RB0"></w:WlSwitch>
+					<w:WlPotentiometer ui:field="pot0" maxPower="3.3" power="2.0" title="AN6"/>
+					<w:WlPotentiometer ui:field="pot1" maxPower="3.3" power="2.0" title="AN5"/>
+				</g:HorizontalPanel>
+			
+				<!--  Panel with the buttons -->
+				<g:HorizontalPanel borderWidth="0" ui:field="buttonsRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlTimedButton ui:field="timedButton4" title="RD7"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton3" title="RD6"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton2" title="RD5"></w:WlTimedButton>
+					<w:WlTimedButton ui:field="timedButton1" title="RD4"></w:WlTimedButton>					
+				</g:HorizontalPanel>
+				
+				<!--  Panel With serial String -->
+				<g:HorizontalPanel borderWidth="0" ui:field="serialRow" width="100%" horizontalAlignment="ALIGN_CENTER">
+					<w:WlTextBoxWithButton ui:field="serial0" title="Send Serial"></w:WlTextBoxWithButton>
+				</g:HorizontalPanel>
+				
+			</g:VerticalPanel>
+			
+		</g:VerticalPanel>
+		
+		<!-- The upload form will be inserted into this panel. -->
+		<g:VerticalPanel horizontalAlignment="ALIGN_CENTER" spacing="15">
+			
+			<g:HorizontalPanel ui:field="uploadStructurePanel" horizontalAlignment="ALIGN_CENTER" width="100%">
+				<g:Hidden></g:Hidden>
+			</g:HorizontalPanel>
+			
+			<g:Button ui:field="uploadButton" visible="false" text="{i18n.upload}" />
+			
+		</g:VerticalPanel>
+		
+	</g:VerticalPanel>
+	
+
+</ui:UiBinder>

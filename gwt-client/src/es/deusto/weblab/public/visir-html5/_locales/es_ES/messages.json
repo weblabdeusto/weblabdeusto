@@ -1,0 +1,69 @@
+{
+	"breadboard" :
+	{
+		"message" : "Placa de prototipos",
+		"description" : "Placa de prototipos"
+	},
+	"multimeter" :
+	{
+		"message" : "Multímetro",
+		"description" : "Multímetro - Fluke 23"
+	},
+	"func_gen" :
+	{
+		"message" : "Generador de funciones",
+		"description" : "Generador de funciones - HP33120A"
+	},
+	"oscilloscope" :
+	{
+		"message" : "Osciloscopio",
+		"description" : "Osciloscopio - Agilent 54622A"
+	},
+	"dc_power" :
+	{
+		"message" : "Fuente DC",
+		"description" : "Fuente DC - Agilent E3631A"
+	},
+
+	"load" :
+	{
+		"message" : "Cargar",
+		"description" : "Cargar circuito"
+	},
+	"save" :
+	{
+		"message" : "Guardar",
+		"description" : "Cargar circuito"
+	},
+	"perf_measure" :
+	{
+		"message" : "Realizar medición",
+		"description" : "Realizar medición"
+	},
+
+	"wire_sel" :
+	{
+		"message" : "Color del cable",
+		"description" : "Selector del color del cable"
+	},
+	"close" :
+	{
+		"message" : "Cerrar",
+		"description" : "Cerrar"
+	},
+	"reset" :
+	{
+		"message" : "Restablecer",
+		"description" : "Restablecer"
+	},
+	"osc_not_runnable" :
+	{
+		"message" : "El osciloscopio no está configurado para un acceso contínuo",
+		"description" : "El osciloscopio no está configurado para un acceso contínuo"
+	},
+	"down_man" :
+	{
+		"message" : "Descargar manual",
+		"description" : "Descargar el manual de usuario"
+	}
+}

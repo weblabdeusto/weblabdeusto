@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add locale cache indexes
 
 Revision ID: 4dd49c571575
@@ -11,7 +12,6 @@ revision = '4dd49c571575'
 down_revision = '27fb5b742a71'
 
 from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():

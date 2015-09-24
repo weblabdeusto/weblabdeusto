@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import unittest
 
@@ -145,85 +146,84 @@ uri_that_will_fail               = 'uri that will fail'
 
 class LoginAuthTestCase(mocker.MockerTestCase):
 
-    if ldap_auth.LDAP_AVAILABLE:
-
-        def _create_user_auth(self):
-            return create_user_auth(
-                    auth_simple.LdapUserAuth.NAME,
-                    'ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es',
-                    None,
-                )
-
-        def test_ldap_login_auth_valid(self):
-            user_auth = self._create_user_auth()
-            ldap_object = self.mocker.mock()
-            ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', valid_passwd)
-            self.mocker.result(None)
-            ldap_module = self.mocker.mock()
-            ldap_module.initialize('ldaps://castor.cdk.deusto.es')
-            self.mocker.result(ldap_object)
-            ldap_object.unbind_s()
-            ldap_auth._ldap_provider.ldap_module = ldap_module
-
-            self.mocker.replay()
-            self.assertTrue(
-                user_auth.authenticate(valid_user, valid_passwd)
+    def _create_user_auth(self):
+        return create_user_auth(
+                auth_simple.LdapUserAuth.NAME,
+                'ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es',
+                None,
             )
 
-        def test_ldap_login_auth_invalid(self):
-            user_auth = self._create_user_auth()
+    @unittest.skipIf(not ldap_auth.LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_login_auth_valid(self):
+        user_auth = self._create_user_auth()
+        ldap_object = self.mocker.mock()
+        ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', valid_passwd)
+        self.mocker.result(None)
+        ldap_module = self.mocker.mock()
+        ldap_module.initialize('ldaps://castor.cdk.deusto.es')
+        self.mocker.result(ldap_object)
+        ldap_object.unbind_s()
+        ldap_auth._ldap_provider.ldap_module = ldap_module
 
-            ldap_object = self.mocker.mock()
-            ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', invalid_passwd)
-            self.mocker.throw(ldap.INVALID_CREDENTIALS("Invalid user/password"))
-            ldap_module = self.mocker.mock()
-            ldap_module.initialize('ldaps://castor.cdk.deusto.es')
-            self.mocker.result(ldap_object)
-            ldap_auth._ldap_provider.ldap_module = ldap_module
+        self.mocker.replay()
+        self.assertTrue(
+            user_auth.authenticate(valid_user, valid_passwd)
+        )
 
-            self.mocker.replay()
-            self.assertFalse(
-                user_auth.authenticate(valid_user, invalid_passwd)
-            )
+    @unittest.skipIf(not ldap_auth.LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_login_auth_invalid(self):
+        user_auth = self._create_user_auth()
 
-        def test_ldap_login_auth_general_exception_binding(self):
-            user_auth = self._create_user_auth()
+        ldap_object = self.mocker.mock()
+        ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', invalid_passwd)
+        self.mocker.throw(ldap.INVALID_CREDENTIALS("Invalid user/password"))
+        ldap_module = self.mocker.mock()
+        ldap_module.initialize('ldaps://castor.cdk.deusto.es')
+        self.mocker.result(ldap_object)
+        ldap_auth._ldap_provider.ldap_module = ldap_module
 
-            ldap_object = self.mocker.mock()
-            ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', passwd_that_will_raise_exception)
-            self.mocker.throw(Exception("generic exception"))
-            ldap_module = self.mocker.mock()
-            ldap_module.initialize('ldaps://castor.cdk.deusto.es')
-            self.mocker.result(ldap_object)
-            ldap_auth._ldap_provider.ldap_module = ldap_module
+        self.mocker.replay()
+        self.assertFalse(
+            user_auth.authenticate(valid_user, invalid_passwd)
+        )
 
-            self.mocker.replay()
-            self.assertRaises(
-                LoginErrors.LdapBindingError,
-                user_auth.authenticate,
-                valid_user,
-                passwd_that_will_raise_exception
-            )
+    @unittest.skipIf(not ldap_auth.LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_login_auth_general_exception_binding(self):
+        user_auth = self._create_user_auth()
 
-        def test_ldap_login_auth_general_exception_initializing(self):
-            user_auth = self._create_user_auth()
-            user_auth.ldap_uri = uri_that_will_fail
+        ldap_object = self.mocker.mock()
+        ldap_object.simple_bind_s(valid_user + '@cdk.deusto.es', passwd_that_will_raise_exception)
+        self.mocker.throw(Exception("generic exception"))
+        ldap_module = self.mocker.mock()
+        ldap_module.initialize('ldaps://castor.cdk.deusto.es')
+        self.mocker.result(ldap_object)
+        ldap_auth._ldap_provider.ldap_module = ldap_module
 
-            ldap_module = self.mocker.mock()
-            ldap_module.initialize(uri_that_will_fail)
-            self.mocker.throw(Exception("fail"))
-            ldap_auth._ldap_provider.ldap_module = ldap_module
+        self.mocker.replay()
+        self.assertRaises(
+            LoginErrors.LdapBindingError,
+            user_auth.authenticate,
+            valid_user,
+            passwd_that_will_raise_exception
+        )
 
-            self.mocker.replay()
-            self.assertRaises(
-                LoginErrors.LdapInitializingError,
-                user_auth.authenticate,
-                valid_user,
-                valid_passwd
-            )
+    @unittest.skipIf(not ldap_auth.LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_login_auth_general_exception_initializing(self):
+        user_auth = self._create_user_auth()
+        user_auth.ldap_uri = uri_that_will_fail
 
-    else:
-        print >> sys.stderr, "LoginAuth tests skipped since ldap module is not available"
+        ldap_module = self.mocker.mock()
+        ldap_module.initialize(uri_that_will_fail)
+        self.mocker.throw(Exception("fail"))
+        ldap_auth._ldap_provider.ldap_module = ldap_module
+
+        self.mocker.replay()
+        self.assertRaises(
+            LoginErrors.LdapInitializingError,
+            user_auth.authenticate,
+            valid_user,
+            valid_passwd
+        )
 
 
 class LdapNotAvailableTestCase(OptionalModuleTestCase):

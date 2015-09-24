@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Aquarium laboratory</title>
+
+<link href="slider/css/slider.css" rel="stylesheet">
+<link href="bootstrap3/css/bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap3/css/bootstrap-theme.min.css" rel="stylesheet">
+<link href="widgets.css" rel="stylesheet">
+
+
+<script src="jquery-1.8.3.min.js"></script>
+<script src="bootstrap3/js/bootstrap.min.js"></script>
+<script src="slider/js/bootstrap-slider.js"></script>
+<script src="widgets.js"></script>
+
+<style>
+
+
+    .slider.slider-vertical {
+        height: 70px;
+        margin-top: 5px;
+        margin-left: 20px;
+    }
+
+    .slider-handle {
+        height: 50px;
+        width: 50px;
+        border: 2px solid black;
+    }
+
+    .slider.slider-vertical .slider-handle {
+        margin-left: -20px;
+    }
+
+    #redball .slider-selection {
+        background: #FF8282;
+    }
+
+    #redball .slider-handle {
+        background: red;
+    }
+
+    #whiteball .slider-selection {
+        background: #F5F5F5;
+    }
+
+    #whiteball .slider-handle {
+        background: white;
+    }
+
+    #yellowball .slider-selection {
+        background: #FFFF82;
+    }
+
+    #yellowball .slider-handle {
+        background: yellow;
+    }
+
+    #blueball .slider-selection {
+        background: #8282FF;
+    }
+
+    #blueball .slider-handle {
+        background: blue;
+    }
+
+    .slider-handle.round {
+        -webkit-border-radius: 50px;
+        -moz-border-radius: 50px;
+        border-radius: 50px;
+    }
+
+    .sliderballs {
+        margin-top: 7px;
+        margin-bottom: 50px;
+        width: 24%;
+        display: inline-block;
+    }
+
+    .centered {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    .cambtn-active {
+        color: white;
+        background: black;
+    }
+
+    .cambtn-inactive {
+        color: black;
+        background: lightgray;
+    }
+
+    .clickable:hover {
+        cursor: pointer;
+    }
+    
+    .timer {
+        font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    }
+
+
+</style>
+<script>
+
+// ****************
+// CONFIGURATION
+// ****************
+var PROTOCOL = "weblabjs"; // Eventually several protocols may be supported.
+var FIRST_CAMERA_URL = "http://cams.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1";
+var SECOND_CAMERA_URL = "http://cams.weblab.deusto.es/webcam/proxied.py/workaround_fishtank2";
+var SECOND_CAMERA_FAILURE_URL = "img/empty_ball.jpg"
+var STATUS_UPDATES_FREQUENCY = 2500;
+var DEBUG = false;
+
+
+// Register basic UI callbacks
+
+var augmentedViewEnabled = true; // To indicate in which mode we are.
+var cameraRefresher; // To help refresh the main cameras.
+var arRefresher; // To help refresh the AR image.
+var sliders; // Dictionary of the sliders identified by their color.
+
+var processedImages; // Last URLs for the processed and original static images.
+
+var statusUpdaterTimer; //
+
+
+
+//! This function will resize the iframe to fit the full screen.
+//! Should only be invoked when we are running in a WebLab context.
+function doPositioningDarkMagicks()
+{
+
+    magicks = function(){
+        var doc = $(parent.document);
+        var frame = doc.find("iframe[name=wlframe]");
+        var width = parent.document.body.offsetWidth;
+        frame.attr("width", width);
+
+        var frame_left = frame.offset().left;
+        //frame.css("display", "");
+        frame.css("position", "relative");
+        frame.css("left", -frame_left + width*0.00*0.5);
+    }
+
+
+    magicks();
+
+    $(parent.window).on("resize", function(){
+        magicks();
+    });
+}
+
+
+
+// Equivalent of a main() function. Will initialize everything and register
+// the main callbacks.
+$(document).ready(function () {
+
+    // Initialize the experiment.
+    initializeExperiment();
+
+    // Create the main CameraRefresher.
+    cameraRefresher = new CameraRefresher("cam_img");
+    cameraRefresher.start(FIRST_CAMERA_URL);
+
+    // Create the arRefresher CameraRefresher.
+    // That is, the refresher for the AR image.
+    // We do not start it because it is not meant to refresh automatically.
+    arRefresher = new CameraRefresher("ar_img");
+
+    // Create the Timer.
+    timerDisplayer = new TimerDisplayer("timer");
+
+    // If we are NOT in a Weblab context we won't really receive the setTime callback,
+    // so we start the countdown ourselves, for debugging or cosmetic purposes.
+    if (Weblab.checkOnline()) {
+        timerDisplayer.hide();
+
+        doPositioningDarkMagicks();
+    } else {
+        timerDisplayer.setTimeLeft(200);
+        timerDisplayer.startCountDown();
+    }
+
+    $("#logout").click(function () {
+        onLogout();
+    });
+
+    $("#cam1").click(function () {
+        $("#cam1").addClass("cambtn-active").removeClass("cambtn-inactive");
+        $("#cam2").addClass("cambtn-inactive").removeClass("cambtn-active");
+        onFirstCameraActivated();
+    });
+
+    $("#cam2").click(function () {
+        $("#cam2").addClass("cambtn-active").removeClass("cambtn-inactive");
+        $("#cam1").addClass("cambtn-inactive").removeClass("cambtn-active");
+        onSecondCameraActivated();
+    });
+
+    $("#cam_refresh").click(function () {
+        onRefreshCamera();
+    });
+
+
+    $("#cam_view").click(function () {
+
+        augmentedViewEnabled = !augmentedViewEnabled;
+
+        $("#cam_view").css("color", (augmentedViewEnabled ? "white" : "lightgray"));
+
+        onViewModeChanged(augmentedViewEnabled);
+    });
+
+
+    // Listen for ball events and report them.
+
+    var w = $("#whiteball").slider()
+            .on("slideStop", function () {
+                onSliderChanged("white", w.getValue() == 0);
+            })
+            .data("slider");
+
+    var y = $("#yellowball").slider()
+            .on("slideStop", function () {
+                onSliderChanged("yellow", y.getValue() == 0);
+            })
+            .data("slider");
+
+    var b = $("#blueball").slider()
+            .on("slideStop", function () {
+                onSliderChanged("blue", b.getValue() == 0);
+            })
+            .data("slider");
+
+    var r = $("#redball").slider()
+            .on("slideStop", function () {
+                onSliderChanged("red", r.getValue() == 0);
+            })
+            .data("slider");
+
+    sliders = {
+        'white': w,
+        'yellow': y,
+        'blue': b,
+        'red': r
+    };
+
+});
+
+
+// ****************
+// Basic UI actions
+// ****************
+
+//! Animates (or not) the refreshing icon.
+function setRefreshingIcon(isRefreshing) {
+    if (isRefreshing) {
+        $("#cam_refresh").hide();
+        $("#cam_refresh_active").show();
+    } else {
+        $("#cam_refresh").show();
+        $("#cam_refresh_active").hide();
+    }
+}
+
+//! Returns true if the refreshing icon is activated.
+function isRefreshingIcon() {
+    return $("#cam_refresh").hidden();
+}
+
+
+// ***************
+// Basic UI events
+// ***************
+
+// TODO: For extra responsiveness, maybe we should change the opacity of the
+// old image when we do a start(), until the first image of the new URL is displayed.
+
+//! Invoked when the first camera is activated.
+//!
+function onFirstCameraActivated() {
+    cameraRefresher.start(FIRST_CAMERA_URL);
+}
+
+//! Invoked when the second camera is activated.
+//!
+function onSecondCameraActivated() {
+    cameraRefresher.start(SECOND_CAMERA_URL);
+}
+
+
+//! Invoked with the augmented-reality camera refresh button has been clicked.
+//!
+function onRefreshCamera() {
+    try {
+        setRefreshingIcon(true);
+
+        doProcessImage(
+                function (success) {
+                    arRefresher.refresh();
+                    setRefreshingIcon(false);
+                },
+                function (error) {
+                    console.error("Could not refresh");
+                    displayErrorMessage("Could not refresh the processed image");
+                    setRefreshingIcon(false);
+                }
+        );
+    } catch (ex) {
+        setRefreshingIcon(false);
+        displayErrorMessage("Something failed while trying to refresh camera. Check console for further info.");
+        throw ex;
+    }
+}
+
+
+//! Handles experiment initialization. This includes registering callbacks, etc.
+//!
+initializeExperiment = function () {
+    // Declare the WebLab callbacks.
+    // Do it only if we are running within the Weblab context.
+    if (Weblab.checkOnline()) {
+        Weblab.setOnStartInteractionCallback(onStartCallback);
+        Weblab.setOnTimeCallback(onTimeCallback);
+        Weblab.setOnEndCallback(onEndCallback);
+
+        // Set up an overlay covering it all.
+        $(".overlay-back").fadeIn(1000);
+    }
+}
+
+
+//! Invoked when the view mode changes.
+//!
+//! @param viewEnabled Whether the augmented-view is enabled or not.
+function onViewModeChanged(viewEnabled) {
+    // We will also refresh the AR view.
+    doProcessImage();
+}
+
+
+//! Invoked when a slider might have changed.
+//!
+//! @param color: Color of the slider that changed. A string containing either blue, red, white or yellow.
+//! @param newValue: True or false.
+function onSliderChanged(color, newValue) {
+    if(DEBUG)
+        console.log("Slider [" + color + "] changed to [" + newValue + "]");
+    doSendButton(color, newValue);
+}
+
+//! Invoked when we should log out.
+function onLogout() {
+    if(DEBUG)
+        console.log("Logging out");
+    cameraRefresher.stop();
+
+    // Set up the overlay again.
+    $(".overlay-back").fadeIn(1000);
+}
+
+function onStartCallback(start_info) {
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment started with info: " + start_info);
+    $(".overlay-back").fadeOut(1000);
+
+    // TODO: We should probably consider using a Timeout instead, so that
+    // we make sure we don't make requests too fast.
+
+    // Start updating the status.
+    statusUpdaterTimer = setInterval(function () {
+        doUpdateStatus();
+    }, STATUS_UPDATES_FREQUENCY);
+
+
+    // Initialize the lower cam. Force an update.
+    onRefreshCamera();
+}
+
+function onEndCallback() {
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment ended")
+    $(".overlay-back").fadeIn(1000);
+
+    clearInterval(statusUpdaterTimer);
+}
+
+function onTimeCallback(time) {
+    if(DEBUG)
+        console.log("[WEBLAB]: Experiment's time set: " + time);
+    timerDisplayer.show();
+    timerDisplayer.setTimeLeft(time);
+    timerDisplayer.startCountDown();
+}
+
+
+//! Just an example for debugging purposes.
+var exampleUpdateStatusResponse = JSON.stringify({
+    "blue": true,
+    "white": true,
+    "red": false,
+    "yellow": true
+});
+
+
+//! Updates the state of every ball slider so that it matches
+//! the specified status description.
+//!
+//! @param statusJson: Status description to match, in JSON.
+//! @return: Nothing.
+function updateBallsStatus(statusJson) {
+    var statusData = JSON.parse(statusJson);
+    for (var key in statusData) {
+        if (statusData.hasOwnProperty(key)) {
+            var value = statusData[key];
+
+            // Set the slider's value. The name of the sliders will/should match the color.
+            sliders[key].setValue(!value);
+
+            if(DEBUG)
+                console.log("Key: " + key + ", Value: " + value);
+        }
+    }
+}
+
+//! Requests a status report to the server, and updates
+//! the balls accordingly.
+function doUpdateStatus() {
+    Weblab.sendCommand("get-status",
+            function (success) {
+                if(DEBUG)
+                    console.log(success);
+                updateBallsStatus(success);
+            },
+            function (error) {
+                displayErrorMessage("Could not retrieve experiment status from the server.");
+                console.error("[WEBLAB COMMAND]: Error retrieving status through get-status. Response was: " + error);
+            });
+}
+
+//! Requests the server to raise or lower a ball.
+//! When done, updates the ball slides according to the result.
+function doSendButton(color, status) {
+
+    // So that it returns something when offline.
+    Weblab.dbgSetOfflineSendCommandResponse(exampleUpdateStatusResponse);
+
+    var command = "ball:" + color + ":" + status;
+    Weblab.sendCommand(command,
+            function (success) {
+                if(DEBUG)
+                    console.log("Ball status changed: " + success);
+                updateBallsStatus(success);
+            },
+            function (error) {
+                displayErrorMessage("Server error while trying to change ball state.");
+                console.error("[WEBLAB COMMAND]: Error while trying to send ball button. Response was: " + error);
+            });
+}
+
+
+//! Helper function to refresh the AR view.
+//! Depending on whether processing is active or not,
+//! the original will be shown or not.
+//!
+//! This function will not update the actual URL.
+//! Updating is done through doProcessImage(), which
+//! will also invoke this function on its own.
+function refreshAR() {
+    if (augmentedViewEnabled) {
+        arRefresher.setURL(processedImages[0]);
+    }
+    else {
+        arRefresher.setURL(processedImages[1]);
+    }
+
+    arRefresher.refresh();
+}
+
+// TODO: Check whether the server-side command needs changes.
+function doProcessImage(onSuccess, onError) {
+    Weblab.sendCommand("process",
+            function (success) {
+                if(DEBUG)
+                    console.log("Image processed. Response: " + success);
+                if (success.search("error") != -1) {
+                    displayMessage("Please drop one or two balls, and only balls from the left OR from the right (not from both sides at the same time).", "alert-danger", 0);
+
+                    arRefresher.setURL(SECOND_CAMERA_FAILURE_URL);
+                    arRefresher.refresh();
+
+                    console.error("Apparently the image couldn't be processed");
+                } else {
+                    processedImages = JSON.parse(success);
+
+                    refreshAR();
+                }
+                if (onSuccess != undefined)
+                    onSuccess(success);
+            },
+            function (error) {
+                displayErrorMessage("Server error while trying to process image.");
+                console.error("[WEBLAB COMMAND]: Error while trying to process image. Response was: " + error);
+                if (onError != undefined)
+                    onError(error);
+            });
+}
+
+
+</script>
+
+</head>
+<body>
+
+
+<div id="overlay-back" class="overlay-back"></div>
+
+<div id="foreground-message" class="overlay-front">
+    <div>
+        <div class="alert alert-warning errormessage">
+            Loading
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="text-center timer" style="color:red">
+                <h3 id="timer" style="helvetica Neue ultra thin">
+                    02:20
+                </h3>
+            </div>
+            <div style="height:100%">
+                <span id="logout" class="glyphicon glyphicon-log-out text-center clickable"
+                      style="font-size: 2em; padding-top:10px; visibility: hidden;"></span>
+            </div>
+
+            <div id="cam1" class="text-center clickable cambtn-active" style="width: 50%; float: left">
+                <span class="glyphicon glyphicon-facetime-video"></span> 1
+            </div>
+            <div id="cam2" class="text-center clickable cambtn-inactive" style="width: 50%; float: left">
+                <span class="glyphicon glyphicon-facetime-video"></span> 2
+            </div>
+
+            <div class="centered">
+                <img width="100%" id="cam_img" src="http://cams.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div style="width: 100%">
+
+                <div class="sliderballs text-center">
+                    <input type="text" id="whiteball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="whiteball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="yellowball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="yellowball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="blueball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="blueball"/>
+                </div>
+                <div class="sliderballs text-center">
+                    <input type="text" id="redball" value="0" data-slider-min="0" data-slider-max="1" data-slider-step="1"
+                           data-slider-value="0" data-slider-orientation="vertical" data-slider-selection="after"
+                           data-slider-tooltip="hide" data-slider-id="redball"/>
+                </div>
+            </div>
+            <div style="position:relative; display:inline-block; width: 100%">
+                <img id="cam_refresh_active" src="img/refresh.gif" style="display:inline-block; position:absolute;
+                left: 29px; top:0px; z-index: 2; color:white; display:none"/>
+                <span id="cam_view" class="glyphicon glyphicon-eye-open clickable"
+                      style="position: absolute; right:30px; top:10px; font-size:2em; z-index:2; color:white"></span>
+            <span id="cam_refresh" class="glyphicon glyphicon-refresh clickable"
+                  style="position:absolute; width:100%; top:10px; font-size:2em; z-index: 2; color:white;"></span>
+                <img width="100%" id="ar_img"
+                     src="http://cams.weblab.deusto.es/webcam/proxied.py/workaround_fishtank1"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../../jslib/weblabjs.js"></script>
+
+
+</body>
+</html>

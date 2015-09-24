@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from weblab.core.coordinator.sql.model import Reservation, CurrentReservation, ExperimentType, PendingToFinishReservation
 import weblab.core.coordinator.exc as CoordExc

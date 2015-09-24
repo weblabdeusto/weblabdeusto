@@ -1,0 +1,39 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <h1>{{ gettext("Grant permissions") }}</h1>
+
+        
+        <br/>
+        <p><strong>{{ permission_type }}</strong>: {{ description }}</p>
+        <br/>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+
+            <fieldset>
+                {% for field in fields %}
+                    {{ render_field(form|attr(field)) }}
+                {% endfor %}
+
+                {{ render_field(form.recipients) }}
+
+                <div class="form-actions text-center">
+                    <a class="btn" href="{{ url_for('.index') }}">{{ gettext("Back") }}</a>
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}
+

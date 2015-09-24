@@ -13,6 +13,7 @@
 # Authors: Jaime Irurzun <jaime.irurzun@gmail.com>
 #          Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import StringIO
 import os
@@ -87,7 +88,7 @@ class WebLabProcess(object):
             for port in self.ports['json']:
                 json_url = 'http://%s:%s%s/weblab/json/' % (self.host, port, self.base_location)
                 if self.verbose:
-                    print json_url
+                    print(json_url)
                 current_content = urllib2.urlopen(json_url).read()
                 matches &= current_content.find("JSON service") > 0
                 running.append('json')
@@ -97,7 +98,7 @@ class WebLabProcess(object):
             sio = StringIO.StringIO()
             traceback.print_exc(file=sio)
             if self.verbose:
-                print sio.getvalue()
+                print(sio.getvalue())
             return False, sio.getvalue()
 
     def _has_finished(self):
@@ -121,8 +122,8 @@ class WebLabProcess(object):
 
         time.sleep(2)
         if self.popen.poll() is not None:
-            print open(self.stdout_name).read()
-            print open(self.stderr_name).read()
+            print(open(self.stdout_name).read())
+            print(open(self.stderr_name).read())
             raise Exception("Server couldn't start!")
 
     def step_wait(self):
@@ -138,8 +139,8 @@ class WebLabProcess(object):
             time.sleep(4)
         if max_iterations == 0:
             if self.popen.poll() is not None:
-                print open(self.stdout_name).read()
-                print open(self.stderr_name).read()
+                print(open(self.stdout_name).read())
+                print(open(self.stderr_name).read())
             raise Exception("Server couldn't start! Failure: %s" % failure)
         self._wait_file_notifier(os.path.join(self.launch_path, "_file_notifier"))
 

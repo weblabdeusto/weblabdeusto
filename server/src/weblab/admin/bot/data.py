@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import traceback
@@ -76,7 +77,7 @@ class BotIteration(object):
             botuser.dispose()
 
         if PRINT_FULL_TRACE:
-            print repr(data)
+            print(repr(data))
 
     def get_times(self):
         return [ botuser.time() for botuser in self.botusers ]
@@ -249,37 +250,37 @@ class BotTrial(object):
 
     def print_results(self, fobj = sys.stdout):
         result = self.botlauncher.get_results()
-        print >> fobj,  ""
-        print >> fobj,  "  max user time:", result.max_time
-        print >> fobj,  "  avg user time:", result.avg_time
-        print >> fobj,  "  min user time:", result.min_time
-        print >> fobj,  ""
-        print >> fobj,  "  max iteration exceptions:", result.max_exceptions
-        print >> fobj,  "  avg iteration exceptions:", result.avg_exceptions
-        print >> fobj,  "  min iteration exceptions:", result.min_exceptions
-        print >> fobj,  ""
-        print >> fobj,  "  max call time: ", result.max_call_times
-        print >> fobj,  "  avg call time: ", result.avg_call_times
-        print >> fobj,  "  min call time: ", result.min_call_times
-        print >> fobj,  ""
+        print("", file=fobj)
+        print("  max user time:", result.max_time, file=fobj)
+        print("  avg user time:", result.avg_time, file=fobj)
+        print("  min user time:", result.min_time, file=fobj)
+        print("", file=fobj)
+        print("  max iteration exceptions:", result.max_exceptions, file=fobj)
+        print("  avg iteration exceptions:", result.avg_exceptions, file=fobj)
+        print("  min iteration exceptions:", result.min_exceptions, file=fobj)
+        print("", file=fobj)
+        print("  max call time: ", result.max_call_times, file=fobj)
+        print("  avg call time: ", result.avg_call_times, file=fobj)
+        print("  min call time: ", result.min_call_times, file=fobj)
+        print("", file=fobj)
         for exception_name in result.exceptions:
-            print >> fobj,  ""
-            print >> fobj,  "  For exception...", exception_name
-            print >> fobj,  "    max times:", result.exceptions[exception_name].max
-            print >> fobj,  "    avg times:", result.exceptions[exception_name].avg
-            print >> fobj,  "    min times:", result.exceptions[exception_name].min
-            print >> fobj,  "    instances:", result.exceptions[exception_name].instances
-        print >> fobj,  ""
-        print >> fobj,  "  Let's go for each iteration..."
+            print("", file=fobj)
+            print("  For exception...", exception_name, file=fobj)
+            print("    max times:", result.exceptions[exception_name].max, file=fobj)
+            print("    avg times:", result.exceptions[exception_name].avg, file=fobj)
+            print("    min times:", result.exceptions[exception_name].min, file=fobj)
+            print("    instances:", result.exceptions[exception_name].instances, file=fobj)
+        print("", file=fobj)
+        print("  Let's go for each iteration...", file=fobj)
         for iteration in result.iterations:
-            print >> fobj,  ""
-            print >> fobj,  "    iteration"
-            print >> fobj,  "      time:", iteration.time
+            print("", file=fobj)
+            print("    iteration", file=fobj)
+            print("      time:", iteration.time, file=fobj)
             for exception_name in iteration.exceptions:
-                print >> fobj,  "      exception: %s (%i)" % (exception_name, len(iteration.exceptions[exception_name].instances)), iteration.exceptions[exception_name].instances
+                print("      exception: %s (%i)" % (exception_name, len(iteration.exceptions[exception_name].instances)), iteration.exceptions[exception_name].instances, file=fobj)
                 for e in iteration.exceptions:
-                    print >> fobj,  traceback.format_exc(e)
-            print >> fobj,  "    out: ", iteration.out
-            print >> fobj,  "    err: ", iteration.err
+                    print(traceback.format_exc(e), file=fobj)
+            print("    out: ", iteration.out, file=fobj)
+            print("    err: ", iteration.err, file=fobj)
         fobj.flush()
 

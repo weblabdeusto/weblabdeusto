@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """First version
 
 Revision ID: 4c23f9943036

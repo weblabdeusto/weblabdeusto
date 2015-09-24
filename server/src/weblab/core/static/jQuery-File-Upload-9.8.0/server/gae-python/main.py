@@ -9,6 +9,7 @@
 # Licensed under the MIT license:
 # http://www.opensource.org/licenses/MIT
 #
+from __future__ import print_function, unicode_literals
 
 from __future__ import with_statement
 from google.appengine.api import files, images

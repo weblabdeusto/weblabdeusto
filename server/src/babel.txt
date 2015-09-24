@@ -1,0 +1,12 @@
+# First, update the messages.pot file:
+pybabel extract -F babel.cfg -k lazy_gettext -k ng_gettext -o messages.pot --project weblab --version 5.0 .
+
+# Then, if you want to generate for a certain language ("es" for Spanish in this case), run:
+pybabel update -i messages.pot -d weblab/core/translations -l es
+
+# If it was the first time, run:
+pybabel init -i messages.pot -d weblab/core/translations -l es
+
+# This will generate a file called flaskclient/translations/es/LC_MESSAGES/messages.po with those messages.
+# Once that is translated, run the following to compile it:
+pybabel compile -f -d weblab/core/translations

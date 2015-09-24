@@ -139,16 +139,16 @@
              chart.xAxis
                 .tickFormat(function(d) {
                     var d2 = new Date(d);
-                    if(raw_data['key_used'] == 'month') {
-                        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    if(raw_data['key_used'] == 'day') {
+                        return d2.getDate() + " " + months[d2.getMonth()] + " " + d2.getFullYear();
+                    } else if(raw_data['key_used'] == 'month') {
                         return months[d2.getMonth()] + " " + d2.getFullYear();
                     } else if (raw_data['key_used'] == 'year'){
                         return d2.getFullYear();
                     }
                     return d3.time.format('%x')(new Date(d))
                   });
-
-            // chart.forceY([0,raw_data['max_value']])
 
             d3.select('#chart')
                 .datum(data)

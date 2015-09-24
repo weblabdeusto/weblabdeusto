@@ -1,0 +1,29 @@
+{
+  "name": "romieblocks",
+  "version": "0.0.1",
+  "homepage": "http://weblab.deusto.es/website/",
+  "authors": [
+    "Iban Eguia <iban.eguia@opendeusto.es>"
+  ],
+  "description": "Romie Blockly interface",
+  "main": "index.html",
+  "keywords": [
+    "Romie",
+    "Remote laboratory",
+    "Robot"
+  ],
+  "license": "BSD 3-CLAUSE LICENSE",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.5",
+    "google-blockly": "https://github.com/google/blockly.git#master",
+    "jquery": "~2.1.4",
+    "js-interpreter": "https://github.com/NeilFraser/JS-Interpreter.git#master"
+  }
+}

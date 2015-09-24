@@ -1,0 +1,20 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+
+        <br/>
+        <h1>{{ gettext("Welcome, %(user)s!", user=user_information.full_name) }}</h1>
+        <br/>
+
+        <p>{{ gettext("Here you will the accesses you did in the past, retrieve files you submitted, and edit your personal data.") }}</p>
+
+        {% if is_admin %}
+        {{ gettext("Additionally, since you're an administrator, you can go to %(start_link)sthe administration panel%(end_link)s"|safe, start_link=("<a href='%s'>" % admin_url)|safe, end_link="</a>"|safe)|safe }}.
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

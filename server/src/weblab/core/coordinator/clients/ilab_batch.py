@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 import urllib2

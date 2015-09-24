@@ -13,9 +13,10 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import json
-from flask import request, make_response
+from flask import make_response
 from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/experiments.js')

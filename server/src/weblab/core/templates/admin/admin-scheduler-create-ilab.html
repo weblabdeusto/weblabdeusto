@@ -1,0 +1,76 @@
+{% extends 'weblab-master.html' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        {% from "_form_helpers.html" import render_field, render_simple_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+            <input type="hidden" name="action" value="form-add"></input>
+
+            <fieldset>
+                {{ render_field(form.name) }}
+                {{ render_field(form.lab_server_url) }}
+                {{ render_field(form.identifier) }}
+                {{ render_field(form.passkey) }}
+
+                <div class="text-center">
+                    <a class="btn" href="{{ back }}">{{ gettext("Back") }}</a>
+                    <button type="submit" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% if not create %}
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ gettext("Experiment") }}</th>
+                    <th>{{ gettext("Action") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for experiment in registered_experiments %}
+                    <tr>
+                        <td>{{ experiment['name'] }}</td>
+                        <form class="icon" method="POST" action="{{ request.url }}">
+                        <td>
+                            {{ experiment['form'].hidden_tag() }}
+                            <input type="hidden" name="action" value="{{ experiment['prefix'] }}"></input>
+                            <button class="btn" type="submit"><i class="icon-remove"></i></button>
+                        </td>
+                        </form>
+                    </tr>
+                {% endfor %}
+                {% if add_form.experiment_identifier.choices %}
+                    <tr>
+                        <form class="icon" method="POST" action="{{ request.url }}">
+                        {{ add_form.hidden_tag() }}
+                        <input type="hidden" name="action" value="form-register"></input>
+                        <td>{{ render_simple_field(add_form.experiment_identifier) }}</td>
+                        <td><button class="btn" type="submit"><i class="icon-plus"></i></button></td>
+                        </form>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td><a href="{{ url_for('experiments/experiments.create_view') }}" class="btn">{{ gettext("Create a new experiment") }}</a></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}
+

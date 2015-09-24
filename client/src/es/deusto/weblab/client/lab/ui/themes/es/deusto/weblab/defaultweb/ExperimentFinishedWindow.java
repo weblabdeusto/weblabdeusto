@@ -68,11 +68,8 @@ public class ExperimentFinishedWindow extends BaseWindow {
 	private void loadWidgets() {
 		ExperimentFinishedWindow.uiBinder.createAndBindUi(this);
 		
-		final String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_IMAGE, "");
-		this.logoImage.setUrl(GWT.getModuleBaseURL() + hostEntityImage);
-		
-		final String smallHostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, "");
-		this.bottomLogoImage.setUrl(GWT.getModuleBaseURL() + smallHostEntityImage);
+        this.logoImage.setUrl("../web/logos/regular");
+        this.bottomLogoImage.setUrl("../web/logos/small");
 		
 		final String hostEntityLink = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LINK, "");
 		this.bottomInstitutionLink.setHref(hostEntityLink);

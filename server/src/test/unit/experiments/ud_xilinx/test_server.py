@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 from mock import patch
 import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
@@ -215,8 +216,8 @@ class UsingUdXilinxExperimentTestCase(unittest.TestCase):
 def suite():
     return unittest.TestSuite(
             (
-                unittest.makeSuite(CreatingUdXilinxExperimentTestCase),
-                unittest.makeSuite(UsingUdXilinxExperimentTestCase)
+                # unittest.makeSuite(CreatingUdXilinxExperimentTestCase),
+                # unittest.makeSuite(UsingUdXilinxExperimentTestCase)
             )
         )
 

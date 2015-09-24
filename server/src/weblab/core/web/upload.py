@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import StringIO
 from flask import request
@@ -23,7 +24,8 @@ import weblab.experiment.util as Util
 
 FILE_SENT = 'file_sent'
 FILE_INFO = 'file_info'
-SESSION_ID = 'session_id'
+SESSION_ID = 'session_id' # for legacy code
+RESERVATION_ID = 'reservation_id'
 IS_ASYNC = 'is_async'
 
 BASE_HTML_TEMPLATE="""<?xml version="1.0"?>
@@ -53,10 +55,10 @@ def upload():
     @return HTML defined above, with the success or failure response.
     """
     try:
-        file_info, file_sent, session_id, is_async = _check_arguments()
+        file_info, file_sent, reservation_id, is_async = _check_arguments()
         file_content = Util.serialize(file_sent)
 
-        weblab_api.ctx.reservation_id = session_id
+        weblab_api.ctx.reservation_id = reservation_id
 
         if not is_async:
             result = weblab_api.api.send_file(file_content, file_info)
@@ -82,7 +84,7 @@ def upload():
         else:
             resultstr = result
 
-        print "[DBG] Returning result from file upload: " + resultstr
+        print("[DBG] Returning result from file upload:", resultstr)
 
         return SUCCESS_HTML_TEMPLATE % {
                         'RESULT' : resultstr
@@ -93,7 +95,7 @@ def _check_arguments():
     _check_arguments()
     Retrieves the arguments which describe the file being sent.
     These areguments are the file_sent, the file-info, the sessionid, and optionally
-    @return file_info, file_sent, session_id, is_async
+    @return file_info, file_sent, reservation_id, is_async
     """
     file_info = get_argument(FILE_INFO)
     if file_info is None:
@@ -105,10 +107,12 @@ def _check_arguments():
         sio = StringIO.StringIO()
         file_sent.save(sio)
         file_sent = sio.getvalue()
-        
-    session_id = get_argument(SESSION_ID)
-    if session_id is None:
-        raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % SESSION_ID)
+
+    reservation_id = get_argument(RESERVATION_ID)
+    if reservation_id is None:
+        reservation_id = get_argument(SESSION_ID)
+        if reservation_id is None:
+            raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % ' or '.join((SESSION_ID, RESERVATION_ID)))
 
     # Read the IS_ASYNC parameter, which will indicate us whether we should execute the send_file asynchronously
     # or synchronously.
@@ -123,7 +127,7 @@ def _check_arguments():
             is_async = False
         else:
             raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument is present but not valid (should be a boolean)!" % IS_ASYNC)
-    return file_info, file_sent, session_id, is_async
+    return file_info, file_sent, reservation_id, is_async
 
 class FileUploadError(Exception):
     pass

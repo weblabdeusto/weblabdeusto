@@ -18,14 +18,12 @@ from abc import ABCMeta, abstractmethod
 from voodoo.threaded import threaded
 from socket import AF_INET, SOCK_STREAM, socket
 
-import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
-import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
 import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
-from experiments.ud_xilinx.programmers import UdXilinxProgrammer
+from weblab.experiment.devices.xilinx.programmers.programmers import XilinxProgrammer
+
 
 class HardwareInterface(object):
-
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -47,6 +45,7 @@ class HardwareInterface(object):
     @abstractmethod
     def clear(self):
         pass
+
 
 class HardwareInterfaceCollector(HardwareInterface):
     def __init__(self, interfaces):
@@ -72,6 +71,7 @@ class HardwareInterfaceCollector(HardwareInterface):
         for interface in self.interfaces:
             interface.clear()
 
+
 class ConsoleInterface(HardwareInterface):
     def send_message(self, msg):
         print "ConsoleInterface::Sent: ", msg
@@ -88,8 +88,8 @@ class ConsoleInterface(HardwareInterface):
     def clear(self):
         print "ConsoleInterface::clear"
 
-class PicInterface(HardwareInterface):
 
+class PicInterface(HardwareInterface):
     def __init__(self, ip):
         self.ip = ip
         self.last_message = ""
@@ -106,10 +106,11 @@ class PicInterface(HardwareInterface):
             s.connect((self.ip, 80))
             msg = "lcd=%s" % message
             length = len(msg)
-            s.send(TEMPLATE % {'SIZE' : length, 'MSG' : msg})
+            s.send(TEMPLATE % {'SIZE': length, 'MSG': msg})
             s.close()
         except Exception:
             import traceback
+
             traceback.print_exc()
             pass
 
@@ -125,39 +126,33 @@ class PicInterface(HardwareInterface):
     def clear(self):
         self._send(";0")
 
+
 class XilinxInterface(HardwareInterface):
     def __init__(self, cfg_manager):
         self._cfg_manager = cfg_manager
-        self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
-        self._programmer = self._load_programmer()
+        self._board_type = self._cfg_manager.get_value('xilinx_board_type')
+        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type')
+
+        self._programmer = self._load_programmer(self._programmer_type, self._board_type)
         self._command_sender = self._load_command_sender()
 
-    def _load_xilinx_device(self):
-        self.device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        devices = [ i for i in XilinxDevices.getXilinxDeviceValues() if i == self.device_name ]
-        if len(devices) == 1:
-            return devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
-        else:
-            raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(self.device_name)
-
-    def _load_programmer(self):
-        device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
+    def _load_programmer(self, programmer_type, board_type):
+        return XilinxProgrammer.create(programmer_type, self._cfg_manager, board_type)
 
     def _load_command_sender(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
 
     def initialize(self):
-        if self.device_name == 'PLD':
+        if self._board_type == 'PLD':
             file_name = 'turnon.jed'
-        else: # FPGA
+        else:  # FPGA
             file_name = 'turnon.bit'
         full_file_name = os.path.join(os.path.dirname(__file__), file_name)
         self._programmer.program(full_file_name)
 
     def send_message(self):
-        pass # Not implemented
+        pass  # Not implemented
 
     def turn_on(self):
         self._command_sender.send_command("ChangeSwitch on 0")
@@ -169,4 +164,3 @@ class XilinxInterface(HardwareInterface):
 
     def clear(self):
         self._command_sender.send_command("CleanInputs")
-

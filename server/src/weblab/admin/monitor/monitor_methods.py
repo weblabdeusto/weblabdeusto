@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 #
 # Here are all the methods that the Monitor will call. The point is
@@ -47,7 +48,7 @@ def _find_server(server_type, name):
         if isinstance(GLOBAL_REGISTRY[server], server_type):
             servers.append(GLOBAL_REGISTRY[server])
     if len(servers) > 1:
-        print >> stderr, "Warning: more than one server of %s found" % name
+        print("Warning: more than one server of %s found" % name, file=stderr)
     elif len(servers) == 0:
         raise Exception("Could not find a %s server" % name)
     return servers[0]

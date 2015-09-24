@@ -1,0 +1,44 @@
+{% extends 'admin/model/create.html' %}
+
+{% block head %}
+        <link href="{{ url_for('admin.static', filename='vendor/select2/select2.css') }}" rel="stylesheet">
+        <link href="{{ url_for('admin.static', filename='vendor/select2/select2-bootstrap3.css') }}" rel="stylesheet">
+        <link href="{{ url_for('admin.static', filename='vendor/bootstrap-daterangepicker/daterangepicker-bs3.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <h4><a href="{{ url_for('.index_view') }}">{{ gettext("List") }}</a> <span class="pull-right">{{ gettext("Add authentication mechanism") }}</span></h4>
+       
+        <table class="table table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>{{ gettext("Authentication mechanism") }}</th>
+                    <th>{{ gettext("Create") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for auth_type, available, reason in auth_types %}
+                    <tr>
+                        <td>{{ auth_type.name }}</td>
+                        {% if available %}
+                            <td style="text-align: center"><a href="{{ url_for('.create_auth_view', auth_type_name = auth_type.name) }}" class="btn btn-primary">{{ gettext("Create") }}</a></td>
+                        {% else %}
+                            <td class="alert alert-warning" style="text-align: center; font-weight: bold">{{ reason }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}
+

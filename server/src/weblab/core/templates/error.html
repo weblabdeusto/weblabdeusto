@@ -1,8 +1,8 @@
 {% extends 'weblab-master.html' %}
 {% block body %}
 
-<div class="alert alert-error">
-    <strong>Error!</strong> {{ message }} 
+<div class="alert alert-danger">
+    <strong>{{ gettext("Error!") }}</strong> {{ message }} 
 </div>
 
 {% endblock %}

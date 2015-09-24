@@ -12,13 +12,13 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 # 
-
+from __future__ import print_function, unicode_literals
 import sys
 sys.path.insert(0, '../../src')
 
 def inner(signals = False, condition = None, event_notifier = None):
     def before_shutdown():
-        print "Stopping servers..."
+        print("Stopping servers...")
 
     import signal
     import voodoo.gen.launcher as Launcher
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     try:
         from werkzeug.serving import run_with_reloader
     except ImportError:
-        print "werkzeug.serving not installed (pip install werkzeug). If you're developing, you'll have to restart the application in every change manually."
+        print("werkzeug.serving not installed (pip install werkzeug). If you're developing, you'll have to restart the application in every change manually.")
         launch(signals = True)
     else:
         run_with_reloader(launch)

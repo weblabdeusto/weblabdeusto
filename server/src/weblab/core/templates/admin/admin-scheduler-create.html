@@ -1,0 +1,37 @@
+{% extends 'weblab-master.html' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>{{ gettext("External") }}</th>
+                    <th>{{ gettext("Scheduler") }}</th>
+                    <th>{{ gettext("Action") }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td>{{ gettext("Priority queue") }}</td>
+                    <td><a class="btn" href="{{ url_for('.create_pqueue_view') }}">{{ gettext("Create scheduler") }}</a></td>
+                </tr>
+                <tr>
+                    <td><i class="icon-ok"></i></td>
+                    <td>{{ gettext("External WebLab-Deusto") }}</td>
+                    <td><a class="btn" href="{{ url_for('.create_weblab_view') }}">{{ gettext("Create scheduler") }}</a></td>
+                </tr>
+                <tr>
+                    <td><i class="icon-ok"></i></td>
+                    <td>{{ gettext("iLab Batch") }}</td>
+                    <td><a class="btn" href="{{ url_for('.create_ilab_view') }}">{{ gettext("Create scheduler") }}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+

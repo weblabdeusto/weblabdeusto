@@ -12,15 +12,15 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
+import six
 import sys
 import time
 import traceback
-import StringIO
 import math
 import random
 import logging
 import threading
-import new
 from functools import wraps
 from voodoo.cache import fast_cache
 
@@ -50,7 +50,7 @@ def log(instance_or_module_or_class, level, message, max_size = 250):
     logging_log_level = getattr(logging,level.upper())
     if isinstance(instance_or_module_or_class,str):
         logger_name = instance_or_module_or_class
-    elif isinstance(instance_or_module_or_class, new.classobj) or isinstance(instance_or_module_or_class, type):
+    elif isinstance(instance_or_module_or_class, six.class_types):
         logger_name = instance_or_module_or_class.__module__ + '.' + instance_or_module_or_class.__name__
     else:
         logger_name = instance_or_module_or_class.__class__.__module__ + '.' + instance_or_module_or_class.__class__.__name__
@@ -80,7 +80,7 @@ def debug_exc(instance_or_module_or_class):
     return log_exc(instance_or_module_or_class, level.Debug)
 
 def log_exc(instance_or_module_or_class, level):
-    f = StringIO.StringIO()
+    f = six.StringIO()
     traceback.print_exc(file=f)
     lines = f.getvalue().split('\n')
     for line in lines:
@@ -264,7 +264,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                                     replaced = True
 
                         if not replaced:
-                            print >> sys.stderr, "Warning!!! Function %s didn't receive a parameter %s" % (f, repr(parameter))
+                            print("Warning!!! Function %s didn't receive a parameter %s" % (f, repr(parameter)), file=sys.stderr)
                             self.fake_args  = ('<error: all hidden because the parameter %s was not found>' % repr(parameter),)
                             self.fake_kargs = {}
                 else:
@@ -371,7 +371,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
 
         if is_class_method:
             @wraps(f)
-            def wrapped(self,*args, **kargs):
+            def wrapped_class_method(self,*args, **kargs):
                 logger_name = _get_full_class_name(self.__class__, f)
                 logger = _get_logger(logger_name)
                 if not logger.isEnabledFor(logging_level):
@@ -393,9 +393,10 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                     footer_return.log(result)
 
                 return result
+            wrapped = wrapped_class_method
         else: # For functions
             @wraps(f)
-            def wrapped(*args, **kargs):
+            def wrapped_function(*args, **kargs):
                 logger_name = f.__module__
                 logger = _get_logger(logger_name)
                 if not logger.isEnabledFor(logging_level):
@@ -417,6 +418,7 @@ def logged(level='debug', except_for=None, max_size = 250, is_class_method = Tru
                     footer_return.log(result)
 
                 return result
+            wrapped = wrapped_function
         return wrapped
     return real_logger
 

@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from __future__ import with_statement
 
@@ -85,37 +86,35 @@ class LoginServerTestCase(unittest.TestCase):
                 fake_wrong_passwd
             )
 
-    if LDAP_AVAILABLE:
-        def test_ldap_user_right(self):
-            mockr = mocker.Mocker()
-            ldap_auth._ldap_provider.ldap_module = mockr.mock()
-            with wlcontext(self.core_server):
-                session_id = core_api.login(fake_ldap_user, fake_ldap_passwd)
+    @unittest.skipIf(not LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_user_right(self):
+        mockr = mocker.Mocker()
+        ldap_auth._ldap_provider.ldap_module = mockr.mock()
+        with wlcontext(self.core_server):
+            session_id = core_api.login(fake_ldap_user, fake_ldap_passwd)
 
-            self.assertTrue( isinstance(session_id, SessionId) )
-            self.assertTrue( len(session_id.id) > 5 )
+        self.assertTrue( isinstance(session_id, SessionId) )
+        self.assertTrue( len(session_id.id) > 5 )
 
-        def test_ldap_user_invalid(self):
-            mockr = mocker.Mocker()
-            ldap_object = mockr.mock()
-            ldap_object.simple_bind_s(fake_ldap_user + '@cdk.deusto.es', fake_ldap_invalid_passwd)
-            mockr.throw(ldap.INVALID_CREDENTIALS)
-            ldap_module = mockr.mock()
-            ldap_module.initialize('ldaps://castor.cdk.deusto.es')
-            mockr.result(ldap_object)
-            ldap_auth._ldap_provider.ldap_module = ldap_module
+    @unittest.skipIf(not LDAP_AVAILABLE, "LDAP module not available")
+    def test_ldap_user_invalid(self):
+        mockr = mocker.Mocker()
+        ldap_object = mockr.mock()
+        ldap_object.simple_bind_s(fake_ldap_user + '@cdk.deusto.es', fake_ldap_invalid_passwd)
+        mockr.throw(ldap.INVALID_CREDENTIALS)
+        ldap_module = mockr.mock()
+        ldap_module.initialize('ldaps://castor.cdk.deusto.es')
+        mockr.result(ldap_object)
+        ldap_auth._ldap_provider.ldap_module = ldap_module
 
-            with wlcontext(self.core_server):
-                with mockr:
-                    self.assertRaises(
-                        LoginErrors.InvalidCredentialsError,
-                        core_api.login,
-                        fake_ldap_user,
-                        fake_ldap_invalid_passwd
-                    )
-
-    else:
-        print >> sys.stderr, "Two tests skipped in LoginServer since ldap is not available"
+        with wlcontext(self.core_server):
+            with mockr:
+                self.assertRaises(
+                    LoginErrors.InvalidCredentialsError,
+                    core_api.login,
+                    fake_ldap_user,
+                    fake_ldap_invalid_passwd
+                )
 
     def test_login_delay(self):
         login_manager.LOGIN_FAILED_DELAY = 0.2

@@ -1,0 +1,30 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+
+        <br/>
+        <h1>{{ gettext("Welcome, %(user)s!", user = user_information.full_name) }}</h1>
+        <br/>
+
+        <p>{{ gettext("Here you will be able to see what your students did.") }}
+
+        {% if is_admin %}
+        {{ gettext("Additionally, since you're an administrator, you can go to %(start_link)sthe administration panel%(end_link)s"|safe, start_link=("<a href='%s'>" % admin_url)|safe, end_link="</a>"|safe)|safe }}.
+        {% endif %}
+        </p>
+
+        {% if groups|length > 0 %}
+        <p>{% if is_admin %}<a href="{{ url_for('stats/groups.groups_total_stats') }}">{{ gettext("See all uses.") }}</a> {% endif %}{{ gettext("You're in charge of the following groups:") }}</p>
+        {% from "_widgets.html" import show_groups %}
+        {{ show_groups(tree_groups, groups) }}
+        {% else %}
+        <div class="alert alert-danger">
+            <p>{{ gettext("You don't have permission of teacher on any group (or there is no group in the system)") }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

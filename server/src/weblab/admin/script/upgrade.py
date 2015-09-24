@@ -13,8 +13,9 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 # 
+from __future__ import print_function, unicode_literals
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
 import os
 import re
@@ -29,11 +30,12 @@ except ImportError:
     print("argparse not found. You must upgrade Python to Python 2.7 or higher", file=sys.stderr)
     sys.exit(-1)
 
+import six
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import weblab.db.model as model
-from weblab.admin.cli.controller import DbConfiguration
+from weblab.admin.script.dbutils import DbConfiguration
 from weblab.admin.script.utils import run_with_config, ordered_dump
 
 import xml.dom.minidom as minidom
@@ -655,3 +657,82 @@ class RemoveXmlsAndAddYaml(Upgrader):
             for dir_to_delete in directories_to_delete:
                 if len(os.listdir(dir_to_delete)) == 0:
                     os.rmdir(dir_to_delete)
+
+
+class ClientConfiguration2db(Upgrader):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(ClientConfiguration2db, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
+        self.db_conf = DbConfiguration(configuration_files, configuration_values)
+        self.config_js = os.path.join(directory, 'client', 'configuration.js')
+        if os.path.exists(self.config_js):
+            self.config = json.load(open(self.config_js))
+        else:
+            self.config = {}
+
+    @classmethod
+    def get_priority(self):
+        """ After database """
+        return 4
+      
+    def check_updated(self):
+        # In the future, this file will not exist.
+        if not os.path.exists(self.config_js):
+            return True
+
+        print(" - There is a client/configuration.js file, which contains the generic configuration. Now that configuration is managed by the administration panel, and stored in the database. So all those values that you are using will be migrated to the database.")
+        return False
+
+    def upgrade(self):
+        connection_url = self.db_conf.build_url()
+        engine = create_engine(connection_url, echo=False, convert_unicode=True)
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        try:
+            for key, value in six.iteritems(self.config):
+                if key in ('development', 'host.entity.image.mobile', 'host.entity.image', 'sound.enabled', 'experiments.default_picture', 'host.entity.image.login', 'facebook.like.box.visible', 'create.account.visible'):
+                    continue
+                new_property = model.DbClientProperties(key, value)
+                session.add(new_property)
+            
+            session.commit()
+        finally:
+            session.close()
+
+        os.remove(self.config_js)
+
+        simple_server_config_filename = os.path.join('httpd','simple_server_config.py')
+        lines = []
+        for line in open(simple_server_config_filename):
+            if 'weblabclientadmin' not in line and 'configuration.js' not in line and 'webserver' not in line and 'client/images' not in line:
+                lines.append(line)
+
+        open(simple_server_config_filename, 'w').write(''.join(lines))
+
+        apache_weblab_generic_conf_filename = os.path.join('httpd', 'apache_weblab_generic.conf')
+        lines = []
+        bad_pos = -1
+        recording = True
+        for pos, line in enumerate(open(apache_weblab_generic_conf_filename)):
+            if bad_pos >= 0:
+                bad_pos -= 1
+                continue
+            
+            if 'LocationMatch (.*)configuration\.js' in line:
+                bad_pos = 1
+                continue
+
+            if 'configuration.js' in line or 'weblabclientadmin' in line or 'client/images' in line:
+                continue
+
+            if 'webserver' in line and '<Directory' in line:
+                recording = False
+            if not recording and '</Directory' in line:
+                recording = True
+                continue
+                
+            if recording:
+                lines.append(line)
+
+        open(apache_weblab_generic_conf_filename, 'w').write(''.join(lines))
+

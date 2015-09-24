@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from __future__ import unicode_literals
 
@@ -59,19 +60,20 @@ class ServerCreator(threading.Thread):
             self.shutdown_port = new_port()
             self.public_port = new_port()
             self.address = 'http://localhost:%s/weblab/' % self.public_port
-            sys.argv = shlex.split("weblab-admin create %s --quiet --not-interactive --socket-wait=%s --start-port=%s %s --http-server-port=%s" % (self.weblab_dir, self.shutdown_port, start_port, command, self.public_port))
+            sys.argv = shlex.split("weblab-admin create %s --ignore-locations --quiet --not-interactive --socket-wait=%s --start-port=%s %s --http-server-port=%s" % (self.weblab_dir, self.shutdown_port, start_port, command, self.public_port))
 
             weblab_admin()
-        except:
-            shutil.rmtree(self.temporary_folder)
-            raise
-        finally:
+
             variables = {}
             execfile(os.path.join(self.temporary_folder, 'weblab', 'debugging.py'), variables, variables)
             self.ports = variables['PORTS']
             self.temporal_addresses = []
             for port in self.ports:
                 self.temporal_addresses.append('http://localhost:%s/weblab/' % port)
+        except:
+            shutil.rmtree(self.temporary_folder)
+            raise
+        finally:
             sys.argv = self.argv
 
     def create_client(self):
@@ -89,7 +91,7 @@ class ServerCreator(threading.Thread):
 
             try:
                 for address in (self.temporal_addresses + [self.address]):
-                    r = requests.get('%sjson' % self.address)
+                    r = requests.get('%sjson/' % self.address, allow_redirects=False)
                     if r.status_code != 200:
                         finished = False
             except:
@@ -109,7 +111,7 @@ class ServerCreator(threading.Thread):
             weblab_admin()
         except:
             self.exc_info = sys.exc_info()
-            print self.exc_info
+            print(self.exc_info)
 
     def __exit__(self, *args, **kwargs):
         connect(self.shutdown_port)

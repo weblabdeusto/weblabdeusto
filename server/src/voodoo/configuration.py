@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 import types
 import threading
 import os
@@ -95,6 +96,8 @@ class ConfigurationManager(object):
             self._values_readlock  = NullLock()
             self._values_writelock = NullLock()
 
+        self.client = {}
+        self.server = {}
         self._modules = []
         if CFG_LOCKING:
             self._modules_lock = threading.RLock()

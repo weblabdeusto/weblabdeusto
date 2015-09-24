@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import codecs
@@ -27,7 +28,7 @@ from weblab.util import data_filename
 try:
     I18N = json.load(codecs.open(data_filename(os.path.join('weblab', 'i18n.json')), encoding = 'utf-8'))
 except:
-    print "Error loading weblab/i18n.json. Did you run weblab-admin upgrade? Check the file"
+    print("Error loading weblab/i18n.json. Did you run weblab-admin upgrade? Check the file")
     traceback.print_exc()
     I18N = {
         'generic_experiments' : {},

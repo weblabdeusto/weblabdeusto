@@ -18,7 +18,7 @@
 
 
     <!-- WebLab library -->
-    <script type="text/javascript" src="../../weblabjs/weblabexp.js"></script>
+    <script type="text/javascript" src="../../weblabjs/weblab.js"></script>
 
     <!-- Archimedes-specific JS & CSS -->
     <link href="css/widgets.css" rel="stylesheet" type="text/css"/>
@@ -36,7 +36,7 @@
 
 </head>
 
-<body>
+<body style="display: none">
 
 
 <!-- Some small MUSTACHE templates -->
@@ -99,9 +99,6 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-
-        // Initialize the Weblab library.
-        weblabExp = new WeblabExp();
 
         // global
         archimedesExperiment = new ArchimedesExperiment(Registry, View);

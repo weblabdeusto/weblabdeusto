@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import re
@@ -69,7 +70,7 @@ class LdapUserAuth(SimpleAuthnUserAuth):
     def authenticate(self, login, password):
         if not LDAP_AVAILABLE:
             msg = "The optional library 'ldap' is not available. The users trying to be authenticated with LDAP will not be able to do so. %s tried to do it. " % login
-            print >> sys.stderr, msg
+            print(msg, file=sys.stderr)
             log.log(self, log.level.Error, msg)
             return False
 

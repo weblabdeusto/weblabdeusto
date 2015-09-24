@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+from flask import request, session
 import traceback
 
 try:
@@ -5,19 +7,21 @@ try:
 
     if USE_BABELEX:
         # Use regular Babelex instead of Babel
-        from flask.ext.babelex import Babel as Babel_ex, gettext as gettext_ex, lazy_gettext as lazy_gettext_ex, ngettext as ngettext_ex
+        from flask.ext.babelex import Babel as Babel_ex, gettext as gettext_ex, lazy_gettext as lazy_gettext_ex, ngettext as ngettext_ex, get_locale as get_locale_ex
 
         gettext = gettext_ex
         ngettext = ngettext_ex
         lazy_gettext = lazy_gettext_ex
+        get_locale = get_locale_ex
         Babel = Babel_ex
     else:
         # Use regular Babel instead of Babelex
-        from flask.ext.babel import Babel as Babel_reg, gettext as gettext_reg, lazy_gettext as lazy_gettext_reg, ngettext as ngettext_reg
+        from flask.ext.babel import Babel as Babel_reg, gettext as gettext_reg, lazy_gettext as lazy_gettext_reg, ngettext as ngettext_reg, get_locale as get_locale_reg
 
         gettext = gettext_reg
         ngettext = ngettext_reg
         lazy_gettext = lazy_gettext_reg
+        get_locale = get_locale_reg
         Babel = Babel_reg
 
 except ImportError:
@@ -36,3 +40,29 @@ except ImportError:
 
     def lazy_gettext(string, **variables):
         return gettext(string, **variables)
+
+    def get_locale():
+        return 'en'
+
+
+def initialize_i18n(app):
+    if Babel is None:
+        print("Not using Babel. Everything will be in English")
+    else:
+        babel = Babel(app)
+
+        supported_languages = ['en']
+        supported_languages.extend([translation.language for translation in babel.list_translations()])
+
+        @babel.localeselector
+        def get_locale():
+            locale = request.args.get('locale', None)
+            if locale is None:
+                locale = session.get('locale', None)
+            if locale is None:
+                locale = request.accept_languages.best_match(supported_languages)
+            if locale is None:
+                locale = 'en'
+            session['locale'] = locale
+            return locale
+        return babel

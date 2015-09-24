@@ -1,0 +1,25 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui"
+	xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+	
+	<ui:with field="i18n" type="es.deusto.weblab.client.i18n.IWebLabI18N" />
+	
+	<ui:style>
+    	.bold-label { font-weight: bold; }
+  	</ui:style>
+  	
+	<g:VerticalPanel ui:field="switchesPanel" horizontalAlignment="CENTER" width="100%" spacing="15">
+	
+		<g:HorizontalPanel spacing="10" width="100%" >
+			<w:WlSwitch ui:field="switch1" />
+			<w:WlSwitch ui:field="switch2" />
+			<w:WlSwitch ui:field="switch3" />
+			<w:WlSwitch ui:field="switch4" />
+		</g:HorizontalPanel>
+		
+		<g:Label text="exercise" ui:field="exerciseLabel" styleName="{style.bold-label}"/>
+			
+		<g:Button text="{i18n.selectOtherCode}" ui:field="otherCodeButton"/>
+	</g:VerticalPanel>
+</ui:UiBinder> 

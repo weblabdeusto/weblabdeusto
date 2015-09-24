@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import sys
 import json
@@ -78,7 +79,7 @@ if WrappedCoordinator.REDIS_AVAILABLE:
     def suite():
         return unittest.makeSuite(ReservationsManagerTestCase)
 else:
-    print >> sys.stderr, "redis not available; skipping ReservationsManagerTestCase"
+    print("redis not available; skipping ReservationsManagerTestCase", file=sys.stderr)
 
 if __name__ == '__main__':
     unittest.main()

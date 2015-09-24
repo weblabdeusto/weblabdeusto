@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """
 This file pretends to make it possible that all the unit tests use a particular and somehow configurable 
 port range (e.g. 10500 - 11000), so as to avoid conflicts with other applications. At this moment, the 

@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 import weblab.experiment.exc as ExperimentErrors
 import weblab.experiment.level as ExperimentApiLevel
 import weblab.core.coordinator.coordinator as Coordinator

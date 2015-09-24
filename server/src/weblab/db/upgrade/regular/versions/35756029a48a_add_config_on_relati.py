@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """Add config on relations between federated schedulers and experiments
 
 Revision ID: 35756029a48a

@@ -1,0 +1,38 @@
+{% extends 'weblab-master.html' %}
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <br/>
+        <h1>{{ gettext("Users added successfully") }}</h1>
+        <br/>
+        <br/>
+        
+        {% if group_name %}
+        <p>{{ gettext("The following users has been successfully added and added to the group %(group_name)s:", group_name=group_name) }}</p>
+        {% else %}
+        <p>{{ gettext("The following users has been successfully added:") }}</p>
+        {% endif %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{{ gettext("Login") }}</th>
+                    <th>{{ gettext("Full name") }}</th>
+                    <th>{{ gettext("E-mail address") }}</th>
+                </th>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.login }}</td>
+                    <td>{{ user.full_name }}</td>
+                    <td>{{ user.email }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

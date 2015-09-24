@@ -1,5 +1,5 @@
+from __future__ import print_function, unicode_literals
 import os
-import StringIO
 
 import six
 import yaml
@@ -225,7 +225,7 @@ def load(yaml_file):
     return _load_contents(yaml.load(open(yaml_file)), os.path.dirname(yaml_file))
 
 def loads(yaml_contents):
-    return _load_contents(yaml.load(StringIO.StringIO(yaml_contents)), '.')
+    return _load_contents(yaml.load(six.StringIO(yaml_contents)), '.')
 
 def _load_contents(contents, directory):
     global_value = contents

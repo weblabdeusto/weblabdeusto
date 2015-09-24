@@ -19,13 +19,13 @@
         <thead>
             <tr>
                 <th></th>
-                <th class="text-center">{% if first_letter %}M{% else %}Monday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}T{% else %}Tuesday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}W{% else %}Wednesday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}T{% else %}Thursday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}F{% else %}Friday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}S{% else %}Saturday{% endif %}</th>
-                <th class="text-center">{% if first_letter %}S{% else %}Sunday{% endif %}</th>
+                <th class="text-center">{% if first_letter %}M{% else %}{{ gettext("Monday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}{{ gettext("Tuesday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}W{% else %}{{ gettext("Wednesday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}T{% else %}{{ gettext("Thursday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}F{% else %}{{ gettext("Friday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}{{ gettext("Saturday") }}{% endif %}</th>
+                <th class="text-center">{% if first_letter %}S{% else %}{{ gettext("Sunday") }}{% endif %}</th>
             </tr>
         </thead>
         <tbody>
@@ -53,8 +53,8 @@
 {% macro timeline(headers, data, table_id, format = '%.2f') %}
     {% if data|length == 0 %}
         <div class="alert alert-danger text-center">
-            <h1>No data available</h1>
-            <p>The timeline is empty</p>
+            <h1>{{ gettext("No data available") }}</h1>
+            <p>{{ gettext("The timeline is empty") }}</p>
         </div>
     {% endif %}
     <table id="{{ table_id }}">
@@ -386,9 +386,9 @@
 
 {% macro sna(id = '') %}
 
-    <button class="btn" id="stop-layout_{{ id }}">Stop Layout</button>
+    <button class="btn" id="stop-layout_{{ id }}">{{ gettext("Stop Layout") }}</button>
 
-    <div class="span12 sigma-parent" id="sigma-example-parent_{{ id }}">
+    <div class="col-sm-12 sigma-parent" id="sigma-example-parent_{{ id }}">
         <div class="sigma-expand" id="sigma-example_{{ id }}">
         </div>
     </div>
@@ -478,8 +478,8 @@ if (document.addEventListener) {
 </style>
 {% endmacro %}
 
-{% macro multitimeline(name) %}
-    <div id="multitimeline_{{ name }}" style="height: 500px">
+{% macro multitimeline(name, height = '500px') %}
+    <div id="multitimeline_{{ name }}" style="height: {{ height }}">
         <svg></svg>
     </div>
 {% endmacro %}
@@ -512,7 +512,8 @@ if (document.addEventListener) {
         nv.addGraph(function() {
           var chart = nv.models.lineChart()
                         .x(function(d) { return d[0] })
-                        .y(function(d) { return d[1] }) //adjusting, 100% is 1.00, not 100 as it is in the data
+                        .y(function(d) { return d[1] })
+                        .useInteractiveGuideline(true)
                         .color(d3.scale.category10().range());
 
           chart.xAxis
@@ -521,7 +522,9 @@ if (document.addEventListener) {
               });
 
           chart.yAxis
-              .tickFormat(d3.format('.1'));
+              .tickFormat(function(x) {
+                return x;
+              });
 
           var data = {{ data|safe }};
 
@@ -535,4 +538,32 @@ if (document.addEventListener) {
           return chart;
         });
     </script>
+{% endmacro %}
+
+{% macro google_map_scripts() %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% endmacro %}
+
+{% macro google_map(element_id, geo_month) %}
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["geochart"]});
+      google.setOnLoadCallback(drawRegionsMap);
+
+      var useData = [
+          ['Country', 'Uses'],
+          {% for country, number in geo_month.iteritems() %}
+          ['{{ country }}', {{ number }}]{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ];
+
+      function drawRegionsMap() {
+        var data = google.visualization.arrayToDataTable(useData);
+        var options = {};
+
+        var chart = new google.visualization.GeoChart(document.getElementById("{{ element_id }}"));
+
+        chart.draw(data, options);
+      }
+    </script>
+
 {% endmacro %}

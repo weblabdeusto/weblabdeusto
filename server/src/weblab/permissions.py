@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals
 """
 This module includes all the possible permissions. Whenever the application is upgraded,
 it can include new permissions, and no change in the database is required (except for granting
@@ -106,6 +107,19 @@ CANT_CHANGE_PROFILE_DESC = u"Disable profile editing. Useful for demo accounts, 
 cant_change_profile = PermissionType(CANT_CHANGE_PROFILE, CANT_CHANGE_PROFILE_DESC, [])
 
 _register(cant_change_profile)
+
+###############################################################
+# 
+#             Access all labs
+# 
+
+ACCESS_ALL_LABS = u'access_all_labs'
+ACCESS_ALL_LABS_DESC = u"Enable access to all labs, with a fixed amount of time and super-low priority"
+
+access_all_labs = PermissionType(ACCESS_ALL_LABS, ACCESS_ALL_LABS_DESC, [])
+
+_register(access_all_labs)
+
 
 ###############################################################
 # 

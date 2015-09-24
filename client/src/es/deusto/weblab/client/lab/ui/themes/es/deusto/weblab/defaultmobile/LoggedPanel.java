@@ -59,7 +59,7 @@ class LoggedPanel extends Composite {
 	    final Widget wid = LoggedPanel.uiBinder.createAndBindUi(this);
 	    this.initWidget(wid);
 	    
-	    this.logoImage.setUrl(GWT.getModuleBaseURL() + configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_MOBILE_IMAGE, ""));
+	    this.logoImage.setUrl("../web/logos/small");
 	    if(this.user != null)
 	    	this.userLabel.setText(WlUtil.escapeNotQuote(this.user.getFullName()));
 	    else

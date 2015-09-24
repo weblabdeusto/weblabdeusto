@@ -12,8 +12,9 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
-import cPickle as pickle
+import six.moves.cPickle as pickle
 
 import weakref
 import threading
@@ -32,7 +33,8 @@ class _HasheableKey(object):
         if self._args in dict_cache:
             return True, dict_cache[self._args]
         return False, (None,None)
-    def save(self, dictionaries, (obj, current_time)):
+    def save(self, dictionaries, value):
+        obj, current_time = value
         dict_cache = dictionaries['dict']
         dict_cache[self._args] = (obj, current_time)
     def pop(self, dictionaries):
@@ -47,7 +49,8 @@ class _PicklableKey(object):
         if self._pickled_key in dict_cache:
             return True,dict_cache[self._pickled_key]
         return False, (None,None)
-    def save(self, dictionaries, (obj, current_time)):
+    def save(self, dictionaries, value):
+        obj, current_time = value
         dict_cache = dictionaries['dict']
         dict_cache[self._pickled_key] = (obj, current_time)
     def pop(self, dictionaries):
@@ -63,7 +66,8 @@ class _NotPicklableKey(object):
             if real_key == self._key:
                 return True, obj
         return False, (None, None)
-    def save(self, dictionaries, (obj, current_time)):
+    def save(self, dictionaries, value):
+        obj, current_time = value
         list_cache = dictionaries['list']
         found, old_obj = self.load(dictionaries)
         if not found:
@@ -135,7 +139,7 @@ class _CacheCleaner(threading.Thread):
                 time_module.sleep(1)
             except Exception as e:
                 if DEBUGGING:
-                    print "Error!",e
+                    print("Error!",e)
                     import traceback
                     traceback.print_exc()
 
@@ -212,7 +216,8 @@ def cache(time_to_wait = None, resource_manager = None):
 
             return return_value
 
-        def _save_to_cache(self, key, (return_value, current_time)):
+        def _save_to_cache(self, key, value):
+            return_value, current_time = value
             key.save(self._get_dictionaries(), (return_value, current_time))
 
         def _get_dictionaries(self, inst = "this.is.not.an.instance"):
@@ -281,6 +286,6 @@ class fast_cache(object):
                 self.cache[args] = return_value
                 return return_value
         except TypeError:
-            print >> sys.stderr, "Using fast_cache with func %s, a function that might receive unhashable arguments!!!" % self.func
+            print("Using fast_cache with func {0}, a function that might receive unhashable arguments!!!".format(self.func), file=sys.stderr)
             return self.func(*args)
 

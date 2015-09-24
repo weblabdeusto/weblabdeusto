@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import voodoo.log as log
 from voodoo.log import logged
@@ -172,7 +173,7 @@ class IndependentSchedulerAggregator(Scheduler):
             else:
                 tabs = ''
 
-            print tabs, "<", url, self.schedulers.values(), ">"
+            print(tabs, "<", url, self.schedulers.values(), ">")
 
         self.reservations_manager.lock_reservation(reservation_id)
         try:
@@ -198,7 +199,7 @@ class IndependentSchedulerAggregator(Scheduler):
                     log.log_exc( IndependentSchedulerAggregator, log.level.Warning)
                     raise
                 if DEBUG:
-                    print tabs, scheduler, reservation_status
+                    print(tabs, scheduler, reservation_status)
                 all_reservation_status[resource_type_name] = reservation_status
 
                 if not reservation_status.status in WSS.WebLabSchedulingStatus.NOT_USED_YET_EXPERIMENT_STATUS:
@@ -229,8 +230,8 @@ class IndependentSchedulerAggregator(Scheduler):
             self.reservations_manager.unlock_reservation(reservation_id)
 
         if DEBUG:
-            print tabs, "</", url, best_reservation, "/>"
-            print
+            print(tabs, "</", url, best_reservation, "/>")
+            print()
         return best_reservation
 
     @logged()
@@ -247,7 +248,7 @@ class IndependentSchedulerAggregator(Scheduler):
                 log.log(
                         IndependentSchedulerAggregator, log.level.Info,
                         "assign_single_scheduler: reservation_id=%s; calling %s, but it is not on %s" % (reservation_id, assigned_resource_type_name, initial_reservation_schedulers), max_size = 1000)
-                print "No, %r is not in %r" % (assigned_resource_type_name, initial_reservation_schedulers)
+                print("No, %r is not in %r" % (assigned_resource_type_name, initial_reservation_schedulers))
                 import traceback
                 traceback.print_stack()
                 return None

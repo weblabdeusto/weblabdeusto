@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>HTML test</title>
+		<meta charset="utf-8">
+		<script src="jslib/weblabjs.js"></script>
+	</head>
+	<body>
+        <button onclick="toggleContents()">Click me</button>
+        <div id="paragraph" style="border-style:solid; border-width:5px">
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+        </div>
+        <div id="down_paragraph" style="height: 1000px; display: none; border-style:solid; border-width:5px">
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+           hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+            hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello
+
+        </div>
+
+<!--    <script src="../weblab_iframeResizer.contentWindow.min.js"></script> -->
+    <script>
+        function toggleContents() {
+            if(document.getElementById("down_paragraph").style.display == "none")
+                document.getElementById("down_paragraph").style.display = "block";
+            else
+                document.getElementById("down_paragraph").style.display = "none";
+        }
+        var currentHeight = 600;
+    </script>
+
+	</body>
+</html>

@@ -13,6 +13,7 @@
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
+from __future__ import print_function
 import unittest
 
 from voodoo.gen import load_dir
@@ -43,7 +44,7 @@ class TestViewLabs(unittest.TestCase):
         """ :type: flask.testing.FlaskClient """
 
         # Login.
-        rv = self.app.post('weblab/web/webclient/', data=dict(username='any', password='password'))
+        rv = self.app.post('weblab/web/webclient/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST for any / password does not return 302")
 
     def test_nothing(self):
@@ -53,19 +54,18 @@ class TestViewLabs(unittest.TestCase):
         """
         Ensure that the labs page seems to load.
         """
-        rv = self.app.get('/weblab/web/webclient/labs.html')
+        rv = self.app.get('/weblab/web/webclient/')
         self.assertEqual(rv.status_code, 200, "Labs page does not return 200")
         self.assertIn("My Experiments", rv.data, "Labs page does not contain the expected 'My Experiments' text")
         self.assertIn("Name of any", rv.data, "Labs page does not contain the expected 'Name of any' text")
         self.assertIn("Log out", rv.data, "Labs page does not contain the expected 'Log out' text")
         self.assertIn("Filter by", rv.data, "Labs page does not contain the expected 'Filter by' text")
-        self.assertIn("Experiment type", rv.data, "Labs page does not contain the expected 'Experiment type' text")
 
     def tearDown(self):
         """
         Shutdown the WebLab instance that we have started for the test.
         """
-        rv = self.app.post('/weblab/web/webclient/', data=dict(username='any', password='password'))
+        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()

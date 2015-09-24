@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import datetime
 import calendar
@@ -22,7 +23,7 @@ import pickle
 from voodoo.dbutil import get_table_kwargs
 
 from sqlalchemy import Column, Boolean, Integer, BigInteger, String, DateTime, Date, Text, ForeignKey, UniqueConstraint, Table, Index, Unicode, UnicodeText
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 from voodoo.gen import CoordAddress
@@ -76,7 +77,7 @@ class DbServerProperties(Base):
     name = Column(Unicode(50), nullable = False, index = True, unique = True)
     _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
 
-    def __init__(name, value):
+    def __init__(self, name, value):
         super(DbServerProperties, self).__init__()
         self.name = name
         self.value = value
@@ -113,8 +114,8 @@ class DbClientProperties(Base):
     name = Column(Unicode(50), nullable = False, index = True, unique = True)
     _value = Column(UnicodeText) # pickle object, in base64. Max: 64 KB
 
-    def __init__(name, value):
-        super(DbServerProperties, self).__init__()
+    def __init__(self, name, value):
+        super(DbClientProperties, self).__init__()
         self.name = name
         self.value = value
 
@@ -130,7 +131,7 @@ class DbClientProperties(Base):
             self._value = None
         else:
             serialized = pickle.dumps(value)
-            self._value = serialized.encode('base64')
+            self._value = serialized.encode('base64').decode('utf-8')
 
     def __unicode__(self):
         return u"%s = %r" % (self.name, self.value)
@@ -197,8 +198,8 @@ class DbUser(Base):
     avatar    = Column(Unicode(255))
     role_id   = Column(Integer, ForeignKey("Role.id"))
 
-    role      = relation("DbRole", backref=backref("users", order_by=id))
-    groups    = relation("DbGroup", secondary=t_user_is_member_of)
+    role      = relationship("DbRole", backref=backref("users", order_by=id))
+    groups    = relationship("DbGroup", secondary=t_user_is_member_of)
 
     def __init__(self, login = None, full_name = None, email = None, avatar=None, role=None):
         super(DbUser,self).__init__()
@@ -259,7 +260,7 @@ class DbAuth(Base):
     priority      = Column(Integer, nullable = False)
     configuration = Column(Text)
 
-    auth_type = relation("DbAuthType", backref=backref("auths", order_by=id, cascade='all,delete'))
+    auth_type = relationship("DbAuthType", backref=backref("auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, auth_type = None, name = None, priority = None, configuration=None):
         super(DbAuth, self).__init__()
@@ -296,8 +297,8 @@ class DbUserAuth(Base):
     auth_id       = Column(Integer, ForeignKey('Auth.id'), nullable = False, index = True)
     configuration = Column(Text)
 
-    user = relation("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))
-    auth = relation("DbAuth", backref=backref("user_auths", order_by=id, cascade='all,delete'))
+    user = relationship("DbUser", backref=backref("auths", order_by=id, cascade='all,delete'))
+    auth = relationship("DbAuth", backref=backref("user_auths", order_by=id, cascade='all,delete'))
 
     def __init__(self, user = None, auth = None, configuration=None):
         super(DbUserAuth, self).__init__()
@@ -331,8 +332,8 @@ class DbGroup(Base):
     name      = Column(Unicode(250), nullable = False, index = True)
     parent_id = Column(Integer, ForeignKey("Group.id"), index = True)
 
-    children = relation("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
-    users    = relation("DbUser", secondary=t_user_is_member_of)
+    children = relationship("DbGroup", backref=backref("parent", remote_side=id, cascade='all,delete'))
+    users    = relationship("DbUser", secondary=t_user_is_member_of)
 
     def __init__(self, name = None, parent=None):
         super(DbGroup, self).__init__()
@@ -401,7 +402,7 @@ class DbSchedulerResource(Base):
     scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
     slots          = Column(Integer, nullable = False)
 
-    scheduler = relation("DbScheduler", backref=backref("resources", order_by=id, cascade='all,delete'))
+    scheduler = relationship("DbScheduler", backref=backref("resources", order_by=id, cascade='all,delete'))
 
     def __init__(self, name = None, scheduler = None, slots = None):
         super(DbSchedulerResource, self).__init__()
@@ -427,8 +428,8 @@ class DbExperimentInstance(Base):
     scheduler_resource_id   = Column(Integer, ForeignKey("SchedulerResource.id"), nullable = False, index = True)
     experiment_id           = Column(Integer, ForeignKey("Experiment.id"), nullable = False, index = True)
 
-    scheduler_resource = relation("DbSchedulerResource", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
-    experiment = relation("DbExperiment", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    scheduler_resource = relationship("DbSchedulerResource", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
+    experiment = relationship("DbExperiment", backref=backref("experiment_instances", order_by=id, cascade='all,delete'))
     
     def __init__(self, name, slots, scheduler_resource):
         super(DbExperimentInstance, self).__init__()
@@ -475,7 +476,7 @@ class DbExperiment(Base):
     end_date    = Column(DateTime, nullable = False)
     client      = Column(Unicode(255), index = True)
 
-    category            = relation("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
+    category            = relationship("DbExperimentCategory", backref=backref("experiments", order_by=id, cascade='all,delete'))
 
     def __init__(self, name = None, category = None, start_date = None, end_date = None, client = None):
         super(DbExperiment, self).__init__()
@@ -511,7 +512,7 @@ class DbExperiment(Base):
                     elif param.parameter_type == 'bool':
                         configuration[param.parameter_name] = param.value.lower() == 'true'
                     else:
-                        print "Unknown Experiment Client Parameter type %s" % param.parameter_type
+                        print("Unknown Experiment Client Parameter type %s" % param.parameter_type)
             except (ValueError, TypeError) as e:
                 assert e is not None # avoid pyflakes
                 traceback.print_exc()
@@ -540,7 +541,7 @@ class DbExperimentClientParameter(Base):
     parameter_type   = Column(Unicode(15), nullable = False, index = True)
     value            = Column(Unicode(600), nullable = False)
 
-    experiment       = relation("DbExperiment", backref=backref("client_parameters", order_by=id))
+    experiment       = relationship("DbExperiment", backref=backref("client_parameters", order_by=id))
 
     def __init__(self, experiment = None, parameter_name = None, parameter_type = None, value = None):
         self.experiment     = experiment
@@ -557,8 +558,8 @@ class DbSchedulerExternalExperimentEntry(Base):
     scheduler_id   = Column(Integer, ForeignKey("Scheduler.id"), nullable = False, index = True)
     config         = Column(Unicode(1024))
     
-    experiment = relation("DbExperiment", backref=backref("external_schedulers", order_by=id))
-    scheduler  = relation("DbScheduler", backref=backref("external_experiments", order_by=id))
+    experiment = relationship("DbExperiment", backref=backref("external_schedulers", order_by=id))
+    scheduler  = relationship("DbScheduler", backref=backref("external_experiments", order_by=id))
 
     def __init__(self, experiment = None, scheduler = None, config = None):
         self.experiment = experiment
@@ -632,12 +633,12 @@ class DbUserUsedExperiment(Base):
     coord_address           = Column(Unicode(255), nullable = False, index = True)
     reservation_id          = Column(Unicode(50), index = True)
 
-    user                    = relation("DbUser", backref=backref("experiment_uses", order_by=id))
-    experiment              = relation("DbExperiment", backref=backref("user_uses", order_by=id))
+    user                    = relationship("DbUser", backref=backref("experiment_uses", order_by=id))
+    experiment              = relationship("DbExperiment", backref=backref("user_uses", order_by=id))
 
-    group_permission        = relation("DbGroupPermission", backref=backref("uses", order_by=id))
-    user_permission         = relation("DbUserPermission",  backref=backref("uses", order_by=id))
-    role_permission         = relation("DbRolePermission",  backref=backref("uses", order_by=id))
+    group_permission        = relationship("DbGroupPermission", backref=backref("uses", order_by=id))
+    user_permission         = relationship("DbUserPermission",  backref=backref("uses", order_by=id))
+    role_permission         = relationship("DbRolePermission",  backref=backref("uses", order_by=id))
 
     hostname                  = Column(Unicode(255), index = True)
     city                      = Column(Unicode(255), index = True)
@@ -761,8 +762,8 @@ class DbUserUsedExperimentPropertyValue(Base):
     experiment_use_id = Column(Integer, ForeignKey("UserUsedExperiment.id"), nullable = False)
     value             = Column(Unicode(255))
 
-    property_name  = relation("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
-    experiment_use = relation("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
+    property_name  = relationship("DbUserUsedExperimentProperty", backref=backref("values",     order_by=id, cascade='all,delete'))
+    experiment_use = relationship("DbUserUsedExperiment",         backref=backref("properties", order_by=id, cascade='all,delete'))
 
     def __init__(self, value = None, property_name = None, experiment_use = None, id = None):
         self.id = id
@@ -793,7 +794,7 @@ class DbUserFile(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
+    experiment_use = relationship("DbUserUsedExperiment", backref=backref("files", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use = None, file_sent = None, file_hash = None, timestamp_before = None, file_info=None, response=None, timestamp_after=None):
         super(DbUserFile, self).__init__()
@@ -846,7 +847,7 @@ class DbUserCommand(Base):
     timestamp_after        = Column(DateTime)
     timestamp_after_micro  = Column(Integer)
 
-    experiment_use = relation("DbUserUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
+    experiment_use = relationship("DbUserUsedExperiment", backref=backref("commands", order_by=id, cascade='all,delete'))
 
     def __init__(self, experiment_use = None, command = None, timestamp_before = None, response=None, timestamp_after=None):
         super(DbUserCommand, self).__init__()
@@ -895,7 +896,7 @@ class DbUserPermission(Base):
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
-    user               = relation("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    user               = relationship("DbUser", backref=backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, user = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbUserPermission, self).__init__()
@@ -937,7 +938,7 @@ class DbUserPermissionParameter(Base):
     permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
-    permission                = relation("DbUserPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = relationship("DbUserPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbUserPermissionParameter, self).__init__()
@@ -975,7 +976,7 @@ class DbRolePermission(Base):
     date                          = Column(DateTime, nullable = False)
     comments                      = Column(Text)
 
-    role            = relation("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    role            = relationship("DbRole", backref=backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, role = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbRolePermission, self).__init__()
@@ -1018,7 +1019,7 @@ class DbRolePermissionParameter(Base):
     permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
-    permission                = relation("DbRolePermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = relationship("DbRolePermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbRolePermissionParameter, self).__init__()
@@ -1057,7 +1058,7 @@ class DbGroupPermission(Base):
     date               = Column(DateTime, nullable = False)
     comments           = Column(Text)
 
-    group           = relation("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
+    group           = relationship("DbGroup", backref=backref("permissions", order_by=id, cascade='all,delete'))
 
     def __init__(self, group = None, permission_type = None, permanent_id = None, date = None, comments=None):
         super(DbGroupPermission, self).__init__()
@@ -1099,7 +1100,7 @@ class DbGroupPermissionParameter(Base):
     permission_type_parameter    = Column(Unicode(255), nullable = False, index = True)
     value                        = Column(Text)
 
-    permission                = relation("DbGroupPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
+    permission                = relationship("DbGroupPermission", backref=backref("parameters", order_by=id, cascade='all,delete'))
 
     def __init__(self, permission = None, permission_type_parameter = None, value=None):
         super(DbGroupPermissionParameter, self).__init__()

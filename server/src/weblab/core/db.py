@@ -13,6 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import numbers
@@ -20,10 +21,12 @@ import datetime
 import threading
 import traceback
 from functools import wraps
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, defaultdict
 
+import six
 import sqlalchemy
 import sqlalchemy.sql as sql
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -49,6 +52,12 @@ _current = threading.local()
 class UsesQueryParams( namedtuple('UsesQueryParams', ['login', 'experiment_name', 'category_name', 'group_names', 'start_date', 'end_date', 'min_date', 'max_date', 'count', 'country', 'date_precision', 'ip', 'page'])):
     PRIVATE_FIELDS = ('group_names')
     NON_FILTER_FIELDS = ('count', 'min_date', 'max_date', 'date_precision', 'page')
+
+    @staticmethod
+    def create(page=None, **kwargs):
+        if page is None:
+            page = 1
+        return UsesQueryParams(page=page, **kwargs)
 
     def pubdict(self):
         result = {}
@@ -99,13 +108,17 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    @with_session
+    def get_user(self, login):
+        return _current.session.query(model.DbUser).filter_by(login=login).first()
+
     @logged()
     def list_clients(self):
         """Lists the ExperimentClients """
         session = self.Session()
         try:
             clients = {}
-            for experiment in session.query(model.DbExperiment).all():
+            for experiment in session.query(model.DbExperiment).options(joinedload('category'), joinedload('client_parameters')).all():
                 exp = experiment.to_business()
                 clients[exp.name, exp.category.name] = exp.client
             return clients
@@ -127,15 +140,54 @@ class DatabaseGateway(object):
         finally:
             session.close()
 
+    def _get_permission_scope(self, permission):
+        if isinstance(permission, model.DbUserPermission):
+            return  'user'
+        elif isinstance(permission, model.DbGroupPermission):
+            return 'group'
+        elif isinstance(permission, model.DbRolePermission):
+            return 'role'
+        return 'unknown'
+
+    @with_session
+    def check_experiment_exists(self, exp_name = None, cat_name = None):
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name = cat_name).first()
+        if category is None:
+            return False
+        experiment = _current.session.query(model.DbExperiment).filter_by(name = exp_name, category = category).first()
+        return experiment is not None
+
     # @typecheck(basestring, (basestring, None), (basestring, None))
     @logged()
     def list_experiments(self, user_login, exp_name = None, cat_name = None):
         session = self.Session()
         try:
             user = self._get_user(session, user_login)
+            access_all_labs_permissions = self._gather_permissions(session, user, 'access_all_labs')
             user_permissions = self._gather_permissions(session, user, 'experiment_allowed')
 
-            grouped_experiments = {}
+            grouped_experiments = defaultdict(list) # {
+            #    experiment_unique_id : [ experiment_allowed ]
+            # }
+            if len(access_all_labs_permissions) > 0:
+                permission = access_all_labs_permissions[0]
+                permission_scope = self._get_permission_scope(permission)
+                default_priority = 100 # Super-low priority
+                default_time_allowed = 180 # 3 minutes
+                default_initialization = True
+
+                query_obj = session.query(model.DbExperiment)
+                if exp_name is not None:
+                    query_obj = query_obj.filter_by(name=exp_name)
+                if cat_name is not None:
+                    category = session.query(model.DbExperimentCategory).filter_by(name=cat_name).first()
+                    query_obj = query_obj.filter_by(category=category)
+
+                for experiment in query_obj.all():
+                    experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), default_time_allowed, default_priority, default_initialization, permission.permanent_id, permission.id, permission_scope)
+                    experiment_unique_id = unicode(experiment)
+                    grouped_experiments[experiment_unique_id].append(experiment_allowed)
+
             for permission in user_permissions:
                 p_permanent_id                 = self._get_parameter_from_permission(session, permission, 'experiment_permanent_id')
                 p_category_id                  = self._get_parameter_from_permission(session, permission, 'experiment_category_id')
@@ -153,21 +205,11 @@ class DatabaseGateway(object):
 
                 experiment = experiments[0]
 
-                if isinstance(permission, model.DbUserPermission):
-                    permission_scope = 'user'
-                elif isinstance(permission, model.DbGroupPermission):
-                    permission_scope = 'group'
-                elif isinstance(permission, model.DbRolePermission):
-                    permission_scope = 'role'
-                else:
-                    permission_scope = 'unknown'
+                permission_scope = self._get_permission_scope(permission)
                 experiment_allowed = ExperimentAllowed.ExperimentAllowed(experiment.to_business(), p_time_allowed, p_priority, p_initialization_in_accounting, permission.permanent_id, permission.id, permission_scope)
 
                 experiment_unique_id = p_permanent_id+"@"+p_category_id
-                if experiment_unique_id in grouped_experiments:
-                    grouped_experiments[experiment_unique_id].append(experiment_allowed)
-                else:
-                    grouped_experiments[experiment_unique_id] = [experiment_allowed]
+                grouped_experiments[experiment_unique_id].append(experiment_allowed)
 
             # If any experiment is duplicated, only the less restrictive one is given
             experiments = []
@@ -179,6 +221,17 @@ class DatabaseGateway(object):
                 experiments.append(less_restrictive_experiment_allowed)
 
             experiments.sort(lambda x,y: cmp(x.experiment.category.name, y.experiment.category.name))
+
+            if experiments:
+                experiment_allowed_by_id = { experiment_allowed.experiment.id : experiment_allowed for experiment_allowed in experiments }
+                experiment_ids = [ experiment_allowed.experiment.id for experiment_allowed in experiments ]
+
+                for experiment_id, uses_for_user in session.query(model.DbUserUsedExperiment.experiment_id, func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id.in_(experiment_ids), model.DbUserUsedExperiment.user_id == user.id).group_by(model.DbUserUsedExperiment.experiment_id).all():
+                    experiment_allowed_by_id[experiment_id].total_uses = uses_for_user
+
+                for experiment_id, max_date in session.query(model.DbUserUsedExperiment.experiment_id, func.max(model.DbUserUsedExperiment.start_date)).filter(model.DbUserUsedExperiment.experiment_id.in_(experiment_ids), model.DbUserUsedExperiment.user_id == user.id).group_by(model.DbUserUsedExperiment.experiment_id).all():
+                    experiment_allowed_by_id[experiment_id].latest_use = max_date
+
             return tuple(experiments)
         finally:
             session.close()
@@ -196,17 +249,6 @@ class DatabaseGateway(object):
 
     @typecheck(basestring)
     @logged()
-    def is_admin(self, user_login):
-        session = self.Session()
-        try:
-            user = self._get_user(session, user_login)
-            user_permissions = self._gather_permissions(session, user, 'admin_panel_access')
-            return len(user_permissions) > 0
-        finally:
-            session.close()
-
-    @typecheck(basestring)
-    @logged()
     def is_instructor(self, user_login):
         session = self.Session()
         try:
@@ -216,7 +258,6 @@ class DatabaseGateway(object):
             return user.role.name == 'instructor' or len(admin_permissions) > 0 or len(instructor_permissions) > 0
         finally:
             session.close()
-
 
     @typecheck(basestring, ExperimentUsage)
     @logged()
@@ -516,6 +557,23 @@ class DatabaseGateway(object):
 
         return results
 
+    @with_session
+    def is_admin(self, user_login):
+        user = _current.session.query(model.DbUser).filter_by(login = user_login).options(joinedload('role')).first()
+        if user.role.name in ('administrator', 'admin'):
+            return True
+
+        first_admin_permission = _current.session.query(model.DbUserPermission).filter_by(user = user, permission_type=permissions.ADMIN_PANEL_ACCESS).first()
+        if first_admin_permission is not None:
+            return True
+
+        group_ids = [ group.id for group in user.groups ]
+        if len(group_ids) > 0:
+            first_admin_permission = _current.session.query(model.DbGroupPermission).filter(model.DbGroupPermission.group_id.in_(group_ids), model.DbGroupPermission.permission_type==permissions.ADMIN_PANEL_ACCESS).first()
+            if first_admin_permission is not None:
+                return True
+        return False
+
     @logged()
     def get_user_permissions(self, user_login):
         session = self.Session()
@@ -535,6 +593,15 @@ class DatabaseGateway(object):
         except NoResultFound:
             raise DbErrors.DbProvidedUserNotFoundError("Unable to find a User with the provided login: '%s'" % user_login)
 
+    @with_session
+    def get_experiment(self, experiment_name, category_name):
+        result = _current.session.query(model.DbExperiment) \
+                .filter(model.DbExperimentCategory.name == category_name) \
+                .filter_by(name=experiment_name).first()
+        if result is not None:
+            return result.to_business()
+        return None
+ 
     def _get_experiment(self, session, exp_name, cat_name):
         try:
             return session.query(model.DbExperiment) \
@@ -569,8 +636,17 @@ class DatabaseGateway(object):
     def _add_or_replace_permissions(self, permissions, permissions_to_add):
         permissions.extend(permissions_to_add)
 
-    def _get_permissions(self, session, user_or_role_or_group_or_ee, permission_type_name):
-        return [ pi for pi in user_or_role_or_group_or_ee.permissions if pi.get_permission_type() == permission_type_name ]
+    def _get_permissions(self, session, user_or_role_or_group, permission_type_name):
+        if isinstance(user_or_role_or_group, model.DbGroup):
+            return session.query(model.DbGroupPermission).filter_by(group = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        if isinstance(user_or_role_or_group, model.DbUser):
+            return session.query(model.DbUserPermission).filter_by(user = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        if isinstance(user_or_role_or_group, model.DbRole):
+            return session.query(model.DbRolePermission).filter_by(role = user_or_role_or_group, permission_type = permission_type_name).options(joinedload('parameters')).all()
+
+        raise Exception("Unknown type: {0}".format(user_or_role_or_group))
 
     def _get_parameter_from_permission(self, session, permission, parameter_name, default_value = DEFAULT_VALUE):
         try:
@@ -669,6 +745,15 @@ class DatabaseGateway(object):
                     )
         finally:
             session.close()
+
+    @with_session
+    def retrieve_avatar_user_auths(self, username):
+        user = _current.session.query(model.DbUser).filter_by(login=username).options(joinedload('auths', 'auth', 'auth_type')).first()
+        if user is None:
+            return None
+        return user.email, [ (user_auth.auth.auth_type.name, user_auth.auth.name, user_auth.auth.configuration, user_auth.configuration) 
+                    for user_auth in user.auths 
+                    if user_auth.auth.auth_type.name in ('FACEBOOK', )]
 
     @logged()
     def check_external_credentials(self, external_id, system):
@@ -823,7 +908,7 @@ class DatabaseGateway(object):
                 else:
                     try:
                         result = location_func(use.origin)
-                    except Exception as e:
+                    except Exception:
                         traceback.print_exc()
                         continue
                     use.city = result['city']
@@ -837,10 +922,99 @@ class DatabaseGateway(object):
 
             try:
                 _current.session.commit()
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
 
         return counter
+
+    # Admin default
+
+    @with_session
+    def frontend_admin_uses_last_week(self):
+        now = datetime.date.today() # Not UTC
+        earliest_day = (now - datetime.timedelta(days=7))
+        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        group = (model.DbUserUsedExperiment.start_date_date,)
+        converter = lambda args: args[0]
+        date_generator = self._frontend_sequence_day_generator
+        return self._frontend_admin_uses_last_something(since, group, converter, date_generator)
+
+    @with_session
+    def frontend_admin_uses_last_year(self):
+        now = datetime.date.today() # Not UTC
+        earliest_day = now.replace(year=now.year-1,day=1)
+        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        group = (model.DbUserUsedExperiment.start_date_year,model.DbUserUsedExperiment.start_date_month)
+        converter = lambda args: datetime.date(args[0], args[1], 1)
+        date_generator = self._frontend_sequence_month_generator
+        return self._frontend_admin_uses_last_something(since, group, converter, date_generator)
+
+    def _frontend_sequence_month_generator(self, since):
+        now = datetime.date.today() # Not UTC
+        cur_year = since.year
+        cur_month = since.month
+        cur_date = datetime.date(cur_year, cur_month, 1)
+        dates = []
+        while cur_date <= now:
+            dates.append(cur_date)
+            if cur_month == 12:
+                cur_month = 1
+                cur_year += 1
+            else:
+                cur_month += 1
+            cur_date = datetime.date(cur_year, cur_month, 1)
+        return dates
+
+    def _frontend_sequence_day_generator(self, since):
+        now = datetime.datetime.today() # Not UTC
+        cur_date = since
+        dates = []
+        while cur_date <= now:
+            dates.append(cur_date.date())
+            cur_date = cur_date + datetime.timedelta(days = 1)
+        return dates
+
+    def _frontend_admin_uses_last_something(self, since, group, converter, date_generator):
+        results = {
+            # experiment_data : {
+            #     datetime.date() : count
+            # }
+        }
+        for row in _current.session.query(sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbExperiment.name, model.DbExperimentCategory.name, *group).filter(model.DbUserUsedExperiment.start_date >= since, model.DbUserUsedExperiment.experiment_id == model.DbExperiment.id, model.DbExperiment.category_id == model.DbExperimentCategory.id).group_by(model.DbUserUsedExperiment.experiment_id, *group).all():
+            count = row[0]
+            experiment = '@'.join((row[1], row[2]))
+            if experiment not in results:
+                results[experiment] = {}
+            results[experiment][converter(row[3:])] = count
+
+        for date in date_generator(since):
+            for experiment_id in results:
+                results[experiment_id].setdefault(date, 0)
+
+        return results
+
+    @with_session
+    def frontend_admin_uses_geographical_month(self):
+        # This is really in the last literal month
+        now = datetime.datetime.utcnow()
+        if now.month == 1:
+            since = now.replace(month = 12, year = now.year - 1)
+        else:
+            day = now.day
+            if day == 31:
+                if now.month in (5, 7, 8, 10, 12):
+                    day = 30
+                elif now.month == 3:
+                    day = 28
+            
+            since = now.replace(month = now.month - 1, day = day)
+
+        return self.quickadmin_uses_per_country(UsesQueryParams.create(start_date=since))
+
+    @with_session
+    def frontend_admin_latest_uses(self):
+        return self.quickadmin_uses(limit = 10, query_params=UsesQueryParams.create())
+      
 
     # Quickadmin
     def _apply_filters(self, query, query_params):
@@ -864,7 +1038,7 @@ class DatabaseGateway(object):
             query = query.filter(model.DbUserUsedExperiment.start_date >= query_params.start_date)
 
         if query_params.end_date:
-            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date)
+            query = query.filter(model.DbUserUsedExperiment.end_date <= query_params.end_date + datetime.timedelta(days=1))
 
         if query_params.ip:
             query = query.filter(model.DbUserUsedExperiment.origin == query_params.ip)
@@ -930,7 +1104,16 @@ class DatabaseGateway(object):
             return self.quickadmin_uses_per_country_by_year(query_params)
         if query_params.date_precision == 'month':
             return self.quickadmin_uses_per_country_by_month(query_params)
+        if query_params.date_precision == 'day':
+            return self.quickadmin_uses_per_country_by_day(query_params)
         return {} 
+
+    @with_session
+    def quickadmin_uses_per_country_by_day(self, query_params):
+        # country, count, year, month
+        initial_query = _current.session.query(model.DbUserUsedExperiment.country, sqlalchemy.func.count(model.DbUserUsedExperiment.id), model.DbUserUsedExperiment.start_date_date)
+        group_by = (model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.start_date_date)
+        return self._quickadmin_uses_per_country_by_date(query_params, initial_query, group_by)
 
     @with_session
     def quickadmin_uses_per_country_by_month(self, query_params):
@@ -1069,7 +1252,7 @@ class DatabaseGateway(object):
             'properties' : properties,
             'commands' : commands,
             'files' : files,
-        }
+        }       
 
     @with_session
     def quickadmin_filepath(self, file_id):
@@ -1084,6 +1267,102 @@ class DatabaseGateway(object):
             return None
 
         return full_path
+
+    @with_session
+    def client_configuration(self):
+        return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbClientProperties).all() ])
+
+    @with_session
+    def server_configuration(self):
+        return dict([ (cp.name, cp.value) for cp in _current.session.query(model.DbServerProperties).all() ])
+
+    @with_session
+    def store_configuration(self, client_properties, server_properties):
+        self._store_configuration(client_properties, model.DbClientProperties)
+        self._store_configuration(server_properties, model.DbServerProperties)
+        try:
+            _current.session.commit()
+        except sqlalchemy.exc.SQLAlchemyError:
+            _current.session.rollback()
+            raise
+
+    def _store_configuration(self, properties, klass):
+        properties = dict(properties)
+        for cp in _current.session.query(klass).all():
+            if cp.name in properties:
+                cp.value = properties.pop(cp.name)
+                _current.session.add(cp)
+
+        for name, value in six.iteritems(properties):
+            new_property = klass(name=name, value=value)
+            _current.session.add(new_property)
+
+    @with_session
+    def list_user_logins(self):
+        return [ row[0] for row in _current.session.query(model.DbUser.login).all() ]
+
+    @with_session
+    def latest_uses_experiment_user(self, experiment_name, category_name, login, limit):
+        user_row = _current.session.query(model.DbUser.id).filter_by(login=login).first()
+        if user_row is None:
+            return []
+
+        user_id = user_row[0]
+
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name=category_name).first()
+        if category is None:
+            return []
+
+        experiment_row = _current.session.query(model.DbExperiment.id).filter_by(name=experiment_name, category=category).first()
+        if experiment_row is None:
+            return []
+
+        experiment_id = experiment_row[0]
+
+        data = []
+        for start_date, country, origin, use_id in _current.session.query(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.origin, model.DbUserUsedExperiment.id).filter_by(user_id=user_id, experiment_id=experiment_id)[-limit:]:
+            data.append({
+                'id': use_id,
+                'start_date': start_date,
+                'country': country,
+                'origin': origin,
+            })
+
+        return data
+
+    @with_session
+    def get_experiment_stats(self, experiment_name, category_name):
+        category = _current.session.query(model.DbExperimentCategory).filter_by(name=category_name).first()
+        if category is None:
+            return []
+
+        experiment_row = _current.session.query(model.DbExperiment.id).filter_by(name=experiment_name, category=category).first()
+        if experiment_row is None:
+            return []
+
+        experiment_id = experiment_row[0]
+
+        now = datetime.datetime.now()
+        last_year = now.replace(year=now.year-1)
+
+        if now.month == 1:
+            last_month = now.replace(month = 12, year = now.year - 1)
+        else:
+            try:
+                last_month = now.replace(month = now.month-1)
+            except ValueError: # e.g., 31 of March => 31 of February doesn't exist
+                last_month = now.replace(day=1) - datetime.timedelta(days=1) # e.g., 1 of March - 1 day (which will be 28, 29 in February or 30 in April etc.)
+
+        total_uses = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter_by(experiment_id=experiment_id).first()[0]
+        total_uses_last_month = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id == experiment_id, model.DbUserUsedExperiment.start_date >= last_month).first()
+        total_uses_last_year = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id == experiment_id, model.DbUserUsedExperiment.start_date >= last_year).first()
+
+        return {
+            'total_uses': total_uses,
+            'total_uses_last_month': total_uses_last_month,
+            'total_uses_last_year': total_uses_last_year,
+        }
+
 
 def create_gateway(cfg_manager):
     return DatabaseGateway(cfg_manager)

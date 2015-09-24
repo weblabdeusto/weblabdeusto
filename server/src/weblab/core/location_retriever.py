@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import time
@@ -60,7 +61,7 @@ class AddressLocator(object):
 
         try:
             resolved = socket.gethostbyaddr(ip_address)[0]
-        except Exception as e:
+        except Exception:
             if is_private(ip_address):
                 resolved = "local"
             else:
@@ -124,8 +125,11 @@ class LocationRetriever(threading.Thread):
 
         geoip2_city_filepath = self.config[configuration_doc.CORE_GEOIP2_CITY_FILEPATH]
         if not os.path.exists(geoip2_city_filepath or 'not_found_file'):
-            if not is_testing():
-                print("{0} not found. Run weblab-admin locations <DIRECTORY> --reset-database --reset-cache".format(geoip2_city_filepath))
+            if not is_testing() and not config[configuration_doc.CORE_IGNORE_LOCATIONS]:
+                local_directory = os.path.abspath(".")
+                if " " in local_directory:
+                    local_directory = '"{0}"'.format(local_directory)
+                print("{filepath} not found. Run:  weblab-admin.py locations {directory} --reset-database --reset-cache".format(filepath=geoip2_city_filepath, directory=local_directory))
         else:
             if self.local_country is None or self.local_city is None:
                 try:
@@ -146,12 +150,11 @@ class LocationRetriever(threading.Thread):
                             self.local_country = reader.city(local_public_ip_address).country.iso_code
                         if self.local_city is None:
                             self.local_city = reader.city(local_public_ip_address).city.name
-                    except Exception as e:
+                    except Exception:
                         print("Error trying to obtain city for IP: {0}".format(local_public_ip_address))
                         traceback.print_exc()
 
         self.locator = AddressLocator(config, local_country = self.local_country, local_city = self.local_city)
-            
 
     def stop(self):
         self.stopping = True
@@ -169,10 +172,9 @@ class LocationRetriever(threading.Thread):
         while not self.stopping:
             try:
                 changes = self.db.update_locations(self.locator.locate)
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
                 changes = 0
-
             if changes == 0:
                 self.sleepStep()
             # if there were 1 change, call without sleeping to check 

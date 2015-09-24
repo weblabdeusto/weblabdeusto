@@ -242,7 +242,8 @@ public class LabController implements ILabController {
 			
 			@Override
 			public void onSuccess(User userInformation) {
-				callback.sessionConfirmed();
+                if (!processRedirect())
+				    callback.sessionConfirmed();
 			}
 		});
 	}
@@ -266,14 +267,29 @@ public class LabController implements ILabController {
 	public boolean isExperimentReserved() {
 		return !this.sessionVariables.getReservationId().isNull();
 	}
-	
+
+    static boolean processRedirect() {
+        // If logged in and redirect is valid, redirect there
+        HistoryProperties.reloadHistory();
+        final String redirectTo = HistoryProperties.getValue(HistoryProperties.REDIRECT);
+        if (redirectTo != null) {
+            if (redirectTo.startsWith("http://" + Window.Location.getHost() + "/") || 
+                redirectTo.startsWith("https://" + Window.Location.getHost() + "/")){
+                Window.Location.replace(redirectTo);
+                return true;
+            }
+        }
+        return false;
+    }
+
 	private void startSession(SessionID sessionID){
 		this.currentSession = sessionID;
 		
 		this.communications.getUserInformation(this.currentSession, new IUserInformationCallback(){
 			@Override
 			public void onSuccess(final User userInformation) {
-				LabController.this.uimanager.onLoggedIn(userInformation);
+                if (!processRedirect())
+				    LabController.this.uimanager.onLoggedIn(userInformation);
 			}
 			
 			@Override
@@ -562,57 +578,13 @@ public class LabController implements ILabController {
 		this.pollingHandler.stop();
 		this.sessionVariables.getCurrentExperimentBase().endWrapper();
 		
-		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
-			
-			@Override
-			public void onSuccess(){
-				if(LabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd()
-						&& LabController.this.sessionVariables.isExperimentVisible()){
-					
-					pollForPostReservationData();
-					
-				}else{
-					System.out.println("expects post end?" + LabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd());
-					System.out.println("is experiment visible?" + LabController.this.sessionVariables.isExperimentVisible());
-					LabController.this.sessionVariables.hideExperiment();
-					LabController.this.uimanager.onCleanReservation();
-					LabController.this.removeReservationId();
-				}
-			}
-			
-			@Override
-			public void onFailure(CommException e) {
-				LabController.this.sessionVariables.hideExperiment();
-				LabController.this.uimanager.onCleanReservation();
-				LabController.this.uimanager.onError(e.getMessage());
-				e.printStackTrace();
-			}
-		});
+		this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new FinishExperimentCallback());
 	}
 	
 	public void cleanExperiment() {
 		this.pollingHandler.stop();
 		if (this.sessionVariables.getCurrentExperimentBase().endWrapper()) {
-			this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new IVoidCallback(){
-				@Override
-				public void onSuccess(){
-					if(LabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd()
-							&& LabController.this.sessionVariables.isExperimentVisible()){
-						pollForPostReservationData();
-					} else {
-						LabController.this.sessionVariables.hideExperiment();
-						LabController.this.uimanager.onCleanReservation();
-						LabController.this.removeReservationId();
-					}
-				}
-				@Override
-				public void onFailure(CommException e) {
-					LabController.this.sessionVariables.hideExperiment();
-					LabController.this.uimanager.onCleanReservation();
-					LabController.this.uimanager.onError(e.getMessage());
-					e.printStackTrace();
-				}
-			});
+			this.communications.finishedExperiment(this.sessionVariables.getReservationId(), new FinishExperimentCallback());
 		} else {
 			// Experiment already ended: clean it!
 			LabController.this.sessionVariables.hideExperiment();
@@ -621,6 +593,29 @@ public class LabController implements ILabController {
 		}
 	}
 
+	final class FinishExperimentCallback implements IVoidCallback {
+		@Override
+		public void onSuccess(){
+			if(LabController.this.sessionVariables.getCurrentExperimentBase().expectsPostEnd()
+					&& LabController.this.sessionVariables.isExperimentVisible()){
+				
+				pollForPostReservationData();
+				
+			}else{
+				LabController.this.sessionVariables.hideExperiment();
+				LabController.this.uimanager.onCleanReservation();
+				LabController.this.removeReservationId();
+			}
+		}
+		@Override
+		public void onFailure(CommException e) {
+			LabController.this.sessionVariables.hideExperiment();
+			LabController.this.uimanager.onCleanReservation();
+			LabController.this.uimanager.onError(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void finishReservationAndLogout(){
 		

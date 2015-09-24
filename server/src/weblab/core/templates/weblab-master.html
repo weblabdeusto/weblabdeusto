@@ -1,7 +1,17 @@
 {% extends 'admin/base.html' %}
 
+{% block brand %}
+    <img alt="logo" src="{{ url_for('instructor.static', filename='img/logo.png') }}" style="height: 50px; padding: 5px">
+{% endblock %}
+
 {% block head_css %}
 {{ super() }}
+
+<link href="{{ url_for('admin.static', filename='vendor/select2/select2.css') }}" rel="stylesheet">
+<link href="{{ url_for('admin.static', filename='vendor/select2/select2-bootstrap3.css') }}" rel="stylesheet">
+<link href="{{ url_for('admin.static', filename='vendor/bootstrap-daterangepicker/daterangepicker-bs3.css') }}" rel="stylesheet">
+
+
 <script>
     function flipInputVisibility(nextInput) {
         var show = nextInput.checked;
@@ -19,5 +29,54 @@
         });
     }
 </script>
+<style>
+
+/* http://getbootstrap.com/examples/sticky-footer/sticky-footer.css */
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 100px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 100px;
+}
+
+</style>
 {% endblock %}
 
+{% block tail %}
+    {{ super() }}
+    <footer class="footer">
+        <div class="container text-center">
+            <hr>
+            <a href="http://weblab.deusto.es" target="_blank"><img alt="logo" src="{{ url_for('instructor.static', filename='img/logo.png') }}" style="height: 50px; padding: 5px"></a>
+        </div>
+    </footer>
+{% endblock %}
+
+{% block tail_js %}
+    {{ super() }}
+    {# jquery is already included #}
+    <script>
+        function zfill(n) {
+            if (n < 10) 
+                return "0" + n;
+            return n;
+        }
+
+        $("[data-date]").each(function (pos, value) {
+            var datestring = $(value).data("date");
+            var d = new Date(datestring.replace(/ /, 'T'));
+            $(value).text(d.getFullYear() + "-" + zfill(d.getMonth() + 1) + "-" + zfill(d.getDate()) + " " + zfill(d.getHours()) + ":" + zfill(d.getMinutes()) + ":" + zfill(d.getSeconds()));
+        }); 
+    </script>
+{% endblock %}

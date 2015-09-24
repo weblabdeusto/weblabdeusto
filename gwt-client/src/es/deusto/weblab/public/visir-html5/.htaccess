@@ -1,0 +1,27 @@
+<ifModule mod_headers.c>
+
+	<filesMatch "\.(jpg|png|css|js|tpl)$">
+		Header set Cache-Control "max-age=604800, public"
+	</filesMatch>
+
+	<filesMatch "\.(php|html|htm)$">
+		Header set Cache-Control "max-age=0, public"
+	</filesMatch>
+
+	<filesMatch "\.(css|js|php|html|htm|tpl)$">
+		AddDefaultCharset UTF-8
+	</filesMatch>
+
+</ifModule>
+<ifModule mod_deflate.c>
+
+	AddOutputFilterByType DEFLATE text/html
+	AddOutputFilterByType DEFLATE text/xml
+	AddOutputFilterByType DEFLATE text/css
+	AddOutputFilterByType DEFLATE application/javascript
+	AddOutputFilterByType DEFLATE application/x-javascript
+	AddOutputFilterByType DEFLATE application/xml
+	AddOutputFilterByType DEFLATE application/xhtml+xml
+	AddOutputFilterByType DEFLATE application/rss+xml
+
+</ifModule>

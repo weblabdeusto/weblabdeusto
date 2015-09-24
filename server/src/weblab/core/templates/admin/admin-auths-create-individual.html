@@ -1,0 +1,38 @@
+{% extends 'admin/model/create.html' %}
+
+{% block head %}
+        <link href="{{ url_for('admin.static', filename='vendor/select2/select2.css') }}" rel="stylesheet">
+        <link href="{{ url_for('admin.static', filename='vendor/select2/select2-bootstrap3.css') }}" rel="stylesheet">
+        <link href="{{ url_for('admin.static', filename='vendor/bootstrap-daterangepicker/daterangepicker-bs3.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+
+<div class="row">
+    <div class="col-sm-7 col-sm-offset-2">
+        <h4><a href="{{ url_for('.index_view') }}">{{ gettext("List") }}</a> <span class="pull-right">{{ gettext("Add %(auth_type_name)s authentication mechanism", auth_type_name = auth_type_name) }}</span></h4>
+
+        {% from "_form_helpers.html" import render_field %}
+        <form method="POST" action="{{ request.url }}" class="form-horizontal">
+            {{ form.hidden_tag() }}
+
+            <fieldset>
+                {% for field in fields %}
+                    {{ render_field(form|attr(field)) }}
+                {% endfor %}
+                <div class="form-actions text-center">
+                    <a href="{{ back_link }}" class="btn btn-danger">{{ gettext("Back") }}</a>
+                    <button type="submit" name="action" value="save" class="btn btn-primary">{{ gettext("Save") }}</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail %}
+    <script src="{{ url_for('admin.static', filename='admin/js/form-1.0.0.js') }}"></script>
+{% endblock %}
+

@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 import unittest
 
 import experiments.ud_xilinx.command as UdBoardCommand
@@ -142,8 +143,8 @@ class UdBoardCommandTestCase(unittest.TestCase):
             UdBoardSimpleCommand.create("ClockActivation off").get_code()
         )
 
-def suite():
-    return unittest.makeSuite(UdBoardCommandTestCase)
+# def suite():
+#     return unittest.makeSuite(UdBoardCommandTestCase)
 
 if __name__ == '__main__':
     unittest.main()

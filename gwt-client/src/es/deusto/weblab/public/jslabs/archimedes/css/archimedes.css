@@ -1,0 +1,195 @@
+.container
+{
+    padding-top: 60px;
+}
+
+
+.timer
+{
+    position: fixed;
+    left: 10px;
+    top: 10px;
+
+    font-size: 1.6em;
+    font-family: "Times New Roman", Times, serif;
+    color: #222;
+    text-shadow: 1px 3px 5px #555;
+
+    width: auto;
+
+    padding: 4px 8px 4px 8px;
+    background-color: rgba(210, 210, 210, 0.5);
+    display: inline-block;
+    border-radius: 6px;
+    border: 2px solid #444;
+    box-shadow: 2px 2px 10px 2px #222;
+
+    z-index: 100;
+}
+
+.modal {
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.modal-dialog {
+    max-width: 80%;
+    overflow-x: auto;
+    width: 80%;
+}
+
+.modal-body {
+    max-height: none;
+    text-align: center;
+}
+
+
+.debug {
+    border-color: red;
+    border-style: dotted solid dashed double;
+}
+
+
+.instance-column {
+    border-radius: 5px;
+    border: 1px solid #EEE;
+    padding-bottom: 20px;
+}
+
+.arch-instance-title {
+    text-align: center;
+}
+
+
+.arch-camera {
+    position: relative;
+    z-index: 10; /* Always display over the buttons */
+
+    width: 100%;
+    height: auto;
+
+    box-shadow: 0 0 2px 3px rgba(100, 40, 40, .75);
+}
+
+.arch-camera_hover {
+    box-shadow: 0 0 5px 10px rgba(100, 40, 40, .75);
+    cursor: zoom-out;
+    width: 150%;
+    left: -25%;
+}
+
+.arch-img-wrapper {
+    width: 95%;
+    height: auto; /* JS-modified to meet a 640x480 aspect ratio */
+}
+
+.arch-well {
+    vertical-align:middle;
+    text-align:center;
+    margin-left:-140px;
+    height:600px;
+}
+
+
+a.arch-control {
+    display: inline-block;
+    width: 48%;
+}
+
+img.arch-control {
+    width: 70%;
+}
+
+.arch-controls-table {
+    margin: 0 auto;
+    width: 200px;
+}
+
+dd,dl {
+    display: inline-block;
+}
+
+.glower
+{
+    opacity: 0.8
+}
+
+.glower:hover
+{
+    opacity: 1;
+    border-radius: 25px;
+    box-shadow: 0 0 5px 10px rgba(255, 255, 0, .75);
+}
+
+
+
+.sensor-data
+{
+    padding-top: 10px;
+}
+
+/*.sensor-data>table*/
+/*{*/
+    /*outline: 4px solid #b9bab9;*/
+/*}*/
+
+/*.sensor-data>table>thead*/
+/*{*/
+    /*background-color: #66afe9;*/
+    /*font-weight: bold;*/
+/*}*/
+
+.my-data-table>table
+{
+    outline: 4px solid #b9bab9;
+}
+
+.my-data-table>table>thead
+{
+    background-color: #eef1ee;
+    font-weight: bold;
+}
+
+.my-data-table>table>thead>tr>th
+{
+    border: none;
+}
+
+
+.editmodeh
+{
+ //   position: fixed;
+ //   left: 10px;
+ //   top: 10px;
+    margin-bottom: 10px;
+
+    font-size: 1.6em;
+    font-family: "Times New Roman", Times, serif;
+    color: #222;
+    text-shadow: 1px 3px 5px #555;
+
+    width: auto;
+
+    padding: 4px 8px 4px 8px;
+    background-color: rgba(210, 210, 210, 0.5);
+    display: inline-block;
+    border-radius: 6px;
+    border: 2px solid #444;
+    box-shadow: 2px 2px 10px 2px #222;
+
+  //  z-index: 100;
+}
+
+
+
+.instances_select {
+    font-size: 2em;
+    padding: 10px;
+    border-radius: 6px;
+    box-shadow: 2px 2px 5px 2px #222;
+}
+
+
+.my-btn-disabled {
+    background-color: lightgray;
+}

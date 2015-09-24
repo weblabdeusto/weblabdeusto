@@ -1,0 +1,82 @@
+<!-- Archimedes experiment instance layout -->
+<div id="{{instanceid}}-experiment-instance" class="instance-column column col-xs-12 col-sm-6 col-md-3"> <!-- col-md-* and col-md-offset-* are added dynamically -->
+    <div class="page-header">
+        <h1 class="arch-instance-title">
+            {{instancename}}
+        </h1>
+    </div>
+    <div class="col-md-12 column">
+        <!--<div class="arch-well media well">-->
+        <!-- DIV que contiene la imagen de la webcam en tiempo real -->
+        <div class="arch-img-wrapper" id="{{instanceid}}-webcam-wrapper">
+            <img class="arch-camera" id="{{instanceid}}-cam1"
+                 src="">
+        </div>
+
+        <div class="arch-controls-table" style="margin: 0 auto;">
+            <a id="{{instanceid}}-upButton" style="" class="arch-control" href="javascript:void(0);">
+                <img id="{{instanceid}}-up" class="arch-control glower" src="img/up_green.png">
+            </a>
+            <a id="{{instanceid}}-photoButton" style="" class="arch-control" href="javascript:void(0);"><img
+                    src="img/photo_green.png" class="arch-control glower"></a>
+
+            <a id="{{instanceid}}-downButton" style="" class="arch-control" href="javascript:void(0);"><img
+                    id="{{instanceid}}-down" src="img/down_green.png" class="arch-control glower"></a>
+            <a id="{{instanceid}}-plotButton" style="" class="arch-control" href="javascript:void(0);"><img
+                    src="img/plot_green.png" class="arch-control glower"></a>
+        </div>
+
+
+        <!-- Elementos colapsables con la info del liqudo y la bola -->
+        <div class="panel-group" id="accordion">
+
+            <!-- TODO: CONSIDER REMOVING THIS -->
+            <div class="panel panel-default" style="display: none">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            Electronics WebCAM (Real time)
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse">
+                    <div class="panel-body" style="vertical-align:middle; text-align:center">
+                        <img id="{{instanceid}}-cam2" src="//cams.weblab.deusto.es/webcam/proxied.py/"
+                             style="height:250px" align>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- TODO: The following are unused. Consider removing this whole panel. -->
+            <div class="panel panel-default" id="{{instanceid}}-weight-level-panel" style="display: none">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a href="#collapseTwo" class="title-ballinfo" data-toggle="collapse" data-target="#{{instanceid}}-collapseTwo">
+                            Ball weight & Liquid level
+                        </a>
+                    </h4>
+                </div>
+                <div id="{{instanceid}}-collapseTwo" class="panel-collapse collapse in">
+                    <div class="panel-body" style="vertical-align:middle; text-align:center">
+                        <img src="../archimedes/img/load.png" id="{{instanceid}}-load-img" style="height:50px"> <span class="load"
+                                                                                         id="{{instanceid}}-load"></span>
+                        <img src="../archimedes/img/level.png" id="{{instanceid}}-level-img" style="height:50px"> <span class="level"
+                                                                                          id="{{instanceid}}-level"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- To be filled by the custom datatables plugin -->
+            <div id="{{instanceid}}-table-sensors" class="my-data-table sensor-data"/>
+            <div id="{{instanceid}}-table-liquid" class="my-data-table"/>
+            <div id="{{instanceid}}-table-ball" class="my-data-table"/>
+
+        </div>
+
+        <!--</div> -->
+    </div>
+
+</div> <!-- EndOf Column -->
+
+

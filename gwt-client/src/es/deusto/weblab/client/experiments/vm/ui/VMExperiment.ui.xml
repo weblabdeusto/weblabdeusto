@@ -1,0 +1,26 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:w="urn:import:es.deusto.weblab.client.ui.widgets">
+    
+    
+    <g:VerticalPanel ui:field='widget' width='100%' horizontalAlignment='ALIGN_CENTER'>
+
+				<g:VerticalPanel borderWidth="0" verticalAlignment="ALIGN_MIDDLE" horizontalAlignment="ALIGN_CENTER" width="100%">
+					<w:WlTimer ui:field="timer" height="50%" width="100%" styleName="wl-time_remaining"></w:WlTimer>
+					
+					<g:HorizontalPanel horizontalAlignment='ALIGN_CENTER' width="100%" spacing="30">
+						<w:WlPredictiveProgressBar ui:field="progressBar" visible="false" width="75%"></w:WlPredictiveProgressBar>
+					</g:HorizontalPanel>
+				
+				
+				</g:VerticalPanel>
+
+				<w:WlWaitingLabel ui:field="messages" horizontalAlignment="ALIGN_CENTER"/>
+				
+				<g:Label ui:field="url" horizontalAlignment="ALIGN_CENTER"></g:Label>
+				
+				<g:VerticalPanel ui:field="applets"></g:VerticalPanel>
+	</g:VerticalPanel>
+	
+
+</ui:UiBinder>

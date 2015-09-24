@@ -1,5 +1,7 @@
+from __future__ import print_function, unicode_literals
 import unittest
-import urllib2
+import requests
+import time
 
 from voodoo.configuration import ConfigurationManager
 
@@ -12,8 +14,8 @@ import weblab.configuration_doc as configuration_doc
 
 class HelloWorldApp(object):
     def __call__(self, environ, start_response):
-        start_response('200 OK', [('Content-Type', 'text/plain')])
-        yield 'Hello World\n'
+        start_response(str('200 OK'), [(str('Content-Type'), str('text/plain'))])
+        yield str('Hello World\n')
 
 class WsgiManagerTest(unittest.TestCase):
     def setUp(self):
@@ -23,7 +25,6 @@ class WsgiManagerTest(unittest.TestCase):
         self.cfg_manager._set_value(configuration_doc.FACADE_TIMEOUT, 0.001)
 
         self.current_port = new_port()
-        # TODO
         self.cfg_manager._set_value(configuration_doc.CORE_FACADE_PORT, self.current_port)
 
         app = HelloWorldApp()
@@ -31,10 +32,11 @@ class WsgiManagerTest(unittest.TestCase):
 
 
     @uses_module(wsgi_manager)
-    def test_mofa(self):
+    def test_server(self):
         self.server.start()
         try:
-            text = urllib2.urlopen('http://127.0.0.1:%s/' % self.current_port).read()
+            time.sleep(0.1)
+            text = requests.get('http://127.0.0.1:%s/' % self.current_port, timeout = 10).text
             self.assertEquals("Hello World\n", text)
         finally:
             self.server.stop()

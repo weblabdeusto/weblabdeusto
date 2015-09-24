@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os
 import unittest
@@ -112,7 +113,7 @@ class UserProcessingServerTestCase(unittest.TestCase):
         with wlcontext(self.ups, session_id = sess_id1):
             experiments = core_api.list_experiments()
 
-            self.assertEquals(5, len(experiments) )
+            self.assertLessEqual(5, len(experiments) )
 
             experiment_names = list(( experiment.experiment.name for experiment in experiments ))
             self.assertTrue( 'ud-dummy' in experiment_names )

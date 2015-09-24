@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import os, glob
 from weblab.admin.bot.misc import show_time, flush
@@ -30,16 +31,16 @@ def get_raw_information(date, verbose = True):
     raw_information_filename = 'raw_information_%s.dump' % date
     if os.path.exists(raw_information_filename):
         if verbose:
-            print "Retrieving cache", show_time()
+            print("Retrieving cache", show_time())
             flush()
         raw_information = pickle.load(open(raw_information_filename))
         if verbose:
-            print "Retrieved cached raw_information", show_time()
+            print("Retrieved cached raw_information", show_time())
             flush()
         return raw_information
 
     if verbose:
-        print "Generating new raw_information", show_time()
+        print("Generating new raw_information", show_time())
         flush()
     # else generate this information file
     def calculate_positions(initial):
@@ -109,7 +110,7 @@ def get_raw_information(date, verbose = True):
     pickle.dump(raw_information, open(raw_information_filename,'w'))
 
     if verbose:
-        print "Raw_information generated", show_time()
+        print("Raw_information generated", show_time())
         flush()
 
     return raw_information

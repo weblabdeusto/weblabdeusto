@@ -90,10 +90,10 @@ class LoginWindow extends BaseWindow {
 	private static final String DEFAULT_ADMIN_EMAIL = "<admin.email not set>";
 	
 	private static final String CREATE_ACCOUNT_VISIBLE_PROPERTY = "create.account.visible";
-	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = true;
+	private static final boolean DEFAULT_CREATE_ACCOUNT_VISIBLE = false;
 	
 	private static final String FACEBOOK_LIKE_BOX_VISIBLE_PROPERTY = "facebook.like.box.visible";
-	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = true;
+	private static final boolean DEFAULT_FACEBOOK_LIKE_BOX_VISIBLE = false;
 
 	private static final String FACEBOOK_LIKE_BOX_ID_PROPERTY = "facebook.like.box.app.id";
 	private static final String DEFAULT_FACEBOOK_LIKE_BOX_ID = "147077572014824";
@@ -152,12 +152,7 @@ class LoginWindow extends BaseWindow {
 		this.usernameTextbox.addKeyDownHandler(keyboardHandler);
 		this.passwordTextbox.addKeyDownHandler(keyboardHandler);
 		
-		String hostEntityImage = this.configurationManager.getProperty(DefaultTheme.Configuration.HOST_ENTITY_LOGIN_IMAGE, "");
-		if(!hostEntityImage.isEmpty()){
-			if(hostEntityImage.startsWith("/"))
-				hostEntityImage = GWT.getModuleBaseURL() + hostEntityImage;
-			this.hostEntityLogo.setUrl(hostEntityImage);
-		}
+		this.hostEntityLogo.setUrl("../web/logos/regular");
 		
 		this.introText.setHTML(this.i18nMessages.weblabDeustoIsARemote_long());
 		

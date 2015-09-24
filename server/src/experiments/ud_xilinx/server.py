@@ -15,34 +15,29 @@
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
 
+import os
+import tempfile
+import urllib2
+import json
+import base64
+import time
+import random
+import traceback
+
 from voodoo.gen.caller_checker import caller_check
 from voodoo.log import logged
 from voodoo.override import Override
-import experiments.ud_xilinx.exc as UdXilinxExperimentErrors
 from experiments.ud_xilinx.command_senders import UdXilinxCommandSender
-from experiments.ud_xilinx.programmers import UdXilinxProgrammer
-import os
-import tempfile
+from weblab.experiment.devices.xilinx.programmers.programmers import XilinxProgrammer
 import voodoo.log as log
 import weblab.data.server_type as ServerType
 import weblab.experiment.exc as ExperimentErrors
 import weblab.experiment.experiment as Experiment
 import weblab.experiment.util as ExperimentUtil
-import weblab.experiment.devices.xilinx_impact.devices as XilinxDevices
-import weblab.experiment.devices.xilinx_impact.impact as XilinxImpact
-import urllib2
 from experiments.xilinxc.compiler import Compiler
-
-import json
-import base64
-import time
-import random
-
-import traceback
-
 import watertank_simulation
-
 from voodoo.threaded import threaded
+
 
 
 # Though it would be slightly more efficient to use single characters, it's a text protocol
@@ -86,9 +81,12 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._locator = locator
         self._cfg_manager = cfg_manager
 
-        self._device_name, self._xilinx_device, self._xilinx_impact = self._load_xilinx_device()
-        self._programmer = self._load_programmer()
+        # Board & Programming related attributes
+        self._board_type = self._cfg_manager.get_value('xilinx_board_type', "")  # Read the board type: IE: FPGA
+        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type', "")  # Read the programmer type: IE: DigilentAdapt
+        self._programmer = self._load_programmer(self._programmer_type, self._board_type)
         self._command_sender = self._load_command_sender()
+
         self.webcam_url = self._load_webcam_url()
 
         self._programming_thread = None
@@ -125,25 +123,21 @@ class UdXilinxExperiment(Experiment.Experiment):
         self._watertank = None
         self._watertank_time_without_demand_change = 0
 
-
-    def _load_xilinx_device(self):
-        device_name = self._cfg_manager.get_value('weblab_xilinx_experiment_xilinx_device')
-        devices = [i for i in XilinxDevices.getXilinxDeviceValues() if i == device_name]
-        if len(devices) == 1:
-            return device_name, devices[0], XilinxImpact.create(devices[0], self._cfg_manager)
-        else:
-            raise UdXilinxExperimentErrors.InvalidXilinxDeviceError(device_name)
-
-    def _load_programmer(self):
-        device_name = self._cfg_manager.get_value('xilinx_device_to_program')
-        return UdXilinxProgrammer.create(device_name, self._cfg_manager, self._xilinx_impact)
+    def _load_programmer(self, programmer_type, board_type):
+        """
+        Loads the Programmer that will handle the actual programming of the logic into the Board.
+        :param programmer_type: The type of programmer (for instance, DigilentAdapt, or XilinxImpact)
+        :param board_type: The type of Xilinx board (for instance, FPGA or PLD)
+        :return:
+        """
+        return XilinxProgrammer.create(programmer_type, self._cfg_manager, board_type)
 
     def _load_command_sender(self):
         device_name = self._cfg_manager.get_value('xilinx_device_to_send_commands')
         return UdXilinxCommandSender.create(device_name, self._cfg_manager)
 
     def _load_webcam_url(self):
-        cfg_webcam_url = "%s_webcam_url" % self._xilinx_device.lower()
+        cfg_webcam_url = "%s_webcam_url" % self._board_type.lower()
         return self._cfg_manager.get_value(cfg_webcam_url, "http://localhost")
 
     def get_state(self):
@@ -204,14 +198,14 @@ class UdXilinxExperiment(Experiment.Experiment):
         VHDL code and then program the board if the result is successful.
         """
         self._current_state = STATE_SYNTHESIZING
-        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device_name.lower())
+        c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._board_type.lower())
         #c.DEBUG = True
         content = base64.b64decode(file_content)
 
         done_already = c.is_same_as_last(content)
 
         if not done_already:
-            if self._device_name.lower() == "fpga":
+            if self._board_type.lower() == "fpga":
                 # TODO: This is quite ugly. We make sure the Compilar class replaces some string to make the
                 # UCF / augmented reality works.
                 c.feed_vhdl(content, True, False)
@@ -278,7 +272,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
-                                             suffix='.' + self._xilinx_impact.get_suffix())
+                                             suffix='.' + self._programmer.get_suffix())  # Originally the Programmer wasn't the one to contain the suffix info.
             try:
                 try:
                     #TODO: encode? utf8?

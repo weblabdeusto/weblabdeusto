@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 class ExperimentHandler(object):
     def __init__(self, experiment_coord_address, is_up_and_running_handlers):

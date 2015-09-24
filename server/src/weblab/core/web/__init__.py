@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 from weblab.core.wl import weblab_api
 assert weblab_api is not None # avoid warnings
@@ -57,4 +58,13 @@ assert quickadmin is not None # avoid warnings
 
 import version
 assert version is not None # avoid warnings
+
+import client_config
+assert client_config is not None # avoid warnings
+
+import logo
+assert logo is not None # avoid warnings
+
+import avatar
+assert avatar is not None # avoid warnings
 

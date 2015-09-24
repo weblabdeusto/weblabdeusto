@@ -12,13 +12,12 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
+from __future__ import print_function, unicode_literals
 
 import traceback
 
 import voodoo.log as log
 from voodoo.gen import CoordAddress
-
-import weblab.data.server_type as ServerType
 
 class ResourcesChecker(object):
     def __init__(self, coordinator):

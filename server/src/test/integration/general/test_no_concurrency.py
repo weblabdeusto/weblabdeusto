@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Luis Rodriguez <luis.rodriguez@opendeusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import time
 import unittest
@@ -41,6 +42,7 @@ from test.util.module_disposer import case_uses_module
 # Abstract
 class IntegrationNoConcurrencyTestCase(object):
     def setUp(self):
+        GLOBAL_REGISTRY.clear()
         self.global_config = load_dir(self.DEPLOYMENT_DIR)
 
         self.process_handlers = []

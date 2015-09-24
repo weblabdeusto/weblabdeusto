@@ -12,8 +12,7 @@
 #
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
-
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 import os
 import sys
@@ -26,7 +25,8 @@ import six
 from sqlalchemy.orm import sessionmaker
 
 from weblab.db.upgrade import DbRegularUpgrader, DbSchedulingUpgrader
-import weblab.db.model as Model
+from weblab.admin.util import password2sha
+import weblab.db.model as model
 import weblab.permissions as permissions
 
 
@@ -47,7 +47,7 @@ def _add_params(session, experiment):
         else:
             key_type = 'string'
 
-        param = Model.DbExperimentClientParameter(experiment, key, key_type, unicode(value))
+        param = model.DbExperimentClientParameter(experiment, key, key_type, unicode(value))
         session.add(param)
 
     session.commit()
@@ -433,38 +433,38 @@ def insert_required_initial_data(engine):
     session = session()
 
     # Roles
-    federated = Model.DbRole("federated")
+    federated = model.DbRole("federated")
     session.add(federated)
 
-    administrator = Model.DbRole("administrator")
+    administrator = model.DbRole("administrator")
     session.add(administrator)
 
-    instructor = Model.DbRole("instructor")
+    instructor = model.DbRole("instructor")
     session.add(instructor)
 
-    student = Model.DbRole("student")
+    student = model.DbRole("student")
     session.add(student)
 
-    db = Model.DbAuthType("DB")
+    db = model.DbAuthType("DB")
     session.add(db)
-    ldap = Model.DbAuthType("LDAP")
+    ldap = model.DbAuthType("LDAP")
     session.add(ldap)
-    iptrusted = Model.DbAuthType("TRUSTED-IP-ADDRESSES")
+    iptrusted = model.DbAuthType("TRUSTED-IP-ADDRESSES")
     session.add(iptrusted)
-    facebook = Model.DbAuthType("FACEBOOK")
+    facebook = model.DbAuthType("FACEBOOK")
     session.add(facebook)
-    openid = Model.DbAuthType("OPENID")
+    openid = model.DbAuthType("OPENID")
     session.add(openid)
 
-    weblab_db = Model.DbAuth(db, "WebLab DB", 1)
+    weblab_db = model.DbAuth(db, "WebLab DB", 1)
     session.add(weblab_db)
     session.commit()
 
-    weblab_openid = Model.DbAuth(openid, "OPENID", 7)
+    weblab_openid = model.DbAuth(openid, "OPENID", 7)
     session.add(weblab_openid)
     session.commit()
 
-    federated_access_forward = Model.DbRolePermission(
+    federated_access_forward = model.DbRolePermission(
         federated,
         permissions.ACCESS_FORWARD,
         "federated_role::access_forward",
@@ -475,7 +475,7 @@ def insert_required_initial_data(engine):
 
     session.commit()
 
-    administrator_admin_panel_access = Model.DbRolePermission(
+    administrator_admin_panel_access = model.DbRolePermission(
         administrator,
         permissions.ADMIN_PANEL_ACCESS,
         "administrator_role::admin_panel_access",
@@ -483,12 +483,21 @@ def insert_required_initial_data(engine):
         "Access to the admin panel for administrator role with full_privileges"
     )
     session.add(administrator_admin_panel_access)
-    administrator_admin_panel_access_p1 = Model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
+    administrator_admin_panel_access_p1 = model.DbRolePermissionParameter(administrator_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(administrator_admin_panel_access_p1)
+
+    administrator_access_all_labs = model.DbRolePermission(
+        administrator,
+        permissions.ACCESS_ALL_LABS,
+        "administrator_role::access_all_labs",
+        datetime.datetime.utcnow(),
+        "Access all the laboratories"
+    )
+    session.add(administrator_access_all_labs)
 
     upgrader = DbRegularUpgrader(str(engine.url))
     session.execute(
-        Model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+        model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
     )
     session.commit()
 
@@ -498,7 +507,7 @@ def insert_required_initial_coord_data(engine):
 
     upgrader = DbSchedulingUpgrader(str(engine.url))
     session.execute(
-        Model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
+        model.Base.metadata.tables['alembic_version'].insert().values(version_num = upgrader.head)
     )
     session.commit()
 
@@ -508,15 +517,15 @@ def insert_required_initial_coord_data(engine):
 #
 
 def _create_user(session, login, role, full_name, email, password = 'password', invalid_password = None, other_auths = None):
-    user = Model.DbUser(login, full_name, email, None, role)
+    user = model.DbUser(login, full_name, email, None, role)
     session.add(user)
-    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
+    weblab_db = session.query(model.DbAuth).filter_by(name = "WebLab DB").one()
     if not invalid_password:
-        session.add(Model.DbUserAuth(user, weblab_db, _password2sha(password, 'aaaa')))
+        session.add(model.DbUserAuth(user, weblab_db, password2sha(password, 'aaaa')))
     else:
-        session.add(Model.DbUserAuth(user, weblab_db, invalid_password))
+        session.add(model.DbUserAuth(user, weblab_db, invalid_password))
     for (auth_type, value) in (other_auths or ()):
-        session.add(Model.DbUserAuth(user, auth_type, value))
+        session.add(model.DbUserAuth(user, auth_type, value))
     return user
 
 def _create_users(session, users_data):
@@ -526,7 +535,7 @@ def _create_users(session, users_data):
     return all_users
 
 def _create_group(session, users_data, group_name, logins, parent):
-    group = Model.DbGroup(group_name, parent)
+    group = model.DbGroup(group_name, parent)
     for login in logins:
         group.users.append(users_data[login])
     session.add(group)
@@ -549,12 +558,12 @@ def _create_experiment(session, exp_name, cat_name, client):
     start_date = datetime.datetime.utcnow()
     end_date = start_date.replace(year=start_date.year+12) # So leap years are not a problem
 
-    category = session.query(Model.DbExperimentCategory).filter_by(name = cat_name).first()
+    category = session.query(model.DbExperimentCategory).filter_by(name = cat_name).first()
     if category is None:
-        category = Model.DbExperimentCategory(cat_name)
+        category = model.DbExperimentCategory(cat_name)
         session.add(category)
 
-    experiment = Model.DbExperiment(exp_name, category, start_date, end_date, client)
+    experiment = model.DbExperiment(exp_name, category, start_date, end_date, client)
     session.add(experiment)
     _add_params(session, experiment)
     return experiment
@@ -571,7 +580,7 @@ def _grant_permission_to_group(session, groups_data, experiments_data, group_nam
 
     db_group = groups_data[group_name]
 
-    gp_allowed = Model.DbGroupPermission(
+    gp_allowed = model.DbGroupPermission(
         db_group,
         permissions.EXPERIMENT_ALLOWED,
         "%s::%s" % (group_name, exp_name),
@@ -579,11 +588,11 @@ def _grant_permission_to_group(session, groups_data, experiments_data, group_nam
         "Permission for group %s to use %s" % (group_name, exp_name)
     )
     session.add(gp_allowed)
-    gp_allowed_p1 = Model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
+    gp_allowed_p1 = model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
     session.add(gp_allowed_p1)
-    gp_allowed_p2 = Model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
+    gp_allowed_p2 = model.DbGroupPermissionParameter(gp_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
     session.add(gp_allowed_p2)
-    gp_allowed_p3 = Model.DbGroupPermissionParameter(gp_allowed, permissions.TIME_ALLOWED, six.text_type(time))
+    gp_allowed_p3 = model.DbGroupPermissionParameter(gp_allowed, permissions.TIME_ALLOWED, six.text_type(time))
     session.add(gp_allowed_p3)
 
 def _grant_permissions_to_groups(session, groups_data, experiments_data, permissions_data):
@@ -596,7 +605,7 @@ def _grant_permission_to_user(session, users_data, experiments_data, login, exp_
 
     db_user = users_data[login]
 
-    up_allowed = Model.DbUserPermission(
+    up_allowed = model.DbUserPermission(
         db_user,
         permissions.EXPERIMENT_ALLOWED,
         "%s::%s" % (login, exp_name),
@@ -604,11 +613,11 @@ def _grant_permission_to_user(session, users_data, experiments_data, login, exp_
         "Permission for user %s to use %s" % (login, exp_name)
     )
     session.add(up_allowed)
-    up_allowed_p1 = Model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
+    up_allowed_p1 = model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_PERMANENT_ID, exp_name)
     session.add(up_allowed_p1)
-    up_allowed_p2 = Model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
+    up_allowed_p2 = model.DbUserPermissionParameter(up_allowed, permissions.EXPERIMENT_CATEGORY_ID, cat_name)
     session.add(up_allowed_p2)
-    up_allowed_p3 = Model.DbUserPermissionParameter(up_allowed, permissions.TIME_ALLOWED, six.text_type(time))
+    up_allowed_p3 = model.DbUserPermissionParameter(up_allowed, permissions.TIME_ALLOWED, six.text_type(time))
     session.add(up_allowed_p3)
 
 def _grant_permissions_to_users(session, users_data, experiments_data, permissions_data):
@@ -620,29 +629,27 @@ def populate_weblab_tests(engine, tests):
     Session._model_changes = {}
     session = Session()
 
-    ldap = session.query(Model.DbAuthType).filter_by(name="LDAP").one()
-    iptrusted = session.query(Model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
-    facebook = session.query(Model.DbAuthType).filter_by(name="FACEBOOK").one()
+    ldap = session.query(model.DbAuthType).filter_by(name="LDAP").one()
+    iptrusted = session.query(model.DbAuthType).filter_by(name="TRUSTED-IP-ADDRESSES").one()
+    facebook = session.query(model.DbAuthType).filter_by(name="FACEBOOK").one()
 
     # Auths
-    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
-
-    cdk_ldap = Model.DbAuth(ldap, "Configuration of CDK at Deusto", 2, "ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es")
+    cdk_ldap = model.DbAuth(ldap, "Configuration of CDK at Deusto", 2, "ldap_uri=ldaps://castor.cdk.deusto.es;domain=cdk.deusto.es;base=dc=cdk,dc=deusto,dc=es")
     session.add(cdk_ldap)
 
-    deusto_ldap = Model.DbAuth(ldap, "Configuration of DEUSTO at Deusto", 3, "ldap_uri=ldaps://altair.cdk.deusto.es;domain=deusto.es;base=dc=deusto,dc=es")
+    deusto_ldap = model.DbAuth(ldap, "Configuration of DEUSTO at Deusto", 3, "ldap_uri=ldaps://altair.cdk.deusto.es;domain=deusto.es;base=dc=deusto,dc=es")
     session.add(deusto_ldap)
 
-    localhost_ip = Model.DbAuth(iptrusted, "trusting in localhost", 4, "127.0.0.1")
+    localhost_ip = model.DbAuth(iptrusted, "trusting in localhost", 4, "127.0.0.1")
     session.add(localhost_ip)
 
-    auth_facebook = Model.DbAuth(facebook, "Facebook", 5)
+    auth_facebook = model.DbAuth(facebook, "Facebook", 5)
     session.add(auth_facebook)
 
-    administrator = session.query(Model.DbRole).filter_by(name='administrator').one()
-    instructor    = session.query(Model.DbRole).filter_by(name='instructor').one()
-    student       = session.query(Model.DbRole).filter_by(name='student').one()
-    federated     = session.query(Model.DbRole).filter_by(name='federated').one()
+    administrator = session.query(model.DbRole).filter_by(name='administrator').one()
+    instructor    = session.query(model.DbRole).filter_by(name='instructor').one()
+    student       = session.query(model.DbRole).filter_by(name='student').one()
+    federated     = session.query(model.DbRole).filter_by(name='federated').one()
 
     # Users
     # Please keep alphabetical order :-)
@@ -652,6 +659,7 @@ def populate_weblab_tests(engine, tests):
         'admin3'       : (administrator, 'Name of administrator 3',       'weblab@deusto.es'),
 
         'any'          : (student,       'Name of any',                   'weblab@deusto.es',  'password', None, [(auth_facebook, '1168497114')]),
+        'admin'        : (administrator, 'Administrator',                 'weblab@deusto.es'),
 
         'archimedes'   : (student,       'Usuario de prueba para Splash', 'weblab@deusto.es',  'archimedes'),
         'consumer1'    : (federated,     'Consumer University 1',         'weblab@deusto.es'),
@@ -832,7 +840,7 @@ def populate_weblab_tests(engine, tests):
     ])
 
     # Other permissions
-    up_student1_admin_panel_access = Model.DbUserPermission(
+    up_student1_admin_panel_access = model.DbUserPermission(
         all_users['student1'],
         permissions.ADMIN_PANEL_ACCESS,
         "student1::admin_panel_access",
@@ -840,10 +848,10 @@ def populate_weblab_tests(engine, tests):
         "Access to the admin panel for student1 with full_privileges"
     )
     session.add(up_student1_admin_panel_access)
-    up_student1_admin_panel_access_p1 = Model.DbUserPermissionParameter(up_student1_admin_panel_access, permissions.FULL_PRIVILEGES, True)
+    up_student1_admin_panel_access_p1 = model.DbUserPermissionParameter(up_student1_admin_panel_access, permissions.FULL_PRIVILEGES, True)
     session.add(up_student1_admin_panel_access_p1)
 
-    up_any_access_forward = Model.DbUserPermission(
+    up_any_access_forward = model.DbUserPermission(
         all_users['any'],
         permissions.ACCESS_FORWARD,
         "any::access_forward",
@@ -852,6 +860,16 @@ def populate_weblab_tests(engine, tests):
     )
 
     session.add(up_any_access_forward)
+
+    client_properties = {
+        "demo.available": True,
+        "admin.email": "weblab@deusto.es",
+        "google.analytics.tracking.code": "UA-1234567-8",
+        "host.entity.link": "http://www.deusto.es/",
+    }
+    
+    for key, value in six.iteritems(client_properties):
+        session.add(model.DbClientProperties(key, value))
 
     session.commit()
 
@@ -914,9 +932,9 @@ def generate_create_database(engine_str):
                     connection = dbi.connect(**kwargs)
                 except dbi.OperationalError:
                     traceback.print_exc()
-                    print >> sys.stderr, ""
-                    print >> sys.stderr, "    %s" % error_message
-                    print >> sys.stderr, ""
+                    print("", file=sys.stderr)
+                    print("    %s" % error_message, file=sys.stderr)
+                    print("", file=sys.stderr)
                     sys.exit(-1)
                 else:
                     cursor = connection.cursor()
@@ -932,13 +950,13 @@ def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None,
     sessionmaker._model_changes = {}
     session = sessionmaker()
 
-    role = session.query(Model.DbRole).filter_by(name=role).one()
-    weblab_db = session.query(Model.DbAuth).filter_by(name = "WebLab DB").one()
+    role = session.query(model.DbRole).filter_by(name=role).one()
+    weblab_db = session.query(model.DbAuth).filter_by(name = "WebLab DB").one()
 
-    user    = Model.DbUser(login, user_name, mail, None, role)
+    user    = model.DbUser(login, user_name, mail, None, role)
     session.add(user)
 
-    user_auth = Model.DbUserAuth(user, weblab_db, _password2sha(password, randomstuff))
+    user_auth = model.DbUserAuth(user, weblab_db, password2sha(password, randomstuff))
     session.add(user_auth)
 
     session.commit()
@@ -947,7 +965,7 @@ def add_user(sessionmaker, login, password, user_name, mail, randomstuff = None,
 def add_group(sessionmaker, group_name):
     sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
-    group = Model.DbGroup(group_name)
+    group = model.DbGroup(group_name)
     session.add(group)
     session.commit()
     session.close()
@@ -955,8 +973,8 @@ def add_group(sessionmaker, group_name):
 def add_users_to_group(sessionmaker, group_name, *user_logins):
     sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
-    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
-    users = session.query(Model.DbUser).filter(Model.DbUser.login.in_(user_logins)).all()
+    group = session.query(model.DbGroup).filter_by(name = group_name).one()
+    users = session.query(model.DbUser).filter(model.DbUser.login.in_(user_logins)).all()
     for user in users:
         group.users.append(user)
     session.commit()
@@ -965,9 +983,9 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
 def add_experiment(sessionmaker, category_name, experiment_name, client):
     sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
-    existing_category = session.query(Model.DbExperimentCategory).filter_by(name = category_name).first()
+    existing_category = session.query(model.DbExperimentCategory).filter_by(name = category_name).first()
     if existing_category is None:
-        category = Model.DbExperimentCategory(category_name)
+        category = model.DbExperimentCategory(category_name)
         session.add(category)
     else:
         category = existing_category
@@ -976,7 +994,7 @@ def add_experiment(sessionmaker, category_name, experiment_name, client):
     # So leap years are not a problem
     end_date = start_date.replace(year=start_date.year+12)
 
-    experiment = Model.DbExperiment(experiment_name, category, start_date, end_date, client)
+    experiment = model.DbExperiment(experiment_name, category, start_date, end_date, client)
     _add_params(session, experiment)
     session.add(experiment)
     session.commit()
@@ -986,7 +1004,7 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
 
-    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
+    group = session.query(model.DbGroup).filter_by(name = group_name).one()
 
     experiment_allowed = permissions.EXPERIMENT_ALLOWED
 
@@ -994,7 +1012,7 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
     experiment_allowed_p2 = permissions.EXPERIMENT_CATEGORY_ID
     experiment_allowed_p3 = permissions.TIME_ALLOWED
 
-    group_permission = Model.DbGroupPermission(
+    group_permission = model.DbGroupPermission(
         group, experiment_allowed,
         "%s users::%s@%s" % (group_name, experiment_name, category_name),
         datetime.datetime.utcnow(),
@@ -1002,13 +1020,13 @@ def grant_experiment_on_group(sessionmaker, category_name, experiment_name, grou
 
     session.add(group_permission)
 
-    group_permission_p1 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p1, experiment_name)
+    group_permission_p1 = model.DbGroupPermissionParameter(group_permission, experiment_allowed_p1, experiment_name)
     session.add(group_permission_p1)
 
-    group_permission_p2 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p2, category_name)
+    group_permission_p2 = model.DbGroupPermissionParameter(group_permission, experiment_allowed_p2, category_name)
     session.add(group_permission_p2)
 
-    group_permission_p3 = Model.DbGroupPermissionParameter(group_permission, experiment_allowed_p3, str(time_allowed))
+    group_permission_p3 = model.DbGroupPermissionParameter(group_permission, experiment_allowed_p3, str(time_allowed))
     session.add(group_permission_p3)
 
     session.commit()
@@ -1018,14 +1036,14 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     session = sessionmaker()
 
     permission_type = permissions.ADMIN_PANEL_ACCESS
-    group = session.query(Model.DbGroup).filter_by(name = group_name).one()
-    group_permission = Model.DbGroupPermission(
+    group = session.query(model.DbGroup).filter_by(name = group_name).one()
+    group_permission = model.DbGroupPermission(
                                     group,
                                     permission_type,
                                     'Administrators:admin-panel', datetime.datetime.now(), ''
                                 )
     session.add(group_permission)
-    group_permission_p1 = Model.DbGroupPermissionParameter(
+    group_permission_p1 = model.DbGroupPermissionParameter(
                                     group_permission,
                                     permissions.FULL_PRIVILEGES,
                                     True
@@ -1039,11 +1057,12 @@ def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_na
     add_experiment(sessionmaker, category_name, experiment_name, client)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
 
-def _password2sha(password, randomstuff = None):
-    if randomstuff is None:
-        randomstuff = ""
-        for _ in range(4):
-            c = chr(ord('a') + random.randint(0,25))
-            randomstuff += c
-    password = password if password is not None else ''
-    return randomstuff + "{sha}" + hashlib.new('sha1', randomstuff + password).hexdigest()
+def add_client_config(sessionmaker, configuration_js):
+    session = sessionmaker()
+
+    for key, value in configuration_js.items():
+        new_properties = model.DbClientProperties(key, value)
+        session.add(new_properties)
+
+    session.commit()
+    session.close()

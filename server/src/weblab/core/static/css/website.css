@@ -1,3 +1,30 @@
+body { 
+    padding-top: 20px;
+}
+.spacer {
+    display: inline-block;
+    width: 6em;
+    height: 3em;
+}
+.vmargin-20 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.footer {
+    border-top-color: rgb(229, 229, 229);
+    border-top-style: solid;
+    border-top-width: 1px;
+    margin-top: 20px;
+    color: rgb(119, 119, 119);
+}
+
+.footer-text {
+    margin-top: 20px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+
 .wl-vertical-center
 {
     float: none;
@@ -17,4 +44,50 @@ img.wl-logo
 {
     width: 100%;
     height: 100%;
+}
+
+/* 
+  Allow angular.js to be loaded in body, hiding cloaked elements until 
+  templates compile.  The !important is important given that there may be 
+  other selectors that are more specific or come later and might alter display.  
+ */
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
+
+
+/* Styles for the Labs screen */
+.lab-block {
+    width: 100%;
+    height: 120px; 
+    padding: 12px;
+/*    margin: 3px;*/
+    cursor: pointer;
+    cursor: hand;
+    background-color: white;
+/*    border: 1px solid #999;
+    border-radius: 0px;*/
+}
+
+.labs-block {
+    background-color: #f3f3f3;
+}
+
+.lab-block:hover {
+/*    background-color: #c3c3c3;*/
+}
+
+.lab-block-wrapper:hover {
+/*    opacity: 0.8;*/
+}
+
+.wl-order-buttons-wrapper
+{
+    user-select: none;
+}
+
+@media screen and (min-width: 1600px) {
+    .col-wl-lg-1 {
+        width: 8.3333%;
+    }
 }

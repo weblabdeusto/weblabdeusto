@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="WebLabClient" default="test" basedir=".">
+	<!--
+	***********************************
+		Global Configuration
+	***********************************
+	-->
+	<property environment="env" />
+
+	<property name="testreportdir_dev"     value="build/test-results-hosted/"/>
+	<property name="testreportdir_prod"    value="build/test-results-web/"/>
+
+    <property name="gwt.style" value="OBF"/>
+
+	<property name="lab.module.name" value="es.deusto.weblab.WebLabClient"/>
+	
+	<!--
+	***********************************
+		GWT Configuration
+	***********************************
+	-->		
+    <property name="default.gwt.sdk" value="external/gwt/"/>
+
+	<condition property="gwt.sdk" value="${env.GWT_HOME}" else="${default.gwt.sdk}">
+		<available file="${env.GWT_HOME}" type="dir" />
+	</condition>
+	
+	<!--
+	***********************************
+		JUnit Configuration
+	***********************************
+	-->		
+
+	<property name="junit.formatter.type" value="xml" />
+	<property name="default.junit.jar" value="external/lib-client/junit.jar"/>
+		
+	<!--
+	***********************************
+		Classpath Configuration
+	***********************************
+	-->
+	<path id="project.class.path">
+		<pathelement location="war/WEB-INF/classes"/>
+		<pathelement location="${gwt.sdk}/gwt-user.jar"/>
+		<fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+		<fileset dir="${gwt.sdk}" includes="validation*.jar"/>
+		<fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+		<!-- Add any additional non-server libs (such as JUnit) -->
+		<pathelement path="${junit.jar}"/>
+		<pathelement location="external/lib-client/junit.jar"/>
+	</path>
+
+	<path id="fast.project.class.path">
+		<pathelement location="war/WEB-INF/classes"/>
+		<pathelement location="external/gwt-user-fast.jar"/>
+		<fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
+		<fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
+		<!-- Add any additional non-server libs (such as JUnit) -->
+		<pathelement path="${junit.jar}"/>
+		<pathelement location="external/lib-client/junit.jar"/>
+	</path>
+	
+	<!--
+	***********************************
+		Targets
+	***********************************
+	-->
+	
+	<target name="libs" description="Copy libs to WEB-INF/lib">
+		<mkdir dir="war/WEB-INF/lib" />
+		<copy todir="war/WEB-INF/lib" file="${gwt.sdk}/gwt-servlet.jar" />
+		<!-- Add any additional server libs that need to be copied -->
+	</target>
+	
+	<target name="javac" depends="libs" description="Compile src to bin">
+		<mkdir dir="war/WEB-INF/classes"/>
+		<javac srcdir="src" destdir="war/WEB-INF/classes" 
+			includes="**" debug="on" debuglevel="lines,vars,source" 
+            encoding="utf-8">
+            <compilerarg value="-Xlint"/>
+            <compilerarg value="-Xlint"/>
+			<classpath refid="project.class.path"/>
+		</javac>
+		<copy todir="war/WEB-INF/classes">
+			<fileset dir="src" excludes="**/*.java"/>
+		</copy>
+        <exec executable="python">
+            <arg value="generate_clients.py"/>
+        </exec>
+        <exec executable="python">
+            <arg value="i18n_gatherer.py"/>
+        </exec>
+	</target>
+
+	<target name="javac-test" depends="javac" description="Compile test to bin">
+        <condition property="junit.jar" value="${env.JUNIT_HOME}/junit.jar" else="${default.junit.jar}">
+            <available file="${env.JUNIT_HOME}" type="dir" />
+        </condition>
+
+        <fail message="${junit.jar} not found!">
+            <condition>
+                <not>
+                    <available file="${junit.jar}" />
+                </not>
+            </condition>
+        </fail>
+
+		<mkdir dir="war/WEB-INF/classes"/>
+		<javac srcdir="test" destdir="war/WEB-INF/classes" 
+			includes="**" debug="on" debuglevel="lines,vars,source" 
+            encoding="utf-8">
+            <compilerarg value="-Xlint"/>
+            <compilerarg value="-Xlint"/>
+			<classpath refid="project.class.path"/>
+		</javac>
+		<copy todir="war/WEB-INF/classes">
+			<fileset dir="test" excludes="**/*.java"/>
+		</copy>
+	</target>
+
+
+    <target name="gwtc-lab" depends="javac">
+      <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+	      <classpath>
+	        <pathelement location="src"/>
+	        <path refid="project.class.path"/>
+	      </classpath>
+	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+	      <jvmarg value="-Xss16M"/>
+	      <jvmarg value="-Xmx512M"/>
+	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+	      <arg value="${lab.module.name}"/>
+		  <arg value="-style"/>
+          <arg value="${gwt.style}"/>
+          <!-- <arg value="-compileReport"/>  -->
+       </java>
+      <delete dir="war/weblabclient/.junit_symbolMaps" failonerror="false" />
+      <delete dir="war/weblabclientlab/.junit_symbolMaps" failonerror="false" />
+    </target>
+
+    <target name="gwtc" depends="gwtc-lab" description="GWT compile to JavaScript">
+	</target>	
+	
+	<target name="gwtc-fast" depends="javac" description="GWT compile to JavaScript">
+	    <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+	      <classpath>
+	        <pathelement location="src"/>
+	        <path refid="fast.project.class.path"/>
+	      </classpath>
+	      <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
+	      <jvmarg value="-Xmx512M"/>
+	      <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+	      <arg value="${lab.module.name}"/>
+		  <arg value="-draftCompile"/>
+	    </java>
+
+	</target>
+	
+	<target name="test.dev" depends="javac-test">
+		<mkdir dir="${testreportdir_dev}" />
+		<junit failureproperty="test.failure" printSummary="yes" fork="true" haltonerror="true" showoutput="true">
+	        <jvmarg value="-Xss16M"/>
+			<jvmarg value="-Xmx512M" />
+			<sysproperty key="gwt.args" value="-logLevel WARN"/>
+            <sysproperty key="java.awt.headless" value="true"/>
+
+            <!-- HTMLUnit, which uses Apache HTTP, is very verbose, so we disable the warnings it gives. If you're receiving errors that can be created by HTMLUnit, do comment these 4 lines -->
+            <sysproperty key="org.apache.commons.logging.simplelog.defaultlog" value="fatal"/>
+            <sysproperty key="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.NoOpLog"/>
+            <!-- <sysproperty key="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.SimpleLog"/>-->
+            <sysproperty key="org.apache.commons.logging.simplelog.log.org.apache.http" value="FATAL"/>
+            <sysproperty key="org.apache.commons.logging.simplelog.log.org.apache.http.wire" value="FATAL"/>
+
+			<classpath>
+				<pathelement path="src"/>
+				<pathelement path="test"/>
+				<path refid="project.class.path"/>
+				<pathelement path="${junit.jar}"/>
+			</classpath>
+			<batchtest todir="${testreportdir_dev}">
+				<fileset dir="test">
+					<include name="**/**Test.java"/>
+				</fileset>
+			</batchtest>
+			<formatter type="${junit.formatter.type}"/>
+			<formatter usefile="false" type="plain" />
+		</junit>
+	</target>
+
+	<target name="test.prod" depends="javac">
+		<mkdir dir="${testreportdir_prod}" />
+		<mkdir dir="www-test" />
+		<junit failureproperty="test.failure" printSummary="yes" fork="true" haltonerror="true" showoutput="true">
+	        <jvmarg value="-Xss16M"/>
+			<jvmarg value="-Xmx512M" />
+			<sysproperty key="gwt.args" value="-prod -logLevel WARN -out www-test"/>
+			<sysproperty key="java.awt.headless" value="true"/>
+			<classpath>
+				<pathelement path="src"/>
+				<pathelement path="test"/>
+				<path refid="project.class.path"/>
+				<pathelement path="${junit.jar}"/>
+			</classpath>
+			<batchtest todir="${testreportdir_prod}">
+				<fileset dir="test">
+					<include name="**/**Test.java"/>
+				</fileset>
+			</batchtest>
+			<formatter type="${junit.formatter.type}"/>
+			<formatter usefile="false" type="plain" />
+		</junit>
+	</target>
+	
+	<target name="test" description="Run development and production tests">
+        <antcall target="test.dev"/>
+        <!-- test.prod can take up to ~20 minutes -->
+        <!-- <antcall target="test.prod" /> -->
+	</target>
+	
+	<target name="build" depends="gwtc" description="Build weblab" />
+
+	<target name="war" depends="build" description="Create a war file">
+		<zip destfile="weblab.war" basedir="war"/>
+	</target>
+	
+	<target name="clean" description="Cleans WebLab">
+	    <delete dir="war/WEB-INF/classes"   failonerror="false" />
+	    <delete dir="war/weblabclient"      failonerror="false" />		
+	    <delete dir="war/weblabclientlab"   failonerror="false" />		
+	</target>
+	
+</project>

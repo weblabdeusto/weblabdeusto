@@ -13,6 +13,7 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #         Jaime Irurzun <jaime.irurzun@gmail.com>
 #
+from __future__ import print_function, unicode_literals
 
 import unittest
 import mocker
@@ -122,7 +123,7 @@ def real_test():
     notifier = AdminNotifier.AdminNotifier(cfg_manager)
     notifier.notify('message')
 
-    print "Verify in your e-mail address :-D"
+    print("Verify in your e-mail address :-D")
 
 
 def suite():

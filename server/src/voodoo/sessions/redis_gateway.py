@@ -13,6 +13,7 @@
 # Author: Xabier Larrakoetxea <xabier.larrakoetxea@deusto.es>
 #         Pablo Orduña <pablo.orduna@deusto.es>
 #
+from __future__ import print_function, unicode_literals
 
 import redis
 import time

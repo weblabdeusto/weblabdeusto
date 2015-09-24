@@ -17,7 +17,7 @@ env
 # 
 # From https://github.com/github/gitignore/blob/master/Python.gitignore
 # 
-
+__pycache__/
 *.py[cod]
 
 # C extensions
@@ -47,7 +47,7 @@ pip-log.txt
 nosetests.xml
 
 # Translations
-*.mo
+# *.mo
 
 # Mr Developer
 .mr.developer.cfg

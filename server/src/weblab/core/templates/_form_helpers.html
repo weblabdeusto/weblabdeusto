@@ -1,18 +1,21 @@
-{% macro render_field(field, required = False) %}
+{% macro render_field(field, required = False, no_form_control = False) %}
+    {% if field.type in ('FileField', 'BooleanField') %}
+        {% set no_form_control = True %}
+    {% endif %}
 
-    <div class="control-group {% if field.errors %}error{% endif %}">
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
         {% if required %}
             {% set the_label = '%s <strong style="color: red">&#42;</strong>' % field.label.text %}
         {% else %}
             {% set the_label = '%s' % field.label.text %}
         {% endif %}
-        {{ field.label(the_label, class="control-label") }}
-
-        <div class="controls">
-            {{ field(id=field.name,**kwargs)|safe }}
+        {{ field.label(the_label, class="control-label col-sm-3") }}
+        
+        <div class="col-sm-7">
+            {{ field(id=field.name, class="" if no_form_control else "form-control", **kwargs)|safe }}
             <p class="help-block">{{ field.description }}</p>
             {% for error in field.errors %}
-            <span class="help-inline">{{ error }}</span>
+            <span class="help-block input-errors">{{ error }}</span>
             {% endfor %}
         </div>
     </div>
@@ -21,7 +24,7 @@
 {% macro render_simple_field(field) %}
     {{ field(id=field.name,**kwargs)|safe }}
     {% for error in field.errors %}
-    <span class="help-inline">{{ error }}</span>
+    <span class="help-inline input-errors">{{ error }}</span>
     {% endfor %}
 {% endmacro %}
 
