@@ -93,6 +93,9 @@ WeblabExp = function () {
     // To store callbacks for the finish
     var mOnFinishPromise = $.Deferred();
     var mExpectsPostEnd = false;
+    
+    // If different to null, the experiment loaded callback will be called once this promise is finished
+    var mExperimentLoadedPromise = null;
 
     // To store whether the end() method has been called or not
     var mEndCalled = false;
@@ -325,6 +328,13 @@ WeblabExp = function () {
         return mReservation;
     };
 
+    /**
+    * Adds a promise that, whenever resolved, we can notify WebLab that this method has been properly loaded.
+    * @param {promise} The result of a $.Deferred().promise();
+    */
+    this.addExperimentLoadedPromise = function (promise) {
+        mExperimentLoadedPromise = promise;
+    };
 
     // !!!!!!!!!!!!!!
     // AS OF NOW, RESERVATION-EXTRACTING IS NOT SUPPORTED. THESE FUNCTIONS MUST BE REVISED.
@@ -1208,6 +1218,15 @@ WeblabExp = function () {
         }
     });
 
+    this.onConfigLoad(function () {
+        if (mExperimentLoadedPromise == null) {
+            window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
+        } else {
+            mExperimentLoadedPromise.always(function() {
+                window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
+            });
+        }
+    });
 
     ///////////////////////////////////////////////////////////////
     //

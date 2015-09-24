@@ -303,9 +303,6 @@ function LabController($scope, $injector, $http) {
         $scope.reserveMessage.message = "RESERVING";
         $scope.reserveMessage.type = 'info';
 
-        if(CLIENT_TYPE == "redirect")
-            return reserveRedirect(reservationStatusPromiseGenerator);
-
         if (where == 'frame') {
             return reserveInFrame(reservationStatusPromiseGenerator);
         } else if (where == 'window') {
