@@ -23,5 +23,7 @@
     "OFFLINE": {{ ng_gettext("Offline")|tojson }},
     "MY_LATEST_USES": {{ ng_gettext("My latest uses")|tojson }},
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
+    "EXPERIMENT_FINISHED_GO_BACK": {{ ng_gettext("Experiment finished")|tojson }},
+    "GO_BACK": {{ ng_gettext("Go back")|tojson }},
     "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
 }

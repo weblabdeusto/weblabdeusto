@@ -45,7 +45,8 @@ function LabController($scope, $injector, $http) {
         laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
         language: PREFERRED_LANGUAGE,
-        iframe_url: ""
+        iframe_url: "",
+        shown: true
     };
 
     if (CLIENT_TYPE == "js") {
@@ -70,7 +71,8 @@ function LabController($scope, $injector, $http) {
     $scope.reserveMessage = {
         message: '',
         translationData: {},
-        type: 'info'
+        type: 'info',
+        backUrl: ''
     };
 
     var mExperimentLoaded = $.Deferred();
@@ -279,6 +281,7 @@ function LabController($scope, $injector, $http) {
     } // !handleReserveFail
 
     function startReserved(where, reservationID) {
+        $scope.experiment_iframe.shown = true;
         var reservationStatusPromiseGenerator = function (weblab) {
             return weblab.getReservationStatus(reservationID);
         }.bind(this);
@@ -410,12 +413,17 @@ function LabController($scope, $injector, $http) {
                 // Listen also for a dispose, for other ui changes.
                 wexp.onExperimentDeactive().done(function (f) {
                     $scope.experiment.active = false;
-                    if (!FEDERATED_MODE) {
+                    if (FEDERATED_MODE) {
+                        $scope.experiment_iframe.shown = false;
+                        $scope.reserveMessage.message = "EXPERIMENT_FINISHED_GO_BACK";
+                        if (BACK_URL)
+                            $scope.reserveMessage.backUrl = BACK_URL;
+                    } else {
                         $scope.loadLatestUses();
                         $scope.loadLabStats();
+                        $scope.reserveMessage.message = "";
                     }
 
-                    $scope.reserveMessage.message = "";
 
                     // Broadcast an event, in case some component needs to know.
                     // The iframe, for example, needs to be auto-restarted when this happens.
