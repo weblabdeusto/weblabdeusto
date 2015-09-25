@@ -38,16 +38,37 @@
     {# Angular.js code. All in raw. #}
     {% raw %}
         <div ng-cloak ng-show="!isExperimentLoading()">
-            <div id="reserve-container">
-                
-                <div class="container">
-                    <div class="text-center">
-                        <h2><img ng-src="{{ experiment_info.experiment.logo_link }}" height="40px"> {{ experiment.data.display_name }}</h2>
-                        <h4>({{ experiment_info.experiment.category }})</h4>
+            <div class="container">
+                <div class="text-center">
+                    <h2><img ng-src="{{ experiment_info.experiment.logo_link }}" height="40px"> {{ experiment.data.display_name }}</h2>
+                    <h4>({{ experiment_info.experiment.category }})</h4>
 
+                </div>
+            </div>
+        </div>
+
+        <div ng-cloak ng-show="isExperimentReloading()">
+            <div class="row">
+                <div class="col-xs-10 col-xs-offset-1 col-lg-offset-0 col-lg-4 col-lg-push-4 text-center well" style="margin-top: 10px">
+                    {% endraw %}
+                    <h4>{{ gettext("Reloading experiment...") }}</h4>
+                    <img class="rotating-ball" src="{{ url_for('.static', filename='img/flat_ball_201x201.png') }}">
+                    {% raw %}
+                </div>
+            </div>
+        </div>
+
+        <div ng-cloak ng-show="!isExperimentLoading() && !isExperimentReloading()">
+
+            <div ng-cloak ng-show="isExperimentActive()" class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ 'FINISH'|translate }}</a>
                     </div>
                 </div>
-                
+            </div>
+
+            <div id="reserve-container">    
                 <div class="container-fluid">
                     <div class="row" ng-show="!isExperimentActive()">
                         <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
@@ -104,15 +125,6 @@
                     <!-- Should be shown only when the experiment is NOT active -->
                     <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
                                  reserve-message="reserveMessage" stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
-                </div>
-            </div>
-
-
-            <div ng-cloak ng-show="isExperimentActive()" class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <a ng-click="finishExperiment()" href="#" class="btn btn-warning finish-experiment-btn">{{ 'FINISH'|translate }}</a>
-                    </div>
                 </div>
             </div>
 
