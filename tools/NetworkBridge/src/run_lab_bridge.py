@@ -1,7 +1,7 @@
 # Runs the labserver-side bridge.
 import sys
 
-from lab_bridge import cfg
+from common import cfg
 import signal
 from lab_bridge.comms.expbridge.LongPollingConnector import LongPollingConnector
 from lab_bridge.comms.lab.LabListener import LabListener

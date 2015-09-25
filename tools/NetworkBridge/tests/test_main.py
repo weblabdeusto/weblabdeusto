@@ -1,5 +1,5 @@
 
-from lab_bridge import cfg
+from common import cfg
 
 def test_parse_config():
     conf = cfg.parse_config("data/config.test.yml")
