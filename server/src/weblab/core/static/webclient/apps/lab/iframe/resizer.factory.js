@@ -8,9 +8,11 @@ function ResizerFactory() {
 
     return {
         loadFrameResizer: loadFrameResizer,
-        injectScriptIntoFrame: injectScriptIntoFrame
+        injectScriptIntoFrame: injectScriptIntoFrame,
+        forceFrameResizer: forceFrameResizer
     };
 
+    var mHasBeenCalled = false;
 
 
     // ----------
@@ -31,23 +33,34 @@ function ResizerFactory() {
             var timesTried = 0;
             var initResizeInterval = setInterval(function () {
                 if(iframeElement !== undefined) {
-                    iframeElement.iFrameResize({
-                        log: false,
-                        enablePublicMethods: true,
-                        checkOrigin: false
-                    }, "#exp-frame");
+                    if (!mHasBeenCalled) {
+                        mHasBeenCalled = true;
+                        iframeElement.iFrameResize({
+                            enablePublicMethods: true,
+                            checkOrigin: false
+                        }, "#exp-frame");
+                    }
                     clearInterval(initResizeInterval);
                 } else {
                     timesTried++;
-                    if(timesTried > 10) {
+                    if(timesTried > 100) {
                         clearInterval(initResizeInterval);
                         console.error("[RESIZE]: We failed to resize the experiment's iframe. Maybe the experiment's iframe resizer script could not be injected properly.");
                     }
                 }
-            }, 500);
+            }, 50);
         });
     } // !loadFrameResizer()
 
+    function forceFrameResizer(iframeElement) {
+        if (!mHasBeenCalled) {
+            mHasBeenCalled = true;
+            iframeElement.iFrameResize({
+                enablePublicMethods: true,
+                checkOrigin: false
+            }, "#exp-frame");
+        }
+    }
 
     /**
      * Injects the specified script into the specified iframe.

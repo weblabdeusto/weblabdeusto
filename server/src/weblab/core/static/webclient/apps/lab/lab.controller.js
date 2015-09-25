@@ -34,6 +34,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
     $scope.experiment.loading = true;
+    $scope.experiment.reloading = false;
     $scope.experiment.active = false;
     $scope.experiment.federated = FEDERATED_MODE;
     
@@ -65,6 +66,7 @@ function LabController($scope, $injector, $http) {
 
     $scope.experiment_info.experiment.isExperimentReserving = isExperimentReserving;
     $scope.experiment_info.experiment.isExperimentLoading = isExperimentLoading;
+    $scope.experiment_info.experiment.isExperimentReloading = isExperimentReloading;
     $scope.experiment_info.experiment.isExperimentFederated = isExperimentFederated;
     $scope.experiment_info.experiment.reserve = reserve;
 
@@ -93,6 +95,7 @@ function LabController($scope, $injector, $http) {
     $scope.isExperimentActive = isExperimentActive;
     $scope.isExperimentReserving = isExperimentReserving;
     $scope.isExperimentLoading = isExperimentLoading;
+    $scope.isExperimentReloading = isExperimentReloading;
     $scope.isExperimentFederated = isExperimentFederated;
     $scope.finishExperiment = finishExperiment;
     $scope.loadLatestUses = loadLatestUses;
@@ -172,9 +175,18 @@ function LabController($scope, $injector, $http) {
     function isExperimentLoading() {
         return $scope.experiment.loading;
     }
+
+    /**
+     * Checks whether the experiment is being loaded.
+     */
+    function isExperimentReloading() {
+        return $scope.experiment.reloading;
+    }
+
     
     function markAsLoaded() {
         $scope.experiment.loading = false;
+        $scope.experiment.reloading = false;
         mExperimentLoaded.resolve();
         $scope.$apply();
     }
@@ -422,6 +434,7 @@ function LabController($scope, $injector, $http) {
                         $scope.loadLatestUses();
                         $scope.loadLabStats();
                         $scope.reserveMessage.message = "";
+                        $scope.experiment.reloading = true;
                     }
 
 

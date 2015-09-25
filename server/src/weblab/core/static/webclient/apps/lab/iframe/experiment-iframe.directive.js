@@ -74,7 +74,10 @@ function wlExperimentIframe($injector) {
         function _processMessages(e) {
             if (new String(e.data).indexOf("weblabdeusto::") == 0) {
                 if (new String(e.data) == "weblabdeusto::experimentLoaded") {
-                    scope.$emit("experimentLoaded");
+                    resizer.forceFrameResizer(iframe);
+                    setTimeout( function() {
+                        scope.$emit("experimentLoaded");
+                    }, 2000);
                 }
             }
         }
