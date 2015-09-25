@@ -1,12 +1,13 @@
 <div class="row">
     <div class="text-center col-xs-12 col-md-6 col-md-push-3">
         <div style="width: 50%; min-width: 300px; display: inline-block">
-        <wl-reserve ng-show="!isExperimentActive()" experiment="experiment"></wl-reserve>
+            <wl-reserve ng-show="!experiment.isExperimentActive() && !experiment.isExperimentFederated()" experiment="experiment"></wl-reserve>
+            <wl-reserve-status ng-show="!experiment.isExperimentActive() && reserveMessage.message.length > 0" reserve-message="reserveMessage"></wl-reserve-status>
         </div>
         <!-- Reserve used to be here -->
     </div>
 
-    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-8 col-md-3 col-md-pull-6">
+    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-8 col-md-3 col-md-pull-6" ng-if="!experiment.isExperimentFederated()">
         <div ng-show="latestuses.uses.length > 0">
             <h4>{{ "MY_LATEST_USES"|translate }}</h4>
             
@@ -32,7 +33,7 @@
     </div>
 
 
-    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-4 col-md-3 well" ng-cloak ng-show="stats.status">
+    <div class="col-xs-10 col-xs-push-1 col-sm-push-0 col-sm-4 col-md-3 well" ng-cloak ng-show="stats.status" ng-if="!experiment.isExperimentFederated()">
         <h4>Stats</h4>
         <p><strong>Number of uses:</strong> {{ stats.total_uses }}</p>
         <p><strong>Status:</strong> <span style="color: {{ stats.status_color }}">{{ stats.status|translate }}</span></p>

@@ -9,6 +9,8 @@
         <script type="text/javascript">
             var WEBLAB_DEBUG = true;
             var gwt_experiment_config = {{ client_config|tojson }};
+            var experimentLoadedPromise = $.Deferred();
+            weblab.addExperimentLoadedPromise(experimentLoadedPromise.promise());
         </script>
         <style>
             .main_weblab {

@@ -255,6 +255,15 @@ public class JSBoardBaseController implements IBoardBaseController {
 			configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, value);
 		}
 	}-*/;
+
+    static native void experimentLoaded() /*-{
+        $wnd.experimentLoadedPromise.resolve();
+    }-*/;
+
+    static native void experimentLoadedFailed(String message) /*-{
+        $wnd.experimentLoadedPromise.reject({ error: message });
+    }-*/;
+
 	
 	public static native String getClientCodeName() /*-{
 		return $wnd.gwt_experiment_config.client_code_name;
@@ -304,12 +313,23 @@ public class JSBoardBaseController implements IBoardBaseController {
 	}
 	
 	public static void registerExperiment(ExperimentBase experiment) {
-		if (isStartReserved())
-			experiment.initializeReserved();
-		else
-			experiment.initialize();
-		
-		registerExperimentImpl(experiment);
+        boolean error = false;
+        try {
+            if (isStartReserved())
+                experiment.initializeReserved();
+            else
+                experiment.initialize();
+            
+            registerExperimentImpl(experiment);
+        } catch (RuntimeException e) {
+            error = true;
+            e.printStackTrace();
+            experimentLoadedFailed(e.getMessage());
+            throw e;
+        }
+        if (!error) {
+            experimentLoaded();
+        }
 	}
 	
 	static native boolean isStartReserved() /*-{

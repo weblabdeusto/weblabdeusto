@@ -3,6 +3,11 @@
     {% if not federated_mode %}
     <div class="container-fluid" id="loggedin-container" style="margin-bottom: 10px">
         <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                    <img id="logo" src="{{ url_for("core_web.logo") }}"/>
+                </a>
+            </div>
 
             {% if weblab_api.current_user %}
             <div class="col-xs-12 col-sm-9 pull-right" style="text-align: right">
@@ -22,12 +27,6 @@
                 </p>
             </div>
             {% endif %}
-
-            <div class="col-xs-12 col-sm-3">
-                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
-                    <img id="logo" class="img-responsive" src="{{ url_for("core_web.logo") }}"/>
-                </a>
-            </div>
         </div>
         <!-- !row -->
     </div>

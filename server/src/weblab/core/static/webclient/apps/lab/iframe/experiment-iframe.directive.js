@@ -11,8 +11,7 @@ function wlExperimentIframe($injector) {
             laburl: "=",
             experiment: "=",
             iframeurl: "=",
-            language: "=",
-            markAsLoaded: "&"
+            language: "="
         },
         templateUrl: EXPERIMENT_IFRAME_TEMPLATE_URL,
         controller: "ExperimentIframeController",
@@ -36,6 +35,7 @@ function wlExperimentIframe($injector) {
         // -------------
         iframe.load(handleLoadEvent);
         resizer.loadFrameResizer(iframe);
+        window.addEventListener('message', _processMessages, false);
 
         // -------------
         // Scope bindings & data
@@ -68,7 +68,15 @@ function wlExperimentIframe($injector) {
             // TODO: We should maybe consider removing this and just forcing experiment developers to include the library if they want to support proper resizing.
             resizer.injectScriptIntoFrame(iframe, IFRAME_RESIZER_URL); // Automatic iframe resizing.
 
-            scope.markAsLoaded();
+
+        }
+
+        function _processMessages(e) {
+            if (new String(e.data).indexOf("weblabdeusto::") == 0) {
+                if (new String(e.data) == "weblabdeusto::experimentLoaded") {
+                    scope.$emit("experimentLoaded");
+                }
+            }
         }
 
     } // !wlExperimentIframeLink

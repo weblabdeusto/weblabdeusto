@@ -10,8 +10,7 @@ function wlExpInfo() {
             latestuses: "=",
             stats: "=",
             reserve: "&",
-            isExperimentReserving: "&",
-            isExperimentLoading: "&"
+            reserveMessage: "="
         },
         templateUrl: EXPINFO_TEMPLATE_URL,
         link: wlExpInfoLink

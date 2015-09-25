@@ -175,9 +175,9 @@ def generate_proxy_handler(paths):
 
 DEBUG = False
 
-def start(port, paths):
+def start(port, paths, host = '0.0.0.0'):
     app = generate_proxy_handler(paths)
-    t = threading.Thread(target=app.run, kwargs = dict(port = port, threaded = True, debug = DEBUG, use_reloader = False))
+    t = threading.Thread(target=app.run, kwargs = dict(port = port, threaded = True, debug = DEBUG, use_reloader = False, host = host))
     t.setName('proxy-server:%s' % port)
     t.setDaemon(True)
     t.start()
