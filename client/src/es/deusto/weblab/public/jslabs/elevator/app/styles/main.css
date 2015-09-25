@@ -72,3 +72,36 @@ wl-webcam div img {
     display: inline-block;
     text-align: center;
 }
+
+/*****
+* For the progress bar
+*****/
+
+/* Ensure that the space taken by the progress bar is not removed when hidden */
+.wl-progress-bar.ng-hide {
+    display: block!important;
+    visibility: hidden;
+}
+
+
+/*****
+* Looks for the ACE EDITOR
+******/
+
+.ace-editor-wrapper
+{
+    padding: 5px;
+}
+
+.ace_editor
+{
+    font-size: 14pt;
+    height: 400px;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    border-bottom-right-radius: 0px;
+    margin-top: 5px;
+
+    margin-bottom: 100px;
+}
+
