@@ -55,17 +55,7 @@
 <div class="row">
 
     <div class="col-xs-10 col-xs-push-1">
-
-        <div class="ace-editor-wrapper">
-            <h3>VHDL editor</h3>
-            <div style="padding-bottom: 10px">
-                <button class="btn btn-primary"> <i class="glyphicon glyphicon-play-circle"/> Program code into device</button>
-                <button class="btn btn-info"> <i class="glyphicon glyphicon-save"/> Save to file</button>
-                <button class="btn btn-info"> <i class="glyphicon glyphicon-folder-open"/> Open from file</button>
-            </div>
-            <div ui-ace="aceOptions" ng-model="aceEditor.text"></div>
-        </div>
-
+        <wl-source-editor></wl-source-editor>
     </div>
 
 </div>

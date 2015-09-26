@@ -22,27 +22,6 @@ angular.module('elevatorApp')
       $scope.experiment.status = state
 
 
-    aceLoaded = (editor) ->
-      $scope._editor = editor
-      editor.setOptions({fontSize: '12pt'})
-
-    aceChanged = (editor) ->
-      # pass
-
-    # Initialize the HTML editor
-    $scope.aceOptions = {
-      useWrapMode : true,
-      showGutter : true,
-      showPrintMargin: true,
-      highlightActiveLine: true,
-      theme: 'chrome',
-      mode: 'vhdl',
-      firstLineNumber: 1,
-      onLoad: aceLoaded,
-      onChange: aceChanged
-    }
-
-
     # Get an appropriate description for the current status of the experiment.
     $scope.experiment.getStatusDescription = ->
       if $scope.experiment.status == 'not_ready'
