@@ -8,7 +8,6 @@ function wlExperimentIframe($injector) {
     return {
         restrict: "E",
         scope: {
-            laburl: "=",
             experiment: "=",
             iframeurl: "=",
             language: "="

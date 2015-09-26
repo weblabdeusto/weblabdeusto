@@ -4,7 +4,7 @@ from flask import render_template, url_for, request, flash, redirect, session
 
 from weblab.core.babel import gettext
 from weblab.core.exc import SessionNotFoundError
-from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data
+from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data, _hook_native_experiments
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
 
@@ -69,6 +69,7 @@ def lab_config(category_name, experiment_name):
         pass
     else:
         if experiment is not None:
+            _hook_native_experiments(experiment)
             experiment_config = experiment.client.configuration
 
     scripts = [
