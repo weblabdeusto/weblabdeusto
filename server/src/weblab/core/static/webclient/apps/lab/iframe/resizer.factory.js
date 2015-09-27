@@ -36,6 +36,7 @@ function ResizerFactory() {
                     if (!mHasBeenCalled) {
                         mHasBeenCalled = true;
                         iframeElement.iFrameResize({
+                            log: true,
                             enablePublicMethods: true,
                             checkOrigin: false
                         }, "#exp-frame");
@@ -56,6 +57,7 @@ function ResizerFactory() {
         if (!mHasBeenCalled) {
             mHasBeenCalled = true;
             iframeElement.iFrameResize({
+                log: true,
                 enablePublicMethods: true,
                 checkOrigin: false
             }, "#exp-frame");

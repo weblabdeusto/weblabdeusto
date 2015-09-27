@@ -16,9 +16,6 @@ package es.deusto.weblab.client.lab.experiments;
 
 import es.deusto.weblab.client.experiments.aquarium.AquariumCreatorFactory;
 import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
-import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
-import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
-import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
@@ -50,9 +47,6 @@ import es.deusto.weblab.client.lab.experiments.util.applets.js.JSAppCreatorFacto
 public class EntryRegistry {
 	
 	public static final IExperimentCreatorFactory [] creatorFactories = new IExperimentCreatorFactory[]{
-		new BlankCreatorFactory(),
-		new BlankLimitedMobileCreatorFactory(),
-		new BlankNoMobileCreatorFactory(),
 		new VisirCreatorFactory(),
 		new FlashAppCreatorFactory(),
 		new JavaAppletCreatorFactory(),

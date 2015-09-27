@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Redirect Experiment</title>
@@ -39,11 +39,13 @@
             var finalUrl = url.replace("TIME_REMAINING", time);
             if (config['link.presentation'] === 'iframe') {
                 // Load in an iframe: simply change the current frame (we're already in an iframe)
-                location.replace(finalUrl);
-            } else {
-                // Redirect
-                parent.location.replace(finalUrl);
+                console.log("NOT YET SUPPORTED");
+                // TODO Not yet working: if we do this, the Finish button etc. are not maintained, since weblab expects that this iframe has a weblab instance.
+                // We need to create an iframe, manage its height, and manage other events (e.g., potentially onEnd clean the experiment and so on)
+                // location.replace(finalUrl);
             }
+            // Redirect
+            parent.location.replace(finalUrl);
         });
     </script>
 </head>
@@ -56,5 +58,6 @@
         <p id="messages"></p>
         <p>Did you configure a 'redirect' client with a different experiment server?</p>
     </div>
+    <div id="space"></div>
 </body>
 </html>

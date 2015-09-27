@@ -862,7 +862,7 @@ def get_js_client_parameters():
 
 class ExperimentPanel(AdministratorModelView):
 
-    column_searchable_list = ('name',)
+    column_searchable_list = ('name','category.name','client')
     column_list = ('category', 'name', 'client', 'start_date', 'end_date', 'uses')
     column_labels = dict(category=lazy_gettext("Category"), name=lazy_gettext("Name"), client=lazy_gettext("Client"), start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"), uses=lazy_gettext("Uses"))
     form_excluded_columns = 'user_uses',
