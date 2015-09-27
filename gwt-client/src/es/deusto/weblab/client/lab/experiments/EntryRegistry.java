@@ -19,7 +19,6 @@ import es.deusto.weblab.client.experiments.binary.BinaryCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankLimitedMobileCreatorFactory;
 import es.deusto.weblab.client.experiments.blank.BlankNoMobileCreatorFactory;
-import es.deusto.weblab.client.experiments.controlapp.ControlAppCreatorFactory;
 import es.deusto.weblab.client.experiments.dummy.DummyCreatorFactory;
 import es.deusto.weblab.client.experiments.dummybatch.DummyBatchCreatorFactory;
 import es.deusto.weblab.client.experiments.gpib.GpibCreatorFactory;
@@ -30,7 +29,6 @@ import es.deusto.weblab.client.experiments.incubator.IncubatorCreatorFactory;
 import es.deusto.weblab.client.experiments.labview.LabVIEWCreatorFactory;
 import es.deusto.weblab.client.experiments.logic.LogicCreatorFactory;
 import es.deusto.weblab.client.experiments.pic18.Pic18CreatorFactory;
-import es.deusto.weblab.client.experiments.redirect.RedirectCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_maze.RobotMazeCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_movement.RobotMovementCreatorFactory;
 import es.deusto.weblab.client.experiments.robot_proglist.RobotProglistCreatorFactory;
@@ -77,10 +75,8 @@ public class EntryRegistry {
 		new SubmarineCreatorFactory(),
 		new ILabBatchCreatorFactory(),
 		new UnrCreatorFactory(),
-		new ControlAppCreatorFactory(),
 		new IncubatorCreatorFactory(),
 		new AquariumCreatorFactory(),
 		new RobotMazeCreatorFactory(),
-		new RedirectCreatorFactory(),
 	};
 }

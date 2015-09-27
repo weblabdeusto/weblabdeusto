@@ -6,12 +6,55 @@
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../weblabjs/weblab.js"></script>
     <script>
+        weblab.setOnGetInitialDataCallback(function() {
+            return {
+                back: parent.location.href
+            };
+        });
+
         weblab.onStart(function (time, initialConfig) {
+            try {
+                var results = JSON.parse(initialConfig);
+            } catch (E) {
+                $("messages_block").show();
+                $("messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive a JSON text, but it did not.");
+                console.log(E);
+                return;
+            }
+            var url = null;
+            try {
+                url = results['url'];
+            } catch (E) {
+                console.log(E);
+            }
+
+            if (url == null) {
+                $("messages_block").show();
+                $("messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive an initialization message that contains a 'url' and it did not.");
+            }
+            
+            // Everything is fine
             weblab.disableFinishOnClose();
-            parent.location.replace(JSON.parse(initialConfig)['url']);
+            var config = weblab.getConfiguration();
+            var finalUrl = url.replace("TIME_REMAINING", time);
+            if (config['link.presentation'] === 'iframe') {
+                // Load in an iframe: simply change the current frame (we're already in an iframe)
+                location.replace(finalUrl);
+            } else {
+                // Redirect
+                parent.location.replace(finalUrl);
+            }
         });
     </script>
 </head>
 <body>
+    <!-- 
+        This is a static, lightweight file. The only texts which are shown are when there is a configuration issue. No need for translation.
+    -->
+    <div id="message_block" class="alert alert-error col-md-6 col-md-offset-3 text-center" style="display: none">
+        <h3>Error</h3>
+        <p id="messages"></p>
+        <p>Did you configure a 'redirect' client with a different experiment server?</p>
+    </div>
 </body>
 </html>

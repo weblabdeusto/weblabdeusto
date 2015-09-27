@@ -59,11 +59,12 @@
             
         <div class="container-fluid">
             <a name="details"></a>
-            <h3>{{ gettext("Details") }}</h3>
+            <h3 ng-cloak ng-show="!experiment_list.loading">{{ gettext("Details") }}</h3>
 
             <div class="row">
-                <div ng-show="experiment_list.loading" class="well col-sm-10 col-sm-push-1">
+                <div ng-show="experiment_list.loading" class="well col-sm-10 col-sm-push-1 text-center">
                     <h3>{{ gettext("Loading laboratories...") }}</h3>
+                    <img class="rotating-ball" src="{{ url_for('.static', filename='img/flat_ball_201x201.png') }}">
                 </div>
 
                 <!-- Column for the labs themselves -->
