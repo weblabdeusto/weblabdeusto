@@ -35,9 +35,8 @@
             
             // Everything is fine
             weblab.disableFinishOnClose();
-            var config = weblab.getConfiguration();
             var finalUrl = url.replace("TIME_REMAINING", time);
-            if (config['link.presentation'] === 'iframe') {
+            if (weblab.config['link.presentation'] === 'iframe') {
                 // Load in an iframe: simply change the current frame (we're already in an iframe)
                 console.log("NOT YET SUPPORTED");
                 // TODO Not yet working: if we do this, the Finish button etc. are not maintained, since weblab expects that this iframe has a weblab instance.
