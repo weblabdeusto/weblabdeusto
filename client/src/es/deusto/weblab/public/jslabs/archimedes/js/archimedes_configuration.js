@@ -174,13 +174,11 @@
             "m3": "m\u00b3",
             "cm3": "cm\u00b3",
 
-            // For the Weight/Time plot
             "plot.explanation": "Measures the perceived weight of the ball as reported by the sensor. The depicted timeframe is that of the last ball movement.",
             "time.weight.plot" : "Time / Weight Plot",
             "weight.g" : "Weight (g)",
             "seconds.s" : "Seconds (s)",
 
-            // For the instance names.
             "instance1": "1st Tube",
             "instance2": "2nd Tube",
             "instance3": "3rd Tube",
@@ -191,7 +189,7 @@
             "instance8": "8th Tube",
 
             "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>"
-        },
+        }
 
     };
 
