@@ -205,6 +205,8 @@
             currentLanguage = "eu";
         } else if(href.search("locale=es") > 0) {
             currentLanguage = "es";
+        } else if(href.search("locale=nl") > 0) {
+            currentLanguage = "nl";
         }  // Other languages
     } catch (Er) {
         // Error, default to English
