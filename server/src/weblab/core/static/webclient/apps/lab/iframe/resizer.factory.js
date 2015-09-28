@@ -83,7 +83,9 @@ function ResizerFactory() {
     }
 
     function resize(iframeElement) {
-        iframeElement[0].iFrameResizer.resize();
+        if (iframeElement[0].iFrameResizer !== undefined && iframeElement[0].iFrameResizer.resize !== undefined) {
+            iframeElement[0].iFrameResizer.resize();
+        }
     }
 
 } // !ResizerFactory
