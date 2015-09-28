@@ -188,6 +188,7 @@ function LabController($scope, $injector, $http) {
         $scope.experiment.reloading = false;
         mExperimentLoaded.resolve();
         $scope.$apply();
+        $scope.$broadcast("experimentLoadedAndDisplayed");
     }
 
     function onExperimentLoaded(callback) {

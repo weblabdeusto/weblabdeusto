@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
     <title>Blank Experiment</title>
 </head>
@@ -7,15 +7,12 @@
     <div style="width: 100%; text-align: center">
         <div id="contents"></div>
     </div>
-
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../weblabjs/weblab.js"></script>
     <script>
         weblab.onConfigLoad(function () {
-            var config = weblab.getConfiguration();
-            if (config['html']) {
-                $("#contents").text(config['html']);
-                frameElement.iFrameResizer.resize();
+            if (weblab.config['html']) {
+                $("#contents").text(weblab.config['html']);
             }
         });
     </script>
