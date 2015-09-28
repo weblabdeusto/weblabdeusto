@@ -14,6 +14,7 @@ function ResizerFactory() {
     };
 
     var mHasBeenCalled = false;
+    var IFRAMERESIZER_LOG = IFRAMERESIZER_LOG || false;
 
 
     // ----------
@@ -35,10 +36,9 @@ function ResizerFactory() {
             var initResizeInterval = setInterval(function () {
                 if(iframeElement !== undefined) {
                     if (!mHasBeenCalled) {
-                        console.log(iframeElement.IFRAMERESIZER_HEIGHT_CALCULATION_METHOD);
                         mHasBeenCalled = true;
                         iframeElement.iFrameResize({
-                            log: true,
+                            log: IFRAMERESIZER_LOG,
                             enablePublicMethods: true,
                             checkOrigin: false
                         }, "#exp-frame");
@@ -58,9 +58,8 @@ function ResizerFactory() {
     function forceFrameResizer(iframeElement) {
         if (!mHasBeenCalled) {
             mHasBeenCalled = true;
-            console.log(iframeElement.IFRAMERESIZER_HEIGHT_CALCULATION_METHOD);
             iframeElement.iFrameResize({
-                log: true,
+                log: IFRAMERESIZER_LOG,
                 enablePublicMethods: true,
                 checkOrigin: false
             }, "#exp-frame");
