@@ -334,6 +334,11 @@ module.exports = function (grunt) {
           src: ['generated/*']
         }, {
           expand: true,
+          cwd: 'bower_components/ace-builds/src-min-noconflict',
+          src: ['mode-vhdl.js', 'theme-chrome.js'],
+          dest: '<%= yeoman.dist %>'
+        }, {
+          expand: true,
           cwd: 'bower_components/bootstrap/dist',
           src: 'fonts/*',
           dest: '<%= yeoman.dist %>'
