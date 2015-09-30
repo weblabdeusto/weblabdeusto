@@ -43,7 +43,6 @@ function LabController($scope, $injector, $http) {
     };
 
     $scope.experiment_iframe = {
-        laburl: WL_LAB_URL,
         experiment: EXPERIMENT_DATA,
         language: PREFERRED_LANGUAGE,
         iframe_url: "",
@@ -51,7 +50,7 @@ function LabController($scope, $injector, $http) {
     };
 
     if (CLIENT_TYPE == "js") {
-        if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0) {
+        if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0 || EXPERIMENT_DATA['config']['html.file'].indexOf('/') == 0) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
             $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
@@ -189,6 +188,7 @@ function LabController($scope, $injector, $http) {
         $scope.experiment.reloading = false;
         mExperimentLoaded.resolve();
         $scope.$apply();
+        $scope.$broadcast("experimentLoadedAndDisplayed");
     }
 
     function onExperimentLoaded(callback) {

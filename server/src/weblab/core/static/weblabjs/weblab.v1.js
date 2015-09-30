@@ -69,7 +69,8 @@ WeblabExp = function () {
     this.CORE_URL = ""; // Will be initialized through setTargetURLToStandard()
     this.currentURL = ""; // Will be initialized through _setCurrentURL()
 
-    var mConfiguration = {}; // Will be initialized on the start using the ?c=url argument
+    this.config = {}; // Will be initialized on the start using the ?c=url argument
+
     var mReservation; // Must be set through setReservation()
 
     // Callback reporting that the weblab instance has been configured. If no config is provided it's also established.
@@ -619,7 +620,7 @@ WeblabExp = function () {
      * Set the experiment configuration
      */
     this._setConfiguration = function(configuration) {
-        mConfiguration = configuration;
+        this.config = configuration;
     }
 
     /**
@@ -749,7 +750,7 @@ WeblabExp = function () {
      * Get the experiment configuration
      */
     this.getConfiguration = function() {
-        return mConfiguration;
+        return this.config;
     }
 
     /**

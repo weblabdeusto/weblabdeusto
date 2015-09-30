@@ -81,7 +81,18 @@ def safe_redirect(redir):
     except Exception:
         return None
 
+def _hook_native_experiments(experiment):
+    # FIXME: this will be removed with the specification issues
+    if experiment.client.client_id == 'redirect':
+        experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/redirect.html')
+        experiment.client.client_id = 'js'
+    elif experiment.client.client_id in ('blank', 'blank-mobile', 'blank-limited'):
+        experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/blank.html')
+        experiment.client.client_id = 'js'
+
+
 def _get_experiment_data(experiment_raw):
+    _hook_native_experiments(experiment_raw)
     exp = {}
     exp['name'] = experiment_raw.name
     # TODO: use a proper display name

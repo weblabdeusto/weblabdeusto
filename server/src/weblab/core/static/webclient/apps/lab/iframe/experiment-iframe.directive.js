@@ -8,7 +8,6 @@ function wlExperimentIframe($injector) {
     return {
         restrict: "E",
         scope: {
-            laburl: "=",
             experiment: "=",
             iframeurl: "=",
             language: "="
@@ -41,6 +40,7 @@ function wlExperimentIframe($injector) {
         // Scope bindings & data
         // -------------
         scope.$on("experimentFinished", onExperimentFinished);
+        scope.$on("experimentLoadedAndDisplayed", onExperimentLoadedAndDisplayed);
 
 
         // -------------
@@ -58,6 +58,10 @@ function wlExperimentIframe($injector) {
                 return val;
             });
         } // !onExperimentFinished
+
+        function onExperimentLoadedAndDisplayed() {
+            resizer.resize(iframe);
+        }
 
         /**
          * Inject the new experiment library and the compatibility layer which automagically is supposed to replace the old one.

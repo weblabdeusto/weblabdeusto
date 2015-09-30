@@ -30,7 +30,7 @@
     <div ng-controller="LabController">
         <div ng-show="isExperimentLoading()" class="row">
             <div class="col-xs-10 col-xs-offset-1 col-lg-offset-0 col-lg-4 col-lg-push-4 text-center well">
-                <h4>{{ gettext("Loading experiment...") }}</h4>
+                <h3>{{ gettext("Loading experiment...") }}</h3>
                 <img class="rotating-ball" src="{{ url_for('.static', filename='img/flat_ball_201x201.png') }}">
             </div>
         </div>
@@ -117,7 +117,7 @@
 
 
                     <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
-                    <wl-experiment-iframe ng-show="!isExperimentLoading() && experiment_iframe.shown" laburl="experiment_iframe.laburl" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
+                    <wl-experiment-iframe ng-show="!isExperimentLoading() && experiment_iframe.shown" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
                 </div>
 
                 <div class="container-fluid" style="margin-right: 30px; margin-left: 15px">

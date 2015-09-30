@@ -9,10 +9,12 @@ function ResizerFactory() {
     return {
         loadFrameResizer: loadFrameResizer,
         injectScriptIntoFrame: injectScriptIntoFrame,
-        forceFrameResizer: forceFrameResizer
+        forceFrameResizer: forceFrameResizer,
+        resize: resize
     };
 
     var mHasBeenCalled = false;
+    var IFRAMERESIZER_LOG = IFRAMERESIZER_LOG || false;
 
 
     // ----------
@@ -36,6 +38,7 @@ function ResizerFactory() {
                     if (!mHasBeenCalled) {
                         mHasBeenCalled = true;
                         iframeElement.iFrameResize({
+                            log: IFRAMERESIZER_LOG,
                             enablePublicMethods: true,
                             checkOrigin: false
                         }, "#exp-frame");
@@ -56,6 +59,7 @@ function ResizerFactory() {
         if (!mHasBeenCalled) {
             mHasBeenCalled = true;
             iframeElement.iFrameResize({
+                log: IFRAMERESIZER_LOG,
                 enablePublicMethods: true,
                 checkOrigin: false
             }, "#exp-frame");
@@ -78,6 +82,10 @@ function ResizerFactory() {
         myIframe.contentWindow.document.head.appendChild(script);
     }
 
-
+    function resize(iframeElement) {
+        if (iframeElement[0].iFrameResizer !== undefined && iframeElement[0].iFrameResizer.resize !== undefined) {
+            iframeElement[0].iFrameResizer.resize();
+        }
+    }
 
 } // !ResizerFactory
