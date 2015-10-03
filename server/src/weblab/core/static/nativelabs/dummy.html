@@ -23,6 +23,32 @@
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../weblabjs/weblab.v1.js"></script>
     <script type="text/javascript">
+        // Typically instead of this dummy library, it should be used something like 
+        // https://angular-translate.github.io/
+        // 
+        // This is not related with WebLab-Deusto at all. The only relevant here is that
+        // weblab.locale is the language (e.g., 'es' or 'en'). This variable is only available
+        // after configuration load (i.e., onConfigLoad).
+        var MESSAGES = {
+            "en" : {
+                "initial_message" : "Welcome to the experiment!!!",
+                "queue_message" : "We are showing this block when the user presses on reserve and until the user. You might want to show a carousel of pictures of the lab they will see or simply hide the initial block.",
+                "queue_header" : "Queue block"
+            }
+        };
+
+        function getMessage(key) {
+            var message = MESSAGES[weblab.locale][key];
+            if (message === undefined) {
+                message = MESSAGES["en"][key];
+                if (message === undefined) {
+                    message = "Message '" + key + "' not found";
+                } 
+            }
+            return message;
+        };
+    </script>
+    <script type="text/javascript">
         // There is always a global object called "weblab". It expects you
         // to interact with it by adding callbacks when things happen. It 
         // will tell you events such as "a new user is using the lab", and
@@ -43,8 +69,12 @@
             // weblab.config is a simple JavaScript object (e.g., {})
             var message = weblab.config['message'];
             if (message !== undefined) {
+                $("#initial_message").text(getMessage("initial_message"));
                 $("#welcome_message").text(message);
             }
+
+            // TODO
+            // weblab.setOnGetInitialDataCallback
         });
 
         // 
@@ -56,13 +86,29 @@
         // 
         weblab.onQueued(function () {
             $("#welcome_message").hide();
+            $("#queue_message").text(getMessage("queue_message"));
+            $("#queue_header").text(getMessage("queue_header"));
             $("#queued_block").show();
         });
 
         //
         // When a user
         weblab.onStart(function (time, initialConfig) {
+            // weblab.sendCommand
         });
+
+        // 
+        weblab.onEnd(function () {
+            
+        });
+        
+        // This method is called 
+        weblab.onFinish(function () {
+
+        });
+
+        // TODO
+        // weblab.disableFinishOnClose();
 
         // ADVANCED USAGE
         // - Manage postData
@@ -79,15 +125,13 @@
     and so on).
     -->
     <div id="initial_block">
-        <h3>Welcome to the experiment!!!</h3>
+        <h3 id="initial_message"></h3>
         <p id="welcome_message"></p>
     </div>
 
     <div id="queued_block" class="hidden">
-        <h3>Queue block</h3>
-        <p>We are showing this block when the user presses on reserve and 
-        until the user. You might want to show a carousel of pictures of the
-        lab they will see or simply hide the initial block.</p>
+        <h3 id="queue_header"></h3>
+        <p id="queue_message"></p>
     </div>
 
     <div id="main_block" class="hidden">
