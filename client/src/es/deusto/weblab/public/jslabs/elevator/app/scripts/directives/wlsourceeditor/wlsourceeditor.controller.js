@@ -27,7 +27,7 @@ function SourceEditorController($scope) {
     // SCOPE METHODS
     ////////////////////////////
 
-    $scope.alert = alertimpl;
+    $scope.msg = alertimpl;
 
     ////////////////////////////
     // IMPLEMENTATIONS

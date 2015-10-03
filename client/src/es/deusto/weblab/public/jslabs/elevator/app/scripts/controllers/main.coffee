@@ -12,7 +12,7 @@ angular.module('elevatorApp')
 
     # Create basic parameters for the whole experiment
     $scope.experiment = {}
-    $scope.experiment.status = 'ready'
+    $scope.experiment.status = 'not_ready'
 
     $scope.aceEditor = {}
     $scope.aceEditor.text = ""
