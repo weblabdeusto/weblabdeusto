@@ -70,6 +70,7 @@ WeblabExp = function () {
     this.currentURL = ""; // Will be initialized through _setCurrentURL()
 
     this.config = {}; // Will be initialized on the start using the ?c=url argument
+    this.locale = "en"; // Will be initialized on the start using the ?c=url argument
 
     var mReservation; // Must be set through setReservation()
 
@@ -638,6 +639,7 @@ WeblabExp = function () {
                 "dataType": "json",
             }).done(function (success, status, jqXHR) {
                 that._setTargetURL(success.targetURL);
+                that.locale = success.locale;
                 that._setCurrentURL(success.currentURL);
                 that._setConfiguration(success.config);
                 $.each(success.scripts, function(i, scriptURL) {
@@ -1080,8 +1082,7 @@ WeblabExp = function () {
                             currentURL = location.href;
                         }
 
-                        var remoteUrl = result['url'] + "client/federated.html#sessionID=" + remoteSessionID + "&back=" + currentURL;
-                        // TODO: locale
+                        var remoteUrl = result['url'] + "client/federated.html#sessionID=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
                         this.disableFinishOnClose();
 
                         if (mFrameMode) {
