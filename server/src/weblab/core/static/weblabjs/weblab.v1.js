@@ -1074,7 +1074,7 @@ WeblabExp = function () {
                 if (status === "Reservation::confirmed") {
                     // The reservation has succeded. We report this as done, with certain variables.
                     if (result['url'] && result['url'] != this.currentURL) {
-                        var remoteSessionID = result['remote_session_id']['id'];
+                        var remoteSessionID = result['remote_reservation_id']['id'];
                         var currentURL;
                         if (mFrameMode) {
                             currentURL = parent.location.href;
@@ -1082,7 +1082,7 @@ WeblabExp = function () {
                             currentURL = location.href;
                         }
 
-                        var remoteUrl = result['url'] + "client/federated.html#sessionID=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
+                        var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
                         this.disableFinishOnClose();
 
                         if (mFrameMode) {
@@ -1169,7 +1169,6 @@ WeblabExp = function () {
         this._reserveExperiment(sessionID, experimentName, experimentCategory)
             .done(function (reservationResponse) {
                 // This will call itself repeteadly if needed.
-                console.log(reservationResponse);
                 var reservationID = reservationResponse["reservation_id"]["id"];
                 this._checkStatus(reservationID, promise);
             }.bind(this))
