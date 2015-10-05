@@ -333,7 +333,7 @@ class ElevatorExperiment(Experiment.Experiment):
 
         # Set every Pulse to on (inactive) at the start.
         for i in range(10):
-            self._command_sender.send_command("SetPulse {0} on".format(i))
+            self._command_sender.send_command("SetPulse on {0}".format(i))
 
         return json.dumps({
             "initial_configuration": """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s, "max_use_time" : %s }""" % (
