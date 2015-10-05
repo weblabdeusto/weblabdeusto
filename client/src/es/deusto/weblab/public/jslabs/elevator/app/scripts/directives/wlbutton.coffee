@@ -9,6 +9,7 @@
  # TODO: Not yet implemented.
  # Command to turn a switch: ChangeSwitch off 0
  # Command to press a button: SetPulse off 0       |    SetPulse on 0
+ # In the elevator, the pulses are reversed. (Off is active, on is inactive).
 ###
 angular.module('elevatorApp')
   .directive('wlButton', ($timeout) ->
@@ -34,9 +35,9 @@ angular.module('elevatorApp')
 
         Weblab.dbgSetOfflineSendCommandResponse("ok")
 
-        Weblab.sendCommand "SetPulse on " + scope.ident,
+        Weblab.sendCommand "SetPulse=off " + scope.ident,
           =>
-            console.debug "SetPulse succeeded"
+            console.debug "SetPulse off succeeded"
             scope.isOn = true
             scope.isPressed = false
 
@@ -46,18 +47,18 @@ angular.module('elevatorApp')
                 Weblab.dbgSetOfflineSendCommandResponse "ok"
                 console.debug "Timeout Triggered"
 
-                Weblab.sendCommand "SetPulse off " + scope.ident,
+                Weblab.sendCommand "SetPulse=on " + scope.ident,
                   =>
-                    console.debug "SetPulse off succeded"
+                    console.debug "SetPulse on succeded"
                     scope.isOn = false
                     scope.isPressed = false
                   ,
                   =>
-                    console.debug "SetPulse off failed"
+                    console.debug "SetPulse on failed"
                     scope.button.isOn = false
                     scope.isPressed = false
               ),
-              2000
+              500
 
           ,
           =>
