@@ -35,9 +35,9 @@ angular.module('elevatorApp')
 
         Weblab.dbgSetOfflineSendCommandResponse("ok")
 
-        Weblab.sendCommand "SetPulse off " + scope.ident,
+        Weblab.sendCommand "SetPulse=off " + scope.ident,
           =>
-            console.debug "SetPulse succeeded"
+            console.debug "SetPulse off succeeded"
             scope.isOn = true
             scope.isPressed = false
 
@@ -47,7 +47,7 @@ angular.module('elevatorApp')
                 Weblab.dbgSetOfflineSendCommandResponse "ok"
                 console.debug "Timeout Triggered"
 
-                Weblab.sendCommand "SetPulse on " + scope.ident,
+                Weblab.sendCommand "SetPulse=on " + scope.ident,
                   =>
                     console.debug "SetPulse on succeded"
                     scope.isOn = false
