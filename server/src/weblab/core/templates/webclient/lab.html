@@ -80,7 +80,9 @@
                                 <strong>{{ "DESCRIPTION"|translate }}:</strong> {{ experiment_info.experiment.description }}
                             </p>
                         </div>
-                        
+                       
+                        <!-- TODO: if no picture is shown, Bootstrap jQuery code is run before Angular.js, so it is downloaded once and fails. 
+                        We should use an angularjs template or so, so only if there are images the component is called and instantiated -->
                         <div class="col-md-6" ng-if="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
                             <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
                               <!-- Indicators -->
