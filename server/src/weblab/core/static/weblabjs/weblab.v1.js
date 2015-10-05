@@ -70,6 +70,7 @@ WeblabExp = function () {
     this.currentURL = ""; // Will be initialized through _setCurrentURL()
 
     this.config = {}; // Will be initialized on the start using the ?c=url argument
+    this.locale = "en"; // Will be initialized on the start using the ?c=url argument
 
     var mReservation; // Must be set through setReservation()
 
@@ -638,6 +639,7 @@ WeblabExp = function () {
                 "dataType": "json",
             }).done(function (success, status, jqXHR) {
                 that._setTargetURL(success.targetURL);
+                that.locale = success.locale;
                 that._setCurrentURL(success.currentURL);
                 that._setConfiguration(success.config);
                 $.each(success.scripts, function(i, scriptURL) {
@@ -1072,7 +1074,7 @@ WeblabExp = function () {
                 if (status === "Reservation::confirmed") {
                     // The reservation has succeded. We report this as done, with certain variables.
                     if (result['url'] && result['url'] != this.currentURL) {
-                        var remoteSessionID = result['remote_session_id']['id'];
+                        var remoteSessionID = result['remote_reservation_id']['id'];
                         var currentURL;
                         if (mFrameMode) {
                             currentURL = parent.location.href;
@@ -1080,8 +1082,7 @@ WeblabExp = function () {
                             currentURL = location.href;
                         }
 
-                        var remoteUrl = result['url'] + "client/federated.html#sessionID=" + remoteSessionID + "&back=" + currentURL;
-                        // TODO: locale
+                        var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
                         this.disableFinishOnClose();
 
                         if (mFrameMode) {
@@ -1168,7 +1169,6 @@ WeblabExp = function () {
         this._reserveExperiment(sessionID, experimentName, experimentCategory)
             .done(function (reservationResponse) {
                 // This will call itself repeteadly if needed.
-                console.log(reservationResponse);
                 var reservationID = reservationResponse["reservation_id"]["id"];
                 this._checkStatus(reservationID, promise);
             }.bind(this))

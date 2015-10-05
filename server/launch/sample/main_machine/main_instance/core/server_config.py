@@ -99,7 +99,7 @@ ilab_microelectronics = ("ILAB_BATCH_QUEUE", {
 })
 
 weblabdeusto_federation_demo = ("EXTERNAL_WEBLAB_DEUSTO", {
-    'baseurl' : 'http://www.weblab.deusto.es/weblab/',
+    'baseurl' : 'http://weblab.deusto.es/weblab/',
     'username' : 'weblabfed',
     'password' : 'password',
     'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}

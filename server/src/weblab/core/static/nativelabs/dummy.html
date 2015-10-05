@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+    The purpose of this lab is simply show how the WebLab-Deusto API can be used
+    from JavaScript. This version only uses JavaScript and jQuery. There is another
+    version using angular.js, which is a great tool for developing HTML5 apps.
+    -->
+    <meta charset="UTF-8">
+
+    <title>Dummy Experiment</title>
+
+    <!-- Include the scripts: standard jQuery + weblab.v1.js -->
+    <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
+    <style>
+        /* We'll use this class to hide some contents */
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <!-- Include the scripts: standard jQuery + weblab.v1.js -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../weblabjs/weblab.v1.js"></script>
+    <script type="text/javascript">
+        // Typically instead of this dummy library, it should be used something like 
+        // https://angular-translate.github.io/
+        // 
+        // This is not related with WebLab-Deusto at all. The only relevant here is that
+        // weblab.locale is the language (e.g., 'es' or 'en'). This variable is only available
+        // after configuration load (i.e., onConfigLoad).
+        var MESSAGES = {
+            "en" : {
+                "initial_message" : "Welcome to the experiment!!!",
+                "queue_message" : "We are showing this block when the user presses on reserve and until the user. You might want to show a carousel of pictures of the lab they will see or simply hide the initial block.",
+                "queue_header" : "Queue block"
+            }
+        };
+
+        function getMessage(key) {
+            var message = MESSAGES[weblab.locale][key];
+            if (message === undefined) {
+                message = MESSAGES["en"][key];
+                if (message === undefined) {
+                    message = "Message '" + key + "' not found";
+                } 
+            }
+            return message;
+        };
+    </script>
+    <script type="text/javascript">
+        // There is always a global object called "weblab". It expects you
+        // to interact with it by adding callbacks when things happen. It 
+        // will tell you events such as "a new user is using the lab", and
+        // provides tools such as "send this command to the lab". However,
+        // *none* of the methods below are required. If you do nothing, 
+        // everything will work, but of course, nothing will be displayed.
+        
+        // 
+        // onConfigLoad receives a function whenever the configuration 
+        // has been loaded. From this point (and not before), you may access
+        // "weblab.config", which is configured in the WebLab Admin Panel by
+        // the administrator. Use it for particular parameters that the 
+        // teacher/admin might want to customize without writing code, 
+        // such as a message to be displayed, a restriction on what the lab
+        // does, certain adaptations, etc.
+        // 
+        weblab.onConfigLoad(function () {
+            // weblab.config is a simple JavaScript object (e.g., {})
+            var message = weblab.config['message'];
+            if (message !== undefined) {
+                $("#initial_message").text(getMessage("initial_message"));
+                $("#welcome_message").text(message);
+            }
+
+            // TODO
+            // weblab.setOnGetInitialDataCallback
+        });
+
+        // 
+        // When the user attempts to reserve the laboratory, this method is 
+        // called. You might hide menus that you were previously showing, and
+        // even show something else (e.g., carousel or so). Take into account
+        // that whenever the experiment is assigned, the following method (start)
+        // will be called.
+        // 
+        weblab.onQueued(function () {
+            $("#welcome_message").hide();
+            $("#queue_message").text(getMessage("queue_message"));
+            $("#queue_header").text(getMessage("queue_header"));
+            $("#queued_block").show();
+        });
+
+        //
+        // When a user
+        weblab.onStart(function (time, initialConfig) {
+            // weblab.sendCommand
+        });
+
+        // 
+        weblab.onEnd(function () {
+            
+        });
+        
+        // This method is called 
+        weblab.onFinish(function (initialData, endData) {
+
+        });
+
+        // TODO
+        // weblab.disableFinishOnClose();
+
+        // ADVANCED USAGE
+        // - Manage postData
+        // - Call when loaded
+    </script>
+</head>
+<body>
+    <!-- 
+    For the sake of simplicity, we are going to load different blocks, most of 
+    which are hidden at the beginning. This means that only one block will be 
+    shown at a time, and from JavaScript we will choose which block. None of the
+    following names (e.g., initial_block, queued_block) are important for WebLab, 
+    they are used in the JavaScript code above (e.g., $("#initial_block").hide(); 
+    and so on).
+    -->
+    <div id="initial_block">
+        <h3 id="initial_message"></h3>
+        <p id="welcome_message"></p>
+    </div>
+
+    <div id="queued_block" class="hidden">
+        <h3 id="queue_header"></h3>
+        <p id="queue_message"></p>
+    </div>
+
+    <div id="main_block" class="hidden">
+        <h3>Main block</h3>
+    </div>
+
+</body>
+</html>
