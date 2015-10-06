@@ -334,7 +334,7 @@ WeblabExp = function () {
     * Adds a promise that, whenever resolved, we can notify WebLab that this method has been properly loaded.
     * @param {promise} The result of a $.Deferred().promise();
     */
-    this.addExperimentLoadedPromise = function (promise) {
+    this.setExperimentLoadedPromise = function (promise) {
         mExperimentLoadedPromise = promise;
     };
 
