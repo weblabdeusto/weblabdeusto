@@ -299,7 +299,12 @@ class ElevatorExperiment(Experiment.Experiment):
 
     def _clear(self):
         try:
-            self._command_sender.send_command("CleanInputs")
+            # Set every Pulse to on (inactive) at the start.
+            for i in range(10):
+                self._command_sender.send_command("SetPulse=on {0}".format(i))
+            # Originally a CleanInputs command was sent. Something seems to fail,
+            # so for now CleanInputs is disabled and replaced by several SetPulse
+            # self._command_sender.send_command("CleanInputs")
         except Exception as e:
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
@@ -330,10 +335,6 @@ class ElevatorExperiment(Experiment.Experiment):
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
         self._current_state = STATE_NOT_READY
-
-        # Set every Pulse to on (inactive) at the start.
-        for i in range(10):
-            self._command_sender.send_command("SetPulse=on {0}".format(i))
 
         return json.dumps({
             "initial_configuration": """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s, "max_use_time" : %s }""" % (
