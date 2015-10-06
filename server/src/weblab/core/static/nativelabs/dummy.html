@@ -49,12 +49,14 @@
         };
     </script>
     <script type="text/javascript">
+        // 
         // There is always a global object called "weblab". It expects you
         // to interact with it by adding callbacks when things happen. It 
         // will tell you events such as "a new user is using the lab", and
         // provides tools such as "send this command to the lab". However,
         // *none* of the methods below are required. If you do nothing, 
         // everything will work, but of course, nothing will be displayed.
+        // 
         
         // 
         // onConfigLoad receives a function whenever the configuration 
@@ -72,10 +74,39 @@
                 $("#initial_message").text(getMessage("initial_message"));
                 $("#welcome_message").text(message);
             }
-
-            // TODO
-            // weblab.setOnGetInitialDataCallback
         });
+
+        // 
+        // While the laboratory is loading, a "Loading" message is displayed.
+        // This message, by default, is removed once the experiment loads the 
+        // configuration (which is managed internally). If there are critic 
+        // resources that need to be loaded (e.g., config files, external 
+        // resources, exiting frameworks, etc.) prior to showing the lab to 
+        // the final user (and letting the user to start the reservation), 
+        // you need to create a jQuery Deferred object and provide it as an
+        // argument to weblab.addExperimentLoadedPromise() as follows. Then
+        // you can call the .done or .fail method later on, and the "Loading"
+        // screen will be removed once the method is called and the basic
+        // weblab configuration is internally loaded.
+        // 
+        // var loadedCallback = $.Deferred();
+        // weblab.addExperimentLoadedPromise(loadedCallback.promise());
+        // (Later on:) loadedCallback.done();
+
+        // 
+        // setOnGetInitialDataCallback is provided only if there are some
+        // parameters of the experiment that need to be established before 
+        // starting the interacction. The message must be a JavaScript Object.
+        // This method is only called once the reserve button has been 
+        // pressed. The information will be provided in JSON to the 
+        // start_experiment method in the server side, as client initial data.
+        // 
+        weblab.setOnGetInitialDataCallback(function () {
+            return {
+                message: $("#initial_input").val()
+            };
+        });
+
 
         // 
         // When the user attempts to reserve the laboratory, this method is 
@@ -92,27 +123,72 @@
         });
 
         //
-        // When a user
+        // When it is confirmed by WebLab-Deusto that the current experiment
+        // has permission to use the laboratory, then this method is called.
+        // It provides two arguments: time (which is a float, representing the 
+        // number of seconds remaining in the current session) and 
+        // initialConfig, which is a String message provided by the experiment
+        // server. The format used is not defined, and it can be anything from
+        // a custom format (e.g., "webcamurl=http://...") to a XML or a JSON
+        // document. It is provided by the Experiment Server startExperiment 
+        // function, that you will have defined in the Experiment Server.
+        // 
+        // From this point, methods such as weblab.sendCommand() are available
+        // 
         weblab.onStart(function (time, initialConfig) {
-            // weblab.sendCommand
+            $("#queued_block").hide();
+            $("#main_block").show();
+            $("#main_button").click( function() {
+                // When you want to send messages to the Experiment server, use
+                // the sendCommand method. It returns a jQuery Deferred object
+                weblab.sendCommand("btn pressed")
+                    .done(function (response) {
+                        // The response message is a regular string
+                        $("#response").text(response);
+                    })
+                    .fail(function (error) {
+                        $("#response").text("There was an error: " + error);
+                    });
+            });
+        });
+
+        //
+        // When it is requested by WebLab-Deusto that the current experiment
+        // has finished (e.g., the user clicked on the finish button, or the 
+        // time passed, or an administrator kicked out the user). In this
+        // method, the experiment developer should clean the resources (e.g., 
+        // stop performing periodic tasks such as requesting new images for 
+        // the camera and so on).
+        // 
+        weblab.onEnd(function () {
+            $("#main_block").hide();
+            $("#initial_block").show();
+        });
+        
+        
+        // 
+        // If your experiment needs to process some data AFTER the end of the 
+        // experiment session, then use this method. It will be called once
+        // the experiment session is over, and it will wait for the results
+        // returned by the experiment session. Here, endData is provided by
+        // the dispose() method on the server side, and startData by the
+        // startExperiment(). Both data are provided just in case a batch
+        // laboratory approach is implemented.
+        // 
+        weblab.onFinish(function (initialData, endData) {
+            
         });
 
         // 
-        weblab.onEnd(function () {
-            
-        });
-        
-        // This method is called 
-        weblab.onFinish(function (initialData, endData) {
-
-        });
-
-        // TODO
+        // If, for any reason, you would like to manage the polling by your 
+        // own (e.g., you redirect the user outside this environment with
+        // a proper and custom token or so), then you should call this method.
+        // This way, whenever you close the experiment window, the experiment 
+        // will not be automatically disconnected. It also requires you to 
+        // provide new configuration (search manages_polling) in the experiment
+        // specification
+        // 
         // weblab.disableFinishOnClose();
-
-        // ADVANCED USAGE
-        // - Manage postData
-        // - Call when loaded
     </script>
 </head>
 <body>
@@ -127,6 +203,7 @@
     <div id="initial_block">
         <h3 id="initial_message"></h3>
         <p id="welcome_message"></p>
+        <input type="text" id="initial_input">
     </div>
 
     <div id="queued_block" class="hidden">
@@ -136,6 +213,8 @@
 
     <div id="main_block" class="hidden">
         <h3>Main block</h3>
+        <button class="btn btn-default" id="main_button"></button>
+        <p>Response: <span id="response"></span></p>
     </div>
 
 </body>
