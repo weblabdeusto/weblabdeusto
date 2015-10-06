@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo.orduna@deusto.es>
 *
 */
 
@@ -353,7 +353,7 @@ public class JSBoardBaseController implements IBoardBaseController {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::queued()();
 		});
 		
-		$wnd.weblab.onEnd(function() {
+		$wnd.weblab.onFinish(function() {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::end()();
 		});
 		

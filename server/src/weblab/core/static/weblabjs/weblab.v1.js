@@ -90,7 +90,7 @@ WeblabExp = function () {
     var mOnGetInitialDataCallback;
 
     // To store callbacks for the end
-    var mOnEndPromise = $.Deferred();
+    var mOnFinishPromise = $.Deferred();
 
     // To store callbacks for the finish
     var mOnProcessResultsPromise = $.Deferred();
@@ -551,7 +551,7 @@ WeblabExp = function () {
         if (!mEndCalled) {
             mEndCalled = true;
             justCalledEnd = true
-            mOnEndPromise.resolve();
+            mOnFinishPromise.resolve();
         }
 
         var promise = $.Deferred();
@@ -967,8 +967,8 @@ WeblabExp = function () {
 
 
     /**
-     * onEnd( endHandler ) -> promise
-     * onEnd() -> promise
+     * onFinish( finishHandler ) -> promise
+     * onFinish() -> promise
      *
      * Registers an end handler, which will be called when the experiment's interaction ends. Several end
      * handlers can be registered. Callbacks will be executed in FIFO order, as guaranteed by jQuery Deferred rules.
@@ -979,11 +979,11 @@ WeblabExp = function () {
      *
      * @returns {$.Promise} jQuery promise where the callbacks are stored. New callbacks can be attached through .done().
      */
-    this.onEnd = function (onEndHandler) {
-        if (onEndHandler != undefined) {
-            mOnEndPromise.done(onEndHandler.bind(this));
+    this.onFinish = function (onFinishHandler) {
+        if (onFinishHandler != undefined) {
+            mOnFinishPromise.done(onFinishHandler.bind(this));
         }
-        return mOnEndPromise.promise();
+        return mOnFinishPromise.promise();
     };
 
     /**
