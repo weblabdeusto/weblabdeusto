@@ -83,6 +83,7 @@ function LabController($scope, $injector, $http) {
     // -------------------------
 
     $scope.$on("experimentLoaded", markAsLoaded);
+    $scope.$on("experimentLoadingFailed", markAsLoadingFailed);
 
     // -------------------------
     // Scope methods
@@ -189,6 +190,11 @@ function LabController($scope, $injector, $http) {
         mExperimentLoaded.resolve();
         $scope.$apply();
         $scope.$broadcast("experimentLoadedAndDisplayed");
+    }
+
+    function markAsLoadingFailed() {
+        // TODO: TO BE IMPLEMENTED
+        console.log("TODO: show a message like 'Waited for too long, experiment probably failed'");
     }
 
     function onExperimentLoaded(callback) {

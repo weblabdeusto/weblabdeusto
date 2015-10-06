@@ -333,9 +333,14 @@ WeblabExp = function () {
     /**
     * Adds a promise that, whenever resolved, we can notify WebLab that this method has been properly loaded.
     * @param {promise} The result of a $.Deferred().promise();
+    * @param {seconds} An estimated amount of seconds to be loaded. After this time, it will show an error of 
+    *                  "experiment failed to load";
     */
-    this.setExperimentLoadedPromise = function (promise) {
+    this.setExperimentLoadedPromise = function (promise, seconds) {
         mExperimentLoadedPromise = promise;
+        if (seconds != undefined) {
+            window.parent.postMessage('weblabdeusto::experimentLoading::' + (seconds * 1000), '*');
+        }
     };
 
     // !!!!!!!!!!!!!!
