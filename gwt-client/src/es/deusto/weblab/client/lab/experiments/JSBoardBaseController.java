@@ -8,7 +8,7 @@
 * This software consists of contributions made by many individuals, 
 * listed below:
 *
-* Author: FILLME
+* Author: Pablo Orduña <pablo.orduna@deusto.es>
 *
 */
 
@@ -353,13 +353,13 @@ public class JSBoardBaseController implements IBoardBaseController {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::queued()();
 		});
 		
-		$wnd.weblab.onEnd(function() {
+		$wnd.weblab.onFinish(function() {
 			experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::end()();
 		});
 		
-		// only if it expects postEnd we call onFinish(). onFinish internally assumes the expectsPostEnd (if called, then it expects it)
+		// only if it expects postEnd we call onProcessResults(). onProcessResults internally assumes the expectsPostEnd (if called, then it expects it)
 		if (experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::expectsPostEnd()()) {
-			$wnd.weblab.onFinish(function(initialData, endData) {
+			$wnd.weblab.onProcessResults(function(initialData, endData) {
 				experiment.@es.deusto.weblab.client.lab.experiments.ExperimentBase::postEnd(Ljava/lang/String;Ljava/lang/String;)(initialData, endData);
 			});
 		}

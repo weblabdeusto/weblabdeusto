@@ -84,13 +84,13 @@
         // resources, exiting frameworks, etc.) prior to showing the lab to 
         // the final user (and letting the user to start the reservation), 
         // you need to create a jQuery Deferred object and provide it as an
-        // argument to weblab.addExperimentLoadedPromise() as follows. Then
+        // argument to weblab.setExperimentLoadedPromise() as follows. Then
         // you can call the .done or .fail method later on, and the "Loading"
         // screen will be removed once the method is called and the basic
         // weblab configuration is internally loaded.
         // 
         // var loadedCallback = $.Deferred();
-        // weblab.addExperimentLoadedPromise(loadedCallback.promise());
+        // weblab.setExperimentLoadedPromise(loadedCallback.promise());
         // (Later on:) loadedCallback.done();
 
         // 
@@ -160,7 +160,7 @@
         // stop performing periodic tasks such as requesting new images for 
         // the camera and so on).
         // 
-        weblab.onEnd(function () {
+        weblab.onFinish(function () {
             $("#main_block").hide();
             $("#initial_block").show();
         });
@@ -175,7 +175,7 @@
         // startExperiment(). Both data are provided just in case a batch
         // laboratory approach is implemented.
         // 
-        weblab.onFinish(function (initialData, endData) {
+        weblab.onProcessResults(function (initialData, endData) {
             
         });
 

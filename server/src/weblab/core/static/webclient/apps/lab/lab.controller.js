@@ -53,7 +53,12 @@ function LabController($scope, $injector, $http) {
         if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0 || EXPERIMENT_DATA['config']['html.file'].indexOf('/') == 0) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
-            $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
+            // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'local'. Otherwise, use the public dir.
+            if (EXPERIMENT_DATA['config']['html.dir'] == 'local') {
+                $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
+            } else {
+                $scope.experiment_iframe.iframe_url = WL_PUB_URL + EXPERIMENT_DATA['config']['html.file'];
+            }
         }
     } else {
         $scope.experiment_iframe.iframe_url = GWT_BASE_URL;
@@ -83,6 +88,7 @@ function LabController($scope, $injector, $http) {
     // -------------------------
 
     $scope.$on("experimentLoaded", markAsLoaded);
+    $scope.$on("experimentLoadingFailed", markAsLoadingFailed);
 
     // -------------------------
     // Scope methods
@@ -189,6 +195,11 @@ function LabController($scope, $injector, $http) {
         mExperimentLoaded.resolve();
         $scope.$apply();
         $scope.$broadcast("experimentLoadedAndDisplayed");
+    }
+
+    function markAsLoadingFailed() {
+        // TODO: TO BE IMPLEMENTED
+        console.log("TODO: show a message like 'Waited for too long, experiment probably failed'");
     }
 
     function onExperimentLoaded(callback) {
