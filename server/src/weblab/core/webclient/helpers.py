@@ -85,12 +85,12 @@ def _hook_native_experiments(experiment):
     # FIXME: this will be removed with the specification issues
     if experiment.client.client_id == 'redirect':
         experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/redirect.html')
-        experiment.client.configuration['html.dir'] = 'local'
+        experiment.client.configuration['html.dir'] = 'builtin'
         experiment.client.client_id = 'js'
 
     elif experiment.client.client_id in ('blank', 'blank-no-mobile', 'blank-limited'):
         experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/blank.html')
-        experiment.client.configuration['html.dir'] = 'local'
+        experiment.client.configuration['html.dir'] = 'builtin'
         experiment.client.client_id = 'js'
 
 

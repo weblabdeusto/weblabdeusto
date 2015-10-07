@@ -53,8 +53,8 @@ function LabController($scope, $injector, $http) {
         if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0 || EXPERIMENT_DATA['config']['html.file'].indexOf('/') == 0) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
-            // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'local'. Otherwise, use the public dir.
-            if (EXPERIMENT_DATA['config']['html.dir'] == 'local') {
+            // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'builtin'. Otherwise, use the public dir.
+            if (EXPERIMENT_DATA['config']['html.dir'] == 'builtin') {
                 $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
             } else {
                 $scope.experiment_iframe.iframe_url = WL_PUB_URL + EXPERIMENT_DATA['config']['html.file'];
