@@ -14,6 +14,8 @@
 #
 from __future__ import print_function, unicode_literals
 
+import os
+from flask import send_from_directory
 from weblab.core.wl import weblab_api
 
 @weblab_api.route_web('/pub/')
@@ -22,6 +24,7 @@ def pub_index():
 
 @weblab_api.route_web('/pub/<path:path>')
 def pub(path = ''):
-    # TODO: base_directory
+    deployment_dir = os.path.abspath(weblab_api.config.get('deployment_dir'))
+    base_directory = os.path.join(deployment_dir, 'pub')
     return send_from_directory(base_directory, path)
 
