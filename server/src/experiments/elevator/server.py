@@ -66,7 +66,7 @@ CFG_XILINX_MAX_USE_TIME = "xilinx_max_use_time"
 DEBUG = False
 
 
-#TODO: which exceptions should the user see and which ones should not?
+# TODO: which exceptions should the user see and which ones should not?
 class ElevatorExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
@@ -82,7 +82,8 @@ class ElevatorExperiment(Experiment.Experiment):
 
         # Board & Programming related attributes
         self._board_type = self._cfg_manager.get_value('xilinx_board_type', "")  # Read the board type: IE: FPGA
-        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type', "")  # Read the programmer type: IE: DigilentAdapt
+        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type',
+                                                            "")  # Read the programmer type: IE: DigilentAdapt
         self._programmer = self._load_programmer(self._programmer_type, self._board_type)
         self._command_sender = self._load_command_sender()
 
@@ -90,10 +91,10 @@ class ElevatorExperiment(Experiment.Experiment):
 
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
-        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
-        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
+        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25")  # Seconds
+        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90")  # Seconds
         self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', True)
-        self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False)  # Seconds
         self._max_use_time = self._cfg_manager.get_value('xilinx_max_use_time', 0)
 
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
@@ -198,7 +199,7 @@ class ElevatorExperiment(Experiment.Experiment):
         """
         self._current_state = STATE_SYNTHESIZING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._device_name.lower())
-        #c.DEBUG = True
+        # c.DEBUG = True
         content = base64.b64decode(file_content)
 
         done_already = c.is_same_as_last(content)
@@ -219,7 +220,7 @@ class ElevatorExperiment(Experiment.Experiment):
 
             # TODO: Fix this. Wrong work-around around a bug, so that it works during
             # controlled circumstances.
-            #if success is None: success = True
+            # if success is None: success = True
 
         if success is not None and not success:
             self._current_state = STATE_SYNTHESIZING_ERROR
@@ -235,7 +236,6 @@ class ElevatorExperiment(Experiment.Experiment):
             if DEBUG: print "[DBG]: Target file retrieved after successful compile. Now programming."
             c._compiling_result = "Synthesizing done."
             self._program_file_t(targetfile)
-
 
     @threaded()
     @logged("info", except_for='file_content')
@@ -273,7 +273,7 @@ class ElevatorExperiment(Experiment.Experiment):
                                              suffix='.' + self._programmer.get_suffix())
             try:
                 try:
-                    #TODO: encode? utf8?
+                    # TODO: encode? utf8?
                     if isinstance(file_content, unicode):
                         file_content_encoded = file_content.encode('utf8')
                     else:
@@ -290,7 +290,7 @@ class ElevatorExperiment(Experiment.Experiment):
                 # sys.stdout.flush()
         except Exception as e:
 
-            #TODO: test me
+            # TODO: test me
             log.log(ElevatorExperiment, log.level.Info,
                     "Exception programming the logic into the board: %s" % e.args[0])
             log.log_exc(ElevatorExperiment, log.level.Debug)
@@ -302,9 +302,9 @@ class ElevatorExperiment(Experiment.Experiment):
             # Set every Pulse to on (inactive) at the start.
             for i in range(10):
                 self._command_sender.send_command("SetPulse=on {0}".format(i))
-            # Originally a CleanInputs command was sent. Something seems to fail,
-            # so for now CleanInputs is disabled and replaced by several SetPulse
-            # self._command_sender.send_command("CleanInputs")
+                # Originally a CleanInputs command was sent. Something seems to fail,
+                # so for now CleanInputs is disabled and replaced by several SetPulse
+                # self._command_sender.send_command("CleanInputs")
         except Exception as e:
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
@@ -330,7 +330,6 @@ class ElevatorExperiment(Experiment.Experiment):
 
         return "ok"
 
-
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
@@ -339,7 +338,6 @@ class ElevatorExperiment(Experiment.Experiment):
         return json.dumps({
             "initial_configuration": """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s, "max_use_time" : %s }""" % (
                 self.webcam_url, self._programmer_time, self._synthesizer_time, self._max_use_time), "batch": False})
-
 
     def virtualworld_update(self, delta):
         """
@@ -408,7 +406,6 @@ class ElevatorExperiment(Experiment.Experiment):
                 return -1
 
         return 10  # We still haven't exceeded our time. Check again in ten seconds.
-
 
     @logged("info")
     @Override(Experiment.Experiment)
@@ -561,15 +558,14 @@ if __name__ == "__main__":
     print experiment.do_send_command_to_device("STATE")
     print experiment.do_should_finish()
 
-
-
 if __name__ == "__main__":
     from voodoo.configuration import ConfigurationManager
     from voodoo.sessions.session_id import SessionId
 
     cfg_manager = ConfigurationManager()
     try:
-        cfg_manager.append_path("../../../launch/sample/main_machine/main_instance/experiment_elevator/server_config.py")
+        cfg_manager.append_path(
+            "../../../launch/sample/main_machine/main_instance/experiment_elevator/server_config.py")
     except:
         cfg_manager.append_path("../launch/sample/main_machine/main_instance/experiment_elevator/server_config.py")
 
@@ -585,8 +581,6 @@ if __name__ == "__main__":
     print experiment.do_should_finish()
     print experiment.do_send_command_to_device("STATE")
     print experiment.do_should_finish()
-
-
 
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
     print experiment.do_send_command_to_device("ChangeSwitch on 1")
