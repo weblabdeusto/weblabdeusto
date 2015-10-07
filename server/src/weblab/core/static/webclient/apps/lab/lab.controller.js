@@ -34,6 +34,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
     $scope.experiment.loading = true;
+    $scope.experiment.loadingFailed = false;
     $scope.experiment.reloading = false;
     $scope.experiment.active = false;
     $scope.experiment.federated = FEDERATED_MODE;
@@ -191,6 +192,7 @@ function LabController($scope, $injector, $http) {
     
     function markAsLoaded() {
         $scope.experiment.loading = false;
+        $scope.experiment.loadingFailed = false;
         $scope.experiment.reloading = false;
         mExperimentLoaded.resolve();
         $scope.$apply();
@@ -198,8 +200,8 @@ function LabController($scope, $injector, $http) {
     }
 
     function markAsLoadingFailed() {
-        // TODO: TO BE IMPLEMENTED
-        console.log("TODO: show a message like 'Waited for too long, experiment probably failed'");
+        $scope.experiment.loadingFailed = true;
+        $scope.$apply();
     }
 
     function onExperimentLoaded(callback) {

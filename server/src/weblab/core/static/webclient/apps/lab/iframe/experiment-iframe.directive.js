@@ -67,6 +67,7 @@ function wlExperimentIframe($injector) {
         }
 
         function _timeoutFunction() {
+            console.log("Timeout happened");
             if (!loadedCalled) {
                 scope.$emit("experimentLoadingFailed");
             }
@@ -78,10 +79,10 @@ function wlExperimentIframe($injector) {
         function handleLoadEvent() {
             $log.debug("Injecting scripts");
 
+            loadingTimeout = setTimeout(_timeoutFunction, 40 * 1000); // 40 seconds
+
             // TODO: We should maybe consider removing this and just forcing experiment developers to include the library if they want to support proper resizing.
             resizer.injectScriptIntoFrame(iframe, IFRAME_RESIZER_URL); // Automatic iframe resizing.
-
-            loadingTimeout = setTimeout(_timeoutFunction, 40 * 1000); // 40 seconds
         }
 
         function _processMessages(e) {
